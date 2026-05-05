@@ -65,6 +65,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 $today = Get-Date -Format "yyyy-MM-dd"
 
 # Prepare custom replacements
@@ -101,18 +107,7 @@ try {
         $details += "Items to Prioritize: $ItemCount"
     }
 
-    $details += @(
-        "",
-        "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - CUSTOMIZATION REQUIRED 🚨🚨🚨",
-        "",
-        "⚠️  Populate the Priority Quadrant tables with debt items from the assessment.",
-        "⚠️  Complete the Priority Summary and Implementation Roadmap sections.",
-        "⚠️  Review Risk Analysis and Dependencies.",
-        "",
-        "📖 REFERENCE:",
-        "process-framework/guides/cyclical/prioritization-guide.md",
-        "🎯 FOCUS: Impact vs. Effort analysis methodology"
-    )
+    $details += "Customization required — see process-framework/guides/cyclical/prioritization-guide.md"
 
     Write-ProjectSuccess -Message "Created prioritization matrix with ID: $documentId" -Details $details
 }

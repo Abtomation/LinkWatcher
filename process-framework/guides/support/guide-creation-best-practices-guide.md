@@ -159,7 +159,7 @@ When creating guides, you must make several key decisions that impact effectiven
 - ❌ **INCORRECT**: Guide duplicates content already in task definitions
   **Impact**: Determines guide value and prevents framework redundancy
 
-> **🚨 ANTI-PATTERN WARNING**: "Task usage guides" that focus on task execution workflows are redundant with task definitions and create maintenance overhead. Always focus on artifact customization or general instruction instead.
+> **Note**: "Task usage guides" that focus on task execution workflows are redundant with task definitions and create maintenance overhead. Always focus on artifact customization or general instruction instead.
 
 ## Step-by-Step Instructions
 

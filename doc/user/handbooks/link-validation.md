@@ -38,11 +38,11 @@ python main.py --validate --project-root c:\path\to\project
 python main.py --validate --debug
 ```
 
-The command prints a summary to the console and writes a detailed report to `LinkWatcherBrokenLinks.txt`.
+The command prints a summary to the console and writes a detailed report to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt`.
 
 ## Reading the Report
 
-The report is written to `LinkWatcherBrokenLinks.txt` in the same directory as your log file (or the project root if no log file is configured).
+The report is written to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` in the same directory as your log file (or the project root if no log file is configured).
 
 ```
 ============================================================
@@ -173,7 +173,7 @@ doc/state-tracking/**/*.md -> old-module.py
 
 ### Report file location is unexpected
 
-**Problem:** You can't find `LinkWatcherBrokenLinks.txt`.
+**Problem:** You can't find `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt`.
 
 **Solution:** The report is written to:
 1. The parent directory of `--log-file` (if specified)

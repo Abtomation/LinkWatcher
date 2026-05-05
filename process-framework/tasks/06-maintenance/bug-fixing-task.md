@@ -2,9 +2,9 @@
 id: PF-TSK-007
 type: Process Framework
 category: Task Definition
-version: 2.0
+version: 2.1
 created: 2023-06-15
-updated: 2026-04-08
+updated: 2026-05-05
 ---
 
 # Bug Fixing
@@ -50,7 +50,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Always create or update tests to verify fixes and prevent regression.**
 >
@@ -59,6 +59,8 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
+
+> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code defects only**. If the affected file(s) live in `process-framework/`, `process-framework-local/`, or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Framework defects are tracked as IMPs and resolved through [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) — file via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1), not [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1). **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#step-1-what-are-you-working-on).
 
 1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify a bug ready for fixing (status 🔍 Needs Fix)
 2. If no bugs with status 🔍 Needs Fix are found but bugs with status 🆕 Needs Triage exist, **ask the human partner** whether to switch to [Bug Triage](bug-triage-task.md) first. Do not proceed with an un-triaged bug.
@@ -84,12 +86,12 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
      ```
 11. **🚨 CHECKPOINT**: Present reproduction results, affected code area analysis, workflow blast radius, and proposed investigation approach to human partner
    - **S-scope quick path**: If the bug meets **all** quick path criteria — (1) Scope = S, (2) no E2E test groups affected, (3) root cause is obvious or already known — then this session combines triage (if needed), fix, and self-review into a single flow:
-     - If the bug is 🆕 Needs Triage: perform inline triage — assign priority, scope=S, dims — and transition to 🔍 Needs Fix using `Update-BugStatus.ps1 -NewStatus "NeedsFix" -Priority "..." -Scope "S" -Dims "..."`
+     - If the bug is 🆕 Needs Triage: perform inline triage — assign priority, scope=S, related feature, dims — and transition to 🔍 Needs Fix using `Update-BugStatus.ps1 -NewStatus "NeedsFix" -Priority "..." -Scope "S" -RelatedFeature "..." -Dims "..."`
      - Combine with Step 14 — present reproduction, root cause analysis, and proposed fix approach in a single checkpoint
      - After approval, skip directly to Step 15
      - After human approval at Step 23 checkpoint: close the bug in one call using `-FastClose`:
        ```powershell
-       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -FastClose -Priority "Medium" -Scope "S" -Dims "CQ" -FixDetails "..." -RootCause "..." -TestsAdded "Yes" -VerificationNotes "S-scope quick path: human-approved at checkpoint"
+       ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -FastClose -Priority "Medium" -Scope "S" -RelatedFeature "1.1.1" -Dims "CQ" -FixDetails "..." -RootCause "..." -TestsAdded "Yes" -VerificationNotes "S-scope quick path: human-approved at checkpoint"
        ```
        This chains NeedsFix → InProgress → Closed in a single script call. No separate Code Review task needed.
      - Skip Step 24. Proceed directly to the completion checklist (Step 33)
@@ -102,6 +104,11 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
    - **Won't Fix**: If investigation confirms a real bug but the fix cost is disproportionate to impact (e.g., requires architectural changes for an edge case, performance fix with negligible real-world benefit) — present the cost/benefit analysis to the human partner. If they agree, transition to **Rejected** and skip to finalization:
      ```powershell
      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "Won't fix — [cost/benefit rationale]"
+     ```
+     Then skip directly to Step 29 (verify tracking update) → Step 33 (completion checklist). Steps 12–28 do not apply.
+   - **Other**: For rejection rationales not matching the above (e.g., duplicate of in-flight work where the bug is the user-observable symptom of an already-tracked TD/IMP/feature) — present the evidence to the human partner. If they agree, transition to **Rejected** with a clear RejectionReason naming the rationale and any relevant tracker. If the rejection cross-references another tracked item, also add a back-reference from that item to the bug for bidirectional traceability:
+     ```powershell
+     ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "Rejected" -RejectionReason "[Rationale summary] — [evidence/tracker reference]"
      ```
      Then skip directly to Step 29 (verify tracking update) → Step 33 (completion checklist). Steps 12–28 do not apply.
 
@@ -205,7 +212,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 The following state files must be updated as part of this task:
 
 - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Update with:
-  - Bug status progression: 🔍 Needs Fix → 🟡 In Progress → 👀 Needs Review (then Code Review closes to 🔒 Closed), or S-scope quick path: 🟡 In Progress → 🔒 Closed at checkpoint, or 🟡 In Progress → ❌ Rejected for not-a-bug / won't-fix
+  - Bug status progression: 🔍 Needs Fix → 🟡 In Progress → 👀 Needs Review (then Code Review closes to 🔒 Closed), or S-scope quick path: 🟡 In Progress → 🔒 Closed at checkpoint, or 🟡 In Progress → ❌ Rejected (not-a-bug, won't-fix, or other rationale per Step 11)
   - Fix date and resolution details
   - Root cause analysis and solution approach
   - Link to relevant pull request or commit (if applicable)
@@ -225,7 +232,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

@@ -9,12 +9,15 @@ This script automates debt item lifecycle management in technical-debt-tracking.
 Optionally updates the validation tracking file when resolving or adding debt items
 tracked in validation (via -ValidationNote and -ValidationIssueId parameters).
 
-Supports three operation modes:
+Supports four operation modes:
 1. Add new debt item: Generates next TD### ID, inserts row into Registry table, optionally
    updates the associated PF-TDI debt item file with the assigned ID
 2. Status-only update: Changes Status and Resolution Date columns in the Registry table
 3. Completion (Resolved): Moves debt item from Registry to "Recently Resolved" section,
    drops Estimated Effort and Status columns, sets Resolution Date, updates frontmatter date
+4. In-place edit of open item: Replaces the Description and/or Notes column on a TD item
+   still in the Registry table (-EditDescription / -EditNotes), without changing status.
+   Use case: a refactoring resolves a sub-item of another open TD without resolving the whole TD.
 
 Registry table columns (11):
   | ID | Description | Dims | Location | Created Date | Priority | Estimated Effort | Status | Resolution Date | Assessment ID | Notes |
@@ -31,7 +34,8 @@ Switch to add a new debt item. Auto-generates the next TD### ID.
 Description of the technical debt item (required for Add).
 
 .PARAMETER Dims
-Dimension abbreviation(s) for the debt item (required for Add). Space-separated if multiple.
+Dimension abbreviation(s) for the debt item (required for Add). Multi-value supported:
+separate codes with whitespace or comma (e.g., "CQ", "CQ DA", "CQ, DA").
 Valid values: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC
 See Development Dimensions Guide for definitions.
 
@@ -79,8 +83,21 @@ Description of what was done. Required when NewStatus is Resolved or Rejected.
 Appended to the Notes column in the Recently Resolved table.
 
 .PARAMETER PlanLink
-Optional markdown link to the refactoring plan (e.g., "[TD006](/doc/refactoring/plans/archive/td006.md)").
-When provided, replaces the plain ID in the Recently Resolved table.
+Optional reference to the refactoring plan. Accepts either:
+  - A complete markdown link with DebtId as link text: "[TD006](path/to/plan.md)"
+  - A bare path (auto-wrapped with DebtId): "path/to/plan.md"
+When provided, the ID column in the Recently Resolved table becomes a clickable link to the plan.
+
+⚠️ Windows + bash MSYS path-mangling hazard:
+Paths starting with a leading slash (/doc/...) are silently rewritten by MSYS
+to absolute Git-installation paths (e.g., "C:/Program Files/Git/doc/...") before
+PowerShell sees them. ALWAYS use a relative path WITHOUT a leading slash:
+  ✅ "doc/refactoring/plans/foo.md"
+  ❌ "/doc/refactoring/plans/foo.md"     (MSYS mangles this)
+The script detects the mangled prefix at runtime and rejects, but using the
+relative form from the start avoids the failed call.
+
+Invalid formats are rejected: mismatched TD ID, no path separator, or MSYS-mangled paths containing "Program Files/Git".
 
 .PARAMETER ValidationNote
 Optional status text for the validation tracking file's issue tables.
@@ -98,6 +115,20 @@ searching by DebtId in "Tracked As" column. Use this when the validation issue w
 non-TD ID (e.g., OB-R3-004) that differs from the TD### registry ID.
 The validation tracking file is auto-discovered from doc/state-tracking/validation/.
 
+.PARAMETER EditDescription
+Replaces the Description column of an open TD item in the Registry table (OpenEdit mode).
+Pass the full new value — the existing Description is overwritten, not appended to.
+Use when a refactoring partially scopes another open TD (e.g., a sub-item is resolved
+bundled with a different fix) and the description needs to be trimmed or amended without
+resolving the whole TD. For items already in the Recently Resolved section, use
+-Section "Resolved" -ResolvedDebtId -UpdateNotes instead.
+
+.PARAMETER EditNotes
+Replaces the Notes column of an open TD item in the Registry table (OpenEdit mode).
+Pass the full new value — the existing Notes is overwritten, not appended to. To append,
+pass "<old> <new>" yourself. For items already in Recently Resolved, use the ResolvedUpdate
+parameter set (-Section "Resolved" -ResolvedDebtId -UpdateNotes), which appends.
+
 .EXAMPLE
 # Add a new debt item
 Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Dims "CQ" -Location "src/linkwatcher/parsers" -Priority "Medium" -EstimatedEffort "2 hours"
@@ -105,6 +136,10 @@ Update-TechDebt.ps1 -Add -Description "Missing error handling in parser" -Dims "
 .EXAMPLE
 # Add a new debt item with assessment and debt item links
 Update-TechDebt.ps1 -Add -Description "Missing Repository Pattern" -Dims "AC" -Location "lib/services/" -Priority "Critical" -EstimatedEffort "1-2 weeks" -AssessmentId "PF-TDA-001" -DebtItemId "PF-TDI-001"
+
+.EXAMPLE
+# Add a debt item spanning multiple dimensions (whitespace or comma-separated)
+Update-TechDebt.ps1 -Add -Description "Logging missing across parser layer" -Dims "CQ OB" -Location "src/linkwatcher/parsers" -Priority "Medium" -EstimatedEffort "4 hours"
 
 .EXAMPLE
 # Mark debt item as in progress
@@ -121,6 +156,10 @@ Update-TechDebt.ps1 -DebtId "TD064" -NewStatus "Rejected" -ResolutionNotes "Reje
 .EXAMPLE
 # Resolve with plan link
 Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted public API methods." -PlanLink "[TD006](../../../doc/refactoring/plans/archive/td006-encapsulation-violation-fix.md)"
+
+.EXAMPLE
+# Resolve with bare path (auto-wrapped with DebtId)
+Update-TechDebt.ps1 -DebtId "TD006" -NewStatus "Resolved" -ResolutionNotes "Extracted." -PlanLink "doc/refactoring/plans/archive/td006-encapsulation-violation-fix.md"
 
 .EXAMPLE
 # Add a new debt item linked to a validation issue (auto-fills "Tracked As" column)
@@ -143,6 +182,18 @@ Update-TechDebt.ps1 -DebtId "TD188" -NewStatus "Resolved" -ResolutionNotes "Upda
 Update-TechDebt.ps1 -Section "Resolved" -ResolvedDebtId "TD011" -UpdateNotes "Plan link: [TD011](../archive/td011.md)"
 
 .EXAMPLE
+# Edit description of an open debt item (e.g., trim a sub-item resolved bundled with another TD)
+Update-TechDebt.ps1 -DebtId "TD249" -EditDescription "Tighten 3 useless tolerances in test_large_projects.py: PH-001 move, PH-002 scan, PH-002 move."
+
+.EXAMPLE
+# Edit notes of an open debt item (replaces — pass full new value)
+Update-TechDebt.ps1 -DebtId "TD249" -EditNotes "PH-008 sub-item resolved bundled with TD247 (PD-REF-217)."
+
+.EXAMPLE
+# Edit both description and notes in one call
+Update-TechDebt.ps1 -DebtId "TD249" -EditDescription "Tighten 3 PH-tolerances..." -EditNotes "PH-008 sub-item resolved by TD247."
+
+.EXAMPLE
 # List valid dimension codes and descriptions
 Update-TechDebt.ps1 -ListDims
 
@@ -156,6 +207,13 @@ This script is part of the Technical Debt automation system and integrates with:
 Updates the following files:
 - doc/state-tracking/permanent/technical-debt-tracking.md (always)
 - Validation tracking file (auto-discovered, when -ValidationNote or -ValidationIssueId are provided)
+
+Output behavior: Default output is one summary line per invocation (the operation
+outcome, e.g. "TD123 → Resolved (moved to Recently Resolved)"), plus one extra line
+per side-effect file write (validation-tracking link/update, debt item file update).
+WARN and ERROR messages always pass through. Pass -Verbose to restore the full
+play-by-play log (banner, parameter echoes, prereq narration, per-step transformer
+messages) for debugging.
 #>
 
 [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'StatusUpdate')]
@@ -168,7 +226,18 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
-    [ValidateSet("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI", "TST", "AIC")]
+    [ValidateScript({
+        $validDims = @("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI", "TST", "AIC")
+        $tokens = $_ -split '[\s,]+' | Where-Object { $_ -ne '' }
+        if ($tokens.Count -eq 0) {
+            throw "-Dims cannot be empty. Provide one or more codes (e.g., 'CQ' or 'CQ DA'). Valid: $($validDims -join ', ')"
+        }
+        $invalid = $tokens | Where-Object { $_ -notin $validDims }
+        if ($invalid) {
+            throw "Invalid -Dims code(s): $($invalid -join ', '). Valid codes: $($validDims -join ', '). Use space or comma to separate multiple."
+        }
+        return $true
+    })]
     [string]$Dims,
 
     [Parameter(Mandatory = $true, ParameterSetName = 'AddNew')]
@@ -190,8 +259,9 @@ param(
     [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
     [string]$Notes,
 
-    # --- StatusUpdate parameter set ---
+    # --- StatusUpdate / OpenEdit parameter sets ---
     [Parameter(Mandatory = $true, ParameterSetName = 'StatusUpdate')]
+    [Parameter(Mandatory = $true, ParameterSetName = 'OpenEdit')]
     [ValidatePattern('^TD\d+$')]
     [string]$DebtId,
 
@@ -211,6 +281,13 @@ param(
     [Parameter(Mandatory = $false, ParameterSetName = 'AddNew')]
     [Parameter(Mandatory = $false, ParameterSetName = 'StatusUpdate')]
     [string[]]$ValidationIssueId,
+
+    # --- OpenEdit parameter set ---
+    [Parameter(Mandatory = $false, ParameterSetName = 'OpenEdit')]
+    [string]$EditDescription,
+
+    [Parameter(Mandatory = $false, ParameterSetName = 'OpenEdit')]
+    [string]$EditNotes,
 
     # --- ResolvedUpdate parameter set ---
     [Parameter(Mandatory = $true, ParameterSetName = 'ResolvedUpdate')]
@@ -235,12 +312,22 @@ $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+# Temporarily silence $VerbosePreference around the import so -Verbose callers see
+# only this script's own Write-Verbose output, not the helper module's internal
+# Write-Verbose chatter (and its cascaded sub-module Import-Module messages).
+$prevVerbosePreference = $VerbosePreference
+$VerbosePreference = 'SilentlyContinue'
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+$VerbosePreference = $prevVerbosePreference
 
 $ProjectRoot = Get-ProjectRoot
 $TargetFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/technical-debt-tracking.md"
 $ScriptName = "Update-TechDebt.ps1"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
+
+# Soak verification (PF-PRO-028 — see process-framework/state-tracking/permanent/script-soak-tracking.md)
+$soakScriptId = "process-framework/scripts/update/Update-TechDebt.ps1"
+$soakInSoak   = Test-ScriptInSoak -ScriptId $soakScriptId -ScriptPath $PSCommandPath
 
 # --- ListDims handler (early exit) ---
 
@@ -264,16 +351,29 @@ if ($ListDims) {
 # --- Shared utilities ---
 
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Message, [string]$Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $(
-        switch ($Level) {
-            "ERROR" { "Red" }
-            "WARN" { "Yellow" }
-            "SUCCESS" { "Green" }
-            default { "White" }
-        }
-    )
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
 
 function Test-Prerequisites {
@@ -287,6 +387,13 @@ function Test-Prerequisites {
     if ($PSCmdlet.ParameterSetName -eq 'StatusUpdate') {
         if ($NewStatus -in @("Resolved", "Rejected") -and -not $ResolutionNotes) {
             Write-Log "ResolutionNotes is required when transitioning to $NewStatus" -Level "ERROR"
+            return $false
+        }
+    }
+
+    if ($PSCmdlet.ParameterSetName -eq 'OpenEdit') {
+        if (-not $EditDescription -and -not $EditNotes) {
+            Write-Log "At least one of -EditDescription or -EditNotes is required for OpenEdit mode" -Level "ERROR"
             return $false
         }
     }
@@ -421,7 +528,7 @@ function Update-DebtItemFile {
 
     if ($PSCmdlet.ShouldProcess($debtItemFile, "Update debt item file with registry ID $RegistryId")) {
         Set-Content -Path $debtItemFile -Value $updatedContent -NoNewline
-        Write-Log "Updated debt item file $DebtItemId with registry ID $RegistryId" -Level "SUCCESS"
+        Write-SummaryLine "Updated debt item file $DebtItemId with registry ID $RegistryId"
     }
 }
 
@@ -461,6 +568,61 @@ function Update-StatusInPlace {
     return $result
 }
 
+function Update-RegistryItem {
+    <#
+    .SYNOPSIS
+    Replaces the Description and/or Notes column of an open debt item in the Registry table.
+    Section-restricted to ## Technical Debt Registry (will not match resolved items).
+    Returns $null if the item is not found in the Registry.
+    #>
+    param(
+        [string]$Content,
+        [string]$DebtId,
+        [string]$EditDescription,
+        [string]$EditNotes
+    )
+
+    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+
+    $rowIndex = -1
+    $inRegistrySection = $false
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match "^## Technical Debt Registry") { $inRegistrySection = $true }
+        if ($lines[$i] -match "^## Recently Resolved") { break }
+        if ($inRegistrySection -and $lines[$i] -match "^\|\s*(?:\[)?$DebtId(?:\]|\s*\|)") {
+            $rowIndex = $i
+            break
+        }
+    }
+
+    if ($rowIndex -eq -1) {
+        Write-Log "Could not find $DebtId in ## Technical Debt Registry. For items in Recently Resolved, use -Section 'Resolved' -ResolvedDebtId $DebtId -UpdateNotes." -Level "ERROR"
+        return $null
+    }
+
+    # Parse 11 columns: ID, Description, Dims, Location, Created Date, Priority, Estimated Effort, Status, Resolution Date, Assessment ID, Notes
+    $row = $lines[$rowIndex]
+    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
+    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
+    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+
+    $changes = @()
+    if ($EditDescription) {
+        $columns[1] = $EditDescription
+        $changes += 'Description'
+    }
+    if ($EditNotes) {
+        $columns[10] = $EditNotes
+        $changes += 'Notes'
+    }
+
+    $updatedRow = "| " + ($columns -join " | ") + " |"
+    $lines[$rowIndex] = $updatedRow
+
+    Write-Log "Updated $DebtId in Registry: $($changes -join ' + ') replaced" -Level "SUCCESS"
+    return ($lines -join "`r`n")
+}
+
 function Move-ToResolvedSection {
     param(
         [string]$Content,
@@ -498,7 +660,28 @@ function Move-ToResolvedSection {
     # Extract fields for the Resolved table (9 columns)
     # Drop: Estimated Effort (idx 6), Status (idx 7)
     # Set: Resolution Date (was idx 8) to current date
-    $idValue = if ($PlanLink) { $PlanLink } else { $columns[0] }
+
+    # Validate and normalize PlanLink (PF-IMP-620: prevent silent ID-column corruption).
+    # Accept either a complete markdown link [<DebtId>](path) or a bare path (auto-wrapped).
+    if ($PlanLink) {
+        if ($PlanLink -match 'Program Files/Git') {
+            Write-Log "PlanLink appears MSYS-mangled (contains 'Program Files/Git'): '$PlanLink'. On Windows + bash, leading-slash paths are rewritten by MSYS before PowerShell sees them. Quote the path or use a relative path without leading slash." -Level "ERROR"
+            return $null
+        }
+        if ($PlanLink -match "^\[$DebtId\]\(.+\)$") {
+            $idValue = $PlanLink
+        }
+        elseif ($PlanLink -notmatch '^\[' -and $PlanLink -match '[/\\]') {
+            $idValue = "[$DebtId]($PlanLink)"
+        }
+        else {
+            Write-Log "PlanLink format invalid: '$PlanLink'. Expected either '[$DebtId](path/to/plan.md)' or a bare path 'path/to/plan.md'." -Level "ERROR"
+            return $null
+        }
+    }
+    else {
+        $idValue = $columns[0]
+    }
     $description = $columns[1]
     $category = $columns[2]
     $location = $columns[3]
@@ -640,7 +823,7 @@ function Update-ValidationTrackingLink {
 
     if ($PSCmdlet.ShouldProcess($TrackingFilePath, "Link $ValidationIssueId to $DebtId in Tracked As column")) {
         Set-Content -Path $TrackingFilePath -Value $updatedContent -NoNewline
-        Write-Log "Linked $ValidationIssueId → $DebtId in $($TrackingFilePath | Split-Path -Leaf)" -Level "SUCCESS"
+        Write-SummaryLine "Linked $ValidationIssueId → $DebtId in $($TrackingFilePath | Split-Path -Leaf)"
     }
 }
 
@@ -710,7 +893,7 @@ function Update-ValidationTracking {
 
     if ($PSCmdlet.ShouldProcess($TrackingFilePath, "Update $DebtId status to RESOLVED with note '$ValidationNote'")) {
         Set-Content -Path $TrackingFilePath -Value $updatedContent -NoNewline
-        Write-Log "Updated $DebtId in $($TrackingFilePath | Split-Path -Leaf): RESOLVED — $ValidationNote" -Level "SUCCESS"
+        Write-SummaryLine "Updated $DebtId in $($TrackingFilePath | Split-Path -Leaf): RESOLVED — $ValidationNote"
     }
 }
 
@@ -780,6 +963,10 @@ function Main {
         Write-Log "Operation: Update resolved item notes"
         Write-Log "Debt ID: $ResolvedDebtId"
     }
+    elseif ($PSCmdlet.ParameterSetName -eq 'OpenEdit') {
+        Write-Log "Operation: In-place edit of open debt item"
+        Write-Log "Debt ID: $DebtId"
+    }
     else {
         Write-Log "Operation: Status update"
         Write-Log "Debt ID: $DebtId"
@@ -819,6 +1006,12 @@ function Main {
         # Single write
         Set-Content -Path $TargetFile -Value $content -NoNewline
 
+        # Read-after-write verification: confirm the new debt row landed in Registry table
+        if (-not $WhatIfPreference) {
+            $rowPattern = "\|\s*" + [regex]::Escape($newDebtId) + "\s*\|"
+            Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $newDebtId in $TargetFile"
+        }
+
         # Update the debt item file with the assigned registry ID if DebtItemId is provided
         if ($DebtItemId) {
             Update-DebtItemFile -DebtItemId $DebtItemId -RegistryId $newDebtId
@@ -834,8 +1027,8 @@ function Main {
             }
         }
 
-        Write-Log "Technical debt item added successfully with ID: $newDebtId" -Level "SUCCESS"
-        Write-Log "Updated file: $TargetFile"
+        $descPreview = if ($Description.Length -gt 60) { $Description.Substring(0, 57) + "..." } else { $Description }
+        Write-SummaryLine "$newDebtId added → $descPreview"
     }
     elseif ($PSCmdlet.ParameterSetName -eq 'ResolvedUpdate') {
         # --- Update notes on resolved item ---
@@ -851,10 +1044,44 @@ function Main {
 
         if ($PSCmdlet.ShouldProcess($TargetFile, "Update notes for $ResolvedDebtId in Recently Resolved section")) {
             Set-Content -Path $TargetFile -Value $content -NoNewline
+
+            # Read-after-write verification: confirm the resolved debt row exists in tracking file
+            if (-not $WhatIfPreference) {
+                $rowPattern = "\|\s*" + [regex]::Escape($ResolvedDebtId) + "\s*\|"
+                Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "resolved row for $ResolvedDebtId in $TargetFile"
+            }
+
+            Write-SummaryLine "$ResolvedDebtId notes appended in Recently Resolved"
+        }
+    }
+    elseif ($PSCmdlet.ParameterSetName -eq 'OpenEdit') {
+        # --- In-place edit of Description and/or Notes for an open Registry item ---
+        $content = Get-Content $TargetFile -Raw
+
+        $content = Update-RegistryItem -Content $content -DebtId $DebtId -EditDescription $EditDescription -EditNotes $EditNotes
+        if ($null -eq $content) {
+            Write-Log "Failed to edit $DebtId in Registry" -Level "ERROR"
+            exit 1
         }
 
-        Write-Log "Resolved item notes updated successfully" -Level "SUCCESS"
-        Write-Log "Updated file: $TargetFile"
+        $content = Update-FrontmatterDate -Content $content
+
+        $changedFields = @()
+        if ($EditDescription) { $changedFields += 'Description' }
+        if ($EditNotes)       { $changedFields += 'Notes' }
+        $changeSummary = $changedFields -join '+'
+
+        if ($PSCmdlet.ShouldProcess($TargetFile, "Edit $changeSummary for $DebtId in Registry")) {
+            Set-Content -Path $TargetFile -Value $content -NoNewline
+
+            # Read-after-write verification: confirm the debt row still exists in Registry
+            if (-not $WhatIfPreference) {
+                $rowPattern = "\|\s*" + [regex]::Escape($DebtId) + "\s*\|"
+                Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $DebtId in $TargetFile"
+            }
+
+            Write-SummaryLine "$DebtId → $changeSummary edited in Registry"
+        }
     }
     else {
         # --- Status update ---
@@ -885,8 +1112,16 @@ function Main {
         $content = Update-FrontmatterDate -Content $content
 
         # Write tech debt tracking file (guarded by ShouldProcess for -WhatIf support)
+        $wroteFile = $false
         if ($PSCmdlet.ShouldProcess($TargetFile, "Update $DebtId to $NewStatus")) {
             Set-Content -Path $TargetFile -Value $content -NoNewline
+            $wroteFile = $true
+
+            # Read-after-write verification: confirm the debt row exists in tracking file
+            if (-not $WhatIfPreference) {
+                $rowPattern = "\|\s*" + [regex]::Escape($DebtId) + "\s*\|"
+                Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "debt row for $DebtId in $TargetFile"
+            }
         }
 
         # Update validation tracking if ValidationNote is provided
@@ -916,10 +1151,25 @@ function Main {
             }
         }
 
-        Write-Log "Technical debt update completed successfully" -Level "SUCCESS"
-        Write-Log "Updated file: $TargetFile"
+        if ($wroteFile) {
+            $outcome = if ($isResolution) { "$NewStatus (moved to Recently Resolved)" } else { $NewStatus }
+            Write-SummaryLine "$DebtId → $outcome"
+        }
     }
 }
 
 # Execute main function
-Main
+try {
+    Main
+    if ($soakInSoak) {
+        Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome success
+    }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "Tech Debt update failed: $($_.Exception.Message)" -ExitCode 1
+}

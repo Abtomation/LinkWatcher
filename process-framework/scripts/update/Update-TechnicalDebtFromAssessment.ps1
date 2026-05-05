@@ -45,6 +45,10 @@ This script is part of the Technical Debt Assessment automation system and integ
 
 The script makes the Technical Debt Assessment Task fully automated by eliminating
 the manual step of updating the technical debt tracking registry.
+
+Output behavior: Default output is one summary line per invocation (the outcome,
+e.g. "PF-TDA-001 → 7 items added (0 failed)"). WARN and ERROR messages always
+pass through. Pass -Verbose to restore the full play-by-play log for debugging.
 #>
 
 param(
@@ -72,7 +76,12 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 try {
-    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+    # Temporarily silence $VerbosePreference around the import so -Verbose callers see
+    # only this script's own Write-Verbose output, not the helper module's internal chatter.
+    $prevVerbosePreference = $VerbosePreference
+    $VerbosePreference = 'SilentlyContinue'
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+    $VerbosePreference = $prevVerbosePreference
 }
 catch {
     Write-Error "Failed to import Common-ScriptHelpers module. Searched up from: $scriptDir"
@@ -80,14 +89,27 @@ catch {
 }
 
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Message, [string]$Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $color = switch ($Level) {
-        "ERROR" { "Red" }
-        "WARN" { "Yellow" }
-        "SUCCESS" { "Green" }
-        "INFO" { "White" }
-        default { "White" }
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
     }
     Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
@@ -335,13 +357,11 @@ function Main {
         }
     }
 
-    Write-Log "Processing complete:" -Level "SUCCESS"
-    Write-Log "  Successfully processed: $successCount items" -Level "SUCCESS"
-    Write-Log "  Failed to process: $failureCount items" -Level $(if ($failureCount -gt 0) { "ERROR" } else { "SUCCESS" })
-
-    if (-not $DryRun) {
-        Write-Log "Technical debt tracking registry has been updated" -Level "SUCCESS"
-        Write-Log "All debt items from assessment $AssessmentId have been integrated" -Level "SUCCESS"
+    $dryNote = if ($DryRun) { " (DRY RUN — no changes written)" } else { "" }
+    if ($failureCount -gt 0) {
+        Write-SummaryLine "$AssessmentId → $successCount items added, $failureCount failed$dryNote" -Level "ERROR"
+    } else {
+        Write-SummaryLine "$AssessmentId → $successCount items added$dryNote"
     }
 
     exit $(if ($failureCount -gt 0) { 1 } else { 0 })

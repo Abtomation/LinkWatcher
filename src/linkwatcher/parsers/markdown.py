@@ -461,7 +461,13 @@ class MarkdownParser(BaseParser):
                 try:
                     yaml_parser = YamlParser()
                     refs = yaml_parser.parse_content(fm_body, file_path)
-                except Exception:
+                except Exception as e:
+                    self.logger.warning(
+                        "frontmatter_parse_error",
+                        file_path=file_path,
+                        parser="markdown",
+                        error=str(e),
+                    )
                     return [], i + 1
                 # Shift line numbers: frontmatter body starts at file line 2
                 # (line 1 is opening ---), so add 1 to each ref's line number.

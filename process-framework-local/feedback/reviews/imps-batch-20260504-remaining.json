@@ -1,0 +1,86 @@
+[
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Surface New-ProcessImprovement.ps1 -Description 500-char limit prominently in -? help output. Currently buried inside .PARAMETER Description; agents discover it only on validation failure. Mirror PF-IMP-637 fix for New-BugReport.ps1: surface the cap in synopsis or .NOTES top-level bullet.",
+    "Priority": "MEDIUM",
+    "Notes": "Recurrence: 3+ forms (PF-FEE-1062, 1071, 1082 each report retry due to Description-too-long). PF-IMP-659 already moved limit to .NOTES bullet, but `-File path.ps1 -?` only renders SYNOPSIS+SYNTAX+DESCRIPTION (per PF-FEE-1060) — .PARAMETER and .NOTES aren't visible at default help. Move to .DESCRIPTION."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Address feedback_db.py duplicate/deviation tool entries. Several tools have two registered IDs (e.g., Update-BugStatus vs Update-BugStatus.ps1, New-RefactoringPlan vs New-RefactoringPlan.ps1, test-audit-task.md vs PF-TSK-030). PF-TSK-009 Step 12's canonical convention (PF-TSK-NNN for tasks, filename for everything else) resolves at log time, but historical drift remains. Add list-tools warning when duplicate-feeling IDs exist OR add rename-tool / merge-tools subcommand.",
+    "Priority": "MEDIUM",
+    "Notes": "Recurrence: 4+ forms (PF-FEE-1059, 1066, 1067, 1068, 1083). Convention-doc IMP-623 closed the cause; consolidating the historical drift is the remaining work. Trend analysis is split across the duplicate IDs — visible misleading signal."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Add common-stale-description-sites checklist to PF-TSK-009 Step 11 (linked-document housekeeping). Non-exhaustive list of sites where descriptions can drift even when links are intact: script .PARAMETER/.DESCRIPTION blocks, PF-documentation-map.md script index lines, templates/README.md descriptions, README script tables. Reduces cost of doing Step 11 thoroughly the first time.",
+    "Priority": "MEDIUM",
+    "Notes": "PF-FEE-1076 surfaced this directly (caught Update-TechDebt PF-documentation-map description on third pass; missed templates/README.md descriptions). LinkWatcher catches link drift but not description drift. Single occurrence but high-value preventive checklist."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Add explicit sub-step to PF-TSK-009 Step 2 (Verify the problem): verify that artifact IDs and file paths in the IMP description resolve to real artifacts (PF-id-registry.json, PD-id-registry.json, file existence). If a reference doesn't resolve, treat it as a labeling error in the IMP — locate the actual artifact via search before evaluating, do not reject the IMP solely because a referenced ID is wrong.",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1081: IMP-678 referenced 'PF-TSK-048' (never registered; actual was PF-TSK-026); IMP-668 said 'L8' but rationale belonged at L3/L7. Two of three IMPs in that session contained labeling errors. Single occurrence but cheap to add."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Add `list` subcommand to feedback_db.py to enumerate registered test_ids and known tool_doc_ids. Currently agents discover known IDs via `export | head` or `list-tools --filter X`. A direct `list` (or `list-test-ids`) subcommand reduces friction when picking sub-IDs for multi-metric tests.",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1058: had to use `export | head` to discover the multi-metric sub-ID convention (PH-007-net, PH-007-op-delta) for performance baseline capture."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Add explicit N/A path to PF-TSK-022 Lightweight Path L4 'Assess Test Coverage' for refactorings whose target IS test code (assertion thresholds, fixture data). Currently L4 asks coverage questions that don't apply when the modified test verifies its own behavior. One-line clarification suffices.",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1053 (TD249, 4-line numeric tolerance change in test_large_projects.py): L4 was structurally pro-forma. Test-only shortcut at L8 already acknowledges this case for documentation; L4 needs parallel acknowledgment."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Tighten PF-TSK-085 Step 2 audit gate language. Currently says 'Audit Status is empty or ⬜ Not Audited' must pass audit first. Change to 'Audit Status must be ✅ Audit Approved. Any other value (empty, ⬜ Not Audited, 🔄 Needs Update, 🔴 Audit Failed) blocks baseline capture' so non-Approved states are unambiguously blocking.",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1058: PH-007/PH-008 had 🔄 Needs Update referencing the prior audit (TE-TAR-070), while the current re-audit (TE-TAR-071) was ✅ Audit Approved. Strict reading didn't trigger the gate; surfaced via tracking-vs-source-of-truth verification discipline. One-line edit."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Add 'Tracking Consistency' sub-check to PF-TSK-030 Performance Test Criterion 3 (Baseline Readiness): verify performance-test-tracking.md Tolerance column matches code assertions. Drift here indicates upstream refactoring left documentation behind. Would have caught the PD-REF-220 drift during the audit proper rather than at finalization.",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1057: TE-TAR-071 re-audit caught Tolerance-column drift only at finalization (Minor Fix Authority). Sub-check during audit's Baseline Readiness criterion would surface earlier. Cross-task: PF-TSK-022 should also update tracking files when refactoring touches mirrored values."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Update PF-TSK-026 lightweight-path callout in Step 5 to explicitly note interaction with Step 4.5 (Pilot Decision) and Step 21 conditional archive. Currently the callout focuses only on which steps to skip; the pilot-related conditionals are independent of the lightweight-path collapse. Add: 'If a pilot is chosen at Step 4.5, Step 21 archive is still deferred per the conditional, even on lightweight extensions.'",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1065 (PF-IMP-686/PF-PRO-030 implementation): the pilot infrastructure was added in this session, but the lightweight-path callout doesn't reference the new Step 4.5/Step 21 conditional. Worth a one-sentence update to keep the callout current."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Add sub-bullet to PF-TSK-010 Step 12 deduplication guidance: also search technical-debt-tracking.md alongside process-improvement-tracking.md. Recurring script defects often land in tech debt first when discovered mid-task; current task references only process-improvement-tracking.md.",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-986 (Tools Review session 2026-04-22): TD221/222/225/230 all covered the same New-IntegrationNarrative.ps1 issue — caught only because the agent independently checked tech debt. Codifying the rule would make the dedup mechanical."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Clarify PF-TSK-022 Lightweight Path one-Item-vs-multi-Item ambiguity. When a single TD has multiple sub-findings, the path doc currently implies one Item per TD ('copy the Item N section for each additional debt item'). Add explicit guidance: 'Single TD with multiple sub-findings = 1 Item with multiple Changes Made bullets; multiple TDs batched in one session = multiple Items.'",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1054 (TD252 with 4 sub-findings under one TD ID): both interpretations work; explicit guidance removes ambiguity for future sessions. Single occurrence but trivially-cheap clarification."
+  },
+  {
+    "Source": "Tools Review 2026-05-04",
+    "SourceLink": "/process-framework-local/feedback/reviews/tools-review-20260504-154157.md",
+    "Description": "Document multi-metric sub-ID convention in performance-testing-guide.md. Convention `<TestID>-<metric>` (e.g., PH-001-scan, PH-001-move, PH-005-total, PH-005-avg, PH-007-net, PH-007-op-delta) is the established pattern but lives only in the performance_db.py data — undocumented anywhere. Add a section noting the pattern and that the primary asserted metric is the canonical baseline.",
+    "Priority": "LOW",
+    "Notes": "PF-FEE-1058 (PH-007/PH-008 baseline capture): had to discover the convention via `export | head`. Cross-references with potential feedback_db.py `list` subcommand IMP."
+  }
+]

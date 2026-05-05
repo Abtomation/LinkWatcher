@@ -50,6 +50,10 @@ This script addresses Process Improvement item:
 
 Created: 2026-03-28
 Version: 1.0
+
+Output behavior: Default output is one summary line per invocation (the outcome,
+e.g. "Feature 2.1.1 → Documentation Inventory updated"). WARN and ERROR messages
+always pass through. Pass -Verbose to restore the full play-by-play log.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -92,7 +96,19 @@ $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+# Temporarily silence $VerbosePreference around the import so -Verbose callers see
+# only this script's own Write-Verbose output, not the helper module's internal chatter.
+$prevVerbosePreference = $VerbosePreference
+$VerbosePreference = 'SilentlyContinue'
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+$VerbosePreference = $prevVerbosePreference
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
@@ -101,16 +117,29 @@ $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 $ScriptName = "Update-UserDocumentationState.ps1"
 
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Message, [string]$Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $(
-        switch ($Level) {
-            "ERROR" { "Red" }
-            "WARN" { "Yellow" }
-            "SUCCESS" { "Green" }
-            default { "White" }
-        }
-    )
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
 
 function Test-Prerequisites {
@@ -266,16 +295,26 @@ if (-not (Update-FeatureStateFile -StateFilePath $stateFile)) {
 
 Write-Log ""
 if ($success) {
-    Write-Log "=== Update completed successfully ===" -Level "SUCCESS"
-    Write-Log ""
-    Write-Log "Updated file:"
-    Write-Log "  1. $(Split-Path -Leaf $stateFile)"
-    Write-Log ""
+    Write-SummaryLine "Feature $FeatureId → Documentation Inventory updated ($HandbookId)"
     Write-Log "Remaining manual steps:"
     Write-Log "  - Set feature status to 🟢 Completed via Update-BatchFeatureStatus.ps1"
     Write-Log "  - Update README.md documentation table if applicable"
     Write-Log "  - PD-documentation-map.md is handled by New-Handbook.ps1 (no action needed)"
 } else {
     Write-Log "=== Update failed — review errors above ===" -Level "ERROR"
+    exit 1
+}
+
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-Error "User documentation state update failed: $($_.Exception.Message)"
     exit 1
 }

@@ -141,6 +141,7 @@ if ($LoadedFunctions.Count -gt 0) {
     $AdvancedFunctions = @(
         'Test-ScriptDependencies',
         'Invoke-SafeScriptExecution',
+        'Invoke-FileWriteWithRetry',
         'Get-SystemEnvironmentInfo',
         'Test-ModuleCompatibility'
     )

@@ -202,14 +202,9 @@ The script provides clear feedback:
 ✅ Bug report created successfully!
 📍 Bug ID: BUG-042
 📂 Added to: /doc/state-tracking/permanent/bug-tracking.md
-
-🔄 Next Steps:
-  1. Run Bug Triage task to evaluate and prioritize this bug
-  2. Bug will be assigned priority and severity during triage
-  3. After triage, bug can be assigned for fixing
-
-💡 Tip: Use 'Bug Triage' task to process all reported bugs
 ```
+
+Pass `-Verbose` to also see the per-status next-steps guidance and tip lines.
 
 ## Troubleshooting
 

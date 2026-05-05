@@ -362,7 +362,7 @@ def main():
 - Does **not** start the file system watcher or observer
 - Scans all files matching `validation_extensions` config (default: `.md`, `.yaml`, `.yml`, `.json`)
 - Uses `LinkValidator` from `src/linkwatcher/validator.py` with context-aware skip patterns
-- Writes report to `LinkWatcherBrokenLinks.txt` (configurable via `--log-file` parent directory)
+- Writes report to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` (configurable via `--log-file` parent directory)
 - Exits with code 0 (all links valid) or 1 (broken links found)
 
 ### 4.5 Package API (__init__.py)

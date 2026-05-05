@@ -6,7 +6,9 @@ Tests parsing throughput, database operations, and initial scan performance.
 
 Test Cases:
 - BM-001: File parsing throughput
-- BM-002: Database add/lookup/update operations
+- BM-002: Database add throughput
+- BM-007: Database lookup throughput
+- BM-008: Database update throughput
 - BM-003: Initial scan performance
 - BM-004: Updater throughput
 - BM-005: Validation mode performance
@@ -121,7 +123,7 @@ class TestDatabaseBenchmark:
     @pytest.mark.performance
     def test_bm_002_database_operations(self):
         """
-        BM-002: Database add/lookup/update throughput
+        BM-002 / BM-007 / BM-008: Database add / lookup / update throughput
 
         Adds are timed against a 10000-ref population so the timing window exceeds
         the 100ms noise floor (audit TE-TAR-066 Criterion 1, option a). Lookups and
@@ -198,24 +200,26 @@ class TestDatabaseBenchmark:
         lookups_per_sec = lookup_count / max(lookup_time, 1e-9)
         updates_per_sec = update_count / max(update_time, 1e-9)
 
-        print(f"\nDatabase operations:")
+        print("\nDatabase operations:")
         print(f"  Adds:    {adds_per_sec:.0f}/s ({add_time:.3f}s, {add_num} ops on empty db)")
-        print(f"  Lookups: {lookups_per_sec:.0f}/s ({lookup_time:.3f}s, {lookup_count} ops on {small_num}-entry db)")
-        print(f"  Updates: {updates_per_sec:.0f}/s ({update_time:.3f}s, {update_count} ops on {small_num}-entry db)")
+        print(
+            f"  Lookups: {lookups_per_sec:.0f}/s ({lookup_time:.3f}s, {lookup_count} ops on {small_num}-entry db)"
+        )
+        print(
+            f"  Updates: {updates_per_sec:.0f}/s ({update_time:.3f}s, {update_count} ops on {small_num}-entry db)"
+        )
 
-        # Tolerances calibrated to post-rework measurements at ~3-5x of current
-        # observed values on this hardware (TD215, TE-TAR-066 Criterion 2). PF-TSK-085
-        # will recalibrate once formal baselines are captured.
+        # Tolerances set during TD215 rework; PF-TSK-085 will recalibrate after formal
+        # baselines are captured. See performance-test-tracking.md for current values.
         assert add_time < 3.0, f"Adding {add_num} refs took {add_time:.2f}s (expected <3.0s)"
         assert lookup_time < 1.8, f"Lookups took {lookup_time:.2f}s (expected <1.8s)"
-        assert update_time < 0.2, f"Updates took {update_time:.3f}s (expected <0.2s)"
+        assert update_time < 0.02, f"Updates took {update_time:.3f}s (expected <0.02s)"
 
 
 class TestInitialScanBenchmark:
     """Benchmark tests for initial project scan."""
 
     @pytest.mark.performance
-    @pytest.mark.slow
     def test_bm_003_initial_scan(self, temp_project_dir):
         """
         BM-003: Initial scan performance
@@ -445,6 +449,6 @@ class TestCorrelationBenchmark:
         print(f"  Max: {max_ms:.2f}ms")
         print(f"  Match rate: {match_rate:.0f}%")
 
-        # Tolerance calibrated to post-rework measurements at ~5-7x baseline (TD215).
-        assert avg_ms < 25, f"Average correlation {avg_ms:.2f}ms (expected <25ms)"
+        # Tolerance set during TD215 rework; see performance-test-tracking.md.
+        assert avg_ms < 10, f"Average correlation {avg_ms:.2f}ms (expected <10ms)"
         assert match_rate == 100, f"Match rate {match_rate:.0f}% (expected 100%)"

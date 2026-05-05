@@ -361,38 +361,35 @@ try {
         "Assessment: $AssessmentId"
     )
 
-    # Provide next steps based on tier
-    Write-Host ""
-    Write-Host "🎯 Next Steps:" -ForegroundColor Green
-
+    # Provide next steps based on tier (verbose-only — restore with -Verbose)
     switch ($recommendedTier) {
         "Tier 1" {
-            Write-Host "  1. Create Technical Design Document (TDD)" -ForegroundColor Cyan
-            Write-Host "  2. Begin implementation planning" -ForegroundColor Cyan
+            Write-Verbose "Next Steps: Create Technical Design Document (TDD)"
+            Write-Verbose "Next Steps: Begin implementation planning"
         }
         "Tier 2" {
-            Write-Host "  1. Create Functional Design Document (FDD)" -ForegroundColor Cyan
-            Write-Host "  2. Create Technical Design Document (TDD) after FDD approval" -ForegroundColor Cyan
+            Write-Verbose "Next Steps: Create Functional Design Document (FDD)"
+            Write-Verbose "Next Steps: Create Technical Design Document (TDD) after FDD approval"
             if ($apiDesignRequired) {
-                Write-Host "  3. Complete API Design Task" -ForegroundColor Cyan
+                Write-Verbose "Next Steps: Complete API Design Task"
             }
             if ($dbDesignRequired) {
-                Write-Host "  4. Complete Database Schema Design Task" -ForegroundColor Cyan
+                Write-Verbose "Next Steps: Complete Database Schema Design Task"
             }
         }
         "Tier 3" {
-            Write-Host "  1. Create Functional Design Document (FDD)" -ForegroundColor Cyan
-            Write-Host "  2. Conduct Architecture Review" -ForegroundColor Cyan
-            Write-Host "  3. Create Technical Design Document (TDD)" -ForegroundColor Cyan
+            Write-Verbose "Next Steps: Create Functional Design Document (FDD)"
+            Write-Verbose "Next Steps: Conduct Architecture Review"
+            Write-Verbose "Next Steps: Create Technical Design Document (TDD)"
             if ($apiDesignRequired) {
-                Write-Host "  4. Complete API Design Task" -ForegroundColor Cyan
+                Write-Verbose "Next Steps: Complete API Design Task"
             }
             if ($dbDesignRequired) {
-                Write-Host "  5. Complete Database Schema Design Task" -ForegroundColor Cyan
+                Write-Verbose "Next Steps: Complete Database Schema Design Task"
             }
         }
         default {
-            Write-Host "  1. Review assessment results and determine next steps" -ForegroundColor Cyan
+            Write-Verbose "Next Steps: Review assessment results and determine next steps"
         }
     }
 }

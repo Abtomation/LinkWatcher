@@ -22,21 +22,23 @@ Use LinkWatcher from any project directory while keeping the tool files in one c
 │   ├── main.py                       # Main entry point
 │   ├── src/linkwatcher/               # Core package
 │   ├── deployment/
-│   │   ├── install_global.py         # Global installer
-│   │   └── setup_project.py         # Per-project setup
+│   │   └── install_global.py         # Global installer
 │   ├── scripts/
 │   │   └── check_links.py           # Standalone link checker
-│   └── LinkWatcher_run/
-│       └── start_linkwatcher_background.ps1  # Background starter
-├── 📁 ProjectA/
-│   └── .vscode/tasks.json           # Generated VS Code tasks
+│   └── process-framework/tools/linkWatcher/
+│       └── start_linkwatcher_background.ps1  # Agnostic background starter
+├── 📁 ProjectA/                       # Any project that adopts the framework
+│   ├── doc/project-config.json       # Identifies the project root
+│   └── process-framework-local/tools/linkWatcher/
+│       ├── .linkwatcher-ignore       # Per-project suppression rules
+│       └── logs/                     # Runtime logs
 └── 📁 ProjectB/
-    └── .vscode/tasks.json
+    └── ...
 ```
 
 ## Setup Steps
 
-### 1. Install LinkWatcher Globally
+### 1. Install LinkWatcher Globally (one-time)
 
 From the LinkWatcher directory:
 ```cmd
@@ -47,25 +49,12 @@ python deployment\install_global.py
 This will:
 - Install dependencies from `pyproject.toml`
 - Copy LinkWatcher files to a global location (default: `~/bin`)
+- Create a dedicated venv at `<install-dir>/.linkwatcher-venv`
 - Create wrapper scripts for easy access
 
-### 2. Set Up Each Project
+The agnostic background starter auto-detects the install location at runtime (env var `$LINKWATCHER_INSTALL_DIR` or fallback search of `~/bin`, `~/tools`, `~/scripts`, `~/.local/bin`, `~/LinkWatcher`), so no per-project configuration step is required.
 
-For each project where you want to use LinkWatcher:
-
-```cmd
-# Navigate to your project
-cd c:\Users\ronny\VS_Code\YourProject
-
-# Run the project setup
-python c:\Users\ronny\VS_Code\LinkWatcher\deployment\setup_project.py
-```
-
-This will:
-- Create VS Code tasks in your project's `.vscode/tasks.json`
-- Configure the project to use the global LinkWatcher installation
-
-### 3. Use LinkWatcher
+### 2. Use LinkWatcher
 
 From any project directory:
 
@@ -84,12 +73,19 @@ python c:\Users\ronny\VS_Code\LinkWatcher\scripts\check_links.py
 **Using Background Script (Windows):**
 ```cmd
 # PowerShell (background — recommended for development sessions)
-LinkWatcher_run\start_linkwatcher_background.ps1
+# Run from any project that has both process-framework/ and doc/project-config.json
+process-framework\tools\linkWatcher\start_linkwatcher_background.ps1
 ```
 
 **VS Code:**
-```
-Ctrl+Shift+P → "Tasks: Run Task" → "Start LinkWatcher"
+LinkWatcher no longer auto-generates `.vscode/tasks.json`. If you want a one-click "Start LinkWatcher" task, add this manually to your project's `.vscode/tasks.json`:
+```json
+{
+  "label": "Start LinkWatcher",
+  "type": "shell",
+  "command": "pwsh.exe",
+  "args": ["-File", "${workspaceFolder}/process-framework/tools/linkWatcher/start_linkwatcher_background.ps1"]
+}
 ```
 
 ## How It Works
@@ -117,7 +113,7 @@ python %USERPROFILE%\bin\main.py --project-root c:\Users\ronny\VS_Code\YourProje
 
 ### Example 3: Background Mode with Logging
 ```cmd
-python %USERPROFILE%\bin\main.py --log-file LinkWatcher_run/logs/LinkWatcherLog_20260324-091626_20260325-224338_20260326-141107_20260327-131638.txt --debug
+python %USERPROFILE%\bin\main.py --log-file process-framework-local/tools/linkWatcher/logs/LinkWatcherLog_20260324-091626_20260325-224338_20260326-141107_20260327-131638.txt --debug
 ```
 
 ## Key Benefits

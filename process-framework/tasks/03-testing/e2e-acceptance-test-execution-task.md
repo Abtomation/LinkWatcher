@@ -52,7 +52,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ NOTE: This task is primarily executed by the human partner. The AI agent assists with setup, recording, and tracking.**
 
@@ -90,7 +90,7 @@ E2E acceptance test execution validates system behavior that cannot be covered b
 
     # 3. Wait for initial scan to complete before executing test steps
     ```
-    > After testing, stop the workspace LW (`kill` or Ctrl+C) and restart the project-level LW: `LinkWatcher_run/start_linkwatcher_background.ps1`
+    > After testing, stop the workspace LW (`kill` or Ctrl+C) and restart the project-level LW: `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`
 7. **Execute master test first** (manual test cases): Follow the master test's Quick Validation Sequence step by step
    - **If master test passes** → Group is validated. Skip to step 10.
    - **If master test fails** → Continue to step 8 to isolate the issue.
@@ -133,7 +133,7 @@ The following state files are updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

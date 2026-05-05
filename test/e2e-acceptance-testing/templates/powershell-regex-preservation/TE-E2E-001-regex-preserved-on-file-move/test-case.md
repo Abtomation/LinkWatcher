@@ -16,7 +16,7 @@ updated: 2026-03-15
 
 ## Preconditions
 
-- [ ] LinkWatcher is running in background (`LinkWatcher/start_linkwatcher_background.ps1`)
+- [ ] LinkWatcher is running in background (`process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`)
 - [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Group powershell-regex-preservation`
 - [ ] Workspace contains pristine copy of this test case's fixtures
 

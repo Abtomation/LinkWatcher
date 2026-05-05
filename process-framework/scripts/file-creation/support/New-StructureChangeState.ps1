@@ -1,4 +1,4 @@
-﻿# New-StructureChangeState.ps1
+# New-StructureChangeState.ps1
 # Creates a new structure change state tracking file
 # Uses the central ID registry system and standardized document creation
 
@@ -31,6 +31,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # Calculate expected completion (14 days from now as default for structure changes)
 $expectedCompletion = (Get-Date).AddDays(14).ToString("yyyy-MM-dd")
 
@@ -39,20 +45,25 @@ $additionalMetadataFields = @{
     "change_name" = ConvertTo-KebabCase -InputString $ChangeName
 }
 
-# Validate -FromProposal is not used with lightweight ChangeTypes (they already have dedicated templates)
-if ($FromProposal -and ($ChangeType -eq "Rename" -or $ChangeType -eq "Content Update" -or $ChangeType -eq "Framework Extension")) {
-    Write-ProjectError -Message "-FromProposal cannot be used with ChangeType '$ChangeType' (it already has a lightweight template)" -ExitCode 1
+# Validate -FromProposal is not used with ChangeTypes whose templates have type-specific
+# content/artifact tables (Content Update: Affected Files; Framework Extension: New/Modified
+# Artifacts). Rename is allowed: the proposal owns the file mapping, so the from-proposal
+# template's execution-only structure is appropriate.
+if ($FromProposal -and ($ChangeType -eq "Content Update" -or $ChangeType -eq "Framework Extension")) {
+    Write-ProjectError -Message "-FromProposal cannot be used with ChangeType '$ChangeType' because the $ChangeType template contains type-specific content/artifact tables (Affected Files / New Artifacts) that don't belong in a generic execution-tracking-only state file. Use -ChangeType '$ChangeType' alone — its dedicated template is already lightweight." -ExitCode 1
 }
 
-# Select template based on ChangeType and -FromProposal
-if ($ChangeType -eq "Rename") {
+# Select template:
+#   -FromProposal: always use from-proposal template (execution tracking only; proposal owns the content)
+#   Otherwise: select by ChangeType
+if ($FromProposal) {
+    $templatePath = "process-framework/templates/support/structure-change-state-from-proposal-template.md"
+} elseif ($ChangeType -eq "Rename") {
     $templatePath = "process-framework/templates/support/structure-change-state-rename-template.md"
 } elseif ($ChangeType -eq "Content Update") {
     $templatePath = "process-framework/templates/support/structure-change-state-content-update-template.md"
 } elseif ($ChangeType -eq "Framework Extension") {
     $templatePath = "process-framework/templates/support/structure-change-state-framework-extension-template.md"
-} elseif ($FromProposal) {
-    $templatePath = "process-framework/templates/support/structure-change-state-from-proposal-template.md"
 } else {
     $templatePath = "process-framework/templates/support/structure-change-state-template.md"
 }
@@ -105,21 +116,8 @@ try {
         )
     } else {
         $details = @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional document until extensively customized.",
-            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-            "",
-            "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "process-framework/tasks/support/structure-change-task.md",
-            "🎯 FOCUS AREAS: Process section and mandatory steps",
-            "",
-            "⚠️  CRITICAL: Create structure change proposal BEFORE making any changes:",
-            "   Use: process-framework/templates/support/structure-change-proposal-template.md",
-            "🚫 DO NOT use the generated file without proper customization!",
-            "✅ The template provides structure - YOU provide the meaningful content."
+            "Customization required — see process-framework/tasks/support/structure-change-task.md",
+            "Create structure-change proposal first — see process-framework/templates/support/structure-change-proposal-template.md"
         )
     }
 

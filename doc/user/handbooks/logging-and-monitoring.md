@@ -55,7 +55,7 @@ All logging options can be set in a YAML or JSON config file passed via `--confi
 | `log_file_max_size_mb` | int | `10` | Maximum log file size in MB before rotation triggers |
 | `log_file_backup_count` | int | `5` | Number of rotated backup files to keep |
 | `json_logs` | bool | `false` | Use JSON format for structured console output (file output is always JSON) |
-| `performance_logging` | bool | `true` | Enable performance timing metrics in log output |
+| `performance_logging` | bool | `false` | Enable per-operation timing logs (`file_parsing`, `content_parsing`, `initial_scan`). Disabled by default to avoid per-file log overhead. |
 | `show_statistics` | bool | `true` | Show operation statistics on shutdown |
 
 ### Example Config File

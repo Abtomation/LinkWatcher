@@ -1,14 +1,24 @@
 # ExecutionVerification.psm1
 # Soak-verification helpers for newly created or recently modified PowerShell scripts.
 #
-# VERSION 1.0 - NEW SUB-MODULE (PF-TSK-026 Phase 3)
-# Implements PF-PRO-028 (Script Self-Verification) — see
+# VERSION 2.0 - PF-IMP-728 broad-rollout revision (PF-TSK-026 v2.0)
+# Implements PF-PRO-028 v2.0 (Script Self-Verification) — see
 # process-framework-local/proposals/old/script-self-verification.md.
 #
+# v2.0 changes:
+#   - $DefaultSoakCounter parameterized (default 3, was hardcoded 5).
+#   - Caller-aware mode: Register-SoakScript / Test-ScriptInSoak / Confirm-SoakInvocation
+#     now accept zero positional args. When called without -ScriptId/-ScriptPath, the
+#     helper resolves the calling .ps1 from Get-PSCallStack — enabling helper-routed
+#     armoring (one edit to a shared helper module covers many calling scripts, each
+#     getting its own per-script soak entry).
+#   - Backward compatible: existing callers passing -ScriptId/-ScriptPath explicitly are unchanged.
+#
 # Concept: every newly registered or hash-changed script must be confirmed by
-# the agent over 5 consecutive successful invocations before it is considered
-# soak-complete. Failures or script-body changes reset the counter to 5.
-# WhatIf invocations bypass the soak entirely (no decrement, no state write).
+# the agent over $DefaultSoakCounter consecutive successful invocations before it is
+# considered soak-complete. Failures or script-body changes reset the counter to
+# $DefaultSoakCounter. WhatIf invocations bypass the soak entirely (no decrement,
+# no state write).
 #
 # Public functions (4):
 #   Register-SoakScript      - add a script to the soak registry
@@ -22,6 +32,12 @@
 #   - Assert-LineInFile     (FileOperations.psm1) — used internally for read-after-write verification
 
 $PSDefaultParameterValues['*:Encoding'] = 'UTF8'
+
+# Module-level default soak counter. Lowered from 5 to 3 in v2.0 (PF-IMP-728)
+# based on observed behavior: deterministic defects in state-mutating scripts
+# dominate intermittent ones, so 3 successful invocations is sufficient sample.
+# See PF-PRO-028 v2.0 Lessons Learned section for full rationale.
+$script:DefaultSoakCounter = 3
 
 # ============================================================================
 # Module-private helpers (not exported)
@@ -75,6 +91,36 @@ function _Test-CallerWhatIf {
     } catch {
         return $false
     }
+}
+
+function _Resolve-CallingScript {
+    # v2.0 — caller-aware mode support.
+    # Walks up Get-PSCallStack and returns the first frame whose ScriptName ends in .ps1
+    # (i.e. the calling SCRIPT, not a .psm1 helper module on the call path).
+    # Returns @{ ScriptId = '<rel/path/from/project/root>.ps1'; ScriptPath = '<absolute>' }
+    # or $null if no .ps1 frame is found (e.g. called from interactive REPL or pwsh -Command).
+    #
+    # Why this works for helper-routed armoring (Pattern B):
+    #   ScriptA.ps1 → DocumentManagement.psm1::New-StandardProjectDocument → ExecutionVerification.psm1::Test-ScriptInSoak
+    # The .psm1 frames are skipped; ScriptA.ps1 is identified as the calling script,
+    # so the soak entry/counter is keyed on ScriptA, not on the helper module.
+    $stack = Get-PSCallStack
+    foreach ($frame in $stack) {
+        if ($frame.ScriptName -and $frame.ScriptName -like '*.ps1') {
+            $absolute = $frame.ScriptName
+            $projectRoot = Get-ProjectRoot
+            try {
+                $rel = [System.IO.Path]::GetRelativePath($projectRoot, $absolute)
+                # Normalize to forward slashes for cross-platform stability and to match
+                # the convention used by existing soak entries.
+                $relForward = $rel -replace '\\', '/'
+            } catch {
+                $relForward = $absolute -replace '\\', '/'
+            }
+            return @{ ScriptId = $relForward; ScriptPath = $absolute }
+        }
+    }
+    return $null
 }
 
 function _Format-RegisteredRow {
@@ -193,26 +239,33 @@ function Register-SoakScript {
     Registers a script for soak verification.
 
     .DESCRIPTION
-    Adds the script to script-soak-tracking.md with counter=5, the current
-    SHA256 content hash, and status "Active Soak". Subsequent invocations of
-    the script must call Test-ScriptInSoak / Confirm-SoakInvocation; once 5
+    Adds the script to script-soak-tracking.md with counter=$DefaultSoakCounter
+    (default 3, configurable at module top), the current SHA256 content hash,
+    and status "Active Soak". Subsequent invocations of the script must call
+    Test-ScriptInSoak / Confirm-SoakInvocation; once $DefaultSoakCounter
     successes are confirmed (without intervening failure or hash change),
     status flips to "Soak Complete".
 
-    Idempotency: throws if the ScriptId is already registered. Re-registration
-    is intentionally not supported — to re-soak after a code change, just edit
-    the script body; the next Test-ScriptInSoak call detects the hash change
-    and auto-resets the counter.
+    Idempotency: silently no-ops if the ScriptId is already registered (returns
+    without error). Re-registration after a code change is automatic via
+    Test-ScriptInSoak's hash-detection — no manual ceremony needed.
 
     -WhatIf: no-op (no state file write).
 
+    Caller-aware mode (v2.0): when called with no -ScriptId / -ScriptPath, the
+    function resolves the calling script via Get-PSCallStack (skipping any
+    .psm1 frames). Use this from the top of any script that wants to opt into
+    soak verification — single line, no ScriptId/ScriptPath bookkeeping.
+
     .PARAMETER ScriptId
-    Stable identifier for the script. Convention: relative path from project
+    Optional. Stable identifier for the script. Convention: relative path from project
     root, e.g. "process-framework/scripts/file-creation/02-design/New-IntegrationNarrative.ps1".
+    If omitted, auto-resolved from the calling script's path. Must be passed together with -ScriptPath or omitted entirely.
 
     .PARAMETER ScriptPath
-    Absolute or relative on-disk path to the script file (used to compute the
-    initial SHA256 hash).
+    Optional. Absolute or relative on-disk path to the script file (used to compute the
+    initial SHA256 hash). If omitted, auto-resolved from the calling script.
+    Must be passed together with -ScriptId or omitted entirely.
 
     .PARAMETER Notes
     Optional free-text note recorded in the registry's Notes column. Avoid
@@ -220,21 +273,39 @@ function Register-SoakScript {
     #>
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
-        [Parameter(Mandatory=$true)][string]$ScriptId,
-        [Parameter(Mandatory=$true)][string]$ScriptPath,
+        [string]$ScriptId,
+        [string]$ScriptPath,
         [string]$Notes = ""
     )
 
     if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference) {
-        Write-Verbose "Register-SoakScript: -WhatIf mode, skipping registration of '$ScriptId'."
+        Write-Verbose "Register-SoakScript: -WhatIf mode, skipping registration."
         return
+    }
+
+    # v2.0 — caller-aware mode: auto-detect ScriptId / ScriptPath from callstack
+    # when neither is provided. Both-or-neither rule prevents partial-arg ambiguity.
+    if (-not $ScriptId -and -not $ScriptPath) {
+        $resolved = _Resolve-CallingScript
+        if (-not $resolved) {
+            throw "Register-SoakScript: caller-aware mode failed — no .ps1 frame in callstack. Either invoke from a .ps1 script or pass -ScriptId / -ScriptPath explicitly."
+        }
+        $ScriptId   = $resolved.ScriptId
+        $ScriptPath = $resolved.ScriptPath
+    } elseif (-not $ScriptId -or -not $ScriptPath) {
+        throw "Register-SoakScript: pass both -ScriptId and -ScriptPath, or pass neither (for caller-aware auto-detection)."
     }
 
     $raw = _Read-SoakStateRaw
 
     $existing = _Find-RegisteredEntry -RawContent $raw -ScriptId $ScriptId
     if ($existing) {
-        throw "Register-SoakScript: ScriptId '$ScriptId' is already registered (counter=$($existing.Counter), status=$($existing.Status)). To re-soak after a code change, just modify the script body — Test-ScriptInSoak will detect the hash change and auto-reset on the next invocation."
+        # v2.0 — silently no-op rather than throw. Pattern B opt-in puts
+        # Register-SoakScript at the top of every armored script, which runs
+        # on every invocation; throwing on already-registered would break
+        # all subsequent invocations.
+        Write-Verbose "Register-SoakScript: '$ScriptId' is already registered (counter=$($existing.Counter), status=$($existing.Status)) — no-op."
+        return
     }
 
     $hash = _Get-SoakScriptHash -ScriptPath $ScriptPath
@@ -242,7 +313,7 @@ function Register-SoakScript {
     $newEntry = [pscustomobject]@{
         ScriptId       = $ScriptId
         ContentHash    = $hash
-        Counter        = 5
+        Counter        = $script:DefaultSoakCounter
         Status         = "Active Soak"
         LastInvocation = "—"
         LastOutcome    = "—"
@@ -250,7 +321,7 @@ function Register-SoakScript {
     }
 
     $updated = _Insert-RegisteredEntry -RawContent $raw -Entry $newEntry
-    $updated = _Append-UpdateHistoryRow -RawContent $updated -Action "Registered $ScriptId (counter=5)" -Actor "Register-SoakScript"
+    $updated = _Append-UpdateHistoryRow -RawContent $updated -Action "Registered $ScriptId (counter=$script:DefaultSoakCounter)" -Actor "Register-SoakScript"
 
     _Write-SoakStateRaw -Content $updated
 
@@ -258,7 +329,7 @@ function Register-SoakScript {
     $stateFile = _Get-SoakStateFilePath
     Assert-LineInFile -Path $stateFile -Pattern ([regex]::Escape("| $ScriptId |")) -Context "Register-SoakScript($ScriptId)"
 
-    Write-Verbose "Register-SoakScript: '$ScriptId' registered (5 successful invocations required for Soak Complete)."
+    Write-Verbose "Register-SoakScript: '$ScriptId' registered ($script:DefaultSoakCounter successful invocations required for Soak Complete)."
 }
 
 function Test-ScriptInSoak {
@@ -268,9 +339,9 @@ function Test-ScriptInSoak {
 
     .DESCRIPTION
     Side effect: if the script's current SHA256 differs from the registered
-    hash, automatically resets the counter to 5 and updates the registered
-    hash before returning $true. (No manual reset required when scripts are
-    refactored / patched.)
+    hash, automatically resets the counter to $DefaultSoakCounter and updates
+    the registered hash before returning $true. (No manual reset required when
+    scripts are refactored / patched.)
 
     -WhatIf: returns $false immediately (bypass — WhatIf runs do not count
     toward soak progress).
@@ -279,19 +350,42 @@ function Test-ScriptInSoak {
     "not in soak" identically whether the script was never registered or has
     completed soak.
 
+    Caller-aware mode (v2.0): when called with no -ScriptId / -ScriptPath, the
+    function resolves the calling script via Get-PSCallStack (skipping any
+    .psm1 frames). Use this from inside helper modules (Pattern B) — the
+    helper resolves the actual calling .ps1 and consults its soak state.
+
     .PARAMETER ScriptId
-    Stable identifier (must match what was passed to Register-SoakScript).
+    Optional. Stable identifier (must match what was passed to Register-SoakScript).
+    If omitted, auto-resolved from the calling script. Must be passed together with -ScriptPath or omitted entirely.
 
     .PARAMETER ScriptPath
-    On-disk path to the script (re-hashed to detect body changes).
+    Optional. On-disk path to the script (re-hashed to detect body changes).
+    If omitted, auto-resolved from the calling script. Must be passed together with -ScriptId or omitted entirely.
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)][string]$ScriptId,
-        [Parameter(Mandatory=$true)][string]$ScriptPath
+        [string]$ScriptId,
+        [string]$ScriptPath
     )
 
     if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference) { return $false }
+
+    # v2.0 — caller-aware mode: auto-detect ScriptId / ScriptPath from callstack
+    # when neither is provided. Both-or-neither rule prevents partial-arg ambiguity.
+    if (-not $ScriptId -and -not $ScriptPath) {
+        $resolved = _Resolve-CallingScript
+        if (-not $resolved) {
+            # No .ps1 caller — treat as not-in-soak rather than throw. This is the
+            # right behavior for helper modules invoked from non-.ps1 contexts (REPL,
+            # pwsh -Command), where there's no script to soak-verify.
+            return $false
+        }
+        $ScriptId   = $resolved.ScriptId
+        $ScriptPath = $resolved.ScriptPath
+    } elseif (-not $ScriptId -or -not $ScriptPath) {
+        throw "Test-ScriptInSoak: pass both -ScriptId and -ScriptPath, or pass neither (for caller-aware auto-detection)."
+    }
 
     $raw   = _Read-SoakStateRaw
     $entry = _Find-RegisteredEntry -RawContent $raw -ScriptId $ScriptId
@@ -303,17 +397,17 @@ function Test-ScriptInSoak {
         $resetEntry = [pscustomobject]@{
             ScriptId       = $entry.ScriptId
             ContentHash    = $currentHash
-            Counter        = 5
+            Counter        = $script:DefaultSoakCounter
             Status         = "Active Soak"
             LastInvocation = $entry.LastInvocation
             LastOutcome    = $entry.LastOutcome
             Notes          = $entry.Notes
         }
         $updated = _Update-RegisteredEntry -RawContent $raw       -Entry $resetEntry
-        $updated = _Append-UpdateHistoryRow -RawContent $updated  -Action "Hash mismatch for $ScriptId; auto-reset counter to 5" -Actor "Test-ScriptInSoak (auto)"
+        $updated = _Append-UpdateHistoryRow -RawContent $updated  -Action "Hash mismatch for $ScriptId; auto-reset counter to $script:DefaultSoakCounter" -Actor "Test-ScriptInSoak (auto)"
         _Write-SoakStateRaw -Content $updated
 
-        Write-Verbose "Test-ScriptInSoak: hash mismatch for '$ScriptId' — counter auto-reset to 5."
+        Write-Verbose "Test-ScriptInSoak: hash mismatch for '$ScriptId' — counter auto-reset to $script:DefaultSoakCounter."
         return $true
     }
 
@@ -323,22 +417,29 @@ function Test-ScriptInSoak {
 function Confirm-SoakInvocation {
     <#
     .SYNOPSIS
-    Records the outcome of a soak invocation — success decrements the counter, failure resets it to 5.
+    Records the outcome of a soak invocation — success decrements the counter, failure resets it to $DefaultSoakCounter.
 
     .DESCRIPTION
     Call this near the end of a script (after the agent has verified the run's
     actual on-disk effects).
 
     success: counter -= 1; status flips to "Soak Complete" when counter hits 0.
-    failure: counter = 5; status remains "Active Soak"; -Notes recorded in
-             Update History to aid root-cause diagnosis.
+    failure: counter = $DefaultSoakCounter; status remains "Active Soak";
+             -Notes recorded in Update History to aid root-cause diagnosis.
 
     -WhatIf: no-op (WhatIf runs do not count toward soak progress).
 
-    Throws if ScriptId is not registered.
+    No-ops silently if ScriptId is not registered (was: throw in v1.x). This
+    accommodates helper-routed callers (Pattern B) where the helper invokes
+    Confirm-SoakInvocation unconditionally and the calling script may or may
+    not be registered.
+
+    Caller-aware mode (v2.0): when called with no -ScriptId, the function
+    resolves the calling script via Get-PSCallStack (skipping any .psm1 frames).
 
     .PARAMETER ScriptId
-    Stable identifier (must match what was passed to Register-SoakScript).
+    Optional. Stable identifier (must match what was passed to Register-SoakScript).
+    If omitted, auto-resolved from the calling script.
 
     .PARAMETER Outcome
     'success' or 'failure'.
@@ -349,20 +450,36 @@ function Confirm-SoakInvocation {
     #>
     [CmdletBinding(SupportsShouldProcess=$true)]
     param(
-        [Parameter(Mandatory=$true)][string]$ScriptId,
+        [string]$ScriptId,
         [Parameter(Mandatory=$true)][ValidateSet('success','failure')][string]$Outcome,
         [string]$Notes = ""
     )
 
     if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference) {
-        Write-Verbose "Confirm-SoakInvocation: -WhatIf mode, skipping write for '$ScriptId'."
+        Write-Verbose "Confirm-SoakInvocation: -WhatIf mode, skipping write."
         return
+    }
+
+    # v2.0 — caller-aware mode: auto-detect ScriptId from callstack when not provided.
+    if (-not $ScriptId) {
+        $resolved = _Resolve-CallingScript
+        if (-not $resolved) {
+            # No .ps1 caller — silently no-op rather than throw.
+            Write-Verbose "Confirm-SoakInvocation: caller-aware mode found no .ps1 frame — no-op."
+            return
+        }
+        $ScriptId = $resolved.ScriptId
     }
 
     $raw   = _Read-SoakStateRaw
     $entry = _Find-RegisteredEntry -RawContent $raw -ScriptId $ScriptId
     if (-not $entry) {
-        throw "Confirm-SoakInvocation: ScriptId '$ScriptId' is not registered. Run Register-SoakScript first (typically during PF-TSK-026 / PF-TSK-001 finalization)."
+        # v2.0 — silently no-op rather than throw. Helper-routed callers (Pattern B)
+        # invoke Confirm-SoakInvocation unconditionally; the calling script may or
+        # may not be registered. Throwing would break every helper invocation from
+        # an unregistered script.
+        Write-Verbose "Confirm-SoakInvocation: ScriptId '$ScriptId' is not registered — no-op (use Register-SoakScript to opt in)."
+        return
     }
 
     $today = (Get-Date -Format "yyyy-MM-dd")
@@ -372,9 +489,9 @@ function Confirm-SoakInvocation {
         $newStatus  = if ($newCounter -eq 0) { "Soak Complete" } else { "Active Soak" }
         $action     = "Confirmed success for $ScriptId; counter $($entry.Counter) -> $newCounter"
     } else {
-        $newCounter = 5
+        $newCounter = $script:DefaultSoakCounter
         $newStatus  = "Active Soak"
-        $action     = "Confirmed FAILURE for $ScriptId; counter reset to 5"
+        $action     = "Confirmed FAILURE for $ScriptId; counter reset to $script:DefaultSoakCounter"
         if ($Notes) { $action += " (notes: $Notes)" }
     }
 

@@ -3,86 +3,88 @@
   "description": "Language-specific configuration for [Language] projects using the process framework. Copy this file to languages-config/{language}/{language}-config.json and fill in the values.",
   "language": "[language-name]",
   "version": "1.0",
-
   "testing": {
     "_comment_baseCommand": "REQUIRED. The command to run tests. Placeholders: {testDir} = test directory from project-config.json, {module} = project name from project-config.json.",
     "baseCommand": "[test-runner-command, e.g. 'python -m pytest' or 'dart test' or 'go test']",
-
     "_comment_coverageArgs": "REQUIRED. Arguments appended to baseCommand for coverage reporting. Use {module} and {testDir} placeholders.",
     "coverageArgs": "[coverage flags, e.g. '--cov={module} --cov-report=html --cov-report=term']",
-
     "_comment_coverageFullArgs": "OPTIONAL. Extended coverage arguments for standalone coverage generation (XML output, term-missing, etc.). Falls back to coverageArgs if omitted.",
     "coverageFullArgs": "[extended coverage flags, e.g. '--cov={module} --cov-report=html --cov-report=term-missing --cov-report=xml']",
-
     "_comment_discoveryCommand": "REQUIRED. Command to collect/discover tests without running them. Used by Validate-TestTracking.ps1.",
     "discoveryCommand": "[discovery command, e.g. 'python -m pytest --collect-only -q' or 'dart test --reporter=json']",
-
     "_comment_discoveryOutputPattern": "REQUIRED. Regex to extract file path from each line of discovery output. Must have capture group 1 = file path. Used by Validate-TestTracking.ps1 Check 6.",
     "discoveryOutputPattern": "[regex, e.g. '^(.+\\\\.py)::' for pytest or '^(.+\\\\.dart)' for dart]",
-
     "_comment_testFileExtension": "REQUIRED. File extension for test files (including dot). Used by Validate-TestTracking.ps1 Check 2.",
     "testFileExtension": "[extension, e.g. '.py' or '.dart' or '_test.go']",
-
     "_comment_testFileNamePattern": "REQUIRED. Naming pattern for new test files created by New-TestFile.ps1. Use {name} as placeholder for the sanitized test name. Extension is appended from testFileExtension. Examples: 'test_{name}' (Python), '{name}_test' (Dart/Go), '{name}.test' (JS/Jest), '{name}Test' (Java).",
     "testFileNamePattern": "[pattern, e.g. 'test_{name}' or '{name}_test']",
-
     "_comment_testFileExclusions": "OPTIONAL. File/directory names to exclude when scanning for test files. Omit or use empty array if none.",
-    "testFileExclusions": ["[e.g. '__init__.py']", "[e.g. '__pycache__']"],
-
+    "testFileExclusions": [
+      "[e.g. '__init__.py']",
+      "[e.g. '__pycache__']"
+    ],
     "_comment_lintCommand": "OPTIONAL. Linting command for test files. Omit if not applicable. Use {testDir} placeholder.",
     "lintCommand": "[lint command, e.g. 'python -m flake8 {testDir} --max-line-length=100']",
-
     "_comment_stopOnFirstFailure": "REQUIRED. Flag to stop test execution on first failure. Used by -Quick mode.",
     "stopOnFirstFailure": "[flag, e.g. '-x' for pytest, '--fail-fast' for dart test]",
-
     "_comment_verboseFlag": "REQUIRED. Flag for verbose test output.",
     "verboseFlag": "[flag, e.g. '-v' for pytest, '--reporter=expanded' for dart test]",
-
     "_comment_markers": "OPTIONAL. Test marker/tag syntax for filtering test subsets. Keys are semantic names, values are CLI arguments.",
     "markers": {
       "slow": "[marker flag, e.g. '-m slow' or '--tags slow']",
       "critical": "[marker flag, e.g. '-m critical' or '--tags critical']",
       "notSlow": "[exclude-slow flag, e.g. '-m \"not slow\"' or '--exclude-tags slow']"
     },
-
     "_comment_testSetup": "OPTIONAL. Declares where shared test setup (fixtures, helpers, factories) is defined. mechanism = how the language handles shared setup; configFiles = paths to setup files relative to project root; discoveryCommand = command to list available fixtures/helpers (null if not supported).",
     "testSetup": {
       "mechanism": "[e.g. 'pytest-fixtures', 'jest-setup', 'helper-imports', 'base-class']",
-      "configFiles": ["[e.g. 'test/conftest.py' or 'test/helpers/test_helpers.dart' or 'jest.setup.js']"],
+      "configFiles": [
+        "[e.g. 'test/conftest.py' or 'test/helpers/test_helpers.dart' or 'jest.setup.js']"
+      ],
       "discoveryCommand": "[e.g. 'python -m pytest --fixtures -q', or null if not supported]"
-    }
+    },
+    "_comment_featureMarkerPattern": "OPTIONAL. Regex pattern that extracts feature_id from a test file metadata marker. Capture group 1 must be the feature_id. Used by New-RefactoringPlan.ps1 to auto-detect -FeatureId from a test-file -TargetArea. Empty string disables auto-detect for languages that have no feature-marker convention (e.g., Dart, Go, JavaScript).",
+    "featureMarkerPattern": ""
   },
-
   "directoryStructure": {
     "_comment": "REQUIRED. Defines source code directory conventions for this language. Used by New-SourceStructure.ps1 and source-code-layout.md.",
-
     "_comment_sourceRoot": "REQUIRED. Top-level directory containing all application source code (e.g., src, lib, app).",
     "sourceRoot": "[source root directory, e.g., src, lib, app]",
-
     "_comment_sharedDirectory": "REQUIRED. Directory name for cross-cutting utilities shared across features.",
     "sharedDirectory": "[shared utilities directory name, e.g., shared, core, common]",
-
     "_comment_directoryNaming": "REQUIRED. Naming convention for directories: snake_case, kebab-case, or PascalCase.",
     "directoryNaming": "[naming convention: snake_case, kebab-case, PascalCase]",
-
     "_comment_fileNaming": "REQUIRED. Naming convention for source files: snake_case, camelCase, or PascalCase.",
     "fileNaming": "[naming convention: snake_case, camelCase, PascalCase]",
-
     "_comment_entryPoint": "REQUIRED. Main entry point file that lives directly in the source root.",
     "entryPoint": "[main entry point file, e.g., main.py, main.dart, index.ts]",
-
     "_comment_packageMarkers": "OPTIONAL. Files that mark a directory as a package. Empty array if language has no package markers.",
-    "packageMarkers": ["[e.g., __init__.py for Python, or empty array]"],
-
+    "packageMarkers": [
+      "[e.g., __init__.py for Python, or empty array]"
+    ],
     "_comment_layers": "REQUIRED. Sublayer directory names used when a feature directory grows beyond sublayerThreshold files.",
     "layers": {
-      "data": { "name": "[data layer dir name]", "purpose": "[description]" },
-      "services": { "name": "[service layer dir name]", "purpose": "[description]" },
-      "ui": { "name": "[ui layer dir name]", "purpose": "[description]" }
+      "data": {
+        "name": "[data layer dir name]",
+        "purpose": "[description]"
+      },
+      "services": {
+        "name": "[service layer dir name]",
+        "purpose": "[description]"
+      },
+      "ui": {
+        "name": "[ui layer dir name]",
+        "purpose": "[description]"
+      }
     },
-
     "_comment_sublayerThreshold": "REQUIRED. Number of files in a feature directory before sublayers should be introduced.",
     "sublayerThreshold": 8,
     "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files"
+  },
+  "_comment_headerComment": "REQUIRED for code-file generation. Comment syntax used by New-ProjectCodeMetadata when prepending document metadata blocks to generated code files. 'open' and 'close' are the block delimiters; 'linePrefix' is prepended to each metadata line. Examples — Python docstring: open '\"\"\"', close '\"\"\"', linePrefix ''. C-family (Dart/JS/TS/Java): open '/*', close ' */', linePrefix ' * '. PowerShell: open '<#', close '#>', linePrefix ''.",
+  "headerComment": {
+    "open": "[block-comment opener, e.g. '\"\"\"' for Python or '/*' for C-family]",
+    "close": "[block-comment closer, e.g. '\"\"\"' for Python or ' */' for C-family]",
+    "linePrefix": "[per-line prefix, e.g. '' for Python or ' * ' for C-family]"
   }
 }

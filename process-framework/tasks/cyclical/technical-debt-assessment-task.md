@@ -55,7 +55,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
 >
@@ -133,7 +133,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    **OPTION B - Individual Item Addition:**
 
    ```powershell
-   # Add individual debt items manually (use dimension abbreviation for -Dims: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC)
+   # Add individual debt items manually (use dimension abbreviation(s) for -Dims, e.g., "PE" or "PE OB". Valid: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC)
    process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "PE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -DebtItemId "PF-TDI-XXX" -AssessmentId "PF-TDA-XXX"
    ```
 
@@ -188,7 +188,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

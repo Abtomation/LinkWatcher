@@ -15,7 +15,7 @@ workflow_name: Startup
 
 ## Workflow Overview
 
-**Entry point**: User invokes `python main.py [options]` (directly or via `LinkWatcher_run/start_linkwatcher_background.ps1`, which wraps the same command). This begins the `main()` function in [main.py](main.py#L235).
+**Entry point**: User invokes `python main.py [options]` (directly or via `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`, which wraps the same command). This begins the `main()` function in [main.py](main.py#L235).
 
 **Exit point**: The `watchdog` `Observer` thread is running, the in-memory `LinkDatabase` has been fully populated from a recursive project walk, all filesystem events that arrived during the scan have been replayed, and the service is blocked in `while self.running: time.sleep(1)` awaiting real-time events (service.py:148-155). At this boundary the startup workflow ends and the real-time workflows (WF-001, WF-002, …) take over.
 
@@ -137,7 +137,7 @@ graph TD
 | `scan_progress_interval` | Config file / env (int, default 50) | `_initial_scan()` progress-logging branch | Controls how often `scan_progress` is emitted; pure logging/UX effect, no correctness impact |
 | `python_source_root` | Config file / env / `doc/project-config.json` fallback | `LinkWatcherService.__init__` passes it to `LinkUpdater` only ([service.py:82](src/linkwatcher/service.py#L82)) | Not consumed during startup itself — captured for later workflows so the same `LinkUpdater` can strip the src-layout prefix when updating Python imports |
 | `log_level`, `log_file`, `json_logs`, `colored_output`, `show_log_icons`, `log_file_max_size_mb`, `log_file_backup_count` | Config file / env / CLI (`--log-file`, `--debug`, `--quiet`) | `setup_logging()` — called twice from `main()` (once before config load, once after) | Second call reconfigures the logger when a log file is specified only in the config; earliest log events therefore use CLI-only settings |
-| `dry_run_mode`, `create_backups` | Config file / env / CLI `--dry-run` | `main()` calls `service.set_dry_run(...)` and `service.updater.set_backup_enabled(...)` [main.py:377-378](main.py#L377-L378) | Captured before `service.start()` so later workflows honor them; no effect on the scan itself (scan is read-only) |
+| `dry_run_mode`, `create_backups` | Config file / env / CLI `--dry-run` | `LinkWatcherService.__init__` applies them via `self.updater.set_dry_run(...)` and `self.updater.set_backup_enabled(...)` at [service.py:96-98](src/linkwatcher/service.py#L96-L98) (TD235 / PD-REF-203) | Captured before `service.start()` so later workflows honor them; no effect on the scan itself (scan is read-only) |
 
 ## Error Handling Across Boundaries
 

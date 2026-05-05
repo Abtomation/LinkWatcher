@@ -258,6 +258,77 @@ function Invoke-SafeScriptExecution {
     }
 }
 
+function Invoke-FileWriteWithRetry {
+    <#
+    .SYNOPSIS
+    Executes a file-write script block, retrying briefly on IOException to absorb LinkWatcher contention.
+
+    .DESCRIPTION
+    Runs the supplied $ScriptBlock and catches [System.IO.IOException] only. Other exceptions
+    (parsing errors, malformed-row writes, permission errors) are re-thrown immediately so they
+    surface as real bugs rather than being masked by retries. Backoff is exponential.
+
+    Use at Set-Content / Add-Content / Out-File call sites that target tracked files which
+    LinkWatcher monitors (e.g., process-improvement-tracking.md). PowerShell's Set-Content
+    opens with FileShare.None and fails with IOException when LinkWatcher briefly holds the
+    file open while computing diffs. Three retries at 200ms / 400ms / 800ms (~1.4s worst case)
+    cover the typical contention window.
+
+    .PARAMETER ScriptBlock
+    The file-write script block to execute.
+
+    .PARAMETER MaxRetries
+    Maximum number of retry attempts after the initial try (default: 3 → up to 4 total attempts).
+
+    .PARAMETER InitialDelayMs
+    Initial backoff delay in milliseconds; doubles after each failure (default: 200).
+
+    .PARAMETER Context
+    Short label used in the warning message on retry (e.g., "process-improvement-tracking.md").
+
+    .EXAMPLE
+    Invoke-FileWriteWithRetry -ScriptBlock {
+        Set-Content -Path $TrackingFile -Value $content -NoNewline -Encoding UTF8
+    } -Context $TrackingFile
+
+    .NOTES
+    Filed under PF-IMP-718 (LinkWatcher mid-batch file-lock contention).
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [scriptblock]$ScriptBlock,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateRange(0, 10)]
+        [int]$MaxRetries = 3,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateRange(1, 5000)]
+        [int]$InitialDelayMs = 200,
+
+        [Parameter(Mandatory = $false)]
+        [string]$Context = ""
+    )
+
+    $delay = $InitialDelayMs
+    for ($attempt = 0; $attempt -le $MaxRetries; $attempt++) {
+        try {
+            return & $ScriptBlock
+        }
+        catch [System.IO.IOException] {
+            if ($attempt -ge $MaxRetries) {
+                throw
+            }
+            $label = if ($Context) { " ($Context)" } else { "" }
+            Write-Warning "File-write contention$label, retry $($attempt + 1)/$MaxRetries in ${delay}ms: $($_.Exception.Message)"
+            Start-Sleep -Milliseconds $delay
+            $delay *= 2
+        }
+    }
+}
+
 function Get-SystemEnvironmentInfo {
     <#
     .SYNOPSIS
@@ -391,6 +462,7 @@ function Test-ModuleCompatibility {
 Export-ModuleMember -Function @(
     'Test-ScriptDependencies',
     'Invoke-SafeScriptExecution',
+    'Invoke-FileWriteWithRetry',
     'Get-SystemEnvironmentInfo',
     'Test-ModuleCompatibility'
 )

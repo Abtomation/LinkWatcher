@@ -48,7 +48,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the PowerShell automation script for ALL assessment file creation. Manual file creation is prohibited as it breaks ID tracking and causes conflicts.**
 >
@@ -165,7 +165,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

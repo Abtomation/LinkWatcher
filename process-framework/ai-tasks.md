@@ -6,8 +6,8 @@
 | ------------- | ----------------------- |
 | Document Type | Task System Entry Point |
 | Created Date  | 2025-05-26              |
-| Last Updated  | 2026-04-04              |
-| Version       | 3.1                     |
+| Last Updated  | 2026-05-05              |
+| Version       | 3.2                     |
 | Status        | Active                  |
 
 ---
@@ -22,13 +22,39 @@
 
 ### Step 1: What are you working on?
 
+> **🎯 Framework path vs. product path** (decisive for routing — read first):
+>
+> - **Framework path** = anything under `process-framework/`, `process-framework-local/`, or root-level routing files (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`).
+> - **Product path** = everything else (`src/linkwatcher/`, `test/`, `doc/`, `README.md`, etc.).
+>
+> **Policy (absolute, no escalation)**: Work targeting the framework path routes through Support Tasks only. PF-TSK-022 (Code Refactoring), PF-TSK-007 (Bug Fixing), and PF-TSK-005 (Code Review) are for product code only — even when the framework work is shaped like a refactor, a bug fix, or a code review. Behavior-preserving code edits to framework scripts (`*.ps1`, `*.psm1`) are handled inside [Process Improvement](#process-improvement) (PF-TSK-009) Step 10 medium-risk path. When a target spans both paths, framework wins — split the work or route framework parts through PF-TSK-009.
+
 ```
 Are you ADOPTING THE FRAMEWORK into an existing project?
 ├─ Yes → Start with [Codebase Feature Discovery](#codebase-feature-discovery) (includes tier assessment)
 │        Then → [Codebase Feature Analysis](#codebase-feature-analysis)
 │        Then → [Retrospective Documentation Creation](#retrospective-documentation-creation)
 │
-├─ No → Are you working on a CHANGE REQUEST (new feature or enhancement)?
+├─ No → Are you WORKING ON THE FRAMEWORK ITSELF? (target is in framework path — see definition above)
+│  ├─ Yes → What kind of framework work?
+│  │  ├─ Improving an existing task/guide/template/script (content edits OR behavior-preserving code refactors)
+│  │  │   → Use [Process Improvement](#process-improvement) (PF-TSK-009)
+│  │  ├─ Reorganizing files, directories, or document sections
+│  │  │   → Use [Structure Change](#structure-change) (PF-TSK-014)
+│  │  ├─ Adding a new framework capability (new task + template + script + guide)
+│  │  │   → Use [Framework Extension Task](#framework-extension-task) (PF-TSK-026)
+│  │  ├─ Creating a new task definition
+│  │  │   → Use [New Task Creation Process](#new-task-creation-process) (PF-TSK-001)
+│  │  ├─ Periodic feedback / tools review
+│  │  │   → Use [Tools Review](#tools-review) (PF-TSK-010)
+│  │  ├─ Structurally evaluating the framework
+│  │  │   → Use [Framework Evaluation](#framework-evaluation) (PF-TSK-079)
+│  │  └─ Migrating framework to a different business domain
+│  │      → Use [Framework Domain Adaptation](#framework-domain-adaptation) (PF-TSK-029)
+│  │
+│  │  > **Why framework code refactors live in PF-TSK-009 and not PF-TSK-022**: PF-TSK-022 prescribes pytest baselines, characterization tests via `New-TestFile.ps1`, TDD/FDD/ADR alignment, audit-flagged TD closure — all product-shaped artifacts that don't apply to framework scripts. PF-TSK-009 Step 10 medium-risk path is the right home: agent runs a synthetic PowerShell harness against real state files (happy / error / defect-specific cases), records pre-fix and post-fix counts in IMP completion notes.
+│
+├─ No → Are you working on a CHANGE REQUEST (new feature or enhancement)? *(product code only)*
 │  ├─ Yes → Do you need to research/discover what to build first?
 │  │  ├─ Yes → Start with [Feature Discovery](#feature-discovery)
 │  │  └─ No → Start with [Feature Request Evaluation](#feature-request-evaluation)
@@ -36,18 +62,18 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 │  │           ├─ New feature → [Feature Tier Assessment](#feature-tier-assessment) → Design → Implementation
 │  │           └─ Enhancement → [Feature Enhancement](#feature-enhancement) (executes from state file)
 │  │
-│  ├─ No → Are you WORKING WITH BUGS?
+│  ├─ No → Are you WORKING WITH BUGS? *(product code only — framework defects are filed as IMPs and fixed via Process Improvement above)*
 │  │  ├─ Yes → What stage of bug management?
 │  │  │  ├─ Discovered a bug during development → Use [Bug Triage](#bug-triage) (evaluate and prioritize)
 │  │  │  ├─ Have a triaged bug to fix → Use [Bug Fixing](#bug-fixing)
 │  │  │  └─ Need to systematically find bugs → Use testing tasks (Test Audit, Code Review)
 │  │
-│  ├─ No → Are you WORKING ON TECHNICAL DEBT or REFACTORING?
+│  ├─ No → Are you WORKING ON TECHNICAL DEBT or REFACTORING? *(product code only — framework refactors route to Process Improvement above)*
 │  │  ├─ Yes → What stage of tech debt management?
 │  │  │  ├─ Need to identify/assess tech debt → Use [Technical Debt Assessment](#technical-debt-assessment) (cyclical)
 │  │  │  └─ Have assessed debt to fix → Use [Code Refactoring](#code-refactoring)
 │  │
-│  ├─ No → Are you REVIEWING CODE?
+│  ├─ No → Are you REVIEWING CODE? *(product code only — framework changes are reviewed inline at Process Improvement Step 13)*
 │  │  └─ Yes → Use [Code Review](#code-review)
 │  │
 │  ├─ No → Are you WRITING USER DOCUMENTATION (handbooks, quick-reference, README)?
@@ -59,9 +85,6 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 │  ├─ No → Are you PREPARING A RELEASE?
 │  │  └─ Yes → Use [Release & Deployment](#release--deployment)
 │  │
-│  ├─ No → Are you WORKING ON THE FRAMEWORK ITSELF?
-│  │  └─ Yes → Use [Support Tasks](#support-tasks) (creating tasks, improving processes, changing structures, etc.)
-│  │
 │  └─ No → NONE OF THE ABOVE TASKS FIT?
 │     └─ 🛑 **STOP: Ask your human partner before proceeding**
 │        "No existing task fits this work. Should we proceed without a task template, or do we need to create a new task?"
@@ -71,7 +94,7 @@ Are you ADOPTING THE FRAMEWORK into an existing project?
 
 These tasks run alongside your main work:
 
-- 🔧 **Need to improve the framework?** → [Support Tasks](#support-tasks) (tools review, process improvement, etc.)
+- 🔧 **Tools Review cycle** — periodic review of feedback forms to surface improvement opportunities → [Tools Review](#tools-review) (PF-TSK-010)
 
 ### Still Unsure?
 
@@ -501,8 +524,6 @@ Need to track something new? Use the [State File Template](/process-framework/te
 12. ✅ **Complete ALL items** in the mandatory completion checklist — every checkbox, every state file update, every linked document
 13. ✅ **Complete feedback forms** for all tools used during the task — do not solicit human feedback; leave the "Human User Feedback" section for the human partner to fill after the session
 
-> **🚨 Remember**: A task is NOT complete until the feedback forms are completed!
-
 ---
 
 ## 📦 AI Agent Session Management
@@ -515,7 +536,7 @@ Complete one feedback form at the end of **each session**, not at the end of the
 
 **Never run multiple validation batches in the same session.** Each batch is a complete task cycle: analysis → checkpoint → report generation → state file updates → feedback form. Complete ALL finalization steps (including tech debt tracking updates and feedback form) for one batch before ending the session. The next batch starts in a fresh session.
 
-**Why**: After context compaction mid-session, finalization quality degrades — steps get skipped, state files are left inconsistent, and the human partner has to catch omissions. Keeping one batch per session ensures the full finalization sequence runs while context is still fresh.
+**Why**: Each batch is meant to close out cleanly through its own checkpoint cycle — analysis → human review → report generation → state file updates → feedback form. Running a second batch in the same session compresses both batches' finalization steps into one rushed pass, and prior-batch findings start to contaminate the new batch's analysis. Keeping one batch per session preserves per-batch checkpoint discipline and keeps each batch's state file updates and feedback form grounded in the work that just happened.
 
 ---
 
@@ -558,7 +579,7 @@ At the end of each session, the AI agent creates a feedback form and **fills in 
 - ✅ **Involve your partner** - Collaborate on important decisions
 - ✅ **Minimize documentation overhead** - Update state files rather than creating new docs
 - ✅ **🔗 MAINTAIN DOCUMENT LINKS**:
-  - **🚨 CRITICAL**: ALWAYS start LinkWatcher at session beginning: `LinkWatcher/start_linkwatcher_background.ps1`
+  - **🚨 CRITICAL**: ALWAYS start LinkWatcher at session beginning: `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`
   - **⚠️ IMPORTANT**: NEVER run LinkWatcher in foreground - it will block the session!
   - LinkWatcher automatically maintains all document references in real-time
   - Use any method to move/rename files - LinkWatcher handles all updates automatically
@@ -575,11 +596,11 @@ At the end of each session, the AI agent creates a feedback form and **fills in 
 | **Task definition unclear**            | Check the full task definition or ask for clarification                                                                                         |
 | **Need to work across multiple tasks** | Discuss the approach with your human partner                                                                                                    |
 | **Process feels inefficient**          | Note it for the next [Process Improvement](#process-improvement) task                                                                           |
-| **Broken document links**              | Ensure LinkWatcher is running in background (`LinkWatcher/start_linkwatcher_background.ps1`) - it prevents and fixes broken links automatically |
+| **Broken document links**              | Ensure LinkWatcher is running in background (`process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`) - it prevents and fixes broken links automatically |
 | **Session blocked/frozen**             | LinkWatcher running in foreground - kill process: `Get-Process python* \| Stop-Process -Force` then restart in background                       |
 | **Need to rename or move files**       | Use any method (VS Code, File Explorer, git commands) - LinkWatcher updates all references automatically                                        |
 | **Need to delete files**               | Use any method - LinkWatcher will detect and handle reference cleanup automatically                                                             |
-| **LinkWatcher not working**            | Check if running: `Get-Process python*` - If not found, restart: `LinkWatcher/start_linkwatcher_background.ps1`                                 |
+| **LinkWatcher not working**            | Check if running: `Get-Process python*` - If not found, restart: `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`                                 |
 
 ---
 
@@ -593,7 +614,7 @@ These foundational principles govern how the framework operates and ensure consi
 
 #### Task Granularity
 
-Each task is designed with a defined level of granularity such that it can be fully processed and completed within a single session with an AI agent. This ensures continuity and prevents loss of progress due to limited context windows.
+Each task is designed with a defined level of granularity such that it can be fully processed and completed within a single session with an AI agent. This ensures continuity, keeps each session focused on a coherent unit of work, and prevents partial progress from being stranded between sessions.
 
 #### State Tracking Files
 

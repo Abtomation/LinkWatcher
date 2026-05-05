@@ -55,6 +55,7 @@ New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Compo
 - **Lightweight** (Optional, switch): Creates a compact plan using the [lightweight template](../../templates/06-maintenance/lightweight-refactoring-plan-template.md) (PF-TEM-050). Use for changes with no architectural impact and no interface/API changes (any file count, any effort level). Only use Standard for refactorings that redesign interfaces, decompose classes, or change architectural patterns. Mutually exclusive with -DocumentationOnly. By default, omits the Dependencies and Impact section (use `-IncludeDependencies` to add it for multi-file changes).
 - **IncludeDependencies** (Optional, switch): When used with `-Lightweight`, includes a Dependencies and Impact section in the generated plan. By default, lightweight plans omit this section since most are single-file with no cross-component impact.
 - **DocumentationOnly** (Optional, switch): Creates a documentation-focused plan using the [documentation-only template](../../templates/06-maintenance/documentation-refactoring-plan-template.md) (PF-TEM-052). Use for refactoring that involves only documentation changes (no code changes, no test impact). Removes code metrics, performance benchmarks, and test coverage sections. Mutually exclusive with -Lightweight.
+- **FeatureId** (Optional): The feature ID that owns the code being refactored (e.g., "1.1.1"). Auto-populates the `feature_id` frontmatter field. **Auto-detection**: when `-TargetArea` points to a test file and the project's language config defines `testing.featureMarkerPattern` (a regex with capture group 1 = feature_id), the value is auto-detected from the file's marker. If `-FeatureId` is omitted, it is filled from the marker (info log). If `-FeatureId` is provided and disagrees with the marker, a warning is emitted and the explicitly-passed value is kept.
 
 ### Example Script Usage
 
@@ -77,7 +78,7 @@ New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -Ta
 
 ### Lightweight vs Standard vs Documentation-Only Mode
 
-PF-TSK-022 includes an **Effort Assessment Gate** (Step 1) that determines which mode to use. The agent must first assess whether the refactoring is **justified** (Proceed, Modify scope, or Rejected) before classifying the effort path. If the human approves a Rejected recommendation, the tech debt item is closed via `Update-TechDebt.ps1 -NewStatus "Rejected"` and the source task is documented in the feedback form — no refactoring plan or code changes are needed.
+PF-TSK-022 includes an **Effort Assessment Gate** (Step 1) that determines which mode to use. The agent must first assess whether the refactoring is **justified** (Proceed, Modify scope, or Rejected) before classifying the effort path. If the human approves a Rejected recommendation, the tech debt item is closed via `Update-TechDebt.ps1 -NewStatus "Rejected"` and the source task is documented in the feedback form — no refactoring plan or code changes are needed. If the rejection reason is **misclassification** (the item is valid work but not technical debt), Step 1's Reclassification block routes it to the correct tracker — IMP, BUG, or FRQ — and the new item's ID is referenced in the rejection note for traceability.
 
 | Criteria | Lightweight | Documentation-Only | Standard |
 |----------|-------------|-------------------|----------|
@@ -92,7 +93,7 @@ After classification, the agent loads only the applicable path document:
 - **[Lightweight Path](../../tasks/06-maintenance/code-refactoring-lightweight-path.md)** — self-contained process steps and checklist (~60 lines)
 - **[Standard Path](../../tasks/06-maintenance/code-refactoring-standard-path.md)** — full process with bug discovery, state tracking phases, and checklist (~250 lines)
 
-The lightweight plan (~50 lines) includes a mandatory **Documentation & State Updates** checklist per item to ensure documentation isn't forgotten even for small changes. It also supports **batch mode** — copy the "Item N" section for multiple quick fixes in one session.
+The lightweight plan (~50 lines) includes a mandatory **Documentation & State Updates** checklist per item to ensure documentation isn't forgotten even for small changes. It also supports **batch mode** — pass `-ItemCount N` to pre-generate N Item sections (and N Results Summary rows) when you know the count up front, or copy the "Item N" section for additional debt items (new TD IDs) discovered mid-session.
 
 The documentation-only plan uses the [documentation-only template](../../templates/06-maintenance/documentation-refactoring-plan-template.md) (PF-TEM-052) and follows the Standard Path but with documentation-appropriate sections (documentation quality baseline, verification approach, documentation integrity checklist instead of code metrics and test coverage).
 

@@ -3,9 +3,9 @@ id: PF-TSK-085
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-04-09
-updated: 2026-04-13
+updated: 2026-04-30
 ---
 
 # Performance Baseline Capture
@@ -49,7 +49,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 
 ### Preparation
 
@@ -59,7 +59,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    - `✅ Baselined` entries → run for regression check if triggered by code change
    - Optionally filter by Related Features column if triggered by a specific feature change
 
-2. **🚨 Verify audit gate for `📋 Needs Baseline` entries**: Before capturing baselines for newly created tests, confirm their **Audit Status** column shows `✅ Audit Approved` in performance-test-tracking.md. Tests at `📋 Needs Baseline` that have not been audited (Audit Status is empty or `⬜ Not Audited`) **must** pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Needs Re-baseline` or `✅ Baselined` entries (they were already audited when first created).
+2. **🚨 Verify audit gate for `📋 Needs Baseline` entries**: Before capturing baselines for newly created tests, the **Audit Status** column in performance-test-tracking.md must be `✅ Audit Approved`. Any other value — empty, `⬜ Not Audited`, `🔄 Needs Update`, `🔴 Audit Failed` — blocks baseline capture; the test must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Needs Re-baseline` or `✅ Baselined` entries (they were already audited when first created).
 
 3. **Check environment** — close unnecessary applications, ensure consistent test conditions. Note any environmental factors that could affect results.
 
@@ -77,15 +77,27 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    python -m pytest test/automated/performance/ -v -s -k "bm_001 or bm_003"
    ```
 
+   > **Measurement strategy**:
+   > - **Default**: Run each test 3 times; record the **mean** as the canonical baseline value; capture the run-to-run range in `--notes` (e.g., `"3 runs: 4.7-4.9 MB/s"`).
+   > - **High variance** (3-run spread >10%): use the **median** instead of mean; flag in notes (e.g., `"3 runs: 42-58 files/sec, median 49"`).
+   > - **Warm-cache steady-state baselines**: drop run 1 (cold-cache) and average runs 2–3; tag notes accordingly (e.g., `"warm-cache mean of runs 2-3, run 1 cold: 6.2 MB/s"`).
+   > - **Smoke checks** (single-run opportunistic captures, e.g., spot-check before deeper investigation): allowed, but tag notes with `"smoke check, single run"` so trend analysis can exclude them.
+
 5. **Extract measured values** from test output. For each test, note the primary metric (throughput, latency, completion time).
+
+   > **Note on 1:N pytest-to-ID mapping**: One pytest method can produce measurements for multiple BM/PH IDs. For example, `test_bm_002_database_operations` covers BM-002 (adds), BM-007 (lookups), and BM-008 (updates) because the operations share setup. Don't expect a 1:1 mapping between collected pytest cases and BM/PH IDs — check the test method's docstring and printed output for the full ID coverage.
 
 6. **Record results in the database**:
    ```bash
-   # Record each measurement
+   # Single-metric test
    python process-framework/scripts/test/performance_db.py record \
-       --test-id BM-001 --value 144.0 --unit "files/sec" --notes "Pre-release capture"
+       --test-id BM-NNN --value 144.0 --unit "files/sec" --notes "Pre-release capture"
 
-   # Repeat for each test
+   # Multi-metric test (one record call per metric)
+   python process-framework/scripts/test/performance_db.py record \
+       --test-id PH-001 --metric scan --value 9.21 --unit "seconds" --notes "Pre-release capture"
+   python process-framework/scripts/test/performance_db.py record \
+       --test-id PH-001 --metric move --value 0.16 --unit "seconds" --notes "Pre-release capture"
    ```
 
 7. **Check for regressions**:
@@ -108,12 +120,17 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    - **Trend degradation (>5% over 3+ captures)** → file as tech debt item
    - Present regression analysis to human partner for decision
 
+   > **Stale-baseline artifacts are auto-excluded.** `performance_db.py regressions` skips rows in `⚠️ Needs Re-baseline` status (their tolerances are known-stale by definition) and surfaces them in a separate "skipped" footer. Anything that does appear in the REGRESSIONS DETECTED list is therefore a real breach against a current baseline — proceed with Bug Triage. For rows in the skipped footer, the next action is re-baseline (capture in this same task), not Bug Triage.
+
 ### Finalization
 
-10. **Update performance-test-tracking.md** using the automation script for each tested entry:
+10. **Update performance-test-tracking.md** using the automation script for each tested entry. For multi-metric tests, pass `-Metric` to disambiguate the row:
    ```bash
    # Initial baseline (Created → Baselined)
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Baselined" -Baseline "<value with units>" -LastResult "<measured value>"
+
+   # Multi-metric test (one invocation per metric row)
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "PH-001" -Metric "scan" -NewStatus "Baselined" -LastResult "9.30s"
 
    # Refresh existing baseline results (Baselined → Baselined)
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Baselined" -LastResult "<measured value>"
@@ -128,7 +145,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 11. **Review trends** for key tests:
     ```bash
-    python process-framework/scripts/test/performance_db.py trend --test-id BM-001 --last 5
+    python process-framework/scripts/test/performance_db.py trend --test-id BM-NNN --last 5
     ```
 
 12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
@@ -155,7 +172,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

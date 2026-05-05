@@ -30,7 +30,7 @@ import shutil
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Tuple, TypedDict
+from typing import Dict, List, Set, Tuple, TypedDict
 
 from .link_types import LinkType
 from .logging import get_logger
@@ -72,6 +72,12 @@ class LinkUpdater:
         )
         self._regex_cache: Dict[str, re.Pattern] = {}
         self._REGEX_CACHE_MAX_SIZE = 1024
+        # PD-BUG-098 / TD252: per-file count of refs skipped via
+        # _replace_at_position's invalid-column ambiguous-fallback path
+        # (occurrences>1 case).  Reset by _update_file_references[_multi]
+        # before each file; read by update_references[_batch] to surface
+        # silent skips in UpdateStats["errors"].
+        self._ambiguous_skip_count: int = 0
 
     def update_references(
         self, references: List[LinkReference], old_path: str, new_path: str
@@ -92,6 +98,9 @@ class LinkUpdater:
                 result = self._update_file_references(
                     file_path, file_references, old_path, new_path
                 )
+                # TD252: surface ambiguous-fallback skips (set inside
+                # _replace_at_position) as errors regardless of UpdateResult.
+                stats["errors"] += self._ambiguous_skip_count
                 if result == UpdateResult.UPDATED:
                     stats["files_updated"] += 1
                     stats["references_updated"] += len(file_references)
@@ -148,6 +157,8 @@ class LinkUpdater:
         for file_path, ref_tuples in file_work.items():
             try:
                 result = self._update_file_references_multi(file_path, ref_tuples)
+                # TD252: surface ambiguous-fallback skips (see update_references).
+                stats["errors"] += self._ambiguous_skip_count
                 if result == UpdateResult.UPDATED:
                     stats["files_updated"] += 1
                     stats["references_updated"] += len(ref_tuples)
@@ -187,6 +198,9 @@ class LinkUpdater:
         self, file_path: str, references: List[LinkReference], old_path: str, new_path: str
     ) -> UpdateResult:
         """Update references in a single file for one old→new path pair."""
+        # PD-BUG-098 / TD252: reset per-file before any replacement work so
+        # update_references can attribute skips to the current file.
+        self._ambiguous_skip_count = 0
         if not os.path.isabs(file_path):
             abs_file_path = os.path.join(self.project_root, file_path)
         else:
@@ -222,6 +236,8 @@ class LinkUpdater:
         Processes all path replacements in one read→modify→write cycle.
         Each ref_tuple is (reference, old_path, new_path).
         """
+        # PD-BUG-098 / TD252: reset per-file (see _update_file_references).
+        self._ambiguous_skip_count = 0
         if not os.path.isabs(file_path):
             abs_file_path = os.path.join(self.project_root, file_path)
         else:
@@ -253,9 +269,19 @@ class LinkUpdater:
         file_path: str,
         replacement_items: List[Tuple[LinkReference, str]],
     ) -> UpdateResult:
-        """Apply pre-computed replacements to a single file.
+        r"""Apply pre-computed replacements to a single file.
 
-        Algorithm (two phases):
+        Algorithm (overlap filter + two phases):
+          Pre-pass — Drop refs whose column range is strictly contained in
+          another ref on the same line (PD-BUG-098).  When two refs overlap,
+          descending-column processing replaces the inner one first, extending
+          the line; the outer ref's original column positions are then stale
+          and position-based slicing produces ``<new_target> + chopped_tail``
+          corruption.  The outer replacement subsumes the inner range, so
+          dropping the inner ref is correct as long as both rewrite to a
+          target that resolves to the same file (true for directory moves
+          containing the inner file — the canonical PD-BUG-098 trigger).
+
           Phase 1 — Line-by-line replacement (bottom-to-top order to preserve
           line/column positions). For each reference, performs stale-detection
           checks and replaces the old target on the matched line. Python-import
@@ -286,6 +312,10 @@ class LinkUpdater:
                 lines = f.readlines()
 
             changes_made = False
+
+            # Pre-pass (PD-BUG-098): drop inner refs whose column range is
+            # strictly contained in another ref on the same line.
+            replacement_items = self._filter_contained_overlaps(replacement_items, file_path)
 
             # Sort by line number (descending) and column (descending)
             # to update from bottom to top, preserving line/column positions
@@ -381,6 +411,97 @@ class LinkUpdater:
         except Exception as e:
             raise RuntimeError(f"Failed to update file {abs_file_path}: {e}")
 
+    def _filter_contained_overlaps(
+        self,
+        replacement_items: List[Tuple[LinkReference, str]],
+        file_path: str,
+    ) -> List[Tuple[LinkReference, str]]:
+        """Drop refs whose column range is strictly contained in another ref
+        on the same line (PD-BUG-098).
+
+        Scope — strictly-contained overlap only.  Partial overlap (where two
+        ranges overlap but neither strictly contains the other, e.g. ranges
+        ``[5, 12)`` and ``[10, 18)``) is NOT addressed by this filter and
+        would still produce the bottom-up replacement corruption.  Partial
+        overlap has not been observed in practice (the canonical PD-BUG-098
+        trigger — bare filename inside a longer path — always yields strict
+        containment), so the simpler containment-only filter is sufficient
+        until a reproducer for partial overlap surfaces.
+
+        When two refs on the same line overlap such that one strictly contains
+        the other, the descending-column processing in `_apply_replacements`
+        produces corrupted output.  The inner ref's replacement extends the
+        line; the outer ref's original column positions are then stale, and
+        position-based slicing yields ``<new_target> + chopped_tail`` because
+        ``line[outer_end_col:]`` indexes into the freshly-inserted text.
+
+        The outer ref's replacement covers the inner range textually, so
+        dropping the inner ref preserves the intended outer rewrite.  When
+        both refs would rewrite to a path resolving to the same file (the
+        canonical trigger — directory moves where the inner is a bare-filename
+        ref to the moved file), the result is identical to the non-overlapping
+        case.  When their new_targets diverge, the outer wins; this is no
+        worse than the previous behavior, which produced corruption.
+
+        Args:
+            replacement_items: List of ``(LinkReference, new_target)`` tuples.
+            file_path: Source-file path for log messages.
+
+        Returns:
+            Filtered list with strictly-contained inner refs removed.  Order
+            is otherwise preserved.
+        """
+        # Group items by 1-based line_number; preserve original index so the
+        # returned list keeps stable ordering for items not dropped.
+        by_line: Dict[int, List[Tuple[int, LinkReference, str]]] = {}
+        for original_idx, (ref, new_target) in enumerate(replacement_items):
+            by_line.setdefault(ref.line_number, []).append((original_idx, ref, new_target))
+
+        dropped_indices: Set[int] = set()
+
+        for line_number, line_items in by_line.items():
+            if len(line_items) < 2:
+                continue
+            # For each pair, mark the strictly-contained one as dropped.
+            for i, (_, ref_a, _) in enumerate(line_items):
+                if line_items[i][0] in dropped_indices:
+                    continue
+                a_start, a_end = ref_a.column_start, ref_a.column_end
+                for j, (_, ref_b, _) in enumerate(line_items):
+                    if i == j or line_items[j][0] in dropped_indices:
+                        continue
+                    b_start, b_end = ref_b.column_start, ref_b.column_end
+                    # B strictly contained in A: a_start <= b_start
+                    # and b_end <= a_end and ranges differ.
+                    if (
+                        a_start <= b_start
+                        and b_end <= a_end
+                        and (a_start, a_end) != (b_start, b_end)
+                    ):
+                        dropped_indices.add(line_items[j][0])
+                        self.logger.warning(
+                            "overlapping_references_resolved",
+                            file_path=file_path,
+                            line_number=line_number,
+                            outer_target=ref_a.link_target,
+                            outer_range=(a_start, a_end),
+                            inner_target=ref_b.link_target,
+                            inner_range=(b_start, b_end),
+                            reason=(
+                                "PD-BUG-098: inner ref strictly contained "
+                                "in outer; dropping inner"
+                            ),
+                        )
+
+        if not dropped_indices:
+            return replacement_items
+
+        return [
+            item
+            for original_idx, item in enumerate(replacement_items)
+            if original_idx not in dropped_indices
+        ]
+
     def _calculate_new_target(self, ref: LinkReference, old_path: str, new_path: str) -> str:
         """Calculate the new target path for a reference.
 
@@ -473,7 +594,12 @@ class LinkUpdater:
             # For Python imports, we need to replace the dot notation in the line
             # Convert new_target (slash notation) back to dot notation
             new_import_text = new_target.replace("/", ".")
-            return line.replace(ref.link_text, new_import_text)
+            # PD-BUG-094 / TD251: bounded regex with negative lookbehind/lookahead
+            # makes a second application a safe no-op. Without this, an unbounded
+            # str.replace would substring-match inside the already-prefixed result
+            # if duplicate refs ever reached this method (PD-BUG-096 class).
+            pattern = r"(?<![.\w])" + re.escape(ref.link_text) + r"(?!\w)"
+            return re.sub(pattern, new_import_text, line)
 
         # Use column positions to replace only the specific occurrence
         start_col = ref.column_start
@@ -481,8 +607,34 @@ class LinkUpdater:
 
         # Validate positions
         if start_col < 0 or end_col > len(line) or start_col >= end_col:
-            # Fall back to simple replacement if positions are invalid
-            return line.replace(ref.link_target, new_target)
+            # Fall back to bounded replacement when positions are invalid
+            # (PD-BUG-098). Unbounded ``line.replace(old, new)`` would replace
+            # every occurrence of ``link_target`` on the line, producing
+            # multi-substitution corruption when the target appears more than
+            # once.  Skip ambiguous cases (0 or >1 occurrences) and replace
+            # exactly one occurrence otherwise.
+            occurrences = line.count(ref.link_target)
+            if occurrences == 1:
+                return line.replace(ref.link_target, new_target, 1)
+            if occurrences > 1:
+                self.logger.warning(
+                    "ambiguous_fallback_replacement_skipped",
+                    file_path=ref.file_path,
+                    line_number=ref.line_number,
+                    link_target=ref.link_target,
+                    occurrences=occurrences,
+                    reason=(
+                        "PD-BUG-098: invalid columns + multiple matches; "
+                        "refusing unbounded replace"
+                    ),
+                )
+                # TD252 / Option C: surface this silent skip in UpdateStats["errors"]
+                # so callers see that a ref could not be safely replaced.  STALE-
+                # escalation was rejected (whole-file blast radius for a single
+                # ambiguous ref); per-skip counter preserves visibility without
+                # blocking other refs in the same file.
+                self._ambiguous_skip_count += 1
+            return line
 
         # Extract the text at the specified position
         text_at_position = line[start_col:end_col]

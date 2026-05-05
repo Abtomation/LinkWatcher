@@ -67,6 +67,11 @@ This script integrates with:
 - Feature Request Evaluation (PF-TSK-067) — primary consumer
 - Feature Tracking (feature-tracking.md) — updated for enhancement classifications
 - Feature Enhancement (PF-TSK-068) — downstream consumer of enhancement state files
+
+Output behavior: Default output is one summary line per invocation (the outcome,
+e.g. "PD-FRQ-001 → Completed (Enhancement: 6.1.1)"), plus one extra line per
+side-effect (feature state file creation). WARN and ERROR messages always pass
+through. Pass -Verbose to restore the full play-by-play log for debugging.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -104,7 +109,16 @@ $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+# Temporarily silence $VerbosePreference around the import so -Verbose callers see
+# only this script's own Write-Verbose output, not the helper module's internal chatter.
+$prevVerbosePreference = $VerbosePreference
+$VerbosePreference = 'SilentlyContinue'
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+$VerbosePreference = $prevVerbosePreference
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
@@ -113,16 +127,29 @@ $FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracki
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Message, [string]$Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $(
-        switch ($Level) {
-            "ERROR" { "Red" }
-            "WARN" { "Yellow" }
-            "SUCCESS" { "Green" }
-            default { "White" }
-        }
-    )
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
 
 function Test-Prerequisites {
@@ -166,22 +193,20 @@ function Update-RequestRow {
         [string]$Notes
     )
 
-    # Find the request row in the Active table
-    $pattern = "\|\s*$([regex]::Escape($RequestId))\s*\|[^\r\n]*"
-    $match = [regex]::Match($Content, $pattern)
+    # Find the request row in the Active table (column-aware lookup)
+    $rows = ConvertFrom-MarkdownTable -Content $Content -Section "## Active Feature Requests" -IncludeRawLine
+    $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
 
-    if (-not $match.Success) {
+    if (-not $row) {
         Write-Log "Feature request not found in Active table: $RequestId" -Level "ERROR"
         return $null
     }
 
-    $currentEntry = $match.Value
+    $currentEntry = $row._RawLine
     Write-Log "Found feature request entry for $RequestId"
 
     # Parse columns: | ID | Source | Description | Feature | Classification | Status | Last Updated | Notes |
-    $columns = $currentEntry -split '\|' | ForEach-Object { $_.Trim() }
-    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+    $columns = Split-MarkdownTableRow -Line $currentEntry
 
     # Update columns
     if ($Classification) {
@@ -412,19 +437,17 @@ function Main {
         $content = Update-SummaryCount -Content $content
     }
     elseif ($isDeferReject) {
-        # For Deferred/Rejected: update status in-place and add notes
-        $pattern = "\|\s*$([regex]::Escape($RequestId))\s*\|[^\r\n]*"
-        $match = [regex]::Match($content, $pattern)
+        # For Deferred/Rejected: update status in-place and add notes (column-aware lookup)
+        $rows = ConvertFrom-MarkdownTable -Content $content -Section "## Active Feature Requests" -IncludeRawLine
+        $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
 
-        if (-not $match.Success) {
+        if (-not $row) {
             Write-Log "Feature request not found in Active table: $RequestId" -Level "ERROR"
             exit 1
         }
 
-        $currentEntry = $match.Value
-        $columns = $currentEntry -split '\|' | ForEach-Object { $_.Trim() }
-        if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-        if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+        $currentEntry = $row._RawLine
+        $columns = Split-MarkdownTableRow -Line $currentEntry
 
         $columns[5] = $DisplayStatus
         $columns[6] = $CurrentDate
@@ -469,6 +492,7 @@ function Main {
     }
 
     # Step 8: For new features, create feature implementation state file
+    $stateFileCreated = $false
     if ($isCompletion -and $Classification -eq "NewFeature" -and $FeatureName) {
         $stateScript = Join-Path -Path $ProjectRoot -ChildPath "process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1"
         if (Test-Path $stateScript) {
@@ -476,6 +500,7 @@ function Main {
             try {
                 & $stateScript -FeatureName $FeatureName -FeatureId $FeatureId -Description $Notes -Confirm:$false
                 Write-Log "Feature implementation state file created and linked in feature-tracking.md" -Level "SUCCESS"
+                $stateFileCreated = $true
             }
             catch {
                 Write-Log "Failed to create feature state file: $($_.Exception.Message)" -Level "WARN"
@@ -487,14 +512,30 @@ function Main {
         }
     }
 
-    # Summary
-    Write-Log ""
-    Write-Log "Feature request update completed:" -Level "SUCCESS"
-    Write-Log "  Request: $RequestId → $NewStatus"
-    if ($Classification) { Write-Log "  Classification: $classLabel" }
-    if ($FeatureId) { Write-Log "  Feature: $FeatureId" }
-    if ($FeatureName) { Write-Log "  Feature Name: $FeatureName" }
+    # Summary line
+    $summaryParts = @("$RequestId → $NewStatus")
+    if ($Classification -and $FeatureId) {
+        $featureSuffix = if ($FeatureName) { "$FeatureId — $FeatureName" } else { "$FeatureId" }
+        $summaryParts += "(${classLabel}: $featureSuffix)"
+    } elseif ($FeatureId) {
+        $summaryParts += "(feature $FeatureId)"
+    }
+    Write-SummaryLine ($summaryParts -join ' ')
+    if ($stateFileCreated) {
+        Write-SummaryLine "Created feature state file for $FeatureId"
+    }
 }
 
-# Execute main function
-Main
+# Execute main function with soak-verification wrapper (PF-PRO-028 v2.0)
+try {
+    Main
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "Feature request update failed: $($_.Exception.Message)" -ExitCode 1
+}

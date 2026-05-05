@@ -51,7 +51,7 @@ Implement the state management layer for a feature. This task creates the reacti
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Update Feature Implementation State File throughout implementation.**
 >
@@ -131,7 +131,7 @@ Implement the state management layer for a feature. This task creates the reacti
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

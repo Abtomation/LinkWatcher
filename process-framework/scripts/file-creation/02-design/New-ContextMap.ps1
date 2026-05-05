@@ -1,4 +1,4 @@
-﻿# New-ContextMap.ps1
+# New-ContextMap.ps1
 # Creates a new context map visualization with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
 
@@ -87,6 +87,12 @@ try {
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # Prepare additional metadata fields (IMP-376: removed redundant task_name, map_type, visualization_type)
 $additionalMetadataFields = @{
     "workflow_phase" = $WorkflowPhase
@@ -128,22 +134,7 @@ try {
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
-        $details += @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional document until extensively customized.",
-            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-            "",
-            "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "process-framework/guides/support/visualization-creation-guide.md",
-            "process-framework/guides/support/visual-notation-guide.md",
-            "🎯 FOCUS AREAS: 'Context Map Development' section",
-            "",
-            "🚫 DO NOT use the generated file without proper customization!",
-            "✅ The template provides structure - YOU provide the meaningful content."
-        )
+        $details += "Customization required — see process-framework/guides/support/visualization-creation-guide.md (and visual-notation-guide.md)"
     }
 
     # Auto-append entry to PF-documentation-map.md under the correct Context Maps section

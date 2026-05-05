@@ -17,7 +17,7 @@ LinkWatcher has two locations:
 - **Source repository**: `C:\Users\ronny\VS_Code\LinkWatcher\` - development copy with full codebase, tests, docs
 - **Global install**: `C:\Users\ronny\bin\` - deployed copy that the background process runs from
 
-The startup scripts in `LinkWatcher_run/` reference the global install location. The install script copies source files and updates all startup scripts automatically.
+The startup scripts in `process-framework-local/tools/linkWatcher/` reference the global install location. The install script copies source files and updates all startup scripts automatically.
 
 ## Release Process
 
@@ -46,7 +46,7 @@ This script:
 - Copies `main.py`, `pyproject.toml`, `src/linkwatcher` package, and `config-examples/`
 - Excludes `__pycache__` and `.pyc` files from the copy
 - Creates wrapper scripts (`linkwatcher.bat`, `linkwatcher.ps1`, `checklinks.bat`)
-- Updates all startup scripts in `LinkWatcher_run/` to point to the install path
+- Updates all startup scripts in `process-framework-local/tools/linkWatcher/` to point to the install path
 - Runs a smoke test (`main.py --help`) to verify the install works
 
 To install to a custom location:
@@ -66,7 +66,7 @@ Get-Process python* | Where-Object {
 } | Stop-Process -Force
 
 # Start fresh
-& LinkWatcher_run\start_linkwatcher_background.ps1
+& process-framework\tools\linkWatcher\start_linkwatcher_background.ps1
 ```
 
 ### 4. Verify
@@ -80,7 +80,7 @@ Get-Process python* | Where-Object {
 }
 
 # Check recent log output
-Get-Content LinkWatcher_run/LinkWatcherLog.txt.1 -Tail 20
+Get-Content process-framework-local/tools/linkWatcher/logs/LinkWatcherLog.txt.1 -Tail 20
 ```
 
 ## What Gets Deployed

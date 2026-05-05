@@ -58,6 +58,13 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 Invoke-StandardScriptInitialization
 
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
+
 # Configuration
 $ProjectRoot = Get-ProjectRoot
 $WorkflowFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/user-workflow-tracking.md"
@@ -181,6 +188,9 @@ Write-Host "Inserted $WorkflowId into Workflow Milestone Tracking table" -Foregr
 $updatedContent = $e2eLines -join "`r`n"
 Set-Content -Path $E2ETrackingFile -Value $updatedContent -NoNewline -Encoding UTF8
 
+# Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
+Assert-LineInFile -Path $E2ETrackingFile -Pattern "\| $WorkflowId \|" -Context "milestone row for $WorkflowId in $E2ETrackingFile"
+
 # --- Output ---
 $details = @(
     "Workflow: $WorkflowId — $workflowDescription",
@@ -191,8 +201,18 @@ $details = @(
 
 Write-ProjectSuccess -Message "Created E2E milestone entry for: $WorkflowId" -Details $details
 
-Write-Host ""
-Write-Host "Next Steps:" -ForegroundColor Yellow
-Write-Host "  - Create E2E test specification for this workflow (PF-TSK-012 with -CrossCutting)" -ForegroundColor White
-Write-Host "  - Create E2E test cases (PF-TSK-069) once specification exists" -ForegroundColor White
-Write-Host "  - Run Update-WorkflowTracking.ps1 to sync statuses" -ForegroundColor White
+Write-Verbose "Next Steps: Create E2E test specification for this workflow (PF-TSK-012 with -CrossCutting)"
+Write-Verbose "Next Steps: Create E2E test cases (PF-TSK-069) once specification exists"
+Write-Verbose "Next Steps: Run Update-WorkflowTracking.ps1 to sync statuses"
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "E2E milestone entry creation failed: $($_.Exception.Message)" -ExitCode 1
+}

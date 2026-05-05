@@ -42,7 +42,7 @@ from .link_types import LinkType
 from .logging import get_logger
 from .parser import LinkParser
 from .updater import LinkUpdater
-from .utils import get_relative_path
+from .utils import get_relative_path, path_exists_under_root
 
 
 class ReferenceLookup:
@@ -334,6 +334,14 @@ class ReferenceLookup:
 
         module_references = []
         if old_file_path.endswith(".py"):
+            # PD-BUG-096: find_references() also returns PYTHON_IMPORT refs for
+            # .py files via the resolved-target index, so they would otherwise
+            # appear in both groups. Leaving them in file_references caused
+            # Phase 1 to apply str.replace twice on the same import line,
+            # double-prefixing it (e.g. "import src.src.utils.a"). Keep
+            # PYTHON_IMPORT refs only in module_references where they are
+            # paired with the correct module-path target.
+            file_references = [r for r in file_references if r.link_type != LinkType.PYTHON_IMPORT]
             old_module_path = old_file_path[:-3]
             module_references = self.link_db.get_references_to_file(old_module_path)
 
@@ -765,8 +773,7 @@ class ReferenceLookup:
             # PD-BUG-033: Skip non-existent targets — if the resolved path doesn't
             # exist as a file or directory, the extracted "link" was never a real path
             # (e.g., regex patterns, filter strings, example text in PowerShell scripts).
-            abs_target_check = os.path.join(str(self.project_root), old_absolute_target)
-            if not os.path.exists(abs_target_check):
+            if not path_exists_under_root(self.project_root, old_absolute_target):
                 return original_target
 
             # Calculate the new relative path from the new location

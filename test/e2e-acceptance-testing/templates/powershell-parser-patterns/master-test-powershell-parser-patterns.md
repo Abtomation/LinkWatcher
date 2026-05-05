@@ -17,7 +17,7 @@ Quick validation sequence covering all test cases in this group. Run this FIRST 
 
 ## Preconditions
 
-- [ ] LinkWatcher is running in background (`LinkWatcher_run/start_linkwatcher_background.ps1`)
+- [ ] LinkWatcher is running in background (`process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`)
 - [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Group powershell-parser-patterns`
 - [ ] Workspace contains pristine copies of all test fixtures
 

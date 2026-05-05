@@ -36,7 +36,7 @@ On-demand workspace scanner that checks all existing links across all supported 
   - Extract links using existing parsers
   - Resolve relative paths and check if targets exist on disk
   - Report broken links with source file, line number, and target path
-  - Write report to `LinkWatcherBrokenLinks.txt` in the run directory
+  - Write report to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` in the run directory
   - CLI invocation via `python main.py --validate`
   - Exit code: 0 = no broken links, 1 = broken links found (CI-friendly)
 - **Non-Functional Requirements**: Performance comparable to existing `_initial_scan()` (handles 1000+ files)
@@ -96,7 +96,7 @@ Deliverables:
 - `LinkValidator(project_root, config)`: accepts same config as service
 - `validate() → ValidationResult`: main entry, walks files → parses → resolves → checks
 - `format_report(result) → str`: generates human-readable text report
-- `write_report(result, output_dir)`: writes `LinkWatcherBrokenLinks.txt`
+- `write_report(result, output_dir)`: writes `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt`
 
 Dependencies: None (reuses existing modules without modification)
 
@@ -216,7 +216,7 @@ Key test scenarios:
 ## Success Criteria
 
 1. `python main.py --validate` scans workspace and reports all broken file references to console
-2. `LinkWatcherBrokenLinks.txt` written to run directory with full report
+2. `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` written to run directory with full report
 3. Exit code 0 (clean) when no broken links, exit code 1 when broken links found
 4. Respects config (monitored extensions, ignored directories)
 5. Output includes source file, line number, and broken target path for each issue

@@ -84,6 +84,12 @@ try {
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # Warn if score >= 2.0 (should be Target-State only)
 if ($AverageScore -ge 2.0) {
     Write-Host ""

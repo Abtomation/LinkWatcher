@@ -137,7 +137,7 @@ Three detection strategies:
 
 - **Read-only** — no file modifications
 - Scans workspace for broken file references
-- Writes report to `LinkWatcherBrokenLinks.txt`
+- Writes report to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt`
 - Exits with code 0 (clean) or 1 (broken links found)
 - Default validated extensions: `.md`, `.yaml`, `.yml`, `.json` (configurable via `validation_extensions`)
 - Smart resolution: tries source-file-relative first, falls back to project-root-relative
@@ -151,6 +151,7 @@ Three detection strategies:
 - **Does not validate HTML anchors** — `#section` links not checked against heading IDs
 - **Does not interact with git** — operates on disk state only
 - **Does not do syntax-aware refactoring** — updates textual matches, not AST-based
+- **Does not update prose descriptions surrounding a path** — only the path token itself is rewritten. Trailing English describing the target's behavior (e.g., "with X/Y/Z subcommands" in an index line, or a script's `.DESCRIPTION` block) stays unchanged when the linked artifact gains/loses capabilities. Description drift requires a manual sweep.
 - **Does not update package manager references** — `requirements.txt` versions, `package.json` dependencies, etc.
 - **Does not create backups by default** — configurable via `create_backups: true`
 

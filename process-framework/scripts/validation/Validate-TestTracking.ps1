@@ -10,6 +10,7 @@
     - Feature IDs in markers against known features from feature-tracking.md
     - Test counts from markers against pytest collection
     - test_type marker vs directory convention (warning only — marker is authoritative)
+    - test-tracking.md "Test Cases Count" column against pytest collection (catches stale tracking rows; see PF-IMP-672)
 
     E2E entries (TE-E2G-*, TE-E2E-*) are tracked in e2e-test-tracking.md (IMP-210).
     E2E cross-reference check against test-registry.yaml is retained for historical validation
@@ -290,6 +291,9 @@ Write-Host ""
 # --- Check 6: testCasesCount validation via test runner ---
 Write-Host "6. Checking test counts against pytest collection..." -ForegroundColor Yellow
 
+# Hoisted to script scope so Check 8 can reuse the collection results
+$actualCounts = @{}
+
 if (-not $testCountCommand) {
     Write-Host "  SKIPPED: No discoveryCommand in language config" -ForegroundColor Gray
 } else {
@@ -311,8 +315,7 @@ if (-not $testCountCommand) {
             } elseif (-not $discoveryOutputPattern) {
                 Write-Host "  SKIPPED: No discoveryOutputPattern in language config" -ForegroundColor Gray
             } else {
-                # Parse discovery output
-                $actualCounts = @{}
+                # Parse discovery output (populates script-scoped $actualCounts)
                 foreach ($line in $collectOutput) {
                     $lineStr = "$line".Trim()
                     if ($lineStr -match $discoveryOutputPattern) {
@@ -430,6 +433,71 @@ if (Test-Path $registryPath) {
     }
 } else {
     Write-Host "  SKIPPED: test-registry.yaml not found (E2E entries tracked in e2e-test-tracking.md)" -ForegroundColor Gray
+}
+Write-Host ""
+
+# --- Check 8: test-tracking.md "Test Cases Count" column vs pytest collection (PF-IMP-672) ---
+# Catches stale tracking rows where tests were added/removed but the count column
+# was not updated. Complements Check 6 (which checks marker counts). Last Executed
+# column is intentionally not validated — its documented purpose is manual-test
+# execution date, not a count to compare.
+Write-Host "8. Checking test-tracking.md 'Test Cases Count' column against pytest collection..." -ForegroundColor Yellow
+
+if ($actualCounts.Count -eq 0) {
+    Write-Host "  SKIPPED: Pytest collection unavailable (Check 6 prerequisite)" -ForegroundColor Gray
+} elseif (-not (Test-Path $testTrackingPath)) {
+    Write-Host "  SKIPPED: test-tracking.md not found" -ForegroundColor Gray
+} else {
+    $rowCountMismatches = @()
+
+    foreach ($line in $trackingContent) {
+        if ($line -notmatch '^\|') { continue }
+        # Skip header separator rows (|---|---|)
+        if ($line -match '^\|[\s\-:|]+\|\s*$') { continue }
+
+        $cells = $line -split '\|'
+        # Expected: cells[0]=empty, [1]=feature, [2]=type, [3]=file, [4]=status, [5]=count, [6]=last_run, [7]=last_updated, [8]=notes, [9]=empty
+        if ($cells.Count -lt 7) { continue }
+
+        $fileCell = $cells[3].Trim()
+        if ($fileCell -notmatch '\[([^\]]+)\]\(([^)]+)\)') { continue }
+        $rawPath = $matches[2].Replace('\', '/')
+
+        # Resolve tracking-relative path (../../X) to project-root-relative (test/X)
+        $resolvedPath = if ($rawPath -match '^\.\./\.\./(.+)$') { "test/$($matches[1])" } else { $rawPath }
+
+        $countCell = $cells[5].Trim()
+        if ($countCell -notmatch '^\d+$') { continue }
+        $trackedCount = [int]$countCell
+
+        # Suffix-match against pytest collection results (same convention as Check 6)
+        $collectionCount = $null
+        foreach ($actualPath in $actualCounts.Keys) {
+            if ($actualPath -eq $resolvedPath -or $actualPath.EndsWith($resolvedPath) -or $resolvedPath.EndsWith($actualPath)) {
+                $collectionCount = $actualCounts[$actualPath]
+                break
+            }
+        }
+        if ($null -eq $collectionCount) { continue }
+
+        if ($trackedCount -ne $collectionCount) {
+            $rowCountMismatches += [PSCustomObject]@{
+                FilePath = $resolvedPath
+                TrackedCount = $trackedCount
+                CollectionCount = $collectionCount
+            }
+        }
+    }
+
+    if ($rowCountMismatches.Count -gt 0) {
+        Write-Host "  WARNING: $($rowCountMismatches.Count) tracking-row count mismatch(es):" -ForegroundColor Yellow
+        foreach ($m in $rowCountMismatches) {
+            Write-Host "    - $($m.FilePath): tracked=$($m.TrackedCount), collection=$($m.CollectionCount)" -ForegroundColor Yellow
+        }
+        $warningCount += $rowCountMismatches.Count
+    } else {
+        Write-Host "  OK: All test-tracking.md row counts match pytest collection" -ForegroundColor Green
+    }
 }
 Write-Host ""
 

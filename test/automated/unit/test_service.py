@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from linkwatcher.config.settings import LinkWatcherConfig
 from linkwatcher.service import LinkWatcherService
 
 pytestmark = [
@@ -113,6 +114,20 @@ class TestLinkWatcherService:
         # Disable dry run
         service.set_dry_run(False)
         assert service.updater.dry_run is False
+
+    def test_init_applies_config_dry_run_mode(self, temp_project_dir):
+        """Service constructor must propagate config.dry_run_mode to the updater (TD235)."""
+        config = LinkWatcherConfig(dry_run_mode=True)
+        service = LinkWatcherService(str(temp_project_dir), config=config)
+
+        assert service.updater.dry_run is True
+
+    def test_init_applies_config_create_backups(self, temp_project_dir):
+        """Service constructor must propagate config.create_backups to the updater (TD235)."""
+        config = LinkWatcherConfig(create_backups=False)
+        service = LinkWatcherService(str(temp_project_dir), config=config)
+
+        assert service.updater.backup_enabled is False
 
     def test_add_custom_parser(self, temp_project_dir):
         """Test adding a custom parser."""
@@ -301,6 +316,34 @@ class TestLinkWatcherService:
 
         # All results should be consistent (same reference count)
         assert len(set(results)) == 1  # All values should be the same
+
+    def test_print_final_stats_skipped_when_show_statistics_false(self, temp_project_dir):
+        """TD229: _print_final_stats() must respect config.show_statistics flag."""
+        from dataclasses import replace
+
+        from linkwatcher.config.defaults import DEFAULT_CONFIG
+
+        config = replace(DEFAULT_CONFIG, show_statistics=False)
+        service = LinkWatcherService(str(temp_project_dir), config=config)
+        service.logger = MagicMock()
+
+        service._print_final_stats()
+
+        service.logger.operation_stats.assert_not_called()
+
+    def test_print_final_stats_logs_when_show_statistics_true(self, temp_project_dir):
+        """TD229: _print_final_stats() must emit stats when flag is True."""
+        from dataclasses import replace
+
+        from linkwatcher.config.defaults import DEFAULT_CONFIG
+
+        config = replace(DEFAULT_CONFIG, show_statistics=True)
+        service = LinkWatcherService(str(temp_project_dir), config=config)
+        service.logger = MagicMock()
+
+        service._print_final_stats()
+
+        service.logger.operation_stats.assert_called_once()
 
 
 class TestObserverResilience:

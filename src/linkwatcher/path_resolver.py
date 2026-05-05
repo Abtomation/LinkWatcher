@@ -49,7 +49,7 @@ from pathlib import Path
 from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
-from .utils import normalize_path
+from .utils import normalize_path, path_exists_under_root
 
 
 class PathResolver:
@@ -124,8 +124,7 @@ class PathResolver:
                 # was normalized to '/' (e.g. ``'doc/foo/bar-\\d+'`` → ``'doc/foo/bar-/d+'``)
                 # and incidentally matches the moved-directory prefix. Mirrors PD-BUG-033
                 # in reference_lookup._calculate_updated_relative_path.
-                abs_check = os.path.join(str(self.project_root), result.lstrip("/"))
-                if not os.path.exists(abs_check):
+                if not path_exists_under_root(self.project_root, result):
                     return original_target
                 if original_target.startswith("/"):
                     return f"/{result}"

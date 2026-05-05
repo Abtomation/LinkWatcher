@@ -24,7 +24,7 @@ At the start of EVERY session, you must:
 
 1. **Start LinkWatcher** (maintains cross-references automatically):
    ```powershell
-   LinkWatcher_run/start_linkwatcher_background.ps1
+   process-framework/tools/linkWatcher/start_linkwatcher_background.ps1
    ```
 
 2. **Get current time** (for time tracking - use MCP server if available)

@@ -2,7 +2,7 @@
 id: [DOCUMENT_ID]
 type: Process Framework
 category: Proposal
-version: 1.3
+version: 1.4
 created: [Created Date]
 updated: [Created Date]
 extension_name: [Extension Name]
@@ -200,6 +200,20 @@ This framework extension should be used when:
 - **[State File 1]**: [Purpose and what it tracks]
 - **[State File 2]**: [Purpose and what it tracks]
 
+#### State File Locality Pre-Flight
+
+> **Required for each state file listed above.** Mismatched locality vs. ID prefix directory mapping has caused mid-session migrations (PF-STA-097 → PF-SST-001 in PF-PRO-028).
+
+For each new state file:
+
+- [ ] **Locality decision**: Is this file **project-local** (lives in `process-framework-local/state-tracking/`) or **shareable across projects** (lives in `process-framework/state-tracking/`)?
+- [ ] **ID prefix match**: Does the assigned ID prefix's `directories` block in the relevant registry match that locality? Verify against the proposed file location.
+- [ ] **Registry update**: If no existing prefix matches, add a new prefix to the appropriate registry **before** assigning IDs (do not assign and migrate later).
+
+Common prefixes:
+- `PF-STA` (`process-framework-local/PF-id-registry-local.json`) — Project-Local State Tracking
+- `PF-SST` (`process-framework/PF-id-registry.json`) — Shareable State Tracking
+
 #### Updates to Existing State Files
 - **[Existing State File 1]**: [What new information will be added]
 - **[Existing State File 2]**: [What new information will be added]
@@ -360,7 +374,7 @@ This framework extension should be used when:
 
 ## 📋 Human Review Checklist
 
-**🚨 This concept requires human review before implementation can begin! 🚨**
+**This concept requires human review before implementation can begin!**
 
 ### Concept Validation
 - [ ] **Extension Necessity**: Confirm this truly requires framework extension vs. existing tasks

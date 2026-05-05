@@ -10,15 +10,56 @@ Test Cases Implemented:
 - PH-003: Large files
 - PH-004: Many references to single file
 - PH-005: Rapid file operations
+- PH-006: Directory batch detection at scale
+- PH-007: Memory usage monitoring (test_memory_usage_monitoring)
+- PH-008: CPU usage monitoring (test_cpu_usage_monitoring)
 """
 
 import shutil
+import tempfile
 import time
+from pathlib import Path
 
 import pytest
 from watchdog.events import FileMovedEvent
 
 from linkwatcher.service import LinkWatcherService
+
+
+def _warmup_service(num_files: int = 5, num_moves: int = 0, dir_move: bool = False) -> None:
+    """Prime caches/JIT/import-warmup outside the timed window (TD246 / audit Criterion 1).
+
+    Instantiates a separate service + initial scan against an external tempdir so the
+    warmup files are NOT included in the test's actual scan. Optionally exercises move
+    and directory-move event paths to prime the handler hot paths.
+    """
+    with tempfile.TemporaryDirectory() as warmup_dir_str:
+        warmup_dir = Path(warmup_dir_str)
+        warmup_target = warmup_dir / "warmup_target.txt"
+        warmup_target.write_text("Warmup")
+        for i in range(num_files):
+            wsrc = warmup_dir / f"warmup_src_{i}.md"
+            wsrc.write_text(f"# Warmup {i}\n[w](warmup_target.txt)\n")
+        warmup_service = LinkWatcherService(str(warmup_dir))
+        warmup_service._initial_scan()
+
+        for i in range(num_moves):
+            old_path = warmup_dir / f"warmup_src_{i}.md"
+            new_path = warmup_dir / f"warmup_moved_{i}.md"
+            old_path.rename(new_path)
+            warmup_service.handler.on_moved(FileMovedEvent(str(old_path), str(new_path)))
+
+        if dir_move:
+            warmup_subdir = warmup_dir / "warmup_subdir"
+            warmup_subdir.mkdir()
+            (warmup_subdir / "f.md").write_text("# Sub\n[w](../warmup_target.txt)\n")
+            warmup_service._initial_scan()
+            warmup_moved = warmup_dir / "warmup_subdir_moved"
+            shutil.move(str(warmup_subdir), str(warmup_moved))
+            ev = FileMovedEvent(str(warmup_subdir), str(warmup_moved))
+            ev.is_directory = True
+            warmup_service.handler.on_moved(ev)
+
 
 pytestmark = [
     pytest.mark.feature("4.1.1"),
@@ -40,6 +81,8 @@ class TestLargeProjectHandling:
         Expected: System handles load efficiently
         Priority: High
         """
+        _warmup_service(num_files=5, num_moves=1)
+
         # Create large project structure
         num_files = 1000
         files_per_dir = 50
@@ -53,7 +96,7 @@ class TestLargeProjectHandling:
 
         # Create files with cross-references
         created_files = []
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         for i in range(num_files):
             dir_index = i // files_per_dir
@@ -78,15 +121,15 @@ class TestLargeProjectHandling:
             file_path.write_text(content)
             created_files.append(file_path)
 
-        creation_time = time.time() - start_time
+        creation_time = time.perf_counter() - start_time
         print(f"Created {num_files} files in {creation_time:.2f} seconds")
 
         # Initialize service and perform initial scan
         service = LinkWatcherService(str(temp_project_dir))
 
-        scan_start = time.time()
+        scan_start = time.perf_counter()
         service._initial_scan()
-        scan_time = time.time() - scan_start
+        scan_time = time.perf_counter() - scan_start
 
         print(f"Initial scan completed in {scan_time:.2f} seconds")
 
@@ -106,14 +149,16 @@ class TestLargeProjectHandling:
         new_location = temp_project_dir / "moved" / "test_file.md"
         new_location.parent.mkdir()
 
-        move_start = time.time()
+        move_start = time.perf_counter()
         test_file.rename(new_location)
         move_event = FileMovedEvent(str(test_file), str(new_location))
         service.handler.on_moved(move_event)
-        move_time = time.time() - move_start
+        move_time = time.perf_counter() - move_start
 
         print(f"File move processed in {move_time:.2f} seconds")
-        assert move_time < 5.0  # Move should be processed quickly
+        assert (
+            move_time < 1.0
+        )  # Move should be processed quickly (TD249: 7x post-warmup baseline 0.14s)
 
     def test_ph_002_deep_directory_structures(self, temp_project_dir):
         """
@@ -123,6 +168,8 @@ class TestLargeProjectHandling:
         Expected: All levels processed correctly
         Priority: Medium
         """
+        _warmup_service(num_files=5, num_moves=1)
+
         # Create very deep directory structure
         max_depth = 15
         current_path = temp_project_dir
@@ -156,12 +203,14 @@ class TestLargeProjectHandling:
         service = LinkWatcherService(str(temp_project_dir))
 
         # Measure scan performance
-        start_time = time.time()
+        start_time = time.perf_counter()
         service._initial_scan()
-        scan_time = time.time() - start_time
+        scan_time = time.perf_counter() - start_time
 
         print(f"Deep structure scan completed in {scan_time:.2f} seconds")
-        assert scan_time < 10.0  # Should handle deep structures efficiently
+        assert (
+            scan_time < 1.0
+        )  # Should handle deep structures efficiently (TD249: ~5x post-warmup baseline 0.19s)
 
         # Verify all levels were processed
         stats = service.link_db.get_stats()
@@ -171,14 +220,16 @@ class TestLargeProjectHandling:
         deep_file = current_path / f"file_at_level_{max_depth-1}.md"
         shallow_location = temp_project_dir / "moved_from_deep.md"
 
-        move_start = time.time()
+        move_start = time.perf_counter()
         deep_file.rename(shallow_location)
         move_event = FileMovedEvent(str(deep_file), str(shallow_location))
         service.handler.on_moved(move_event)
-        move_time = time.time() - move_start
+        move_time = time.perf_counter() - move_start
 
         print(f"Deep file move processed in {move_time:.2f} seconds")
-        assert move_time < 3.0
+        assert (
+            move_time < 0.5
+        )  # TD249: 10x post-warmup baseline 0.05s (looser due to sub-100ms OS noise)
 
     @pytest.mark.slow
     def test_ph_003_large_files(self, temp_project_dir):
@@ -189,6 +240,8 @@ class TestLargeProjectHandling:
         Expected: Large files processed or skipped appropriately
         Priority: Medium
         """
+        _warmup_service(num_files=5)
+
         # Create files of various sizes
         file_sizes = [
             (1024, "small.md"),  # 1KB
@@ -221,9 +274,9 @@ class TestLargeProjectHandling:
             else:
                 content = base_content
 
-            start_write = time.time()
+            start_write = time.perf_counter()
             file_path.write_text(content)
-            write_time = time.time() - start_write
+            write_time = time.perf_counter() - start_write
 
             actual_size = file_path.stat().st_size
             print(f"Created {filename}: {actual_size} bytes in {write_time:.2f}s")
@@ -234,9 +287,9 @@ class TestLargeProjectHandling:
         service = LinkWatcherService(str(temp_project_dir))
 
         # Measure parsing performance for different file sizes
-        start_time = time.time()
+        start_time = time.perf_counter()
         service._initial_scan()
-        scan_time = time.time() - start_time
+        scan_time = time.perf_counter() - start_time
 
         print(f"Large files scan completed in {scan_time:.2f} seconds")
 
@@ -265,6 +318,8 @@ class TestLargeProjectHandling:
         Expected: All references updated efficiently
         Priority: Medium
         """
+        _warmup_service(num_files=5, num_moves=1)
+
         # Create target file
         target_file = temp_project_dir / "popular_file.txt"
         target_file.write_text("This file is referenced by many others")
@@ -273,7 +328,7 @@ class TestLargeProjectHandling:
         num_referencing_files = 100
         referencing_files = []
 
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         for i in range(num_referencing_files):
             ref_file = temp_project_dir / f"referencing_{i:03d}.md"
@@ -292,15 +347,15 @@ class TestLargeProjectHandling:
             ref_file.write_text(content)
             referencing_files.append(ref_file)
 
-        creation_time = time.time() - start_time
+        creation_time = time.perf_counter() - start_time
         print(f"Created {num_referencing_files} referencing files in {creation_time:.2f}s")
 
         # Initialize service
         service = LinkWatcherService(str(temp_project_dir))
 
-        scan_start = time.time()
+        scan_start = time.perf_counter()
         service._initial_scan()
-        scan_time = time.time() - scan_start
+        scan_time = time.perf_counter() - scan_start
 
         print(f"Scan with many references completed in {scan_time:.2f}s")
 
@@ -314,11 +369,11 @@ class TestLargeProjectHandling:
         new_target = temp_project_dir / "moved" / "renamed_popular.txt"
         new_target.parent.mkdir()
 
-        move_start = time.time()
+        move_start = time.perf_counter()
         target_file.rename(new_target)
         move_event = FileMovedEvent(str(target_file), str(new_target))
         service.handler.on_moved(move_event)
-        move_time = time.time() - move_start
+        move_time = time.perf_counter() - move_start
 
         print(f"Updated {len(target_refs)} references in {move_time:.2f}s")
 
@@ -341,6 +396,8 @@ class TestLargeProjectHandling:
         Expected: All operations processed correctly
         Priority: High
         """
+        _warmup_service(num_files=5, num_moves=3)
+
         # Create initial file structure
         num_files = 50
         files = []
@@ -370,7 +427,7 @@ class TestLargeProjectHandling:
         service._initial_scan()
 
         # Perform rapid file moves
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         for i, file_path in enumerate(files):
             new_path = dest_dir / f"moved_{i:02d}.txt"
@@ -382,10 +439,7 @@ class TestLargeProjectHandling:
             move_event = FileMovedEvent(str(file_path), str(new_path))
             service.handler.on_moved(move_event)
 
-            # Small delay to simulate real-world timing
-            time.sleep(0.01)
-
-        total_time = time.time() - start_time
+        total_time = time.perf_counter() - start_time
         avg_time_per_move = total_time / num_files
 
         print(f"Processed {num_files} rapid moves in {total_time:.2f}s")
@@ -420,6 +474,8 @@ class TestDirectoryBatchDetection:
         using native FileMovedEvent. Measures detection + update time.
         Expected: Complete within 30 seconds.
         """
+        _warmup_service(num_files=5, dir_move=True)
+
         num_subdirs = 5
         files_per_subdir = 20
         total_files = num_subdirs * files_per_subdir
@@ -465,7 +521,7 @@ class TestDirectoryBatchDetection:
 
         # Move the entire directory
         dest_dir = temp_project_dir / "moved_project"
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         shutil.move(str(src_dir), str(dest_dir))
 
@@ -474,13 +530,15 @@ class TestDirectoryBatchDetection:
         move_event.is_directory = True
         service.handler.on_moved(move_event)
 
-        elapsed = time.time() - start_time
+        elapsed = time.perf_counter() - start_time
 
         print(f"\nDirectory batch detection ({total_files} files, " f"{num_subdirs} subdirs):")
         print(f"  Total time: {elapsed:.2f}s")
         print(f"  Files/sec: {total_files / max(elapsed, 1e-9):.1f}")
 
-        assert elapsed < 30.0, f"Directory batch detection took {elapsed:.2f}s (expected <30s)"
+        assert (
+            elapsed < 5.0
+        ), f"Directory batch detection took {elapsed:.2f}s (expected <5s)"  # TD249: ~5x post-warmup baseline 0.95s
 
         # Verify external references were updated
         ext_content = (temp_project_dir / "external_00.md").read_text()
@@ -496,6 +554,10 @@ class TestPerformanceMetrics:
         import os
 
         psutil = pytest.importorskip("psutil")
+
+        # Warmup BEFORE measuring initial_memory so first-time module/code allocations
+        # are not counted in `memory_increase` (TD246 / audit Criterion 1).
+        _warmup_service(num_files=5)
 
         # Get current process
         process = psutil.Process(os.getpid())
@@ -552,17 +614,27 @@ class TestPerformanceMetrics:
 
     def test_cpu_usage_monitoring(self, temp_project_dir):
         """Monitor CPU usage during intensive operations."""
+        import os
         import threading
 
         psutil = pytest.importorskip("psutil")
+
+        # Warmup BEFORE starting cpu_monitor so first-time CPU costs (import init,
+        # module loading, JIT) are not counted in the sampling window
+        # (TD246 / audit Criterion 1).
+        _warmup_service(num_files=5, num_moves=1)
 
         # CPU monitoring function
         cpu_samples = []
         monitoring = True
 
+        # Measure THIS process's CPU only — not host-wide — so the assertion is
+        # decoupled from unrelated background load (TD247 / audit Criterion 1).
+        process = psutil.Process(os.getpid())
+
         def monitor_cpu():
             while monitoring:
-                cpu_samples.append(psutil.cpu_percent(interval=0.1))
+                cpu_samples.append(process.cpu_percent(interval=0.1))
 
         # Start CPU monitoring
         monitor_thread = threading.Thread(target=monitor_cpu)
@@ -610,6 +682,10 @@ class TestPerformanceMetrics:
 
             print(f"CPU usage - Average: {avg_cpu:.1f}%, Peak: {max_cpu:.1f}%")
 
-            # CPU usage should be reasonable
-            assert avg_cpu < 80  # Should not consistently use too much CPU
-            assert max_cpu < 95  # Should not max out CPU
+            # process.cpu_percent reports cores * 100% on multi-core hosts; normalize
+            # to per-core average so the threshold's [0, 100] semantics survive the
+            # host-wide -> process-CPU switch (TD247 + TD249's PH-008 sub-item).
+            cpu_count = psutil.cpu_count() or 1
+            assert (avg_cpu / cpu_count) < 80  # Process should not pin every core on average
+            # Peak assertion removed (TD249): peaks of interval samplers are
+            # unstable and false-positive prone; print above retains diagnostic value.

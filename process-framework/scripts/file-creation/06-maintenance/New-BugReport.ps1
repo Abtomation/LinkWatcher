@@ -146,6 +146,13 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 Invoke-StandardScriptInitialization
 
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
+
 # Validate -PreTriaged requires -Scope
 if ($PreTriaged -and -not $Scope) {
     Write-ProjectError -Message "-PreTriaged requires -Scope to be specified." -ExitCode 1
@@ -302,6 +309,9 @@ try {
     # Write updated content
     Set-Content -Path $BugTrackingFile -Value $UpdatedContent -NoNewline -Encoding UTF8
 
+    # Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
+    Assert-LineInFile -Path $BugTrackingFile -Pattern "\| $BugId \|" -Context "bug row for $BugId in $BugTrackingFile"
+
     $details = @(
         "Severity: $Severity",
         "Component: $Component",
@@ -315,21 +325,29 @@ try {
 
     Write-ProjectSuccess -Message "Created bug report with ID: $BugId" -Details $details
 
-    Write-Host ""
-    Write-Host "🔄 Next Steps:" -ForegroundColor Yellow
     if ($PreTriaged) {
-        Write-Host "  1. Bug created in Triaged status — skip triage, proceed to Bug Fixing task" -ForegroundColor White
-        Write-Host "  2. Use Update-BugStatus.ps1 to transition to In Progress when work begins" -ForegroundColor White
-        Write-Host ""
-        Write-Host "💡 Tip: Use 'Bug Fixing' task (PF-TSK-007) to fix this bug" -ForegroundColor Cyan
+        Write-Verbose "Next Steps: Bug created in Triaged status — skip triage, proceed to Bug Fixing task"
+        Write-Verbose "Next Steps: Use Update-BugStatus.ps1 to transition to In Progress when work begins"
+        Write-Verbose "Tip: Use 'Bug Fixing' task (PF-TSK-007) to fix this bug"
     } else {
-        Write-Host "  1. Run Bug Triage task to evaluate and prioritize this bug" -ForegroundColor White
-        Write-Host "  2. Bug will be assigned priority and severity during triage" -ForegroundColor White
-        Write-Host "  3. After triage, bug can be assigned for fixing" -ForegroundColor White
-        Write-Host ""
-        Write-Host "💡 Tip: Use 'Bug Triage' task to process all reported bugs" -ForegroundColor Cyan
+        Write-Verbose "Next Steps: Run Bug Triage task to evaluate and prioritize this bug"
+        Write-Verbose "Next Steps: Bug will be assigned priority and severity during triage"
+        Write-Verbose "Next Steps: After triage, bug can be assigned for fixing"
+        Write-Verbose "Tip: Use 'Bug Triage' task to process all reported bugs"
     }
 }
 catch {
     Write-ProjectError -Message "Failed to create bug report: $($_.Exception.Message)" -ExitCode 1
+}
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "Bug report creation failed: $($_.Exception.Message)" -ExitCode 1
 }

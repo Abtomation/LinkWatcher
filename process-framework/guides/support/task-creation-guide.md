@@ -20,7 +20,7 @@ This guide provides comprehensive instructions for creating new tasks and improv
 - When evaluating the overall task structure for completeness and effectiveness
 - When integrating new development processes into the task-based approach
 
-## 🚨 CRITICAL: Understanding the Two-Phase Task Creation Process
+## Understanding the Two-Phase Task Creation Process
 
 > **FUNDAMENTAL CONCEPT**: Task creation involves TWO distinct phases that must be clearly understood:
 
@@ -377,7 +377,7 @@ The task structure should align with the AI-Tasks workflow described in `/ai-tas
    - NEVER skip the feedback collection step
 
 7. **Manage Dependencies Properly**
-   - **🚨 CRITICAL: Always identify and document dependencies for any task**
+   - Always identify and document dependencies for any task
    - List all files, scripts, and components the task depends on
    - Confirm all dependencies exist before finalizing the task
    - Clearly mark any dependencies that need to be created:
@@ -395,7 +395,7 @@ Here's an example of creating a new categorized task following the **mandatory s
 
 1. **Determine the Workflow Phase**: This is a maintenance activity, so it belongs in `06-maintenance`.
 
-2. **Use the Task Creation Script** (🚨 MANDATORY):
+2. **Use the Task Creation Script**:
 
    ```powershell
    # Navigate to the script directory
@@ -442,7 +442,7 @@ Here's an example of creating a new categorized task following the **mandatory s
 
    ## Process
 
-   > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+   > **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
    >
    > **⚠️ MANDATORY: Use code analysis tools to guide refactoring priorities.**
 
@@ -471,7 +471,7 @@ Here's an example of creating a new categorized task following the **mandatory s
    ```markdown
    ## ⚠️ MANDATORY Task Completion Checklist
 
-   **🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+   **TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
    Before considering this task finished:
 

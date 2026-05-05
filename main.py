@@ -16,7 +16,7 @@ Options:
     --quiet             Suppress non-error output
 
 If you want to store the logs as well
-    python main.py --log-file LinkWatcher_run/logs/linkwatcher.txt --debug
+    python main.py --log-file process-framework-local/tools/linkWatcher/logs/linkwatcher.txt --debug
 """
 
 import argparse
@@ -110,6 +110,33 @@ def _read_source_root_from_project_config(project_root: str, logger) -> str:
     except Exception as e:
         logger.debug("project_config_read_failed", error=str(e))
         return ""
+
+
+def _apply_logging_config(args, config: LinkWatcherConfig):
+    """Re-initialize logging from a merged precedence rule (CLI args > config > defaults).
+
+    Called after load_config() in both the service and validate branches so config-only
+    fields (log_level, colored_output, show_log_icons, json_logs, log_file_max_size_mb,
+    log_file_backup_count) are consistently applied. Resolves TD232 and TD233.
+    """
+    if args.debug:
+        level = LogLevel.DEBUG
+    elif args.quiet:
+        level = LogLevel.ERROR
+    else:
+        level = LogLevel(config.log_level)
+
+    log_file = args.log_file or config.log_file
+
+    return setup_logging(
+        level=level,
+        log_file=log_file,
+        colored_output=config.colored_output and not args.quiet,
+        show_icons=config.show_log_icons and not args.quiet,
+        json_logs=config.json_logs,
+        max_file_size=config.log_file_max_size_mb * 1024 * 1024,
+        backup_count=config.log_file_backup_count,
+    )
 
 
 def validate_project_root(project_root: str) -> Path:
@@ -289,6 +316,7 @@ Examples:
                 show_icons=not args.quiet,
             )
             config = load_config(args.config, args, project_root=str(project_root))
+            _apply_logging_config(args, config)
             validator = LinkValidator(str(project_root), config)
 
             if not args.quiet:
@@ -300,9 +328,16 @@ Examples:
             if not args.quiet:
                 print(report)
 
-            # Determine output directory
+            # Determine output directory.
+            # Precedence: validation_output_dir (resolved against project_root if relative)
+            #             → parent of --log-file/config.log_file → project root.
             log_file = args.log_file or config.log_file
-            if log_file:
+            if config.validation_output_dir:
+                vod = Path(config.validation_output_dir)
+                if not vod.is_absolute():
+                    vod = project_root / vod
+                output_dir = str(vod)
+            elif log_file:
                 output_dir = str(Path(log_file).parent)
             else:
                 output_dir = str(project_root)
@@ -332,17 +367,8 @@ Examples:
         # Load configuration
         config = load_config(args.config, args, project_root=str(project_root))
 
-        # Update logging configuration from config
-        if config.log_file and not args.log_file:
-            logger = setup_logging(
-                level=LogLevel(config.log_level),
-                log_file=config.log_file,
-                colored_output=config.colored_output and not args.quiet,
-                show_icons=config.show_log_icons and not args.quiet,
-                json_logs=config.json_logs,
-                max_file_size=config.log_file_max_size_mb * 1024 * 1024,
-                backup_count=config.log_file_backup_count,
-            )
+        # Re-initialize logging from config (CLI args take precedence — see helper)
+        logger = _apply_logging_config(args, config)
 
         # Validate configuration
         config_issues = config.validate()
@@ -372,10 +398,6 @@ Examples:
         try:
             # Create and configure service
             service = LinkWatcherService(str(project_root), config=config)
-
-            # Apply configuration
-            service.set_dry_run(config.dry_run_mode)
-            service.updater.set_backup_enabled(config.create_backups)
 
             # Add custom parsers if configured
             for extension, parser_class in getattr(config, "custom_parsers", {}).items():

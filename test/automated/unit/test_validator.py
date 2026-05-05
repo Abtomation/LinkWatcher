@@ -234,9 +234,13 @@ class TestLinkValidator:
 
         assert result.duration_seconds >= 0.0
 
-    def test_linkwatcher_run_dir_ignored(self, tmp_path):
-        """Files in LinkWatcher_run/ should be skipped automatically."""
-        _create_file(str(tmp_path), "LinkWatcher_run/log.md", "[link](missing.md)\n")
+    def test_linkwatcher_dir_ignored(self, tmp_path):
+        """Any directory named 'linkWatcher' should be skipped (basename match)."""
+        _create_file(
+            str(tmp_path),
+            "process-framework-local/tools/linkWatcher/log.md",
+            "[link](missing.md)\n",
+        )
         _create_file(str(tmp_path), "source.md", "# ok\n")
 
         cfg = _make_config()
@@ -244,7 +248,7 @@ class TestLinkValidator:
         result = v.validate()
 
         for bl in result.broken_links:
-            assert "LinkWatcher_run" not in bl.source_file
+            assert "linkWatcher" not in bl.source_file
 
     def test_standalone_link_in_code_block_skipped(self, tmp_path):
         """Bare paths inside fenced code blocks should be skipped.

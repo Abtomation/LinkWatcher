@@ -1,4 +1,4 @@
-﻿# Update-ScriptReferences.ps1
+# Update-ScriptReferences.ps1
 # Updates all references to moved New-*.ps1 scripts to point to the centralized location
 
 param(
@@ -11,6 +11,13 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
 
 $rootPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc"
 $newScriptPath = "../scripts/file-creation"
@@ -101,4 +108,18 @@ if ($DryRun) {
 }
 else {
     Write-Host "`n✅ All script references have been updated!" -ForegroundColor Green
+}
+
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-Error "Script references update failed: $($_.Exception.Message)"
+    exit 1
 }

@@ -87,13 +87,17 @@ $customReplacements = @{
 # "[Description]" = if ($Description -ne "") { $Description } else { "Default description" }
 # "[Date]" = Get-Date -Format "yyyy-MM-dd"
 # "[Author]" = "AI Agent & Human Partner"
-# "[NEXT_STEPS_SECTION]" = "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨`n`n⚠️  IMPORTANT: This script creates ONLY a structural template/framework.`n⚠️  The generated file is NOT a functional document until extensively customized.`n⚠️  AI agents MUST follow the referenced guide to properly customize the content.`n`n📖 MANDATORY CUSTOMIZATION GUIDE:`n   [path/to/guide.md]`n🎯 FOCUS AREAS: '[Specific Section]' section`n`n🚫 DO NOT use the generated file without proper customization!`n✅ The template provides structure - YOU provide the meaningful content."
+# "[NEXT_STEPS_SECTION]" = "Customization required — see [path/to/guide.md]"
 
 # NEXT STEPS CUSTOMIZATION GUIDE:
 # Replace [NEXT_STEPS_SECTION] with one of these patterns:
 #
-# Pattern 1: Mandatory Guide Reference (for complex processes)
-# "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨`n`n⚠️  IMPORTANT: This script creates ONLY a structural template/framework.`n⚠️  The generated file is NOT a functional document until extensively customized.`n⚠️  AI agents MUST follow the referenced guide to properly customize the content.`n`n📖 MANDATORY CUSTOMIZATION GUIDE:`n   [path/to/guide.md]`n🎯 FOCUS AREAS: '[Specific Section]' section`n`n🎯 What the guide will teach you:`n   • [Key Learning Point 1]`n   • [Key Learning Point 2]`n`n🚫 DO NOT use the generated file without proper customization!`n✅ The template provides structure - YOU provide the meaningful content."
+# Pattern 1: Customization Guide Pointer (for complex processes)
+# Single-line pointer to the customization guide. Keep it terse — agents read this
+# on every invocation, so multi-line emoji banners train them to skim past real
+# warnings (e.g. 'section not found', 'ID collision'). Established by PF-IMP-584,
+# normalized across all New-* scripts by PF-IMP-700.
+# "Customization required — see [path/to/guide.md]"
 #
 # Pattern 2: Simple Next Steps (for straightforward processes)
 # "Next steps:`n1. [NEXT_STEP_1]`n2. [NEXT_STEP_2]`n3. [NEXT_STEP_3]"

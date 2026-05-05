@@ -81,6 +81,7 @@ task_name: [TASK-NAME]
 
 - [ ] **Log tool change**: Record modification in feedback database
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+  - **Convention for `<TOOL_DOC_ID>`**: task definitions (file with `id: PF-TSK-NNN` frontmatter) → `PF-TSK-NNN`; everything else (templates, guides, scripts, context maps, handbooks, companion task files) → filename (e.g., `New-FeedbackForm.ps1`)
   - **Verify canonical ID first**: `python process-framework/scripts/feedback_db.py list-tools --filter <substring>`
   - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"` (add `--new-tool` if it's a first-time tool registration)
 

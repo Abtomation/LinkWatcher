@@ -142,7 +142,7 @@ retrospective: true
 - **1.1.1-EC-6**: Files in monitored directories but with unmonitored extensions are ignored — their moves do not trigger link maintenance
 - **1.1.1-EC-7**: Events for files within ignored directories (`.git/`, `__pycache__/`, etc.) are silently filtered before any processing occurs
 - **1.1.1-EC-8**: If a file is moved during the startup initial scan window, the move is still detected because the watchdog observer starts before the scan begins — there is no gap between scan completion and observer activation (resolved by PD-BUG-053)
-- **1.1.1-EC-9**: If a directory is renamed to a name matching an ignored directory entry (e.g., `DirA/` → `LinkWatcher_run/`), references in non-ignored files are still updated — directory move processing uses extension-only filtering rather than the full `should_monitor_file()` check, so the destination directory name does not suppress updates (resolved by PD-BUG-071)
+- **1.1.1-EC-9**: If a directory is renamed to a name matching an ignored directory entry (e.g., `DirA/` → `process-framework-local/tools/linkWatcher/`), references in non-ignored files are still updated — directory move processing uses extension-only filtering rather than the full `should_monitor_file()` check, so the destination directory name does not suppress updates (resolved by PD-BUG-071)
 
 ## Dependencies
 

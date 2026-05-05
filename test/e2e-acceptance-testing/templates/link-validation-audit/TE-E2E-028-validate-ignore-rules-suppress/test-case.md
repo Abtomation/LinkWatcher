@@ -81,7 +81,7 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ### Behavioral Outcomes
 
 - Process exits with code **1** (one non-suppressed broken link remains)
-- Report file `LinkWatcherBrokenLinks.txt` is created in workspace directory
+- Report file `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` is created in workspace directory
 - Report shows `Broken links  : 1`
 - Report contains entry for `docs/guide.md` → `old/deleted-file.md`
 - Report does NOT contain entry for `docs/readme.md` → `templates/placeholder.md` (suppressed)
@@ -89,13 +89,13 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ## Verification Method
 
 - [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-028` — confirms project files are unmodified
-- [ ] **Report inspection**: Open `LinkWatcherBrokenLinks.txt` and verify suppression worked correctly
+- [ ] **Report inspection**: Open `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` and verify suppression worked correctly
 - [ ] **Exit code check**: Confirm process exited with code 1
 
 ## Pass Criteria
 
 - [ ] Exit code is 1
-- [ ] `LinkWatcherBrokenLinks.txt` exists in workspace directory
+- [ ] `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` exists in workspace directory
 - [ ] Report contains `Broken links  : 1`
 - [ ] Report lists `docs/guide.md` with target `old/deleted-file.md`
 - [ ] Report does NOT list `docs/readme.md` with target `templates/placeholder.md`

@@ -1,4 +1,4 @@
-﻿# New-TestAuditReport.ps1
+# New-TestAuditReport.ps1
 # Creates a new Test Audit Report with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
 # Supports three test types: Automated (default), Performance, E2E
@@ -112,6 +112,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
+
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
 
 # Validate -Lightweight is only used with Automated test type
 if ($Lightweight -and $TestType -ne "Automated") {
@@ -291,15 +297,23 @@ try {
                 $rowMatchPattern = [regex]::Escape($testFileName)
             }
 
-            # Find the row matching the test identifier and update Audit Status + Audit Report columns
+            # Find the row(s) matching the test identifier and update Audit Status + Audit Report columns.
+            # Performance tests permit multi-row updates (one test file produces N tracking rows — e.g., BM-001..008
+            # all share test_benchmark.py); E2E uses unique TE-E2E-xxx IDs so only one row matches in practice.
+            # Performance also uses column-aware matching on the "Test File" column (extracting link text via
+            # Get-MarkdownLinkText) to avoid false-positive substring matches if a basename appears in another
+            # column. E2E keeps line-wide matching since TE-E2E-xxx IDs are unique enough that collisions are
+            # implausible.
+            $multiMatch = ($TestType -eq "Performance")
+            $useColumnMatch = ($TestType -eq "Performance")
             $lines = $trackingContent -split '\r?\n'
             $updatedLines = @()
-            $rowUpdated = $false
+            $rowsUpdated = 0
             $columnIndices = @{}
 
             foreach ($line in $lines) {
                 # Parse table headers to find column indices by name
-                if (-not $rowUpdated -and $line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
+                if ($line -match '^\|.*\|$' -and $columnIndices.Count -eq 0 -and $line -notmatch '^\|[-\s:]+\|$') {
                     $rawHeaders = $line -split '\|'
                     if ($rawHeaders.Count -gt 2) { $rawHeaders = $rawHeaders[1..($rawHeaders.Count-2)] }
                     $headers = $rawHeaders | ForEach-Object { $_.Trim() }
@@ -316,30 +330,44 @@ try {
                     $columnIndices = @{}
                 }
 
-                if (-not $rowUpdated -and $columnIndices.Count -gt 0 -and $line -match "^\|.*$rowMatchPattern.*\|") {
+                if (($multiMatch -or $rowsUpdated -eq 0) -and $columnIndices.Count -gt 0 -and $line -match '^\|.*\|$' -and $line -notmatch '^\|[-\s:]+\|$') {
                     $rawCols = $line -split '\|'
                     if ($rawCols.Count -gt 2) { $rawCols = $rawCols[1..($rawCols.Count-2)] }
                     $cols = $rawCols | ForEach-Object { $_.Trim() }
 
-                    # Update Audit Status to "🔍 Audit In Progress" and Audit Report to the link
-                    $auditStatusIdx = $columnIndices["Audit Status"]
-                    $auditReportIdx = $columnIndices["Audit Report"]
-                    if ($auditStatusIdx -lt $cols.Count -and $auditReportIdx -lt $cols.Count) {
-                        $cols[$auditStatusIdx] = "🔍 Audit In Progress"
-                        $cols[$auditReportIdx] = $auditLink
-                        $line = "| " + ($cols -join " | ") + " |"
-                        $rowUpdated = $true
+                    # Determine match: column-aware for Performance, line-wide for E2E (and Performance fallback if Test File column missing)
+                    $isMatch = $false
+                    if ($useColumnMatch -and $columnIndices.ContainsKey("Test File")) {
+                        $tfIdx = $columnIndices["Test File"]
+                        if ($tfIdx -lt $cols.Count) {
+                            $cellText = Get-MarkdownLinkText $cols[$tfIdx]
+                            $isMatch = ($cellText -eq $testFileName)
+                        }
+                    } else {
+                        $isMatch = ($line -match $rowMatchPattern)
+                    }
+
+                    if ($isMatch) {
+                        # Update Audit Status to "🔍 Audit In Progress" and Audit Report to the link
+                        $auditStatusIdx = $columnIndices["Audit Status"]
+                        $auditReportIdx = $columnIndices["Audit Report"]
+                        if ($auditStatusIdx -lt $cols.Count -and $auditReportIdx -lt $cols.Count) {
+                            $cols[$auditStatusIdx] = "🔍 Audit In Progress"
+                            $cols[$auditReportIdx] = $auditLink
+                            $line = "| " + ($cols -join " | ") + " |"
+                            $rowsUpdated++
+                        }
                     }
                 }
                 $updatedLines += $line
             }
 
-            if ($rowUpdated) {
+            if ($rowsUpdated -gt 0) {
                 $updatedContent = $updatedLines -join "`n"
                 $trackingFileName = Split-Path $trackingFilePath -Leaf
-                if ($PSCmdlet.ShouldProcess($trackingFilePath, "Update ${trackingFileName}: set Audit Status/Report for ${testFileName}")) {
+                if ($PSCmdlet.ShouldProcess($trackingFilePath, "Update ${trackingFileName}: set Audit Status/Report for ${testFileName} ($rowsUpdated row(s))")) {
                     Set-Content $trackingFilePath $updatedContent -Encoding UTF8
-                    $stateUpdates += "$trackingFileName`: $testFileName Audit ← $documentId"
+                    $stateUpdates += "$trackingFileName`: $testFileName Audit ← $documentId ($rowsUpdated row(s))"
                 }
             } else {
                 $trackingFileName = Split-Path $trackingFilePath -Leaf
@@ -374,27 +402,7 @@ try {
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
-        $details += @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional audit report until extensively customized.",
-            "⚠️  AI agents MUST follow the Test Audit task process to properly complete the audit.",
-            "",
-            "📖 MANDATORY PROCESS REFERENCE:",
-            "process-framework/tasks/03-testing/test-audit-task.md",
-            "🎯 FOCUS AREAS: 'Process' section with six evaluation criteria",
-            "",
-            "🎯 What you need to complete:",
-            "   • Conduct systematic audit against all six quality criteria",
-            "   • Document specific findings and recommendations",
-            "   • Make clear audit decision (Audit Approved or Needs Update)",
-            "   • Update test implementation tracking with audit results",
-            "",
-            "🚫 DO NOT use the generated file without proper audit completion!",
-            "✅ The template provides structure - YOU provide the audit analysis."
-        )
+        $details += "Customization required — see process-framework/tasks/03-testing/test-audit-task.md (six evaluation criteria + audit decision)"
     }
 
     # Auto-append entry to TE-documentation-map.md under the correct audits section

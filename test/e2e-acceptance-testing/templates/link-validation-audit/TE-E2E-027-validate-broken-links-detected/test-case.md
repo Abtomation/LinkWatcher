@@ -79,7 +79,7 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ### Behavioral Outcomes
 
 - Process exits with code **1**
-- Report file `LinkWatcherBrokenLinks.txt` is created in workspace directory
+- Report file `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` is created in workspace directory
 - Report shows `Broken links  : 3`
 - Report contains entry for `docs/readme.md` → `missing-guide.md` (markdown link type)
 - Report contains entry for `config/refs.json` → `docs/nonexistent.md` (JSON link type)
@@ -89,13 +89,13 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ## Verification Method
 
 - [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-027` — confirms project files are unmodified
-- [ ] **Report inspection**: Open `LinkWatcherBrokenLinks.txt` and verify all three broken links are listed
+- [ ] **Report inspection**: Open `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` and verify all three broken links are listed
 - [ ] **Exit code check**: Confirm process exited with code 1
 
 ## Pass Criteria
 
 - [ ] Exit code is 1
-- [ ] `LinkWatcherBrokenLinks.txt` exists in workspace directory
+- [ ] `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` exists in workspace directory
 - [ ] Report contains `Broken links  : 3`
 - [ ] Report lists `docs/readme.md` with target `missing-guide.md`
 - [ ] Report lists `config/refs.json` with target `docs/nonexistent.md`

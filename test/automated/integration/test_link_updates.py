@@ -1191,12 +1191,12 @@ class TestBug095RegexAndGlobNotCorruptedOnDirectoryMove:
         updated = script_file.read_text()
 
         # Negative assertions: corrupted forms must NOT appear
-        assert "/d+" not in updated, (
-            "Backslash in \\d regex escape was normalized to forward slash (corruption)"
-        )
-        assert "doc/bar/bar-" not in updated, (
-            "Path prefix in regex was rewritten as if it were a real path"
-        )
+        assert (
+            "/d+" not in updated
+        ), "Backslash in \\d regex escape was normalized to forward slash (corruption)"
+        assert (
+            "doc/bar/bar-" not in updated
+        ), "Path prefix in regex was rewritten as if it were a real path"
         # Positive assertion: original regex preserved verbatim
         assert "'doc/foo/bar-\\d+'" in updated, "Original regex must be preserved"
 
@@ -1211,8 +1211,7 @@ class TestBug095RegexAndGlobNotCorruptedOnDirectoryMove:
         scripts_dir.mkdir()
         script_file = scripts_dir / "List-Files.ps1"
         script_file.write_text(
-            "# List markdown files\n"
-            "$files = Get-ChildItem -Path . -Filter '*.md' -Recurse\n"
+            "# List markdown files\n" "$files = Get-ChildItem -Path . -Filter '*.md' -Recurse\n"
         )
 
         service = LinkWatcherService(str(temp_project_dir))
@@ -1260,9 +1259,9 @@ class TestBug095RegexAndGlobNotCorruptedOnDirectoryMove:
 
         # Negative: regex character-class delimiters / escape must not be normalized
         assert "/.md" not in updated, "Backslash in \\.md regex escape was normalized to /"
-        assert "doc/manuals/[a-z]" not in updated, (
-            "Character-class regex was rewritten as if it were a real path prefix"
-        )
+        assert (
+            "doc/manuals/[a-z]" not in updated
+        ), "Character-class regex was rewritten as if it were a real path prefix"
         # Positive: regex preserved verbatim
         assert "'doc/guides/[a-z]+\\.md'" in updated, "Original regex must be preserved"
 
@@ -1310,9 +1309,7 @@ class TestBug095PathResolverExistenceGuard:
     or absent (e.g., a future parser change, an externally-injected DB entry).
     """
 
-    def test_layer2_rejects_mutation_when_proposed_target_does_not_exist(
-        self, temp_project_dir
-    ):
+    def test_layer2_rejects_mutation_when_proposed_target_does_not_exist(self, temp_project_dir):
         from linkwatcher.link_types import LinkType
         from linkwatcher.models import LinkReference
         from linkwatcher.path_resolver import PathResolver
@@ -1820,21 +1817,16 @@ class TestBug094PythonImportDoubleApply:
         # (the property TD213 asserts: order-independent multi-rename via lookbehind)
         assert "src.src." not in updated, "lookbehind must prevent double-prefix for any rename"
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="PD-BUG-096: dir-move duplicates PYTHON_IMPORT refs (file_refs + module_refs), "
-        "causing Phase 1's unbounded str.replace to double-apply prefix on import lines. "
-        "Remove xfail when PD-BUG-096 is fixed.",
-    )
     def test_bug094_dir_move_multi_import_no_double_prefix(self, temp_project_dir):
         """Regression test for PD-BUG-096 (also covers TD213's multi-rename intent at integration level).
 
         When utils/ moves to src/utils/ and main.py imports BOTH utils.a and utils.b,
-        the dir-move path produces duplicate refs in _apply_replacements, causing
-        Phase 1's unbounded str.replace to substring-match inside the already-prefixed
-        result, producing 'import src.src.utils.a' instead of 'import src.utils.a'.
-
-        Currently xfail; will pass once PD-BUG-096 is fixed.
+        the dir-move path used to produce duplicate refs in _apply_replacements,
+        causing Phase 1's unbounded str.replace to substring-match inside the
+        already-prefixed result, producing 'import src.src.utils.a' instead of
+        'import src.utils.a'. Fixed by excluding PYTHON_IMPORT refs from
+        file_references in collect_directory_file_refs so each ref reaches
+        Phase 1 only once (via the module_refs group).
         """
         utils_dir = temp_project_dir / "utils"
         utils_dir.mkdir()

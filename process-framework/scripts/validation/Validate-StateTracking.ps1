@@ -29,7 +29,11 @@
     "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "MasterStateConsistency", "SourceLayout", "TestStatusAggregation", "All"
     Default: "All"
 .PARAMETER Detailed
-    Show every checked link, not just failures.
+    Show every checked link, not just failures. Also reveals schema-detail-only warnings
+    (e.g., "Unknown field" findings in Surface 10) that are suppressed by default because
+    they reflect schema-template drift rather than actionable issues.
+    See process-framework/guides/support/schema-audit-procedure-guide.md for the
+    reconciliation workflow that consumes -Detailed Surface 10 output.
 .PARAMETER FixCounters
     Auto-fix nextAvailable counters in ID registries (Surface 5 only).
 .EXAMPLE
@@ -64,6 +68,7 @@ $totalChecks = 0
 $errorCount = 0
 $warningCount = 0
 $passCount = 0
+$detailOnlyHiddenCount = 0  # Warnings counted but display-suppressed unless -Detailed
 
 $runAll = $Surface -contains "All"
 
@@ -158,18 +163,30 @@ function Find-SimilarFile {
 }
 
 # --- Helper: Record check result ---
+# -DetailOnly: For WARNING level, count toward warningCount but suppress display unless -Detailed is set.
+# Used for warning classes that reflect schema/data drift rather than actionable issues, where the
+# default-mode display-noise drowns real signal. The summary still reports the count and notes how
+# many were hidden, so the noise is acknowledged rather than silently discarded.
 function Add-CheckResult {
     param(
         [string]$Level,  # "ERROR", "WARNING", "OK"
         [string]$Surface,
         [string]$Context,
-        [string]$Message
+        [string]$Message,
+        [switch]$DetailOnly
     )
 
     $script:totalChecks++
     switch ($Level) {
         "ERROR"   { $script:errorCount++; Write-Host "    $([char]0x274C) $Context : $Message" -ForegroundColor Red }
-        "WARNING" { $script:warningCount++; Write-Host "    $([char]0x26A0)  $Context : $Message" -ForegroundColor Yellow }
+        "WARNING" {
+            $script:warningCount++
+            if ($DetailOnly -and -not $Detailed) {
+                $script:detailOnlyHiddenCount++
+            } else {
+                Write-Host "    $([char]0x26A0)  $Context : $Message" -ForegroundColor Yellow
+            }
+        }
         "OK"      { $script:passCount++; if ($Detailed) { Write-Host "    $([char]0x2705) $Context : $Message" -ForegroundColor Green } }
     }
 }
@@ -917,11 +934,15 @@ if ($runAll -or $Surface -contains "MetadataSchema") {
                         }
                     }
 
-                    # Check for unknown fields (not in required or optional)
+                    # Check for unknown fields (not in required or optional).
+                    # Marked -DetailOnly: in default mode this class is dominated by legitimate
+                    # template-subtype fields (schema-template drift) rather than typos. Surfaced
+                    # via -Detailed for targeted schema audits. See PF-IMP-646.
+                    # Reconciliation procedure: process-framework/guides/support/schema-audit-procedure-guide.md (PF-IMP-690).
                     $knownFields = @($schema.required) + @($schema.optional)
                     foreach ($fieldName in $fields.Keys) {
                         if ($fieldName -notin $knownFields) {
-                            Add-CheckResult "WARNING" "MetadataSchema" $relPath "Unknown field: $fieldName (not in schema for $artifactType)"
+                            Add-CheckResult "WARNING" "MetadataSchema" $relPath "Unknown field: $fieldName (not in schema for $artifactType)" -DetailOnly
                             $fileHasViolation = $true
                         }
                     }
@@ -1627,7 +1648,8 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  Total checks: $totalChecks" -ForegroundColor Gray
 Write-Host "  Passed:       $passCount" -ForegroundColor $(if ($passCount -gt 0) { "Green" } else { "Gray" })
 Write-Host "  Errors:       $errorCount" -ForegroundColor $(if ($errorCount -eq 0) { "Green" } else { "Red" })
-Write-Host "  Warnings:     $warningCount" -ForegroundColor $(if ($warningCount -eq 0) { "Green" } else { "Yellow" })
+$warningsLabel = if ($detailOnlyHiddenCount -gt 0) { "$warningCount ($detailOnlyHiddenCount hidden — use -Detailed to view)" } else { "$warningCount" }
+Write-Host "  Warnings:     $warningsLabel" -ForegroundColor $(if ($warningCount -eq 0) { "Green" } else { "Yellow" })
 
 if ($errorCount -eq 0 -and $warningCount -eq 0) {
     Write-Host ""

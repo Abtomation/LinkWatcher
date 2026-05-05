@@ -129,6 +129,12 @@ if ($CrossCutting) {
     $featureIdArray = @($FeatureId)
 }
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # --- Select template and output directory based on mode ---
 if ($CrossCutting) {
     $templatePath = Join-Path $projectRoot "process-framework/templates/03-testing/cross-cutting-test-specification-template.md"
@@ -223,22 +229,7 @@ try {
     }
 
     if (-not $OpenInEditor) {
-        $details += @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional document until extensively customized.",
-            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-            "",
-            "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "process-framework/guides/03-testing/test-specification-creation-guide.md",
-            "🎯 FOCUS AREAS: 'Step-by-Step Instructions' and 'Quality Assurance' sections",
-            "",
-            "🚫 DO NOT use the generated file without proper customization!",
-            "✅ The template provides structure - YOU provide the meaningful content.",
-            ""
-        )
+        $details += "Customization required — see process-framework/guides/03-testing/test-specification-creation-guide.md"
     }
 
     # Auto-append entry to TE-documentation-map.md under the correct Test Specifications section

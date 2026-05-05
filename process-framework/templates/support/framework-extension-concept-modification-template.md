@@ -93,30 +93,18 @@ This framework extension should be used when:
 | [Artifact type/name] | Input to extension / Updated by extension / Referenced by extension | [How the extension uses or affects this artifact] |
 | [Artifact type/name] | Input to extension / Updated by extension / Referenced by extension | [How the extension uses or affects this artifact] |
 
-## 🏗️ Core Process Overview
+## 🏗️ Modification Plan
 
-### Phase 1: [Phase 1 Name]
-1. **[Step 1]** - [Description of first step]
-2. **[Step 2]** - [Description of second step]
-3. **[Step 3]** - [Description of third step]
-4. **[Step 4]** - [Description of fourth step]
+> List the modifications in implementation order. Group dependencies where helpful (e.g., schema changes before scripts that read them; scripts before tasks that invoke them). Add as many entries as needed — no fixed step count or phase structure. Per-artifact change details belong in the 🔄 Modification Details section below; this section captures *order and grouping*.
 
-### Phase 2: [Phase 2 Name]
-5. **[Step 5]** - [Description of fifth step]
-6. **[Step 6]** - [Description of sixth step]
-7. **[Step 7]** - [Description of seventh step]
-8. **[Step 8]** - [Description of eighth step]
+| Order | Modification | Target Artifact | Type |
+|-------|-------------|-----------------|------|
+| 1 | [What changes] | [File/component path] | Schema / Logic / Doc / Config |
+| 2 | [What changes] | [File/component path] | Schema / Logic / Doc / Config |
 
-### Phase 3: [Phase 3 Name]
-9. **[Step 9]** - [Description of ninth step]
-10. **[Step 10]** - [Description of tenth step]
-11. **[Step 11]** - [Description of eleventh step]
-12. **[Step 12]** - [Description of twelfth step]
+**Estimated session count**: [1 / 2 / 3+]
 
-### Phase 4: [Phase 4 Name]
-13. **[Step 13]** - [Description of thirteenth step]
-14. **[Step 14]** - [Description of fourteenth step]
-15. **[Step 15]** - [Description of fifteenth step]
+**Rationale for order**: [Brief explanation — e.g., "schema first so downstream scripts can be tested against new fields"]
 
 ## 🔗 Integration with Task-Based Development Principles
 
@@ -131,47 +119,6 @@ This framework extension should be used when:
 - **Consistency Maintenance**: Ensure new components follow established patterns and conventions
 - **Integration Focus**: Design extensions to work harmoniously with current framework
 - **Documentation Alignment**: Maintain consistency with existing documentation standards
-
-## 📊 Detailed Workflow & Artifact Management
-
-### Workflow Definition
-
-#### Input Requirements
-[Define what inputs this extension needs from existing framework components]
-
-- **[Input Type 1]**: [Description of input and source]
-- **[Input Type 2]**: [Description of input and source]
-- **[Input Type 3]**: [Description of input and source]
-
-#### Process Flow
-[Define the step-by-step process flow for this extension]
-
-```
-[Input 1] → [Process Step 1] → [Intermediate Output 1]
-                ↓
-[Input 2] → [Process Step 2] → [Intermediate Output 2]
-                ↓
-[Input 3] → [Process Step 3] → [Final Output]
-```
-
-### Artifact Dependency Map
-
-#### Dependencies on Existing Artifacts
-| Required Artifact | Source | Usage |
-|------------------|--------|-------|
-| [Artifact 1] | [Source 1] | [How it's used] |
-| [Artifact 2] | [Source 2] | [How it's used] |
-| [Artifact 3] | [Source 3] | [How it's used] |
-
-### State Tracking Integration Strategy
-
-#### Updates to Existing State Files
-- **[Existing State File 1]**: [What new information will be added]
-- **[Existing State File 2]**: [What new information will be added]
-
-#### State Update Triggers
-- **[Trigger 1]**: [When and what gets updated]
-- **[Trigger 2]**: [When and what gets updated]
 
 ## 🔄 Modification Details
 
@@ -277,7 +224,7 @@ This framework extension should be used when:
 
 ## 📋 Human Review Checklist
 
-**🚨 This concept requires human review before implementation can begin! 🚨**
+**This concept requires human review before implementation can begin!**
 
 ### Concept Validation
 - [ ] **Extension Necessity**: Confirm this truly requires framework extension vs. existing tasks
@@ -286,9 +233,9 @@ This framework extension should be used when:
 - [ ] **Resource Requirements**: Assess the effort required for implementation
 
 ### Technical Review
-- [ ] **Workflow Definition**: Review the proposed workflow for completeness and clarity
-- [ ] **Artifact Dependencies**: Validate the artifact dependency map
-- [ ] **State Tracking Strategy**: Approve the state tracking integration approach
+- [ ] **Modification Plan**: Review the proposed modifications and ordering for completeness and clarity
+- [ ] **Interfaces to Existing Framework**: Validate that task, state file, and artifact touchpoints are documented
+- [ ] **Modification Details**: Approve the state tracking, guide, and automation modification specifics
 - [ ] **Modification Impact**: Review cross-reference and automation impacts
 
 ### Approval Decision

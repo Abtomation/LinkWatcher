@@ -7,6 +7,7 @@ to be changed due to file moves or renames.
 
 import pytest
 
+from linkwatcher.link_types import LinkType
 from linkwatcher.models import LinkReference
 from linkwatcher.updater import LinkUpdater, UpdateResult
 
@@ -829,3 +830,321 @@ class TestUpdateReferencesBatch:
         assert stats["errors"] == 1
         assert stats["files_updated"] == 1
         assert "new.md" in good_file.read_text()
+
+
+class TestPythonImportIdempotency:
+    """TD251: _replace_at_position must be idempotent for PYTHON_IMPORT refs.
+
+    PD-BUG-096 was fixed at the collection layer (reference_lookup.py).
+    This test guards the underlying replacement layer: even if a duplicate
+    PYTHON_IMPORT ref reached Phase 1 by some future code path, applying
+    the same replacement twice must not double-prefix the import.
+    """
+
+    def test_first_application_updates_import(self):
+        """Sanity: a single application of the replacement updates the import."""
+        updater = LinkUpdater()
+        ref = LinkReference(
+            file_path="main.py",
+            line_number=1,
+            column_start=7,
+            column_end=14,
+            link_text="utils.a",
+            link_target="utils/a",
+            link_type=LinkType.PYTHON_IMPORT,
+        )
+
+        result = updater._replace_at_position("import utils.a\n", ref, "src/utils/a")
+
+        assert result == "import src.utils.a\n"
+
+    def test_second_application_is_no_op(self):
+        """The hazard: applying the same PYTHON_IMPORT replacement twice must
+        not produce double-prefix corruption (e.g., 'src.src.utils.a').
+
+        Without the negative-lookbehind guard, the second call's unbounded
+        substring match would find 'utils.a' inside 'src.utils.a' and produce
+        'src.src.utils.a'. With the guard, the second call is a no-op.
+        """
+        updater = LinkUpdater()
+        ref = LinkReference(
+            file_path="main.py",
+            line_number=1,
+            column_start=7,
+            column_end=14,
+            link_text="utils.a",
+            link_target="utils/a",
+            link_type=LinkType.PYTHON_IMPORT,
+        )
+
+        first = updater._replace_at_position("import utils.a\n", ref, "src/utils/a")
+        second = updater._replace_at_position(first, ref, "src/utils/a")
+
+        assert (
+            second == first
+        ), f"Re-applying replacement must be a no-op; got double-prefix: {second!r}"
+        assert "src.src." not in second
+
+    def test_dot_preceded_module_not_replaced(self):
+        """Negative-lookbehind property: 'utils.a' inside 'pkg.utils.a' must not match."""
+        updater = LinkUpdater()
+        ref = LinkReference(
+            file_path="main.py",
+            line_number=1,
+            column_start=0,
+            column_end=20,
+            link_text="utils.a",
+            link_target="utils/a",
+            link_type=LinkType.PYTHON_IMPORT,
+        )
+
+        # 'pkg.utils.a' must stay intact; only the standalone 'utils.a' is matched.
+        result = updater._replace_at_position("x = pkg.utils.a; y = utils.a\n", ref, "src/utils/a")
+
+        assert "pkg.utils.a" in result, "dot-preceded module name must not be replaced"
+        assert "y = src.utils.a" in result, "standalone occurrence should be replaced"
+
+
+class TestOverlappingReferenceCorruption:
+    """PD-BUG-098 regression: when multiple LinkReferences on the same line have
+    overlapping column ranges (one strictly contained in another), the descending-
+    column processing in `_apply_replacements` produces corrupted output. The
+    rightmost (inner) replacement extends the line, then the leftmost (outer)
+    replacement uses stale column positions and slices into the freshly-inserted
+    text — yielding `<new_path> + chopped_tail_of_<new_path>`.
+
+    These tests construct the corruption-producing scenario with explicit
+    LinkReference tuples and assert that `_apply_replacements` produces a clean
+    result with no overlapping-substring corruption.
+    """
+
+    def _make_ref(
+        self,
+        file_path: str,
+        line_number: int,
+        column_start: int,
+        column_end: int,
+        link_target: str,
+        link_type: str = LinkType.GENERIC_UNQUOTED,
+    ) -> LinkReference:
+        return LinkReference(
+            file_path=file_path,
+            line_number=line_number,
+            column_start=column_start,
+            column_end=column_end,
+            link_text="",
+            link_target=link_target,
+            link_type=link_type,
+        )
+
+    def test_inner_contained_in_outer_no_corruption(self, temp_project_dir):
+        """Two refs on same line where inner is strictly inside outer.
+
+        Reproduces the exact corruption pattern from PD-BUG-098: outer ref for
+        `tools/linkWatcher/LinkWatcherBrokenLinks.txt` contains inner ref for
+        `LinkWatcherBrokenLinks.txt` (bare filename). Both rewrite to the same
+        new path. Without the fix, the line ends with chopped-tail corruption
+        like `...LinkWatcherBrokenLinks.txtols/linkWatcher/LinkWatcherBrokenLinks.txt`.
+        """
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_dry_run(False)
+        updater.set_backup_enabled(False)
+
+        outer_target = "tools/linkWatcher/LinkWatcherBrokenLinks.txt"
+        inner_target = "LinkWatcherBrokenLinks.txt"
+        new_path = "process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt"
+
+        line_text = f"See report {outer_target} for details.\n"
+        test_file = temp_project_dir / "test.md"
+        test_file.write_text(line_text)
+
+        outer_start = line_text.index(outer_target)
+        outer_end = outer_start + len(outer_target)
+        inner_start = line_text.index(inner_target, outer_start)
+        inner_end = inner_start + len(inner_target)
+
+        # Sanity: confirm geometry is contained-in-outer
+        assert outer_start < inner_start < inner_end == outer_end
+
+        items = [
+            (
+                self._make_ref(str(test_file), 1, outer_start, outer_end, outer_target),
+                new_path,
+            ),
+            (
+                self._make_ref(str(test_file), 1, inner_start, inner_end, inner_target),
+                new_path,
+            ),
+        ]
+
+        result = updater._apply_replacements(str(test_file), str(test_file), items)
+        updated = test_file.read_text()
+
+        expected = f"See report {new_path} for details.\n"
+        assert updated == expected, f"Overlap-corruption bug: expected {expected!r} got {updated!r}"
+        # Negative assertion: the documented PD-BUG-098 corruption signature
+        # must NOT be present.
+        assert (
+            "txtols/linkWatcher" not in updated
+        ), f"PD-BUG-098 corruption pattern present in: {updated!r}"
+        # New path must appear exactly once (not duplicated by stale-column slicing).
+        assert updated.count(new_path) == 1, (
+            f"new path duplicated by overlap corruption: count={updated.count(new_path)}, "
+            f"line={updated!r}"
+        )
+        assert result == UpdateResult.UPDATED
+
+    def test_triple_nested_overlap_no_corruption(self, temp_project_dir):
+        """Three nested refs on same line — the validator.py:703 docstring variant.
+
+        The bug-098 description shows that when three overlapping refs land on a
+        line, the corruption compounds: `...txtols/linkWatcher/...txtenLinks.txt`.
+        Three nested ranges all rewriting to the same target must produce a
+        single clean replacement.
+        """
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_dry_run(False)
+        updater.set_backup_enabled(False)
+
+        outermost = "tools/linkWatcher/LinkWatcherBrokenLinks.txt"
+        middle = "linkWatcher/LinkWatcherBrokenLinks.txt"
+        innermost = "LinkWatcherBrokenLinks.txt"
+        new_path = "process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt"
+
+        line_text = f"prefix {outermost} suffix\n"
+        test_file = temp_project_dir / "test.md"
+        test_file.write_text(line_text)
+
+        out_start = line_text.index(outermost)
+        out_end = out_start + len(outermost)
+        mid_start = line_text.index(middle, out_start)
+        mid_end = mid_start + len(middle)
+        inn_start = line_text.index(innermost, mid_start)
+        inn_end = inn_start + len(innermost)
+
+        # Sanity: nested containment
+        assert out_start < mid_start < inn_start < inn_end == mid_end == out_end
+
+        items = [
+            (self._make_ref(str(test_file), 1, out_start, out_end, outermost), new_path),
+            (self._make_ref(str(test_file), 1, mid_start, mid_end, middle), new_path),
+            (self._make_ref(str(test_file), 1, inn_start, inn_end, innermost), new_path),
+        ]
+
+        updater._apply_replacements(str(test_file), str(test_file), items)
+        updated = test_file.read_text()
+
+        expected = f"prefix {new_path} suffix\n"
+        assert (
+            updated == expected
+        ), f"Triple-overlap corruption: expected {expected!r} got {updated!r}"
+        assert (
+            "txtols" not in updated and "txtenLinks" not in updated
+        ), f"Triple-overlap corruption pattern present in: {updated!r}"
+
+    def test_non_overlapping_refs_same_line_still_work(self, temp_project_dir):
+        """Sanity check: two non-overlapping refs on the same line update both.
+
+        Guards against over-eager filtering — only refs that are strictly
+        contained in another ref should be dropped, not all same-line refs.
+        """
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_dry_run(False)
+        updater.set_backup_enabled(False)
+
+        line_text = 'See "old-a.txt" and also "old-b.txt" please.\n'
+        test_file = temp_project_dir / "test.md"
+        test_file.write_text(line_text)
+
+        a_start = line_text.index("old-a.txt")
+        a_end = a_start + len("old-a.txt")
+        b_start = line_text.index("old-b.txt")
+        b_end = b_start + len("old-b.txt")
+
+        # Sanity: ranges do not overlap
+        assert a_end < b_start
+
+        items = [
+            (
+                self._make_ref(str(test_file), 1, a_start, a_end, "old-a.txt", LinkType.QUOTED),
+                "new-a.txt",
+            ),
+            (
+                self._make_ref(str(test_file), 1, b_start, b_end, "old-b.txt", LinkType.QUOTED),
+                "new-b.txt",
+            ),
+        ]
+
+        updater._apply_replacements(str(test_file), str(test_file), items)
+        updated = test_file.read_text()
+
+        assert (
+            updated == 'See "new-a.txt" and also "new-b.txt" please.\n'
+        ), f"Non-overlapping refs lost an update: {updated!r}"
+
+    def test_invalid_columns_fallback_no_unbounded_replace(self, temp_project_dir):
+        """Secondary risk: when column positions are invalid, the fallback at
+        `_replace_at_position` previously called the unbounded `line.replace(old,
+        new)`, which would replace ALL occurrences if `link_target` appeared
+        more than once on the line. After the fix, this case must NOT do
+        unbounded multi-replacement.
+        """
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+
+        # link_target appears twice on the line; columns are invalid (start>=end)
+        # to force the fallback path.
+        line = 'a = "config.json"; b = "config.json"\n'
+        ref = LinkReference(
+            file_path="dummy.py",
+            line_number=1,
+            column_start=0,
+            column_end=0,  # Invalid: start_col >= end_col triggers fallback
+            link_text="",
+            link_target="config.json",
+            link_type=LinkType.QUOTED,
+        )
+
+        result = updater._replace_at_position(line, ref, "new-config.json")
+
+        # Must NOT replace both occurrences (which is what unbounded
+        # `line.replace()` would do).
+        assert (
+            result.count("new-config.json") <= 1
+        ), f"Unbounded fallback replaced multiple occurrences: {result!r}"
+
+    def test_ambiguous_fallback_increments_errors_count(self, temp_project_dir):
+        """TD252 / Option C: when _replace_at_position hits the invalid-column
+        ambiguous-fallback path (occurrences>1), the silently-skipped ref must
+        surface in UpdateStats["errors"] so callers see the failure.
+
+        Without this propagation, a file move could leave references unupdated
+        while update_references reports success — a data integrity hazard.
+        STALE-escalation was rejected because it would block all other refs in
+        the same file; per-skip counter preserves visibility without blast.
+        """
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_dry_run(False)
+        updater.set_backup_enabled(False)
+
+        # Two occurrences of "config.json" + invalid columns force the
+        # ambiguous-fallback path inside _replace_at_position.
+        test_file = temp_project_dir / "test.py"
+        test_file.write_text('a = "config.json"; b = "config.json"\n')
+
+        ref = LinkReference(
+            file_path=str(test_file),
+            line_number=1,
+            column_start=0,
+            column_end=0,  # Invalid: start_col >= end_col triggers fallback
+            link_text="",
+            link_target="config.json",
+            link_type=LinkType.QUOTED,
+        )
+
+        stats = updater.update_references([ref], "config.json", "new-config.json")
+
+        assert (
+            stats["errors"] == 1
+        ), f"TD252: ambiguous-fallback skip not surfaced in errors, got {stats!r}"
+        # No unbounded replacement leaked through (regression guard).
+        assert test_file.read_text().count("new-config.json") <= 1

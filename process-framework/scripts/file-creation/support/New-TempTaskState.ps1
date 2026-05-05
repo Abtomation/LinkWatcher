@@ -1,4 +1,4 @@
-﻿# New-TempTaskState.ps1
+# New-TempTaskState.ps1
 # Creates a new temporary state tracking file for task creation or process improvement workflows
 # Uses the central ID registry system and standardized document creation
 
@@ -27,6 +27,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
+
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
 
 $kebabName = ConvertTo-KebabCase -InputString $TaskName
 $projectRoot = Get-ProjectRoot
@@ -105,19 +111,7 @@ if ($Variant -eq "ProcessImprovement") {
     }
 
     $successDetails = @(
-        "",
-        "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-        "",
-        "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-        "⚠️  The generated file is NOT a functional document until extensively customized.",
-        "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-        "",
-        "📖 MANDATORY CUSTOMIZATION GUIDE:",
-        "process-framework/guides/support/temp-state-tracking-customization-guide.md",
-        "🎯 FOCUS AREAS: 'Temporary State Management' section",
-        "",
-        "🚫 DO NOT use the generated file without proper customization!",
-        "✅ The template provides structure - YOU provide the meaningful content."
+        "Customization required — see process-framework/guides/support/temp-state-tracking-customization-guide.md"
     )
 }
 

@@ -2,9 +2,9 @@
 id: PF-TEM-073
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.2
 created: 2026-04-13
-updated: 2026-04-13
+updated: 2026-04-30
 template_for: Performance Test Audit Report
 creates_document_prefix: TE-TAR
 creates_document_category: Test Audit Report
@@ -29,9 +29,11 @@ usage_context: Used by New-TestAuditReport.ps1 -TestType Performance during PF-T
 
 ## Tests Audited
 
-| Test ID | Operation | Level | Related Features | Current Status | Tolerance |
-|---------|-----------|-------|-----------------|----------------|-----------|
-| [BM/PH-XXX] | [Operation description] | [L1-L4] | [Feature IDs] | [Status] | [Tolerance value] |
+| Test ID | Operation | Level | Related Features | Current Status | Calibration Baseline | Tolerance Ratio | Tolerance (absolute) | Last Result (this audit) |
+|---------|-----------|-------|-----------------|----------------|----------------------|-----------------|----------------------|--------------------------|
+| [BM/PH-XXX] | [Operation description] | [L1-L4] | [Feature IDs] | [Status] | [Typical measurement at audit time, e.g., `0.002s avg over 3 runs`] | [Multiplier expressing audit intent, e.g., `10× typical` or `floor: 50 f/s`] | [Derived from baseline × ratio, e.g., `<0.02s`] | [Result; include run count, or — if not measured] |
+
+> **Why three tolerance columns**: Tests in code use absolute numbers (`assert update_time < 0.02`), but absolutes go stale when typical measurements drift. Recording the **Calibration Baseline** (what was typical at audit time) and the **Tolerance Ratio** (the auditor's actual judgment, e.g., "10× typical") preserves the math intent — so future refactorings hitting an audit-derived TD can recompute `current_baseline × ratio` instead of inheriting a stale absolute.
 
 ## Audit Evaluation
 
@@ -65,6 +67,7 @@ usage_context: Used by New-TestAuditReport.ps1 -TestType Performance during PF-T
 - **Sensitivity**: [Too tight = false alarm noise; Too loose = misses real regressions. Assess the balance]
 - **Level expectations**: [Does the tolerance match what is expected for this performance level?]
 - **Units consistency**: [Are tolerance units consistent with the measurement?]
+- **Calibration intent**: [Record the ratio (e.g., `10× typical`, `5× baseline`, `floor: 50 f/s`) and the baseline measurement used to derive the absolute tolerance — preserves recalibration data for downstream refactorings when typical measurements drift. Goes into the Tests Audited table's `Calibration Baseline` and `Tolerance Ratio` columns.]
 
 **Evidence**:
 - [Observed variance data supporting or contradicting tolerance choices]
@@ -84,6 +87,7 @@ usage_context: Used by New-TestAuditReport.ps1 -TestType Performance during PF-T
 - **Determinism**: [Are results deterministic given the same environment?]
 - **External dependencies**: [Does the test depend on external resources that may vary?]
 - **Environment requirements**: [Are environment requirements documented?]
+- **Tracking-file consistency**: [Does `performance-test-tracking.md` Tolerance column match code assertions? Drift indicates upstream refactoring left documentation behind]
 
 **Evidence**:
 - [Results from clean environment vs dirty environment comparison]

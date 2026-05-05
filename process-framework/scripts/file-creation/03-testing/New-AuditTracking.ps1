@@ -77,6 +77,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 $today = Get-Date -Format "yyyy-MM-dd"
 $projectRoot = Get-ProjectRoot
 
@@ -285,12 +291,7 @@ try {
     }
 
     $details += @(
-        "",
-        "TEMPLATE CREATED - CUSTOMIZATION REQUIRED",
-        "",
-        "Review the auto-populated inventory for accuracy.",
-        "Plan the session sequence (group by feature for efficient context loading).",
-        "Mark files as 'Skipped' if they should be excluded from this round."
+        "Customization required: review auto-populated inventory, plan session sequence, mark 'Skipped' files. See process-framework/tasks/03-testing/test-audit-task.md"
     )
 
     Write-ProjectSuccess -Message "Created audit tracking with ID: $documentId" -Details $details

@@ -13,7 +13,7 @@ This guide provides a structured approach for assessing the appropriate document
 
 ## Assessment Process
 
-> **⚠️ CRITICAL: ALWAYS USE THE AUTOMATION SCRIPT**
+> **⚠️ CRITICAL: Always use the automation script**
 >
 > **DO NOT manually create assessment files.** The automation script is mandatory because it:
 >

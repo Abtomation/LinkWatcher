@@ -125,6 +125,12 @@ if (Test-Path $projectConfigPath) {
     Write-Warning "project-config.json not found at $projectConfigPath, defaulting to Dart"
 }
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # --- Language configuration from languages-config/{language}/{language}-config.json ---
 $langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$($language.ToLower())/$($language.ToLower())-config.json"
 if (-not (Test-Path $langConfigPath)) {
@@ -223,7 +229,19 @@ try {
         return
     }
 
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "TE-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -FileNamePattern $testFileName -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    # Extract per-language comment style for the prepended metadata block (PF-IMP-660).
+    # JSON object → hashtable conversion: ConvertFrom-Json returns PSCustomObject; build a hashtable for the helper.
+    $headerComment = $null
+    if ($langConfig.PSObject.Properties.Name -contains 'headerComment' -and $langConfig.headerComment) {
+        $hc = $langConfig.headerComment
+        $headerComment = @{
+            open       = $hc.open
+            close      = $hc.close
+            linePrefix = if ($hc.PSObject.Properties.Name -contains 'linePrefix') { $hc.linePrefix } else { '' }
+        }
+    }
+
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "TE-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -FileNamePattern $testFileName -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor -HeaderComment $headerComment
 
     # Provide success details
     $details = @(

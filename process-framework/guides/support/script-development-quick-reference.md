@@ -85,6 +85,38 @@ Get-Verb
 
 After renaming, update all call sites and the module's export list.
 
+### 🚨 Sub-Module Function Scoping (Common-ScriptHelpers)
+
+**Issue**: A function added to a Common-ScriptHelpers sub-module (e.g., `DocumentManagement.psm1`) calls into another sub-module's exports (e.g., `IdRegistry`'s `New-NextId`) and gets `CommandNotFoundException` even though the umbrella `Common-ScriptHelpers.psm1` exports both.
+
+**Cause**: PowerShell modules have isolated session states. When you call `Import-ProjectModule -ModuleName "IdRegistry"` *inside* a function in `DocumentManagement.psm1`, the imported functions land in `Core.psm1`'s session state (where `Import-ProjectModule` is defined), not in `DocumentManagement.psm1`'s session state. Functions in your sub-module can't see them.
+
+**Fix**: Import dependencies at the **top of your sub-module file**, not lazily inside a function:
+
+```powershell
+# At the top of YourSubModule.psm1 — runs in this module's session state
+$scriptPath = Split-Path -Parent $PSScriptRoot
+$idRegistryModule = Join-Path -Path $scriptPath -ChildPath "IdRegistry.psm1"
+if (Test-Path $idRegistryModule) { Import-Module $idRegistryModule -Force }
+
+function Your-Function {
+    $id = New-NextId -Prefix "PF-XXX"   # ✅ resolves
+}
+```
+
+Canonical example: [DocumentManagement.psm1](/process-framework/scripts/Common-ScriptHelpers/DocumentManagement.psm1) lines 22-30.
+
+**Avoid**:
+
+```powershell
+function Your-Function {
+    Import-ProjectModule -ModuleName "IdRegistry" -Required   # imports into Core's scope
+    $id = New-NextId -Prefix "PF-XXX"                         # ❌ CommandNotFoundException
+}
+```
+
+> Applies only to authors *extending* Common-ScriptHelpers sub-modules. Scripts that consume Common-ScriptHelpers via the umbrella import are unaffected — `Import-ProjectModule` works fine when called from a script (script scope is separate from module scope).
+
 ### 🚨 Template Replacements Not Working
 
 **Issue**: Placeholders like `[Feature Name]` remain unreplaced in generated documents
@@ -202,6 +234,15 @@ pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/file-crea
 **For human users:** You can use either pattern directly in your terminal — both work fine for interactive use.
 
 **Historical context:** Prior to 2026-02-28, the Bash tool could not capture `pwsh.exe -Command` output. A temp file pattern was the only working approach. This was resolved and `-Command` with bash single quotes works correctly. As of 2026-04-04, `-File` is the preferred pattern for its simplicity.
+
+**Bash-tool pipe buffering with long-running scripts:** Piping a long-running `pwsh.exe` invocation directly to `tail -N`, `head -N`, `grep`, or similar can appear hung or return only partial output. `tail` buffers stdin until EOF; pytest and other tools may also buffer summary lines when stdout is non-TTY. **Recipe**: redirect to a log file, then read it after completion:
+
+```bash
+pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 > /tmp/script.log 2>&1
+tail -80 /tmp/script.log
+```
+
+For scripts taking >30s, prefer the Bash tool's `run_in_background: true` and read the log when done — avoids tying up the foreground waiting on a pipe that may never flush.
 
 ### Double Quotes in `echo` Cause Garbled Paths (Historical)
 

@@ -9,13 +9,12 @@ logs, metrics, and performance in real-time.
 import argparse
 import json
 import os
-import sys
 import threading
 import time
 from collections import defaultdict, deque
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 try:
     import curses
@@ -23,11 +22,6 @@ try:
     CURSES_AVAILABLE = True
 except ImportError:
     CURSES_AVAILABLE = False
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from linkwatcher.logging_config import get_config_manager
 
 
 class LogDashboard:
@@ -187,8 +181,8 @@ class LogDashboard:
 
             except KeyboardInterrupt:
                 break
-            except Exception as e:
-                # Log error and continue
+            except curses.error:
+                # Tolerate transient draw/resize errors and keep the loop alive.
                 pass
 
         self.stop()

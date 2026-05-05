@@ -49,7 +49,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: All bug triage decisions must be documented with clear rationale.**
 >
@@ -103,12 +103,10 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
     > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and populate this field.
 16. **Identify Affected Workflows**: Look up the related feature(s) in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to determine which user workflows are affected. Populate the **Workflows** column in the bug entry (e.g., `WF-001, WF-003`). This helps bug fixers assess blast radius later.
 17. **Estimate Effort**: Provide rough effort estimate for fixing the bug
-18. **Update Bug Status**: Change status from 🆕 Needs Triage to 🔍 Needs Fix
-    - **Manual Update**: Edit the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) file directly
-    - **Optional Automation**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script for consistent formatting:
-      ```powershell
-      ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Rationale for priority and scope"
-      ```
+18. **Update Bug Status**: Change status from 🆕 Needs Triage to 🔍 Needs Fix using [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) — handles priority-table moves and statistics recalculation automatically:
+    ```powershell
+    ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -RelatedFeature "1.1.1" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Rationale for priority and scope"
+    ```
 
 ### Finalization
 
@@ -190,7 +188,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

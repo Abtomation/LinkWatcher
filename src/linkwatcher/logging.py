@@ -621,20 +621,32 @@ def with_context(**kwargs):
 class LogTimer:
     """Context manager for timing operations."""
 
-    def __init__(self, operation: str, logger: Optional[LinkWatcherLogger] = None, **kwargs):
+    def __init__(
+        self,
+        operation: str,
+        logger: Optional[LinkWatcherLogger] = None,
+        *,
+        enabled: bool = True,
+        **kwargs,
+    ):
         self.operation = operation
         self.logger = logger or get_logger()
         self.kwargs = kwargs
+        self.enabled = enabled
         self.start_time = None
         self.timer_id = None
 
     def __enter__(self):
+        if not self.enabled:
+            return self
         self.timer_id = self.logger.performance.start_timer(self.operation)
         self.start_time = time.perf_counter()
         self.logger.debug(f"started_{self.operation}", **self.kwargs)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self.enabled:
+            return
         if self.timer_id:
             self.logger.performance.end_timer(self.timer_id, self.operation, **self.kwargs)
 

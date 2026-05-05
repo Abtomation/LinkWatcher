@@ -16,7 +16,7 @@ updated: 2026-03-16
 
 ## Preconditions
 
-- [ ] LinkWatcher is running in background (`LinkWatcher_run/start_linkwatcher_background.ps1`)
+- [ ] LinkWatcher is running in background (`process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`)
 - [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Group powershell-parser-patterns`
 - [ ] Workspace contains pristine copy of this test case's fixtures
 
@@ -36,7 +36,7 @@ updated: 2026-03-16
 
 2. **Wait**: Wait 10–15 seconds for LinkWatcher to correlate delete+create events as a move
    - **Duration**: 10–15 seconds
-   - **Observe**: Check LinkWatcher_run/LinkWatcherLog_20260317-103751.txt for move detection messages
+   - **Observe**: Check process-framework-local/tools/linkWatcher/logs/LinkWatcherLog_20260317-103751.txt for move detection messages
 
 3. **Verify**: Open `test-powershell-parser-patterns.ps1` and check all path references
    - **Tool**: Text editor or `Verify-TestResult.ps1`

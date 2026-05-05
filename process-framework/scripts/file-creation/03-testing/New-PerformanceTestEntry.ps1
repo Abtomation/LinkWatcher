@@ -91,6 +91,13 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 Invoke-StandardScriptInitialization
 
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
+
 # Configuration
 $ProjectRoot = Get-ProjectRoot
 $TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "test/state-tracking/permanent/performance-test-tracking.md"
@@ -214,6 +221,9 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
 $updatedContent = $lines -join "`r`n"
 Set-Content -Path $TrackingFile -Value $updatedContent -NoNewline -Encoding UTF8
 
+# Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
+Assert-LineInFile -Path $TrackingFile -Pattern "\| $testId \|" -Context "performance test row for $testId in $TrackingFile"
+
 # --- Output ---
 $details = @(
     "Test ID: $testId",
@@ -226,7 +236,17 @@ $details = @(
 
 Write-ProjectSuccess -Message "Created performance test entry: $testId" -Details $details
 
-Write-Host ""
-Write-Host "Next Steps:" -ForegroundColor Yellow
-Write-Host "  - Use Performance Test Creation task (PF-TSK-084) to implement this test" -ForegroundColor White
-Write-Host "  - Use Performance Baseline Capture task (PF-TSK-085) to record initial baseline" -ForegroundColor White
+Write-Verbose "Next Steps: Use Performance Test Creation task (PF-TSK-084) to implement this test"
+Write-Verbose "Next Steps: Use Performance Baseline Capture task (PF-TSK-085) to record initial baseline"
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "Performance test entry creation failed: $($_.Exception.Message)" -ExitCode 1
+}

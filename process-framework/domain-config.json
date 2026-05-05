@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Domain-specific configuration for process framework scripts. Update this file when adapting framework to a new business domain.",
+  "description": "Domain-specific configuration for process framework scripts. Update this file when adapting framework to a new business domain. To reconcile Surface 10 schema drift surfaced by Validate-StateTracking.ps1 -Detailed, follow process-framework/guides/support/schema-audit-procedure-guide.md.",
   "version": "1.0",
   "domain": "application-development",
   "domain_description": "Application development process framework for software projects",

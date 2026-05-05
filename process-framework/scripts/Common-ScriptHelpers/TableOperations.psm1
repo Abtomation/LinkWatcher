@@ -825,13 +825,19 @@ function Move-MarkdownTableRow {
     }
 
     # --- Step 2: Find and remove the matching row ---
+    # Match $RowIdPattern only against the trimmed first cell (anchored with ^...$).
+    # Closes the defect class shared with PF-IMP-693/PF-IMP-694: an unanchored
+    # regex would match the row id anywhere in any column, picking up rows that
+    # merely reference the id in their Description/Notes.
     $rowIndex = -1
     $sourceRowText = $null
     for ($i = $sourceHeaderIdx + 1; $i -lt $lines.Count; $i++) {
         # Stop at section boundaries
         if ($lines[$i] -match '^## ' -or ($SectionEndPattern -and $lines[$i] -match $SectionEndPattern)) { break }
         if ($lines[$i] -match '^\|[-\s:|]+$') { continue }  # skip separator
-        if ($lines[$i] -match "^\|.*$RowIdPattern.*\|") {
+        $candidateCells = Split-MarkdownTableRow $lines[$i]
+        if ($null -eq $candidateCells -or $candidateCells.Count -eq 0) { continue }  # not a table row
+        if ($candidateCells[0].Trim() -match "^$RowIdPattern$") {
             $rowIndex = $i
             $sourceRowText = $lines[$i]
             break

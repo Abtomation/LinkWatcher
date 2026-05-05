@@ -63,7 +63,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Create temporary state tracking file for multi-session implementation.**
 >
@@ -96,7 +96,7 @@ Complete process for creating a new task from concept to implementation-ready de
 
 **Scripts DO NOT create ready-to-use content** - they create structural frameworks that require extensive AI agent customization to become functional.
 
-**🚨 NEW: Enhanced User Experience**: All creation scripts now display prominent "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨" warnings to prevent misuse and set proper expectations.
+All creation scripts emit a single-line `Customization required — see <guide>` pointer on success. Real warnings (section-not-found, ID collision, etc.) are no longer drowned in alarm noise. See `process-framework/templates/support/document-creation-script-template.ps1` Pattern 1 for the canonical recipe.
 
 ---
 
@@ -366,7 +366,7 @@ The following state files are updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 > **Note**: Use the checklist matching the mode approved during Scope Assessment.
 

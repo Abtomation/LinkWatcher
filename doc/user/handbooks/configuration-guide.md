@@ -127,8 +127,8 @@ validation_extensions:       # File types to check for broken links
   - ".yml"
   - ".json"
 
-validation_extra_ignored_dirs:  # Additional dirs to skip during validation
-  - "LinkWatcher_run"
+validation_extra_ignored_dirs:  # Additional dirs to skip during validation (basename match)
+  - "linkWatcher"
   - "old"
   - "archive"
   - "fixtures"

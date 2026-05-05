@@ -55,7 +55,7 @@ Systematically validates selected features for data consistency, constraint enfo
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the [..\..\scripts\file-creation\05-validation\New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) script for generating validation reports.**
 >
@@ -120,7 +120,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

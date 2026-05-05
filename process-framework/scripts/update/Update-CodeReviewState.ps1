@@ -356,23 +356,21 @@ try {
             Write-Host "⚠️  State file consistency issues detected - please review" -ForegroundColor Yellow
         }
 
-        # Next steps guidance
-        Write-Host ""
-        Write-Host "Next Steps:" -ForegroundColor Yellow
+        # Next steps guidance (verbose-only — restore with -Verbose)
         if ($ReviewStatus -eq "Needs Enhancement") {
-            Write-Host "  1. Address the identified issues in the code" -ForegroundColor Gray
-            Write-Host "  2. Update implementation based on review feedback" -ForegroundColor Gray
-            Write-Host "  3. Request follow-up review when ready" -ForegroundColor Gray
+            Write-Verbose "Next Steps: Address the identified issues in the code"
+            Write-Verbose "Next Steps: Update implementation based on review feedback"
+            Write-Verbose "Next Steps: Request follow-up review when ready"
         } elseif ($ReviewStatus -eq "Completed" -or $ReviewStatus -eq "Approved with Comments") {
-            Write-Host "  1. Code review is complete and approved" -ForegroundColor Gray
-            Write-Host "  2. Consider proceeding to deployment preparation" -ForegroundColor Gray
+            Write-Verbose "Next Steps: Code review is complete and approved"
+            Write-Verbose "Next Steps: Consider proceeding to deployment preparation"
             if ($ReviewStatus -eq "Approved with Comments") {
-                Write-Host "  3. Address minor comments in future iterations" -ForegroundColor Gray
+                Write-Verbose "Next Steps: Address minor comments in future iterations"
             }
         } elseif ($ReviewStatus -eq "Rejected") {
-            Write-Host "  1. Review the rejection reasons carefully" -ForegroundColor Gray
-            Write-Host "  2. Consider significant refactoring or redesign" -ForegroundColor Gray
-            Write-Host "  3. Discuss with reviewer before proceeding" -ForegroundColor Gray
+            Write-Verbose "Next Steps: Review the rejection reasons carefully"
+            Write-Verbose "Next Steps: Consider significant refactoring or redesign"
+            Write-Verbose "Next Steps: Discuss with reviewer before proceeding"
         }
 
         if ($SecurityIssues.Count -gt 0) {

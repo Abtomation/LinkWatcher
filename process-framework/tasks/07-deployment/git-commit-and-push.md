@@ -3,9 +3,9 @@ id: PF-TSK-082
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-04-07
-updated: 2026-04-10
+updated: 2026-05-01
 ---
 
 # Git Commit and Push
@@ -40,7 +40,7 @@ Commit all changes in the current working directory and push them to the remote 
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 
 ### Step 1: Gather State
 
@@ -113,6 +113,8 @@ EOF
 )"
 ```
 
+**If pre-commit hooks fail with auto-fixes**: Hooks like `trailing-whitespace`, `end-of-file-fixer`, `black`, and `isort` modify files instead of failing cleanly — the commit aborts with a "files were modified by this hook" message. Recovery: re-stage with `git add .` and retry the same commit command. Repeat if necessary; usually one retry suffices. If a non-fixing hook rejects (e.g., `flake8`, `pytest-quick`, `check-yaml`), fix the underlying issue first, then re-stage and retry.
+
 ### Step 7: Push
 
 ```bash
@@ -124,7 +126,7 @@ If the push is rejected (e.g., remote has new commits), inform the human partner
 ### Step 8: Restart LinkWatcher
 
 ```bash
-pwsh.exe -ExecutionPolicy Bypass -File LinkWatcher/start_linkwatcher_background.ps1
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/tools/linkWatcher/start_linkwatcher_background.ps1
 ```
 
 ### Step 9: Confirm
@@ -133,7 +135,7 @@ Report the commit hash and summary to the human partner.
 
 ## Tools and Scripts
 
-- **[start_linkwatcher_background.ps1](/LinkWatcher_run/start_linkwatcher_background.ps1)** — Start LinkWatcher in background (Step 8: restart after push)
+- **[start_linkwatcher_background.ps1](/process-framework/tools/linkWatcher/start_linkwatcher_background.ps1)** — Start LinkWatcher in background (Step 8: restart after push)
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
 
 ## Outputs
@@ -147,7 +149,7 @@ This task does not update any process framework state files. It operates on the 
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 - [ ] **Verify Process**: Confirm all steps were followed
   - [ ] Staging scope verified: Only files within the current working directory were staged

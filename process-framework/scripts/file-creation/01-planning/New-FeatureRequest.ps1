@@ -90,6 +90,13 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 Invoke-StandardScriptInitialization
 
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
+
 # Configuration
 $ProjectRoot = Get-ProjectRoot
 $TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-request-tracking.md"
@@ -193,6 +200,9 @@ $updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}',
 try {
     Set-Content -Path $TrackingFile -Value $updatedContent -NoNewline -Encoding UTF8
 
+    # Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
+    Assert-LineInFile -Path $TrackingFile -Pattern "\| $RequestId \|" -Context "feature request row for $RequestId in $TrackingFile"
+
     $details = @(
         "ID: $RequestId",
         "Source: $Source",
@@ -206,11 +216,21 @@ try {
 
     Write-ProjectSuccess -Message "Created feature request: $RequestId" -Details $details
 
-    Write-Host ""
-    Write-Host "Next Steps:" -ForegroundColor Yellow
-    Write-Host "  - Use Feature Request Evaluation (PF-TSK-067) to classify this request" -ForegroundColor White
-    Write-Host "  - Use Update-FeatureRequest.ps1 to update status after classification" -ForegroundColor White
+    Write-Verbose "Next Steps: Use Feature Request Evaluation (PF-TSK-067) to classify this request"
+    Write-Verbose "Next Steps: Use Update-FeatureRequest.ps1 to update status after classification"
 }
 catch {
     Write-ProjectError -Message "Failed to create feature request entry: $($_.Exception.Message)" -ExitCode 1
+}
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "Feature request creation failed: $($_.Exception.Message)" -ExitCode 1
 }

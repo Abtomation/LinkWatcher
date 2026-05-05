@@ -93,6 +93,10 @@ class LinkWatcherService:
             config=config,
         )
 
+        if config is not None:
+            self.updater.set_dry_run(config.dry_run_mode)
+            self.updater.set_backup_enabled(config.create_backups)
+
         # Setup signal handlers for graceful shutdown
         if register_signals:
             signal.signal(signal.SIGINT, self._signal_handler)
@@ -126,7 +130,11 @@ class LinkWatcherService:
             # Perform initial scan if requested
             if initial_scan:
                 self.logger.info("initial_scan_starting")
-                with LogTimer("initial_scan", self.logger):
+                with LogTimer(
+                    "initial_scan",
+                    self.logger,
+                    enabled=(self.config or DEFAULT_CONFIG).performance_logging,
+                ):
                     self._initial_scan()
 
                 stats = self.link_db.get_stats()
@@ -229,6 +237,9 @@ class LinkWatcherService:
 
     def _print_final_stats(self):
         """Print final statistics before shutdown."""
+        config = self.config if self.config else DEFAULT_CONFIG
+        if not config.show_statistics:
+            return
         handler_stats = self.handler.get_stats()
         db_stats = self.link_db.get_stats()
 

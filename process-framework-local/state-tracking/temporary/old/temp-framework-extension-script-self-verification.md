@@ -170,7 +170,7 @@ Existing tasks affected by this extension:
   - PF-TSK-026 entry (S7, line ~1446): add `script-soak-tracking.md` row to **📁 FILE OPERATIONS** table.
   - PF-TSK-001 entry (S5, line ~1373): add same row.
 - [ ] Final [`PF-documentation-map.md`](../../../../process-framework/PF-documentation-map.md) sweep — confirm all extension artifacts listed.
-- [ ] Move concept doc from `process-framework-local/proposals/script-self-verification.md` to `process-framework-local/proposals/old/`.
+- [ ] Move concept doc from `process-framework-local/proposals/old/script-self-verification.md` to `process-framework-local/proposals/old/`.
 - [ ] Move this temp state file to `process-framework-local/state-tracking/temporary/old/`.
 - [ ] Update [PF-IMP-586](../../permanent/process-improvement-tracking.md) status: In Progress → Completed (via `Update-ProcessImprovement.ps1`).
 - [ ] Log tool changes in feedback DB if applicable (`feedback_db.py log-change`).

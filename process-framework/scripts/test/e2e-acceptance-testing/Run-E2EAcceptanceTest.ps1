@@ -59,8 +59,8 @@
     Test cases without run.ps1 are skipped — execute them directly following test-case.md.
 
     Created: 2026-03-18
-    Version: 1.4
-    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169, PF-IMP-395, PF-IMP-472
+    Version: 1.6
+    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169, PF-IMP-395, PF-IMP-472, PF-IMP-720, PF-IMP-724
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -224,6 +224,25 @@ function Stop-LinkWatcher {
     }
 }
 
+function Stop-WorkspaceLinkWatchers {
+    # Sweep stray LinkWatcher processes left running under the workspace by prior test
+    # cases — particularly skip_lw_start cases whose run.ps1 starts LW scoped to a
+    # subdirectory (e.g., workspace/<group>/<case>/project/), placing the lock file
+    # outside the two paths that Stop-LinkWatcher checks. Without this sweep, the
+    # next case's Setup-TestEnvironment.ps1 fails to clean the prior workspace
+    # because the stray LW still holds it (PF-IMP-720, real failure: TE-E2E-015
+    # setup blocked by TE-E2E-012's stray LW per PF-FEE-1088).
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Root
+    )
+    if (-not (Test-Path $Root)) { return }
+    $locks = Get-ChildItem -Path $Root -Recurse -Force -Filter ".linkwatcher.lock" -File -ErrorAction SilentlyContinue
+    foreach ($lock in $locks) {
+        Stop-LinkWatcher -LockPath $lock.FullName
+    }
+}
+
 function Start-LinkWatcher {
     param(
         [Parameter(Mandatory=$true)]
@@ -262,7 +281,7 @@ function Start-LinkWatcher {
         Start-Sleep -Seconds 1
         if (Test-Path $logFile) {
             $recentLines = Get-Content $logFile -Tail 20 -ErrorAction SilentlyContinue
-            if ($recentLines -match 'completed_initial_scan') {
+            if ($recentLines -match 'initial_scan_complete') {
                 $scanComplete = $true
             }
         }
@@ -308,7 +327,7 @@ foreach ($tc in $scriptedCases) {
 
     if ($WhatIfPreference) {
         Write-Host "  What if: Would execute E2E pipeline for $($tc.CaseId):" -ForegroundColor Cyan
-        Write-Host "    1. Stop LinkWatcher" -ForegroundColor DarkGray
+        Write-Host "    1. Stop LinkWatcher (project lock, current case lock, and recursive workspace sweep)" -ForegroundColor DarkGray
         Write-Host "    2. Setup-TestEnvironment.ps1 -Group $($tc.Group) -ProjectRoot $ProjectRoot -Clean:$Clean" -ForegroundColor DarkGray
         if ($skipLwStart) {
             Write-Host "    3. Skip LinkWatcher start (skip_lw_start)" -ForegroundColor DarkYellow
@@ -334,6 +353,9 @@ foreach ($tc in $scriptedCases) {
     Stop-LinkWatcher -LockPath $projectLockFile
     $workspaceLockFile = Join-Path $workspaceCasePath ".linkwatcher.lock"
     Stop-LinkWatcher -LockPath $workspaceLockFile
+    # Sweep stray LWs left under the workspace by prior cases — covers skip_lw_start
+    # cases whose lock lands in an arbitrary subdirectory (PF-IMP-720)
+    Stop-WorkspaceLinkWatchers -Root $workspaceDir
 
     # Step 2: Setup test environment (no LW running = no false move events)
     Write-Host "  2️⃣  Setting up test environment..." -ForegroundColor DarkGray
@@ -434,7 +456,7 @@ Write-Host "  Total:     $($testCases.Count)" -ForegroundColor Cyan
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
 
 # Restart project-level LinkWatcher (was stopped for E2E testing)
-$startLwScript = Join-Path $ProjectRoot "LinkWatcher_run/start_linkwatcher_background.ps1"
+$startLwScript = Join-Path $ProjectRoot "process-framework/tools/linkWatcher/start_linkwatcher_background.ps1"
 if (Test-Path $startLwScript) {
     Write-Host "Restarting project-level LinkWatcher..." -ForegroundColor Cyan
     & $startLwScript

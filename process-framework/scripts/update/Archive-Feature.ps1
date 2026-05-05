@@ -40,6 +40,10 @@ If specified, shows what would be changed without modifying any files
 Addresses: PF-IMP-178 (separate archived features from active features table)
 Created: 2026-03-24
 Version: 1.0
+
+Output behavior: Default output is one summary line per invocation (the outcome,
+e.g. "Feature 4.1.1 → archived"). WARN and ERROR messages always pass through.
+Pass -Verbose to restore the full play-by-play log.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -66,7 +70,16 @@ $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+# Temporarily silence $VerbosePreference around the import so -Verbose callers see
+# only this script's own Write-Verbose output, not the helper module's internal chatter.
+$prevVerbosePreference = $VerbosePreference
+$VerbosePreference = 'SilentlyContinue'
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+$VerbosePreference = $prevVerbosePreference
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
@@ -74,16 +87,29 @@ $TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/perm
 $CurrentDate = if ($ArchiveDate) { $ArchiveDate } else { Get-Date -Format "yyyy-MM-dd" }
 
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Message, [string]$Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $(
-        switch ($Level) {
-            "ERROR" { "Red" }
-            "WARN" { "Yellow" }
-            "SUCCESS" { "Green" }
-            default { "White" }
-        }
-    )
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
 
 function Update-ArchivedSummaryCount {
@@ -331,8 +357,19 @@ function Main {
 
     # Write
     Set-Content -Path $TrackingFile -Value $content -NoNewline
-    Write-Log "Feature archival completed successfully" -Level "SUCCESS"
-    Write-Log "Updated file: $TrackingFile"
+    Write-SummaryLine "Feature $FeatureId → archived"
 }
 
-Main
+# Execute main function with soak-verification wrapper (PF-PRO-028 v2.0)
+try {
+    Main
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "Feature archival failed: $($_.Exception.Message)" -ExitCode 1
+}

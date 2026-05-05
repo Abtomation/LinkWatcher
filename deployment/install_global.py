@@ -3,8 +3,9 @@
 Global Installation Script for LinkWatcher
 
 Installs LinkWatcher to a global location (default: ~/bin) so it can be
-used from any project directory. Also updates the startup scripts in
-LinkWatcher_run/ to point to the install location.
+used from any project directory. The agnostic startup script in
+process-framework/tools/linkWatcher/ auto-detects this install location at
+runtime; no per-project script regeneration is needed.
 
 Usage:
     python deployment/install_global.py [--install-dir DIR]
@@ -314,137 +315,6 @@ def create_wrapper_scripts(install_dir):
         print(f"OK: Wrapper scripts created: {', '.join(scripts_created)}")
 
 
-def update_startup_scripts(project_root, install_dir):
-    """Update LinkWatcher_run/ startup scripts to point to the install directory.
-
-    PD-BUG-077: Uses dedicated venv Python, adds startup verification,
-    and does not write early lock file (avoids race condition with main.py).
-    """
-    run_dir = project_root / "LinkWatcher_run"
-    if not run_dir.exists():
-        print("Skipping startup script update (LinkWatcher_run/ not found)")
-        return
-
-    lw_install_dir = str(install_dir).replace("\\", "\\\\")
-    venv_python_rel = r".linkwatcher-venv\\Scripts\\python.exe"
-
-    scripts = {
-        "start_linkwatcher_background.ps1": (
-            f"# LinkWatcher Background Starter for this project\n"
-            f"\n"
-            f"# Resolve project root from project-config.json\n"
-            f"$scriptDir = if ($PSScriptRoot) {{ $PSScriptRoot }} else {{ (Get-Location).Path }}\n"
-            f'$configPath = Join-Path $scriptDir "..\\doc\\project-config.json"\n'
-            f"\n"
-            f"if (-not (Test-Path $configPath)) {{\n"
-            f'    Write-Host "Error: project-config.json not found at: $configPath" -ForegroundColor Red\n'  # noqa: E501
-            f"    return\n"
-            f"}}\n"
-            f"\n"
-            f"$config = Get-Content $configPath -Raw | ConvertFrom-Json\n"
-            f"$projectRoot = $config.project.root_directory\n"
-            f"\n"
-            f"if (-not $projectRoot -or -not (Test-Path $projectRoot)) {{\n"
-            f'    Write-Host "Error: Invalid project root in project-config.json: $projectRoot" -ForegroundColor Red\n'  # noqa: E501
-            f"    return\n"
-            f"}}\n"
-            f"\n"
-            f"# Check if LinkWatcher is already running for THIS project via lock file\n"
-            f'$lockFile = Join-Path $projectRoot ".linkwatcher.lock"\n'
-            f"if (Test-Path $lockFile) {{\n"
-            f"    try {{\n"
-            f"        $lockPid = [int](Get-Content $lockFile -Raw).Trim()\n"
-            f"        $lockProcess = Get-Process -Id $lockPid -ErrorAction SilentlyContinue\n"
-            f"        if ($lockProcess) {{\n"
-            f'            Write-Host "LinkWatcher is already running for $projectRoot (PID: $lockPid)" -ForegroundColor Yellow\n'  # noqa: E501
-            f'            Write-Host "Not starting a new instance." -ForegroundColor Yellow\n'
-            f"            return\n"
-            f"        }} else {{\n"
-            f'            Write-Host "Stale lock file found (PID $lockPid no longer running), will be overridden." -ForegroundColor DarkYellow\n'  # noqa: E501
-            f"        }}\n"
-            f"    }} catch {{\n"
-            f'        Write-Host "Invalid lock file, will be overridden." -ForegroundColor DarkYellow\n'  # noqa: E501
-            f"    }}\n"
-            f"}}\n"
-            f"\n"
-            f'Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan\n'  # noqa: E501
-            f"\n"
-            f"# Resolve LinkWatcher installation directory and dedicated venv Python\n"
-            f"# PD-BUG-077: Never use bare 'python' — it may resolve to a project .venv\n"
-            f"# that lacks LinkWatcher dependencies, causing silent startup failure.\n"
-            f'$lwInstallDir = "{lw_install_dir}"\n'
-            f'$lwMainPy = Join-Path $lwInstallDir "main.py"\n'
-            f'$lwVenvPython = Join-Path $lwInstallDir "{venv_python_rel}"\n'
-            f"\n"
-            f"if (-not (Test-Path $lwVenvPython)) {{\n"
-            f'    Write-Host "Error: LinkWatcher dedicated venv not found at: $lwVenvPython" -ForegroundColor Red\n'  # noqa: E501
-            f'    Write-Host "Run the global installer first:" -ForegroundColor Red\n'
-            f'    Write-Host "  python deployment/install_global.py" -ForegroundColor Yellow\n'
-            f"    return\n"
-            f"}}\n"
-            f"\n"
-            f"# Start LinkWatcher with explicit project root and logging\n"
-            f'$logsDir = Join-Path $projectRoot "logs"\n'
-            f"if (-not (Test-Path $logsDir)) {{\n"
-            f"    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null\n"
-            f"}}\n"
-            f'$logFile = Join-Path $logsDir "LinkWatcherLog.txt"\n'
-            f'$stdoutLog = Join-Path $logsDir "LinkWatcherStdout.txt"\n'
-            f'$stderrLog = Join-Path $logsDir "LinkWatcherError.txt"\n'
-            f'$arguments = "$lwMainPy --project-root `"$projectRoot`" --log-file `"$logFile`" --debug"\n'  # noqa: E501
-            f"\n"
-            f"$process = Start-Process -FilePath $lwVenvPython -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog\n"  # noqa: E501
-            f"\n"
-            f"if ($process) {{\n"
-            f"    # Let main.py handle its own lock file acquisition.\n"
-            f"    # Previously this script wrote the lock file early, but that causes a\n"
-            f"    # race condition: main.py sees its own PID in the lock, thinks another\n"
-            f"    # instance is running, and exits.\n"
-            f"\n"
-            f"    # PD-BUG-077: Verify the process survives initialization.\n"
-            f"    # The old script reported success immediately, but the process could\n"
-            f"    # crash on import before doing any work.\n"
-            f"    Start-Sleep -Seconds 2\n"
-            f"    $process.Refresh()\n"
-            f"    if ($process.HasExited) {{\n"
-            f"        $exitCode = $process.ExitCode\n"
-            f'        Write-Host "Error: LinkWatcher process exited immediately (exit code: $exitCode)" -ForegroundColor Red\n'  # noqa: E501
-            f"        if (Test-Path $stderrLog) {{\n"
-            f"            $stderr = Get-Content $stderrLog -Raw\n"
-            f"            if ($stderr) {{\n"
-            f'                Write-Host "Stderr output:" -ForegroundColor Red\n'
-            f"                Write-Host $stderr -ForegroundColor DarkRed\n"
-            f"            }}\n"
-            f"        }}\n"
-            f"        # Clean up lock file if main.py wrote one before crashing\n"
-            f'        $crashLockFile = Join-Path $projectRoot ".linkwatcher.lock"\n'
-            f"        if (Test-Path $crashLockFile) {{ Remove-Item $crashLockFile -Force }}\n"
-            f"        return\n"
-            f"    }}\n"
-            f"\n"
-            f'    Write-Host "LinkWatcher started successfully in background (PID: $($process.Id))" -ForegroundColor Green\n'  # noqa: E501
-            f'    Write-Host "  Project root: $projectRoot" -ForegroundColor Green\n'
-            f'    Write-Host "  Log file: $logFile" -ForegroundColor Green\n'
-            f"}} else {{\n"
-            f'    Write-Host "Failed to start LinkWatcher" -ForegroundColor Red\n'
-            f"}}\n"
-        ),
-    }
-
-    updated = []
-    for name, content in scripts.items():
-        script_path = run_dir / name
-        try:
-            with open(script_path, "w") as f:
-                f.write(content)
-            updated.append(name)
-        except Exception as e:
-            print(f"   WARNING: Could not update {name}: {e}")
-
-    if updated:
-        print(f"OK: Startup scripts updated: {', '.join(updated)}")
-
-
 def test_installation(install_dir):
     """Test if the installation works using the dedicated venv Python."""
     print("\nTesting installation...")
@@ -508,7 +378,6 @@ def main():
         sys.exit(1)
 
     create_wrapper_scripts(install_dir)
-    update_startup_scripts(project_root, install_dir)
 
     if not test_installation(install_dir):
         print("\nERROR: Installation completed but tests failed")
@@ -519,7 +388,8 @@ def main():
     print("=" * 50)
     print(f"\nInstallation directory: {install_dir}")
     print(f"\nUsage: python \"{install_dir / 'main.py'}\"")
-    print("Or use the startup scripts in LinkWatcher_run/")
+    print("Or run the agnostic startup script:")
+    print(r"  pwsh.exe -File process-framework\tools\linkWatcher\start_linkwatcher_background.ps1")
 
 
 if __name__ == "__main__":

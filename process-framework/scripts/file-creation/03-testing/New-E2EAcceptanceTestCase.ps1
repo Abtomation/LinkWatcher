@@ -125,6 +125,10 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
 try {
     $projectRoot = Get-ProjectRoot
     $timestamp = Get-ProjectTimestamp -Format "Date"
@@ -390,6 +394,9 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         if ($PSCmdlet.ShouldProcess($masterTestFile, "Update master test If Failed table")) {
             Set-Content $masterTestFile ($updatedLines -join "`n") -Encoding UTF8
             Write-Verbose "Updated master test: $masterTestFile"
+
+            # Verify deterministic post-condition: test case row was added (PF-PRO-028 v2.0)
+            Assert-LineInFile -Path $masterTestFile -Pattern "\| $e2eId \|" -Context "test case row for $e2eId in $masterTestFile"
         }
     } else {
         Write-Warning "Master test file not found: $masterTestFile. Skipping master test update."
@@ -504,6 +511,9 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         if ($PSCmdlet.ShouldProcess($testTrackingPath, "Add E2E test entry to e2e-test-tracking.md")) {
             Set-Content $testTrackingPath $updatedContent -Encoding UTF8
             Write-Verbose "Updated e2e-test-tracking.md with $e2eId"
+
+            # Verify deterministic post-condition: test case row was added (PF-PRO-028 v2.0)
+            Assert-LineInFile -Path $testTrackingPath -Pattern "\| $e2eId \|" -Context "E2E test row for $e2eId in $testTrackingPath"
         }
     } else {
         Write-Warning "Test tracking file not found: $testTrackingPath"
@@ -582,7 +592,15 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     if ($OpenInEditor) {
         Invoke-Item $testCaseFile
     }
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
 }
 catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
     Write-ProjectError -Message "Failed to create E2E acceptance test case: $($_.Exception.Message)" -ExitCode 1
 }

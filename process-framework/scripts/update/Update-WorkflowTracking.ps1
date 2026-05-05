@@ -37,6 +37,21 @@ param(
     [string]$ProjectRoot = ""
 )
 
+# Import Common-ScriptHelpers (added by PF-IMP-728 Session 2 to enable soak verification)
+$dir = $PSScriptRoot
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
+
+
 # Resolve project root
 if (-not $ProjectRoot) {
     $searchDir = $PSScriptRoot
@@ -235,4 +250,18 @@ if ($updateCount -gt 0) {
 } else {
     Write-Host ""
     Write-Host "No workflow status changes needed." -ForegroundColor Gray
+}
+
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-Error "Workflow tracking update failed: $($_.Exception.Message)"
+    exit 1
 }

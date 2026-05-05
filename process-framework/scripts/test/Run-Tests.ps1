@@ -9,6 +9,13 @@
     Test categories are discovered dynamically by scanning subdirectories of the test directory.
     Use -ListCategories to see available categories.
 
+    NOTE: -All applies the "not slow" marker filter, excluding @pytest.mark.slow tests (typically
+    performance/long-running) for fast feedback. To run slow tests only, use -Performance. To run BOTH
+    fast and slow tests, pass -All -Performance together, or invoke pytest directly without the marker
+    filter. The runtime banner shows "All Tests (excluding slow)" when the filter is active.
+    (-Quick runs only the quickCategories from project-config.json; if those exclude the performance
+    test directory, slow tests are also out of scope by convention.)
+
 .PARAMETER Category
     Run tests in one or more subdirectory categories (e.g., -Category unit, -Category unit,integration).
     Multiple categories can be comma-separated. Categories are discovered from subdirectories of the test directory.
@@ -210,17 +217,17 @@ function Invoke-TestCommand {
 
     Push-Location $projectRoot
     try {
-        if ($script:UpdateTracking) {
-            # Capture output line-by-line while still displaying it
-            $output = & $Command[0] $Command[1..($Command.Length - 1)] 2>&1
-            foreach ($line in $output) {
-                Write-Host $line
-                $script:capturedTestOutput += $line.ToString()
-            }
-        } else {
-            & $Command[0] $Command[1..($Command.Length - 1)]
+        # Always capture output into a local variable (never let it flow into the
+        # function's pipeline) — otherwise the caller's `$result = Invoke-TestCommand`
+        # absorbs pytest's stdout alongside the boolean, hiding test output and
+        # making $result truthy regardless of pytest's exit code.
+        $output = & $Command[0] $Command[1..($Command.Length - 1)] 2>&1
+        $exitCode = $LASTEXITCODE
+        foreach ($line in $output) {
+            Write-Host $line
+            $script:capturedTestOutput += $line.ToString()
         }
-        return $LASTEXITCODE -eq 0
+        return $exitCode -eq 0
     }
     catch {
         Write-Host "Error running command: $_"
@@ -555,11 +562,41 @@ if ($UpdateTracking -and $Coverage -and $script:capturedTestOutput.Count -gt 0) 
 # --- Summary ---
 Write-Host ""
 Write-Host ("=" * 60)
+
+# Parse pytest summary boundary lines (e.g. "==== 5 passed, 2 failed in 0.07s ====")
+# and sum counts across all test invocations in this run.
+$totalPassed = 0; $totalFailed = 0; $totalSkipped = 0
+$totalXfailed = 0; $totalXpassed = 0; $totalErrors = 0
+$summaryFound = $false
+foreach ($line in $script:capturedTestOutput) {
+    if ($line -match '^=+\s+.*\sin\s+[\d.]+s\s+=+\s*$') {
+        $summaryFound = $true
+        if ($line -match '(\d+) passed')  { $totalPassed  += [int]$matches[1] }
+        if ($line -match '(\d+) failed')  { $totalFailed  += [int]$matches[1] }
+        if ($line -match '(\d+) skipped') { $totalSkipped += [int]$matches[1] }
+        if ($line -match '(\d+) xfailed') { $totalXfailed += [int]$matches[1] }
+        if ($line -match '(\d+) xpassed') { $totalXpassed += [int]$matches[1] }
+        if ($line -match '(\d+) error')   { $totalErrors  += [int]$matches[1] }
+    }
+}
+
+$countsSummary = ""
+if ($summaryFound) {
+    $parts = @()
+    if ($totalPassed  -gt 0) { $parts += "$totalPassed passed" }
+    if ($totalFailed  -gt 0) { $parts += "$totalFailed failed" }
+    if ($totalSkipped -gt 0) { $parts += "$totalSkipped skipped" }
+    if ($totalXfailed -gt 0) { $parts += "$totalXfailed xfailed" }
+    if ($totalXpassed -gt 0) { $parts += "$totalXpassed xpassed" }
+    if ($totalErrors  -gt 0) { $parts += "$totalErrors errors" }
+    if ($parts.Count -gt 0) { $countsSummary = " (" + ($parts -join ", ") + ")" }
+}
+
 if ($success) {
-    Write-ProjectSuccess -Message "All tests completed successfully!"
+    Write-ProjectSuccess -Message "All tests completed successfully!$countsSummary"
 }
 else {
-    Write-ProjectError -Message "Some tests failed!"
+    Write-ProjectError -Message "Some tests failed!$countsSummary"
 }
 Write-Host ("=" * 60)
 

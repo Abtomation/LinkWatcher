@@ -1,4 +1,4 @@
-﻿# New-SchemaDesign.ps1
+# New-SchemaDesign.ps1
 # Creates a new Database Schema Design document with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
 
@@ -88,6 +88,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # Prepare additional metadata fields (customize as needed)
 $additionalMetadataFields = @{
     "feature_name" = ConvertTo-KebabCase -InputString $FeatureName
@@ -138,19 +144,7 @@ try {
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
         $details += @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional document until extensively customized.",
-            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-            "",
-            "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "process-framework/guides/02-design/schema-design-creation-guide.md",
-            "🎯 FOCUS AREAS: 'Step-by-Step Instructions' and 'Quality Assurance' sections",
-            "",
-            "🚫 DO NOT use the generated file without proper customization!",
-            "✅ The template provides structure - YOU provide the meaningful content.",
+            "Customization required — see process-framework/guides/02-design/schema-design-creation-guide.md",
             "",
             "Next steps:",
             "1. Complete the schema design document with detailed data model specifications",

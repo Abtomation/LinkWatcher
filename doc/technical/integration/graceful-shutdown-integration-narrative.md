@@ -79,7 +79,7 @@ graph TD
    - Sets `self.running = False` (idempotent).
    - Calls `self.observer.stop()` — watchdog stops accepting new filesystem events.
    - Calls `self.observer.join()` — **blocks the main thread until the observer's dispatcher thread finishes the callback it is currently executing**. This is the critical synchronization point for in-flight updates.
-   - Calls `self._print_final_stats()` → logs `operation_stats` aggregated from `handler.get_stats()` and `link_db.get_stats()`.
+   - Calls `self._print_final_stats()` → when `config.show_statistics` is `True` (default), logs `operation_stats` aggregated from `handler.get_stats()` and `link_db.get_stats()`. When `False` (set by `--quiet` or by user-supplied config), the method returns early and no stats are emitted (PD-REF-202 / TD229).
    - Logs `service_stopped`.
 
 5. **Watchdog Observer thread — in-flight callback (if any)** ([handler.py, `on_moved`/`on_created`/`on_deleted`](src/linkwatcher/handler.py))
@@ -129,8 +129,8 @@ graph TD
 
 | Config Value | Source | Consumed By | Effect on Workflow |
 |-------------|--------|-------------|-------------------|
-| `create_backups` | `LinkWatcherConfig` (loaded from YAML/JSON/env/CLI) | `LinkUpdater.set_backup_enabled()` called from `main.py` ([main.py:378](main.py#L378)); read inside `_write_file_safely()` ([updater.py:520](src/linkwatcher/updater.py#L520)) | When `True`, each in-flight update additionally produces a `.bak` copy before the atomic rename. A shutdown mid-update can therefore leave either the original file plus a `.bak`, or the updated file plus a `.bak` — never a corrupted primary. |
-| `dry_run_mode` | `LinkWatcherConfig` via CLI `--dry-run` or config file | `LinkUpdater.set_dry_run()` ([main.py:377](main.py#L377)) | When `True`, `_write_file_safely()` is not reached — updates are logged and skipped, so shutdown trivially leaves disk untouched. |
+| `create_backups` | `LinkWatcherConfig` (loaded from YAML/JSON/env/CLI) | `LinkUpdater.set_backup_enabled()` called from `LinkWatcherService.__init__` at [service.py:98](src/linkwatcher/service.py#L98) (TD235 / PD-REF-203); read inside `_write_file_safely()` ([updater.py:520](src/linkwatcher/updater.py#L520)) | When `True`, each in-flight update additionally produces a `.bak` copy before the atomic rename. A shutdown mid-update can therefore leave either the original file plus a `.bak`, or the updated file plus a `.bak` — never a corrupted primary. |
+| `dry_run_mode` | `LinkWatcherConfig` via CLI `--dry-run` or config file | `LinkUpdater.set_dry_run()` called from `LinkWatcherService.__init__` at [service.py:97](src/linkwatcher/service.py#L97) | When `True`, `_write_file_safely()` is not reached — updates are logged and skipped, so shutdown trivially leaves disk untouched. |
 | `register_signals` | Constructor argument to `LinkWatcherService` (default `True`) | `LinkWatcherService.__init__` ([service.py:97-99](src/linkwatcher/service.py#L97-L99)) | When `False` (e.g., when embedding the service inside a larger host process), the host owns the signal path and must drive `service.stop()` itself. The lock file and atomic-write guarantees still hold. |
 
 ## Error Handling Across Boundaries

@@ -1,4 +1,4 @@
-﻿# New-Guide.ps1
+# New-Guide.ps1
 # Creates a new guide with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
 
@@ -99,6 +99,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # Prepare additional metadata fields (IMP-376: removed redundant guide_* fields)
 $additionalMetadataFields = @{}
 
@@ -156,21 +162,7 @@ try {
 
     # Add mandatory guide consultation if not opening in editor
     if (-not $OpenInEditor) {
-        $details += @(
-            "",
-            "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-            "",
-            "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-            "⚠️  The generated file is NOT a functional document until extensively customized.",
-            "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-            "",
-            "📖 MANDATORY CUSTOMIZATION GUIDE:",
-            "process-framework/guides/support/guide-creation-best-practices-guide.md",
-            "🎯 FOCUS AREAS: 'Step-by-Step Instructions' and 'Quality Assurance' sections",
-            "",
-            "🚫 DO NOT use the generated file without proper customization!",
-            "✅ The template provides structure - YOU provide the meaningful content."
-        )
+        $details += "Customization required — see process-framework/guides/support/guide-creation-best-practices-guide.md"
     }
 
     # Auto-append entry to PF-documentation-map.md under the correct Guides section

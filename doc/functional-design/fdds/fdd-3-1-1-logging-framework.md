@@ -62,7 +62,7 @@ retrospective: true
 - **3.1.1-FR-3**: The system SHALL support a `json_logs` configuration option (config file only) that switches the structlog output format from human-readable console rendering to JSON rendering for all log outputs (console and file). Independently, the system SHALL support directing log output to a rotating file via `--log-file` (CLI) or `log_file` (config file)
 - **3.1.1-FR-4**: The system SHALL provide domain-specific log methods for LinkWatcher operations: `file_moved`, `file_deleted`, `links_updated`, `scan_progress`, and `operation_stats`
 - **3.1.1-FR-5**: The system SHALL maintain isolated per-thread logging context so that concurrent operations do not mix their contextual information
-- **3.1.1-FR-6**: The system SHALL measure and report operation timing via `PerformanceLogger` and `LogTimer` context manager
+- **3.1.1-FR-6**: The system SHALL measure and report operation timing via `PerformanceLogger` and `LogTimer` context manager when `performance_logging` is enabled. When disabled (default), `LogTimer` short-circuits and no per-operation timing entries are emitted.
 - **3.1.1-FR-7**: The system SHALL support runtime log level and filter configuration via a YAML or JSON config file
 - **3.1.1-FR-8**: The system SHALL hot-reload the config file and apply changes while the service is running, without restart
 
@@ -99,8 +99,9 @@ retrospective: true
    - Link updates appear as: `INFO ✅ Updated 3 links in docs/guide.md`
    - Errors appear in red: `ERROR ❌ Failed to update docs/locked.md: PermissionError`
 
-4. **Performance Timing**:
-   - Operations wrapped in `LogTimer` automatically emit a timing log on completion
+4. **Performance Timing** (opt-in via `performance_logging: true`):
+   - Operations wrapped in `LogTimer` emit a timing log on completion when `performance_logging` is enabled
+   - Disabled by default to avoid per-file logging overhead during initial scan and parsing
    - Example: `DEBUG ⏱ Initial scan completed in 0.42s (47 files, 312 links)`
 
 5. **Runtime Config Change** (optional):

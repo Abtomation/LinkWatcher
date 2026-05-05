@@ -2,9 +2,9 @@
 id: PF-TSK-022
 type: Process Framework
 category: Task Definition
-version: 2.1
+version: 2.3
 created: 2025-07-21
-updated: 2026-03-27
+updated: 2026-05-05
 ---
 
 # Code Refactoring Task
@@ -58,7 +58,7 @@ Systematic code improvement and technical debt reduction without changing extern
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
 >
@@ -67,6 +67,8 @@ Systematic code improvement and technical debt reduction without changing extern
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Step 1: Effort Assessment Gate
+
+> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code only**. Before proceeding, verify the refactor target. If any target file lives in `process-framework/`, `process-framework-local/`, or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Behavior-preserving framework code refactors (regex replacement, helper extraction, parser swap in `*.ps1`/`*.psm1` scripts) are handled in [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) Step 10 medium-risk path with synthetic-harness verification — not here. **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#step-1-what-are-you-working-on).
 
 > **⚠️ IMPORTANT: Independently verify tech debt descriptions.** Do not accept a TD item's problem description or proposed fix at face value. Read the actual target code and trace the full code path yourself. TD descriptions may be inaccurate about root cause, incomplete about scope, or propose a fix that only addresses part of the problem. Ask: "Is this the COMPLETE picture? Does the proposed fix address the dominant cost?" Map all branches, loops, and early exits before recommending Proceed.
 
@@ -90,6 +92,13 @@ Evaluate the refactoring scope against these criteria:
 > - **Proceed** — Refactoring is justified; benefits clearly outweigh costs and risks.
 > - **Modify scope** — Refactoring has merit but the scope should be adjusted (narrower, broader, or different approach).
 > - **Rejected** — Refactoring is not justified (cost > benefit, risk too high, issue is cosmetic, code is scheduled for replacement, etc.). Provide a brief rationale.
+>
+> **Reclassification**: If the TD describes valid work that is not technical debt, reject it and route to the correct tracker. Use the **domain heuristic**: `process-framework/`, `doc/` = IMP; `src/linkwatcher` = BUG; `test/` = either (infrastructure = IMP, product defect = BUG).
+> - **Process improvement** → [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1)
+> - **Product bug** → [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)
+> - **Feature request** → [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) via [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
+>
+> Include the new item's ID in the TD rejection note (e.g., "Reclassified as PF-IMP-XXX") so the routing is traceable.
 >
 > **If the human approves Rejected**:
 > 1. Identify the **source** of the tech debt item (which task, session, or agent introduced it) from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md).

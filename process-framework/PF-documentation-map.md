@@ -123,7 +123,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 - [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
 - [Process: Ratings Extraction Tool](scripts/extract_ratings.py) - Parses feedback form markdown and generates JSON for `feedback_db.py record`, eliminating manual JSON construction during PF-TSK-010
-- [Process: ExecutionVerification Module](scripts/Common-ScriptHelpers/ExecutionVerification.psm1) - Common-ScriptHelpers sub-module providing `Register-SoakScript` / `Test-ScriptInSoak` / `Confirm-SoakInvocation` / `Get-SoakStatus` for script self-verification (PF-PRO-028, PF-TSK-026). Backs the soak workflow that requires explicit agent acknowledgment over 5 successful invocations of newly registered or hash-changed scripts.
+- [Process: ExecutionVerification Module](scripts/Common-ScriptHelpers/ExecutionVerification.psm1) - Common-ScriptHelpers sub-module providing `Register-SoakScript` / `Test-ScriptInSoak` / `Confirm-SoakInvocation` / `Get-SoakStatus` for script self-verification (PF-PRO-028, PF-TSK-026). v2.0: `$DefaultSoakCounter` parameterized (default 3, was 5); caller-aware no-arg variants resolve calling `.ps1` via `Get-PSCallStack` (skipping `.psm1` frames), enabling helper-routed armoring (Pattern B) where one helper-module edit covers many calling scripts. Backs the soak workflow that requires explicit agent acknowledgment over `$DefaultSoakCounter` successful invocations of newly registered or hash-changed scripts.
 - [Process: Enhancement Workflow Concept](../process-framework-local/proposals/old/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
 - ~~Process: Code Quality Standards Validation Concept~~ - 🗄️ Removed (file deleted)
 
@@ -131,11 +131,11 @@ Our tasks are organized to mirror the `tasks` directory structure:
 
 #### `state-tracking/permanent`
 
-- [State: Process Improvement Tracking](../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process improvement opportunities and status
+- [State: Process Improvement Tracking](../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process improvement opportunities and status; also hosts the **Active Pilots** section (PF-PRO-030) tracking in-flight Framework Extension pilots (pilot rows use the same PF-IMP-NNN ID pool)
 
 #### `process-framework/state-tracking/permanent` (shareable across projects)
 
-- [State: Script Soak Tracking](state-tracking/permanent/script-soak-tracking.md) - Per-script soak counters and history for the Script Self-Verification workflow (PF-PRO-028, PF-TSK-026). Lives in the shareable `process-framework/` location (not `process-framework-local/`) because the scripts it tracks are themselves shared across projects. Uses the `PF-SST` (Shareable State Tracking) prefix from the main framework registry.
+- [State: Script Soak Tracking](state-tracking/permanent/script-soak-tracking.md) - Per-script soak counters and history for the Script Self-Verification workflow (PF-PRO-028, PF-TSK-026). v2.0: default counter = 3 (was 5). Lives in the shareable `process-framework/` location (not `process-framework-local/`) because the scripts it tracks are themselves shared across projects. Uses the `PF-SST` (Shareable State Tracking) prefix from the main framework registry.
 
 ### Templates
 
@@ -258,7 +258,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs, category-based subdirectory organization via -Subdirectory, auto-updates PD-documentation-map.md (PF-IMP-541, PF-IMP-568)
 - [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
 - [Process: New Test Specification Script](scripts/file-creation/03-testing/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
-- [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs (supports -BatchFile for bulk JSON input)
+- [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs (supports -BatchFile for bulk JSON input; -AsPilot mode (PF-PRO-030) registers a Framework Extension pilot in the Active Pilots section using the same PF-IMP ID pool)
 - [Process: New Framework Evaluation Report Script](scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) - PowerShell script for creating structured framework evaluation reports with auto-assigned PF-EVR IDs
 - [Process: New Test Infrastructure Script](scripts/file-creation/00-setup/New-TestInfrastructure.ps1) - Language-agnostic bootstrapping script for test directory structure, tracking files, and TE-id-registry from ../doc/project-config.json and language config
 - [Process: New Quality Assessment Report Script](scripts/file-creation/00-setup/New-QualityAssessmentReport.ps1) - PowerShell script for creating Quality Assessment Reports for Target-State features during onboarding with auto-assigned PD-QAR IDs
@@ -280,13 +280,13 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Process: Verify-TestResult Script](scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) - Compares workspace state against expected state after E2E acceptance test execution
 - [Process: Run-E2EAcceptanceTest Script](scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) - Orchestrates scripted E2E acceptance test pipeline: Setup → run.ps1 → wait → Verify
 - [Process: Update-TestExecutionStatus Script](scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) - Updates e2e-test-tracking.md and feature-tracking.md with E2E acceptance test execution results
-- [Process: Performance Results Database](scripts/test/performance_db.py) - SQLite-based performance results storage with record/trend/regressions/export subcommands for baseline management and regression detection
+- [Process: Performance Results Database](scripts/test/performance_db.py) - SQLite-based performance results storage with record/trend/regressions/export/list-test-ids subcommands for baseline management and regression detection
 
 ### State Update Scripts
 
-- [Process: Update Process Improvement Script](scripts/update/Update-ProcessImprovement.ps1) - Automates status transitions and completion moves in process-improvement-tracking.md
+- [Process: Update Process Improvement Script](scripts/update/Update-ProcessImprovement.ps1) - Automates status transitions and completion moves in process-improvement-tracking.md; also handles pilot status transitions in the Active Pilots section (PF-PRO-030) — `-NewStatus Resolved` records the decision, archives the linked concept doc to `proposals/old/`, and moves the pilot row from Active Pilots to Completed Improvements (PF-IMP-729) automatically
 - [Process: Update Feature Request Script](scripts/update/Update-FeatureRequest.ps1) - Classifies and closes feature requests in feature-request-tracking.md, updates feature-tracking.md for enhancements
-- [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, and resolution moves in technical-debt-tracking.md
+- [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, resolution moves, and in-place Description/Notes edits on open Registry items (-EditDescription / -EditNotes) in technical-debt-tracking.md
 - [Process: Update Language Config Script](scripts/update/Update-LanguageConfig.ps1) - Adds fields consistently across all language config files and template to prevent drift (-List to audit, -Section/-FieldName to add)
 - [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
 - [Process: Update User Documentation State Script](scripts/update/Update-UserDocumentationState.ps1) - Automates PF-TSK-081 finalization: appends handbook row to feature state file Documentation Inventory
@@ -393,6 +393,13 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Guide: Visualization Creation](guides/support/visualization-creation-guide.md) - Guide for creating context maps and other visualizations
 - [Guide: Template Development](guides/support/template-development-guide.md) - Guide for developing and maintaining framework templates
 - [Guide: Document Creation Script Development](guides/support/document-creation-script-development-guide.md) - Standardized approach for creating documents from templates through PowerShell scripts
+- [Guide: Schema Audit Procedure](guides/support/schema-audit-procedure-guide.md) - How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)
+
+### Tools
+
+Project-agnostic operational tooling that ships with the framework. Runtime artifacts live under `process-framework-local/tools/` (not in this map — they are project-specific).
+
+- [Tool: LinkWatcher Background Starter](tools/linkWatcher/start_linkwatcher_background.ps1) - Agnostic startup script: resolves the global LinkWatcher install via `$env:LINKWATCHER_INSTALL_DIR` or auto-detect (`~/bin`, `~/tools`, `~/scripts`, `~/.local/bin`, `~/LinkWatcher`); resolves project root from `doc/project-config.json`; writes logs to `process-framework-local/tools/linkWatcher/logs/`; auto-creates `.linkwatcher-ignore` skeleton at the same location if missing
 
 ### Visualization Resources
 

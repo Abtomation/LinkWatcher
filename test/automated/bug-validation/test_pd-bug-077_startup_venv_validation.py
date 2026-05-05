@@ -27,7 +27,13 @@ class TestStartupScriptVenvUsage:
 
     @pytest.fixture
     def startup_script_content(self):
-        script_path = PROJECT_ROOT / "LinkWatcher_run" / "start_linkwatcher_background.ps1"
+        script_path = (
+            PROJECT_ROOT
+            / "process-framework"
+            / "tools"
+            / "linkWatcher"
+            / "start_linkwatcher_background.ps1"
+        )
         assert script_path.exists(), f"Startup script not found: {script_path}"
         return script_path.read_text(encoding="utf-8")
 

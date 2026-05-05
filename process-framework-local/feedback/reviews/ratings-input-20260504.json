@@ -1,0 +1,1528 @@
+[
+  {
+    "form_id": "20260415-100017-PF-TSK-010-feedback",
+    "task_id": "PF-TSK-010",
+    "task_context": "Tools Review",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-15",
+    "session_duration_minutes": 31,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260415-100017-PF-TSK-010-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-010 Task Definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ReviewSummary.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 (batch mode)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "extract_ratings.py + feedback_db.py",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260422-115152-PF-TSK-010-feedback",
+    "task_id": "PF-TSK-010",
+    "task_context": "Tools Review",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-22",
+    "session_duration_minutes": 70,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260422-115152-PF-TSK-010-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Tools Review Task",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-010"
+      },
+      {
+        "tool_name": "New-ReviewSummary.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 (batch mode)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "extract_ratings.py + feedback_db.py record",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 3
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-140507-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 40,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-140507-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 *(Optional)*",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-140820-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 60,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-140820-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-142001-PF-TSK-010-feedback",
+    "task_id": "PF-TSK-010",
+    "task_context": "Tools Review Session 2 — 34 forms across 6 task groups",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 35,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-142001-PF-TSK-010-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-010 task definition (Tools Review Task)",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ReviewSummary.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 -BatchFile",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "extract_ratings.py + feedback_db.py",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-143131-PF-TSK-010-feedback",
+    "task_id": "PF-TSK-010",
+    "task_context": "Tools Review",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 105,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-143131-PF-TSK-010-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-010 (Tools Review task definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ReviewSummary.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 (BatchFile mode)",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "extract_ratings.py",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py record",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 3
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-144647-PF-TSK-030-feedback",
+    "task_id": "PF-TSK-030",
+    "task_context": "Performance Test Re-Audit (TE-TAR-071, PH tests)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 39,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-144647-PF-TSK-030-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Test Audit Task Definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-030"
+      },
+      {
+        "tool_name": "New-TestAuditReport.ps1 (-TestType Performance, -Force)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TestFileAuditState.ps1 (-TestType Performance)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 3,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Performance Test Audit Report template (4-criteria)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-AuditReport.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-150006-PF-TSK-085-feedback",
+    "task_id": "PF-TSK-085",
+    "task_context": "Performance Baseline Capture",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 23,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-150006-PF-TSK-085-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "performance_db.py",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-PerformanceTracking.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-150038-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 46,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-150038-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1 (process-framework/scripts/update/)",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-BugStatus.ps1 (process-framework/scripts/update/)",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-221642-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (3 IMPs: 623, 628, 632)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-221642-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-221717-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 90,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-221717-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 Process Improvement Task Definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-231454-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (4 IMPs: IMP-624 completed, IMP-631 rejected, IMP-659 completed with opportunistic soak adoption; filed IMP-685, IMP-686, IMP-687)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-231454-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "process-improvement-task.md",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-009"
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 (PF-PRO-XXX) *(Optional)*",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1 *(Optional)*",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Register-SoakScript / Confirm-SoakInvocation (PF-PRO-028 ExecutionVerification.psm1) *(Optional)*",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-232204-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 90,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-232204-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 task definition (process-improvement-task.md)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 3
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-234808-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260429-234808-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py (log-change subcommand)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-095730-PF-TSK-026-feedback",
+    "task_id": "PF-TSK-026",
+    "task_context": "Framework Extension Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 93,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-095730-PF-TSK-026-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Framework Extension Task",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-026"
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 + Update-ProcessImprovement.ps1 (extended in this session)",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FrameworkExtensionConcept.ps1 + Modification template",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 3
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-102802-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-102802-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Process Improvement Task Definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-009"
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change (with --batch)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-105217-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-105217-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 task definition (process-improvement-task.md)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-LanguageConfig.ps1",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-110102-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement - IMP-641",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 43,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-110102-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Process Improvement Task",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-009"
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-111632-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 30,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-111632-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 2,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition, pre-fix v2.4)",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 3,
+        "efficiency": 3,
+        "conciseness": 2
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-113029-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 102,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-113029-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 task definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-113900-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 66,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-113900-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "New-StructureChangeState.ps1",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Validate-StateTracking.ps1",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 3
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-134756-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement — IMP-647, IMP-660, IMP-670",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 136,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-134756-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Process Improvement Task Definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-009"
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-153036-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (IMP-649, IMP-672, IMP-667)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 175,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-153036-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Process Improvement Task Definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-009"
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 3,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (target of IMP-649)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1 (target of IMP-672)",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "performance-test-audit-report-template.md (target of IMP-667)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-153055-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 180,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-153055-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 task definition (Process Improvement)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (subject of IMP-650)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 3,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-155350-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 196,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-155350-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py (`log-change` subcommand)",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-180330-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 324,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-180330-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260430-181754-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (3 IMPs - 661, 648, 663)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-30",
+    "session_duration_minutes": 339,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260430-181754-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260501-082329-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (3 IMPs: PF-IMP-671, PF-IMP-662, PF-IMP-658)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-01",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260501-082329-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 *(Optional)*",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260501-082451-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (3 IMPs: PF-IMP-652 Completed, PF-IMP-653 Rejected, PF-IMP-654 Completed-with-alternative)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-01",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260501-082451-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "process-improvement-task.md",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-009"
+      },
+      {
+        "tool_name": "code-refactoring-lightweight-path.md",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260501-092137-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-01",
+    "session_duration_minutes": 58,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260501-092137-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Process Improvement Task",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-009"
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1 (PF-AUT script)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260501-092825-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-01",
+    "session_duration_minutes": 67,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260501-092825-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 3,
+    "tools": [
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260504-120552-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement: 3 IMPs (PF-IMP-675 pre-commit recovery, PF-IMP-691 feedback form path output, PF-IMP-679 framework extension industry-pattern guidance)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-04",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260504-120552-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 3
+      }
+    ]
+  },
+  {
+    "form_id": "20260504-125217-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (IMP-680, IMP-682, IMP-692)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-04",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260504-125217-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement Task Definition)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260504-125512-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-04",
+    "session_duration_minutes": 248,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260504-125512-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 task definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-Guide.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "feedback_db.py log-change",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260504-151956-PF-TSK-009-feedback",
+    "task_id": "PF-TSK-009",
+    "task_context": "Process Improvement (3 IMPs: IMP-693 refactor of row-search regex to use ConvertFrom-MarkdownTable; IMP-685 script-self-verification pilot review with Option B rollout decision and pilot resolution; IMP-696 Update-ProcessImprovement.ps1 armoring; filed follow-ups IMP-694 and IMP-695)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-05-04",
+    "session_duration_minutes": 194,
+    "review_cycle_id": "tools-review-20260504",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-05/tools-review-20260504/processed-forms/20260504-151956-PF-TSK-009-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-009 (Process Improvement task definition)",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-ProcessImprovement.ps1 (refactored mid-session)",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "feedback_db.py (log-change subcommand)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "TableOperations.psm1 helpers (ConvertFrom-MarkdownTable, Split-MarkdownTableRow, ConvertTo-MarkdownTableRow)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  }
+]

@@ -34,6 +34,13 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
+
 # --- Resolve paths ---
 $projectRoot = Get-ProjectRoot
 $featuresDir = Join-Path $projectRoot 'doc/state-tracking/features'
@@ -310,4 +317,18 @@ if ($PSCmdlet.ShouldProcess($outputFile, 'Generate feature dependencies map')) {
     Write-Host "  Output: $outputFile" -ForegroundColor Cyan
     Write-Host ""
     Write-Host $output
+}
+
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-Error "Feature dependencies update failed: $($_.Exception.Message)"
+    exit 1
 }

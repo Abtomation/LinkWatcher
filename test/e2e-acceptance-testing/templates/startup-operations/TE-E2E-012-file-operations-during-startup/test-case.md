@@ -40,7 +40,7 @@ updated: 2026-03-18
    - **Target**: `project/docs/guide.md` with content referencing `../settings/config.yaml`
 
 3. **Start LinkWatcher**: Restart LinkWatcher scoped to workspace
-   - **Tool**: `LinkWatcher_run/start_linkwatcher_background.ps1 -ProjectRoot <workspace-path>`
+   - **Tool**: `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1 -ProjectRoot <workspace-path>`
    - **Observe**: LinkWatcher begins scanning the workspace
 
 4. **Immediately move the target file**: While LinkWatcher is still starting up/scanning, move `settings/config.yaml` to `config/config.yaml`

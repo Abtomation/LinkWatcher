@@ -80,7 +80,7 @@ Choose the appropriate template based on your workflow type:
 - Use `-ChangeType "Rename"` for simple rename/move operations
 - Use `-ChangeType "Content Update"` for content changes across files (no structural reorganization)
 - Use `-ChangeType "Framework Extension"` for framework doc additions/modifications (templates, scripts, guides)
-- Use `-FromProposal` when a detailed proposal already exists (incompatible with Rename/Content Update/Framework Extension types)
+- Use `-FromProposal` when a detailed proposal already exists. Compatible with `-ChangeType Rename` (the proposal owns the file mapping) and with the default ChangeType. Incompatible with `Content Update` and `Framework Extension` — those templates have type-specific content/artifact tables (Affected Files / New Artifacts) that don't fit the execution-only from-proposal template.
 
 ### Process Improvement Workflows
 **Use**: `temp-process-improvement-state-template.md`

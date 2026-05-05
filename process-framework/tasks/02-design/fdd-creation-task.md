@@ -102,7 +102,7 @@ When referencing other tasks' outputs in FDDs:
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the ../../scripts/file-creation/02-design/New-FDD.ps1 automation script for document creation.**
 >
@@ -192,7 +192,7 @@ The following state files are automatically updated by the ../../scripts/file-cr
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

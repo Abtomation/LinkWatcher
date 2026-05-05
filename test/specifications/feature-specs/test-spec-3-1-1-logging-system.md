@@ -94,6 +94,8 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 |-----------|-----------|----------------|----------|
 | LogTimer | Success | `test_successful_operation` — logs start + completion with duration | `Mock` |
 | LogTimer | Failure | `test_failed_operation` — logs start + error with error_type, error_message | `Mock` |
+| LogTimer | Disabled (success path) | `test_disabled_skips_logging` — `enabled=False` skips `start_timer`/`end_timer` and emits no debug logs (TD231) | `Mock` |
+| LogTimer | Disabled (failure path) | `test_disabled_swallows_exception_path` — `enabled=False` skips error logging; raised exceptions still propagate (TD231) | `Mock` |
 
 #### with_context Decorator
 
@@ -144,7 +146,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 1. **High Priority** (Implemented ✅)
    - [x] Core logger: initialization, level change, convenience methods
    - [x] Log context: set/get/clear, thread isolation
-   - [x] LogTimer: success and failure paths
+   - [x] LogTimer: success, failure, and disabled (gated by `performance_logging`) paths
    - ~~LogFilter: removed (TD083 — dead code, never wired to handlers)~~
    - ~~LogMetrics: removed (TD083 — dead code, record_log() never called)~~
 

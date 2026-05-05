@@ -4,7 +4,7 @@ type: Product Documentation
 category: State Tracking
 version: 2.0
 created: 2026-03-18
-updated: 2026-04-19
+updated: 2026-05-04
 previous_id: PD-DES-002
 previous_location: doc/technical/design/user-workflow-map.md
 ---
@@ -92,5 +92,5 @@ User stops LinkWatcher while file moves may be in progress. No files should be l
 <details>
 <summary><strong>WF-009: Link health audit</strong></summary>
 
-User runs validation mode to scan all workspace files for broken file references. The system walks all monitored files, extracts links using format-specific parsers, resolves paths (source-relative then root-relative), checks targets on disk, and writes a report of broken links with source file, line number, and target path to LinkWatcherBrokenLinks.txt.
+User runs validation mode to scan all workspace files for broken file references. The system walks all monitored files, extracts links using format-specific parsers, resolves paths (source-relative then root-relative), checks targets on disk, and writes a report of broken links with source file, line number, and target path to process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt.
 </details>

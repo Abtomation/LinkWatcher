@@ -333,7 +333,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 - [ ] Master State File created in `../../../process-framework-local/state-tracking/temporary`
 - [ ] ALL features discovered and added to Feature Tracking

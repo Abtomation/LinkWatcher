@@ -3,9 +3,9 @@ id: PF-TSK-026
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.4
+version: 1.5
 created: 2025-07-26
-updated: 2026-04-15
+updated: 2026-05-04
 ---
 
 # Framework Extension Task
@@ -59,7 +59,7 @@ This task manages the systematic extension of the task-based development framewo
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Create comprehensive concept document and get human approval before implementation.**
 >
@@ -74,10 +74,10 @@ This task manages the systematic extension of the task-based development framewo
 1. **Pre-Concept Analysis** — before creating the concept document, study the landscape:
    - (a) **Read the [Task Transition Registry](../../infrastructure/task-transition-registry.md)** to understand how existing tasks connect and hand over work
    - (a2) **Study the [Process Framework Task Registry — Trigger & Output](../../infrastructure/process-framework-task-registry.md)** (`🔗 TRIGGER & OUTPUT` blocks and State File Trigger Index) to understand which state file statuses trigger which tasks and what outputs each task produces — this reveals the full signal chain the extension must integrate with
-   - (b) **Study existing project patterns** solving similar problems — identify precedents in the project's current workflow (e.g., how E2E tracking handles non-standard test types, how validation dimensions were modularized)
-   - (c) **Establish the abstraction model** — what are the natural levels in the project's architecture? Define categories specific to the project, not copied from generic industry terminology
+   - (b) **Study existing project patterns** solving similar problems — identify precedents in the project's current workflow (e.g., how E2E tracking handles non-standard test types, how validation dimensions were modularized). Also familiarize yourself with established industry taxonomies/patterns for the problem domain (e.g., Diataxis for documentation organization, OWASP for security, Twelve-Factor for configuration) so you have proven external models to compare against in (c).
+   - (c) **Establish the abstraction model** — what are the natural levels in the framework's architecture? Where industry taxonomies (from (b)) are relevant, **carefully evaluate how to adapt them to the framework** rather than choosing between copy-verbatim and reject-outright. Define categories that genuinely fit the framework — neither copying industry terminology blindly nor reinventing what proven external models already solve.
    - (d) **Trace the full lifecycle end-to-end** — who triggers → who plans → who creates → who runs → who records → who reviews → how do you know what's left?
-   - (e) **Evaluate scalability, abstraction level, and ownership** for every new concept — will this scale as the project grows? Does it match the project's architecture? Who owns each artifact, process, and decision?
+   - (e) **Evaluate scalability, abstraction level, and ownership** for every new concept — will this scale as the framework grows? Does it match the framework's architecture? Who owns each artifact, process, and decision? When evaluating scale, extrapolate genuinely (e.g., 10× current artifact count) — don't anchor on current framework scale.
    > Each sub-step should produce a concrete answer. If you cannot answer a question, that is a gap to resolve before proceeding.
 2. **Create Framework Extension Concept Document** using the standardized script:
    ```powershell
@@ -101,11 +101,24 @@ This task manages the systematic extension of the task-based development framewo
    > **Validation script check**: If the extension modifies state file structure (columns, sections, headings), identify which [Validate-StateTracking.ps1](../../scripts/validation/Validate-StateTracking.ps1) surfaces parse those files and include them in the impact analysis. Run `Validate-StateTracking.ps1` before and after changes to catch regressions.
    >
    > **Column-index impact check**: If the extension modifies tracking file structure (adds, removes, or reorders columns), grep for `Split-MarkdownTableRow` and hardcoded column index patterns (e.g., `\[3\]`, `\[4\]`) in all scripts that reference the modified tracking file. Scripts that *read* column indices break just as silently as scripts that *write* them.
-5. **🚨 CHECKPOINT**: Present concept document, impact analysis, and proposed implementation approach to human partner for approval
+   >
+   > **00-setup impact check**: Check all 00-setup tasks (project-initiation, codebase-feature-discovery, codebase-feature-analysis, retrospective-documentation-creation) for impact even when the extension primarily affects later phases. Setup tasks declare configurations (ID prefixes, tracking schemas, directory structures, registries) that downstream tasks consume — adding a new artifact type, new ID prefix, or new tracking field typically requires updates here so new projects pick up the extension by default.
+4.5. **Pilot vs. Full Rollout Decision** (PF-PRO-030) — for extensions that introduce new behavior with unknown failure modes (e.g., new helper invariants, new hooks, new assertion patterns adopted across many scripts), evaluate whether a **pilot** is appropriate before broad rollout. The pilot mitigates the risk of broad-scope rollback by validating the new behavior in a small representative subset first.
+   - **Default**: `Full Rollout` — extension's modifications apply across all targeted artifacts at Phase 4. Use when the change is mechanical or fully understood.
+   - **Pilot**: select 1-3 representative adopter artifacts; broader adoption is filed as a separate IMP after the pilot resolves. Use when the change introduces behavior whose failure modes can only be observed in production conditions.
+   - **If `Pilot` is chosen**, define at this step:
+     - **Adopter artifacts**: which 1-3 files/scripts/components will adopt the new behavior in Phase 4.
+     - **Success criteria**: concrete observable signal that the pilot has succeeded (e.g., "all adopter soak counters reach 0", "30 days of clean operation", "no related bug reports").
+     - **Decision trigger**: a follow-up IMP filed at Phase 4 finalization that, when processed, drives the rollout/rollback decision.
+   - The pilot decision and (if applicable) the three definitions above are part of the Step 5 checkpoint material.
+5. **🚨 CHECKPOINT**: Present concept document, impact analysis, **pilot vs. full-rollout decision (and pilot definitions if applicable)**, and proposed implementation approach to human partner for approval
    > **Single-session lightweight path**: If the extension meets **all** of these criteria — (1) modification-type (changes existing artifacts only, no new tasks/templates/guides), (2) completable in a single session, (3) no new ID prefixes needed — then at this checkpoint, propose the lightweight path to the human partner. If approved:
    > - **Skip Phase 2 entirely** (Steps 6–10: no temp state file, no roadmap, no session planning)
    > - **Phase 3 compresses to**: Implement modifications (Step 12) → verify linked documents with grep sweep → integration testing (Step 15)
    > - **Phase 4 compresses to**: Checkpoint (Step 16) → update core framework files (Step 17) → update permanent state files (Step 19) → completion checklist (Step 22). Skip Steps 18 (usage docs), 20 (state file archival), and 21 (concept archival — archive concept inline at this step instead).
+   > - **Pilot interaction (PF-PRO-030)**: If a pilot was chosen at Step 4.5, Step 19's pilot row registration is unchanged (still required), but Step 21's deferral conditional still applies — **do not archive the concept inline**. The concept remains in `proposals/` until the pilot reaches `Resolved` status, at which point `Update-ProcessImprovement.ps1 -NewStatus Resolved` archives the concept and moves the pilot row from Active Pilots to Completed Improvements (PF-IMP-729).
+   >
+   > **Mid-session scope growth**: If any of the three lightweight criteria stops holding mid-session (e.g., human feedback reframes scope to require new artifacts, multi-session work, or a new ID prefix), switch to the full path — create the temp state file (Step 6) retroactively, update the concept document in place to reflect the broader scope, and resume Phase 2 from Step 7.
 
 ### Phase 2: State Tracking & Planning
 
@@ -127,6 +140,21 @@ This task manages the systematic extension of the task-based development framewo
 
 ### Phase 3: Multi-Session Implementation
 
+> **🚨 ONE PHASE PER SESSION**: Run at most **one phase per calendar session** for the
+> full multi-session path. Specifically: Phase 2 (artifact creation), Phase 3 (integration
+> & task updates), and any unplanned ID-prefix or state-file migration must each get a
+> fresh session.
+>
+> **Why**: Each phase ends in a `🚨 CHECKPOINT` followed by phase-closure work (artifact
+> tracking updates, session log entry, next-session plan). Combining phases in one
+> calendar session collapses these checkpoints into a single rushed review and leaves
+> the temporary state file's Session Tracking section labeling phases as separate
+> sessions when they weren't — eroding the labeling honesty the Session Tracking section
+> assumes. Keeping each phase in its own session preserves checkpoint discipline and
+> keeps the state file an accurate record of what happened. The single-session
+> lightweight path approved at Step 5 is the only exception — it intentionally fits
+> one session by skipping Phase 2 entirely.
+
 11. **Execute Session-by-Session Implementation** following the detailed roadmap in temporary state tracking file:
     - **Session 1**: Core task definitions and primary infrastructure
     - **Session 2**: Supporting templates and document creation scripts
@@ -136,7 +164,7 @@ This task manages the systematic extension of the task-based development framewo
     > **Step renumbering warning**: Inserting or removing numbered steps triggers cascading renumbering of all subsequent steps plus internal "Step N" cross-references. For large tasks (e.g., Bug Fixing) this can involve 10+ sequential edits. To reduce effort and errors: (1) add steps at the end of a phase where possible to minimize renumbering, (2) batch-verify all "Step" references with grep after renumbering to catch stale cross-references.
 13. **Progressive Component Creation** using two-phase document creation approach:
     - **Phase A - Structure Generation**: Use scripts (New-Task.ps1, New-Template.ps1, New-Guide.ps1) to generate basic document frameworks
-      - ⚠️ **CRITICAL**: Script outputs are STARTING POINTS requiring extensive customization
+      - Script outputs are STARTING POINTS requiring extensive customization
       - Scripts create structural frameworks with placeholder content that MUST be replaced
     - **Phase B - Content Customization**: Follow best practices guides to fully customize generated structures
       - Templates require comprehensive content development following Template Development Guide
@@ -156,8 +184,19 @@ This task manages the systematic extension of the task-based development framewo
 18. **Create Usage Documentation** demonstrating how to use the new framework extension
 19. **Update Permanent State Files** as defined in the concept document
     - **For each new PowerShell script created by this extension**, register it for soak verification with `Register-SoakScript -ScriptId <relative-path-from-project-root> -ScriptPath <absolute-path>` (loaded via `Common-ScriptHelpers`). The script's first 5 successful invocations must then call `Confirm-SoakInvocation -Outcome success` after agent verification — see [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) and [PF-PRO-028 Script Self-Verification](../../../process-framework-local/proposals/old/script-self-verification.md). Skip for non-script artifacts (templates, guides, state files, sub-modules).
-20. **Move Temporary State Tracking** file to `/process-framework-local/state-tracking/temporary/old`
-21. **Archive Completed Concept Document**: Move the framework extension concept document from `/process-framework-local/proposals/` to `/process-framework-local/proposals/old/` — the concept has served its purpose and should not remain alongside active proposals
+    - **If a pilot was chosen at Step 4.5** (PF-PRO-030), register the pilot in the Active Pilots section of [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md):
+      ```powershell
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 `
+          -AsPilot `
+          -SourceConcept "<PF-PRO-NNN>" -OriginatingTask "<PF-TSK-NNN>" `
+          -Adopters "<comma-separated adopter artifacts>" `
+          -SuccessCriteria "<criteria text>" `
+          -DecisionTrigger "<PF-IMP-NNN or descriptive text>"
+      ```
+      The script consumes the next PF-IMP-NNN ID from the registry and writes the pilot row with status `Active`. Note the assigned PF-IMP-NNN — Step 21 conditional below depends on its status.
+20. **Move Temporary State Tracking** file to `/process-framework-local/state-tracking/temporary/old`. (This step is unchanged whether or not a pilot was chosen — the implementation work is complete; the pilot lifecycle is now owned by the Active Pilots row.)
+21. **Archive Completed Concept Document**: Move the framework extension concept document from `/process-framework-local/proposals/` to `/process-framework-local/proposals/old/` — the concept has served its purpose and should not remain alongside active proposals.
+    - **Conditional on pilot status (PF-PRO-030)**: if a pilot was chosen at Step 4.5, **skip this step**. The concept doc remains in `proposals/` until the pilot reaches `Resolved` status, since the concept is the source of truth for the rollout/rollback decision and the spec for what is being scaled. When the pilot is later resolved via [`Update-ProcessImprovement.ps1`](../../scripts/update/Update-ProcessImprovement.ps1) `-NewStatus Resolved`, the script archives the concept doc and moves the pilot row from Active Pilots to Completed Improvements (PF-IMP-729).
 22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -190,7 +229,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 > **Note**: This is typically a multi-session task. Complete verification applies to the ENTIRE extension across all sessions. For **single-session lightweight path** extensions (approved at Step 5), items marked *(full path only)* can be skipped.
 
@@ -227,9 +266,10 @@ Before considering this task finished:
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Temporary state tracking file moved to `/process-framework-local/state-tracking/temporary/old` *(full path only)*
-  - [ ] Framework extension concept document moved to `/process-framework-local/proposals/old/`
+  - [ ] **Concept document archive (PF-PRO-030 pilot rule)**: if no pilot was chosen at Step 4.5, concept document moved to `/process-framework-local/proposals/old/`. **If a pilot was chosen, concept document remains in `/process-framework-local/proposals/` and the corresponding pilot row in [Active Pilots](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md#active-pilots) has status `Active` (concept will be archived later by `Update-ProcessImprovement.ps1 -NewStatus Resolved` when the pilot resolves).**
   - [ ] [Documentation Map](../../PF-documentation-map.md) reflects all new artifacts
   - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with framework capability enhancement
+  - [ ] **Pilot row registered (PF-PRO-030)**: if a pilot was chosen at Step 4.5, the pilot row exists in the Active Pilots section with status `Active`, decision trigger noted, and adopters listed. N/A if Full Rollout was chosen.
   - [ ] **Soak verification registered**: every new PowerShell script created by this extension is registered in [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) via `Register-SoakScript` (verifies via `Get-SoakStatus -ScriptId <id>`). N/A if the extension created no new scripts.
   - [ ] **Module helper `-WhatIf` verification**: Any new `.psm1` helper that exposes `[CmdletBinding(SupportsShouldProcess=$true)]` has been smoke-tested by invocation from a script (not just an in-process call from a non-module pwsh session), confirming `$WhatIfPreference` is honored across the module boundary. Module SessionState isolation prevents preference inheritance via the scope chain; helpers must read the caller's preference explicitly via `$PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')`. N/A if no module helpers were created. (See `ExecutionVerification.psm1::_Test-CallerWhatIf` for the canonical pattern.)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-026" and context "Framework Extension Task"

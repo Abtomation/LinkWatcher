@@ -31,6 +31,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "target_feature"    = $TargetFeature
@@ -68,22 +74,9 @@ try {
     $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $EnhancementName -OutputDirectory "doc/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     $details = @(
-        "",
-        "   Target Feature: $TargetFeature",
-        "   Enhancement: $EnhancementName",
-        "",
-        "🚨🚨🚨 CRITICAL: TEMPLATE CREATED - EXTENSIVE CUSTOMIZATION REQUIRED 🚨🚨🚨",
-        "",
-        "⚠️  IMPORTANT: This script creates ONLY a structural template/framework.",
-        "⚠️  The generated file is NOT a functional document until extensively customized.",
-        "⚠️  AI agents MUST follow the referenced guide to properly customize the content.",
-        "",
-        "📖 MANDATORY CUSTOMIZATION GUIDE:",
-        "process-framework/guides/04-implementation/enhancement-state-tracking-customization-guide.md",
-        "🎯 FOCUS AREAS: Scope assessment, documentation inventory, workflow block evaluation (mark each as applicable/not applicable)",
-        "",
-        "🚫 DO NOT use the generated file without proper customization!",
-        "✅ The template provides structure - YOU provide the meaningful content."
+        "Target Feature: $TargetFeature",
+        "Enhancement: $EnhancementName",
+        "Customization required — see process-framework/guides/04-implementation/enhancement-state-tracking-customization-guide.md"
     )
 
     Write-ProjectSuccess -Message "Created enhancement state tracking file with ID: $stateId" -Details $details

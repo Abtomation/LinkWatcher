@@ -75,7 +75,7 @@ class ValidationResult:
 _URL_PREFIXES = ("http://", "https://", "ftp://", "mailto:", "tel:", "data:")
 
 # NOTE: Extra ignored directories for validation are now configurable via
-# LinkWatcherConfig.validation_extra_ignored_dirs (default: LinkWatcher_run,
+# LinkWatcherConfig.validation_extra_ignored_dirs (default: linkWatcher,
 # old, archive, fixtures, e2e-acceptance-testing, config-examples).
 
 # Patterns that indicate a target string is a shell command, not a file path.

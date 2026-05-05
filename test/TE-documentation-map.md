@@ -39,6 +39,7 @@ _Created during test audit sessions (PF-TSK-030)._
 ### `audits/performance/`
 
 - [Audit: 2.1.1 (TE-TAR-066)](audits/performance/audit-report-2-1-1-test_benchmark.md) - Test quality assessment
+- [Audit: 0.1.1 (TE-TAR-070)](audits/performance/audit-report-0-1-1-test_large_projects.md) - Test quality assessment
 _Performance test audit reports (PF-TSK-030 with `-TestType Performance`). 4 criteria: Measurement Methodology, Tolerance Appropriateness, Baseline Readiness, Regression Detection Config._
 
 _(No reports yet — directory created for future use)_

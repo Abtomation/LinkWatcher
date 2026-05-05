@@ -83,7 +83,7 @@ Use `-TestType Performance` or `-TestType E2E` with all audit scripts. Omitting 
 
 During any audit, you may implement fixes directly if they meet **all** of these conditions:
 - Takes **≤15 minutes**
-- Falls into an **allowed fix type**: assertion additions, test renames, dead test removal, trivial fixture fixes, missing pytest markers
+- Falls into an **allowed fix type**: assertion additions, test renames, dead test removal, trivial fixture fixes, missing pytest markers, tolerance/threshold adjustments
 - Does **not** create new test methods/files, refactor structure, or fix infrastructure
 
 Document each fix in the audit report's "Minor Fixes Applied" section. This avoids routing trivial issues through the Tech Debt → Code Refactoring pipeline.
@@ -204,6 +204,7 @@ Performance test audits evaluate against four criteria specific to benchmark and
 - Sensitivity balance — not too tight (noisy false alarms) or too loose (misses regressions)
 - Level-appropriate — Component (L1) benchmarks have tighter tolerance than Scale (L3) tests
 - Units consistency with measurement
+- Calibration intent recorded — both the ratio (e.g., `10× typical`) and the baseline measurement go into the Tests Audited table's `Calibration Baseline` and `Tolerance Ratio` columns, so downstream refactorings can recompute thresholds when typical measurements drift
 
 **Assessment Levels**: PASS (well-calibrated), PARTIAL (acceptable but could be refined), FAIL (arbitrary or clearly wrong)
 
@@ -215,6 +216,7 @@ Performance test audits evaluate against four criteria specific to benchmark and
 - Deterministic results in consistent environment
 - No external dependencies that vary between runs
 - Environment requirements documented
+- Tracking-file consistency: `performance-test-tracking.md` Tolerance column matches code assertions (drift indicates upstream refactoring left documentation behind)
 
 **Assessment Levels**: PASS (ready for baseline), PARTIAL (minor environment issues), FAIL (not ready — results would be unreliable)
 

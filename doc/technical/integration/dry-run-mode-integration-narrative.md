@@ -69,12 +69,12 @@ graph TD
    - Passes to next: same config handed to `LinkWatcherService` constructor
 
 4. **Service constructor — [LinkWatcherService.__init__()](src/linkwatcher/service.py#L54)** receives the `LinkWatcherConfig`
-   - Performs: instantiates `LinkUpdater(project_root, python_source_root=…)` at [service.py:82](src/linkwatcher/service.py#L82); note the updater is created with its default `self.dry_run = False` ([updater.py:67](src/linkwatcher/updater.py#L67)) — the flag is **not** passed through the constructor
-   - Passes to next: a `LinkUpdater` instance with `dry_run=False` wired into `service.updater`
+   - Performs: instantiates `LinkUpdater(project_root, python_source_root=…)` at [service.py:82](src/linkwatcher/service.py#L82); the updater's own constructor default-initialises `self.dry_run = False` ([updater.py:67](src/linkwatcher/updater.py#L67)). Then, after sub-component construction, the service applies `self.updater.set_dry_run(config.dry_run_mode)` at [service.py:97](src/linkwatcher/service.py#L97) (TD235 / PD-REF-203) — the constructor itself is the single source of truth for applying config to the updater
+   - Passes to next: a `LinkUpdater` instance with `dry_run = config.dry_run_mode` wired into `service.updater`
 
-5. **Post-construction propagation — [main.py:377](main.py#L377)** calls `service.set_dry_run(config.dry_run_mode)`
-   - Performs: inside [service.py:263-266](src/linkwatcher/service.py#L263-L266), `self.updater.set_dry_run(enabled)` flips the updater's flag, then `self.logger.info("dry_run_toggled", enabled=enabled)` records the transition
-   - Passes to next: `LinkUpdater` now has `self.dry_run = True`; `service.start()` is called next and the observer begins processing events
+5. **(Optional) runtime mutation — `service.set_dry_run(enabled)`** ([service.py:263-266](src/linkwatcher/service.py#L263-L266))
+   - Performs: delegates to `self.updater.set_dry_run(enabled)` and emits `self.logger.info("dry_run_toggled", enabled=enabled)`. Not exercised on the standard startup path (the constructor already applied `config.dry_run_mode`), but available for runtime toggling by tests, embedders, or future hot-reload paths
+   - Passes to next: `LinkUpdater.dry_run` reflects the toggled value
 
 6. **Write-gate guards — [LinkUpdater._update_file_references()](src/linkwatcher/updater.py#L186) and [LinkUpdater._update_file_references_multi()](src/linkwatcher/updater.py#L215)** receive `List[LinkReference]` or `List[Tuple[LinkReference, str, str]]` after a move is processed
    - Performs: resolves `abs_file_path`, then checks `if self.dry_run:` — if true, emits `logger.info("dry_run_skip", file_path=abs_file_path, references_count=len(…))` and **returns `UpdateResult.UPDATED` immediately**; the replacement-item computation, regex matching, tempfile write, and atomic rename are all skipped
@@ -94,14 +94,14 @@ Watchdog observer callbacks and filesystem-event handling (features 1.1.1, 2.1.1
 
 | Config Value | Source | Consumed By | Effect on Workflow |
 |-------------|--------|-------------|-------------------|
-| `dry_run_mode` (bool) | `LinkWatcherConfig` dataclass field ([settings.py:110](src/linkwatcher/config/settings.py#L110)); default `False` | `main.py` reads at startup and calls `service.set_dry_run()` | Root toggle — drives the entire workflow |
+| `dry_run_mode` (bool) | `LinkWatcherConfig` dataclass field ([settings.py:110](src/linkwatcher/config/settings.py#L110)); default `False` | `LinkWatcherService.__init__` calls `self.updater.set_dry_run(config.dry_run_mode)` at [service.py:97](src/linkwatcher/service.py#L97) | Root toggle — drives the entire workflow |
 | `--dry-run` CLI flag | `argparse` in [main.py:260-264](main.py#L260-L264) | `main.py:78-80` sets `config.dry_run_mode = True` (highest precedence) | Ad-hoc per-invocation override; always wins over file/env |
 | `LINKWATCHER_DRY_RUN_MODE` env var | `LinkWatcherConfig.from_env()` (see [settings.py:240](src/linkwatcher/config/settings.py#L240)) | `main.py` merges env config before CLI override | CI/container scenarios where editing config files is undesirable |
 | `dry_run_mode: true` in YAML/JSON | `LinkWatcherConfig.from_file()` | `main.py` merges file config before env and CLI | Project-persistent dry-run (e.g., shared "preview" profile) |
 | `TESTING_PRESET.dry_run_mode = True` | [defaults.py:130](src/linkwatcher/config/defaults.py#L130) | Unit/integration tests that load the testing preset | Guarantees test runs never mutate fixture files |
-| `self.dry_run` (runtime) | `LinkUpdater.__init__` default `False` ([updater.py:67](src/linkwatcher/updater.py#L67)); mutated by `set_dry_run()` | Both guard sites in `LinkUpdater` | The single enforcement point — nothing else in the codebase gates on `config.dry_run_mode` directly |
+| `self.dry_run` (runtime) | `LinkUpdater.__init__` default `False` ([updater.py:67](src/linkwatcher/updater.py#L67)); set in `LinkWatcherService.__init__` from `config.dry_run_mode` ([service.py:97](src/linkwatcher/service.py#L97)); also mutable at runtime via `set_dry_run()` | Both guard sites in `LinkUpdater` | The single enforcement point — nothing else in the codebase gates on `config.dry_run_mode` directly |
 
-**Critical note**: `LinkUpdater` is instantiated with `dry_run=False` regardless of `config.dry_run_mode`; the flag is only applied *after* construction via `service.set_dry_run()`. The `main.py` startup path guarantees this call happens before `service.start()`, so no write occurs with stale state. However, any embedder that constructs `LinkWatcherService` directly without calling `set_dry_run()` before `start()` will run live despite `config.dry_run_mode = True`.
+**Note**: `LinkUpdater.__init__` still default-initialises `self.dry_run = False`, but `LinkWatcherService.__init__` applies `config.dry_run_mode` to the updater immediately after construction (TD235 / PD-REF-203 — [service.py:96-98](src/linkwatcher/service.py#L96-L98)). Direct service instantiation (tests, embedders) honors the configured value without requiring caller-side post-init setter calls.
 
 ## Error Handling Across Boundaries
 
@@ -119,12 +119,9 @@ Watchdog observer callbacks and filesystem-event handling (features 1.1.1, 2.1.1
 - **Impact**: N/A in dry-run — this scenario is definitionally unreachable because no write is attempted
 - **Recovery**: Dry-run is effectively exception-free for the updater's write path, making it a safe pre-flight check before enabling live updates on a risky reorganization
 
-### `set_dry_run()` not called before `start()` (embedder scenario)
+### `set_dry_run()` not called before `start()` (embedder scenario) — RESOLVED
 
-- **Origin**: External code that instantiates `LinkWatcherService` directly (tests, debug scripts, future embedders) without replicating `main.py`'s post-construction `service.set_dry_run()` call
-- **Propagation**: No error raised; `LinkUpdater.dry_run` remains at its `False` default
-- **Impact**: Files are modified despite `config.dry_run_mode = True` — silent divergence between declared config and actual behavior
-- **Recovery**: The `TESTING_PRESET` avoids this trap by being opinionated, but ad-hoc embedders must explicitly call `set_dry_run()`. Tracked as a known implication of the post-construction propagation design — see the "Critical note" in Configuration Propagation above
+> **Resolved 2026-04-29 (TD235 / PD-REF-203)**: `LinkWatcherService.__init__` now applies `config.dry_run_mode` to the updater at [service.py:97](src/linkwatcher/service.py#L97) immediately after construction. Direct service instantiation honors the configured value without requiring post-init setter calls. The runtime setter `service.set_dry_run()` remains available for runtime mutation.
 
 ---
 

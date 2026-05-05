@@ -1,0 +1,268 @@
+[
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Run-Tests.ps1: forward pytest summary line (passed/failed/skipped/xfailed counts) and base success indicator on pytest exit code. Wrapper currently shows 'All tests completed successfully!' even when tests fail; L3 baseline / L7 regression diff steps in code-refactoring-lightweight-path.md require those counts, forcing fallback to direct python -m pytest in ~10 PF-TSK-022 sessions.",
+    "Priority": "HIGH",
+    "Notes": "Highest-leverage single fix from session 2; affects every refactoring session's L3/L7 baseline use case. Multiple forms scored 2-3 on Effectiveness/Completeness for this tool."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Run-Tests.ps1: -All silently excludes @pytest.mark.slow tests; surface this in -? help text (currently visible only at runtime banner) and add a one-line callout in code-refactoring-lightweight-path.md L3 explaining how to baseline a refactoring target that's excluded from the runner's default mode.",
+    "Priority": "HIGH",
+    "Notes": "Reported by 3+ forms refactoring slow-marked tests; refactoring target gets excluded from baseline silently. Workaround is direct pytest invocation."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "New-RefactoringPlan.ps1: extend mutual-exclusivity error message for -Lightweight/-DocumentationOnly/-Performance flags with one-line decision hints (e.g., 'Use -DocumentationOnly for doc-only refactors; -Performance for perf-focused work; -Lightweight for everything else with no architectural impact').",
+    "Priority": "MEDIUM",
+    "Notes": "Cited in 2 forms. Current error says 'mutually exclusive' without telling the operator which to pick when multiple seem to apply."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "New-RefactoringPlan.ps1: add -ItemCount N parameter (or expand comma-separated -DebtItemId) to pre-generate N Item sections for batch refactoring sessions, eliminating manual section copy-paste.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported in 2+ forms covering 4-6 item batches; manual replication costs ~5-10 minutes per batch."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "New-RefactoringPlan.ps1: substitute -DebtItemId into the Item 1 header placeholder ('[Debt Item ID] - [Brief Description]'). Optionally fetch description from technical-debt-tracking.md to pre-fill the description portion.",
+    "Priority": "MEDIUM",
+    "Notes": "Cited in 2+ forms; saves a manual Edit per plan since the script already knows the value (it's in frontmatter and post-creation message)."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L1: mention -DocumentationOnly and -Performance variants of New-RefactoringPlan.ps1 alongside -Lightweight, with a one-line decision hint (DA -> DocumentationOnly, perf-focused -> Performance, otherwise -> Lightweight).",
+    "Priority": "MEDIUM",
+    "Notes": "Cited in 2+ forms; current L1 example uses -Lightweight only, leading agents to create lightweight plans then manually delete irrelevant sections that -DocumentationOnly would have stripped."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L8: add a 'Framework-infrastructure shortcut' alongside existing Tier 1 / Test-only / Documentation-only shortcuts. Trigger: refactoring targets exclusively process-framework/ scripts/guides/tasks/templates with no LinkWatcher feature linkage. Allows batching items 1-7 as N/A with single justification: 'Framework-infrastructure refactoring -- feature-level design and state documents do not reference framework artifacts.'",
+    "Priority": "MEDIUM",
+    "Notes": "Recurring pattern: 3+ forms cited needing this shortcut for framework-script bug fixes and process-framework cleanup. Without it, agents construct ad-hoc N/A justifications each time."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L8: add an 'Internal-helper / byte-identical optimization shortcut' alongside existing batched-N/A shortcuts. Criteria: (a) function signatures unchanged, (b) test diff zero against baseline, (c) no public API surface touched. Allows behavior-preserving internal refactors to batch items 1-7 with single justification.",
+    "Priority": "MEDIUM",
+    "Notes": "Cited in 2+ forms (TD243 regex pre-compile, TD242 helper extraction). Currently each item generates a separate N/A justification with the same root reason."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "documentation-only refactoring plan template (PF-TEM-052): add the 8-item Documentation & State Updates checklist matching code-refactoring-lightweight-path.md L8 expectation. Currently the doc-only template lacks this section even though the path doc tells operators to fill it in.",
+    "Priority": "MEDIUM",
+    "Notes": "Cited in 2 forms (TD220, TD228); operators have to insert the section manually. Template-vs-path-doc mismatch."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "lightweight-refactoring-plan-template.md (PF-TEM-050): add 'Integration Narrative' item to the auto-generated Documentation & State Updates checklist. Currently template emits 6 numbered items + tech debt; code-refactoring-lightweight-path.md L8 step 6 explicitly requires Integration Narrative check.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported by TD235 form; without the explicit item, narrative check is easy to miss for code in shared-orchestrator paths like service.py."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Update-TechDebt.ps1: add -EditDescription / -EditNotes operation mode for in-place amendments to open TD items, with same atomicity as the resolve path. Use case: refactoring resolves a sub-item of another TD without resolving the whole TD.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported by TD247 session (had to manually edit TD249 row to remove a sub-item, risking column-alignment errors). Recurring pattern when one refactoring partially overlaps another open TD."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Update-TechDebt.ps1: document MSYS leading-slash path-mangling hazard for -PlanLink in -? help (or auto-strip leading slash before mangling check). Current detect-and-prescribe runtime error is excellent but advance warning would save the first failed call.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported in 4+ forms; agents reach for leading-slash absolute paths because that's the markdown-link convention everywhere else."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "New-ProcessImprovement.ps1: surface 500-character -Description maximum in -? help (synopsis or .NOTES block). Currently the constraint is enforced at runtime only, causing retry cycles when descriptions are too long.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported in TD220 session; first invocation failed with 718 chars, retry succeeded after trim."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "New-TestFile.ps1: replace C-style /* */ block-comment metadata header with a Python module docstring (\"\"\"...\"\"\"). Current output is invalid Python syntax, forcing operators to overwrite the entire file rather than incrementally fill placeholders.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported by TD232/TD233 session (TE-TST-132 creation). Real bug, not just polish."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-085: add measurement-strategy guidance section under Execution. Cover: default to >=3 runs and record the mean as the canonical value; capture run-to-run range in DB notes; when to use median (high variance); when to drop cold-cache run 1 (warm-cache steady-state baselines); single-run captures (smoke checks) flagged explicitly in DB notes.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported in PF-TSK-085 session: had to ask user 'how many runs?' (answer: average) and propose three options at checkpoint. Multi-run averaging is the sensible default but task is silent."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-085 Step 9: add tolerance-breach decision tree distinguishing real regression (current run breaches the tolerance) from informational stale-baseline artifact (prior LastResult breaches tolerance against a since-invalidated baseline). Different actions: file Bug Triage vs re-baseline clears it.",
+    "Priority": "MEDIUM",
+    "Notes": "Reported in PF-TSK-085 session; ambiguous behavior for rows marked 'Needs Re-baseline' with breaching LastResult."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L8: add 'User documentation (handbook/quick-reference) updated, or N/A' item to Documentation & State Updates checklist alongside design-doc items. For utility scripts and tooling referenced in user-facing handbooks, the symmetric grep treatment catches drift design-doc grep alone misses.",
+    "Priority": "LOW",
+    "Notes": "Reported by tools/logging_dashboard.py cleanup session. The L8 list currently enumerates feature state file/TDD/test spec/FDD/ADR/integration narrative/validation/TD but not handbooks."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L4: add transitive-call-site assessment guidance for tests. Tests that exercise an affected branch via higher-level public APIs (e.g., update_references() -> _calculate_new_target() -> branch under test) won't show up by grepping for the changed method's name alone.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD242 session (22-test cascade discovered post-implementation rather than at L4 coverage assessment)."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L7: add manual-test identification guidance pointing at the column or marker in test-tracking.md that distinguishes manual rows from automated. Current language ('If manual tests exist for the affected feature, set their status to Needs Re-execution') is conditional on a check the agent has to perform separately.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD231 session; no blocker because no manual tests for 3.1.1, but the implicit grep wasn't trivially obvious."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L10/L11 ordering: reconsider whether state-file updates (TD resolution, plan archive) should happen before or after the human checkpoint. Add 'Defer L10 if non-trivial to reverse' callout, or swap L10/L11 order.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD245 session; current order can require reverting state-file changes if scope is redirected at L11."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md: add stale-audit-recommendations handling guidance. When audit-derived TD numeric values were calibrated to baselines that have since drifted significantly (>2x from current measurements), recalibrate to current measurements at the same ratio. Document deviation in the plan; mark affected rows 'Needs Re-baseline'; route to PF-TSK-085.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD215-218 session (8-day drift between audit and refactor produced 4-13x measurement variance, invalidating audit's specific tolerance numbers)."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L8: add 'Build-config-only exemption' alongside Documentation-only exemption. Trigger: changes confined to declarative sections that pytest/runtime ignore (pyproject.toml [project.optional-dependencies], [project.dependencies], [tool.*], requirements.txt deps). Same skip-with-note pattern as documentation-only.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD250 session (single-line dep addition triggers full L3/L7 baseline runs that physically cannot fail). ~4 minutes of zero-information-value test runs per dep-only change."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "lightweight-refactoring-plan-template.md (PF-TEM-050): add optional commented-out 'Common Approach (applies to all items)' section between Items, with a brief instruction that batch users with shared fixes should keep it. Covers cases where N items share one helper extraction.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD232/TD233 batch session (extracted single _apply_logging_config helper used by both items; neither item alone owned the helper extraction)."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "code-refactoring-lightweight-path.md L1 batch-mode note: when adding Items in batch mode, also update plan frontmatter (debt_item, refactoring_scope) and document title to reflect broader scope. Currently L1 says to copy the Item N section but doesn't mention metadata maintenance.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD219+5-duplicate session; plan started as 1 item, expanded to 6, but frontmatter/title still reflected the original 1-item scope until manual fix."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Update-TechDebt.ps1: add -Quiet flag emitting only success/failure summary per invocation. For batch sessions resolving 6+ TDs, current verbose output (~9 log lines x 6 invocations = ~54 lines) becomes noisy.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD219+5-duplicate session."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Validate-TestTracking.ps1: add Check 8 comparing test-tracking.md 'Test Cases' / 'Last Run' counts against pytest collection counts. Adding a test method silently leaves the count stale until human review; current validator checks marker-vs-collection but not vs tracking-row counts.",
+    "Priority": "LOW",
+    "Notes": "Reported by TD214 and TD227 sessions; would have flagged 5->6 / 16->20 count drifts automatically."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "performance_db.py trend display: (a) use sign convention from unit (files/sec -> '+ = improvement'; seconds/ms -> '+ = degradation') instead of labeling all +% as 'degradation'; (b) source the tolerance from performance-test-tracking.md rather than embedded copy (which drifts: BM-002 trend prints '<5.0s' vs tracking '<3s'; BM-008 '<2.0s' vs '<0.02s').",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-085 session; cosmetic only (regression detection itself is correct). Misleading labels for throughput metrics; stale tolerance values."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-085: document that one pytest test method can produce multiple measurements (e.g., test_bm_002_database_operations covers BM-002, BM-007, BM-008). Future operators should not expect a 1:1 mapping between pytest cases and BM/PH IDs.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-085 session; 6 collected pytest cases produced 8 measurements during re-baseline."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-082 Step 6: add pre-commit hook failure recovery guidance. Note that hooks that auto-fix files (trailing-whitespace, end-of-file-fixer, black, etc.) require re-staging with 'git add .' and retry the commit. Current task implies first-try success.",
+    "Priority": "LOW",
+    "Notes": "Reported by both PF-TSK-082 forms; required two retry cycles in one session, one retry in another."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Setup-TestEnvironment.ps1: add brief retry loop (1-2s) for file-lock errors during workspace cleanup. After workspace LinkWatcher process stops, file handles can linger briefly causing Remove-Item to fail. Non-fatal but noisy.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-070 session (TE-E2E-015 setup hit file lock from TE-E2E-012's lingering LW)."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-070 Step 1: add bug-status verification guidance. When test-execution notes reference known bugs (e.g., 'skip TE-E2E-025 due to PD-BUG-090'), verify bug status in bug-tracking.md before asking the human partner -- bug may already be resolved.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-070 session; AI initially asked partner whether to skip when the referenced bug was already closed."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-048 Step 5: add scope-growth mid-session guidance. When work approved as Lightweight Path expands beyond lightweight criteria mid-session, convert to full path: create temp state file, update concept document in place, continue with expanded scope. Current task doesn't describe lightweight->full transition.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-048 IMP-571 session; scope expanded from modification-only to multi-component extension after human reframed."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-048 Step 1(b) pre-concept analysis: add 'industry best practice' prompt -- search outside the project for proven taxonomies/patterns (Diataxis for documentation, OWASP for security, Twelve-Factor for config) before designing ad-hoc. Step 1(e) mentions scalability but doesn't explicitly warn against anchoring on current-project scale.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-048 IMP-571 session; Diataxis pattern was found only after human partner pushed back on ad-hoc category design. Earlier prompt would catch industry standards earlier."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "PF-TSK-048 Step 4 Framework Impact Analysis: add explicit prompt to check all 00-setup tasks for impact, even when the extension primarily affects later phases. Setup tasks often declare configurations that downstream tasks consume.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-048 IMP-571 session; project-initiation-task and codebase-feature-discovery needed updates that weren't surfaced until human asked."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "document-creation-script-development-guide.md: add note about Common-ScriptHelpers module import scoping. When a Common-ScriptHelpers module needs functions from another module (e.g., IdRegistry in DocumentManagement), import it at the module top with Import-Module, not inside a function via Import-ProjectModule -- scope doesn't propagate to caller's frame.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-048 IMP-571 session; ate ~30 minutes of debugging time. Tribal knowledge worth codifying."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "framework-extension-concept-modification-template.md: trim the 4-phase implementation roadmap (15 numbered steps). The phase-by-phase scaffold is appropriate for creation-type extensions but feels heavy/forced for modification-type work. Replace with lighter 'Modification Plan' section.",
+    "Priority": "LOW",
+    "Notes": "Reported by PF-TSK-048 IMP-571 session; modification-variant template still inherits creation-style heaviness."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "Update-TechDebt.ps1 -Add: add description-overlap detection that warns when a new entry has substring overlap with an existing entry's Description for the same Location. Prevents duplicate-TD registration from same audit (e.g., TE-TAR-066 produced TD215-218 and later TD236-240 covering same findings).",
+    "Priority": "LOW",
+    "Notes": "Reported by TD219+5-duplicate session; the duplicates accumulated for 6 days before manual discovery."
+  },
+  {
+    "Source": "Tools Review 2026-04-29",
+    "SourceLink": "../../feedback/reviews/tools-review-20260429-140655.md",
+    "Description": "New-RefactoringPlan.ps1: when -TargetArea points to a test file with pytest.mark.feature(...) marker, auto-detect feature_id from the marker and warn on mismatch with -FeatureId arg. For test-file refactorings this prevents the manual frontmatter correction agents otherwise have to make.",
+    "Priority": "LOW",
+    "Notes": "Reported in 2 forms; script currently accepts -FeatureId blindly without cross-checking."
+  }
+]

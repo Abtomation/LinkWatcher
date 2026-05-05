@@ -53,7 +53,7 @@
         "main": "test/audits",
         "default": "foundation"
       },
-      "nextAvailable": 69
+      "nextAvailable": 72
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -76,7 +76,7 @@
         "performance": "test/automated/performance",
         "default": "unit"
       },
-      "nextAvailable": 132
+      "nextAvailable": 134
     },
     "BM": {
       "description": "Performance - Benchmark Tests (Component Level 1, Operation Level 2)",
@@ -86,7 +86,7 @@
         "performance": "test/automated/performance",
         "default": "performance"
       },
-      "nextAvailable": 7
+      "nextAvailable": 9
     },
     "PH": {
       "description": "Performance - Scale and Resource Tests (Scale Level 3, Resource Level 4)",
@@ -96,7 +96,7 @@
         "performance": "test/automated/performance",
         "default": "performance"
       },
-      "nextAvailable": 7
+      "nextAvailable": 9
     }
   }
 }

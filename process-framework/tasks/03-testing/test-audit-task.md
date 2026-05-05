@@ -3,9 +3,9 @@ id: PF-TSK-030
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.1
+version: 2.2
 created: 2025-08-07
-updated: 2026-04-28
+updated: 2026-05-04
 ---
 
 # Test Audit
@@ -73,7 +73,7 @@ Comprehensive quality assurance task that evaluates test suites against type-spe
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
 >
@@ -184,7 +184,7 @@ Before starting the audit, determine the test type. This determines which criter
 
    - **Measurement Methodology**: Is the test measuring the right thing? Appropriate warmup, iteration count, timing precision, isolation from external factors. *Pass*: Stable results across runs; no I/O bottlenecks masking CPU measurements; proper warmup cycles.
    - **Tolerance Appropriateness**: Are thresholds realistic and meaningful? Not too loose (meaningless) or too tight (noisy false alarms). *Pass*: Tolerance based on observed variance, not guesswork; matches the test's performance level expectations.
-   - **Baseline Readiness**: Is the test ready for baseline capture? Clean setup/teardown, deterministic environment, no external dependencies that vary. *Pass*: Consistent results in clean environment; no flaky prerequisites.
+   - **Baseline Readiness**: Is the test ready for baseline capture? Clean setup/teardown, deterministic environment, no external dependencies that vary. **Tracking Consistency**: verify `performance-test-tracking.md` Tolerance column matches code assertions — drift indicates upstream refactoring left documentation behind (root cause is in PF-TSK-022; the audit catches drift at the gate). *Pass*: Consistent results in clean environment; no flaky prerequisites; tracking-file Tolerance matches code.
    - **Regression Detection Config**: Will the test actually catch regressions? Sensitivity vs. noise tradeoff; appropriate comparison method. *Pass*: False positive rate manageable; meaningful regressions would be caught.
 
 #### E2E Test Criteria
@@ -273,6 +273,7 @@ Before starting the audit, determine the test type. This determines which criter
     - Removing dead/unreachable test code
     - Fixing trivial fixture issues (typos in expected values, stale file paths)
     - Adding missing `@pytest.mark` markers
+    - Tightening or loosening tolerance/threshold values in assertions when supported by audit findings (single-line constant change)
 
     **NOT allowed** (route to Tech Debt → Code Refactoring):
     - Adding new test methods or test files
@@ -337,6 +338,15 @@ Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py
 
 # Performance tests
 Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md"
+
+# Performance — false-compliance correction
+# Add -LifecycleCorrection when the audit reveals that a row reached ✅ Baselined without
+# clearing the audit gate (or its baseline is invalidated by the audit findings). The flag
+# rolls Lifecycle Status ✅ Baselined → 📋 Needs Baseline on every matching row, so the
+# audit gate re-applies before re-baseline (PF-TSK-085). Rows not currently ✅ Baselined
+# are skipped with a warning. Run Update-PerformanceTracking.ps1 afterward to refresh the
+# Summary table.
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md" -LifecycleCorrection
 
 # E2E tests
 Update-TestFileAuditState.ps1 -TestType E2E -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/e2e/audit-report.md"
@@ -406,7 +416,7 @@ Performance and E2E tests:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

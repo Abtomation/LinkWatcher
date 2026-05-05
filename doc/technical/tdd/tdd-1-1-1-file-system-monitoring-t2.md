@@ -293,42 +293,72 @@ def _handle_file_moved(self, event: FileMovedEvent):
 **Directory move pipeline** (`_handle_directory_moved`):
 
 ```python
-def _handle_directory_moved(self, src_dir: str, dest_dir: str):
-    # Build set of co-moved file old paths (PD-BUG-038)
-    # PD-BUG-071: Use extension-only filter (not _should_monitor_file)
-    # so files are enumerated even when dest is an ignored dir name
+def _handle_directory_moved(self, event: FileMovedEvent):
+    # Resolve relative dir paths (handler operates in project-relative space)
+    old_dir = self._get_relative_path(event.src_path)
+    new_dir = self._get_relative_path(event.dest_path)
+
+    # Enumerate moved files — PD-BUG-071: extension-only filter (NOT
+    # _should_monitor_file) so files are enumerated even when the
+    # destination contains an ignored directory name (e.g. docs/ -> build/)
     moved_files = []
-    co_moved_old_paths = set()
-    for root, dirs, files in os.walk(dest_dir):
-        for filename in files:
-            new_path = os.path.join(root, filename)
-            old_path = new_path.replace(dest_dir, src_dir, 1)
-            if os.path.splitext(new_path)[1].lower() in self.monitored_extensions:
-                moved_files.append((old_path, new_path))
-                co_moved_old_paths.add(old_path)
+    for root, dirs, files in os.walk(event.dest_path):
+        for file in files:
+            if os.path.splitext(file)[1].lower() in self.monitored_extensions:
+                rel_new = self._get_relative_path(os.path.join(root, file))
+                rel_old = rel_new.replace(new_dir, old_dir, 1)
+                moved_files.append((rel_old, rel_new))
 
-    # Phase 1: Update references to files within the moved directory
-    # co_moved_old_paths excludes co-moved files from updates and cleanup
-    for old_path, new_path in moved_files:
-        self._ref_lookup.process_directory_file_move(
-            old_path, new_path, co_moved_old_paths=co_moved_old_paths
+    # Phase 0: Re-key DB source paths from old to new locations BEFORE any
+    # reference lookup runs. PD-BUG-050: without this, the updater opens
+    # moved files at their old paths and raises Errno 2.
+    for old_fp, new_fp in moved_files:
+        self.link_db.update_source_path(old_fp, new_fp)
+
+    # Phase 1: Update references to files within the moved directory.
+    # Implemented as a batched pipeline (TD128 + TD129):
+    #   collect references per file → single batched updater pass across
+    #   all referring files → per-file DB cleanup with deduplicated bulk
+    #   rescan. Each referring file is opened/written at most once, and
+    #   each affected file is rescanned at most once. See helpers
+    #   _batch_update_references (Phase 1b) and
+    #   _cleanup_and_rescan_moved_files (Phase 1c) for details.
+    move_groups, per_file_data, deferred_rescan_files = [], [], set()
+    for old_fp, new_fp in moved_files:
+        file_refs, module_refs, old_targets = (
+            self._ref_lookup.collect_directory_file_refs(old_fp, new_fp)
         )
+        per_file_data.append((old_fp, new_fp, file_refs, module_refs, old_targets))
+        if file_refs:
+            move_groups.append((file_refs, old_fp, new_fp))
+        if module_refs:
+            # Python module rename: drop the .py suffix for module-form refs
+            move_groups.append((module_refs, old_fp[:-3], new_fp[:-3]))
+    self._batch_update_references(move_groups)
+    self._cleanup_and_rescan_moved_files(per_file_data, deferred_rescan_files)
 
-    # Phase 1b: Update outward-pointing links within moved files (PD-BUG-039)
-    for old_path, new_path in moved_files:
-        self._update_links_within_moved_file(old_path, new_path, abs_new)
+    # Phase 1.5: Update outward-pointing links inside moved files
+    # (PD-BUG-039: directory moves must adjust relative links within
+    # moved files, just like individual file moves do).
+    for old_fp, new_fp in moved_files:
+        abs_new = os.path.join(str(self.project_root), new_fp)
+        self._update_links_within_moved_file(old_fp, new_fp, abs_new)
 
-    # Phase 2: Update references to the directory path itself
-    dir_references = self._ref_lookup.find_directory_path_references(src_dir)
-    if dir_references:
-        self.updater.update_references(dir_references, src_dir, dest_dir)
-        self._ref_lookup.cleanup_after_directory_path_move(src_dir, dest_dir)
+    # Phase 2: Update references to the directory path itself.
+    # Delegated to _update_directory_path_references, which groups refs
+    # by link_target and computes per-target old->new mappings via prefix
+    # replacement. Handles three cases:
+    #   - exact match: ref target == old_dir
+    #   - subdirectory match: ref target startswith old_dir/
+    #     (e.g. old_dir/assessments)
+    #   - backslash-variant fallback for Windows-style paths
+    self._update_directory_path_references(old_dir, new_dir)
 
     # Note: parent/ancestor directory-path references are not updated.
     # When a subdirectory moves, the parent directory's own filesystem path is
     # unchanged, so references targeting any ancestor remain valid. The pipeline
     # only adjusts: refs to files in the moved subtree (Phase 1), relative links
-    # within moved files (Phase 1b), and refs to the moved directory itself or
+    # within moved files (Phase 1.5), and refs to the moved directory itself or
     # its descendants (Phase 2).
 ```
 
@@ -474,7 +504,7 @@ The handler subsystem is implemented across four modules (refactored from a sing
 5. `_PendingDirMove.dir_prefix` must be constructed as `normalize_path(dir) + "/"` (not `normalize_path(dir + "/")`) because `os.path.normpath` strips trailing slashes — discovered during PD-BUG-019 fix
 6. Batch directory move processing defers to separate daemon threads to avoid blocking the watchdog event thread, which would cause subsequent file events to queue and timers to expire
 7. **Shared stale-reference retry**: Both per-file and directory move pipelines use `ReferenceLookup.retry_stale_references()` (resolved TD009 duplication)
-8. **Unified DB update strategy** (TD017): Both per-file and directory move pipelines use `ReferenceLookup.find_references()` + `get_old_path_variations()` + `cleanup_after_file_move()` for reference lookup and database cleanup — ensuring consistent anchor handling, path normalization, and fresh metadata after moves. Directory moves pass `co_moved_old_paths` to exclude co-moved files from updates and cleanup rescans (PD-BUG-038), deferring their rescan to `_update_links_within_moved_file`
+8. **Unified DB update strategy** (TD017): Both pipelines reuse the same DB cleanup primitive — `cleanup_after_file_move()` — ensuring consistent anchor handling, path normalization, and fresh metadata after moves. The file-move pipeline calls `find_references()` and `get_old_path_variations()` directly; the directory-move pipeline wraps those into `collect_directory_file_refs()` so per-file work can be batched at the updater level (TD129) and rescans deduplicated across the whole batch (TD128) via `_cleanup_and_rescan_moved_files`
 9. **Composition-based reference delegation** (TD022): Handler delegates all reference lookup and DB management to `ReferenceLookup` instance (`self._ref_lookup`), reducing handler.py from 873 to ~475 lines (46%)
 
 ## 7. Quality Measurement

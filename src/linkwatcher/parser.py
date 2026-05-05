@@ -37,6 +37,9 @@ class LinkParser:
         self.max_file_size_mb = (
             config.max_file_size_mb if config else DEFAULT_CONFIG.max_file_size_mb
         )
+        self.performance_logging = (
+            config.performance_logging if config else DEFAULT_CONFIG.performance_logging
+        )
 
         if config is None or config.enable_markdown_parser:
             self.parsers[".md"] = MarkdownParser()
@@ -77,7 +80,13 @@ class LinkParser:
                 )
                 return []
 
-            with LogTimer("file_parsing", self.logger, file_path=file_path, file_ext=file_ext):
+            with LogTimer(
+                "file_parsing",
+                self.logger,
+                enabled=self.performance_logging,
+                file_path=file_path,
+                file_ext=file_ext,
+            ):
                 # Use specialized parser if available
                 if file_ext in self.parsers:
                     parser = self.parsers[file_ext]
@@ -116,7 +125,13 @@ class LinkParser:
         try:
             file_ext = os.path.splitext(file_path)[1].lower()
 
-            with LogTimer("content_parsing", self.logger, file_path=file_path, file_ext=file_ext):
+            with LogTimer(
+                "content_parsing",
+                self.logger,
+                enabled=self.performance_logging,
+                file_path=file_path,
+                file_ext=file_ext,
+            ):
                 # Use specialized parser if available
                 if file_ext in self.parsers:
                     parser = self.parsers[file_ext]

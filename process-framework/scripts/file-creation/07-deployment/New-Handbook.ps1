@@ -100,9 +100,8 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
-# Soak verification (PF-PRO-028 — see process-framework/state-tracking/permanent/script-soak-tracking.md)
-$soakScriptId = "process-framework/scripts/file-creation/07-deployment/New-Handbook.ps1"
-$soakInSoak   = Test-ScriptInSoak -ScriptId $soakScriptId -ScriptPath $PSCommandPath
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed via DocumentManagement.psm1)
+Register-SoakScript
 
 # Prepare additional metadata fields for frontmatter
 $additionalMetadataFields = @{
@@ -160,18 +159,8 @@ try {
         }
         $entryLine = "- [Product: $HandbookName ($documentId)]($relativePath) - $Description"
 
-        # Read-after-write verification: confirm the handbook file landed with the expected ID.
-        if ($documentId -and -not $WhatIfPreference) {
-            $createdHandbookPath = Join-Path -Path $projectRoot -ChildPath "doc/$relativePath"
-            Assert-LineInFile -Path $createdHandbookPath -Pattern ("id:\s*" + [regex]::Escape($documentId)) -Context "Handbook frontmatter id"
-        }
-
         $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
         if ($updated) {
-            # Read-after-write verification: catch silent-success failures (the original IMP-586 trigger).
-            if (-not $WhatIfPreference) {
-                Assert-LineInFile -Path $docMapPath -Pattern $entryLine -Literal -Context "doc-map entry for $documentId under '$sectionHeader'"
-            }
             $details += "Documentation Map: Updated (PD-documentation-map.md)"
         }
     }
@@ -188,16 +177,7 @@ try {
     }
 
     Write-ProjectSuccess -Message "Created user handbook with ID: $documentId" -Details $details
-
-    if ($soakInSoak) {
-        Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome success
-    }
 }
 catch {
-    if ($soakInSoak) {
-        $soakErrMsg = $_.Exception.Message
-        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
-        Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome failure -Notes $soakErrMsg
-    }
     Write-ProjectError -Message "Failed to create user handbook: $($_.Exception.Message)" -ExitCode 1
 }

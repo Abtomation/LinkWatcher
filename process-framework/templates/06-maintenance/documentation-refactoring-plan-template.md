@@ -2,9 +2,9 @@
 id: PF-TEM-052
 type: Process Framework
 category: Refactoring Plan
-version: 1.1
+version: 1.2
 created: 2026-03-15
-updated: 2026-03-29
+updated: 2026-04-30
 usage_context: Process Framework - Refactoring Plan Creation
 description: Refactoring plan for documentation-only changes (no code changes, no test impact). Removes code metrics, performance benchmarks, and test coverage sections from the standard template.
 creates_document_category: Refactoring Plan
@@ -114,6 +114,20 @@ priority: [Priority Level]
 | Date | Phase | Completed Work | Issues Encountered | Next Steps |
 |------|-------|----------------|-------------------|------------|
 | [Date] | [Phase] | [Description] | [Issues] | [Next steps] |
+
+## Documentation & State Updates
+<!-- Check each — for N/A, write brief justification (e.g., "Grepped TDD — no references to changed content") -->
+
+> **Doc-only shortcut**: Per [code-refactoring-lightweight-path.md L8](/process-framework/tasks/06-maintenance/code-refactoring-lightweight-path.md), items 1–7 may be batched as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design and state documents do not need updates for [description of change]."* Still check item 8 individually. Update items 1–7 individually only if a specific document requires changes (e.g., a TDD that documented affected file paths).
+
+- [ ] Feature implementation state file ([Feature ID]) updated, or N/A — verified no reference to changed content: _[justification]_
+- [ ] TDD ([Feature ID]) updated, or N/A — verified no interface or significant internal design changes documented in TDD: _[justification]_
+- [ ] Test spec ([Feature ID]) updated, or N/A — verified no behavior change affects spec: _[justification]_
+- [ ] FDD ([Feature ID]) updated, or N/A — verified no functional change affects FDD: _[justification]_
+- [ ] ADR ([Feature ID]) updated, or N/A — verified no architectural decision affected: _[justification]_
+- [ ] Integration Narrative updated, or N/A — verified no PD-INT narrative in `doc/technical/integration/` references the refactored content: _[justification]_
+- [ ] Validation tracking updated, or N/A — verified feature is not tracked in a validation round or change doesn't affect validation: _[justification]_
+- [ ] Technical Debt Tracking: TD item marked resolved
 
 ## Results
 

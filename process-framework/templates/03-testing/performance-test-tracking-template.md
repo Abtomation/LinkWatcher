@@ -42,25 +42,27 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 
 ## Test Inventory
 
+> **Multi-metric tests**: Each metric gets its own row (Metric column). Single-metric tests use `—`. Tolerances are single-metric per row, keyed by `(Test ID, Metric)`. The `Status` column reflects the test as a whole; metric rows for the same test share status.
+
 ### Component Benchmarks (Level 1)
 
-| Test ID | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
-|---------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
+| Test ID | Metric | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
+|---------|--------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
 
 ### Operation Benchmarks (Level 2)
 
-| Test ID | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
-|---------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
+| Test ID | Metric | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
+|---------|--------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
 
 ### Scale Tests (Level 3)
 
-| Test ID | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
-|---------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
+| Test ID | Metric | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
+|---------|--------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
 
 ### Resource Bounds (Level 4)
 
-| Test ID | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
-|---------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
+| Test ID | Metric | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref |
+|---------|--------|-----------|-----------------|--------|----------|-----------|-------------|----------|-----------|--------------|--------------|----------|
 
 ## Summary
 

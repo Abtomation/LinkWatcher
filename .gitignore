@@ -139,7 +139,8 @@ Thumbs.db
 test_output/
 temp/
 .linkwatcher/dependency_graph.png
-LinkWatcher_run/LinkWatcherLog.txt.1
-LinkWatcher_run/logs/
-logs/
+.linkwatcher.lock
+process-framework-local/tools/linkWatcher/logs/
+process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt
 process-framework-local/feedback/ratings.db
+test/state-tracking/permanent/performance-results.db

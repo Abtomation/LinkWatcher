@@ -56,7 +56,7 @@ This task creates Integration Narratives — focused documents that explain how 
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use `New-IntegrationNarrative.ps1` for narrative creation — never create PD-INT files manually.**
 >
@@ -151,7 +151,7 @@ The following state files are updated automatically by `New-IntegrationNarrative
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

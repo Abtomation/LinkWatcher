@@ -42,6 +42,10 @@ Existing tasks affected by this extension:
 
 ## Implementation Roadmap
 
+> **One phase per calendar session.** Phase 2 / Phase 3 / mid-flight migrations should each
+> get their own fresh session — see [framework-extension-task.md Phase 3](/process-framework/tasks/support/framework-extension-task.md#phase-3-multi-session-implementation)
+> for rationale (checkpoint discipline + Session Tracking labeling consistency).
+
 ### Phase 1: Concept & Approval
 
 **Priority**: HIGH — Must complete before implementation begins

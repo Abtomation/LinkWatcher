@@ -23,7 +23,7 @@
       "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\Update-BugStatus.ps1 -BugId \"\"PD-BUG-009\"\" -NewStatus \"\"Closed\"\" -VerificationNotes \"\"Fix verified: Level 1 \\(PYTHONUTF8=1 env var\\) + Level 2 \\(defensive stdout reconfigure in __init__.py\\). Test test_eh_007_unicode_file_names passes. Manual validation 5/5 checks pass. No regressions in 345-test suite. Also fixed missing encoding in logging_config.py:210.\"\"')",
       "Bash(PYTHONUTF8=1 pwsh.exe -ExecutionPolicy Bypass -Command '& .\\\\New-FeedbackForm.ps1 -DocumentId \"\"PF-TSK-007\"\" -TaskContext \"\"Bug Fixing - PD-BUG-009 Unicode filenames\"\" -FeedbackType \"\"MultipleTools\"\"')",
       "Bash(xargs grep -l \"test_powershell_script_move_updates_markdown_links\")",
-      "Bash(bash LinkWatcher/start_linkwatcher_background.ps1)",
+      "Bash(bash process-framework/tools/linkWatcher/start_linkwatcher_background.ps1)",
       "Bash(python tests/manual/PD-BUG-013_json_duplicate_line_numbers_validation.py)",
       "Bash(python -c \":*)",
       "Bash(wc -l /c/Users/ronny/VS_Code/LinkWatcher/src/linkwatcher/parsers/*.py)",
@@ -41,7 +41,7 @@
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher -name PF-VAL-* -type f)",
       "Bash(python main.py --validate --dry-run)",
       "Bash(python main.py --validate)",
-      "Bash(bash LinkWatcher_run/start_linkwatcher_background.ps1)",
+      "Bash(bash process-framework/tools/linkWatcher/start_linkwatcher_background.ps1)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/test/state-tracking -type f -name *.md)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/process-framework/state-tracking -type f -name *.md)",
       "Bash(find /c/Users/ronny/VS_Code/LinkWatcher/process-framework/scripts/file-creation -type f -name *.ps1)",
@@ -51,9 +51,11 @@
       "Bash([ -f \"/c/Users/ronny/VS_Code/LinkWatcher/doc/state-tracking/permanent/feature-tracking.md\" ])",
       "Bash(xargs grep:*)",
       "Bash(python -c \"from linkwatcher.link_types import LinkType; print\\('Import OK,', len\\(LinkType\\), 'members'\\)\")",
-      "PowerShell(& ./LinkWatcher_run/start_linkwatcher_background.ps1)",
+      "PowerShell(& ./process-framework/tools/linkWatcher/start_linkwatcher_background.ps1)",
       "Bash(powershell.exe -NoProfile -Command \"Get-Process python* -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,StartTime | Format-Table -AutoSize\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "PowerShell($PSVersionTable.PSVersion.ToString\\(\\))",
+      "Bash(git rm:*)"
     ]
   }
 }

@@ -83,7 +83,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Framework Domain Adaptation** - Manual domain-specific terminology migration
 - **Documentation Tier Adjustment Task** - Manual complexity re-evaluation
 
-### 🚨 Critical Automation Gaps Identified
+### Critical Automation Gaps Identified
 
 1. **Feature Tier Assessment**: Requires separate script execution for state updates
 2. **Integration & Testing Task (PF-TSK-053)**: Requires manual status updates after test completion
@@ -668,7 +668,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update code review status (🟢 Completed/🔄 Needs Enhancement)<br/>• Add review date, reviewer information<br/>• Link to review document, list major findings |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | **Feature reviews only** (N/A for bug-fix reviews on Implemented features). Update code review status (🟢 Completed/🔄 Needs Enhancement)<br/>• Add review date, reviewer information<br/>• Link to review document, list major findings |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Update test status based on review findings<br/>• Confirm "✅ Audit Approved" or change to "🔴 Needs Fix"/"🔄 Needs Update" |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1` (conditional) | Register tech debt findings discovered during review |
 | **Updates** | Feature Implementation State Files | Manual (conditional) | Implementation gaps logged in Issues & Resolutions Log |
@@ -749,8 +749,8 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Planning Script:** [`New-RefactoringPlan.ps1`](../scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1) (supports `-Lightweight` and `-DocumentationOnly` switches)
-- **Templates:** Standard ([`refactoring-plan-template.md`](../templates/06-maintenance/refactoring-plan-template.md)), Documentation-only ([`documentation-refactoring-plan-template.md`](../templates/06-maintenance/documentation-refactoring-plan-template.md)), or Lightweight ([`lightweight-refactoring-plan-template.md`](../templates/06-maintenance/lightweight-refactoring-plan-template.md))
+- **Planning Script:** [`New-RefactoringPlan.ps1`](../scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1) (supports `-Lightweight`, `-DocumentationOnly`, and `-Performance` switches)
+- **Templates:** Standard ([`refactoring-plan-template.md`](../templates/06-maintenance/refactoring-plan-template.md)), Lightweight ([`lightweight-refactoring-plan-template.md`](../templates/06-maintenance/lightweight-refactoring-plan-template.md)), Documentation-only ([`documentation-refactoring-plan-template.md`](../templates/06-maintenance/documentation-refactoring-plan-template.md)), or Performance ([`performance-refactoring-plan-template.md`](../templates/06-maintenance/performance-refactoring-plan-template.md))
 - **State Tracking Script:** [`New-TempTaskState.ps1`](../scripts/file-creation/support/New-TempTaskState.ps1) (standard path only)
 - **Bug Reporting Script:** [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)
 - **Architecture Decision Script:** [`New-ArchitectureDecision.ps1`](../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) (for architectural refactoring, standard path only)
@@ -1245,7 +1245,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **📋 AUTOMATION DETAILS**
 
-- **Scripts:** [`Update-PerformanceTracking.ps1`](../scripts/update/Update-PerformanceTracking.ps1) — Status transitions 📋 → ✅, column updates, summary recalculation; [`performance_db.py`](../scripts/test/performance_db.py) — `record`, `trend`, `regressions` subcommands
+- **Scripts:** [`Update-PerformanceTracking.ps1`](../scripts/update/Update-PerformanceTracking.ps1) — Status transitions 📋 → ✅, column updates, summary recalculation; [`performance_db.py`](../scripts/test/performance_db.py) — `record`, `trend`, `regressions`, `list-test-ids` subcommands
 - **Output Directory:** `performance-results.db` (SQLite database)
 
 **📁 FILE OPERATIONS**
@@ -1426,8 +1426,8 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress"
 # Complete an improvement
 Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "Completed" -Impact "MEDIUM" -ValidationNotes "Description of what was done."
 
-# Reject an improvement
-Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -Impact "—" -ValidationNotes "Reason for rejection."
+# Reject an improvement (Impact defaults to "—" for Rejected)
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -ValidationNotes "Reason for rejection."
 
 # Preview changes without modifying
 Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -WhatIf
@@ -2145,7 +2145,7 @@ Complete catalog of all automation scripts in `process-framework/scripts/`. Scri
 | `Update-TestExecutionStatus.ps1` | `test/e2e-acceptance-testing/` | PF-TSK-070 | Update tracking with E2E execution results |
 | `test_query.py` | `test/` | PF-TSK-065, PF-TSK-053 | AST-based query tool for pytest markers |
 | `Update-PerformanceTracking.ps1` | `test/state-tracking/permanent/` | PF-TSK-084, PF-TSK-085 | Performance test lifecycle management: status transitions, column updates, summary recalculation |
-| `performance_db.py` | `test/` | PF-TSK-084, PF-TSK-085 | SQLite-based performance results storage with record/trend/regressions/export subcommands |
+| `performance_db.py` | `test/` | PF-TSK-084, PF-TSK-085 | SQLite-based performance results storage with record/trend/regressions/export/list-test-ids subcommands |
 | `feedback_db.py` | `.` | PF-TSK-010 (indirect) | Feedback database recording, querying, and trend alerting (`alerts` subcommand) |
 | `extract_ratings.py` | `.` | PF-TSK-010 (indirect) | Parse feedback form markdown and generate JSON for feedback_db.py record |
 

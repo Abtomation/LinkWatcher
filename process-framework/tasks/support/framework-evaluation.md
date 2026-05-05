@@ -56,7 +56,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
@@ -155,6 +155,7 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    - Note where the evaluated artifacts align with or diverge from external norms
    - Use findings to calibrate dimension scores (e.g., an internally "good" result may be "adequate" relative to industry practice)
    - Include external comparisons as supporting evidence in the evaluation report
+   - When evaluating framework rhetoric or AI-agent-targeted guidance, include current Claude model prompt-engineering best practices as one external comparison. Wording effective for older models can become stale for newer ones — particularly around tool-call triggering, instruction emphasis, and verbosity. Treat as one source among several, not as standalone justification to overhaul existing rhetoric.
    > This step grounds the evaluation in external reality rather than internal assumptions alone. Depth of research should be proportional to the evaluation scope — a targeted evaluation may need only a few searches, while a full framework evaluation warrants broader research.
 
 7. **Score Findings**: For each dimension evaluated, assign a score:
@@ -238,7 +239,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

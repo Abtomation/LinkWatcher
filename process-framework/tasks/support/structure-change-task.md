@@ -54,7 +54,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Create backup copies of all files before making changes.**
 >
@@ -122,7 +122,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 When moving or renaming files/directories as part of a structure change, follow this procedure for each move:
 
 1. **Move one file or directory at a time** — do not batch multiple moves simultaneously
-2. **Wait for LinkWatcher to finish processing** — check the active log file (`ls -lt LinkWatcher_run/LinkWatcherLog*.txt | head -1`) for completion of the update cycle
+2. **Wait for LinkWatcher to finish processing** — check the active log file (`ls -lt process-framework-local/tools/linkWatcher/logs/LinkWatcherLog*.txt | head -1`) for completion of the update cycle
 3. **Verify all references were updated** — grep for the old path across the project; if no hits remain, the move is complete
 4. **If references were NOT updated**, diagnose the root cause before manual fixing:
 
@@ -175,7 +175,9 @@ When splitting one file into two separate files (e.g., extracting a section into
 4. **🚨 MANDATORY Impact Analysis**: Before creating the proposal, systematically assess the full scope of the change. This step prevents incremental scope discovery during execution.
 
    a. **Reference grep**: For each affected file, grep the entire project to find all files that reference it (markdown links, imports, script paths, string literals). Record the count and list.
-   b. **Script audit**: Identify all automation scripts that read from or write to the affected file(s). Check `process-framework/scripts/` for scripts that target these paths.
+   b. **Code audit (consumers and generators)**: Identify all code that interacts with the affected file(s). Two passes — both required:
+      - **Consumers** (read or write the literal path): Check `process-framework/scripts/` and the broader codebase for scripts/code that target the path. Largely covered by the reference grep (sub-step a).
+      - **Generators** (recreate the file from templates, f-strings, here-strings): Reference grep often **misses** these because the path is constructed at runtime (e.g., `f"{base}/{filename}"`). For each affected file, search for: `write_text`, `Set-Content`, `Out-File`, here-strings (`@"..."@`, `@'...'@`), Python f-strings producing the file's content, and template-substitution patterns. **Why**: SC-029 missed `install_global.py::update_startup_scripts()` (regenerates `start_linkwatcher_background.ps1` from an f-string template) until execution.
    c. **Task definition audit**: Search task definitions (`process-framework/tasks/`) for manual update instructions referencing the affected file(s) (e.g., "update documentation-map.md").
    d. **Infrastructure doc consultation**: Read [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) (catalogs what each task creates/updates) and [Task Transition Registry](../../infrastructure/task-transition-registry.md) (documents handover interfaces between tasks) to identify additional downstream impacts.
    e. **Present impact matrix**: Compile findings into a matrix (affected files × change type: link update, content update, script change, task definition change) and present at the checkpoint below.
@@ -277,7 +279,7 @@ The following state files must be updated as part of this task:
 
 ### Lightweight Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 - [ ] **Scope Assessment**: Human partner confirmed Lightweight mode
 - [ ] **Verify Changes**: All affected files updated correctly
@@ -293,7 +295,7 @@ The following state files must be updated as part of this task:
 
 ### Full Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 - [ ] **Scope Assessment**: Human partner confirmed Full mode
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced

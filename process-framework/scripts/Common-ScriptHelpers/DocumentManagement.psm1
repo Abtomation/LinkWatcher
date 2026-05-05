@@ -24,10 +24,14 @@ $scriptPath = Split-Path -Parent $PSScriptRoot
 $coreModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\Core.psm1"
 $outputModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\OutputFormatting.psm1"
 $idRegistryModule = Join-Path -Path $scriptPath -ChildPath "IdRegistry.psm1"
+$fileOpsModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\FileOperations.psm1"
+$execVerifyModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\ExecutionVerification.psm1"
 
 if (Test-Path $coreModule) { Import-Module $coreModule -Force }
 if (Test-Path $outputModule) { Import-Module $outputModule -Force }
 if (Test-Path $idRegistryModule) { Import-Module $idRegistryModule -Force }
+if (Test-Path $fileOpsModule) { Import-Module $fileOpsModule -Force }
+if (Test-Path $execVerifyModule) { Import-Module $execVerifyModule -Force }
 
 function New-ProjectDocumentMetadata {
     <#
@@ -288,6 +292,14 @@ function New-ProjectDocumentWithMetadata {
     )
 
     try {
+        # WhatIf short-circuit: caller is in preview mode — skip write + assert, return $true
+        # to match pre-armoring behavior (silent success rather than loud Assert failure when
+        # Set-Content honors WhatIf and writes nothing). Caller-aware via $PSCmdlet.SessionState.
+        if ([bool]$PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')) {
+            Write-Verbose "New-ProjectDocumentWithMetadata: WhatIf mode — skipping document creation."
+            return $true
+        }
+
         # Get template metadata to determine document structure
         $templateMetadata = Get-TemplateMetadata -TemplatePath $TemplatePath
 
@@ -336,17 +348,32 @@ function New-ProjectDocumentWithMetadata {
             New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
         }
 
+        # Soak: hash-detection auto-reset side effect (PF-PRO-028 v2.0 Pattern B caller-aware mode).
+        # Defensively wrapped so soak-side errors never mask the helper's actual outcome.
+        try { $null = Test-ScriptInSoak } catch { Write-Verbose "Test-ScriptInSoak soft-fail: $($_.Exception.Message)" }
+
         $finalContent | Set-Content -Path $OutputPath -Encoding UTF8 -ErrorAction Stop
+
+        # Read-after-write: verify the document metadata actually landed.
+        Assert-LineInFile -Path $OutputPath -Pattern ([regex]::Escape("id: $DocumentId")) -Context "New-ProjectDocumentWithMetadata($OutputPath)"
 
         if ($OpenInEditor) {
             Open-ProjectFileInEditor -FilePath $OutputPath
         }
 
+        # Soak: success outcome (caller-aware — no-op if caller not registered).
+        try { Confirm-SoakInvocation -Outcome success } catch { Write-Verbose "Confirm-SoakInvocation success soft-fail: $($_.Exception.Message)" }
+
         Write-Verbose "Created document with metadata: $OutputPath"
         return $true
     }
     catch {
-        Write-Error "Failed to create document: $($_.Exception.Message)"
+        $errMsg = $_.Exception.Message
+        try {
+            $truncated = if ($errMsg.Length -gt 200) { $errMsg.Substring(0, 200) + "..." } else { $errMsg }
+            Confirm-SoakInvocation -Outcome failure -Notes "New-ProjectDocumentWithMetadata: $truncated"
+        } catch { Write-Verbose "Confirm-SoakInvocation failure soft-fail: $($_.Exception.Message)" }
+        Write-Error "Failed to create document: $errMsg"
         return $false
     }
 }
@@ -378,6 +405,10 @@ function New-ProjectDocumentWithCodeMetadata {
     .PARAMETER OpenInEditor
     Whether to open the created document in editor
 
+    .PARAMETER HeaderComment
+    Optional comment-style hashtable forwarded to New-ProjectCodeMetadata
+    (keys: open, close, linePrefix). Source: language config's headerComment field.
+
     .EXAMPLE
     $replacements = @{ "[TEST_NAME]" = "UserAuthentication" }
     $additionalFields = @{ "test_type" = "Unit" }
@@ -402,10 +433,21 @@ function New-ProjectDocumentWithCodeMetadata {
         [hashtable]$AdditionalMetadataFields = @{},
 
         [Parameter(Mandatory=$false)]
-        [switch]$OpenInEditor
+        [switch]$OpenInEditor,
+
+        [Parameter(Mandatory=$false)]
+        [hashtable]$HeaderComment
     )
 
     try {
+        # WhatIf short-circuit: caller is in preview mode — skip write + assert, return $true
+        # to match pre-armoring behavior (silent success rather than loud Assert failure when
+        # Set-Content honors WhatIf and writes nothing). Caller-aware via $PSCmdlet.SessionState.
+        if ([bool]$PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')) {
+            Write-Verbose "New-ProjectDocumentWithCodeMetadata: WhatIf mode — skipping document creation."
+            return $true
+        }
+
         # Get template metadata to determine document structure
         $templateMetadata = Get-TemplateMetadata -TemplatePath $TemplatePath
 
@@ -443,7 +485,7 @@ function New-ProjectDocumentWithCodeMetadata {
         $documentType = if ($templateMetadata.ContainsKey('creates_document_type')) { $templateMetadata['creates_document_type'] } else { "Code File" }
         $category = if ($templateMetadata.ContainsKey('creates_document_category')) { $templateMetadata['creates_document_category'] } else { "General" }
 
-        $metadataComment = New-ProjectCodeMetadata -DocumentId $DocumentId -DocumentType $documentType -Category $category -AdditionalFields $metadataFields
+        $metadataComment = New-ProjectCodeMetadata -DocumentId $DocumentId -DocumentType $documentType -Category $category -AdditionalFields $metadataFields -HeaderComment $HeaderComment
 
         # Combine metadata comment with content
         $finalContent = $metadataComment + $documentContent
@@ -454,17 +496,31 @@ function New-ProjectDocumentWithCodeMetadata {
             New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
         }
 
+        # Soak: hash-detection auto-reset side effect (PF-PRO-028 v2.0 Pattern B caller-aware mode).
+        try { $null = Test-ScriptInSoak } catch { Write-Verbose "Test-ScriptInSoak soft-fail: $($_.Exception.Message)" }
+
         $finalContent | Set-Content -Path $OutputPath -Encoding UTF8 -ErrorAction Stop
+
+        # Read-after-write: verify the document ID actually landed in the metadata comment block.
+        Assert-LineInFile -Path $OutputPath -Pattern ([regex]::Escape($DocumentId)) -Context "New-ProjectDocumentWithCodeMetadata($OutputPath)"
 
         if ($OpenInEditor) {
             Open-ProjectFileInEditor -FilePath $OutputPath
         }
 
+        # Soak: success outcome (caller-aware — no-op if caller not registered).
+        try { Confirm-SoakInvocation -Outcome success } catch { Write-Verbose "Confirm-SoakInvocation success soft-fail: $($_.Exception.Message)" }
+
         Write-Verbose "Created code document with metadata: $OutputPath"
         return $true
     }
     catch {
-        Write-ProjectError -Message "Failed to create code document: $($_.Exception.Message)"
+        $errMsg = $_.Exception.Message
+        try {
+            $truncated = if ($errMsg.Length -gt 200) { $errMsg.Substring(0, 200) + "..." } else { $errMsg }
+            Confirm-SoakInvocation -Outcome failure -Notes "New-ProjectDocumentWithCodeMetadata: $truncated"
+        } catch { Write-Verbose "Confirm-SoakInvocation failure soft-fail: $($_.Exception.Message)" }
+        Write-ProjectError -Message "Failed to create code document: $errMsg"
         return $false
     }
 }
@@ -490,8 +546,20 @@ function New-ProjectCodeMetadata {
     .PARAMETER AdditionalFields
     Hashtable of additional metadata fields
 
+    .PARAMETER HeaderComment
+    Optional hashtable describing the comment style for the target language. Keys:
+    'open' (block-comment opener), 'close' (block-comment closer), 'linePrefix'
+    (prepended to each metadata line). When omitted, defaults to C-family
+    /* ... */ block comment with " * " line prefix (backward compatible).
+    Source: languages-config/{language}/{language}-config.json -> headerComment.
+
     .EXAMPLE
     New-ProjectCodeMetadata -DocumentId "PF-TST-001" -DocumentType "Test File" -Category "Unit" -AdditionalFields @{"test_name"="UserAuth"}
+
+    .EXAMPLE
+    # Python docstring header
+    $py = @{ open = '"""'; close = '"""'; linePrefix = '' }
+    New-ProjectCodeMetadata -DocumentId "TE-TST-001" -DocumentType "Test File" -Category "Test" -AdditionalFields @{"test_name"="UserAuth"} -HeaderComment $py
     #>
 
     [CmdletBinding()]
@@ -506,31 +574,45 @@ function New-ProjectCodeMetadata {
         [string]$Category,
 
         [Parameter(Mandatory=$false)]
-        [hashtable]$AdditionalFields = @{}
+        [hashtable]$AdditionalFields = @{},
+
+        [Parameter(Mandatory=$false)]
+        [hashtable]$HeaderComment
     )
 
     $timestamp = Get-ProjectTimestamp -Format "Date"
 
+    # Resolve comment style: caller-provided HeaderComment, or fall back to C-family
+    if ($HeaderComment) {
+        $open = $HeaderComment['open']
+        $close = $HeaderComment['close']
+        $prefix = if ($HeaderComment.ContainsKey('linePrefix')) { $HeaderComment['linePrefix'] } else { '' }
+    } else {
+        $open = '/*'
+        $close = ' */'
+        $prefix = ' * '
+    }
+
     $metadataLines = @(
-        "/*",
-        " * Document Metadata:",
-        " * ID: $DocumentId",
-        " * Type: $DocumentType",
-        " * Category: $Category",
-        " * Version: 1.0",
-        " * Created: $timestamp",
-        " * Updated: $timestamp"
+        $open,
+        "${prefix}Document Metadata:",
+        "${prefix}ID: $DocumentId",
+        "${prefix}Type: $DocumentType",
+        "${prefix}Category: $Category",
+        "${prefix}Version: 1.0",
+        "${prefix}Created: $timestamp",
+        "${prefix}Updated: $timestamp"
     )
 
     # Add additional fields
     foreach ($key in $AdditionalFields.Keys) {
         $value = $AdditionalFields[$key]
         $formattedKey = ($key -split '_' | ForEach-Object { (Get-Culture).TextInfo.ToTitleCase($_) }) -join ' '
-        $metadataLines += " * $formattedKey`: $value"
+        $metadataLines += "${prefix}${formattedKey}: $value"
     }
 
     $metadataLines += @(
-        " */",
+        $close,
         ""
     )
 
@@ -664,7 +746,10 @@ function New-StandardProjectDocument {
         [switch]$OpenInEditor,
 
         [Parameter(Mandatory=$false)]
-        [string]$FileNamePattern
+        [string]$FileNamePattern,
+
+        [Parameter(Mandatory=$false)]
+        [hashtable]$HeaderComment
     )
 
     # Propagate WhatIf preference across module boundaries
@@ -797,7 +882,7 @@ function New-StandardProjectDocument {
                 $result = New-ProjectDocumentWithMetadata -TemplatePath $resolvedTemplatePath -OutputPath $outputPath -DocumentId $documentId -Replacements $finalReplacements -AdditionalMetadataFields $AdditionalMetadataFields -OpenInEditor:$OpenInEditor
             } else {
                 # Use new code file handler for non-markdown files
-                $result = New-ProjectDocumentWithCodeMetadata -TemplatePath $resolvedTemplatePath -OutputPath $outputPath -DocumentId $documentId -Replacements $finalReplacements -AdditionalMetadataFields $AdditionalMetadataFields -OpenInEditor:$OpenInEditor
+                $result = New-ProjectDocumentWithCodeMetadata -TemplatePath $resolvedTemplatePath -OutputPath $outputPath -DocumentId $documentId -Replacements $finalReplacements -AdditionalMetadataFields $AdditionalMetadataFields -OpenInEditor:$OpenInEditor -HeaderComment $HeaderComment
             }
 
             if ($result) {
@@ -926,11 +1011,27 @@ function Add-DocumentationMapEntry {
             $docMap = $docMap[0..$insertIndex] + $EntryLine + $docMap[($insertIndex + 1)..($docMap.Length - 1)]
         }
 
+        # Soak: hash-detection auto-reset side effect (PF-PRO-028 v2.0 Pattern B caller-aware mode).
+        try { $null = Test-ScriptInSoak } catch { Write-Verbose "Test-ScriptInSoak soft-fail: $($_.Exception.Message)" }
+
         $docMap | Set-Content -Path $DocMapPath
+
+        # Read-after-write: verify the entry actually landed. This is the historical
+        # silent-success failure point (TD221/222/225/230 — PF-IMP-586 root cause).
+        Assert-LineInFile -Path $DocMapPath -Pattern ([regex]::Escape($EntryLine)) -Context "Add-DocumentationMapEntry($docMapName, '$SectionHeader')"
+
+        # Soak: success outcome (caller-aware — no-op if caller not registered).
+        try { Confirm-SoakInvocation -Outcome success } catch { Write-Verbose "Confirm-SoakInvocation success soft-fail: $($_.Exception.Message)" }
+
         return $true
     }
     catch {
-        Write-Warning "Failed to update $docMapName`: $($_.Exception.Message). Manual update required."
+        $errMsg = $_.Exception.Message
+        try {
+            $truncated = if ($errMsg.Length -gt 200) { $errMsg.Substring(0, 200) + "..." } else { $errMsg }
+            Confirm-SoakInvocation -Outcome failure -Notes "Add-DocumentationMapEntry($docMapName): $truncated"
+        } catch { Write-Verbose "Confirm-SoakInvocation failure soft-fail: $($_.Exception.Message)" }
+        Write-Warning "Failed to update $docMapName`: $errMsg. Manual update required."
         return $false
     }
 }

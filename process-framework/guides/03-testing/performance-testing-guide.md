@@ -164,6 +164,29 @@ All performance tests live in `test/automated/performance/`. Use these conventio
 - **BM-xxx**: Benchmarks (Component and Operation levels)
 - **PH-xxx**: Performance at scale (Scale and Resource levels)
 
+#### Multi-metric tests: `--metric` flag
+
+A single performance test can produce multiple measurements that warrant separate baselines (e.g., a "100 file move" test measures both initial scan time and per-move time). Each metric is recorded as a separate row in the `performance_results` table with an explicit `metric` column, captured via the `--metric` flag on `record`:
+
+```bash
+python process-framework/scripts/test/performance_db.py record --test-id PH-001 --metric scan --value 9.21 --unit "seconds"
+python process-framework/scripts/test/performance_db.py record --test-id PH-001 --metric move --value 0.16 --unit "seconds"
+```
+
+In the tracking file, each metric occupies its own row, with the `Metric` column holding the metric name; single-metric tests use `Metric = "—"`. Tolerances are keyed by the `(Test ID, Metric)` tuple.
+
+| Test | Metrics | Purpose |
+|------|---------|---------|
+| PH-001 | `scan`, `move` | Scan + move time for the same scenario |
+| PH-002 | `scan`, `move` | Same shape; deep-directory variant |
+| PH-005 | `total`, `avg` | Aggregate + per-op time for the same run |
+| PH-007 | `net`, `op-delta` | Net + during-operation memory delta |
+| PH-008 | `avg-raw`, `peak` | Asserted CPU% + diagnostic peak (peak not asserted) |
+
+**Canonical baseline**: When a test records multiple metrics, the **primary asserted metric** is the canonical baseline — its tolerance gates pass/fail. Other metrics are recorded for trend visibility but do not trigger regressions. Document which metric is asserted in the test docstring or the tracking-file Notes column (e.g., PH-008 explicitly notes `peak` is "diagnostic only post-PD-REF-217").
+
+**When to use a metric vs. a separate test ID**: Use the `--metric` flag when measurements share the same fixture, run, and conceptual scenario. Use separate test IDs when the scenarios differ.
+
 ### Required Markers
 
 Every performance test must have:
@@ -277,7 +300,10 @@ Use the Performance Baseline Capture task (Session 2+) or run manually:
 python -m pytest test/automated/performance/ -v -s -m performance
 
 # Record results in the trend database (git commit auto-captured from HEAD)
-python process-framework/scripts/test/performance_db.py record --test-id BM-001 --value 144.0 --unit "files/sec"
+python process-framework/scripts/test/performance_db.py record --test-id BM-NNN --value 144.0 --unit "files/sec"
+
+# For multi-metric tests, pass --metric (see "Multi-metric tests" above):
+python process-framework/scripts/test/performance_db.py record --test-id PH-001 --metric scan --value 9.21 --unit "seconds"
 
 # Or batch record (future enhancement)
 python process-framework/scripts/test/performance_db.py record --from-output results.json
@@ -294,6 +320,8 @@ Each test has a tolerance defined in the tracking file. Tolerances represent the
 | Scale | Maximum completion time at scale (e.g., <30s for 1000 files) |
 | Resource | Ceiling (e.g., <100MB RSS) — well above typical usage |
 
+> **Script-side tolerances**: The `performance_db.py` `record`, `trend`, and `regressions` subcommands enforce tolerances by parsing the **Tolerance** column of `test/state-tracking/permanent/performance-test-tracking.md` — the markdown file is the single source of truth. Each row has a single tolerance band (e.g., `<3s`, `>50 files/sec`) keyed by the `(Test ID, Metric)` pair from that row. Multi-metric tests have one row per metric; single-metric tests use `Metric = "—"`. Non-band entries (`—`, prose like "diagnostic only", or assertions enforced in test code such as cpu_count normalization) are skipped — tolerance enforcement for those metrics lives in the test code itself. If the file is missing or no rows parse, tolerance checks silently no-op.
+
 ### Staleness
 
 A baseline becomes **stale** when:
@@ -308,10 +336,17 @@ Stale baselines are marked ⚠️ Needs Re-baseline in the tracking file and sho
 ### Using the Results Database
 
 ```bash
-# View trend for a specific test (last 10 results)
-python process-framework/scripts/test/performance_db.py trend --test-id BM-001 --last 10
+# Discover registered (test_id, metric) series. Use --filter to narrow:
+#   filter matches against test_id OR metric name (case-insensitive).
+python process-framework/scripts/test/performance_db.py list-test-ids
+python process-framework/scripts/test/performance_db.py list-test-ids --filter PH-007
 
-# Check for regressions (latest result vs. tolerance)
+# View trend for a specific test (last 10 results)
+python process-framework/scripts/test/performance_db.py trend --test-id BM-NNN --last 10
+
+# Check for regressions (latest result vs. tolerance).
+# Rows in `⚠️ Needs Re-baseline` status are auto-excluded (their tolerances
+# are known-stale) and surfaced in a separate "skipped" footer.
 python process-framework/scripts/test/performance_db.py regressions
 
 # Export for external analysis

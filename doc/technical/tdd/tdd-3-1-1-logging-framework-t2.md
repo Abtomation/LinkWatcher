@@ -4,7 +4,7 @@ type: Technical Design Document
 category: TDD Tier 2
 version: 1.0
 created: 2026-02-19
-updated: 2026-02-20
+updated: 2026-04-29
 feature_id: 3.1.1
 feature_name: Logging System
 consolidates: [3.1.1-3.1.5]
@@ -26,7 +26,7 @@ retrospective: true
 
 The Logging Framework provides structured, contextual, and performance-aware logging for the entire LinkWatcher application. It is implemented across two modules: `src/linkwatcher/logging.py` (primary interface — `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`) and `src/linkwatcher/logging_config.py` (runtime configuration — `LoggingConfigManager`).
 
-The framework delivers dual-mode output (colored console + JSON file), per-thread context isolation, performance timing, domain-specific convenience methods (`file_moved`, `file_deleted`, `file_created`, `links_updated`, `scan_progress`, `operation_stats`), and runtime config hot-reload — all behind a simple `get_logger()` singleton interface. Test isolation is supported via `reset_logger()` and `reset_config_manager()`.
+The framework delivers dual-mode output (colored console + JSON file), per-thread context isolation, performance timing, and domain-specific convenience methods (`file_moved`, `file_deleted`, `file_created`, `links_updated`, `scan_progress`, `operation_stats`) — all behind a simple `get_logger()` singleton interface. A runtime config hot-reload mechanism (`LoggingConfigManager`) is also implemented but is **not currently wired into production startup** — see [Production Status](#loggingconfigmanager-production-status) in §4.1. Test isolation is supported via `reset_logger()` and `reset_config_manager()`.
 
 ### 1.2 Related Features
 
@@ -48,7 +48,7 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 2. **Dual-mode output**: Simultaneous colored console output (human-readable) and optional JSON file output (machine-parsable) from a single log call
 3. **Global singleton with one-time configuration**: All modules share one configured logger instance accessible via `get_logger()`; `setup_logging()` is the single configuration entry point
 4. **Performance timing without boilerplate**: `LogTimer` context manager wraps any operation and emits a timing log entry on completion with zero caller code overhead
-5. **Config hot-reload**: `LoggingConfigManager` watches a config file and applies changes to log level and filters within 1 second, without service restart
+5. **Config hot-reload (designed but not wired)**: `LoggingConfigManager` is designed to watch a config file and apply changes to log level and filters within 1 second of an mtime change. The class is implemented in `logging_config.py` but no production caller instantiates it — production LinkWatcher requires a restart for any config change. The 0.1.3 Configuration System feature documents no-hot-reload as by-design (simplicity over runtime flexibility). See [Production Status](#loggingconfigmanager-production-status) in §4.1.
 
 ## 3. Quality Attribute Requirements
 
@@ -67,7 +67,7 @@ The framework delivers dual-mode output (colored console + JSON file), per-threa
 
 - **Error Handling**: If file logging fails (disk full, permission denied), the system falls back to console-only output and logs the failure; console logging is not affected by file handler failures
 - **Thread Safety**: `threading.local()` provides automatic per-thread context isolation
-- **Config Integrity**: If hot-reload encounters an invalid config file, the last valid configuration is retained — the logger never enters an unconfigured state
+- **Config Integrity** *(applies if hot-reload is wired in the future)*: `LoggingConfigManager` is designed so that an invalid config file during hot-reload causes the last valid configuration to be retained — the logger never enters an unconfigured state. This guarantee is currently dormant since no production caller instantiates the manager (see [Production Status](#loggingconfigmanager-production-status) in §4.1).
 
 ### 3.4 Usability Requirements
 
@@ -195,21 +195,32 @@ def with_context(**kwargs):
 
 ```python
 class LogTimer:
-    """Context manager: records start time, delegates timing to PerformanceLogger on __exit__."""
-    def __init__(self, operation: str, logger: Optional[LinkWatcherLogger] = None, **kwargs):
+    """Context manager: records start time, delegates timing to PerformanceLogger on __exit__.
+
+    The ``enabled`` flag (default True) lets callers disable timing entirely when
+    ``config.performance_logging`` is False — both __enter__ and __exit__ short-circuit,
+    suppressing PerformanceLogger calls and start/completion debug logs.
+    """
+    def __init__(self, operation: str, logger: Optional[LinkWatcherLogger] = None,
+                 *, enabled: bool = True, **kwargs):
         self.operation = operation
         self.logger = logger or get_logger()
         self.kwargs = kwargs
+        self.enabled = enabled
         self.start_time = None
         self.timer_id = None
 
     def __enter__(self):
+        if not self.enabled:
+            return self
         self.timer_id = self.logger.performance.start_timer(self.operation)
         self.start_time = time.perf_counter()
         self.logger.debug(f"started_{self.operation}", **self.kwargs)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self.enabled:
+            return
         if self.timer_id:
             self.logger.performance.end_timer(self.timer_id, self.operation, **self.kwargs)
         if exc_type is not None:
@@ -262,6 +273,17 @@ def reset_config_manager():
     _config_manager = None
 ```
 
+#### LoggingConfigManager Production Status
+
+> **⚠️ Designed but not wired into production**: The `LoggingConfigManager` class above is implemented and unit-tested in `test/automated/unit/test_advanced_logging.py`, but no production caller instantiates it. Specifically:
+>
+> - `main.py` and `src/linkwatcher/service.py` do not import or call `LoggingConfigManager` / `get_config_manager` — production LinkWatcher requires a restart for any logging config change.
+> - `tools/logging_dashboard.py` does not import or invoke `LoggingConfigManager`; the dashboard reads log files directly and does not activate hot-reload.
+>
+> **By-design rationale**: The 0.1.3 Configuration System feature state file records this gap as intentional — *"No hot-reload — by design — simplicity over runtime flexibility"* ([0.1.3 state file](../../state-tracking/features/0.1.3-configuration-system-implementation-state.md#L272)). `LoggingConfigManager` is retained as a designed-but-dormant subsystem so a future caller can wire hot-reload in without redesigning the underlying mechanism.
+>
+> **Reading guidance**: Treat the `LoggingConfigManager` and Observer Pattern descriptions in this TDD as documentation of *intent and mechanism*, not of currently active runtime behavior.
+
 ### 4.2 Output Pipeline Architecture
 
 ```
@@ -297,9 +319,10 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 - `@with_context(operation="file_move", src_path=src)` injects context before method execution and guarantees cleanup via `try/finally`
 - Consumers use it on event handler methods to add per-call structured context without boilerplate
 
-**Observer Pattern (config hot-reload)**:
-- `LoggingConfigManager` daemon thread polls config file `mtime` and notifies `LinkWatcherLogger` of changes
+**Observer Pattern (config hot-reload — designed, not currently exercised)**:
+- `LoggingConfigManager` daemon thread is designed to poll config file `mtime` and notify `LinkWatcherLogger` of changes
 - Polling chosen over inotify/watchdog to avoid circular dependency with the file watching subsystem
+- *Production status*: pattern is implemented but not currently exercised at runtime — see [Production Status](#loggingconfigmanager-production-status) in §4.1
 
 ### 4.4 Quality Attribute Implementation
 
@@ -312,7 +335,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 #### Reliability Implementation
 
 - Console and file handlers are independent — file handler failure does not affect console output
-- `LoggingConfigManager` catches all exceptions during config reload; invalid configs are logged as ERROR and the previous config is retained
+- `LoggingConfigManager` is designed to catch all exceptions during config reload, log invalid configs as ERROR, and retain the previous config — this guarantee applies *if* the manager is wired into production, which it is not currently (see [Production Status](#loggingconfigmanager-production-status) in §4.1)
 #### Security Implementation
 
 - No external input reaches the logging system — all log messages are generated internally by LinkWatcher components
@@ -325,7 +348,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 > **📋 Primary Documentation**: FDD PD-FDD-025
 > **🔗 Link**: [FDD PD-FDD-025](../../functional-design/fdds/fdd-3-1-1-logging-framework.md) — Logging Framework Functional Design Document
 
-**Brief Summary**: This TDD implements all 8 functional requirements from FDD PD-FDD-025: 5-level logging (FR-1), colored console output (FR-2), JSON file logging with rotation (FR-3), domain-specific methods (FR-4), thread-isolated context (FR-5), performance timing (FR-6), YAML/JSON config (FR-7), and config hot-reload (FR-8).
+**Brief Summary**: This TDD implements 7 of 8 functional requirements from FDD PD-FDD-025: 5-level logging (FR-1), colored console output (FR-2), JSON file logging with rotation (FR-3), domain-specific methods (FR-4), thread-isolated context (FR-5), performance timing (FR-6), and YAML/JSON config (FR-7). FR-8 (config hot-reload) is **designed but not delivered to production** — `LoggingConfigManager` is implemented but no production caller instantiates it; see [Production Status](#loggingconfigmanager-production-status) in §4.1. The 0.1.3 Configuration System feature documents the no-hot-reload state as by-design.
 
 ### 5.2 Testing Reference
 
@@ -349,8 +372,8 @@ All dependencies are fully implemented (retrospective document):
 
 The logging framework is split across two modules reflecting two development phases:
 
-1. `src/linkwatcher/logging.py` — core logging API (singleton, levels, context, timing)
-2. `src/linkwatcher/logging_config.py` — runtime configuration layer added later (log level management, config hot-reload)
+1. `src/linkwatcher/logging.py` — core logging API (singleton, levels, context, timing) — wired into all production callers
+2. `src/linkwatcher/logging_config.py` — runtime configuration layer added later (log level management, config hot-reload). Implemented and unit-tested but **not wired into production startup**; see [Production Status](#loggingconfigmanager-production-status) in §4.1
 
 Key design decisions that shaped the implementation:
 
@@ -371,7 +394,8 @@ None — this is a retrospective document for a fully implemented, stable featur
 
 **Known Technical Debt**:
 - `cache_logger_on_first_use=True` means structlog configuration is immutable after first log call — if `setup_logging()` is not called early enough in startup, the logger runs with defaults and reconfiguration has no effect. **Mitigated (PD-BUG-015)**: `LinkWatcherLogger.__init__()` now calls `structlog.reset_defaults()` before `structlog.configure()`, and `setup_logging()` closes old handlers before replacing the global logger instance
-- `LoggingConfigManager` hot-reload applies only to log level — it does not support dynamically switching between console-only and file+console output modes
+- **Hot-reload not wired into production**: `LoggingConfigManager` is implemented but no production caller instantiates it — production LinkWatcher requires a restart for any logging config change. The 0.1.3 Configuration System feature records this as by-design (*"simplicity over runtime flexibility"*). See [Production Status](#loggingconfigmanager-production-status) in §4.1. Tracked in the 0.1.3 state file's Known Limitations table; no separate technical-debt item is required because this is intentional.
+- *(If the manager is wired in the future)* hot-reload would apply only to log level — it would not support dynamically switching between console-only and file+console output modes
 
 ## 9. AI Agent Session Handoff Notes
 
@@ -387,7 +411,7 @@ No implementation work needed. Next documentation step: FDD and TDD creation con
 
 - **Dual backend (stdlib + structlog)**: Gets handler ecosystem from stdlib, structured output from structlog — avoids reimplementing either
 - **Singleton pattern**: Ensures all modules share one configured logger — no per-module logger creation needed
-- **Daemon thread for hot-reload**: Polling over inotify/watchdog avoids circular dependency with the file watching subsystem; daemon thread terminates automatically on process exit
+- **Daemon thread for hot-reload (designed but not currently activated)**: Polling over inotify/watchdog avoids circular dependency with the file watching subsystem; daemon thread terminates automatically on process exit. Implemented in `logging_config.py` but not wired into production startup — see [Production Status](#loggingconfigmanager-production-status) in §4.1
 
 ### Known Issues
 

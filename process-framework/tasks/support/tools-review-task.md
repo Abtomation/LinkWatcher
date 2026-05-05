@@ -3,9 +3,9 @@ id: PF-TSK-010
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.5
+version: 1.6
 created: 2023-06-15
-updated: 2026-03-29
+updated: 2026-05-04
 ---
 
 # Tools Review Task
@@ -49,7 +49,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Always group feedback forms by task type for consistent analysis.**
 >
@@ -112,17 +112,23 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
       - `src/linkwatcher` → **BUG** (product code)
       - `test/` → either: test infrastructure issues (runner scripts, tracking) = **IMP**; product test defects = **BUG**
     - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability
-    - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Skip registration if already tracked.
+    - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Also search [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — script/automation defects often land there first when discovered mid-task. Skip registration if already tracked in either.
     - **🎯 GRANULARITY**: Each IMP must describe exactly one actionable change. If a theme or feedback item contains multiple independent changes (e.g., "add X to task A, add Y to task B, add Z to task C"), register each as a separate IMP. Conversely, do not split a single cohesive change across multiple IMPs.
 13. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries or use [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) for feature requests
-14. Archive processed feedback forms for future reference (archive paths are needed for the next step)
+14. **Archive processed feedback forms** (paths feed Step 15):
+    1. **Create the archive folder using the same HHMMSS as the review summary filename from Step 11** so concurrent same-date sessions stay isolated:
+       `process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/`
+    2. **Build an explicit move list** — enumerate the exact filenames of the forms you analyzed this session (the same list that goes into the review summary's Archived Forms section). Do **not** use a `*.md` glob: concurrent sessions may have created additional forms in the active folder since you started reading.
+    3. **Move by explicit filename list** (e.g., `Move-Item -Path 'feedback-forms/<form1>.md','feedback-forms/<form2>.md',… -Destination '<archive>/'`), not by glob.
+    4. **Verify after move**: count of files in the new archive folder equals length of your move list, AND none of the listed filenames remain in `process-framework-local/feedback/feedback-forms/`. Stop and reconcile before Step 15 if either check fails.
 15. **Record ratings in feedback database**: After archiving, extract ratings from the archived forms and record them:
     ```bash
     # Extract ratings from archived forms into JSON
+    # Use the same YYYYMMDD-HHMMSS as the archive folder created in Step 14
     python process-framework/scripts/extract_ratings.py \
-        --review-cycle-id "tools-review-YYYYMMDD" \
-        --archived-prefix "process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms" \
-        process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/*feedback*.md \
+        --review-cycle-id "tools-review-YYYYMMDD-HHMMSS" \
+        --archived-prefix "process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms" \
+        process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/*feedback*.md \
         -o ratings-input.json
 
     # Record in database
@@ -158,7 +164,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 
@@ -172,13 +178,14 @@ Before considering this task finished:
   - [ ] Appropriate tracking files updated (process-improvement-tracking, feature-request-tracking, bug-tracking, technical-debt-tracking)
   - [ ] [Process Improvement Task](process-improvement-task.md) entries created for implementation
 - [ ] **Archive Processed Forms**: Move analyzed feedback forms to archive (must happen before recording ratings):
-  - [ ] Create archive folder: `/process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD`
+  - [ ] Create archive folder with session HHMMSS suffix matching the review summary filename from Step 11: `/process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS`
   - [ ] Create subfolder: `processed-forms/` within the archive folder
   - [ ] **⚠️ CRITICAL DISTINCTION**: Only move feedback forms that were **analyzed during this session**
     - ✅ **Archive These**: Feedback forms that you reviewed, analyzed, and extracted improvements from
     - ❌ **DO NOT Archive**: Newly created feedback forms (including the PF-TSK-010 form created for this session)
     - ❌ **DO NOT Archive**: Feedback forms that haven't been analyzed yet
-  - [ ] Move only the analyzed feedback forms to the `processed-forms/` subfolder
+  - [ ] **Move by explicit filename list, not glob** — concurrent same-date sessions may have created additional forms in the active folder
+  - [ ] **Verify after move**: archive folder count equals move-list length; no listed filenames remain in the active folder
   - [ ] **Keep Active**: Leave newly created feedback forms in the active feedback-forms folder for future analysis
   - [ ] Document which specific forms were archived vs. kept active in the review summary
 - [ ] **Record Ratings**: Extract ratings via [`extract_ratings.py`](../../scripts/extract_ratings.py) and record in database via `feedback_db.py record` (see Step 15 for commands)

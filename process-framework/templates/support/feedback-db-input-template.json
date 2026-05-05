@@ -6,14 +6,14 @@
     "feedback_type": "MultipleTools",
     "form_date": "YYYY-MM-DD",
     "session_duration_minutes": null,
-    "review_cycle_id": "tools-review-YYYYMMDD",
-    "archived_form_path": "process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD/processed-forms/FILENAME.md",
+    "review_cycle_id": "tools-review-YYYYMMDD-HHMMSS",
+    "archived_form_path": "process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/FILENAME.md",
     "overall_effectiveness": 5,
     "process_conciseness": 5,
     "tools": [
       {
         "tool_name": "Tool Display Name",
-        "tool_doc_id": "PF-XXX-NNN",
+        "tool_doc_id": "PF-TSK-NNN | filename.ext",
         "effectiveness": 5,
         "clarity": 5,
         "completeness": 5,

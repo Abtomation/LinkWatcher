@@ -92,7 +92,10 @@ class LinkWatcherConfig:
             "dist",
             "__pycache__",
             "tests",
-            "LinkWatcher_run",
+            # Matched as a basename — covers both
+            # process-framework/tools/linkWatcher (shareable framework asset, intentionally static)
+            # and process-framework-local/tools/linkWatcher (project runtime artifacts)
+            "linkWatcher",
         }
     )
 
@@ -137,7 +140,7 @@ class LinkWatcherConfig:
     )
     validation_extra_ignored_dirs: Set[str] = field(
         default_factory=lambda: {
-            "LinkWatcher_run",
+            "linkWatcher",  # basename match (see ignored_directories comment)
             "old",
             "archive",
             "fixtures",
@@ -155,7 +158,12 @@ class LinkWatcherConfig:
             "LinkWatcher/",
         }
     )
-    validation_ignore_file: str = ".linkwatcher-ignore"
+    validation_ignore_file: str = "process-framework-local/tools/linkWatcher/.linkwatcher-ignore"
+
+    # Directory (relative to project root) where validation reports are written.
+    # When None, falls back to the parent directory of `--log-file` if set,
+    # else the project root (legacy behavior).
+    validation_output_dir: Optional[str] = "process-framework-local/tools/linkWatcher"
 
     # Parser type-to-extension mapping for extension-aware suffix matching.
     # When the database matches extensionless references (e.g., Python imports)

@@ -123,6 +123,10 @@ try {
     if (Test-Path $helpersPath) {
         Import-Module $helpersPath -Force
         $useEnhancedTracking = $true
+        # Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+        # Wrapped defensively so a soak-side issue cannot disable enhanced-tracking — it would force the script
+        # into legacy mode otherwise (see catch block below).
+        try { Register-SoakScript } catch { Write-Verbose "Register-SoakScript soft-fail: $($_.Exception.Message)" }
         Write-Verbose "Enhanced tracking functionality available"
     }
     else {
@@ -781,16 +785,12 @@ try {
         }
 
         Write-Host "🎉 Validation report created successfully!" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "📋 Next Steps:" -ForegroundColor Yellow
-        Write-Host "   1. Open the report file: $outputPath" -ForegroundColor Gray
-        Write-Host "   2. Customize validation criteria based on validation type" -ForegroundColor Gray
-        Write-Host "   3. Conduct the validation and fill in findings" -ForegroundColor Gray
-        Write-Host "   4. Update the registry row (Score, Status, Issues, Actions) after validation completes" -ForegroundColor Gray
-        Write-Host ""
-        Write-Host "📖 Reference:" -ForegroundColor Yellow
-        Write-Host "   Template: $TemplateFile" -ForegroundColor Gray
-        Write-Host "   Tracking: $TrackingFile" -ForegroundColor Gray
+        Write-Verbose "Next Steps: Open the report file: $outputPath"
+        Write-Verbose "Next Steps: Customize validation criteria based on validation type"
+        Write-Verbose "Next Steps: Conduct the validation and fill in findings"
+        Write-Verbose "Next Steps: Update the registry row (Score, Status, Issues, Actions) after validation completes"
+        Write-Verbose "Reference: Template: $TemplateFile"
+        Write-Verbose "Reference: Tracking: $TrackingFile"
     }
 
 }

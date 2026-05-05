@@ -124,6 +124,19 @@ def normalize_path(path: str) -> str:
     return os.path.normpath(path).replace("\\", "/")
 
 
+def path_exists_under_root(project_root, candidate_relpath: str) -> bool:
+    """Check whether a candidate relative path resolves to a real file or
+    directory under ``project_root``.
+
+    Used by path-resolution code to skip rewrites of strings that look like
+    paths but aren't real references (e.g. regex patterns whose backslashes
+    were normalized to forward slashes, glob expressions, or example text).
+    Consolidates the disk-existence guards behind PD-BUG-033 and PD-BUG-095.
+    """
+    abs_path = os.path.join(str(project_root), candidate_relpath.lstrip("/"))
+    return os.path.exists(abs_path)
+
+
 def get_relative_path(abs_path: str, project_root: str) -> str:
     """
     Convert absolute path to relative path from project root.
@@ -186,6 +199,13 @@ _COMMON_EXTENSIONS = frozenset(
 )
 
 
+# TD243: Module-level compiled patterns for looks_like_regex_or_glob — called
+# from every parser-extracted string, so per-call re.search cache lookups add up.
+_RE_CHAR_CLASS = re.compile(r"\[[\w\-]+\]")
+_RE_REGEX_ESCAPE_QUANT = re.compile(r"\\[dswDSW](?:[+*?{]|$)")
+_RE_ESCAPED_METACHAR = re.compile(r"\\[\.\[\]\(\)\{\}\+\*\?\^\$]")
+
+
 def looks_like_regex_or_glob(text: str) -> bool:
     """Detect strings that contain glob or regex meta-characters.
 
@@ -221,16 +241,16 @@ def looks_like_regex_or_glob(text: str) -> bool:
     if "[^" in text:
         return True
     # Character class with content (e.g. ``[a-z]``, ``[0-9]``, ``[abc]``)
-    if re.search(r"\[[\w\-]+\]", text):
+    if _RE_CHAR_CLASS.search(text):
         return True
     # Regex escape sequences ``\d \s \w`` (and uppercase) — only when followed by
     # a quantifier or at end of string. Without this constraint, Windows-style
     # paths like ``doc\setup-guide.md`` (``\setup`` starts with ``\s``) would be
     # falsely flagged as regex.
-    if re.search(r"\\[dswDSW](?:[+*?{]|$)", text):
+    if _RE_REGEX_ESCAPE_QUANT.search(text):
         return True
     # Escaped regex metacharacters (``\.`` ``\[`` ``\]`` ``\(`` ``\)`` ``\{`` ``\}`` ``\+`` ``\*`` ``\?`` ``\^`` ``\$``)
-    if re.search(r"\\[\.\[\]\(\)\{\}\+\*\?\^\$]", text):
+    if _RE_ESCAPED_METACHAR.search(text):
         return True
     # Line anchors: ``^`` at start or ``$`` at end of string
     if text.startswith("^") or text.endswith("$"):

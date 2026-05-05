@@ -1,4 +1,4 @@
-﻿# New-DesignDocument.ps1
+# New-DesignDocument.ps1
 # This script creates appropriate design documentation based on feature complexity tier
 # All documents are created with the 'tdd' prefix and stored in the 'tdd' subdirectory
 # Uses the central ID registry system
@@ -84,6 +84,12 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
+
+
+# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
+# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
+# Idempotent — silently no-ops if already registered.
+Register-SoakScript
 
 # Get project root and define template paths for each tier
 $projectRoot = Get-ProjectRoot

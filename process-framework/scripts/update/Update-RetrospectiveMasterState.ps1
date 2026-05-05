@@ -50,6 +50,10 @@ Update-RetrospectiveMasterState.ps1 -StateFile "doc/state-tracking/temporary/ret
 This script is designed for parallel-safe coordination during:
 - Codebase Feature Analysis (PF-TSK-065) — "Analyzed" column
 - Retrospective Documentation Creation (PF-TSK-066) — "Assessed", "FDD", "TDD", etc.
+
+Output behavior: Default output is one summary line per invocation (the outcome,
+e.g. "1.1.0 'Analyzed' → Done"). WARN and ERROR messages always pass through.
+Pass -Verbose to restore the full play-by-play log.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -76,7 +80,16 @@ $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+# Temporarily silence $VerbosePreference around the import so -Verbose callers see
+# only this script's own Write-Verbose output, not the helper module's internal chatter.
+$prevVerbosePreference = $VerbosePreference
+$VerbosePreference = 'SilentlyContinue'
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+$VerbosePreference = $prevVerbosePreference
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
 
 # Configuration
 $ProjectRoot = Get-ProjectRoot
@@ -99,16 +112,29 @@ $PhaseColumnMap = @{
 }
 
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Message, [string]$Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $(
-        switch ($Level) {
-            "ERROR" { "Red" }
-            "WARN" { "Yellow" }
-            "SUCCESS" { "Green" }
-            default { "White" }
-        }
-    )
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
 
 function Test-Prerequisites {
@@ -238,9 +264,19 @@ function Main {
     # Single write
     Set-Content -Path $StateFile -Value $content -NoNewline
 
-    Write-Log "Retrospective master state update completed successfully" -Level "SUCCESS"
-    Write-Log "Updated file: $StateFile"
+    Write-SummaryLine "$FeatureId '$Column' → $statusValue"
 }
 
-# Execute main function
-Main
+# Execute main function with soak-verification wrapper (PF-PRO-028 v2.0)
+try {
+    Main
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-ProjectError -Message "Retrospective master state update failed: $($_.Exception.Message)" -ExitCode 1
+}

@@ -2,9 +2,9 @@
 id: PF-TSK-005
 type: Process Framework
 category: Task Definition
-version: 2.1
+version: 2.3
 created: 2023-06-15
-updated: 2026-04-03
+updated: 2026-05-05
 ---
 
 # Code Review
@@ -53,7 +53,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Always use the Code Review Checklist to ensure comprehensive reviews.**
 >
@@ -64,6 +64,8 @@ Review implemented code to ensure it meets quality standards, follows project co
 > **🚫 NO CODE CHANGES: This task is a read-only quality gate. Do NOT fix bugs, refactor code, or make any code changes during Code Review. Report all findings as bugs (via New-BugReport.ps1) or technical debt items. If the user requests code changes during review, explain that fixes should be done in a separate Bug Fixing or Code Refactoring task after the review is complete.**
 
 ### Preparation
+
+> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code review only**. If the changes to be reviewed live in `process-framework/`, `process-framework-local/`, or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Framework changes are reviewed inline at [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) Step 13 (Decision review checkpoint). **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#step-1-what-are-you-working-on).
 
 1. Review the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Needs Review" status
 2. Select the next feature for code review
@@ -96,6 +98,9 @@ Review implemented code to ensure it meets quality standards, follows project co
 ### Code Review Execution
 
 12. Examine the implemented code, focusing on:
+
+    > **For bug-fix reviews**: scope the bullet list below to the dimensions named in the bug's Dims column. Mark non-listed dimensions N/A in your findings rather than walking each one — Step 4's dimension profile already established the relevant scope.
+
     - **Coding Best Practices**: Language idioms, type safety, proper use of language features
     - **Architecture Adherence**: Design patterns, service layer, proper separation of concerns
     - **State Management**: State handling patterns, immutability, proper resource cleanup
@@ -124,6 +129,8 @@ Review implemented code to ensure it meets quality standards, follows project co
     - Target platform(s)
 
 ### Performance & Accessibility Review
+
+> **For bug-fix reviews**: run Steps 16-18 only when the relevant dimension code is in the bug's Dims column — `PE` for Step 16 (Performance), `AX` for Step 17 (Accessibility), `SE` for Step 18 (Security). Skip the others as N/A.
 
 16. Use profiling tools to check for:
     - Unnecessary processing or redundant operations
@@ -191,7 +198,7 @@ Review implemented code to ensure it meets quality standards, follows project co
     - 🟡 **Minor**: Issues that should be addressed but don't block deployment
     - 🔵 **Suggestion**: Recommendations for improvement
     - 🟢 **Positive**: Acknowledge good practices and well-implemented solutions
-23. Update the feature tracking document to reflect the review status
+23. **Feature reviews**: Update the feature tracking document to reflect the review status. **For bug-fix reviews**: if the underlying feature is already Implemented, Feature Tracking is N/A — only Bug Tracking is updated (Step 24).
 24. **Bug fix reviews**: If this review is for a bug fix (identified by the bug's Dims column rather than a feature implementation state file), update [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md):
     - **On approval**: Transition bug from 👀 Needs Review → 🔒 Closed using `Update-BugStatus.ps1 -BugId "PD-BUG-XXX" -NewStatus "Closed" -VerificationNotes "Code review approved, no regressions"`. The script automatically moves the entry to the Closed section and recalculates statistics.
     - **On rejection**: Transition bug back to 🟡 In Progress and route back to Bug Fixing (PF-TSK-007) with review findings.
@@ -211,7 +218,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **Feature reviews only** (N/A for bug-fix reviews on Implemented features). Update with:
   - Code review status (🔎 Needs Test Scoping/🔄 Needs Enhancement)
   - Test Summary status (recalculated based on test case implementation tracking updates)
   - Review date and time
@@ -236,7 +243,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 
@@ -275,7 +282,7 @@ Before considering this task finished:
   - [ ] Review follows the code review checklist completely
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) shows correct review status (`🔎 Needs Test Scoping` if passed, `🔄 Needs Enhancement` if not)
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) shows correct review status (`🔎 Needs Test Scoping` if passed, `🔄 Needs Enhancement` if not) — **N/A for bug-fix reviews on Implemented features**
   - [ ] [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) updated with test review results
   - [ ] Review date, time, and reviewer information recorded
   - [ ] Link to review document included

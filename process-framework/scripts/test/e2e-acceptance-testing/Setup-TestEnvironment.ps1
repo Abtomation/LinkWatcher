@@ -53,6 +53,32 @@ try {
     exit 1
 }
 
+function Invoke-RemoveItemWithRetry {
+    # Retries Remove-Item on transient file-lock errors. The previous test case's
+    # workspace-scoped LinkWatcher is Stop-Process -Force'd by Run-E2EAcceptanceTest.ps1,
+    # but Windows releases file handles asynchronously after process exit (PF-IMP-676).
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+        [int]$MaxAttempts = 3,
+        [int[]]$DelayMs = @(500, 1000, 2000)
+    )
+
+    if (-not (Test-Path $Path)) { return }
+
+    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+        try {
+            Remove-Item $Path -Recurse -Force -ErrorAction Stop
+            return
+        } catch [System.IO.IOException], [System.UnauthorizedAccessException] {
+            if ($attempt -ge $MaxAttempts) { throw }
+            $delay = $DelayMs[[Math]::Min($attempt - 1, $DelayMs.Count - 1)]
+            Write-Verbose "Remove-Item retry $attempt/$MaxAttempts on $Path (waiting ${delay}ms)"
+            Start-Sleep -Milliseconds $delay
+        }
+    }
+}
+
 # Resolve project root
 if (-not $ProjectRoot) {
     $ProjectRoot = Get-ProjectRoot
@@ -91,13 +117,13 @@ if ($Clean -and (Test-Path $workspaceDir)) {
         $targetDir = Join-Path $workspaceDir $Group
         if (Test-Path $targetDir) {
             if ($PSCmdlet.ShouldProcess($targetDir, "Remove workspace group")) {
-                Remove-Item $targetDir -Recurse -Force
+                Invoke-RemoveItemWithRetry -Path $targetDir
                 Write-Host "  Cleaned workspace for group: $Group" -ForegroundColor Yellow
             }
         }
     } else {
         if ($PSCmdlet.ShouldProcess($workspaceDir, "Remove entire workspace")) {
-            Remove-Item $workspaceDir -Recurse -Force
+            Invoke-RemoveItemWithRetry -Path $workspaceDir
             Write-Host "  Cleaned entire workspace" -ForegroundColor Yellow
         }
     }
@@ -134,9 +160,7 @@ foreach ($grp in $groups) {
                 }
 
                 # Copy project fixtures
-                if (Test-Path $dstProject) {
-                    Remove-Item $dstProject -Recurse -Force
-                }
+                Invoke-RemoveItemWithRetry -Path $dstProject
                 Copy-Item $srcProject $dstProject -Recurse -Force
                 $totalCases++
             }

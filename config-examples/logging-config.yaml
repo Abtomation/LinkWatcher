@@ -57,6 +57,6 @@ validation_ignored_patterns:
   - "path/to/"
   - "xxx"
 # Path to the per-file ignore list (relative to project root).
-# Default: "LinkWatcher/.linkwatcher-ignore"
-# Override for this project where the run dir is LinkWatcher_run/:
-validation_ignore_file: "LinkWatcher_run/.linkwatcher-ignore"
+# Default: "process-framework-local/tools/linkWatcher/.linkwatcher-ignore"
+# Override only if you keep your ignore file somewhere non-standard:
+# validation_ignore_file: "path/to/your/.linkwatcher-ignore"

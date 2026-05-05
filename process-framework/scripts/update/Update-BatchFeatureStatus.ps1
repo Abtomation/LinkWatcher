@@ -135,6 +135,10 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
 # Initialize script with dependency validation
 if (-not (Test-ScriptDependencies -RequiredModules @("Common-ScriptHelpers"))) {
     Write-Error "Required dependencies not met. Please ensure Common-ScriptHelpers.psm1 is properly loaded."
@@ -365,7 +369,15 @@ try {
         }
     }
 
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+
 } catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
     Write-Error "❌ Batch feature status update failed: $($_.Exception.Message)"
 
     # Attempt rollback if not in dry run mode

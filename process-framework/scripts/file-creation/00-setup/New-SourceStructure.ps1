@@ -452,6 +452,13 @@ if ($Update) {
     Write-Host "  Source root: $sourceCodePath" -ForegroundColor Gray
     Write-Host ""
 
+    # Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form; -Update mode only)
+    Register-SoakScript
+    $soakInSoak = Test-ScriptInSoak
+
+    # Soak-verification wrapper begins (PF-PRO-028 v2.0)
+    try {
+
     $changesCount = 0
 
     # --- Step 1: Optionally create a single feature directory ---
@@ -511,6 +518,9 @@ if ($Update) {
                 Set-Content $layoutDocPath $newContent -Encoding UTF8
                 Write-Host "  Updated: Directory Tree section in source-code-layout.md" -ForegroundColor Green
                 $changesCount++
+
+                # Verify deterministic post-condition: auto-generated tree marker present (PF-PRO-028 v2.0)
+                Assert-LineInFile -Path $layoutDocPath -Pattern "Auto-generated" -Context "auto-generated tree marker in $layoutDocPath after regeneration"
             }
         } else {
             Write-Host "  No changes: Directory Tree is already up to date" -ForegroundColor Gray
@@ -521,6 +531,9 @@ if ($Update) {
             Set-Content $layoutDocPath $newContent -Encoding UTF8
             Write-Host "  Updated: Directory Tree section (initial generation)" -ForegroundColor Green
             $changesCount++
+
+            # Verify deterministic post-condition: placeholder replaced (PF-PRO-028 v2.0)
+            Assert-LineInFile -Path $layoutDocPath -Pattern "Auto-generated" -Context "auto-generated tree marker in $layoutDocPath after initial generation"
         }
     } else {
         Write-Host "  Warning: Could not find Directory Tree section pattern in source-code-layout.md" -ForegroundColor Yellow
@@ -537,6 +550,18 @@ if ($Update) {
     }
     $details += "Changes: $changesCount"
     Write-ProjectSuccess -Message "Source structure update complete" -Details $details
+
+        # Soak: success outcome (PF-PRO-028 v2.0)
+        if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+    }
+    catch {
+        if ($soakInSoak) {
+            $soakErrMsg = $_.Exception.Message
+            if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+            Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+        }
+        Write-ProjectError -Message "Source structure update failed: $($_.Exception.Message)" -ExitCode 1
+    }
 }
 
 <#

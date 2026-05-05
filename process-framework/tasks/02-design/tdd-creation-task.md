@@ -103,7 +103,7 @@ When referencing other tasks' outputs in TDDs:
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script for consistency across all design documents.**
 >
@@ -258,7 +258,7 @@ The following state files are automatically updated by the [../../scripts/file-c
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

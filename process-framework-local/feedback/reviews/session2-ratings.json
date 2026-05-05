@@ -1,0 +1,1304 @@
+[
+  {
+    "form_id": "20260415-093037-PF-TSK-082-feedback",
+    "task_id": "PF-TSK-082",
+    "task_context": "Git Commit and Push",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-15",
+    "session_duration_minutes": 20,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260415-093037-PF-TSK-082-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Git Commit and Push Task",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-082"
+      }
+    ]
+  },
+  {
+    "form_id": "20260415-100122-PF-TSK-070-feedback",
+    "task_id": "PF-TSK-070",
+    "task_context": "E2E Acceptance Test Execution",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-15",
+    "session_duration_minutes": 35,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260415-100122-PF-TSK-070-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Run-E2EAcceptanceTest.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TestExecutionStatus.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260416-084640-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-16",
+    "session_duration_minutes": 17,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260416-084640-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-SCR-059"
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-SCR-060"
+      }
+    ]
+  },
+  {
+    "form_id": "20260416-100024-PF-TSK-082-feedback",
+    "task_id": "PF-TSK-082",
+    "task_context": "Git Commit and Push",
+    "feedback_type": "Single Tool",
+    "form_date": "2026-04-16",
+    "session_duration_minutes": 5,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260416-100024-PF-TSK-082-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Git Commit and Push Task Definition",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-082"
+      }
+    ]
+  },
+  {
+    "form_id": "20260416-113726-PF-TSK-079-feedback",
+    "task_id": "PF-TSK-079",
+    "task_context": "Framework Evaluation",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-16",
+    "session_duration_minutes": 102,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260416-113726-PF-TSK-079-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Framework Evaluation Task Definition",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-079"
+      },
+      {
+        "tool_name": "New-FrameworkEvaluationReport.ps1 (Script)",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1 -BatchFile (Script)",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260417-122913-PF-TSK-048-feedback",
+    "task_id": "PF-TSK-048",
+    "task_context": "Framework Extension Task - Document Subdirectory Taxonomy (IMP-571)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-17",
+    "session_duration_minutes": null,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260417-122913-PF-TSK-048-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "New-FrameworkExtensionConcept.ps1",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-SCR-059"
+      },
+      {
+        "tool_name": "New-TempTaskState.ps1— FrameworkExtension variant",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-SCR-064"
+      },
+      {
+        "tool_name": "PF-TSK-048 (Framework Extension Task) task definition",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-048"
+      }
+    ]
+  },
+  {
+    "form_id": "20260419-193815-PF-TSK-070-feedback",
+    "task_id": "PF-TSK-070",
+    "task_context": "E2E Acceptance Test Execution",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-19",
+    "session_duration_minutes": 17,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260419-193815-PF-TSK-070-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Run-E2EAcceptanceTest.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "install_global.py",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "e2e-acceptance-test-execution-task.md",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-070"
+      }
+    ]
+  },
+  {
+    "form_id": "20260428-144804-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task - TD211 docstring fix",
+    "feedback_type": "Task-Level",
+    "form_date": "2026-04-28",
+    "session_duration_minutes": 8,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260428-144804-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": []
+  },
+  {
+    "form_id": "20260428-152034-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-28",
+    "session_duration_minutes": 44,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260428-152034-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "Run-Tests.ps1 (process-framework/scripts/test/Run-Tests.ps1)",
+        "effectiveness": 2,
+        "clarity": 4,
+        "completeness": 2,
+        "efficiency": 3,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 -Lightweight (process-framework/scripts/file-creation/06-maintenance/)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1 (process-framework/scripts/update/)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1 (process-framework/scripts/validation/)",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260428-153458-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task — TD220 (PD-REF-195)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-28",
+    "session_duration_minutes": 65,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260428-153458-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "code-refactoring-lightweight-path.md (PF-TSK-022 lightweight path)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 -DocumentationOnly",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1 (status update / Resolve)",
+        "effectiveness": 2,
+        "clarity": 4,
+        "completeness": 3,
+        "efficiency": 2,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-ProcessImprovement.ps1",
+        "effectiveness": 5,
+        "clarity": 3,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260428-155619-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring (Lightweight) — TD212/TD213 regression tests",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-28",
+    "session_duration_minutes": 95,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260428-155619-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path (PF-TSK-022 / code-refactoring-lightweight-path.md)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 3,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 3,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-BugReport.ps1",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 4,
+        "efficiency": 3,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260428-155843-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task — TD215/216/217/218 + BM-002 rework bundle",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-28",
+    "session_duration_minutes": 85,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260428-155843-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 3,
+        "efficiency": 4,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 3,
+        "efficiency": 4,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Run-Tests.ps1",
+        "effectiveness": 2,
+        "clarity": 3,
+        "completeness": 2,
+        "efficiency": 3,
+        "conciseness": 2
+      }
+    ]
+  },
+  {
+    "form_id": "20260428-160026-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-28",
+    "session_duration_minutes": 55,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260428-160026-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "code-refactoring-lightweight-path.md (PF-TSK-022 sub-document)",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (PF-AUT)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1 (PF-AUT)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1 (PF-AUT)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260428-160104-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-28",
+    "session_duration_minutes": 54,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260428-160104-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path (PF-TSK-022 sub-doc)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 -DocumentationOnly (PF-SCR)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-081653-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 22,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-081653-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "Code Refactoring Lightweight Path (PF-TSK-022 sub-document)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (with -DocumentationOnly)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-083738-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 19,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-083738-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (PF-TEM-???)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-084621-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 30,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-084621-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-084659-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Task-Level",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 47,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-084659-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": []
+  },
+  {
+    "form_id": "20260429-084741-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task — TD226 PD-TDD-023 directory-move pseudocode update",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 35,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-084741-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "New-RefactoringPlan.ps1 -DocumentationOnly",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1 *(Status Update Mode)*",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-085100-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task (Lightweight Path)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 35,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-085100-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path (PF-TSK-022 lightweight)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-085134-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task - Lightweight (TD241)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 25,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-085134-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path (PF-TSK-022 sub-doc)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-090037-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 17,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-090037-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task + Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (PF-TSK-022 helper script)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-092607-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 40,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-092607-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path (PF-TSK-022 sub-document)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (PF-AUT script)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1 (PF-AUT script)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-093422-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task — TD232/TD233 logging-from-config helper extraction",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 54,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-093422-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 4,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (lightweight mode)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-TestFile.ps1",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 3,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Run-Tests.ps1 -All",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 3,
+        "efficiency": 3,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-093427-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring (TD231)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 40,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-093427-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Run-Tests.ps1 (process-framework/scripts/test/)",
+        "effectiveness": 2,
+        "clarity": 4,
+        "completeness": 2,
+        "efficiency": 4,
+        "conciseness": 3
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-102733-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 30,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-102733-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path (PF-TSK-022 sub-document)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (PF-SCR — file-creation script)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-122515-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task - TD244 perf_counter migration",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 81,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-122515-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Task + Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-BugReport.ps1",
+        "effectiveness": 4,
+        "clarity": 3,
+        "completeness": 5,
+        "efficiency": 4,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-123659-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 70,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-123659-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 3,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path (PF-TSK-022 sub-doc)",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 3,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-124311-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring (TD245 — Decouple performance_db.py from LinkWatcher-specific test IDs)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 40,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-124311-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path (PF-TSK-022 sub-document)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-125947-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 35,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-125947-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path (PF-TSK-022 sub-document)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-130518-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 42,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-130518-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring Lightweight Path (PF-TSK-022 lightweight path doc)",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "New-RefactoringPlan.ps1 (lightweight mode)",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 4
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Validate-TestTracking.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "New-FeedbackForm.ps1",
+        "effectiveness": 5,
+        "clarity": 4,
+        "completeness": 5,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-132059-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring (TD248 - PH-005 sleep removal)",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 31,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-132059-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 5,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "Code Refactoring — Lightweight Path",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5,
+        "tool_doc_id": "PF-TSK-022"
+      },
+      {
+        "tool_name": "Run-Tests.ps1 (process-framework script)",
+        "effectiveness": 3,
+        "clarity": 4,
+        "completeness": 3,
+        "efficiency": 3,
+        "conciseness": 4
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-132300-PF-TSK-022-feedback",
+    "task_id": "PF-TSK-022",
+    "task_context": "Code Refactoring Task",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 40,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-132300-PF-TSK-022-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 5,
+    "tools": [
+      {
+        "tool_name": "New-RefactoringPlan.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 4,
+        "efficiency": 5,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-TechDebt.ps1",
+        "effectiveness": 5,
+        "clarity": 5,
+        "completeness": 3,
+        "efficiency": 5,
+        "conciseness": 5
+      }
+    ]
+  },
+  {
+    "form_id": "20260429-135152-PF-TSK-085-feedback",
+    "task_id": "PF-TSK-085",
+    "task_context": "Performance Baseline Capture",
+    "feedback_type": "Multiple Tools",
+    "form_date": "2026-04-29",
+    "session_duration_minutes": 15,
+    "review_cycle_id": "tools-review-20260429",
+    "archived_form_path": "process-framework-local/feedback/archive/2026-04/tools-review-20260429/processed-forms/20260429-135152-PF-TSK-085-feedback.md",
+    "overall_effectiveness": 4,
+    "process_conciseness": 4,
+    "tools": [
+      {
+        "tool_name": "PF-TSK-085 task definition (Performance Baseline Capture)",
+        "effectiveness": 4,
+        "clarity": 5,
+        "completeness": 3,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "Update-PerformanceTracking.ps1",
+        "effectiveness": 3,
+        "clarity": 4,
+        "completeness": 4,
+        "efficiency": 4,
+        "conciseness": 5
+      },
+      {
+        "tool_name": "performance_db.py",
+        "effectiveness": 4,
+        "clarity": 4,
+        "completeness": 3,
+        "efficiency": 5,
+        "conciseness": 4
+      }
+    ]
+  }
+]

@@ -3,7 +3,6 @@
   "description": "Framework wrapper config for Python projects — used by Run-Tests.ps1. Pytest-native config (markers, discovery, warnings, timeout) stays in pytest.ini at project root.",
   "language": "python",
   "version": "1.0",
-
   "testing": {
     "baseCommand": "python -m pytest",
     "coverageArgs": "--cov={module} --cov-report=html --cov-report=term",
@@ -12,7 +11,10 @@
     "discoveryOutputPattern": "^(.+\\.py)::",
     "testFileExtension": ".py",
     "testFileNamePattern": "test_{name}",
-    "testFileExclusions": ["__init__.py", "__pycache__"],
+    "testFileExclusions": [
+      "__init__.py",
+      "__pycache__"
+    ],
     "lintCommand": "python -m flake8 {testDir} --max-line-length=100",
     "stopOnFirstFailure": "-x",
     "verboseFlag": "-v",
@@ -24,8 +26,16 @@
     },
     "testSetup": {
       "mechanism": "pytest-fixtures",
-      "configFiles": ["test/automated/conftest.py"],
+      "configFiles": [
+        "test/automated/conftest.py"
+      ],
       "discoveryCommand": "python -m pytest --fixtures -q"
-    }
+    },
+    "featureMarkerPattern": "pytest\\.mark\\.feature\\([\"']([^\"']+)[\"']\\)"
+  },
+  "headerComment": {
+    "open": "\"\"\"",
+    "close": "\"\"\"",
+    "linePrefix": ""
   }
 }

@@ -37,7 +37,7 @@
         "main": "process-framework/guides",
         "default": "main"
       },
-      "nextAvailable": 64
+      "nextAvailable": 65
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",

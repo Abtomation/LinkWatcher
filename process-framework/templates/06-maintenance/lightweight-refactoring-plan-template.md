@@ -2,9 +2,9 @@
 id: PF-TEM-050
 type: Process Framework
 category: Template
-version: 1.2
+version: 1.4
 created: 2026-03-02
-updated: 2026-04-02
+updated: 2026-04-30
 usage_context: Process Framework - Refactoring Plan Creation
 description: Compact refactoring plan for changes with no architectural impact. Supports batch mode for multiple quick fixes in one session.
 creates_document_category: Refactoring Plan
@@ -45,12 +45,14 @@ priority: [Priority Level]
 - [ ] Test spec ([Feature ID]) updated, or N/A — verified no behavior change affects spec: _[justification]_
 - [ ] FDD ([Feature ID]) updated, or N/A — verified no functional change affects FDD: _[justification]_
 - [ ] ADR ([Feature ID]) updated, or N/A — verified no architectural decision affected: _[justification]_
+- [ ] Integration Narrative updated, or N/A — verified no PD-INT narrative in `doc/technical/integration/` references the refactored component: _[justification]_
+- [ ] User documentation updated, or N/A — verified no behavioral or interface change visible to end users (grep `doc/user/handbooks/` and root `README.md` for component/method/script name): _[justification]_
 - [ ] Validation tracking updated, or N/A — verified feature is not tracked in a validation round or change doesn't affect validation: _[justification]_
 - [ ] Technical Debt Tracking: TD item marked resolved
 
 **Bugs Discovered**: None / [Description]
 
-<!-- BATCH MODE: Copy the "## Item N" section above for each additional debt item in this session -->
+<!-- BATCH MODE: Use `-ItemCount N` when running New-RefactoringPlan.ps1 to pre-generate N Item sections up front. To add more debt items mid-session (i.e., new TD IDs — sub-findings of an existing TD become additional `Changes Made` bullets within its Item, not new Items), copy the "## Item N" section above. -->
 
 ## Results Summary
 

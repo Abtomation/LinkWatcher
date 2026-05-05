@@ -16,7 +16,7 @@ Supports all bug status transitions:
 - 🔍 Needs Fix → 🟡 In Progress (Bug Fixing Task)
 - 🟡 In Progress → 👀 Needs Review (Bug Fixing Task)
 - 👀 Needs Review → 🔒 Closed (Code Review Task)
-- Any Active Status → ❌ Rejected (Bug Fixing Task — not-a-bug / won't-fix)
+- Any Active Status → ❌ Rejected (Bug Fixing Task — not-a-bug, won't-fix, or other rationale per Step 11)
 - Any Status → 🔄 Reopened (Bug Triage Task)
 
 When transitioning to Closed:
@@ -37,7 +37,7 @@ The new status for the bug. Valid values:
 - "NeedsReview" (👀 Needs Review)
 - "Closed" (🔒 Closed) — auto-moves to Closed section, recalculates stats
 - "Reopened" (🔄 Reopened)
-- "Rejected" (❌ Rejected) — not-a-bug, auto-moves to Closed section, recalculates stats
+- "Rejected" (❌ Rejected) — not-a-bug, won't-fix, or other rationale per Bug Fixing Step 11; auto-moves to Closed section, recalculates stats
 
 .PARAMETER FastClose
 S-scope quick path: chains NeedsFix → InProgress → Closed in one call.
@@ -70,6 +70,9 @@ Notes from verification process - used when transitioning to Closed
 .PARAMETER ReopenReason
 Reason for reopening the bug - used when transitioning to Reopened
 
+.PARAMETER RelatedFeature
+Related feature ID or name (e.g., "1.1.1") - used when transitioning to NeedsFix to set the Related Feature column
+
 .PARAMETER Dims
 Development dimension abbreviations (e.g., "SE DI") - used when transitioning to NeedsFix
 
@@ -84,7 +87,7 @@ Date of the status update (optional - uses current date if not specified)
 
 .EXAMPLE
 # Triage a bug (set to Needs Fix)
-../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Impacts all users on startup; root cause likely in config loader"
+../Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -RelatedFeature "1.1.1" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Impacts all users on startup; root cause likely in config loader"
 
 .EXAMPLE
 # Start working on a bug
@@ -120,6 +123,10 @@ This script is part of the Bug Management automation system and integrates with:
 - Bug Triage Task (PF-TSK-041)
 - Bug Fixing Task (PF-TSK-007)
 - Code Review Task (PF-TSK-005) — verifies bug fixes
+
+Output behavior: Default output is one summary line per invocation (the outcome,
+e.g. "BUG-042 → Closed"). WARN and ERROR messages always pass through.
+Pass -Verbose to restore the full play-by-play log for debugging.
 #>
 
 [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'SingleStatus')]
@@ -166,6 +173,9 @@ param(
     [string]$RejectionReason,
 
     [Parameter(Mandatory = $false)]
+    [string]$RelatedFeature,
+
+    [Parameter(Mandatory = $false)]
     [string]$Dims,
 
     [Parameter(Mandatory = $false)]
@@ -183,12 +193,21 @@ $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+# Temporarily silence $VerbosePreference around the import so -Verbose callers see
+# only this script's own Write-Verbose output, not the helper module's internal chatter.
+$prevVerbosePreference = $VerbosePreference
+$VerbosePreference = 'SilentlyContinue'
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+$VerbosePreference = $prevVerbosePreference
 
 # Configuration - use project-root-relative path for reliability
 $ProjectRoot = Get-ProjectRoot
 $BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/bug-tracking.md"
 $ScriptName = "../Update-BugStatus.ps1"
+
+# Soak verification (PF-PRO-028 — see process-framework/state-tracking/permanent/script-soak-tracking.md)
+$soakScriptId = "process-framework/scripts/update/Update-BugStatus.ps1"
+$soakInSoak   = Test-ScriptInSoak -ScriptId $soakScriptId -ScriptPath $PSCommandPath
 
 # Status emoji mapping
 $StatusEmojis = @{
@@ -235,16 +254,29 @@ $PriorityEmojis = @{
 }
 
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Message, [string]$Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $(
-        switch ($Level) {
-            "ERROR" { "Red" }
-            "WARN" { "Yellow" }
-            "SUCCESS" { "Green" }
-            default { "White" }
-        }
-    )
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
 
 function Test-Prerequisites {
@@ -316,6 +348,11 @@ function Update-BugEntryContent {
     # Update scope if provided
     if ($UpdateData.Scope) {
         $columns[4] = $UpdateData.Scope
+    }
+
+    # Update Related Feature if provided (column [7])
+    if ($UpdateData.RelatedFeature) {
+        $columns[7] = $UpdateData.RelatedFeature
     }
 
     # Update Workflows if provided (column [8])
@@ -731,6 +768,7 @@ function Main {
         # Phase 1: NeedsFix (triage)
         $triageData = @{ Priority = $Priority }
         if ($Scope) { $triageData.Scope = $Scope } else { $triageData.Scope = "S" }
+        if ($RelatedFeature) { $triageData.RelatedFeature = $RelatedFeature }
         if ($Dims) { $triageData.Dims = $Dims }
         if ($Workflows) { $triageData.Workflows = $Workflows }
         if ($TriageNotes) { $triageData.TriageNotes = $TriageNotes }
@@ -764,12 +802,31 @@ function Main {
         if ($null -eq $content) { Write-Log "Failed to move bug to Closed section" -Level "ERROR"; exit 1 }
         $content = Update-BugStatisticsContent -Content $content
 
-        if ($PSCmdlet.ShouldProcess($BugTrackingFile, "FastClose $BugId (NeedsFix → InProgress → Closed)")) {
-            Set-Content -Path $BugTrackingFile -Value $content -NoNewline
-            Write-Log "FastClose completed successfully — bug $BugId closed" -Level "SUCCESS"
-            Write-Log "Updated file: $BugTrackingFile"
-        } else {
-            Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+        try {
+            if ($PSCmdlet.ShouldProcess($BugTrackingFile, "FastClose $BugId (NeedsFix → InProgress → Closed)")) {
+                Set-Content -Path $BugTrackingFile -Value $content -NoNewline
+                Write-SummaryLine "$BugId → Closed (FastClose: NeedsFix → InProgress → Closed)"
+
+                # Read-after-write verification: confirm the bug row exists in tracking file
+                if (-not $WhatIfPreference) {
+                    $rowPattern = "\|\s*" + [regex]::Escape($BugId) + "\s*\|"
+                    Assert-LineInFile -Path $BugTrackingFile -Pattern $rowPattern -Context "bug row for $BugId in $BugTrackingFile"
+                }
+
+                if ($soakInSoak) {
+                    Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome success
+                }
+            } else {
+                Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+            }
+        }
+        catch {
+            if ($soakInSoak) {
+                $soakErrMsg = $_.Exception.Message
+                if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+                Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome failure -Notes $soakErrMsg
+            }
+            Write-ProjectError -Message "FastClose failed: $($_.Exception.Message)" -ExitCode 1
         }
         exit 0
     }
@@ -788,6 +845,7 @@ function Main {
     if ($VerificationNotes) { $updateData.VerificationNotes = $VerificationNotes }
     if ($ReopenReason) { $updateData.ReopenReason = $ReopenReason }
     if ($RejectionReason) { $updateData.RejectionReason = $RejectionReason }
+    if ($RelatedFeature) { $updateData.RelatedFeature = $RelatedFeature }
     if ($Dims) { $updateData.Dims = $Dims }
     if ($Workflows) { $updateData.Workflows = $Workflows }
     if ($TriageNotes) { $updateData.TriageNotes = $TriageNotes }
@@ -872,12 +930,31 @@ function Main {
     $content = Update-BugStatisticsContent -Content $content
 
     # Single write — guarded by ShouldProcess so -WhatIf skips only the file write
-    if ($PSCmdlet.ShouldProcess($BugTrackingFile, "Update $BugId to $NewStatus")) {
-        Set-Content -Path $BugTrackingFile -Value $content -NoNewline
-        Write-Log "Bug status update completed successfully" -Level "SUCCESS"
-        Write-Log "Updated file: $BugTrackingFile"
-    } else {
-        Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+    try {
+        if ($PSCmdlet.ShouldProcess($BugTrackingFile, "Update $BugId to $NewStatus")) {
+            Set-Content -Path $BugTrackingFile -Value $content -NoNewline
+            Write-SummaryLine "$BugId → $NewStatus"
+
+            # Read-after-write verification: confirm the bug row exists in tracking file
+            if (-not $WhatIfPreference) {
+                $rowPattern = "\|\s*" + [regex]::Escape($BugId) + "\s*\|"
+                Assert-LineInFile -Path $BugTrackingFile -Pattern $rowPattern -Context "bug row for $BugId in $BugTrackingFile"
+            }
+
+            if ($soakInSoak) {
+                Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome success
+            }
+        } else {
+            Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+        }
+    }
+    catch {
+        if ($soakInSoak) {
+            $soakErrMsg = $_.Exception.Message
+            if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+            Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome failure -Notes $soakErrMsg
+        }
+        Write-ProjectError -Message "Bug status update failed: $($_.Exception.Message)" -ExitCode 1
     }
     exit 0
 }

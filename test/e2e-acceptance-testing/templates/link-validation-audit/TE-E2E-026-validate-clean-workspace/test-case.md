@@ -69,7 +69,7 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ### Behavioral Outcomes
 
 - Process exits with code **0**
-- Report file `LinkWatcherBrokenLinks.txt` is created in workspace directory
+- Report file `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` is created in workspace directory
 - Report shows `Broken links  : 0`
 - Report shows `No broken links found.`
 - Report shows files scanned count ≥ 3 (the three fixture files)
@@ -77,13 +77,13 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ## Verification Method
 
 - [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-026` — confirms project files are unmodified
-- [ ] **Report inspection**: Open `LinkWatcherBrokenLinks.txt` and confirm clean report
+- [ ] **Report inspection**: Open `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` and confirm clean report
 - [ ] **Exit code check**: Confirm process exited with code 0
 
 ## Pass Criteria
 
 - [ ] Exit code is 0
-- [ ] `LinkWatcherBrokenLinks.txt` exists in workspace directory
+- [ ] `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` exists in workspace directory
 - [ ] Report contains `Broken links  : 0`
 - [ ] Report contains `No broken links found.`
 - [ ] All project files are byte-identical to their initial state (verified by Verify-TestResult.ps1)
@@ -99,4 +99,4 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 
 - Validation mode does not start the file watcher — it runs a single scan and exits
 - No lock file is created during validation
-- The `--log-file` flag controls where `LinkWatcherBrokenLinks.txt` is written (parent directory of the log file)
+- The `--log-file` flag controls where `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` is written (parent directory of the log file)

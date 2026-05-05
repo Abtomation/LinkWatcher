@@ -67,6 +67,10 @@ Created: 2025-08-23
 Rewritten: 2026-04-10
 Addresses: IMP-449 (Concurrent access during parallel validation sessions)
 Pattern: Single read-modify-write cycle following Update-ProcessImprovement.ps1
+
+Output behavior: Default output is one summary line per invocation (the outcome,
+e.g. "PD-VAL-084 → 4 features × Code Quality & Standards"). WARN and ERROR messages
+always pass through. Pass -Verbose to restore the full play-by-play log.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -113,8 +117,20 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 if ($dir) {
-    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+    # Temporarily silence $VerbosePreference around the import so -Verbose callers see
+    # only this script's own Write-Verbose output, not the helper module's internal chatter.
+    $prevVerbosePreference = $VerbosePreference
+    $VerbosePreference = 'SilentlyContinue'
+    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+    $VerbosePreference = $prevVerbosePreference
 }
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
+
+# Soak-verification wrapper begins (PF-PRO-028 v2.0)
+try {
 
 # --- Configuration ---
 $ScriptName = "Update-ValidationReportState.ps1"
@@ -153,13 +169,25 @@ $DimensionColumnHeaders = @{
 
 # --- Logging ---
 function Write-Log {
+    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
+    # WARN/ERROR are always emitted to host. The single per-invocation summary line
+    # is emitted directly via Write-SummaryLine, bypassing this gate.
     param([string]$Level, [string]$Message)
+    $line = "[$CurrentTimestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   { Write-Verbose $line }
+    }
+}
+
+function Write-SummaryLine {
+    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
+    param([string]$Message, [string]$Level = "SUCCESS")
     $color = switch ($Level) {
-        "INFO"    { "Cyan" }
-        "SUCCESS" { "Green" }
-        "WARN"    { "Yellow" }
         "ERROR"   { "Red" }
-        default   { "White" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
     }
     Write-Host "[$CurrentTimestamp] [$Level] $Message" -ForegroundColor $color
 }
@@ -532,8 +560,21 @@ $lines = Update-FrontmatterDate -Lines $lines
 # Single write
 if ($PSCmdlet.ShouldProcess($ResolvedTrackingFile, "Update validation tracking for $Dimension ($ReportId)")) {
     $lines | Set-Content $ResolvedTrackingFile -Encoding UTF8
-    Write-Log "SUCCESS" "Validation tracking updated successfully"
-    Write-Log "INFO" "Updated file: $ResolvedTrackingFile"
+    Write-SummaryLine "$ReportId → $($FeatureIds.Count) feature$(if ($FeatureIds.Count -ne 1) { 's' }) × $Dimension"
 } else {
     Write-Log "INFO" "WhatIf mode — no changes written"
+}
+
+
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
+}
+catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
+    Write-Error "Validation report state update failed: $($_.Exception.Message)"
+    exit 1
 }

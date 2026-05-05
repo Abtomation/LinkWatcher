@@ -37,7 +37,7 @@ updated: 2026-03-16
    - **Note**: Must be outside `test/manual-testing/workspace/` (gitignored) for LinkWatcher to detect changes
 
 2. **Start LinkWatcher**: Ensure LinkWatcher is running and has completed initial scan
-   - **Verify**: Check LinkWatcher_run/LinkWatcherLog_20260317-103751.txt for "Initial scan complete"
+   - **Verify**: Check process-framework-local/tools/linkWatcher/logs/LinkWatcherLog_20260317-103751.txt for "Initial scan complete"
 
 3. **Move file**: Move `test_project/docs/readme.md` to `test_project/archive/readme.md`
    - **Tool**: File Explorer (drag and drop) or `mkdir archive && mv docs/readme.md archive/`

@@ -2,9 +2,9 @@
 id: PF-GDE-035
 type: Process Framework
 category: Guide
-version: 1.2
+version: 1.3
 created: 2025-07-28
-updated: 2026-04-09
+updated: 2026-05-04
 related_task: PF-TSK-026
 related_script: New-FrameworkExtensionConcept.ps1
 ---
@@ -80,7 +80,7 @@ The Framework Extension Concept template contains placeholder content that must 
 3. **Include concrete examples** of how the extension will be used
 4. **Define measurable success criteria** for the extension
 
-> **⚠️ Project-specific adaptation**: Define categories, levels, and terminology specific to YOUR project's architecture. Do not copy generic industry terminology — study the project's existing patterns first (see Pre-Concept Analysis in [Framework Extension Task](../../tasks/support/framework-extension-task.md) Step 1) and derive categories that match the project's actual structure.
+> **⚠️ Adaptation discipline**: Define categories, levels, and terminology that fit the framework's architecture. Study both the framework's existing patterns AND established industry taxonomies (see Pre-Concept Analysis in [Framework Extension Task](../../tasks/support/framework-extension-task.md) Step 1), then carefully evaluate how to adapt them to the framework — neither copy industry terminology blindly nor reinvent what proven external models already solve.
 
 ### Phase 3: Integration Planning
 1. **Map dependencies** on existing framework components

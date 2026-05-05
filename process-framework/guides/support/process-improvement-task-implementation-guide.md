@@ -2,9 +2,9 @@
 id: PF-GDE-037
 type: Process Framework
 category: Guide
-version: 2.0
+version: 2.3
 created: 2025-07-29
-updated: 2026-02-26
+updated: 2026-05-04
 related_task: PF-TSK-009
 guide_title: Process Improvement Task Implementation Guide
 ---
@@ -12,7 +12,7 @@ guide_title: Process Improvement Task Implementation Guide
 
 ## Overview
 
-This guide provides practical instructions for executing the Process Improvement task (PF-TSK-009). The task follows a streamlined 14-step process: select an improvement from tracking, analyze and plan with human approval, implement incrementally, and update state files.
+This guide provides practical instructions for executing the Process Improvement task (PF-TSK-009). The task follows a 17-step process: select an improvement from tracking, **verify the problem independently**, evaluate, plan with human approval, **execute by risk class**, and finalize. The IMP is treated as raw input, not a specification — PF-TSK-009 owns problem verification, solution exploration, and implementation.
 
 ## When to Use
 
@@ -21,7 +21,7 @@ Use this guide when you need to:
 - Understand how to navigate the human feedback checkpoints
 - Ensure all state tracking and documentation requirements are met
 
-> **🚨 CRITICAL**: Process improvements MUST be implemented incrementally with explicit human feedback at EACH stage. Never implement complete solutions without prior approval.
+> **🚨 CRITICAL**: Never implement a solution without first getting explicit approval on the approach (Step 6 checkpoint). Per-change checkpoint frequency is risk-classified at Step 10 — low- and medium-risk changes execute in batch with a single decision review at Step 13; high-risk changes still use a per-change loop. Step 11 (linked-doc verification) and Step 12 (feedback-DB log) are silent housekeeping — do not surface them at the human checkpoint unless substantive findings emerge.
 
 ## Table of Contents
 
@@ -42,59 +42,91 @@ Before you begin, ensure you have:
 
 ## Step-by-Step Instructions
 
-### Phase 1: Preparation (Steps 1-4)
+### Phase 1: Preparation (Steps 1–6)
 
-#### 1. Select and Understand the Improvement
+#### 1. Select and Claim the Improvement
 
 1. **Open** [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md)
 2. **Select** an improvement to execute (typically HIGH priority first)
-3. **Read the source**: Open the Tools Review summary linked in the improvement's "Source" column
-4. **Read specific feedback forms** if referenced — these provide the detailed context behind the improvement
+3. **Claim** by setting status to **In Progress** via `Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "InProgress"` (covers parallel-session safety)
 
-**Expected Result:** Clear understanding of what needs to change and why
+**Expected Result:** IMP claimed and locked from concurrent work
 
-#### 2. Analyze Current State
+#### 2. Verify the Problem
 
-1. **Read the file(s)** that will be modified
-2. **Identify the scope** of changes needed (which sections, how many files)
-3. **Note dependencies** — what other documents reference this file?
+The IMP description is raw input, not a specification. Independently confirm the problem still exists and is current.
 
-**Expected Result:** Full picture of the current state and change scope
+1. **Grep recent sessions** for the symptom; **read the artifact** under discussion; **check IMP history** for prior similar reports; **inspect the feedback DB** if relevant
+2. If the problem is clearly absent, already resolved, or trivially mis-described, **mark the IMP as Rejected** with rationale and skip to Step 14 — no human checkpoint needed at this gate
 
-#### 3. Present and Get Approval (CHECKPOINT)
+**Expected Result:** Either rejection at this gate, or a verified problem to evaluate
 
-1. **Summarize the problem** based on your analysis
-2. **Propose approach(es)** — for simple changes, one approach is fine; for complex changes, present alternatives with pros/cons
-3. **Wait for explicit approval** before making any changes
+#### 3. Evaluate, Review Source, Read Current State
 
-**Expected Result:** Human approval to proceed with the chosen approach
+1. **Fill the evaluation table** (Step 3) — Still Valid / Recurring Value / Framework Fit / Maintainability / Complexity-to-Benefit / Minimum Viability / Root-Cause Targeting / Data-Driven Validation
+2. **Read source feedback** (Tools Review summary, specific feedback forms) — Step 4
+3. **Read current state** of the file(s)/tool(s) being changed — Step 5
 
-### Phase 2: Execution (Steps 7-10)
+> Apply the **conciseness rule**: if all evaluation criteria are favorable, present a one-line summary at the Step 6 checkpoint instead of the full table.
 
-#### 4. Implement Incrementally
+**Expected Result:** Verified problem, completed evaluation, and full understanding of current state
 
-1. **Make changes in small, reviewable increments** — never implement everything at once
-2. **For each significant change:**
-   - Present what you're about to change
-   - Get approval
-   - Make the change
-   - Confirm it meets expectations
-3. **Verify linked documents** — grep for each modified file's path/filename, read surrounding context for each hit, build a hit list table with dispositions (Updated / No change needed), and present it at the review checkpoint
+#### 4. Present and Get Approval (Step 6 CHECKPOINT)
 
-**Expected Result:** All changes implemented with human approval at each step
+Before presenting, **explore the solution space**: at minimum consider an MVP variant *and* a more radical alternative, weighting the radical option by its benefit ceiling rather than its effort cost.
 
-### Phase 3: Finalization (Steps 11-14)
+1. **Restate the problem** in 1–2 sentences (your verified version, not a copy of the IMP description)
+2. **Show the evaluation** (full table or one-line summary per the conciseness rule)
+3. **Propose 1–3 surviving approaches** — do **not** enumerate ideas you discarded during exploration
+4. **Wait for explicit approval** before any execution
 
-#### 5. Review and Complete
+**Expected Result:** Human approval of the chosen approach
 
-1. **Get final approval** on the complete solution
-2. **Update Process Improvement Tracking:**
-   - Move the improvement from "Current Improvement Opportunities" to "Completed Improvements"
-   - Add completion date and impact description
-3. **Update any other affected state files** (if applicable)
-4. **Complete feedback form** using `New-FeedbackForm.ps1` with task ID "PF-TSK-009"
+### Phase 2: Execution (Steps 10–12)
 
-**Expected Result:** Task fully completed with all state files updated
+#### 5. Execute by Risk Class
+
+Classify the change set first:
+
+- **Low-risk**: typo, wording, link fix, additive callout, single-file edit with no semantic change, formatting/style
+- **Medium-risk**: behavior changes within one task/script/template, non-trivial logic, multi-file but bounded
+- **High-risk**: structural change, cross-task or cross-script impact, change to a high-frequency workflow, anything affecting human-facing UX in repeated tasks
+
+Then execute according to class:
+
+- **Low-risk**: implement directly in batch — no per-change checkpoint
+- **Medium-risk**: state the planned change set briefly, implement in batch — no per-change checkpoint (the Step 6 approval covers it)
+- **High-risk**: per-change loop — present, **CHECKPOINT** approve, implement, **CHECKPOINT** confirm
+
+State the classification you applied so the human can override it at the Step 13 review.
+
+#### 6. Silent Housekeeping (Steps 11–12)
+
+Do not surface these to the human at Step 13 unless substantive findings emerge:
+
+1. **Verify linked documents** — grep for each modified file's path/filename, read surrounding context for each hit, apply updates where context is outdated. Mention at Step 13 only if substantive references were found and updated.
+2. **Log tool change in feedback DB** — `python process-framework/scripts/feedback_db.py log-change ...`. Do not mention at Step 13.
+
+**Expected Result:** All changes implemented; linked docs updated silently; tool change logged
+
+### Phase 3: Finalization (Steps 13–17)
+
+#### 7. Decision Review and Close (Step 13 CHECKPOINT)
+
+1. **Present the diff** (what changed and why) and the **risk classification** you applied
+2. Mention substantive Step 11 findings only if any were needed; do not mention Step 12
+3. Get **approve / revise / reject** decision
+
+> **Compressed format option**: If Step 11 sweep was clean AND the change matches the Step 6 plan with no deviation, present a one-line variant — *"Risk class: \<class\>. Step 11 sweep clean. No deviation from Step 6 plan. Approve / revise / reject?"* — instead of restating the diff. Use the full format whenever the change deviates from the Step 6 plan or Step 11 surfaced substantive findings.
+
+#### 8. Update State and (at Session End) Submit Feedback
+
+1. **Update Process Improvement Tracking** via `Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "Completed" -Impact "..." -ValidationNotes "..."`
+2. **Update any other affected state files** (e.g., temp state file → archive to `state-tracking/temporary/old/`)
+3. **Ask**: "Continue with another improvement or close the session?" If continuing and session limit (3) not reached, return to Step 1
+4. **At session end** (last IMP done or 3-IMP limit reached): create the feedback form via `New-FeedbackForm.ps1` with task ID `PF-TSK-009` — one form covers all improvements done in the session
+
+**Expected Result:** Tracking up to date; session closed cleanly with feedback recorded
 
 ## Examples
 
@@ -134,14 +166,16 @@ Before you begin, ensure you have:
 
 ## Troubleshooting
 
-### Human Feedback Checkpoints Skipped
+### Approach Approval Skipped
 
-**Symptom:** Attempting to implement changes without explicit human approval
+**Symptom:** Implementation started without approval at Step 6 (or without approval at Step 9 when multiple alternatives were proposed)
 
 **Solution:**
 1. Stop implementation immediately
-2. Present current progress and planned changes to human partner
+2. Present current progress and the planned approach to the human partner
 3. Get explicit approval before proceeding
+
+> **Note:** Per-change sub-checkpoints (Step 10 a–d loop) are required only for **high-risk** changes. Skipping them on low- or medium-risk changes is correct behavior — not a process violation.
 
 ### Linked Documents Missed
 

@@ -450,6 +450,44 @@ class TestLogTimer:
             assert error_call[1]["error_message"] == "Test error"
             assert error_call[1]["file_count"] == 5
 
+    def test_disabled_skips_logging(self):
+        """When enabled=False, LogTimer must not start a timer or emit start/completion logs.
+
+        TD231: gates LogTimer on the performance_logging config flag so users can
+        suppress per-file timing overhead in production.
+        """
+        logger = LinkWatcherLogger()
+
+        with patch.object(logger, "debug") as mock_debug, patch.object(
+            logger.performance, "start_timer"
+        ) as mock_start, patch.object(logger.performance, "end_timer") as mock_end:
+            with LogTimer("test_operation", logger, enabled=False, file_count=5):
+                pass
+
+            mock_debug.assert_not_called()
+            mock_start.assert_not_called()
+            mock_end.assert_not_called()
+
+    def test_disabled_swallows_exception_path(self):
+        """When enabled=False, the failure branch must also be skipped.
+
+        Errors raised inside the block still propagate naturally; LogTimer just
+        does not log them via the performance channel.
+        """
+        logger = LinkWatcherLogger()
+
+        with patch.object(logger, "debug") as mock_debug, patch.object(
+            logger, "error"
+        ) as mock_error:
+            try:
+                with LogTimer("test_operation", logger, enabled=False, file_count=5):
+                    raise ValueError("Test error")
+            except ValueError:
+                pass
+
+            mock_debug.assert_not_called()
+            mock_error.assert_not_called()
+
 
 class TestWithContextDecorator:
     """Test the with_context decorator."""

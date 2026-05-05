@@ -1066,16 +1066,19 @@ What type of improvement was made?
 
 - [ ] Framework Extension Concept Document created and approved
 - [ ] Impact analysis documented
+- [ ] **Pilot vs. Full Rollout decision made at Step 4.5** (PF-PRO-030); if pilot, adopters / success criteria / decision trigger defined
 - [ ] New task definitions created and integrated into `ai-tasks.md`
 - [ ] Supporting infrastructure created (templates, guides, scripts, directories)
 - [ ] Core framework files updated (`ai-tasks.md`, `PF-documentation-map.md`, PF ID Registry)
 - [ ] Temporary state tracking file completed (all phases done)
+- [ ] **If pilot was chosen**: pilot row exists in [Active Pilots](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md#active-pilots) with status `Active`; concept doc remains in `proposals/` (archive deferred until pilot resolves)
 
 **Next Task Selection:**
 
 - **Further refinements needed**: → Process Improvement (for polish and adjustments)
 - **New tasks ready to use**: → Execute the newly created extension-specific tasks
 - **Documentation updates needed**: → Structure Change (if reorganization required)
+- **Pilot was chosen — eventual rollout/rollback decision**: → Process Improvement (later session) processes the decision-trigger IMP filed at Phase 4. On resolution: `Update-ProcessImprovement.ps1 -ImprovementId <pilot PF-IMP-NNN> -NewStatus Resolved -Impact <HIGH|MEDIUM|LOW> -ValidationNotes "<decision summary>"` records the disposition, automatically archives the concept doc to `proposals/old/`, and moves the pilot row from Active Pilots to Completed Improvements (PF-IMP-729). The originally-deferred archive is owned by this later session, not the original Framework Extension Task session.
 
 ### Transitioning FROM Bug Discovery
 

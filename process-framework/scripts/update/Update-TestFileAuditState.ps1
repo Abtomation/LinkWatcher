@@ -45,6 +45,14 @@ Number of tests that passed the audit (optional)
 .PARAMETER FailedTests
 Number of tests that failed the audit (optional)
 
+.PARAMETER LifecycleCorrection
+For -TestType Performance only. When specified, also flips the Lifecycle Status
+column from ✅ Baselined → 📋 Needs Baseline on the matching rows. Use this when
+an audit identifies false compliance — i.e. a row reached ✅ Baselined without
+clearing the audit gate, and the (re-)audit fails or requires changes that
+invalidate the captured baseline. Rows whose current Lifecycle Status is not
+✅ Baselined are skipped with a warning.
+
 .PARAMETER DryRun
 If specified, shows what would be updated without making changes
 
@@ -57,6 +65,10 @@ Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py
 .EXAMPLE
 Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
 
+.EXAMPLE
+# Performance: false-compliance correction — audit fails and the row(s) need to roll back to 📋 Needs Baseline
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditReportPath "test/audits/performance/audit-report-2-1-1-test-benchmark.md" -LifecycleCorrection
+
 .NOTES
 This script addresses Process Improvement items:
 - IMP-087: Test Audit state file update automation (High)
@@ -66,7 +78,8 @@ This script addresses Process Improvement items:
 
 Created: 2025-08-29
 Updated: 2026-04-13 (IMP-495: add -TestType param for Performance/E2E audit support)
-Version: 3.0
+Updated: 2026-04-30 (PF-IMP-639: add -LifecycleCorrection flag for false-compliance correction)
+Version: 3.1
 #>
 
 [CmdletBinding()]
@@ -104,8 +117,19 @@ param(
     [int]$FailedTests,
 
     [Parameter(Mandatory=$false)]
+    [switch]$LifecycleCorrection,
+
+    [Parameter(Mandatory=$false)]
     [switch]$DryRun
 )
+
+# Guardrail: -LifecycleCorrection is meaningful only for Performance audits
+# (PF-IMP-639). E2E uses a different lifecycle vocabulary; Automated has no
+# equivalent column.
+if ($LifecycleCorrection -and $TestType -ne "Performance") {
+    Write-Error "-LifecycleCorrection is only supported with -TestType Performance (got '$TestType')."
+    exit 1
+}
 
 # Import required modules with walk-up path resolution
 try {
@@ -120,6 +144,10 @@ catch {
     Write-Error "Failed to import Common-ScriptHelpers module: $($_.Exception.Message)"
     exit 1
 }
+
+# Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
+Register-SoakScript
+$soakInSoak = Test-ScriptInSoak
 
 # Initialize script
 $ErrorActionPreference = "Stop"
@@ -388,6 +416,9 @@ try {
             Write-Host "DRY RUN: Would update $trackingFileName for $testFileName" -ForegroundColor Cyan
             Write-Host "  Audit Status: $auditStatusDisplay" -ForegroundColor Gray
             Write-Host "  Audit Report: $auditReportLink" -ForegroundColor Gray
+            if ($LifecycleCorrection) {
+                Write-Host "  Lifecycle Status: ✅ Baselined → 📋 Needs Baseline (LifecycleCorrection on matching rows where current Status = ✅ Baselined)" -ForegroundColor Gray
+            }
         } else {
             # Create backup
             $backupResult = Get-StateFileBackup -FilePath $trackingFilePath
@@ -397,6 +428,8 @@ try {
             $lines = $trackingContent -split '\r?\n'
             $updatedLines = @()
             $rowUpdated = $false
+            $lifecycleFlipped = 0
+            $lifecycleSkipped = @()
             $columnIndices = @{}
             foreach ($line in $lines) {
                 # Parse table headers to find column indices by name
@@ -425,6 +458,24 @@ try {
                     if ($auditStatusIdx -lt $cols.Count -and $auditReportIdx -lt $cols.Count) {
                         $cols[$auditStatusIdx] = $auditStatusDisplay
                         $cols[$auditReportIdx] = $auditReportLink
+
+                        # PF-IMP-639: optional Lifecycle Status correction for false-compliance
+                        # Only flip ✅ Baselined → 📋 Needs Baseline; other states are skipped+warned.
+                        if ($LifecycleCorrection -and $columnIndices.ContainsKey("Status")) {
+                            $statusIdx = $columnIndices["Status"]
+                            if ($statusIdx -lt $cols.Count) {
+                                $currentStatus = $cols[$statusIdx]
+                                if ($currentStatus -match '✅\s*Baselined') {
+                                    $cols[$statusIdx] = "📋 Needs Baseline"
+                                    $lifecycleFlipped++
+                                } else {
+                                    # Capture Test ID (first column) for the warning when available
+                                    $rowLabel = if ($cols.Count -gt 0 -and $cols[0]) { $cols[0] } else { "(unknown row)" }
+                                    $lifecycleSkipped += "$rowLabel (current: $currentStatus)"
+                                }
+                            }
+                        }
+
                         $line = "| " + ($cols -join " | ") + " |"
                         $rowUpdated = $true
                     }
@@ -436,6 +487,16 @@ try {
                 $updatedContent = $updatedLines -join "`n"
                 Set-Content $trackingFilePath $updatedContent -Encoding UTF8
                 Write-Host "  ✅ $trackingFileName updated: $testFileName Audit Status ← $auditStatusDisplay" -ForegroundColor Green
+                if ($LifecycleCorrection) {
+                    if ($lifecycleFlipped -gt 0) {
+                        Write-Host "  ✅ Lifecycle Status flipped on $lifecycleFlipped row(s): ✅ Baselined → 📋 Needs Baseline" -ForegroundColor Green
+                        Write-Host "  ℹ️  Run Update-PerformanceTracking.ps1 (or open the file) to refresh the Summary table." -ForegroundColor Yellow
+                    }
+                    if ($lifecycleSkipped.Count -gt 0) {
+                        Write-Warning "Lifecycle correction skipped on $($lifecycleSkipped.Count) row(s) (only ✅ Baselined rows are flipped):"
+                        foreach ($skip in $lifecycleSkipped) { Write-Warning "  - $skip" }
+                    }
+                }
             } else {
                 Write-Warning "Could not find $testFileName in $trackingFileName — manual update needed"
             }
@@ -672,26 +733,31 @@ try {
         Write-Host "Running validation..." -ForegroundColor Yellow
         Write-Host "✅ Validation skipped (function not implemented)" -ForegroundColor Yellow
 
-        # Next steps guidance
-        Write-Host ""
-        Write-Host "Next Steps:" -ForegroundColor Yellow
+        # Next steps guidance (verbose-only — restore with -Verbose)
         if ($AuditStatus -eq "Needs Update") {
-            Write-Host "  1. Address the identified issues in test file $testFileName" -ForegroundColor Gray
-            Write-Host "  2. Re-run tests after fixes are applied" -ForegroundColor Gray
-            Write-Host "  3. Schedule follow-up audit when ready" -ForegroundColor Gray
+            Write-Verbose "Next Steps: Address the identified issues in test file $testFileName"
+            Write-Verbose "Next Steps: Re-run tests after fixes are applied"
+            Write-Verbose "Next Steps: Schedule follow-up audit when ready"
         } elseif ($AuditStatus -eq "Audit Approved") {
-            Write-Host "  1. Test file $testFileName is approved" -ForegroundColor Gray
-            Write-Host "  2. Check if all tests for feature $FeatureId are approved" -ForegroundColor Gray
-            Write-Host "  3. If all tests approved, feature is ready for implementation" -ForegroundColor Gray
+            Write-Verbose "Next Steps: Test file $testFileName is approved"
+            Write-Verbose "Next Steps: Check if all tests for feature $FeatureId are approved"
+            Write-Verbose "Next Steps: If all tests approved, feature is ready for implementation"
         } elseif ($AuditStatus -eq "Audit Failed") {
-            Write-Host "  1. Review audit report for critical issues in $testFileName" -ForegroundColor Gray
-            Write-Host "  2. Address fundamental test problems before proceeding" -ForegroundColor Gray
-            Write-Host "  3. Consider reverting to previous test implementation if needed" -ForegroundColor Gray
+            Write-Verbose "Next Steps: Review audit report for critical issues in $testFileName"
+            Write-Verbose "Next Steps: Address fundamental test problems before proceeding"
+            Write-Verbose "Next Steps: Consider reverting to previous test implementation if needed"
         }
     }
 
+    # Soak: success outcome (PF-PRO-028 v2.0)
+    if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }
 }
 catch {
+    if ($soakInSoak) {
+        $soakErrMsg = $_.Exception.Message
+        if ($soakErrMsg.Length -gt 80) { $soakErrMsg = $soakErrMsg.Substring(0, 80) + "..." }
+        Confirm-SoakInvocation -Outcome failure -Notes $soakErrMsg
+    }
     Write-Error "Test file audit state update failed: $($_.Exception.Message)"
     exit 1
 }

@@ -19,6 +19,8 @@ Usage:
     python process-framework/scripts/feedback_db.py report --task PF-TSK-009
     python process-framework/scripts/feedback_db.py alerts
     python process-framework/scripts/feedback_db.py alerts --threshold 2.5 --min-ratings 5
+    python process-framework/scripts/feedback_db.py consolidate-tools --dry-run
+    python process-framework/scripts/feedback_db.py consolidate-tools
 """
 
 import argparse
@@ -76,6 +78,32 @@ def _resolve_project_name() -> str:
 
 
 DB_DEFAULT_PATH = _resolve_db_path()
+
+# Historical tool_doc_id drift consolidation mapping (PF-IMP-704).
+# Each entry maps a non-canonical tool_doc_id to its canonical form per the
+# convention documented in PF-TSK-009 Step 12: PF-TSK-NNN for task definitions,
+# filename (with extension) for everything else.
+# Used by the `consolidate-tools` subcommand. Idempotent — re-running after
+# consolidation is a no-op because the source IDs no longer exist.
+CONSOLIDATION_MAPPING = {
+    # Stem (without extension) -> canonical filename
+    ".ai-entry-point": ".ai-entry-point.md",
+    "Common-ScriptHelpers": "Common-ScriptHelpers.psm1",
+    "DOMAIN-CONFIG": "domain-config.json",
+    "New-ProcessImprovement": "New-ProcessImprovement.ps1",
+    "New-RefactoringPlan": "New-RefactoringPlan.ps1",
+    "New-ReviewSummary": "New-ReviewSummary.ps1",
+    "TableOperations": "TableOperations.psm1",
+    "Update-BugStatus": "Update-BugStatus.ps1",
+    "Update-ProcessImprovement": "Update-ProcessImprovement.ps1",
+    "Update-TechDebt": "Update-TechDebt.ps1",
+    "ai-tasks": "ai-tasks.md",
+    "feedback_db": "feedback_db.py",
+    "test-file-creation-guide": "test-file-creation-guide.md",
+    "test-infrastructure-guide": "test-infrastructure-guide.md",
+    # Wrong-convention task entry (filename) -> task ID
+    "test-audit-task.md": "PF-TSK-030",
+}
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS feedback_forms (
@@ -584,6 +612,56 @@ class FeedbackDB:
         finally:
             conn.close()
 
+    def consolidate_tools(self, mapping: dict, dry_run: bool = False) -> list:
+        """Rewrite tool_doc_id rows from non-canonical to canonical forms (project-scoped).
+
+        For each (from_id, to_id) pair in mapping, runs:
+            UPDATE tool_changes  SET tool_doc_id = to_id WHERE project_name = ? AND tool_doc_id = from_id
+            UPDATE tool_ratings  SET tool_doc_id = to_id WHERE project_name = ? AND tool_doc_id = from_id
+
+        Returns a list of dicts: {"from": str, "to": str, "changes": int, "ratings": int}.
+        With dry_run=True, only counts matching rows; no UPDATE runs.
+        """
+        conn = self._connect()
+        try:
+            results = []
+            for from_id, to_id in mapping.items():
+                changes_count = conn.execute(
+                    "SELECT COUNT(*) FROM tool_changes WHERE project_name = ? AND tool_doc_id = ?",
+                    (self.project_name, from_id),
+                ).fetchone()[0]
+                ratings_count = conn.execute(
+                    "SELECT COUNT(*) FROM tool_ratings WHERE project_name = ? AND tool_doc_id = ?",
+                    (self.project_name, from_id),
+                ).fetchone()[0]
+
+                if not dry_run and (changes_count or ratings_count):
+                    conn.execute(
+                        "UPDATE tool_changes SET tool_doc_id = ? "
+                        "WHERE project_name = ? AND tool_doc_id = ?",
+                        (to_id, self.project_name, from_id),
+                    )
+                    conn.execute(
+                        "UPDATE tool_ratings SET tool_doc_id = ? "
+                        "WHERE project_name = ? AND tool_doc_id = ?",
+                        (to_id, self.project_name, from_id),
+                    )
+
+                results.append(
+                    {
+                        "from": from_id,
+                        "to": to_id,
+                        "changes": changes_count,
+                        "ratings": ratings_count,
+                    }
+                )
+
+            if not dry_run:
+                conn.commit()
+            return results
+        finally:
+            conn.close()
+
     def get_alerts(self, threshold: float = 3.0, min_ratings: int = 3) -> list:
         """Get tools with average overall score below threshold.
 
@@ -1052,6 +1130,46 @@ def cmd_list_tools(args, db):
     print(f"\nTotal: {len(rows)} distinct tool_doc_ids")
 
 
+def cmd_consolidate_tools(args, db):
+    """Handle the 'consolidate-tools' subcommand."""
+    results = db.consolidate_tools(CONSOLIDATION_MAPPING, dry_run=args.dry_run)
+
+    rows = []
+    total_changes = 0
+    total_ratings = 0
+    for r in results:
+        if r["changes"] == 0 and r["ratings"] == 0:
+            continue
+        rows.append(
+            {
+                "From": r["from"],
+                "To": r["to"],
+                "Changes": r["changes"],
+                "Ratings": r["ratings"],
+            }
+        )
+        total_changes += r["changes"]
+        total_ratings += r["ratings"]
+
+    if not rows:
+        print("No drift entries found — nothing to consolidate.")
+        return
+
+    print(format_table(rows))
+    pairs_affected = len(rows)
+    if args.dry_run:
+        print(
+            f"\n[DRY RUN] Would consolidate {total_changes} change(s) and "
+            f"{total_ratings} rating(s) across {pairs_affected} pair(s). "
+            f"Re-run without --dry-run to apply."
+        )
+    else:
+        print(
+            f"\nConsolidated {total_changes} change(s) and "
+            f"{total_ratings} rating(s) across {pairs_affected} pair(s)."
+        )
+
+
 def cmd_alerts(args, db):
     """Handle the 'alerts' subcommand."""
     alerts = db.get_alerts(threshold=args.threshold, min_ratings=args.min_ratings)
@@ -1106,7 +1224,15 @@ def main():
 
     # log-change
     p_change = subparsers.add_parser("log-change", help="Log a tool modification")
-    p_change.add_argument("--tool", help="Tool document ID")
+    p_change.add_argument(
+        "--tool",
+        help=(
+            "Tool document ID. Convention: PF-TSK-NNN for task definitions; "
+            "filename (e.g., New-FeedbackForm.ps1, feature-validation-guide.md) for "
+            "templates, guides, scripts, context maps, handbooks. "
+            "Verify with: feedback_db.py list-tools --filter <substring>."
+        ),
+    )
     p_change.add_argument("--date", help="Date of change (YYYY-MM-DD)")
     p_change.add_argument("--imp", help="Improvement ID (e.g., IMP-038)")
     p_change.add_argument("--description", help="Description of the change")
@@ -1146,6 +1272,20 @@ def main():
     )
     p_list.add_argument("--filter", help="Case-insensitive substring filter on tool_doc_id")
 
+    # consolidate-tools
+    p_consolidate = subparsers.add_parser(
+        "consolidate-tools",
+        help=(
+            "Rewrite historical non-canonical tool_doc_id rows to canonical form "
+            "(PF-IMP-704 cleanup). Idempotent."
+        ),
+    )
+    p_consolidate.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview affected rows without applying UPDATEs",
+    )
+
     # alerts
     p_alerts = subparsers.add_parser("alerts", help="Flag tools with ratings below threshold")
     p_alerts.add_argument(
@@ -1178,6 +1318,7 @@ def main():
         "list-tools": cmd_list_tools,
         "report": cmd_report,
         "alerts": cmd_alerts,
+        "consolidate-tools": cmd_consolidate_tools,
     }
     commands[args.command](args, db)
 

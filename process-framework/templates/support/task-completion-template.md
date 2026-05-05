@@ -14,7 +14,7 @@ automation_rationale: Reference snippet embedded into task definitions via New-T
 This template provides a standardized completion checklist for all task definitions to ensure consistent task completion practices.
 
 ## ⚠️ MANDATORY Task Completion Checklist
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 Before considering this task finished:
 

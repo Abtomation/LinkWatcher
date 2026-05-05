@@ -6,7 +6,7 @@
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished! 🚨**
+> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 >
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
 >
@@ -42,7 +42,7 @@
    - Update status regularly during implementation
 
 3. **Analyze Current State**: Document current code quality issues, complexity metrics, and technical debt items. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to understand the primary dimension(s) the refactoring should improve along — verify the refactoring plan addresses the flagged dimension(s)
-4. **Check manual test coverage**: Review [test-tracking.md](../../../test/state-tracking/permanent/test-tracking.md) for manual test cases covering the affected functionality. Note which test groups will need re-execution after refactoring.
+4. **Check E2E acceptance test coverage**: Review [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for E2E acceptance test cases covering the affected functionality. Note which test groups will need re-execution after refactoring.
 5. **Capture Test Baseline**: Before any code changes, run the full test suite and record the exact pass/fail state. This baseline is the accountability anchor — any NEW failures after refactoring are owned by this session.
    ```bash
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -All
@@ -111,6 +111,7 @@
     - **Test spec** — update if test categories, component mappings, or coverage expectations changed
     - **Feature tracking** — update if module scope or feature boundaries shifted
     - **Integration Narrative** (`doc/technical/integration/`) — update if refactoring changes how features interact in a cross-feature workflow documented by a PD-INT narrative
+    - **Test tracking files** — update columns mirroring code values when refactoring changed them (e.g., `performance-test-tracking.md` Tolerance column when test assertions changed; baseline assumptions in feature state files when measurement logic changed). Skipping this leaves drift for the next Test Audit (PF-TSK-030 Criterion 3) to clean up at the gate.
 
 ### Finalization
 
@@ -191,7 +192,7 @@ When bugs are discovered during refactoring, follow this decision process:
     ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Refactoring" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: process_async_batch() in src/services/data_processor.py (near lines 89-102 as of 2025-01-15)"
     ```
 
-18. **Validate Behavior Preservation & Diff Against Baseline**: Run full test suite (`Run-Tests.ps1 -All`) and compare results against the Step 5 baseline. If manual tests exist for the affected features, set their status to "Needs Re-execution" in test-tracking.md.
+18. **Validate Behavior Preservation & Diff Against Baseline**: Run full test suite (`Run-Tests.ps1 -All`) and compare results against the Step 5 baseline. If E2E acceptance tests exist for the affected features in [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md), mark them for re-execution via `Update-TestExecutionStatus.ps1` (see Phase 2 checklist item below).
    - **Same failures as baseline**: Pre-existing — no action required.
    - **NEW failures not in baseline**: Owned by this session — must be fixed before proceeding, or documented as a discovered bug with a bug report.
    - Record the diff summary in the refactoring plan's Results Summary.
@@ -230,7 +231,7 @@ When bugs are discovered during refactoring, follow this decision process:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**🚨 TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF 🚨**
+**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Refactoring Plan Document created and completed with results
