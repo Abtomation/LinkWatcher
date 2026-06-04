@@ -10,7 +10,6 @@
     This PowerShell script creates new improvement entries by:
     - Generating a unique improvement ID (PF-IMP-###) via the central ID registry
     - Adding a row to the "Current Improvement Opportunities" table
-    - Adding an Update History entry
     - Updating the frontmatter date
 
     Field length constraints (validated at runtime): -Source 3-200 chars,
@@ -34,9 +33,6 @@
 
 .PARAMETER Status
     Initial status (default: "NeedsPrioritization"). Valid: NeedsPrioritization, NeedsImplementation
-
-.PARAMETER UpdatedBy
-    Who created the entry (default: "AI Agent (PF-TSK-010)")
 
 .EXAMPLE
     New-ProcessImprovement.ps1 -Source "Tools Review 2026-03-02" -SourceLink "../../feedback/reviews/tools-review-20260302.md" -Description "Add validation to script X" -Priority "MEDIUM"
@@ -150,10 +146,7 @@ param(
             }
             $true
         })]
-    [string]$PilotNotes = "",
-
-    [Parameter(Mandatory = $false)]
-    [string]$UpdatedBy = "AI Agent (PF-TSK-010)"
+    [string]$PilotNotes = ""
 )
 
 # Import the common helpers
@@ -191,8 +184,7 @@ function Add-SingleImprovement {
         [string]$ItemDescription,
         [string]$ItemPriority,
         [string]$ItemNotes,
-        [string]$ItemStatus,
-        [string]$ItemUpdatedBy
+        [string]$ItemStatus
     )
 
     # Auto-escape unescaped pipes for markdown table cell safety (PF-IMP-725).
@@ -258,35 +250,6 @@ function Add-SingleImprovement {
     $lines.Insert($insertAfterIndex + 1, $TableRow)
     Write-Host "Inserted $ImprovementId into Current Improvement Opportunities table" -ForegroundColor Green
 
-    # Add Update History entry
-    $HistoryNote = "Added $ImprovementId`: $ItemDescription"
-    $historyInsertIndex = -1
-    $inHistorySection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Update History") { $inHistorySection = $true }
-        if ($inHistorySection -and $lines[$i] -match "^\|[^-]" -and $lines[$i] -notmatch "^\|\s*Date") {
-            $historyInsertIndex = $i
-        }
-    }
-
-    # If no data rows in history, insert after the separator
-    if ($historyInsertIndex -eq -1) {
-        $inHistorySection = $false
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^## Update History") { $inHistorySection = $true }
-            if ($inHistorySection -and $lines[$i] -match "^\|\s*-") {
-                $historyInsertIndex = $i
-                break
-            }
-        }
-    }
-
-    if ($historyInsertIndex -ne -1) {
-        $historyRow = "| $CurrentDate | $HistoryNote | $ItemUpdatedBy |"
-        $lines.Insert($historyInsertIndex + 1, $historyRow)
-        Write-Host "Added Update History entry" -ForegroundColor Green
-    }
-
     # Update frontmatter date
     $updatedContent = ($lines -join "`r`n")
     $updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
@@ -319,8 +282,7 @@ function Add-SinglePilot {
         [string]$ItemAdopters,
         [string]$ItemSuccessCriteria,
         [string]$ItemDecisionTrigger,
-        [string]$ItemNotes,
-        [string]$ItemUpdatedBy
+        [string]$ItemNotes
     )
 
     # Generate unique pilot ID using the central registry — same PF-IMP pool as regular improvements
@@ -382,34 +344,6 @@ function Add-SinglePilot {
     $lines.Insert($insertAfterIndex + 1, $TableRow)
     Write-Host "Inserted $PilotId into Active Pilots table" -ForegroundColor Green
 
-    # Add Update History entry
-    $HistoryNote = "Registered pilot $PilotId for $ItemSourceConcept ($ItemOriginatingTask)"
-    $historyInsertIndex = -1
-    $inHistorySection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Update History") { $inHistorySection = $true }
-        if ($inHistorySection -and $lines[$i] -match "^\|[^-]" -and $lines[$i] -notmatch "^\|\s*Date") {
-            $historyInsertIndex = $i
-        }
-    }
-
-    if ($historyInsertIndex -eq -1) {
-        $inHistorySection = $false
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^## Update History") { $inHistorySection = $true }
-            if ($inHistorySection -and $lines[$i] -match "^\|\s*-") {
-                $historyInsertIndex = $i
-                break
-            }
-        }
-    }
-
-    if ($historyInsertIndex -ne -1) {
-        $historyRow = "| $CurrentDate | $HistoryNote | $ItemUpdatedBy |"
-        $lines.Insert($historyInsertIndex + 1, $historyRow)
-        Write-Host "Added Update History entry" -ForegroundColor Green
-    }
-
     # Update frontmatter date
     $updatedContent = ($lines -join "`r`n")
     $updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
@@ -446,8 +380,7 @@ if ($PSCmdlet.ParameterSetName -eq "Pilot") {
             -ItemAdopters $Adopters `
             -ItemSuccessCriteria $SuccessCriteria `
             -ItemDecisionTrigger $DecisionTrigger `
-            -ItemNotes $PilotNotes `
-            -ItemUpdatedBy $UpdatedBy
+            -ItemNotes $PilotNotes
 
         if ($result) {
             $details = @(
@@ -536,8 +469,7 @@ if ($PSCmdlet.ParameterSetName -eq "Pilot") {
             -ItemDescription $item.Description `
             -ItemPriority $item.Priority `
             -ItemNotes $(if ($item.Notes) { $item.Notes } else { "" }) `
-            -ItemStatus $(if ($item.Status) { $item.Status } else { "NeedsPrioritization" }) `
-            -ItemUpdatedBy $UpdatedBy
+            -ItemStatus $(if ($item.Status) { $item.Status } else { "NeedsPrioritization" })
 
         if ($result) {
             $created += $result
@@ -565,8 +497,7 @@ if ($PSCmdlet.ParameterSetName -eq "Pilot") {
             -ItemDescription $Description `
             -ItemPriority $Priority `
             -ItemNotes $Notes `
-            -ItemStatus $Status `
-            -ItemUpdatedBy $UpdatedBy
+            -ItemStatus $Status
 
         if ($result) {
             $details = @(

@@ -28,7 +28,7 @@ Use this guide when:
 Before completing the source layout document, ensure:
 
 - `doc/project-config.json` exists with `paths.source_code` set
-- `languages-config/{language}/{language}-config.json` exists with the `directoryStructure` section
+- `process-framework/languages-config/{language}/{language}-config.json` exists with the `directoryStructure` section
 - Feature tracking (`doc/state-tracking/permanent/feature-tracking.md`) has confirmed features
 
 ## Feature-First Directory Organization

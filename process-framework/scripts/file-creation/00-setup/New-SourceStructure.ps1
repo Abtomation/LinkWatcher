@@ -57,7 +57,7 @@
 
 .NOTES
     - Requires doc/project-config.json with paths.source_code set
-    - Requires languages-config/{language}/{language}-config.json with directoryStructure
+    - Requires process-framework/languages-config/{language}/{language}-config.json with directoryStructure
     - For -Scaffold: requires doc/state-tracking/permanent/feature-tracking.md with features
     - Never destructive: never deletes directories or files
     - See PF-PRO-002 for design decisions
@@ -132,14 +132,14 @@ $sourceRootAbsolute = Join-Path $projectRoot $sourceCodePath
 
 # --- Load language config ---
 $language = $projectConfig.testing.language.ToLower()
-$langConfigPath = Join-Path $projectRoot "languages-config/$language/$language-config.json"
+$langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$language/$language-config.json"
 if (-not (Test-Path $langConfigPath)) {
     # Try primary_language from project_metadata as fallback
     $language = $projectConfig.project_metadata.primary_language.ToLower()
-    $langConfigPath = Join-Path $projectRoot "languages-config/$language/$language-config.json"
+    $langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$language/$language-config.json"
 }
 if (-not (Test-Path $langConfigPath)) {
-    Write-ProjectError -Message "Language config not found at languages-config/$language/$language-config.json" -ExitCode 1
+    Write-ProjectError -Message "Language config not found at process-framework/languages-config/$language/$language-config.json" -ExitCode 1
 }
 $langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
 $dirStructure = $langConfig.directoryStructure

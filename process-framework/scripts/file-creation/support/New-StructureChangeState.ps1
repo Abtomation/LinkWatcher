@@ -37,9 +37,6 @@ Invoke-StandardScriptInitialization
 # Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Calculate expected completion (14 days from now as default for structure changes)
-$expectedCompletion = (Get-Date).AddDays(14).ToString("yyyy-MM-dd")
-
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "change_name" = ConvertTo-KebabCase -InputString $ChangeName
@@ -72,7 +69,6 @@ if ($FromProposal) {
 $customReplacements = @{
     "[Change Name]"                                                                            = $ChangeName
     "[Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]" = $ChangeType
-    "[YYYY-MM-DD]"                                                                             = $expectedCompletion
 }
 
 # Add description if provided

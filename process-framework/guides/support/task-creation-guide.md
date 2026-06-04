@@ -214,6 +214,8 @@ A bulleted list of all files, changes, and other outputs produced by the task. U
 
 Specify exactly which state files must be updated and what information should be changed in each file. Be specific about the format and content of updates.
 
+> **🎯 Design prompt — durable vs. transient state**: Does this task span multiple sessions, and does it have both transient (per-session work) and durable (cross-session) state? If yes, design distinct artifacts for each — typically a durable backlog/log living outside the temp dir, and a per-session temp state archived at session end. Conflating the two either loses cross-session continuity or persists transient noise forever. Precedent: [PF-TSK-087 (framework-blueprint-sync)](../../tasks/support/framework-blueprint-sync-task.md) uses `sync-backlog.md` (durable, what the blueprint still owes) + `sync-log.md` (durable, append-only history) + per-session temp state (transient, this session's selection).
+
 #### Task Completion Checklist
 
 A structured checklist that must be completed before the task is considered finished:

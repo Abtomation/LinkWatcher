@@ -17,7 +17,6 @@ change_name: [CHANGE-NAME]
 - **Change ID**: [To be assigned - SC-XXX format]
 - **Change Type**: Rename
 - **Scope**: [Brief description of what's being changed]
-- **Expected Completion**: [YYYY-MM-DD]
 
 ## File Mapping
 

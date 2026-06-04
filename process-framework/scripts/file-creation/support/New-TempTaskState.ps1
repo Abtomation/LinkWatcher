@@ -2,13 +2,42 @@
 # Creates a new temporary state tracking file for task creation or process improvement workflows
 # Uses the central ID registry system and standardized document creation
 
+<#
+.SYNOPSIS
+Creates a new temporary state tracking file for multi-session task creation, process improvement, or framework extension workflows.
+
+.DESCRIPTION
+Creates a temporary state file in process-framework-local/state-tracking/temporary/ from one of three template variants. Uses the central PF-id-registry to assign a PF-STA ID. Files are intended to be moved to temporary/old/ when the work cycle completes.
+
+.PARAMETER TaskName
+Human-readable name for the task / improvement / extension. Used as the document title and converted to kebab-case for the filename.
+
+.PARAMETER Variant
+Which template variant to instantiate. Allowed values:
+  - TaskCreation       (default) — new task creation (5-phase roadmap)
+  - ProcessImprovement — process improvement work
+  - FrameworkExtension — multi-artifact framework extensions
+
+.PARAMETER Description
+Optional one-line description that replaces the placeholder in the template.
+
+.PARAMETER OpenInEditor
+Open the created file in the default editor after creation.
+
+.EXAMPLE
+.\New-TempTaskState.ps1 -TaskName "Refactor Bug Triage Flow" -Variant ProcessImprovement -Description "Simplify Step 3 routing"
+
+.EXAMPLE
+.\New-TempTaskState.ps1 -TaskName "PF-PRO-028 v2.0 Rollout" -Variant FrameworkExtension
+#>
+
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory = $true)]
     [string]$TaskName,
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("TaskCreation", "ProcessImprovement", "FrameworkExtension")]
+    [ValidateSet("TaskCreation", "ProcessImprovement", "FrameworkExtension", "BlueprintSync")]
     [string]$Variant = "TaskCreation",
 
     [Parameter(Mandatory = $false)]
@@ -93,17 +122,32 @@ if ($Variant -eq "ProcessImprovement") {
         "💡 This template is pre-structured for multi-artifact framework extensions —",
         "   includes artifact tracking, task impact analysis, and multi-phase implementation."
     )
+} elseif ($Variant -eq "BlueprintSync") {
+    # --- Blueprint Sync variant ---
+    $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\temp-blueprint-sync-state-template.md"
+    $customFileName = "temp-blueprint-sync-$kebabName.md"
+    $idDescription = "Temporary blueprint sync state: ${TaskName}"
+
+    $customReplacements = @{}
+
+    $successDetails = @(
+        "",
+        "✅ Blueprint sync state file created.",
+        "",
+        "📖 CONSUMER TASK: process-framework/tasks/support/framework-blueprint-sync-task.md (PF-TSK-087)",
+        "🎯 FOCUS: Fill in Session Parameters, Per-Item Classification & Selection table, Notes on Specific Items, and Session Log.",
+        "",
+        "💡 This template is pre-structured for blueprint sync sessions —",
+        "   per-directory rules, per-item classification, durable backlog/log refs."
+    )
 } else {
     # --- Task Creation variant (original behavior) ---
     $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\temp-task-creation-state-template.md"
     $customFileName = "temp-task-creation-$kebabName.md"
     $idDescription = "Temporary task state: ${TaskName}"
 
-    $expectedCompletion = (Get-Date).AddDays(30).ToString("yyyy-MM-dd")
-
     $customReplacements = @{
         "[Task Name]"                                 = $TaskName
-        "- **Expected Completion**: [YYYY-MM-DD]"     = "- **Expected Completion**: $expectedCompletion"
     }
 
     if ($Description -ne "") {

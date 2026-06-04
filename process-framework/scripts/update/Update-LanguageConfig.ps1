@@ -8,7 +8,7 @@
     Adds or updates a field in all language config files and the language config template.
 
 .DESCRIPTION
-    Ensures consistency between all language config files in languages-config/ and the
+    Ensures consistency between all language config files in process-framework/languages-config/ and the
     language-config-template.json template. When adding a new field, it is inserted into
     every existing language config file and the template simultaneously.
 

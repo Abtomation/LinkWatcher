@@ -18,7 +18,6 @@ change_name: [CHANGE-NAME]
 - **Proposal Document**: [Link to structure-change-proposal document]
 - **Change Type**: [Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]
 - **Scope**: [Brief description of what's being changed]
-- **Expected Completion**: [YYYY-MM-DD]
 
 ## Affected Components Analysis
 

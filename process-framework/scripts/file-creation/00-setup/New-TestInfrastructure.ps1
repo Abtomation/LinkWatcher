@@ -1,7 +1,7 @@
 # New-TestInfrastructure.ps1
 # Bootstraps the test directory structure, tracking files, and TE-id-registry
 # for a new project adopting the process framework.
-# Language-agnostic: reads languages-config/{language}/{language}-config.json for
+# Language-agnostic: reads process-framework/languages-config/{language}/{language}-config.json for
 # fixture files, package markers, and test runner configuration.
 
 <#
@@ -28,7 +28,7 @@
     - .gitignore entries for workspace/ and results/ directories
 
 .PARAMETER Language
-    The project language, matching a subdirectory in languages-config/.
+    The project language, matching a subdirectory in process-framework/languages-config/.
     Examples: "python", "javascript", "dart"
 
 .PARAMETER TestCategories
@@ -56,7 +56,7 @@
 
 .NOTES
     - Requires project-config.json to exist (run Project Initiation first)
-    - Requires languages-config/{language}/{language}-config.json to exist
+    - Requires process-framework/languages-config/{language}/{language}-config.json to exist
     - Safe to re-run: skips existing files and directories
     - Used during Project Initiation (PF-TSK-059) Step 11
 

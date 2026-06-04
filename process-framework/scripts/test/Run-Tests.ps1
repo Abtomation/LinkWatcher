@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Reads project-config.json for project-specific settings (test directory, module name, quick categories)
-    and languages-config/{language}/{language}-config.json for language-specific commands (test runner, coverage, lint).
+    and process-framework/languages-config/{language}/{language}-config.json for language-specific commands (test runner, coverage, lint).
 
     Test categories are discovered dynamically by scanning subdirectories of the test directory.
     Use -ListCategories to see available categories.
@@ -62,7 +62,7 @@
     Run-Tests.ps1 -Category unit -UpdateTracking
 
 .NOTES
-    Config: project-config.json (project settings) + languages-config/{language}/{language}-config.json (commands).
+    Config: doc/project-config.json (project settings) + process-framework/languages-config/{language}/{language}-config.json (commands).
     Categories are auto-discovered from test directory subdirectories.
 #>
 

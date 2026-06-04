@@ -13,13 +13,12 @@ Updates the following file:
 Supports two operation modes:
 1. Status-only update: Changes Status and Last Updated columns in the Current table
 2. Completion: Moves improvement from Current to Completed section, updates summary count,
-   adds Update History entry, and updates frontmatter date
+   and updates frontmatter date
 
 When transitioning to Completed or Rejected:
 - Removes the row from "Current Improvement Opportunities"
 - Adds a reformatted row to "Completed Improvements" (inside <details> block)
 - Updates the <summary> item count
-- Adds an Update History entry
 - Updates frontmatter updated date
 
 PARAMETER REQUIREMENTS BY STATUS:
@@ -48,9 +47,8 @@ Impact level. Valid values: HIGH, MEDIUM, LOW, "—" (em-dash placeholder).
 
 .PARAMETER ValidationNotes
 Description of what was done or rationale for the lifecycle transition.
-Required when NewStatus is Completed or Rejected.
-Optional for other statuses — when provided, the Update History entry is
-enriched with the rationale (formatted as "<Status> <ID>: <notes>").
+Required when NewStatus is Completed or Rejected — populates the Validation Notes
+column in Completed Improvements. Ignored for other statuses.
 
 BASH GOTCHA: When invoking from bash, use single-quoted -ValidationNotes
 (e.g., -ValidationNotes 'text with `code` references') because bash interprets
@@ -58,12 +56,6 @@ backticks inside double-quoted strings as command substitution, silently truncat
 literal-code spans like `[string]$Param` to empty before pwsh receives the argument.
 The script will report success but store corrupted notes. PowerShell-native
 invocation is unaffected.
-
-.PARAMETER UpdateHistoryNote
-Custom note for the Update History table. Auto-generated if not provided.
-
-.PARAMETER UpdatedBy
-Who performed the update (default: "AI Agent (PF-TSK-009)")
 
 .EXAMPLE
 # Mark improvement as needing implementation (after prioritization)
@@ -84,10 +76,6 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -Va
 .EXAMPLE
 # Defer an improvement
 Update-ProcessImprovement.ps1 -ImprovementId "IMP-037" -NewStatus "Deferred"
-
-.EXAMPLE
-# Defer an improvement and capture the deferral rationale in the Update History entry
-Update-ProcessImprovement.ps1 -ImprovementId "IMP-037" -NewStatus "Deferred" -ValidationNotes "Deferred until BUG-100 is resolved (blocking on parser refactor)."
 
 .EXAMPLE
 # Resolve a pilot (PF-PRO-030 lifecycle): records decision, archives the linked concept doc, and moves the row to Completed Improvements
@@ -120,13 +108,7 @@ param(
     [string]$Impact,
 
     [Parameter(Mandatory = $false)]
-    [string]$ValidationNotes,
-
-    [Parameter(Mandatory = $false)]
-    [string]$UpdateHistoryNote,
-
-    [Parameter(Mandatory = $false)]
-    [string]$UpdatedBy = "AI Agent (PF-TSK-009)"
+    [string]$ValidationNotes
 )
 
 # Import the common helpers for Get-ProjectRoot
@@ -542,69 +524,6 @@ function Update-SummaryCount {
     return $result
 }
 
-function Update-HistorySummaryCount {
-    param([string]$Content)
-
-    # Count data rows in the Update History section
-    $count = 0
-    $inHistorySection = $false
-    foreach ($line in ($Content -split "\r?\n")) {
-        if ($line -match "^## Update History") { $inHistorySection = $true }
-        if ($inHistorySection -and $line -match "^\s*</details>") { break }
-        if ($inHistorySection -and $line -match "^\|\s*\d{4}-" ) { $count++ }
-    }
-
-    # Update the <summary> tag: "Show update history (N entries)"
-    $result = $Content -replace '(?<=Show update history \()\d+(?= entries?\))', $count.ToString()
-
-    Write-Log "Updated history summary count to $count entries" -Level "SUCCESS"
-    return $result
-}
-
-function Add-UpdateHistoryEntry {
-    param(
-        [string]$Content,
-        [string]$ImprovementId,
-        [string]$HistoryNote,
-        [string]$UpdatedBy
-    )
-
-    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
-
-    # Find the Update History table — insert after the last data row
-    $insertAfterIndex = -1
-    $inHistorySection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Update History") { $inHistorySection = $true }
-        if ($inHistorySection -and $lines[$i] -match "^\|[^-]" -and $lines[$i] -notmatch "^\|\s*Date") {
-            $insertAfterIndex = $i
-        }
-    }
-
-    # If no data rows, insert after the separator
-    if ($insertAfterIndex -eq -1) {
-        $inHistorySection = $false
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^## Update History") { $inHistorySection = $true }
-            if ($inHistorySection -and $lines[$i] -match "^\|\s*-") {
-                $insertAfterIndex = $i
-                break
-            }
-        }
-    }
-
-    if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find Update History table" -Level "ERROR"
-        return $null
-    }
-
-    $historyRow = "| $CurrentDate | $HistoryNote | $UpdatedBy |"
-    $lines.Insert($insertAfterIndex + 1, $historyRow)
-
-    Write-Log "Added Update History entry" -Level "SUCCESS"
-    return ($lines -join "`r`n")
-}
-
 function Update-FrontmatterDate {
     param([string]$Content)
 
@@ -654,33 +573,6 @@ function Main {
         }
     }
 
-    # Generate default history note if not provided
-    if (-not $UpdateHistoryNote) {
-        if ($isCompletion) {
-            $statusLabel = if ($NewStatus -eq "Rejected") { "Rejected" } else { "Completed" }
-            $UpdateHistoryNote = "$statusLabel $ImprovementId`: $ValidationNotes"
-        }
-        elseif ($NewStatus -eq "Resolved") {
-            # Empty -ValidationNotes signals the migration path (already-resolved pilot whose
-            # Notes column already contains the resolution narrative — see PF-IMP-729).
-            if ($ValidationNotes) {
-                $UpdateHistoryNote = "Resolved pilot $ImprovementId`: $ValidationNotes"
-            } else {
-                $UpdateHistoryNote = "Migrated resolved pilot $ImprovementId to Completed Improvements"
-            }
-        }
-        elseif ($NewStatus -eq "Active" -and $location -eq "ActivePilots") {
-            $UpdateHistoryNote = if ($ValidationNotes) { "Reactivated pilot ${ImprovementId}: $ValidationNotes" } else { "Set pilot $ImprovementId status to Active" }
-        }
-        elseif ($ValidationNotes) {
-            # Non-completion status with rationale — mirror Completed/Rejected format in Update History (PF-IMP-625)
-            $UpdateHistoryNote = "$($StatusDisplayNames[$NewStatus]) ${ImprovementId}: $ValidationNotes"
-        }
-        else {
-            $UpdateHistoryNote = "Updated $ImprovementId status to $($StatusDisplayNames[$NewStatus])"
-        }
-    }
-
     if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Update $ImprovementId to $NewStatus")) {
         return
     }
@@ -721,16 +613,6 @@ function Main {
             # Update Completed summary count to reflect the new entry
             $content = Update-SummaryCount -Content $content
         }
-
-        # Add Update History entry
-        $content = Add-UpdateHistoryEntry -Content $content -ImprovementId $ImprovementId -HistoryNote $UpdateHistoryNote -UpdatedBy $UpdatedBy
-        if ($null -eq $content) {
-            Write-Log "Failed to add Update History entry" -Level "ERROR"
-            exit 1
-        }
-
-        # Update history summary count
-        $content = Update-HistorySummaryCount -Content $content
 
         # Update frontmatter date
         $content = Update-FrontmatterDate -Content $content
@@ -779,17 +661,7 @@ function Main {
         if ($null -eq $content) { exit 1 }
     }
 
-    # Step 3: Add Update History entry
-    $content = Add-UpdateHistoryEntry -Content $content -ImprovementId $ImprovementId -HistoryNote $UpdateHistoryNote -UpdatedBy $UpdatedBy
-    if ($null -eq $content) {
-        Write-Log "Failed to add Update History entry" -Level "ERROR"
-        exit 1
-    }
-
-    # Step 3b: Update history summary count
-    $content = Update-HistorySummaryCount -Content $content
-
-    # Step 4: Update frontmatter date
+    # Update frontmatter date
     $content = Update-FrontmatterDate -Content $content
 
     # Single write (retry-on-IOException absorbs LinkWatcher contention — PF-IMP-718)

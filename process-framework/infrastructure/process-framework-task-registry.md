@@ -126,7 +126,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Creates** | `doc/project-config.json` | Manual | Project configuration with name, language, paths, features list |
-| **Creates** | `languages-config/{language}/{language}-config.json` | Manual | Language-specific command configurations for testing, linting, coverage |
+| **Creates** | `process-framework/languages-config/{language}/{language}-config.json` | Manual | Language-specific command configurations for testing, linting, coverage |
 | **Creates** | `test/` directory structure | `New-TestInfrastructure.ps1` | Test directories, tracking files, TE-id-registry.json |
 | **Creates** | [`user-workflow-tracking.md`](../../doc/state-tracking/permanent/user-workflow-tracking.md) | Manual | User workflow to feature mapping |
 | **Creates** | CI/CD infrastructure (optional) | Manual | Pipeline configs, pre-commit hooks, dev scripts |
@@ -1411,12 +1411,12 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Creation Script:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1)
 - **Update Script:** [`Update-ProcessImprovement.ps1`](../scripts/update/Update-ProcessImprovement.ps1)
 - **Output Directory:** N/A (updates in-place)
-- **Auto-Update Function:** New entries with auto-assigned PF-IMP IDs; status transitions, completion moves, summary count, update history, frontmatter date
+- **Auto-Update Function:** New entries with auto-assigned PF-IMP IDs; status transitions, completion moves, summary count, frontmatter date
 
 **📁 FILE OPERATIONS**
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | Script | Status-only: updates Status and Last Updated columns in Current table<br/>Completion: moves row from Current to Completed, updates summary count, adds Update History entry |
+| **Updates** | [`process-improvement-tracking.md`](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | Script | Status-only: updates Status and Last Updated columns in Current table<br/>Completion: moves row from Current to Completed, updates summary count |
 
 **🔧 USAGE EXAMPLES**
 ```powershell
@@ -1595,6 +1595,26 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-051" -NewStatus "InProgress" -
 - **Trigger:** _(user request)_
 - **Output:** All framework files → domain-adapted
 
+
+#### **1. framework-blueprint-sync** ([PF-TSK-087](../tasks/support/framework-blueprint-sync-task.md))
+
+**🔧 Process Type:** 🔧 **Manual** (Newly created — customize after task definition is complete)
+
+**📋 AUTOMATION DETAILS**
+
+- **Script:** _None — update after task customization_
+- **Output Directory:** _TBD_
+
+**📁 FILE OPERATIONS**
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| _TBD_ | _Update after task customization_ | _TBD_ | _TBD_ |
+
+**🎯 KEY IMPACTS**
+
+- **Primary output:** _Update after task customization_
+- **Enables next steps:** _TBD_
+- **Dependencies:** _TBD_
 ### **CYCLICAL TASKS**
 
 #### **C1. Technical Debt Assessment Task** ([PF-TSK-023](../tasks/cyclical/technical-debt-assessment-task.md))

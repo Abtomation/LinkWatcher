@@ -104,6 +104,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Task: Technical Debt Assessment](tasks/cyclical/technical-debt-assessment-task.md) - Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase
 
 #### Support Tasks
+- [Task: framework-blueprint-sync](tasks/support/framework-blueprint-sync-task.md) - Propagate framework improvements made within real working projects back to the corresponding FrameworkBuilder blueprint, ensuring blueprints stay current with battle-tested evolutions. Covers all top-level framework directories (process-framework, doc, test, src, root files) — not limited to any one subdir. User specifies the target framework variant; sync flows project to blueprint only.
 
 - [Task: New Task Creation Process](tasks/support/new-task-creation-process.md) - Complete process for creating new tasks from concept to implementation-ready definition
 - [Task: Process Improvement](tasks/support/process-improvement-task.md) - Improve development processes
@@ -242,6 +243,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Template: Temporary Task Creation State](templates/support/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
 - [Template: Temporary Process Improvement State](templates/support/temp-process-improvement-state-template.md) - Template for tracking multi-session process improvement implementation (via `New-TempTaskState.ps1 -Variant ProcessImprovement`)
 - [Template: Temporary Framework Extension State](templates/support/temp-framework-extension-state-template.md) - Template for tracking multi-session framework extension implementation with artifact tracking and task impact analysis (via `New-TempTaskState.ps1 -Variant FrameworkExtension`)
+- [Template: Temporary Blueprint Sync State](templates/support/temp-blueprint-sync-state-template.md) - Per-session state tracker for framework-blueprint-sync sessions (PF-TSK-087): Session Parameters, Per-Item Classification table, Notes on Specific Items, Session Log, Completion Criteria (via `New-TempTaskState.ps1 -Variant BlueprintSync`)
 - [Template: Document Creation Script](templates/support/document-creation-script-template.ps1) - PowerShell template for document creation scripts
 - [Template: Update Script](templates/support/update-script-template.ps1) - PowerShell template for state update scripts
 - [Template: Framework Evaluation Report](templates/support/framework-evaluation-report-template.md) - Template for structured framework evaluation reports with dimension scoring
@@ -394,6 +396,7 @@ Our tasks are organized to mirror the `tasks` directory structure:
 - [Guide: Template Development](guides/support/template-development-guide.md) - Guide for developing and maintaining framework templates
 - [Guide: Document Creation Script Development](guides/support/document-creation-script-development-guide.md) - Standardized approach for creating documents from templates through PowerShell scripts
 - [Guide: Schema Audit Procedure](guides/support/schema-audit-procedure-guide.md) - How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)
+- [Guide: Blueprint Sync Consideration Policy](guides/support/blueprint-sync-consideration-policy-guide.md) - Per-subdirectory and per-skeleton-file classification policy for PF-TSK-087 framework-blueprint-sync drift discovery
 
 ### Tools
 

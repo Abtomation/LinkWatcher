@@ -52,7 +52,7 @@
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
-    - Reads project-config.json + languages-config/{language}/{language}-config.json for language-aware behavior
+    - Reads doc/project-config.json + process-framework/languages-config/{language}/{language}-config.json for language-aware behavior
     - When FeatureId is provided, automatically updates test implementation tracking
     - Integrates with Process Framework automation infrastructure
     - Supports dry run mode for safe testing
@@ -131,10 +131,10 @@ if (Test-Path $projectConfigPath) {
 # Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# --- Language configuration from languages-config/{language}/{language}-config.json ---
+# --- Language configuration from process-framework/languages-config/{language}/{language}-config.json ---
 $langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$($language.ToLower())/$($language.ToLower())-config.json"
 if (-not (Test-Path $langConfigPath)) {
-    Write-Error "Language config not found: $langConfigPath. Create it from languages-config/ template."
+    Write-Error "Language config not found: $langConfigPath. Create it from process-framework/languages-config/ template."
     exit 1
 }
 

@@ -115,8 +115,8 @@ Establishes foundational project configuration and metadata when initializing a 
      },
 
      "testing": {
-       "description": "Test runner configuration — language-specific commands are in languages-config/{language}/{language}-config.json",
-       "language": "[Language name matching a subdirectory in languages-config/, e.g. 'python' or 'dart']",
+       "description": "Test runner configuration — language-specific commands are in process-framework/languages-config/{language}/{language}-config.json",
+       "language": "[Language name matching a subdirectory in process-framework/languages-config/, e.g. 'python' or 'dart']",
        "testDirectory": "[Test directory relative to root, e.g. 'test/automated']",
        "quickCategories": ["[subdirectory names for -Quick flag, e.g. 'unit', 'widget']"]
      },
@@ -153,7 +153,7 @@ Establishes foundational project configuration and metadata when initializing a 
    - **`paths.source_code`**: Set to the actual source directory name (e.g., `src`, `lib`, `app`). Do **not** leave as `"."` — this value drives the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) scaffold script and validation. The `source-code-layout.md` file should already exist at `doc/technical/architecture/` (created from the blueprint template). No directories are created at this point — that is deferred to Codebase Feature Discovery (PF-TSK-064) after features are known.
 
 9. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
-10. **Set Up Language Configuration**: Check if `languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](/process-framework/templates/support/language-config-template.json) to `languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/process-framework/languages-config/README.md).
+10. **Set Up Language Configuration**: Check if `process-framework/languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](/process-framework/templates/support/language-config-template.json) to `process-framework/languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/process-framework/languages-config/README.md).
 
 11. **Set Up Testing Infrastructure**: Run the bootstrapping script to scaffold the test environment:
    ```bash
@@ -221,7 +221,7 @@ Establishes foundational project configuration and metadata when initializing a 
   - Project metadata (language, framework, platform, development approach)
   - Team composition and collaboration model
   - Integration configurations (issue tracker, CI/CD, code hosting)
-- **Language config** (if new) - `languages-config/{language}/{language}-config.json` with language-specific test runner commands
+- **Language config** (if new) - `process-framework/languages-config/{language}/{language}-config.json` with language-specific test runner commands
 - **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-tracking.md`
 - **CI/CD infrastructure** (optional) - Pre-commit hooks, dev script, CI pipeline
 
@@ -235,7 +235,7 @@ Establishes foundational project configuration and metadata when initializing a 
   - Lifecycle: Permanent (never archived)
 
 - **Language config** (PERMANENT, conditional — only if not already present):
-  - Location: `languages-config/{language}/{language}-config.json`
+  - Location: `process-framework/languages-config/{language}/{language}-config.json`
   - Purpose: Language-specific command configurations for test runner, coverage, and lint tools
   - Lifecycle: Permanent (never archived)
 

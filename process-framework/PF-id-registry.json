@@ -27,7 +27,7 @@
         "cyclical": "process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 87
+      "nextAvailable": 88
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -37,7 +37,7 @@
         "main": "process-framework/guides",
         "default": "main"
       },
-      "nextAvailable": 65
+      "nextAvailable": 66
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -47,7 +47,7 @@
         "main": "process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 75
+      "nextAvailable": 76
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",

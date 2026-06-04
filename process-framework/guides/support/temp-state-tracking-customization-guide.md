@@ -2,9 +2,9 @@
 id: PF-GDE-011
 type: Process Framework
 category: Guide
-version: 2.0
+version: 2.1
 created: 2024-12-19
-updated: 2025-07-28
+updated: 2026-05-05
 ---
 
 # Temporary State File Customization Guide
@@ -15,14 +15,14 @@ updated: 2025-07-28
 | Document Type | Process Guide |
 | Template Source | [/process-framework/templates/support/guide-template.md](/process-framework/templates/support/guide-template.md) |
 | Created Date | 2024-12-19 |
-| Last Updated | 2025-07-28 |
-| Version | 2.0 |
+| Last Updated | 2026-05-05 |
+| Version | 2.1 |
 | Status | Active |
 | Owner | Development Team |
 | Created By | AI Assistant |
-| Source Documents | [temp-task-creation-state-template.md](../../templates/support/temp-task-creation-state-template.md), [temp-process-improvement-state-template.md](../../templates/support/temp-process-improvement-state-template.md), [structure-change-state-template.md](../../templates/support/structure-change-state-template.md) |
-| Consumer Documents | [New Task Creation Process](../../tasks/support/new-task-creation-process.md), [Framework Extension Task](../../tasks/support/framework-extension-task.md), [Structure Change Task](../../tasks/support/structure-change-task.md) |
-| Consumer Working Modes | Task Creation, Framework Extension, Structure Changes, Multi-Session Development |
+| Source Documents | [temp-task-creation-state-template.md](../../templates/support/temp-task-creation-state-template.md), [temp-process-improvement-state-template.md](../../templates/support/temp-process-improvement-state-template.md), [temp-framework-extension-state-template.md](../../templates/support/temp-framework-extension-state-template.md), [temp-blueprint-sync-state-template.md](../../templates/support/temp-blueprint-sync-state-template.md), [structure-change-state-template.md](../../templates/support/structure-change-state-template.md) |
+| Consumer Documents | [New Task Creation Process](../../tasks/support/new-task-creation-process.md), [Framework Extension Task](../../tasks/support/framework-extension-task.md), [Structure Change Task](../../tasks/support/structure-change-task.md), [Framework Blueprint Sync Task](../../tasks/support/framework-blueprint-sync-task.md) |
+| Consumer Working Modes | Task Creation, Framework Extension, Structure Changes, Blueprint Sync, Multi-Session Development |
 | Governed By | /process-framework/README.md |
 
 ## Overview
@@ -114,6 +114,20 @@ Choose the appropriate template based on your workflow type:
 - Phase 3: Integration & Task Updates (wiring into existing framework)
 - Phase 4: Finalization (testing, documentation, completion)
 - Includes: artifact status tracking, existing task impact analysis, session planning
+
+### Blueprint Sync Workflows
+**Use**: `temp-blueprint-sync-state-template.md`
+**Script**: `New-TempTaskState.ps1 -Variant BlueprintSync`
+**Best For**:
+- Framework Blueprint Sync sessions (PF-TSK-087)
+- Per-session inventory + classification tracker for project → blueprint propagation
+- Sessions where the durable record lives in `FrameworkBuilder/{variant}/sync-backlog.md` and `sync-log.md`, and the temp state is scaffolding for one session only
+
+**Characteristics**:
+- Purpose-built for sync-session shape — no Implementation Roadmap / Required Artifacts / Placeholder Components
+- Sections: Session Parameters, Per-Item Classification & Selection table, Notes on Specific Items, Session Log, Completion Criteria
+- Per-Item Classification table uses PF-TSK-087's per-directory rules (`wholesale-replace` / `structure-only` / `per-item` / `skip-default`)
+- Completion criteria align with PF-TSK-087 Step 9–16 (checkpoint, application, validation, backlog/log update, tracking update, archival, feedback form)
 
 ## Phase Customization Patterns
 
@@ -360,6 +374,8 @@ Phase 4: Framework Integration & Testing
 ### Templates
 - [Temporary Task Creation State Template](../../templates/support/temp-task-creation-state-template.md) - For task creation workflows
 - [Temporary Process Improvement State Template](../../templates/support/temp-process-improvement-state-template.md) - For process improvement workflows
+- [Temporary Framework Extension State Template](../../templates/support/temp-framework-extension-state-template.md) - For framework extension workflows
+- [Temporary Blueprint Sync State Template](../../templates/support/temp-blueprint-sync-state-template.md) - For framework blueprint sync sessions
 - [Structure Change State Template](../../templates/support/structure-change-state-template.md) - For structure change workflows
 
 ### Scripts

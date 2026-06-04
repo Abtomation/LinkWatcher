@@ -18,7 +18,6 @@ change_name: [CHANGE-NAME]
 - **Extension Concept**: [Link to framework-extension-concept document, if applicable]
 - **Change Type**: Framework Extension
 - **Scope**: [Brief description of what's being changed]
-- **Expected Completion**: [YYYY-MM-DD]
 
 ## Affected Components Analysis
 
@@ -49,7 +48,7 @@ Registries, tracking files, and documentation maps requiring updates:
 
 ## Implementation Roadmap
 
-### Phase 1: Preparation (Session 1)
+### Stage 1: Preparation (Session 1)
 - [ ] **Review extension concept**: Confirm scope and affected components
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 - [ ] **Complete affected components tables** above
@@ -57,7 +56,7 @@ Registries, tracking files, and documentation maps requiring updates:
 - [ ] **Checkpoint**: Present plan to human partner for approval
   - **Status**: [NOT_STARTED/COMPLETED]
 
-### Phase 2: Create & Modify Artifacts (Session 1-2)
+### Stage 2: Create & Modify Artifacts (Session 1-2)
 - [ ] **Create new artifacts**: Templates, scripts, guides per New Artifacts table
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 - [ ] **Modify existing artifacts**: Updates per Modified Artifacts table
@@ -65,7 +64,7 @@ Registries, tracking files, and documentation maps requiring updates:
 - [ ] **Update infrastructure**: Registries, tracking files, documentation maps
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
-### Phase 3: Validation & Cleanup (Session 2-3)
+### Stage 3: Validation & Cleanup (Session 2-3)
 - [ ] **Validate changes**: Run relevant validation scripts, verify cross-references
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 - [ ] **Update documentation**: Documentation Map, affected guides

@@ -102,7 +102,7 @@ What work follows the completed onboarding?
 **Prerequisites for Transition:**
 
 - [ ] `project-config.json` created at `doc/project-config.json` with project identification, directory mappings, and testing configuration
-- [ ] Language config file created in `languages-config/{language}/`
+- [ ] Language config file created in `process-framework/languages-config/{language}/`
 - [ ] Test infrastructure scaffolded (directory structure, tracker, registry, fixtures)
 - [ ] CI/CD infrastructure set up (if applicable: pre-commit hooks, dev script, pipeline)
 - [ ] User Workflow Tracking file created at `doc/state-tracking/permanent/user-workflow-tracking.md`

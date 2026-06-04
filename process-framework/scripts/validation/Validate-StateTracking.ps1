@@ -130,9 +130,14 @@ function Get-MarkdownLinks {
     $regex = [regex]'\[([^\]]*)\]\(([^)]+)\)'
     $matchCollection = $regex.Matches($Line)
     foreach ($m in $matchCollection) {
+        # CommonMark allows <URL> wrapping for URLs containing spaces; strip the brackets.
+        $path = $m.Groups[2].Value
+        if ($path.StartsWith('<') -and $path.EndsWith('>')) {
+            $path = $path.Substring(1, $path.Length - 2)
+        }
         $links += [PSCustomObject]@{
             Text = $m.Groups[1].Value
-            Path = $m.Groups[2].Value
+            Path = $path
         }
     }
     return $links
@@ -1464,7 +1469,7 @@ if ($runAll -or $Surface -contains "SourceLayout") {
                 if (Test-Path $projectConfigPath) {
                     try {
                         $lang = $pcfg.testing.language.ToLower()
-                        $lcPath = Join-Path $ProjectRoot "languages-config/$lang/$lang-config.json"
+                        $lcPath = Join-Path $ProjectRoot "process-framework/languages-config/$lang/$lang-config.json"
                         if (Test-Path $lcPath) {
                             $lc = Get-Content $lcPath -Raw | ConvertFrom-Json
                             $namingConvention = $lc.directoryStructure.directoryNaming

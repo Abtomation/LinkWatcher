@@ -35,11 +35,19 @@ This file tracks the soak-verification state of PowerShell scripts registered vi
 |-----------|--------------|-----------------|--------|-----------------|--------------|-------|
 | process-framework/scripts/file-creation/02-design/New-IntegrationNarrative.ps1 | 6876B1859D64861C7887F8E6A77C645744FDC0E940A08C4AD14280636F804AD9 | 3 | Active Soak | 2026-04-27 | success | PF-TSK-026 Phase 4 pilot adopter (IMP-586 trigger); counter clamped 4→3 on 2026-05-05 (PF-IMP-728 v2.0 default change); Pattern A code removed on 2026-05-05 (PF-IMP-733), now relies on Pattern B helper-routed armoring (DocumentManagement.psm1) only — counter will auto-reset on next invocation (hash change) |
 | process-framework/scripts/file-creation/07-deployment/New-Handbook.ps1 | C34F153005462FEE34163A9B624B69A9B3BBD19EAB5DAE27F6A803A23BDAC407 | 3 | Active Soak | — | — | PF-TSK-026 Phase 4 second pilot; counter clamped 5→3 on 2026-05-05 (PF-IMP-728 v2.0 default change); Pattern A code removed on 2026-05-05 (PF-IMP-733), now relies on Pattern B helper-routed armoring (DocumentManagement.psm1) only — counter will auto-reset on next invocation (hash change) |
-| process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 | 1276C45E4FFB10AE94CA63E50740C88889EC710C0A470E336BB4ADAB36A06F85 | 2 | Active Soak | 2026-05-05 | success | Adopted opportunistically post-pilot during PF-IMP-685 review (PF-TSK-009 session 2026-04-29) |
+| process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 | 4929CD740F7F473849EB39D3650E40C8AAA83F5CD4E3CB898F70726FC0F05408 | 1 | Active Soak | 2026-05-06 | success | Adopted opportunistically post-pilot during PF-IMP-685 review (PF-TSK-009 session 2026-04-29) |
 | process-framework/scripts/update/Update-TechDebt.ps1 | 0FE16D3458A4386CDB80B3D4CA064A75395A4F18EBFC95C12CE437017A715C54 | 3 | Active Soak | — | — | Phase 4 pilot rollout adopter (PF-IMP-685 decision: extend assert+soak pattern to high-frequency update scripts); counter clamped 5→3 on 2026-05-05 (PF-IMP-728 v2.0 default change) |
 | process-framework/scripts/update/Update-BugStatus.ps1 | 95CCC922FC451F7BCF440576A3AA77E618000F3B5525CD671B913F9215DD6D08 | 3 | Active Soak | — | — | Phase 4 pilot rollout adopter (PF-IMP-685 decision: extend assert+soak pattern to high-frequency update scripts); counter clamped 5→3 on 2026-05-05 (PF-IMP-728 v2.0 default change) |
-| process-framework/scripts/update/Update-ProcessImprovement.ps1 | 19AFD89EEBA10F58F9D01BFF281330FF48B32105282D38C2F1001425A01C5A2C | 0 | Soak Complete | 2026-05-05 | success | Phase 4 pilot rollout adopter (PF-IMP-685 / IMP-696: 3rd backfill candidate, completing Option B rollout) |
-| process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 | 6C852E9759822EF160D4F2BFEB3C184D31D6E438C42A6F86B393E6DCD9F10B12 | 0 | Soak Complete | 2026-05-05 | success |  |
+| process-framework/scripts/update/Update-ProcessImprovement.ps1 | 37A0520C7101339797573AEBD27E27045C682D7FC66048DCE22A8BEE3580D803 | 0 | Soak Complete | 2026-05-05 | success | Phase 4 pilot rollout adopter (PF-IMP-685 / IMP-696: 3rd backfill candidate, completing Option B rollout) |
+| process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 | 6C852E9759822EF160D4F2BFEB3C184D31D6E438C42A6F86B393E6DCD9F10B12 | 0 | Soak Complete | 2026-05-06 | success |  |
+| process-framework/scripts/file-creation/support/New-TempTaskState.ps1 | 6FC78D6C7E32EE38DE576C4953B1427239A0C5290957FA2421D29C05FEF5B22C | 2 | Active Soak | 2026-05-06 | success |  |
+| process-framework/scripts/file-creation/support/New-Task.ps1 | 56452144E70108ED70E705EF76CD7F781A0BEC433B583F5816F298705245351C | 2 | Active Soak | 2026-05-05 | success |  |
+| process-framework/scripts/file-creation/06-maintenance/New-ReviewSummary.ps1 | 4B6ACFBBCEEFD94FD2F88F3BCAB176902103ADD5569B17740474F607496321BC | 2 | Active Soak | 2026-05-05 | success |  |
+| process-framework/scripts/file-creation/support/New-Guide.ps1 | F6339401151E6E5B4F20FABE3309BC6BF8E938C7E98CD6C6F5EE5E7B8E9858CE | 1 | Active Soak | 2026-05-05 | success |  |
+| process-framework/scripts/file-creation/support/New-Template.ps1 | 50B54446F2486ADD017E1E81FD30F8C936443C133F671956811D414C1CA3BF54 | 1 | Active Soak | 2026-05-05 | success |  |
+| process-framework/scripts/file-creation/00-setup/New-SourceStructure.ps1 | C7EC2CB52A1793F333550DAF9D49D16F9C4EC44CC0DC40846E364EA408F91666 | 2 | Active Soak | 2026-05-06 | success |  |
+| process-framework/scripts/file-creation/01-planning/New-FeatureRequest.ps1 | CAAD21B2A390CEADB12F653BEF195F1730B7C9535A7F8A1463408A3F0BFB619B | 2 | Active Soak | 2026-05-16 | success |  |
+| process-framework/scripts/file-creation/06-maintenance/New-BugReport.ps1 | 2576AC94EE40CF98F7A3B5D7608A9897FB2E099024677BDA9438067FC1F1FB23 | 2 | Active Soak | 2026-06-03 | success |  |
 <!-- New rows are appended above this comment by Register-SoakScript. -->
 
 ## Update History
@@ -119,4 +127,47 @@ This file tracks the soak-verification state of PowerShell scripts registered vi
 | 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 1 -> 0 | Confirm-SoakInvocation |
 | 2026-05-05 | PF-IMP-733: Removed redundant explicit Pattern A code (Test-ScriptInSoak / Confirm-SoakInvocation calls) from New-IntegrationNarrative.ps1 and New-Handbook.ps1; both now use single-line Register-SoakScript opt-in (Pattern B, helper-routed via DocumentManagement.psm1). Eliminates ~3x counter drain per invocation. Hash change will trigger auto-reset to 3 on next invocation per PF-PRO-028 v2.0. | AI Agent (PF-TSK-009) |
 | 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Registered process-framework/scripts/file-creation/support/New-TempTaskState.ps1 (counter=3) | Register-SoakScript |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-TempTaskState.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Registered process-framework/scripts/file-creation/support/New-Task.ps1 (counter=3) | Register-SoakScript |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-Task.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-TempTaskState.ps1; counter 2 -> 1 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Registered process-framework/scripts/file-creation/06-maintenance/New-ReviewSummary.ps1 (counter=3) | Register-SoakScript |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/06-maintenance/New-ReviewSummary.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Hash mismatch for process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1; auto-reset counter to 3 | Test-ScriptInSoak (auto) |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Registered process-framework/scripts/file-creation/support/New-Guide.ps1 (counter=3) | Register-SoakScript |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-Guide.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-Guide.ps1; counter 2 -> 1 | Confirm-SoakInvocation |
+| 2026-05-05 | Registered process-framework/scripts/file-creation/support/New-Template.ps1 (counter=3) | Register-SoakScript |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-Template.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-Template.ps1; counter 2 -> 1 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1; counter 2 -> 1 | Confirm-SoakInvocation |
+| 2026-05-05 | Hash mismatch for process-framework/scripts/update/Update-ProcessImprovement.ps1; auto-reset counter to 3 | Test-ScriptInSoak (auto) |
+| 2026-05-05 | Confirmed success for process-framework/scripts/update/Update-ProcessImprovement.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Hash mismatch for process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1; auto-reset counter to 3 | Test-ScriptInSoak (auto) |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/update/Update-ProcessImprovement.ps1; counter 2 -> 1 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-05 | Confirmed success for process-framework/scripts/update/Update-ProcessImprovement.ps1; counter 1 -> 0 | Confirm-SoakInvocation |
+| 2026-05-06 | Registered process-framework/scripts/file-creation/00-setup/New-SourceStructure.ps1 (counter=3) | Register-SoakScript |
+| 2026-05-06 | Confirmed success for process-framework/scripts/file-creation/00-setup/New-SourceStructure.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-06 | Confirmed success for process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1; counter 2 -> 1 | Confirm-SoakInvocation |
+| 2026-05-06 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-06 | Hash mismatch for process-framework/scripts/file-creation/support/New-TempTaskState.ps1; auto-reset counter to 3 | Test-ScriptInSoak (auto) |
+| 2026-05-06 | Confirmed success for process-framework/scripts/file-creation/support/New-TempTaskState.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-05-06 | Confirmed success for process-framework/scripts/file-creation/support/New-FeedbackForm.ps1; counter 0 -> 0 | Confirm-SoakInvocation |
+| 2026-05-16 | Registered process-framework/scripts/file-creation/01-planning/New-FeatureRequest.ps1 (counter=3) | Register-SoakScript |
+| 2026-05-16 | Confirmed success for process-framework/scripts/file-creation/01-planning/New-FeatureRequest.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
+| 2026-06-03 | Registered process-framework/scripts/file-creation/06-maintenance/New-BugReport.ps1 (counter=3) | Register-SoakScript |
+| 2026-06-03 | Confirmed success for process-framework/scripts/file-creation/06-maintenance/New-BugReport.ps1; counter 3 -> 2 | Confirm-SoakInvocation |
 <!-- New rows are appended above this comment by Register-SoakScript / Confirm-SoakInvocation. -->

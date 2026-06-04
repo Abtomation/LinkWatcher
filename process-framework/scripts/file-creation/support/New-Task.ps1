@@ -2,6 +2,42 @@
 # Creates a new task document with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
 
+<#
+.SYNOPSIS
+Creates a new task definition document with an automatically assigned PF-TSK ID.
+
+.DESCRIPTION
+Generates a new task definition file from the task template under process-framework/tasks/<workflow-phase>/. Updates the PF-id-registry, ai-tasks.md task registry, and PF-documentation-map.md.
+
+.PARAMETER TaskName
+Human-readable name for the task. Used as the document title and converted to kebab-case for the filename.
+
+.PARAMETER Description
+Optional 1-2 sentence description of the task's purpose. Replaces the template's purpose placeholder.
+
+.PARAMETER WorkflowPhase
+Which workflow phase the task belongs to. Determines the subdirectory under process-framework/tasks/. Allowed values:
+  - 00-setup
+  - 01-planning (default)
+  - 02-design
+  - 03-testing
+  - 04-implementation
+  - 05-validation
+  - 06-maintenance
+  - 07-deployment
+  - support
+  - cyclical
+
+.PARAMETER OpenInEditor
+Open the created file in the default editor after creation.
+
+.EXAMPLE
+.\New-Task.ps1 -TaskName "Database Migration Review" -WorkflowPhase "06-maintenance" -Description "Review pending DB migrations before deployment"
+
+.EXAMPLE
+.\New-Task.ps1 -TaskName "API Endpoint Design" -WorkflowPhase "02-design"
+#>
+
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory = $true)]
@@ -392,7 +428,7 @@ try {
     Write-Host "🚨 MANDATORY NEXT STEP: Task Creation Guide Review Required" -ForegroundColor Red
     Write-Host "   You MUST consult the Task Creation Guide before proceeding with customization." -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "� REQUIRED READING:" -ForegroundColor Cyan
+    Write-Host "📖 REQUIRED READING:" -ForegroundColor Cyan
     Write-Host "process-framework/guides/support/task-creation-guide.md" -ForegroundColor White
     Write-Host "   Focus on: 'Phase 2: Content Customization' section" -ForegroundColor Gray
     Write-Host ""

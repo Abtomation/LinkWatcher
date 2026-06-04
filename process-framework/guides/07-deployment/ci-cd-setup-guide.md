@@ -24,7 +24,7 @@ Guide for scaffolding CI/CD infrastructure in new or existing projects. Covers C
 ## Prerequisites
 
 - `project-config.json` exists with project name and language configured
-- Language config exists in `languages-config/{language}/{language}-config.json`
+- Language config exists in `process-framework/languages-config/{language}/{language}-config.json`
 - Git repository initialized
 - Language-specific tools installed (e.g., `black`, `isort`, `flake8` for Python)
 

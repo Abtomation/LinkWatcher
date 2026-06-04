@@ -551,7 +551,7 @@ function New-ProjectCodeMetadata {
     'open' (block-comment opener), 'close' (block-comment closer), 'linePrefix'
     (prepended to each metadata line). When omitted, defaults to C-family
     /* ... */ block comment with " * " line prefix (backward compatible).
-    Source: languages-config/{language}/{language}-config.json -> headerComment.
+    Source: process-framework/languages-config/{language}/{language}-config.json -> headerComment.
 
     .EXAMPLE
     New-ProjectCodeMetadata -DocumentId "PF-TST-001" -DocumentType "Test File" -Category "Unit" -AdditionalFields @{"test_name"="UserAuth"}

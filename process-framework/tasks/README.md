@@ -122,6 +122,7 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [framework-blueprint-sync](support/framework-blueprint-sync-task.md) | Propagate framework improvements made within real working projects back to the corresponding FrameworkBuilder blueprint, ensuring blueprints stay current with battle-tested evolutions. Covers all top-level framework directories (process-framework, doc, test, src, root files) — not limited to any one subdir. User specifies the target framework variant; sync flows project to blueprint only. | When working on framework-blueprint-sync |
 | [New Task Creation Process](support/new-task-creation-process.md) | Complete process for creating new tasks | When the framework needs a new task definition |
 | [Process Improvement](support/process-improvement-task.md) | Implement specific process improvements | When a process needs enhancement |
 | [Structure Change](support/structure-change-task.md) | Manage systematic changes to documentation structures | When updating templates or document structures |

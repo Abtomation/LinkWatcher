@@ -81,7 +81,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 10. Run automated code quality checks using the project's configured tools:
    ```bash
-   # Commands are defined in languages-config/{language}/{language}-config.json
+   # Commands are defined in process-framework/languages-config/{language}/{language}-config.json
    # - Static analysis / linting: testing.lintCommand
    # - Test runner with coverage: testing.baseCommand + testing.coverageArgs
    # Project language and test directory are in doc/project-config.json
@@ -116,7 +116,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 13. Run and verify all test suites using the project's test runner:
     ```bash
-    # Run by category (categories defined in languages-config/)
+    # Run by category (categories defined in process-framework/languages-config/)
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category unit
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category integration
     # Run full suite
