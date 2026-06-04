@@ -2,10 +2,11 @@
 id: PF-GDE-064
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2026-05-04
-updated: 2026-05-04
+updated: 2026-06-03
 related_script: Validate-StateTracking.ps1
+description: "How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)"
 ---
 
 # Schema Audit Procedure
@@ -14,7 +15,7 @@ related_script: Validate-StateTracking.ps1
 
 How to reconcile template-frontmatter schema drift surfaced by `Validate-StateTracking.ps1 -Detailed` (Surface 10: Metadata Schema Conformance).
 
-The validate script's Surface 10 checks every task, template, guide, and context map against the schema declared in [`domain-config.json`](/process-framework/domain-config.json) under `artifact_metadata_schemas`. Frontmatter fields that aren't declared as `required` or `optional` for that artifact type produce **"Unknown field"** warnings. Per [PF-IMP-646](/process-framework-local/state-tracking/permanent/process-improvement-tracking.md), these warnings are marked `-DetailOnly` because they're dominated by legitimate template-subtype fields rather than typos — the default summary line `"Warnings: N (M hidden — use -Detailed to view)"` is the trigger for this audit.
+The validate script's Surface 10 checks every task, template, guide, and context map against the schema declared in [`domain-config.json`](../../domain-config.json) under `artifact_metadata_schemas`. Frontmatter fields that aren't declared as `required` or `optional` for that artifact type produce **"Unknown field"** warnings. Per [PF-IMP-646](/process-framework-central/state-tracking/permanent/process-improvement-tracking.md), these warnings are marked `-DetailOnly` because they're dominated by legitimate template-subtype fields rather than typos — the default summary line `"Warnings: N (M hidden — use -Detailed to view)"` is the trigger for this audit.
 
 ## When to Use
 
@@ -27,8 +28,8 @@ There is no calendar cadence; the trigger is signal-driven from the validation o
 
 ## Prerequisites
 
-- [`Validate-StateTracking.ps1`](/process-framework/scripts/validation/Validate-StateTracking.ps1) is present and runs cleanly
-- [`process-framework/domain-config.json`](/process-framework/domain-config.json) contains an `artifact_metadata_schemas` section with entries for `task`, `template`, `guide`, `context_map`
+- [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) is present and runs cleanly
+- [`process-framework/domain-config.json`](../../domain-config.json) contains an `artifact_metadata_schemas` section with entries for `task`, `template`, `guide`, `context_map`
 - You can edit `domain-config.json` (no automation script wraps schema edits — direct JSON edits)
 
 ## Background
@@ -42,7 +43,7 @@ There is no calendar cadence; the trigger is signal-driven from the validation o
   "required": ["id", "type", "category", "version", "created", "updated"],
   "optional": ["related_task", "related_script"],
   "field_values": {
-    "id_pattern": "^(PF-GDE-\\d{3}|PF-MTH-\\d{3})$",
+    "id_pattern": "^(PF-GDE-\\d+|PF-MTH-\\d+)$",
     "type": ["Process Framework"],
     "category": ["Guide", "Methodology", "Template"]
   }
@@ -66,7 +67,22 @@ Each "Unknown field" finding maps to one of two outcomes:
 | **Declare** | The field is legitimate — used intentionally by one or more templates of this artifact type and should be allowed | Add the field name to the artifact type's `optional` array in `domain-config.json` |
 | **Fix** | The field is a typo, leftover from a refactor, or doesn't belong in this artifact type | Edit the offending template/guide/task file's frontmatter to remove or rename the field |
 
-A finding is never "ignore" — every line in `-Detailed` output represents real drift between intent and declaration.
+A finding is never "ignore" — every line in `-Detailed` output represents real drift between intent and declaration. The resolution for a legitimate field is **Declare** (not "leave it flagged") — see the subtype note below for the most common Declare case.
+
+### State-tracking templates are a Declare subtype
+
+Not every file with `category: Template` is an *artifact* template. A second kind exists: **state-tracking templates** — the `New-TempTaskState.ps1` variants (`temp-*-state-template.md`) and the feature-scoped trackers (implementation plans, test-audit reports, test specs). Their frontmatter describes the **state instance the generated file will track**, not the document the template produces:
+
+| Template kind | Characteristic fields | What the metadata describes |
+|---|---|---|
+| Artifact template | `template_for`, `creates_document_prefix`, `creates_document_version` | the document the template creates |
+| State-tracking template | `task_name`, `parent_state`, `feature_id` | the task / parent-state / feature the tracked instance belongs to |
+
+When Surface 10 flags `task_name`, `parent_state`, or `feature_id`, the correct outcome is **Declare**, not Fix. These fields are intentional and used consistently across the state-tracking family (`task_name` alone appears in ~7 templates) — **do not "conform" a state-tracking template to the artifact-template schema** (e.g. by swapping `task_name` for `template_for`); that destroys correct metadata. As of 2026-06-03 these three fields are declared in `domain-config.json`'s `template.optional` for exactly this reason (PF-IMP-949).
+
+> **Why declare rather than sub-type?** The schema is flat — it cannot scope a field to a template subtype — so a declared field is allowed on *every* template. That is the accepted trade-off (a too-permissive schema costs little; a false typo-fix costs more). Sibling fields a later full pass should also Declare: `feature_ids` (cross-cutting test spec), `variant_group`, and `mode` (variant-family templates) remain undeclared.
+
+> **Placeholder styles are out of scope here.** State-tracking templates mix `[Bracketed Title]` and `[ALL-CAPS-TOKEN]` placeholders in the body. That is a template-authoring consistency concern (see the [Template Development Guide](template-development-guide.md)), not a metadata-schema one — Surface 10 only inspects frontmatter, never body placeholders.
 
 ## Step-by-Step Instructions
 
@@ -186,6 +202,6 @@ updated: 2026-04-15
 
 ## Related Resources
 
-- [Validate-StateTracking.ps1](/process-framework/scripts/validation/Validate-StateTracking.ps1) — Surface 10 implementation (lines ~824-958)
-- [domain-config.json](/process-framework/domain-config.json) — `artifact_metadata_schemas` section
-- [Process Improvement Tracking](/process-framework-local/state-tracking/permanent/process-improvement-tracking.md) — PF-IMP-646 (introduced `-DetailOnly`) and PF-IMP-690 (this guide)
+- [Validate-StateTracking.ps1](../../scripts/validation/Validate-StateTracking.ps1) — Surface 10 implementation (lines ~824-958)
+- [domain-config.json](../../domain-config.json) — `artifact_metadata_schemas` section
+- [Process Improvement Tracking](/process-framework-central/state-tracking/permanent/process-improvement-tracking.md) — PF-IMP-646 (introduced `-DetailOnly`) and PF-IMP-690 (this guide)

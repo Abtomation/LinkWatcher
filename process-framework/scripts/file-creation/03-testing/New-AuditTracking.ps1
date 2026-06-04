@@ -84,15 +84,13 @@ Invoke-StandardScriptInitialization
 Register-SoakScript
 
 $today = Get-Date -Format "yyyy-MM-dd"
-$projectRoot = Get-ProjectRoot
 
 # --- Parse the appropriate tracking file to build inventory ---
-$trackingRelPath = switch ($TestType) {
-    "Performance" { "test/state-tracking/permanent/performance-test-tracking.md" }
-    "E2E" { "test/state-tracking/permanent/e2e-test-tracking.md" }
-    default { "test/state-tracking/permanent/test-tracking.md" }
+$trackingFilePath = switch ($TestType) {
+    "Performance" { Resolve-TrackingFilePath -File "performance-test-tracking.md" }
+    "E2E"         { Resolve-TrackingFilePath -File "e2e-test-tracking.md" }
+    default       { Resolve-TrackingFilePath -File "test-tracking.md" }
 }
-$trackingFilePath = Join-Path $projectRoot $trackingRelPath
 $trackingFileName = Split-Path $trackingFilePath -Leaf
 
 if (-not (Test-Path $trackingFilePath)) {
@@ -266,7 +264,7 @@ $customFileName = "audit-tracking$typeSuffix-$RoundNumber.md"
 
 try {
     $documentId = New-StandardProjectDocument `
-        -TemplatePath "process-framework/templates/03-testing/audit-tracking-template.md" `
+        -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/audit-tracking-template.md") `
         -IdPrefix "PF-STA" `
         -IdDescription "Audit tracking state for Round $RoundNumber" `
         -DocumentName "Audit Tracking Round $RoundNumber" `

@@ -3,9 +3,10 @@ id: PF-TSK-078
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2026-03-24
-updated: 2026-04-03
+updated: 2026-05-16
+description: "General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests"
 ---
 
 # Core Logic Implementation
@@ -21,15 +22,6 @@ Implement core business logic modules, wire integration points, and write unit t
 **Focus Areas**: Clean code, existing pattern adherence, testability, incremental delivery
 **Communication Style**: Present implementation choices with trade-offs, flag deviations from TDD/FDD specifications, ask about edge cases and acceptance criteria
 
-## When to Use
-
-- After Feature Implementation Planning (PF-TSK-044) has created the implementation roadmap and feature state file
-- When implementing non-foundation features (1.x.x+, 2.x.x+, etc.) that do not require the architectural depth of Foundation Feature Implementation (PF-TSK-022)
-- When the feature does not need a separate Data Layer Implementation phase (PF-TSK-051) — or after PF-TSK-051 has completed the data layer
-- For Tier 1 features where planning and implementation are lightweight (create module, wire integration, write tests)
-- For Tier 2/3 features as the core coding phase between data layer setup and integration testing
-- **Prerequisites**: Implementation plan completed (PF-TSK-044), design documentation available (TDD/FDD if applicable), feature state file created
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/core-logic-implementation-map.md)
@@ -44,14 +36,14 @@ Implement core business logic modules, wire integration points, and write unit t
 
   - **FDD (Functional Design Document)** - Business requirements and acceptance criteria (if Tier 2+)
   - **Existing Source Code** - Review similar modules in the source directory for patterns and conventions
-  - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Coding best practices and conventions
-  - [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) - Completion criteria
-  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
+  - [Development Guide](../../guides/04-implementation/development-guide.md) - Coding best practices and conventions
+  - [Definition of Done](../../guides/04-implementation/definition-of-done.md) - Completion criteria
+  - [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 
 - **Reference Only (Access When Needed):**
   - **Test Specification** - Expected test coverage and test case details (if created)
-  - [Bug Reporting Guide](/process-framework/guides/06-maintenance/bug-reporting-guide.md) - For documenting bugs discovered during implementation
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - For documenting bugs discovered during implementation
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -113,9 +105,9 @@ Implement core business logic modules, wire integration points, and write unit t
    - Cover error handling and edge cases
    - Follow existing test patterns and conventions
    - Aim for coverage targets defined in the test specification (if available)
-   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 8. **🚨 CHECKPOINT**: Present implemented modules, test results, and any TDD deviations to human partner for review
-   > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), create an ADR using [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md).
+   > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), create an ADR using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md).
 
 ### Finalization
 

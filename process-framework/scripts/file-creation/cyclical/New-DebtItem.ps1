@@ -114,8 +114,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/cyclical/debt-item-template.md"
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/debt-item-template.md"
     $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-TDI" -IdDescription "Technical Debt Item: $ItemTitle" -DocumentName $ItemTitle -DirectoryType "debt-items" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details

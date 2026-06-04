@@ -7,6 +7,7 @@ created: 2026-04-07
 updated: 2026-04-07
 workflow_phase: 07-deployment
 related_task: PF-TSK-082
+description: "Context map for Git Commit and Push task"
 ---
 
 # Git Commit and Push Context Map

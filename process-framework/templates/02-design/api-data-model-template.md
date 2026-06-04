@@ -223,7 +223,7 @@ Identify where and how the template can be extended for specific needs.
 Link to related documentation, examples, or other resources.
 -->
 
-- [Template Development Guide](/process-framework/guides/support/template-development-guide.md)
-- [Documentation Structure Guide](/process-framework/guides/framework/documentation-structure-guide.md)
+- [Template Development Guide](../../guides/support/template-development-guide.md)
+- [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md)
 
 ---

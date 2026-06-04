@@ -74,7 +74,7 @@ Maintain two sorted lists (`_sorted_link_keys`, `_sorted_resolved_keys`) alongsi
 ## Testing Strategy
 
 ### Existing Test Coverage
-- **Unit Tests**: `TestGetReferencesToDirectory` class in `test/automated/unit/test_database.py` — 9 test methods covering exact match, prefix match, non-match, multiple refs, deduplication, and PD-BUG-068 regression
+- **Unit Tests**: `TestGetReferencesToDirectory` class in `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py` — 9 test methods covering exact match, prefix match, non-match, multiple refs, deduplication, and PD-BUG-068 regression
 - **Integration Tests**: `test_reference_lookup.py` tests directory reference lookup via mock
 
 ### Testing Approach During Refactoring

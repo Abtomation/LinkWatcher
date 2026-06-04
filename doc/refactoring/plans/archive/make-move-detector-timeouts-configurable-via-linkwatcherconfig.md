@@ -81,7 +81,7 @@ Add config fields with current hardcoded values as defaults, then wire config th
 - `src/linkwatcher/config/defaults.py`: Added 3 explicit defaults in DEFAULT_CONFIG
 - `src/linkwatcher/handler.py`: Added `config` parameter, reads timing from config with DEFAULT_CONFIG fallback
 - `src/linkwatcher/service.py`: Passes `config=config` to handler constructor
-- `test/automated/unit/test_config.py`: Added 10 new tests (2 default/custom, 3 validation, 3 wiring, 2 roundtrip)
+- `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py`: Added 10 new tests (2 default/custom, 3 validation, 3 wiring, 2 roundtrip)
 
 ### Bugs Discovered
 None.

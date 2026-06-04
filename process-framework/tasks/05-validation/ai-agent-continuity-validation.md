@@ -2,9 +2,10 @@
 id: PF-TSK-036
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-08-16
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity"
 ---
 
 # AI Agent Continuity Validation
@@ -19,14 +20,6 @@ Systematically validates selected features for AI agent workflow continuity, ens
 **Mindset**: Workflow-focused, context-aware, session-continuity oriented
 **Focus Areas**: Context clarity, modular structure, documentation quality, AI agent workflow optimization, session handoff effectiveness
 **Communication Style**: Identify workflow bottlenecks and context gaps, recommend structural improvements for AI agent effectiveness, ask about multi-session development patterns when evaluating continuity needs
-
-## When to Use
-
-- When validating selected features for AI agent workflow continuity as part of the validation framework
-- Before implementing complex multi-session development workflows
-- When optimizing codebase structure for AI agent collaboration
-- As part of documentation quality assessment focusing on AI agent usability
-- When evaluating the effectiveness of context handoff between development sessions
 
 ## Context Requirements
 
@@ -95,7 +88,7 @@ Systematically validates selected features for AI agent workflow continuity, ens
 14. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 16. **Plan Optimizations**: For scores below threshold, create action items for workflow and continuity improvements
-17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "DA" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

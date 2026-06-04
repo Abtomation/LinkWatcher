@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-08-16
 updated: 2025-08-16
 related_task: PF-TSK-036
+description: "Components for validating context clarity, modular structure, and documentation quality for AI agent workflow continuity"
 ---
 
 # AI Agent Continuity Validation Context Map

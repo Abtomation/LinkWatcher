@@ -7,14 +7,14 @@ created: 2026-04-29
 updated: 2026-04-29
 refactoring_scope: Switch PH-008 CPU monitoring from system-wide to process CPU
 priority: High
-target_area: test/automated/performance/test_large_projects.py PH-008
+target_area: test/automated/performance/level3-scale/test_large_projects.py PH-008
 mode: lightweight
 debt_item: TD247
 ---
 
 # Lightweight Refactoring Plan: Switch PH-008 CPU monitoring from system-wide to process CPU
 
-- **Target Area**: test/automated/performance/test_large_projects.py PH-008
+- **Target Area**: test/automated/performance/level3-scale/test_large_projects.py PH-008
 - **Priority**: High
 - **Created**: 2026-04-29
 - **Author**: AI Agent & Human Partner
@@ -24,7 +24,7 @@ debt_item: TD247
 
 ## Item 1: TD247 — PH-008 measures system-wide CPU instead of LinkWatcher process CPU (+ TD249 PH-008 sub-item)
 
-**Scope**: PH-008 (`test_cpu_usage_monitoring` in [test_large_projects.py](/test/automated/performance/test_large_projects.py)) called `psutil.cpu_percent(interval=0.1)` inside its monitor thread, returning host-wide CPU. This decoupled the assertion (`max_cpu < 95`) from LinkWatcher behavior and caused a false-positive failure in audit TE-TAR-070 Run 2 (peak=100% from unrelated host load). Switch to a process-scoped handle (`process.cpu_percent(interval=0.1)` via `psutil.Process(os.getpid())`), mirroring the process-handle pattern used by PH-007. Dimension: TST (test integrity).
+**Scope**: PH-008 (`test_cpu_usage_monitoring` in [test_large_projects.py](/test/automated/performance/level3-scale/test_large_projects.py)) called `psutil.cpu_percent(interval=0.1)` inside its monitor thread, returning host-wide CPU. This decoupled the assertion (`max_cpu < 95`) from LinkWatcher behavior and caused a false-positive failure in audit TE-TAR-070 Run 2 (peak=100% from unrelated host load). Switch to a process-scoped handle (`process.cpu_percent(interval=0.1)` via `psutil.Process(os.getpid())`), mirroring the process-handle pattern used by PH-007. Dimension: TST (test integrity).
 
 **Scope expansion at L7**: The literal TD247 prescription produced a unit mismatch — `process.cpu_percent` returns `cores * 100%` on multi-core hosts (regression run measured 117.6% peak, 64.2% avg), so the existing `[0, 100]`-scale thresholds failed. TD249's PH-008 sub-item ("Replace PH-008 peak < 95 with a process-CPU threshold or remove entirely") was already blocked-on-TD247 in the tracking notes, so its PH-008 portion was bundled into this session per Option B (user-approved). This narrows TD249 — its PH-008 entry is now resolved; the remaining 4 tolerance-tightening items are unaffected.
 

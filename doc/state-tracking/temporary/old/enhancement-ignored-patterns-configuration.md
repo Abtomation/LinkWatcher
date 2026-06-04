@@ -201,7 +201,7 @@ enhancement_name: ignored-patterns-configuration
 - **Applicable**: Yes
 - **Referenced Task Doc**: [Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)
 - **Rationale**: New config field and consumer wiring need test coverage.
-- **Adaptation Notes**: Add tests to `test/automated/unit/test_config.py`: config loading with `ignored_patterns` from YAML/JSON, default empty list, validation. Add tests to `test/automated/unit/test_validator.py`: validator respects `ignored_patterns` from config, patterns correctly filter targets. Add tests for standard watcher consumer if applicable. Run full regression suite.
+- **Adaptation Notes**: Add tests to `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py`: config loading with `ignored_patterns` from YAML/JSON, default empty list, validation. Add tests to `test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py`: validator respects `ignored_patterns` from config, patterns correctly filter targets. Add tests for standard watcher consumer if applicable. Run full regression suite.
 - **Deliverable**: Updated test files with ignored_patterns coverage, full regression passing
 - **Session**: 1
 

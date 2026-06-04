@@ -29,6 +29,11 @@
     - Modification: Extension modifies existing artifacts (adds steps to tasks, updates templates)
     - Hybrid: Extension both creates new artifacts and modifies existing ones
 
+.PARAMETER Minimal
+    Selects a slim concept template for small-scope creation extensions (single artifact).
+    When set, -Type defaults to "Creation" if not specified. Mutually exclusive with
+    -Type Modification and -Type Hybrid.
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
@@ -38,12 +43,15 @@
 .EXAMPLE
     New-FrameworkExtensionConcept.ps1 -ExtensionName "Testing Framework" -ExtensionDescription "Automated testing infrastructure and processes" -Type Modification -ExtensionScope "Multi-component" -OpenInEditor
 
+.EXAMPLE
+    New-FrameworkExtensionConcept.ps1 -ExtensionName "Service Interface API Spec" -ExtensionDescription "Template variant for non-network API contracts" -Minimal
+
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
-    - Template selection: Creation and Modification use dedicated templates; Hybrid uses the full template
+    - Template selection: Creation and Modification use dedicated templates; Hybrid uses the full template; -Minimal uses the slim creation template
 
     Template Metadata:
     - Template ID: PF-TEM-020
@@ -64,9 +72,12 @@ param(
     [Parameter(Mandatory=$false)]
     [string]$ExtensionScope = "",
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$false)]
     [ValidateSet("Creation", "Modification", "Hybrid")]
     [string]$Type,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$Minimal,
 
     [Parameter(Mandatory=$false)]
     [switch]$OpenInEditor
@@ -88,11 +99,36 @@ Invoke-StandardScriptInitialization
 # Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
+# -Minimal validation: mutually exclusive with Modification/Hybrid; defaults Type to Creation
+if ($Minimal) {
+    if ($Type -and $Type -ne "Creation") {
+        throw "-Minimal is only valid with -Type Creation (or omitting -Type). Got -Type $Type."
+    }
+    if (-not $Type) { $Type = "Creation" }
+}
+if (-not $Minimal -and -not $Type) {
+    throw "-Type is required when -Minimal is not specified. Use -Type Creation|Modification|Hybrid."
+}
+
+# Phase 7 (2026-05-11): write to appdev/process-framework-central/proposals/ regardless of cwd;
+# stamp project_id in frontmatter.
+$projectId = $null
+try {
+    $cfg = Get-ProjectConfig
+    if ($cfg.project_id) { $projectId = $cfg.project_id }
+} catch {
+    Write-Verbose "New-FrameworkExtensionConcept: could not read doc/project-config.json; project_id will be null."
+}
+
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
-    "extension_name" = $ExtensionName
+    "extension_name"        = $ExtensionName
     "extension_description" = $ExtensionDescription
-    "extension_scope" = $ExtensionScope
+    "extension_scope"       = $ExtensionScope
+    "project_id"            = $(if ($projectId) { $projectId } else { "null" })
+}
+if ($Minimal) {
+    $additionalMetadataFields["mode"] = "minimal"
 }
 
 # Prepare custom replacements
@@ -107,19 +143,33 @@ $customReplacements = @{
     "[Creation / Modification / Hybrid]" = $Type
 }
 
-# Select template based on extension type
-$templatePath = switch ($Type) {
-    "Creation"     { "process-framework/templates/support/framework-extension-concept-creation-template.md" }
-    "Modification" { "process-framework/templates/support/framework-extension-concept-modification-template.md" }
-    "Hybrid"       { "process-framework/templates/support/framework-extension-concept-template.md" }
+# Select template based on extension type. Phase 7: template paths resolved via configurable
+# paths.process_framework (Get-ProcessFrameworkPath) so the same script works in both the
+# appdev blueprint layout and rolled-out projects.
+$processFrameworkDir = Get-ProcessFrameworkPath
+$modeLabel = if ($Minimal) { "Minimal" } else { $Type }
+$templatePath = if ($Minimal) {
+    Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-extension-concept-minimal-template.md"
+} else {
+    switch ($Type) {
+        "Creation"     { Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-extension-concept-creation-template.md" }
+        "Modification" { Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-extension-concept-modification-template.md" }
+        "Hybrid"       { Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-extension-concept-template.md" }
+    }
 }
 
-Write-Verbose "Extension type: $Type — using template: $templatePath"
+Write-Verbose "Extension mode: $modeLabel — using template: $templatePath"
+
+# Phase 7: write target is appdev central proposals/ (resolved via Get-CentralFrameworkPath
+# from any cwd). PRJ-ID prefix on the filename per Phase 7.5 Open-content convention.
+$outputDir = Join-Path -Path (Get-CentralFrameworkPath) -ChildPath "proposals"
+$prjPrefix = if ($projectId) { "${projectId}_" } else { "" }
+$kebabName = ConvertTo-KebabCase -InputString $ExtensionName
+$customFileName = "${prjPrefix}${kebabName}.md"
 
 # Create the document using standardized process
 try {
-    # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -DirectoryType "main" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -189,8 +239,8 @@ EXAMPLE TEST COMMANDS:
 ../../../../../../../../proposals/New-FrameworkExtensionConcept.ps1 -ExtensionName "Test Framework" -ExtensionDescription "Test extension" -ExtensionScope "Test"
 
 # Verify created document
-Get-Content "../../../../../../proposals/process-framework-local/proposals/test-framework-concept.md" | Select-Object -First 20
+Get-Content "../../../../../../process-framework-central/proposals/test-framework-concept.md" | Select-Object -First 20
 
 # Cleanup
-Remove-Item "../../../../../../proposals/process-framework-local/proposals/test-framework-concept.md" -Force
+Remove-Item "../../../../../../process-framework-central/proposals/test-framework-concept.md" -Force
 #>

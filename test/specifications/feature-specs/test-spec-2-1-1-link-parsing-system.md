@@ -71,7 +71,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | LinkParser | Size gate — disabled | `test_size_check_disabled_when_zero` — `max_file_size_mb=0` bypasses gate even for large files (TD227) | `temp_project_dir` |
 | LinkParser | Size gate — missing file | `test_missing_file_still_returns_empty` — stat failure on missing file does not trigger gate; graceful empty result preserved (TD227) | None |
 
-**Test File**: [`test/automated/unit/test_parser.py`](../../../test/automated/unit/test_parser.py) (16 methods)
+**Test File**: [`test/automated/unit/test_parser.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py) (16 methods)
 
 ### Parser Tests — Markdown
 
@@ -99,7 +99,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Complex document | `test_complex_markdown_document` | 7+ targets, mixed formats |
 | Empty/error | `test_empty_file`, `test_file_with_no_links`, `test_error_handling` | Edge cases |
 
-**Test File**: [`test/automated/parsers/test_markdown.py`](../../../test/automated/parsers/test_markdown.py) (24 methods)
+**Test File**: [`test/automated/parsers/test_markdown.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py) (24 methods)
 
 ### Parser Tests — YAML
 
@@ -118,7 +118,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Directory paths | `test_bug030_directory_paths_detected_in_yaml`, `test_bug030_directory_paths_coexist_with_file_paths` | Directory paths without extensions detected alongside file paths (PD-BUG-030) |
 | Compound string extraction | `test_compound_command_string_with_embedded_file_path`, `test_compound_string_with_embedded_directory_path` | Embedded file paths extracted from command-line strings via regex sub-path extraction (PD-BUG-060) |
 
-**Test File**: [`test/automated/parsers/test_yaml.py`](../../../test/automated/parsers/test_yaml.py) (13 methods)
+**Test File**: [`test/automated/parsers/test_yaml.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py) (13 methods)
 
 ### Parser Tests — JSON
 
@@ -139,7 +139,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Directory paths | `test_bug030_directory_paths_detected_in_json`, `test_bug030_directory_paths_coexist_with_file_paths`, `test_bug030_non_path_strings_not_detected` | Directory paths without extensions detected alongside file paths, non-path strings rejected (PD-BUG-030) |
 | Compound string extraction | `test_compound_string_with_embedded_file_path`, `test_compound_string_multiple_patterns`, `test_compound_string_no_false_positive_from_glob` | Embedded file paths extracted from compound command strings (e.g., permission patterns) via regex sub-path extraction (PD-BUG-061) |
 
-**Test File**: [`test/automated/parsers/test_json.py`](../../../test/automated/parsers/test_json.py) (20 methods)
+**Test File**: [`test/automated/parsers/test_json.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py) (20 methods)
 
 ### Parser Tests — Python
 
@@ -155,7 +155,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 | Directory paths | `test_quoted_directory_paths`, `test_quoted_directory_paths_no_false_positives` | Quoted strings with path separators but no file extension detected as directory path references (PD-BUG-056) |
 
-**Test File**: [`test/automated/parsers/test_python.py`](../../../test/automated/parsers/test_python.py) (10 methods)
+**Test File**: [`test/automated/parsers/test_python.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py) (10 methods)
 
 ### Parser Tests — Dart
 
@@ -170,7 +170,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Complex file | `test_complex_dart_file` | 22+ refs across multiple classes |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 
-**Test File**: [`test/automated/parsers/test_dart.py`](../../../test/automated/parsers/test_dart.py) (12 methods)
+**Test File**: [`test/automated/parsers/test_dart.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_dart.py) (12 methods)
 
 ### Parser Tests — Generic
 
@@ -190,7 +190,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 | Quoted directory paths | `test_bug021_quoted_directory_paths_detected` and related tests in `TestGenericParserDirectoryPaths` class | Quoted strings containing path separators but no file extension detected as directory path references (PD-BUG-021) |
 
-**Test File**: [`test/automated/parsers/test_generic.py`](../../../test/automated/parsers/test_generic.py) (21 methods)
+**Test File**: [`test/automated/parsers/test_generic.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_generic.py) (21 methods)
 
 ### Parser Tests — Image Files
 
@@ -203,7 +203,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Extension classification | `test_image_file_extensions_not_in_specialized_parsers` | .png, .svg, .jpg not specialized |
 | Mixed directory | `test_mixed_content_directory_parsing` | Markdown finds image refs, images have zero outgoing |
 
-**Test File**: [`test/automated/parsers/test_image_files.py`](../../../test/automated/parsers/test_image_files.py) (6 methods)
+**Test File**: [`test/automated/parsers/test_image_files.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_image_files.py) (6 methods)
 
 ### Parser Tests — PowerShell
 
@@ -222,7 +222,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Deduplication | `test_deduplication` | Same ref on same line |
 | Line numbers | `test_line_numbers_are_1_based` | 1-based indexing |
 
-**Test File**: [`test/automated/parsers/test_powershell.py`](../../../test/automated/parsers/test_powershell.py) (32 methods)
+**Test File**: [`test/automated/parsers/test_powershell.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_powershell.py) (32 methods)
 **Note**: Registered as TE-TST-129 during test audit (2026-03-15) — was previously unregistered.
 
 ## Test Implementation Roadmap

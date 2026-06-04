@@ -2,12 +2,18 @@
 id: [DOCUMENT_ID]
 type: Process Framework
 category: Proposal
-version: 1.0
+version: 1.1
 created: [Created Date]
 updated: [Created Date]
 extension_name: [Extension Name]
 extension_description: [Extension Description]
 extension_scope: [Extension Scope]
+variant_group: framework-extension-concept-templates
+variant_siblings:
+  - framework-extension-concept-template.md
+  - framework-extension-concept-creation-template.md
+  - framework-extension-concept-minimal-template.md
+description: "Modification-type template for extensions that modify existing artifacts"
 ---
 
 # [Extension Name] - Framework Extension Concept
@@ -106,20 +112,6 @@ This framework extension should be used when:
 
 **Rationale for order**: [Brief explanation — e.g., "schema first so downstream scripts can be tested against new fields"]
 
-## 🔗 Integration with Task-Based Development Principles
-
-### Adherence to Core Principles
-- **Task Granularity**: Each implementation session focuses on specific, completable components that can be implemented within one AI agent session
-- **State Tracking**: Comprehensive tracking of multi-session implementation progress
-- **Artifact Management**: Clear separation of outputs with defined purposes
-- **Task Handover**: Seamless continuation across AI agent sessions through state tracking
-
-### Framework Evolution Approach
-- **Incremental Extension**: Add new capabilities without disrupting existing functionality
-- **Consistency Maintenance**: Ensure new components follow established patterns and conventions
-- **Integration Focus**: Design extensions to work harmoniously with current framework
-- **Documentation Alignment**: Maintain consistency with existing documentation standards
-
 ## 🔄 Modification Details
 
 ### State Tracking Audit
@@ -200,12 +192,6 @@ This framework extension should be used when:
 - [ ] **Documentation Consistency**: All new components follow established patterns
 - [ ] **State Tracking Integrity**: State files are properly maintained and updated
 - [ ] **Backward Compatibility**: Modifications don't break existing workflows
-
-### Quality Success Criteria
-- [ ] **Completeness**: All planned modifications are implemented and functional
-- [ ] **Usability**: Extension is easy to understand and use
-- [ ] **Maintainability**: Extension can be maintained and evolved over time
-- [ ] **Documentation Quality**: All components are properly documented
 
 ## 📝 Next Steps
 

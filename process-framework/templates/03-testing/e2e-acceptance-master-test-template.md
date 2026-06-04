@@ -12,7 +12,7 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 ---
 
 <!-- TEMPLATE STARTS BELOW THIS LINE -->
-<!-- Copy everything below into test/e2e-acceptance-testing/templates/<group>/master-test-<group-name>.md -->
+<!-- Copy everything below into test/e2e-acceptance-testing/<workflow-slug>/templates/master-test-<workflow-slug>.md (PF-IMP-871 Phase 3c2 per-workflow layout) -->
 <!-- Replace all [PLACEHOLDERS] with actual values -->
 <!-- Remove all instructional comments when creating the actual file -->
 

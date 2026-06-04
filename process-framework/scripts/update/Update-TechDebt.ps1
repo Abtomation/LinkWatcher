@@ -9,23 +9,35 @@ This script automates debt item lifecycle management in technical-debt-tracking.
 Optionally updates the validation tracking file when resolving or adding debt items
 tracked in validation (via -ValidationNote and -ValidationIssueId parameters).
 
-Supports four operation modes:
+Updates the following files (defaults; override with -TrackingFile / -ArchiveFile):
+- doc/state-tracking/permanent/technical-debt-tracking.md (live Registry only since archive-split)
+- doc/state-tracking/permanent/archive/technical-debt-tracking-archive.md (## Resolved + ## Rejected;
+  archive-split 2026-05-26 per PF-IMP-873)
+
+Supports five operation modes:
 1. Add new debt item: Generates next TD### ID, inserts row into Registry table, optionally
    updates the associated PF-TDI debt item file with the assigned ID
-2. Status-only update: Changes Status and Resolution Date columns in the Registry table
-3. Completion (Resolved): Moves debt item from Registry to "Recently Resolved" section,
+2. Batch add (-BatchFile): Reads a JSON array of debt items, validates all items upfront,
+   then adds them sequentially. Same per-item side-effects as single -Add. Eliminates
+   per-call overhead when registering multiple items in one session (PF-TSK-066 Step 11
+   commonly produces 5-15 debt items per feature). See -BatchFile parameter for JSON shape.
+3. Status-only update: Changes Status and Resolution Date columns in the Registry table
+4. Completion (Resolved/Rejected): Moves debt item from Registry (in TrackingFile) to archive
+   ## Resolved (Resolved) or ## Rejected (Rejected) section (in ArchiveFile, PF-IMP-873),
    drops Estimated Effort and Status columns, sets Resolution Date, updates frontmatter date
-4. In-place edit of open item: Replaces the Description and/or Notes column on a TD item
+5. In-place edit of open item: Replaces the Description and/or Notes column on a TD item
    still in the Registry table (-EditDescription / -EditNotes), without changing status.
    Use case: a refactoring resolves a sub-item of another open TD without resolving the whole TD.
 
-Registry table columns (11):
-  | ID | Description | Dims | Location | Created Date | Priority | Estimated Effort | Status | Resolution Date | Assessment ID | Notes |
-  idx: 0     1            2          3          4               5          6                  7        8                 9               10
+Registry table columns (read from live header at runtime):
+  | ID | Description | Dims | Location | Created Date | Priority | Estimated Effort | Status | Resolution Date | Assessment ID | Workflows | Notes |
 
-Recently Resolved table columns (9):
+Archive ## Resolved / ## Rejected table columns (read from archive header at runtime):
   | ID | Description | Category | Location | Created Date | Priority | Resolution Date | Assessment ID | Notes |
-  idx: 0     1            2          3          4               5          6                 7               8
+
+Column lookups are header-driven via Split-MarkdownTableRow / ConvertTo-MarkdownTableRow / Move-MarkdownTableRow
+from TableOperations.psm1 — no hardcoded indices. Schema additions to either table will not silently corrupt
+data. See PF-IMP-006 for the original index-hardcoding defects this replaces.
 
 .PARAMETER Add
 Switch to add a new debt item. Auto-generates the next TD### ID.
@@ -58,17 +70,51 @@ When provided, updates the debt item file with the assigned TD### registry ID.
 .PARAMETER Notes
 Additional notes about the debt item (optional for Add).
 
+.PARAMETER BatchFile
+Path to a JSON file containing an array of debt items to add. Each array element is a
+JSON object with the same fields as the single -Add parameter set:
+
+  Required: Description, Dims, Location, Priority, EstimatedEffort
+  Optional: AssessmentId, DebtItemId, Notes, ValidationIssueId (string or array of strings)
+
+All items are validated upfront. If any item fails validation, the script exits with
+exit code 1 and a descriptive error referring to the failing item index — no items are
+added in that case. On success, items are added sequentially with auto-generated TD###
+IDs; per-item side-effects (Update-DebtItemFile when DebtItemId is set;
+Update-ValidationTrackingLink when ValidationIssueId is set) match single -Add behavior.
+
+Example JSON:
+  [
+    {
+      "Description": "Missing error handling in parser",
+      "Dims": "CQ",
+      "Location": "src/linkwatcher/parsers",
+      "Priority": "Medium",
+      "EstimatedEffort": "2 hours",
+      "AssessmentId": "PF-TDA-001",
+      "Notes": "Catch-all bare except blocks observed."
+    },
+    {
+      "Description": "Logging missing across parser layer",
+      "Dims": "CQ OB",
+      "Location": "src/linkwatcher/parsers",
+      "Priority": "Medium",
+      "EstimatedEffort": "4 hours"
+    }
+  ]
+
 .PARAMETER Section
 Target section for updates. Currently only "Resolved" is supported.
-When set to "Resolved", updates notes on items already in the Recently Resolved section.
-Use with -ResolvedDebtId and -UpdateNotes.
+When set to "Resolved", updates notes on items already in the archive (## Resolved or ## Rejected
+section in -ArchiveFile, per PF-IMP-873). Use with -ResolvedDebtId and -UpdateNotes.
 
 .PARAMETER ResolvedDebtId
-The technical debt ID to update in the Recently Resolved section (e.g., "TD011").
+The technical debt ID to update in the archive (e.g., "TD011"). Searched against both ## Resolved
+and ## Rejected sections — the operation is meaningful for either disposition.
 Required when -Section "Resolved" is used.
 
 .PARAMETER UpdateNotes
-Text to append to the Notes column of the resolved item.
+Text to append to the Notes column of the archived debt item.
 Required when -Section "Resolved" is used.
 
 .PARAMETER DebtId
@@ -76,17 +122,18 @@ The technical debt ID to update (e.g., "TD005"). Required for status updates.
 
 .PARAMETER NewStatus
 The new status. Valid values: Open, InProgress, Resolved, Rejected. Required for status updates.
-Rejected items are moved to the Recently Resolved section (same as Resolved) with their rejection rationale preserved in the Notes column.
+Resolved items move to archive ## Resolved; Rejected items move to archive ## Rejected (PF-IMP-873
+dual-section archive). Rejected items preserve their rejection rationale in the Notes column.
 
 .PARAMETER ResolutionNotes
 Description of what was done. Required when NewStatus is Resolved or Rejected.
-Appended to the Notes column in the Recently Resolved table.
+Appended to the Notes column in the archive table (## Resolved for Resolved, ## Rejected for Rejected).
 
 .PARAMETER PlanLink
 Optional reference to the refactoring plan. Accepts either:
   - A complete markdown link with DebtId as link text: "[TD006](path/to/plan.md)"
   - A bare path (auto-wrapped with DebtId): "path/to/plan.md"
-When provided, the ID column in the Recently Resolved table becomes a clickable link to the plan.
+When provided, the ID column in the archive table becomes a clickable link to the plan.
 
 ⚠️ Windows + bash MSYS path-mangling hazard:
 Paths starting with a leading slash (/doc/...) are silently rewritten by MSYS
@@ -120,13 +167,13 @@ Replaces the Description column of an open TD item in the Registry table (OpenEd
 Pass the full new value — the existing Description is overwritten, not appended to.
 Use when a refactoring partially scopes another open TD (e.g., a sub-item is resolved
 bundled with a different fix) and the description needs to be trimmed or amended without
-resolving the whole TD. For items already in the Recently Resolved section, use
+resolving the whole TD. For items already in the archive (## Resolved or ## Rejected), use
 -Section "Resolved" -ResolvedDebtId -UpdateNotes instead.
 
 .PARAMETER EditNotes
 Replaces the Notes column of an open TD item in the Registry table (OpenEdit mode).
 Pass the full new value — the existing Notes is overwritten, not appended to. To append,
-pass "<old> <new>" yourself. For items already in Recently Resolved, use the ResolvedUpdate
+pass "<old> <new>" yourself. For items already in the archive, use the ResolvedUpdate
 parameter set (-Section "Resolved" -ResolvedDebtId -UpdateNotes), which appends.
 
 .EXAMPLE
@@ -140,6 +187,10 @@ Update-TechDebt.ps1 -Add -Description "Missing Repository Pattern" -Dims "AC" -L
 .EXAMPLE
 # Add a debt item spanning multiple dimensions (whitespace or comma-separated)
 Update-TechDebt.ps1 -Add -Description "Logging missing across parser layer" -Dims "CQ OB" -Location "src/linkwatcher/parsers" -Priority "Medium" -EstimatedEffort "4 hours"
+
+.EXAMPLE
+# Batch-add multiple debt items from a JSON file (eliminates per-call overhead during PF-TSK-066 Step 11)
+Update-TechDebt.ps1 -BatchFile "doc/state-tracking/temporary/td-batch.json"
 
 .EXAMPLE
 # Mark debt item as in progress
@@ -209,7 +260,7 @@ Updates the following files:
 - Validation tracking file (auto-discovered, when -ValidationNote or -ValidationIssueId are provided)
 
 Output behavior: Default output is one summary line per invocation (the operation
-outcome, e.g. "TD123 → Resolved (moved to Recently Resolved)"), plus one extra line
+outcome, e.g. "TD123 → Resolved (moved to archive)"), plus one extra line
 per side-effect file write (validation-tracking link/update, debt item file update).
 WARN and ERROR messages always pass through. Pass -Verbose to restore the full
 play-by-play log (banner, parameter echoes, prereq narration, per-step transformer
@@ -301,9 +352,25 @@ param(
     [Parameter(Mandatory = $true, ParameterSetName = 'ResolvedUpdate')]
     [string]$UpdateNotes,
 
+    # --- Batch parameter set (PF-IMP-012) ---
+    [Parameter(Mandatory = $true, ParameterSetName = 'Batch')]
+    [ValidateScript({ Test-Path $_ })]
+    [string]$BatchFile,
+
     # --- ListDims parameter set ---
     [Parameter(Mandatory = $true, ParameterSetName = 'ListDims')]
-    [switch]$ListDims
+    [switch]$ListDims,
+
+    # --- File paths (all parameter sets) ---
+    [Parameter(Mandatory = $false)]
+    [string]$TrackingFile,
+
+    # Archive-split (2026-05-26 per PF-IMP-873): sibling archive file holding
+    # ## Resolved and ## Rejected sections. Default sits in an `archive/` subdir
+    # next to -TrackingFile, mirroring Update-ProcessImprovement.ps1's -ArchiveFile
+    # resolution.
+    [Parameter(Mandatory = $false)]
+    [string]$ArchiveFile
 )
 
 # --- Configuration ---
@@ -321,12 +388,23 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force -Verbose:$fals
 $VerbosePreference = $prevVerbosePreference
 
 $ProjectRoot = Get-ProjectRoot
-$TargetFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/technical-debt-tracking.md"
+if (-not $TrackingFile) {
+    $TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/technical-debt-tracking.md"
+}
+$TargetFile = $TrackingFile
+
+# Archive-split (2026-05-26, PF-IMP-873): default ArchiveFile sits in an `archive/`
+# subdir next to -TrackingFile. Mirrors Update-ProcessImprovement.ps1's pattern.
+if (-not $ArchiveFile) {
+    $trackingDir = Split-Path -Parent $TargetFile
+    $ArchiveFile = Join-Path -Path $trackingDir -ChildPath "archive/technical-debt-tracking-archive.md"
+}
+
 $ScriptName = "Update-TechDebt.ps1"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
-# Soak verification (PF-PRO-028 — see process-framework/state-tracking/permanent/script-soak-tracking.md)
-$soakScriptId = "process-framework/scripts/update/Update-TechDebt.ps1"
+# Soak verification (PF-PRO-028 — see process-framework-central/state-tracking/permanent/script-soak-tracking.md; v2.1 normalized ScriptId per PF-PRO-032)
+$soakScriptId = "scripts/update/Update-TechDebt.ps1"
 $soakInSoak   = Test-ScriptInSoak -ScriptId $soakScriptId -ScriptPath $PSCommandPath
 
 # --- ListDims handler (early exit) ---
@@ -376,11 +454,40 @@ function Write-SummaryLine {
     Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
 }
 
+function Get-SectionHeaders {
+    # Returns the column header array of the first markdown table inside the named ## section.
+    # Empty array if section or table not found. Used to drive header-name → cell-index lookups
+    # so column additions to either tracking table don't silently corrupt data (PF-IMP-006).
+    param([Parameter(Mandatory)][string]$Content, [Parameter(Mandatory)][string]$Section)
+    $lines = $Content -split "\r?\n"
+    $inSection = $false
+    foreach ($line in $lines) {
+        if ($line -match "^$([regex]::Escape($Section))\s*$") { $inSection = $true; continue }
+        if ($inSection -and $line -match '^## ') { break }
+        if ($inSection -and $line -match '^\|.*\|$' -and $line -notmatch '^\|[\s\-:|]+\|$') {
+            return Split-MarkdownTableRow $line
+        }
+    }
+    return @()
+}
+
 function Test-Prerequisites {
     Write-Log "Checking prerequisites..."
 
     if (-not (Test-Path $TargetFile)) {
         Write-Log "Target file not found: $TargetFile" -Level "ERROR"
+        return $false
+    }
+
+    # Archive file (PF-IMP-873): required when the operation touches it.
+    # Resolved / Rejected status moves and ResolvedUpdate edits read+write the archive.
+    # AddNew, OpenEdit, and other StatusUpdates (Open / InProgress) don't touch the archive.
+    $archiveRequired = $false
+    if ($PSCmdlet.ParameterSetName -eq 'ResolvedUpdate') { $archiveRequired = $true }
+    elseif ($PSCmdlet.ParameterSetName -eq 'StatusUpdate' -and $NewStatus -in @("Resolved", "Rejected")) { $archiveRequired = $true }
+
+    if ($archiveRequired -and -not (Test-Path $ArchiveFile)) {
+        Write-Log "Archive file not found: $ArchiveFile (required for Resolved/Rejected transitions per PF-IMP-873 archive-split). Create from blueprint or pass -ArchiveFile pointing at an existing archive." -Level "ERROR"
         return $false
     }
 
@@ -409,20 +516,30 @@ function Test-Prerequisites {
 function Get-NextDebtId {
     <#
     .SYNOPSIS
-    Gets the next available TD### ID by scanning content for existing IDs
+    Gets the next available TD### ID by scanning content for existing IDs.
+
+    PF-IMP-873 (2026-05-26): post-archive-split, the live file holds only Registry rows
+    (Open / InProgress). Resolved/Rejected rows live in the archive. To avoid collisions,
+    scan both files when -ArchiveContent is provided.
     #>
-    param([string]$Content)
+    param(
+        [string]$Content,
+        [string]$ArchiveContent
+    )
 
-    # Find all existing TD IDs across both registry and resolved sections
+    # Find all existing TD IDs across both live and archive content.
     # Matches both plain "| TD014 |" and linked "| [TD014](path) |" formats
-    $tdPattern = 'TD(\d{3})'
-    $allMatches = [regex]::Matches($Content, $tdPattern)
-
+    $tdPattern = 'TD(\d+)'
     $existingIds = @()
-    foreach ($m in $allMatches) {
-        $numericPart = [int]$m.Groups[1].Value
-        if ($numericPart -gt 0) {
-            $existingIds += $numericPart
+
+    foreach ($source in @($Content, $ArchiveContent)) {
+        if (-not $source) { continue }
+        $allMatches = [regex]::Matches($source, $tdPattern)
+        foreach ($m in $allMatches) {
+            $numericPart = [int]$m.Groups[1].Value
+            if ($numericPart -gt 0) {
+                $existingIds += $numericPart
+            }
         }
     }
 
@@ -459,8 +576,29 @@ function Add-NewDebtItemContent {
     $assessmentIdValue = if ($AssessmentId) { $AssessmentId } else { "-" }
     $notesValue = if ($Notes) { $Notes } else { "-" }
 
-    # Build new table row (11 columns: ID, Description, Dims, Location, Created Date, Priority, Estimated Effort, Status, Resolution Date, Assessment ID, Notes)
-    $newRow = "| $NewDebtId | $Description | $Dims | $Location | $CurrentDate | $Priority | $EstimatedEffort | Open | - | $assessmentIdValue | $notesValue |"
+    # Build new table row using header-driven cell ordering (PF-IMP-006 — no hardcoded column count).
+    # Unknown columns get '-' so future schema additions don't break the script.
+    $registryHeaders = Get-SectionHeaders -Content $Content -Section "## Technical Debt Registry"
+    if ($registryHeaders.Count -eq 0) {
+        Write-Log "Could not parse Registry table header — cannot build new row" -Level "ERROR"
+        return $null
+    }
+    $valueMap = @{
+        'ID'               = $NewDebtId
+        'Description'      = $Description
+        'Dims'             = $Dims
+        'Location'         = $Location
+        'Created Date'     = $CurrentDate
+        'Priority'         = $Priority
+        'Estimated Effort' = $EstimatedEffort
+        'Status'           = 'Open'
+        'Resolution Date'  = '-'
+        'Assessment ID'    = $assessmentIdValue
+        'Workflows'        = '-'
+        'Notes'            = $notesValue
+    }
+    $cells = @($registryHeaders | ForEach-Object { if ($valueMap.ContainsKey($_)) { $valueMap[$_] } else { '-' } })
+    $newRow = ConvertTo-MarkdownTableRow -Cells $cells
 
     # Find the end of the Registry table
     $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
@@ -500,6 +638,75 @@ function Add-NewDebtItemContent {
     return ($lines -join "`r`n")
 }
 
+function Add-OneDebtItem {
+    <#
+    .SYNOPSIS
+    Adds one technical debt item to the registry, performing all per-item side-effects.
+
+    .DESCRIPTION
+    Encapsulates the read → mutate → write → verify → side-effects cycle for a single
+    debt item. Used by both single-shot -Add mode and -BatchFile mode (PF-IMP-012) so
+    the two modes share one code path and can never drift apart.
+
+    Returns the assigned TD### ID on success, or $null on failure.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Description,
+        [Parameter(Mandatory)][string]$Dims,
+        [Parameter(Mandatory)][string]$Location,
+        [Parameter(Mandatory)][string]$Priority,
+        [Parameter(Mandatory)][string]$EstimatedEffort,
+        [string]$AssessmentId = "",
+        [string]$DebtItemId = "",
+        [string]$Notes = "",
+        [string[]]$ValidationIssueId = @()
+    )
+
+    $content = Get-Content $TargetFile -Raw
+    # PF-IMP-873: read archive content too so Get-NextDebtId doesn't reuse
+    # IDs that exist only in the archive after the split.
+    $archiveContent = if (Test-Path $ArchiveFile) { Get-Content $ArchiveFile -Raw } else { $null }
+
+    $newDebtId = Get-NextDebtId -Content $content -ArchiveContent $archiveContent
+    Write-Log "Generated new debt ID: $newDebtId"
+
+    $content = Add-NewDebtItemContent -Content $content -NewDebtId $newDebtId `
+        -Description $Description -Dims $Dims -Location $Location `
+        -Priority $Priority -EstimatedEffort $EstimatedEffort `
+        -AssessmentId $AssessmentId -Notes $Notes
+    if ($null -eq $content) {
+        Write-Log "Failed to add new debt item to Registry table" -Level "ERROR"
+        return $null
+    }
+
+    $content = Update-FrontmatterDate -Content $content
+    Set-Content -Path $TargetFile -Value $content -NoNewline
+
+    if (-not $WhatIfPreference) {
+        # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
+        $rowPattern = "\|\s*\[?" + [regex]::Escape($newDebtId) + "\b"
+        Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $newDebtId in $TargetFile"
+    }
+
+    if ($DebtItemId) {
+        Update-DebtItemFile -DebtItemId $DebtItemId -RegistryId $newDebtId
+    }
+
+    if ($ValidationIssueId -and $ValidationIssueId.Count -gt 0) {
+        $valFile = Find-ValidationTrackingFile
+        if ($valFile) {
+            foreach ($issueId in $ValidationIssueId) {
+                Update-ValidationTrackingLink -ValidationIssueId $issueId -DebtId $newDebtId -TrackingFilePath $valFile
+            }
+        }
+    }
+
+    $descPreview = if ($Description.Length -gt 60) { $Description.Substring(0, 57) + "..." } else { $Description }
+    Write-SummaryLine "$newDebtId added → $descPreview"
+
+    return $newDebtId
+}
+
 function Update-DebtItemFile {
     <#
     .SYNOPSIS
@@ -510,7 +717,7 @@ function Update-DebtItemFile {
         [string]$RegistryId
     )
 
-    $debtItemDir = Join-Path -Path $ProjectRoot -ChildPath "process-framework/assessments/technical-debt/debt-items"
+    $debtItemDir = Join-Path -Path (Get-ProcessFrameworkPath) -ChildPath "assessments/technical-debt/debt-items"
     $debtItemPattern = "*$DebtItemId*.md"
     $debtItemFiles = Get-ChildItem -Path $debtItemDir -Filter $debtItemPattern -ErrorAction SilentlyContinue
 
@@ -552,16 +759,16 @@ function Update-StatusInPlace {
     $currentEntry = $match.Value
     Write-Log "Found debt item entry for $DebtId"
 
-    # Parse columns (11 columns in Registry table)
-    # | ID | Description | Category | Location | Created Date | Priority | Estimated Effort | Status | Resolution Date | Assessment ID | Notes |
-    $columns = $currentEntry -split '\|' | ForEach-Object { $_.Trim() }
-    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
-
-    # Column indices: 7 = Status
-    $columns[7] = $NewStatus
-
-    $updatedEntry = "| " + ($columns -join " | ") + " |"
+    # Parse columns and update Status by header name (PF-IMP-006 — no hardcoded indices).
+    $registryHeaders = Get-SectionHeaders -Content $Content -Section "## Technical Debt Registry"
+    $statusIdx = [Array]::IndexOf($registryHeaders, 'Status')
+    if ($statusIdx -lt 0) {
+        Write-Log "Registry table missing 'Status' column" -Level "ERROR"
+        return $null
+    }
+    $columns = Split-MarkdownTableRow $currentEntry
+    $columns[$statusIdx] = $NewStatus
+    $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
     Write-Log "Updated $DebtId status to: $NewStatus" -Level "SUCCESS"
@@ -587,8 +794,10 @@ function Update-RegistryItem {
     $rowIndex = -1
     $inRegistrySection = $false
     for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Technical Debt Registry") { $inRegistrySection = $true }
-        if ($lines[$i] -match "^## Recently Resolved") { break }
+        if ($lines[$i] -match "^## Technical Debt Registry") { $inRegistrySection = $true; continue }
+        # PF-IMP-873: post-archive-split, the live file has no "## Recently Resolved" section.
+        # Stop scanning when we leave the Registry section by hitting any subsequent ## heading.
+        if ($inRegistrySection -and $lines[$i] -match "^## ") { break }
         if ($inRegistrySection -and $lines[$i] -match "^\|\s*(?:\[)?$DebtId(?:\]|\s*\|)") {
             $rowIndex = $i
             break
@@ -596,76 +805,73 @@ function Update-RegistryItem {
     }
 
     if ($rowIndex -eq -1) {
-        Write-Log "Could not find $DebtId in ## Technical Debt Registry. For items in Recently Resolved, use -Section 'Resolved' -ResolvedDebtId $DebtId -UpdateNotes." -Level "ERROR"
+        Write-Log "Could not find $DebtId in ## Technical Debt Registry. For items in the archive (## Resolved or ## Rejected), use -Section 'Resolved' -ResolvedDebtId $DebtId -UpdateNotes." -Level "ERROR"
         return $null
     }
 
-    # Parse 11 columns: ID, Description, Dims, Location, Created Date, Priority, Estimated Effort, Status, Resolution Date, Assessment ID, Notes
+    # Update columns by header name (PF-IMP-006 — fixes -EditNotes silently writing to Workflows
+    # column when the live Registry header has 12 columns instead of the historical 11).
+    $registryHeaders = Get-SectionHeaders -Content ($lines -join "`r`n") -Section "## Technical Debt Registry"
     $row = $lines[$rowIndex]
-    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
-    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
+    $columns = Split-MarkdownTableRow $row
 
     $changes = @()
     if ($EditDescription) {
-        $columns[1] = $EditDescription
+        $idx = [Array]::IndexOf($registryHeaders, 'Description')
+        if ($idx -lt 0) { Write-Log "Registry table missing 'Description' column" -Level "ERROR"; return $null }
+        $columns[$idx] = $EditDescription
         $changes += 'Description'
     }
     if ($EditNotes) {
-        $columns[10] = $EditNotes
+        $idx = [Array]::IndexOf($registryHeaders, 'Notes')
+        if ($idx -lt 0) { Write-Log "Registry table missing 'Notes' column" -Level "ERROR"; return $null }
+        $columns[$idx] = $EditNotes
         $changes += 'Notes'
     }
 
-    $updatedRow = "| " + ($columns -join " | ") + " |"
+    $updatedRow = ConvertTo-MarkdownTableRow -Cells $columns
     $lines[$rowIndex] = $updatedRow
 
     Write-Log "Updated $DebtId in Registry: $($changes -join ' + ') replaced" -Level "SUCCESS"
     return ($lines -join "`r`n")
 }
 
-function Move-ToResolvedSection {
+function Move-ToArchiveSection {
+    # PF-IMP-873 (2026-05-26): two-file archive-split successor to Move-ToResolvedSection.
+    # Source = $Content (live ## Technical Debt Registry); destination = $ArchiveContent
+    # (## Resolved for status=Resolved, ## Rejected for status=Rejected).
+    # Returns @{ Content; ArchiveContent } or $null on failure.
+    #
+    # Historical note (PF-IMP-006): refactored to use Move-MarkdownTableRow with header-driven
+    # column mapping. Earlier implementations hardcoded $columns[10]=Notes, which silently
+    # moved the Workflows value into the destination Notes column when the live Registry header
+    # grew to 12 columns. Mapping is now by name — schema additions in either table can no
+    # longer corrupt the move.
     param(
         [string]$Content,
+        [string]$ArchiveContent,
         [string]$DebtId,
         [string]$ResolutionNotes,
-        [string]$PlanLink
+        [string]$PlanLink,
+        [Parameter(Mandatory)][ValidateSet("Resolved", "Rejected")]
+        [string]$Disposition
     )
 
-    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
-
-    # Find the debt item row in the Registry table (## Technical Debt Registry section)
-    $rowIndex = -1
-    $inRegistrySection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Technical Debt Registry") { $inRegistrySection = $true }
-        if ($lines[$i] -match "^## Recently Resolved") { break }
-        if ($inRegistrySection -and $lines[$i] -match "^\|\s*(?:\[)?$DebtId(?:\]|\s*\|)") {
-            $rowIndex = $i
-            break
-        }
-    }
-
-    if ($rowIndex -eq -1) {
+    # Read source row first (need original Notes to compute appended-notes value).
+    # ConvertFrom-MarkdownTable scoped to ## Technical Debt Registry — keeps the
+    # "use Resolved/Rejected path" hint accurate when the ID is in the wrong section.
+    $registryRows = ConvertFrom-MarkdownTable -Content $Content -Section "## Technical Debt Registry"
+    $sourceRow = $registryRows | Where-Object { (Get-MarkdownLinkText $_.ID) -eq $DebtId } | Select-Object -First 1
+    if (-not $sourceRow) {
         Write-Log "Could not find $DebtId in Registry table" -Level "ERROR"
         return $null
     }
 
-    # Parse the row columns (11 columns)
-    # | ID | Description | Category | Location | Created Date | Priority | Estimated Effort | Status | Resolution Date | Assessment ID | Notes |
-    $row = $lines[$rowIndex]
-    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
-    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
-
-    # Extract fields for the Resolved table (9 columns)
-    # Drop: Estimated Effort (idx 6), Status (idx 7)
-    # Set: Resolution Date (was idx 8) to current date
-
     # Validate and normalize PlanLink (PF-IMP-620: prevent silent ID-column corruption).
     # Accept either a complete markdown link [<DebtId>](path) or a bare path (auto-wrapped).
     if ($PlanLink) {
-        if ($PlanLink -match 'Program Files/Git') {
-            Write-Log "PlanLink appears MSYS-mangled (contains 'Program Files/Git'): '$PlanLink'. On Windows + bash, leading-slash paths are rewritten by MSYS before PowerShell sees them. Quote the path or use a relative path without leading slash." -Level "ERROR"
+        # MSYS path-mangling guard routed through Common-ScriptHelpers (PF-IMP-767 helper extraction).
+        if (Test-MSYSPathMangled -Path $PlanLink -ParameterName 'PlanLink') {
             return $null
         }
         if ($PlanLink -match "^\[$DebtId\]\(.+\)$") {
@@ -680,73 +886,62 @@ function Move-ToResolvedSection {
         }
     }
     else {
-        $idValue = $columns[0]
-    }
-    $description = $columns[1]
-    $category = $columns[2]
-    $location = $columns[3]
-    $createdDate = $columns[4]
-    $priority = $columns[5]
-    $resolutionDate = $CurrentDate
-    $assessmentId = $columns[9]
-    $notes = $columns[10]
-
-    # Append resolution notes to existing notes
-    if ($ResolutionNotes) {
-        if ($notes -and $notes -ne '-') {
-            $notes = "$notes $ResolutionNotes"
-        }
-        else {
-            $notes = $ResolutionNotes
-        }
+        $idValue = $DebtId
     }
 
-    # Remove the row from Registry table
-    $lines.RemoveAt($rowIndex)
-    Write-Log "Removed $DebtId from Technical Debt Registry"
-
-    # Build the Resolved table row (9 columns)
-    # | ID | Description | Category | Location | Created Date | Priority | Resolution Date | Assessment ID | Notes |
-    $resolvedRow = "| $idValue | $description | $category | $location | $createdDate | $priority | $resolutionDate | $assessmentId | $notes |"
-
-    # Find insertion point: after the last data row in "Recently Resolved" section
-    $insertAfterIndex = -1
-    $inResolvedSection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Recently Resolved") { $inResolvedSection = $true }
-        if ($inResolvedSection -and $lines[$i] -match "^## (?!Recently Resolved)") { break }
-        if ($inResolvedSection -and $lines[$i] -match "^\|\s*(?:\[)?TD\d+") { $insertAfterIndex = $i }
+    # Append resolution notes to existing notes (preserves original Notes).
+    $existingNotes = $sourceRow.Notes
+    $finalNotes = if ($ResolutionNotes) {
+        if ($existingNotes -and $existingNotes -ne '-') { "$existingNotes $ResolutionNotes" } else { $ResolutionNotes }
+    } else {
+        $existingNotes
     }
 
-    # If no TD rows in Resolved section, insert after the table separator
-    if ($insertAfterIndex -eq -1) {
-        $inResolvedSection = $false
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^## Recently Resolved") { $inResolvedSection = $true }
-            if ($inResolvedSection -and $lines[$i] -match "^\|\s*-") {
-                $insertAfterIndex = $i
-                break
-            }
-        }
-    }
+    # Destination section depends on disposition (dual-section archive per PF-IMP-873).
+    $destinationSection = if ($Disposition -eq "Resolved") { "## Resolved" } else { "## Rejected" }
 
-    if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find insertion point in Recently Resolved section" -Level "ERROR"
+    # Column mapping: live Registry → archive section. The archive's Resolved and Rejected
+    # tables share the same column shape so one mapping works for both.
+    $columnMapping = [ordered]@{
+        'ID'              = 'ID'
+        'Description'     = 'Description'
+        'Category'        = 'Dims'
+        'Location'        = 'Location'
+        'Created Date'    = 'Created Date'
+        'Priority'        = 'Priority'
+        'Resolution Date' = 'Resolution Date'
+        'Assessment ID'   = 'Assessment ID'
+        'Notes'           = 'Notes'
+    }
+    $additionalColumns = [ordered]@{
+        'ID'              = $idValue
+        'Resolution Date' = $CurrentDate
+        'Notes'           = $finalNotes
+    }
+    # Pattern matches both bare `TD006` and link-wrapped `[TD006](path)` first-cell forms.
+    $rowIdPattern = "\[?$DebtId\]?(?:\(.*?\))?"
+
+    # Two-file Move-MarkdownTableRow: live → archive.
+    $moveResult = Move-MarkdownTableRow `
+        -Content $Content `
+        -DestinationContent $ArchiveContent `
+        -RowIdPattern $rowIdPattern `
+        -SourceSection '## Technical Debt Registry' `
+        -DestinationSection $destinationSection `
+        -ColumnMapping $columnMapping `
+        -AdditionalColumns $additionalColumns `
+        -SectionEndPattern '^## '
+
+    if ($null -eq $moveResult.Content) {
+        Write-Log "Failed to move $DebtId to archive $destinationSection section" -Level "ERROR"
         return $null
     }
 
-    $lines.Insert($insertAfterIndex + 1, $resolvedRow)
-    Write-Log "Added $DebtId to Recently Resolved section" -Level "SUCCESS"
-
-    return ($lines -join "`r`n")
-}
-
-function Update-FrontmatterDate {
-    param([string]$Content)
-
-    $result = $Content -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
-    Write-Log "Updated frontmatter date to $CurrentDate" -Level "SUCCESS"
-    return $result
+    Write-Log "Moved $DebtId from Registry to archive ($destinationSection)" -Level "SUCCESS"
+    return @{
+        Content        = $moveResult.Content
+        ArchiveContent = $moveResult.DestinationContent
+    }
 }
 
 function Find-ValidationTrackingFile {
@@ -900,53 +1095,62 @@ function Update-ValidationTracking {
 function Update-ResolvedNotes {
     <#
     .SYNOPSIS
-    Updates the Notes column of a debt item already in the Recently Resolved section.
+    Updates the Notes column of a debt item that has been archived (post-PF-IMP-873).
+
+    Scans BOTH ## Resolved and ## Rejected sections in the archive — the operation
+    is meaningful for either disposition (a follow-up note on a rejected item is just
+    as valid as a follow-up note on a resolved item).
     #>
     param(
-        [string]$Content,
+        [string]$ArchiveContent,
         [string]$DebtId,
         [string]$UpdateNotes
     )
 
-    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+    $lines = [System.Collections.ArrayList]@($ArchiveContent -split "\r?\n")
 
-    # Find the debt item row in the Recently Resolved section
+    # Find the debt item row in either archive section (Resolved or Rejected).
     $rowIndex = -1
-    $inResolvedSection = $false
+    $hostSection = $null
+    $currentSection = $null
     for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Recently Resolved") { $inResolvedSection = $true; continue }
-        if ($inResolvedSection -and $lines[$i] -match "^## (?!Recently Resolved)") { break }
-        if ($inResolvedSection -and $lines[$i] -match "^\|\s*(?:\[)?$DebtId(?:\]|\s*\|)") {
+        if ($lines[$i] -match '^## (Resolved|Rejected)\s*$') {
+            $currentSection = "## $($Matches[1])"
+            continue
+        }
+        if ($currentSection -and $lines[$i] -match "^\|\s*(?:\[)?$DebtId(?:\]|\s*\|)") {
             $rowIndex = $i
+            $hostSection = $currentSection
             break
         }
     }
 
     if ($rowIndex -eq -1) {
-        Write-Log "Could not find $DebtId in Recently Resolved section" -Level "ERROR"
+        Write-Log "Could not find $DebtId in archive (neither ## Resolved nor ## Rejected)" -Level "ERROR"
         return $null
     }
 
-    # Parse the row columns (9 columns in Recently Resolved table)
-    # | ID | Description | Category | Location | Created Date | Priority | Resolution Date | Assessment ID | Notes |
+    # Update the Notes column by header name (PF-IMP-006 — header-driven for resilience).
+    $archiveHeaders = Get-SectionHeaders -Content ($lines -join "`r`n") -Section $hostSection
+    $notesIdx = [Array]::IndexOf($archiveHeaders, 'Notes')
+    if ($notesIdx -lt 0) {
+        Write-Log "Archive table ($hostSection) missing 'Notes' column" -Level "ERROR"
+        return $null
+    }
     $row = $lines[$rowIndex]
-    $columns = $row -split '\|' | ForEach-Object { $_.Trim() }
-    if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    if ($columns[-1] -eq '') { $columns = $columns[0..($columns.Length - 2)] }
-
-    # Append to Notes column (index 8)
-    $currentNotes = $columns[8]
+    $columns = Split-MarkdownTableRow $row
+    $currentNotes = $columns[$notesIdx]
     if ($currentNotes -and $currentNotes -ne '-') {
-        $columns[8] = "$currentNotes $UpdateNotes"
+        $columns[$notesIdx] = "$currentNotes $UpdateNotes"
     }
     else {
-        $columns[8] = $UpdateNotes
+        $columns[$notesIdx] = $UpdateNotes
     }
 
-    $updatedRow = "| " + ($columns -join " | ") + " |"
+    $updatedRow = ConvertTo-MarkdownTableRow -Cells $columns
     $lines[$rowIndex] = $updatedRow
 
-    Write-Log "Updated notes for $DebtId in Recently Resolved section" -Level "SUCCESS"
+    Write-Log "Updated notes for $DebtId in archive $hostSection section" -Level "SUCCESS"
     return ($lines -join "`r`n")
 }
 
@@ -958,6 +1162,9 @@ function Main {
     if ($PSCmdlet.ParameterSetName -eq 'AddNew') {
         Write-Log "Operation: Add new debt item"
         Write-Log "Description: $Description"
+    }
+    elseif ($PSCmdlet.ParameterSetName -eq 'Batch') {
+        Write-Log "Operation: Batch add debt items from $BatchFile"
     }
     elseif ($PSCmdlet.ParameterSetName -eq 'ResolvedUpdate') {
         Write-Log "Operation: Update resolved item notes"
@@ -978,80 +1185,124 @@ function Main {
     }
 
     if ($PSCmdlet.ParameterSetName -eq 'AddNew') {
-        # --- Add new debt item ---
+        # --- Add new debt item (single) ---
         if (-not $PSCmdlet.ShouldProcess($TargetFile, "Add new debt item: $Description")) {
             return
         }
-
-        # Single read-modify-write cycle
-        $content = Get-Content $TargetFile -Raw
-
-        # Generate next TD### ID from content
-        $newDebtId = Get-NextDebtId -Content $content
-        Write-Log "Generated new debt ID: $newDebtId"
-
-        # Insert new row into Registry table
-        $content = Add-NewDebtItemContent -Content $content -NewDebtId $newDebtId `
+        $valIds = if ($ValidationIssueId) { $ValidationIssueId } else { @() }
+        $newId = Add-OneDebtItem `
             -Description $Description -Dims $Dims -Location $Location `
             -Priority $Priority -EstimatedEffort $EstimatedEffort `
-            -AssessmentId $AssessmentId -Notes $Notes
-        if ($null -eq $content) {
-            Write-Log "Failed to add new debt item to Registry table" -Level "ERROR"
-            exit 1
+            -AssessmentId $AssessmentId -DebtItemId $DebtItemId `
+            -Notes $Notes -ValidationIssueId $valIds
+        if (-not $newId) { exit 1 }
+    }
+    elseif ($PSCmdlet.ParameterSetName -eq 'Batch') {
+        # --- Batch add debt items from JSON file (PF-IMP-012) ---
+        try {
+            $jsonContent = Get-Content -Path $BatchFile -Raw -Encoding UTF8
+            $items = $jsonContent | ConvertFrom-Json
+        }
+        catch {
+            Write-ProjectError -Message "Failed to parse batch file '$BatchFile': $($_.Exception.Message)" -ExitCode 1
         }
 
-        # Update frontmatter date
-        $content = Update-FrontmatterDate -Content $content
-
-        # Single write
-        Set-Content -Path $TargetFile -Value $content -NoNewline
-
-        # Read-after-write verification: confirm the new debt row landed in Registry table
-        if (-not $WhatIfPreference) {
-            $rowPattern = "\|\s*" + [regex]::Escape($newDebtId) + "\s*\|"
-            Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $newDebtId in $TargetFile"
+        # Coerce single-object JSON to array of one (defensive — IMP shape says array but be lenient)
+        if ($items -isnot [System.Array]) {
+            $items = @($items)
         }
 
-        # Update the debt item file with the assigned registry ID if DebtItemId is provided
-        if ($DebtItemId) {
-            Update-DebtItemFile -DebtItemId $DebtItemId -RegistryId $newDebtId
+        if ($items.Count -eq 0) {
+            Write-Host "Batch file contained no items — nothing to add." -ForegroundColor Yellow
+            return
         }
 
-        # Link to validation tracking if ValidationIssueId is provided
-        if ($ValidationIssueId) {
-            $valFile = Find-ValidationTrackingFile
-            if ($valFile) {
-                foreach ($issueId in $ValidationIssueId) {
-                    Update-ValidationTrackingLink -ValidationIssueId $issueId -DebtId $newDebtId -TrackingFilePath $valFile
+        Write-Host "Batch mode: processing $($items.Count) debt item(s) from $BatchFile" -ForegroundColor Magenta
+
+        # Validate every item upfront. No state mutation if any item fails.
+        $validDimsList    = @("AC", "CQ", "ID", "DA", "EM", "SE", "PE", "OB", "UX", "DI", "TST", "AIC")
+        $validPriorities  = @("Critical", "High", "Medium", "Low")
+        for ($idx = 0; $idx -lt $items.Count; $idx++) {
+            $item = $items[$idx]
+            $errors = @()
+            if (-not $item.Description)      { $errors += "missing Description" }
+            if (-not $item.Location)         { $errors += "missing Location" }
+            if (-not $item.EstimatedEffort)  { $errors += "missing EstimatedEffort" }
+            if (-not $item.Dims) {
+                $errors += "missing Dims"
+            } else {
+                $tokens = $item.Dims -split '[\s,]+' | Where-Object { $_ -ne '' }
+                $invalidDims = @($tokens | Where-Object { $_ -notin $validDimsList })
+                if ($invalidDims.Count -gt 0) {
+                    $errors += "invalid Dims code(s) [$($invalidDims -join ', ')] (valid: $($validDimsList -join ', '))"
                 }
             }
+            if (-not $item.Priority) {
+                $errors += "missing Priority"
+            } elseif ($item.Priority -notin $validPriorities) {
+                $errors += "invalid Priority '$($item.Priority)' (must be one of: $($validPriorities -join ', '))"
+            }
+            if ($errors.Count -gt 0) {
+                Write-ProjectError -Message "Batch item [$idx]: $($errors -join '; ') — no items added" -ExitCode 1
+            }
         }
 
-        $descPreview = if ($Description.Length -gt 60) { $Description.Substring(0, 57) + "..." } else { $Description }
-        Write-SummaryLine "$newDebtId added → $descPreview"
+        if (-not $PSCmdlet.ShouldProcess($TargetFile, "Add $($items.Count) debt item(s) from batch file")) {
+            return
+        }
+
+        $created = @()
+        foreach ($item in $items) {
+            # JSON arrays of strings deserialize as arrays; single string deserializes as string.
+            # Normalize ValidationIssueId to a string array to satisfy Add-OneDebtItem's signature.
+            $valIds = @()
+            if ($item.ValidationIssueId) {
+                if ($item.ValidationIssueId -is [System.Array]) { $valIds = @($item.ValidationIssueId) }
+                else { $valIds = @($item.ValidationIssueId) }
+            }
+            $newId = Add-OneDebtItem `
+                -Description $item.Description -Dims $item.Dims -Location $item.Location `
+                -Priority $item.Priority -EstimatedEffort $item.EstimatedEffort `
+                -AssessmentId $(if ($item.AssessmentId) { $item.AssessmentId } else { "" }) `
+                -DebtItemId $(if ($item.DebtItemId) { $item.DebtItemId } else { "" }) `
+                -Notes $(if ($item.Notes) { $item.Notes } else { "" }) `
+                -ValidationIssueId $valIds
+            if ($newId) { $created += $newId }
+        }
+
+        Write-Host "========================================" -ForegroundColor Magenta
+        Write-SummaryLine "Batch complete: $($created.Count)/$($items.Count) debt items added"
     }
     elseif ($PSCmdlet.ParameterSetName -eq 'ResolvedUpdate') {
-        # --- Update notes on resolved item ---
-        $content = Get-Content $TargetFile -Raw
+        # --- Update notes on archived item (PF-IMP-873: archive-split) ---
+        # Reads/writes the archive file directly; the live tracking file is untouched
+        # except for its frontmatter date.
+        $archiveContent = Get-Content $ArchiveFile -Raw
 
-        $content = Update-ResolvedNotes -Content $content -DebtId $ResolvedDebtId -UpdateNotes $UpdateNotes
-        if ($null -eq $content) {
-            Write-Log "Failed to update notes for $ResolvedDebtId in Recently Resolved section" -Level "ERROR"
+        $archiveContent = Update-ResolvedNotes -ArchiveContent $archiveContent -DebtId $ResolvedDebtId -UpdateNotes $UpdateNotes
+        if ($null -eq $archiveContent) {
+            Write-Log "Failed to update notes for $ResolvedDebtId in archive" -Level "ERROR"
             exit 1
         }
 
+        # Bump frontmatter date on both files: archive (changed content) and live (audit trail
+        # that the tracking ecosystem touched today, matching the PI-tracking pattern).
+        $archiveContent = Update-FrontmatterDate -Content $archiveContent
+        $content = Get-Content $TargetFile -Raw
         $content = Update-FrontmatterDate -Content $content
 
-        if ($PSCmdlet.ShouldProcess($TargetFile, "Update notes for $ResolvedDebtId in Recently Resolved section")) {
+        if ($PSCmdlet.ShouldProcess($ArchiveFile, "Update notes for $ResolvedDebtId in archive")) {
+            Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
             Set-Content -Path $TargetFile -Value $content -NoNewline
 
-            # Read-after-write verification: confirm the resolved debt row exists in tracking file
+            # Read-after-write verification: confirm the row exists in archive
             if (-not $WhatIfPreference) {
-                $rowPattern = "\|\s*" + [regex]::Escape($ResolvedDebtId) + "\s*\|"
-                Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "resolved row for $ResolvedDebtId in $TargetFile"
+                # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
+                $rowPattern = "\|\s*\[?" + [regex]::Escape($ResolvedDebtId) + "\b"
+                Assert-LineInFile -Path $ArchiveFile -Pattern $rowPattern -Context "archived row for $ResolvedDebtId in $ArchiveFile"
             }
 
-            Write-SummaryLine "$ResolvedDebtId notes appended in Recently Resolved"
+            Write-SummaryLine "$ResolvedDebtId notes appended in archive"
         }
     }
     elseif ($PSCmdlet.ParameterSetName -eq 'OpenEdit') {
@@ -1076,7 +1327,8 @@ function Main {
 
             # Read-after-write verification: confirm the debt row still exists in Registry
             if (-not $WhatIfPreference) {
-                $rowPattern = "\|\s*" + [regex]::Escape($DebtId) + "\s*\|"
+                # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
+                $rowPattern = "\|\s*\[?" + [regex]::Escape($DebtId) + "\b"
                 Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $DebtId in $TargetFile"
             }
 
@@ -1086,18 +1338,23 @@ function Main {
     else {
         # --- Status update ---
 
-        # Single read-modify-write cycle
+        # Read live; archive only when needed (PF-IMP-873: two-file mode for Resolved/Rejected).
         $content = Get-Content $TargetFile -Raw
-
         $isResolution = $NewStatus -in @("Resolved", "Rejected")
+        $archiveContent = $null
+        if ($isResolution) {
+            $archiveContent = Get-Content $ArchiveFile -Raw
+        }
 
         if ($isResolution) {
-            # Move row from Registry to Recently Resolved
-            $content = Move-ToResolvedSection -Content $content -DebtId $DebtId -ResolutionNotes $ResolutionNotes -PlanLink $PlanLink
-            if ($null -eq $content) {
-                Write-Log "Failed to move $DebtId to Recently Resolved section" -Level "ERROR"
+            # Move row from live Registry to archive ## Resolved or ## Rejected (PF-IMP-873)
+            $moveResult = Move-ToArchiveSection -Content $content -ArchiveContent $archiveContent -DebtId $DebtId -ResolutionNotes $ResolutionNotes -PlanLink $PlanLink -Disposition $NewStatus
+            if ($null -eq $moveResult) {
+                Write-Log "Failed to move $DebtId to archive ## $NewStatus section" -Level "ERROR"
                 exit 1
             }
+            $content = $moveResult.Content
+            $archiveContent = $moveResult.ArchiveContent
         }
         else {
             # Status-only update in Registry table
@@ -1108,19 +1365,27 @@ function Main {
             }
         }
 
-        # Update frontmatter date
+        # Update frontmatter date on both files (when applicable)
         $content = Update-FrontmatterDate -Content $content
+        if ($isResolution) {
+            $archiveContent = Update-FrontmatterDate -Content $archiveContent
+        }
 
-        # Write tech debt tracking file (guarded by ShouldProcess for -WhatIf support)
+        # Write tech debt tracking file(s) (guarded by ShouldProcess for -WhatIf support)
         $wroteFile = $false
         if ($PSCmdlet.ShouldProcess($TargetFile, "Update $DebtId to $NewStatus")) {
             Set-Content -Path $TargetFile -Value $content -NoNewline
+            if ($isResolution) {
+                Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
+            }
             $wroteFile = $true
 
-            # Read-after-write verification: confirm the debt row exists in tracking file
+            # Read-after-write verification: confirm the debt row exists where it should be
             if (-not $WhatIfPreference) {
-                $rowPattern = "\|\s*" + [regex]::Escape($DebtId) + "\s*\|"
-                Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "debt row for $DebtId in $TargetFile"
+                # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
+                $rowPattern = "\|\s*\[?" + [regex]::Escape($DebtId) + "\b"
+                $verifyFile = if ($isResolution) { $ArchiveFile } else { $TargetFile }
+                Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "debt row for $DebtId in $verifyFile"
             }
         }
 
@@ -1152,7 +1417,7 @@ function Main {
         }
 
         if ($wroteFile) {
-            $outcome = if ($isResolution) { "$NewStatus (moved to Recently Resolved)" } else { $NewStatus }
+            $outcome = if ($isResolution) { "$NewStatus (moved to archive)" } else { $NewStatus }
             Write-SummaryLine "$DebtId → $outcome"
         }
     }

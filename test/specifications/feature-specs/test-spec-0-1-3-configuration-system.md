@@ -65,7 +65,7 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 | LinkWatcherConfig | Invalid scan interval | `test_validate_invalid_scan_interval` — interval=0 error | None |
 | LinkWatcherConfig | Multiple issues | `test_validate_multiple_issues` — all issues reported simultaneously | None |
 
-**Test File**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) — 22 test methods in `TestLinkWatcherConfig`
+**Test File**: [`test/automated/unit/test_config.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py) — 22 test methods in `TestLinkWatcherConfig`
 
 #### Default Configurations
 
@@ -76,7 +76,7 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 | Config independence | Isolation | `test_configs_are_independent` — modifying one doesn't affect another | None |
 | Both configs | Validation | `test_config_validation` — both pass validation | None |
 
-**Test File**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) — 4 test methods in `TestDefaultConfigurations`
+**Test File**: [`test/automated/unit/test_config.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py) — 4 test methods in `TestDefaultConfigurations`
 
 ### Integration Tests
 
@@ -89,7 +89,7 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 | Malformed JSON | `test_malformed_json_handling` | Raises `json.JSONDecodeError` | `temp_project_dir` |
 | Malformed YAML | `test_malformed_yaml_handling` | Raises `yaml.YAMLError` | `temp_project_dir` |
 
-**Test File**: [`test/automated/unit/test_config.py`](../../../test/automated/unit/test_config.py) — 6 test methods in `TestConfigurationIntegration`
+**Test File**: [`test/automated/unit/test_config.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py) — 6 test methods in `TestConfigurationIntegration`
 
 ### Utility Module (test/automated/test_config.py)
 

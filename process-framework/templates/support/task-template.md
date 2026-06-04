@@ -3,9 +3,9 @@
 id: PF-TEM-015
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2025-01-27
-updated: 2025-07-08
+updated: 2026-05-16
 
 # Document Creation Metadata
 template_for: Task Definition
@@ -33,12 +33,6 @@ description: Creates task definition documents for process framework
 **Focus Areas**: [Primary areas of attention and expertise]
 **Communication Style**: [How to interact with human partner in this role]
 
-## When to Use
-
-- [Clear criteria for when this task should be performed]
-- [Trigger conditions for cyclical or continuous tasks]
-- [Prerequisites that must be met before starting]
-
 ## Context Requirements
 
 <!-- Uncomment and update when context map is created:
@@ -58,7 +52,7 @@ description: Creates task definition documents for process framework
 - **Reference Only (Access When Needed):**
   - [Reference Input 1] - [Brief description with link to source]
   - [Reference Input 2] - [Brief description with link to source]
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 

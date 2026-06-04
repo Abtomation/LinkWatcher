@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "linkwatcher"
-version = "2.0.0"
+version = "2.0.1"
 description = "Real-time link maintenance system for file movements"
 readme = "README.md"
 license = {text = "MIT"}
@@ -148,6 +148,11 @@ addopts = [
     "--strict-markers",
     "--strict-config",
     "--disable-warnings",
+    # importlib import mode: required for the per-feature nested unit/<N>-<slug>/<N.X>-<slug>/
+    # layout (PF-IMP-871 / MIG-005) — dir names start with digits and contain hyphens, which are
+    # invalid Python package names under the default "prepend" mode. importlib also tolerates the
+    # two distinct test_config.py files without basename collisions.
+    "--import-mode=importlib",
 ]
 markers = [
     "unit: Unit tests for individual components",

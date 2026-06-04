@@ -300,8 +300,8 @@ Validation conducted by systematically reading all source files for each feature
 - `src/linkwatcher/validator.py`
 
 **Test Files Referenced:**
-- `test/automated/unit/test_parser.py`, `test/automated/unit/test_updater.py`
-- `test/automated/unit/test_logging.py`, `test/automated/unit/test_validator.py`
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py`, `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py`
+- `test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_logging.py`, `test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py`
 
 **Prior Validation Reports:**
 - PD-VAL-050 (Extensibility & Maintainability, Round 2 Batch A)

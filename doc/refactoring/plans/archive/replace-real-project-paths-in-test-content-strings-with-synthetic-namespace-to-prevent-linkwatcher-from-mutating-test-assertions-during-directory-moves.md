@@ -53,17 +53,17 @@ Test content strings in 14 test files use real project directory names (`doc`, `
 ### Affected Components
 
 - `test/automated/conftest.py` — Add `TEST_PROJECT_ROOT` constant
-- `test/automated/parsers/test_markdown.py` — 11 occurrences
-- `test/automated/parsers/test_python.py` — 11 occurrences
-- `test/automated/parsers/test_powershell.py` — 14 occurrences
-- `test/automated/parsers/test_yaml.py` — 4 occurrences
-- `test/automated/parsers/test_json.py` — 2 occurrences
-- `test/automated/unit/test_database.py` — 24 occurrences
-- `test/automated/unit/test_reference_lookup.py` — 19 occurrences
-- `test/automated/unit/test_updater.py` — 31 occurrences
-- `test/automated/unit/test_validator.py` — 19 occurrences
-- `test/automated/integration/test_link_updates.py` — 9 occurrences
-- `test/automated/test_directory_move_detection.py` — 20 occurrences
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py` — 11 occurrences
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py` — 11 occurrences
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_powershell.py` — 14 occurrences
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py` — 4 occurrences
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py` — 2 occurrences
+- `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py` — 24 occurrences
+- `test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py` — 19 occurrences
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py` — 31 occurrences
+- `test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py` — 19 occurrences
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py` — 9 occurrences
+- `test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_directory_move_detection.py` — 20 occurrences
 - `test/automated/bug-validation/PD-BUG-020_single_file_move_validation.py` — 5 occurrences
 - `test/automated/bug-validation/PD-BUG-021_directory_path_detection_validation.py` — 7 occurrences
 - `process-framework/guides/03-testing/test-infrastructure-guide.md` — Add isolation rules section

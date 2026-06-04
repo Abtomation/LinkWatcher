@@ -2,6 +2,211 @@
 # Central ID management module for process framework projects
 # Uses domain-specific ID registries (PF/PD/TE-id-registry.json) to manage document IDs
 
+function Resolve-ProjectRootForRegistry {
+    <#
+    .SYNOPSIS
+    Inlined two-pass walk that mirrors Common-ScriptHelpers/Core.psm1's Get-ProjectRoot, returning
+    the project root path. Inlined here to avoid the circular import that prevents IdRegistry.psm1
+    from depending on Common-ScriptHelpers (the latter imports IdRegistry).
+
+    .DESCRIPTION
+    Walks up from $PSScriptRoot looking for doc/project-config.json with a non-null project_id.
+    Skips the blueprint template config at appdev/blueprint/doc/project-config.json (project_id: null)
+    so appdev's real root at appdev/ wins over the nested template.
+
+    Falls back to two levels above $PSScriptRoot (the pre-Phase-5.5 assumption) if no anchored
+    config is found — preserves backward compat with project layouts that haven't yet rolled out
+    a populated doc/project-config.json.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$StartPath
+    )
+
+    $currentPath = $StartPath
+    $maxDepth = 10
+    $depth = 0
+    while ($depth -lt $maxDepth) {
+        $docConfigPath = Join-Path -Path $currentPath -ChildPath "doc/project-config.json"
+        if (Test-Path $docConfigPath) {
+            try {
+                $configCheck = Get-Content -Path $docConfigPath -Raw | ConvertFrom-Json
+                if ($configCheck.project_id) {
+                    return $currentPath
+                }
+            } catch {
+                # Unparseable — keep walking (treat as no project_id)
+            }
+        }
+        $parentPath = Split-Path -Parent $currentPath
+        if ($parentPath -eq $currentPath) { break }
+        $currentPath = $parentPath
+        $depth++
+    }
+
+    # Legacy fallback: assume process-framework/scripts/X.ps1 with project root two levels up.
+    $processFrameworkDir = Split-Path -Parent $StartPath
+    return Split-Path -Parent $processFrameworkDir
+}
+
+function Resolve-RegistryPath {
+    <#
+    .SYNOPSIS
+    Resolves a registry-declared directory path against the project root, accounting for the
+    process-framework subtree being configurable via paths.process_framework in project-config.json.
+
+    .DESCRIPTION
+    Registry entries often declare paths like "process-framework/tasks", which historically
+    assumed process-framework/ lived at the project root. After the Phase 5.5 reorg of the
+    Centralized Framework Management extension, appdev relocated the subtree to
+    blueprint/process-framework/, and paths.process_framework in project-config.json tells
+    callers where to find it (default "process-framework" preserves legacy projects).
+
+    This helper inlines that lookup so IdRegistry.psm1 doesn't have to depend on
+    Common-ScriptHelpers/Core.psm1 (which would create a circular import — Core imports
+    IdRegistry).
+
+    Paths beginning with "process-framework/" get rerouted under paths.process_framework.
+    Other relative paths are joined with the project root directly. Absolute paths pass through.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+        [Parameter(Mandatory=$true)]
+        [string]$ProjectRoot
+    )
+
+    if ([System.IO.Path]::IsPathRooted($Path)) { return $Path }
+
+    if ($Path -match '^process-framework(/|$)') {
+        $configPath = Join-Path -Path $ProjectRoot -ChildPath "doc/project-config.json"
+        $fwRel = "process-framework"
+        if (Test-Path $configPath) {
+            try {
+                $cfg = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+                if ($cfg.paths -and $cfg.paths.process_framework) {
+                    $fwRel = $cfg.paths.process_framework
+                }
+            } catch {
+                # Defensive: stay with default
+            }
+        }
+        $remainder = $Path -replace '^process-framework/?', ''
+        $fwAbs = Join-Path -Path $ProjectRoot -ChildPath $fwRel
+        if ($remainder) { return Join-Path -Path $fwAbs -ChildPath $remainder }
+        return $fwAbs
+    }
+
+    return Join-Path -Path $ProjectRoot -ChildPath $Path
+}
+
+function Resolve-LocalRegistryPath {
+    <#
+    .SYNOPSIS
+    Resolves the registry path that holds project-local prefixes (PF-STA, PF-TMP post-Phase-7),
+    routing to process-framework-central/ for appdev (PRJ-000) and doc/state-tracking/ for projects.
+
+    .DESCRIPTION
+    Private helper inlined here (rather than imported from Common-ScriptHelpers) to avoid a
+    circular import: Common-ScriptHelpers/DocumentManagement.psm1 imports IdRegistry.psm1, so
+    IdRegistry.psm1 cannot import Common-ScriptHelpers. The equivalent public function
+    Get-StateTrackingContext lives in Common-ScriptHelpers/Core.psm1 for use by state-creating
+    scripts; the two share the same project_id == "PRJ-000" contract.
+
+    Per centralized-framework-management.md (§3.1, §3.2): appdev/doc/ is the blueprint for new
+    projects, so appdev's own framework-management state must live in process-framework-central/
+    instead of appdev/doc/state-tracking/.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$ProjectRoot
+    )
+
+    $configPath = Join-Path -Path $ProjectRoot -ChildPath "doc/project-config.json"
+    if (Test-Path $configPath) {
+        try {
+            $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+            if ($config.project_id -eq "PRJ-000") {
+                return Join-Path -Path $ProjectRoot -ChildPath "process-framework-central/PF-id-registry-central.json"
+            }
+        } catch {
+            # Fall through to project mode if config unreadable
+        }
+    }
+    return Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/PF-id-registry-local.json"
+}
+
+function Resolve-CentralRegistryPath {
+    <#
+    .SYNOPSIS
+    Resolves the central PF-id-registry-central.json path for cross-project ID pools
+    (PF-IMP, PF-PRO, PF-FEE, PF-REV, PF-EVR, PRJ).
+
+    .DESCRIPTION
+    Phase 7 of the Centralized Framework Management extension cuts the cross-project prefixes
+    over to a single source of truth in appdev's process-framework-central/. From cwd=appdev
+    (project_id == "PRJ-000") the registry is local; from cwd=project the registry is found by
+    reading .framework-central-pointer (a single-line file containing the absolute path to appdev,
+    written by Push-FrameworkUpdate.ps1).
+
+    Inlined here to avoid a circular Common-ScriptHelpers import (same pattern as
+    Resolve-LocalRegistryPath). The public equivalent lives at Common-ScriptHelpers/Core.psm1
+    as Get-CentralFrameworkPath.
+
+    Honors the $env:FRAMEWORK_CENTRAL_OVERRIDE test-injection hook (PF-PRO-035 OP-1) — when set
+    and pointing at an existing dir, returns "<override>/PF-id-registry-central.json". The
+    override mechanism must cover this resolver as well as Get-CentralFrameworkPath, otherwise
+    PF-IMP / PF-PRO / etc. allocations bypass the override and leak counter increments into the
+    real appdev central registry. Override-must-cover-IdRegistry gap closed in Session 30.
+
+    Throws when invoked from a non-appdev project that has no central pointer — that condition
+    indicates a setup error (Push has never reached the project) rather than something to fall
+    back from.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$ProjectRoot,
+        [Parameter(Mandatory=$true)]
+        [string]$ProcessFrameworkDir
+    )
+
+    # Test-injection override (PF-PRO-035 Session 29 OP-1, extended in Session 30 to cover the
+    # central PF-id-registry. Mirrors the inline check in Common-ScriptHelpers/Core.psm1's
+    # Get-CentralFrameworkPath — the circular-import constraint forces the duplication.
+    if ($env:FRAMEWORK_CENTRAL_OVERRIDE) {
+        $override = $env:FRAMEWORK_CENTRAL_OVERRIDE.Trim()
+        if (-not (Test-Path $override)) {
+            throw "Resolve-CentralRegistryPath: `$env:FRAMEWORK_CENTRAL_OVERRIDE points at non-existent path: $override. The test fixture must create the sandbox-central dir before invoking the framework script."
+        }
+        return Join-Path -Path $override -ChildPath "PF-id-registry-central.json"
+    }
+
+    $configPath = Join-Path -Path $ProjectRoot -ChildPath "doc/project-config.json"
+    $isAppdev = $false
+    if (Test-Path $configPath) {
+        try {
+            $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+            if ($config.project_id -eq "PRJ-000") { $isAppdev = $true }
+        } catch {
+            # Fall through; pointer-file resolution will fail loudly if absent
+        }
+    }
+
+    if ($isAppdev) {
+        return Join-Path -Path $ProjectRoot -ChildPath "process-framework-central/PF-id-registry-central.json"
+    }
+
+    $pointerPath = Join-Path -Path $ProcessFrameworkDir -ChildPath ".framework-central-pointer"
+    if (-not (Test-Path $pointerPath)) {
+        throw "Resolve-CentralRegistryPath: .framework-central-pointer not found at $pointerPath. This project has not received a Push from appdev yet — cross-project ID pools cannot be resolved. Run Push-FrameworkUpdate.ps1 from appdev to deploy the pointer."
+    }
+    $appdevRoot = (Get-Content -Path $pointerPath -Raw).Trim()
+    if (-not $appdevRoot) {
+        throw "Resolve-CentralRegistryPath: .framework-central-pointer at $pointerPath is empty. Re-run Push-FrameworkUpdate.ps1 to repair."
+    }
+    return Join-Path -Path $appdevRoot -ChildPath "process-framework-central/PF-id-registry-central.json"
+}
+
 function Get-IdRegistryPath {
     <#
     .SYNOPSIS
@@ -12,28 +217,47 @@ function Get-IdRegistryPath {
     If omitted, returns the process framework registry (PF-id-registry.json).
 
     .NOTES
-    PF- prefixes are split across two registries:
-    - process-framework/PF-id-registry.json (blueprint prefixes: PF-TSK, PF-GDE, PF-TEM, etc.)
-    - process-framework-local/PF-id-registry-local.json (local prefixes: PF-PRO, PF-IMP, PF-STA, PF-FEE, PF-REV, PF-TMP, PF-EVR)
+    PF- prefixes are split across registries (location resolved at runtime per project_id):
+    - process-framework/PF-id-registry.json — blueprint prefixes (PF-TSK, PF-GDE, PF-TEM, ...).
+      Rolled out to projects; one canonical copy lives in appdev.
+    - process-framework-central/PF-id-registry-central.json — cross-project pools
+      (PF-IMP, PF-PRO, PF-FEE, PF-REV, PF-EVR, PRJ). From cwd=appdev resolved locally;
+      from cwd=project resolved via .framework-central-pointer (Phase 7 cutover, 2026-05-11).
+      PRJ-000 (appdev) also gets its PF-STA from this registry because appdev/doc/ is the
+      blueprint and cannot host appdev's own state.
+    - doc/state-tracking/PF-id-registry-local.json — project-local prefixes (PF-STA, PF-TMP)
+      for projects (project_id != "PRJ-000"). Co-located with the rest of doc/state-tracking/
+      content.
     #>
     param(
         [Parameter(Mandatory=$false)]
         [string]$Prefix
     )
 
+    # Resolve project root via two-pass doc/project-config.json walk (post-Phase-5.5 safe).
+    # Naive Split-Path-Parent twice would return appdev/blueprint instead of appdev when the
+    # script lives under blueprint/process-framework/, leading the local-registry routing to look
+    # at the blueprint template config (project_id: null) and fall through to project-mode paths.
+    $projectRoot = Resolve-ProjectRootForRegistry -StartPath $PSScriptRoot
     $processFrameworkDir = Split-Path -Parent $PSScriptRoot
-    $projectRoot = Split-Path -Parent $processFrameworkDir
     $docDir = Join-Path -Path $projectRoot -ChildPath "doc"
-    $localDir = Join-Path -Path $projectRoot -ChildPath "process-framework-local"
 
-    # Local PF- prefixes that live in process-framework-local/
-    $localPrefixes = @('PF-PRO', 'PF-IMP', 'PF-STA', 'PF-FEE', 'PF-REV', 'PF-TMP', 'PF-EVR')
+    # Phase 7 split: cross-project pools live in central; PF-STA/PF-TMP stay project-local.
+    # PRJ is in central too; Register-Project.ps1 currently reads it directly, but listing here
+    # keeps the prefix classification complete for any future caller that goes through New-NextId.
+    $centralPrefixes = @('PF-IMP', 'PF-PRO', 'PF-FEE', 'PF-REV', 'PF-EVR', 'PRJ')
+    $projectLocalPrefixes = @('PF-STA', 'PF-TMP')
 
     # Hardcoded prefix-to-registry mapping
     if ($Prefix) {
-        # Check if this is a local PF- prefix
-        if ($localPrefixes -contains $Prefix) {
-            return Join-Path -Path $localDir -ChildPath "PF-id-registry-local.json"
+        # Cross-project pools always resolve to central (via .framework-central-pointer for projects)
+        if ($centralPrefixes -contains $Prefix) {
+            return Resolve-CentralRegistryPath -ProjectRoot $projectRoot -ProcessFrameworkDir $processFrameworkDir
+        }
+
+        # Project-local prefixes route per project_id (PRJ-000 → central; otherwise → doc/state-tracking/)
+        if ($projectLocalPrefixes -contains $Prefix) {
+            return Resolve-LocalRegistryPath -ProjectRoot $projectRoot
         }
 
         # Performance test prefixes (BM, PH) live in the TE registry
@@ -311,8 +535,8 @@ function Get-PrefixDirectories {
             # Return specific directory type
             if ($directories.$DirectoryType) {
                 $path = $directories.$DirectoryType
-                if ($ProjectRoot -and -not [System.IO.Path]::IsPathRooted($path)) {
-                    return Join-Path -Path $ProjectRoot -ChildPath $path
+                if ($ProjectRoot) {
+                    return Resolve-RegistryPath -Path $path -ProjectRoot $ProjectRoot
                 }
                 return $path
             } else {
@@ -325,8 +549,8 @@ function Get-PrefixDirectories {
         $allDirectories = @()
         $directories | Get-Member -MemberType NoteProperty | Where-Object { $_.Name -ne "default" } | ForEach-Object {
             $path = $directories.($_.Name)
-            if ($ProjectRoot -and -not [System.IO.Path]::IsPathRooted($path)) {
-                $allDirectories += Join-Path -Path $ProjectRoot -ChildPath $path
+            if ($ProjectRoot) {
+                $allDirectories += Resolve-RegistryPath -Path $path -ProjectRoot $ProjectRoot
             } else {
                 $allDirectories += $path
             }
@@ -347,11 +571,7 @@ function Get-PrefixDirectories {
         if ($ProjectRoot) {
             # Convert relative paths to absolute paths
             $directories = $directories | ForEach-Object {
-                if ([System.IO.Path]::IsPathRooted($_)) {
-                    $_
-                } else {
-                    Join-Path -Path $ProjectRoot -ChildPath $_
-                }
+                Resolve-RegistryPath -Path $_ -ProjectRoot $ProjectRoot
             }
         }
 
@@ -403,8 +623,8 @@ function Get-DefaultDirectoryForPrefix {
         }
 
         $defaultPath = $directories[0]
-        if ($ProjectRoot -and -not [System.IO.Path]::IsPathRooted($defaultPath)) {
-            return Join-Path -Path $ProjectRoot -ChildPath $defaultPath
+        if ($ProjectRoot) {
+            return Resolve-RegistryPath -Path $defaultPath -ProjectRoot $ProjectRoot
         }
 
         return $defaultPath
@@ -434,7 +654,7 @@ function Get-DirectoryForPrefixType {
 
     .EXAMPLE
     Get-DirectoryForPrefixType -Prefix "PF-FEE" -DirectoryType "forms"
-    # Returns: "process-framework-local/feedback/feedback-forms"
+    # Returns: "appdev/process-framework-central/feedback/feedback-forms"
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -527,7 +747,7 @@ function Test-ValidDirectoryForPrefix {
     Optional project root path for resolving relative paths
 
     .EXAMPLE
-    Test-ValidDirectoryForPrefix -Prefix "PF-FEE" -Directory "process-framework-local/feedback/feedback-forms"
+    Test-ValidDirectoryForPrefix -Prefix "PF-FEE" -Directory "appdev/process-framework-central/feedback/feedback-forms"
     # Returns: $true
     #>
     param(

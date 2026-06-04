@@ -3,9 +3,10 @@ id: PF-TSK-081
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-05-16
+description: "Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates"
 ---
 
 # User Documentation Creation
@@ -23,16 +24,6 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 **Focus Areas**: User workflows, discoverability, progressive disclosure (quick start → detailed reference), consistent terminology
 **Communication Style**: Present documentation drafts with rationale for structure choices, ask about target audience assumptions and terminology preferences
 
-## When to Use
-
-- When a feature has status `📖 Needs User Docs` in [feature-tracking.md](/doc/state-tracking/permanent/feature-tracking.md) (set by [Performance & E2E Test Scoping (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) when the feature state file's `### User Documentation` section has status `❌ Needed`)
-- When an enhancement changes existing user-facing behavior (modified commands, changed defaults, new options)
-- When a documentation gap is discovered during release preparation, validation, or user feedback
-
-**Trigger mechanism**: The feature implementation state file (Section 4: Documentation Inventory) has a `### User Documentation` subsection. During implementation planning (PF-TSK-044), this is set to `❌ Needed` for features with user-visible behavior, or `N/A` for internal features. After test scoping (PF-TSK-086), features with `❌ Needed` get status `📖 Needs User Docs` in feature-tracking.md. This task resolves the state file entry to `✅ Created` with links to the created handbook(s), and sets the feature to `🟢 Completed`. A feature may have multiple user-facing handbooks (e.g., quick-fix guide + detailed troubleshooting guide).
-
-**Workflow position**: This task sits between Performance & E2E Test Scoping and Release & Deployment. After test scoping routes a feature to `📖 Needs User Docs`, this task creates the documentation and completes the feature.
-
 ## Context Requirements
 
 <!-- Context map created in Session 4 -->
@@ -42,7 +33,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
   - **Feature implementation state file** (`doc/state-tracking/features`) — Understand what was implemented, key components, configuration options
   - **Existing handbooks directory** (`doc/user/handbooks`) — Understand current structure and content to avoid duplication
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Identify which features need user documentation
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -67,7 +58,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 ### Preparation
 
 1. **Identify documentation scope**: Determine which feature(s) need user documentation by checking:
-   - [Feature tracking](/doc/state-tracking/permanent/feature-tracking.md) for features at `📖 Needs User Docs` status
+   - [Feature tracking](../../../doc/state-tracking/permanent/feature-tracking.md) for features at `📖 Needs User Docs` status
    - Feature implementation state files for `### User Documentation` entries with `❌ Needed` status
    - Enhancement state files for changed user-facing behavior
    - Specific feature request from human partner
@@ -86,7 +77,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
    - Did implementation surface additional content types not identified at planning time?
    - If yes, add new rows with status `❌ Needed` for those types.
 
-   Apply the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md) to validate and extend the rows. The guide defines the [decision matrix](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix), [content type values](../../guides/07-deployment/diataxis-content-type-guide.md#content-type-values) (declared in [PD-id-registry.json](/doc/PD-id-registry.json) `PD-UGD.subdirectories.values`), [L2 topics](../../guides/07-deployment/diataxis-content-type-guide.md#l2-topics-optional) (optional project-declared groupings via `PD-UGD.topics.values`), and the [status taxonomy](../../guides/07-deployment/diataxis-content-type-guide.md#status-taxonomy).
+   Apply the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md) to validate and extend the rows. The guide defines the [decision matrix](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix), [content type values](../../guides/07-deployment/diataxis-content-type-guide.md#content-type-values) (declared in [PD-id-registry.json](../../../doc/PD-id-registry.json) `PD-UGD.subdirectories.values`), [L2 topics](../../guides/07-deployment/diataxis-content-type-guide.md#l2-topics-optional) (optional project-declared groupings via `PD-UGD.topics.values`), and the [status taxonomy](../../guides/07-deployment/diataxis-content-type-guide.md#status-taxonomy).
 
    **Fresh-analysis fallback**: If the feature state file has only a single generic row (e.g., from a feature created before this taxonomy was adopted) or is missing entries entirely, perform the analysis from scratch using the guide's decision matrix — one row per identified content type, each `❌ Needed`.
 
@@ -135,7 +126,7 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
 ## Outputs
 
-- **New or updated handbook(s)** — User-facing documentation in `doc/user/handbooks/<content-type>/[<topic>/]` created via `New-Handbook.ps1` (for new) or edited directly (for updates). Content type values (Diátaxis standard: `tutorials`, `how-to`, `reference`, `explanation`) are declared in [PD-id-registry.json](/doc/PD-id-registry.json) under `PD-UGD.subdirectories.values`. L2 topic values are project-declared in `PD-UGD.topics.values` (optional).
+- **New or updated handbook(s)** — User-facing documentation in `doc/user/handbooks/<content-type>/[<topic>/]` created via `New-Handbook.ps1` (for new) or edited directly (for updates). Content type values (Diátaxis standard: `tutorials`, `how-to`, `reference`, `explanation`) are declared in [PD-id-registry.json](../../../doc/PD-id-registry.json) under `PD-UGD.subdirectories.values`. L2 topic values are project-declared in `PD-UGD.topics.values` (optional).
 - **Updated README.md** — Main project README updated with documentation links or feature descriptions (if applicable)
 - **Updated feature tracking** — Feature state file or tracking entry reflects that user documentation exists
 

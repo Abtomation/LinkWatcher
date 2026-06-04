@@ -76,7 +76,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | LinkUpdater | Link text preserved (filename) | `test_link_text_not_updated_when_filename_only` — filename-only text preserved unchanged | None |
 | LinkUpdater | Link text end-to-end | `test_link_text_updated_end_to_end` — full file update with link text matching old target | `temp_project_dir` |
 
-**Test File**: [`test/automated/unit/test_updater.py`](../../../test/automated/unit/test_updater.py) (24 methods)
+**Test File**: [`test/automated/unit/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) (24 methods)
 
 ### Integration Tests
 
@@ -95,7 +95,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | Substring corruption (PD-BUG-025) | `test_bug025_yaml_substring_path_not_corrupted` | YAML with config.yaml and configs/config.yaml: each updated independently, no substring corruption | `temp_project_dir` |
 | Substring corruption (PD-BUG-025) | `test_bug025_generic_quoted_substring_not_corrupted` | PowerShell with helpers.py and core/helpers.py in quotes: each updated independently | `temp_project_dir` |
 
-**Test File**: [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (12 methods)
+**Test File**: [`test/automated/integration/test_link_updates.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py) (12 methods)
 
 ## Test Implementation Roadmap
 

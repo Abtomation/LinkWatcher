@@ -3,9 +3,10 @@ id: PF-TSK-085
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.2
+version: 1.3
 created: 2026-04-09
-updated: 2026-04-30
+updated: 2026-05-16
+description: "Run performance tests, record results in trend database, update tracking, flag regressions"
 ---
 
 # Performance Baseline Capture
@@ -23,29 +24,21 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 **Focus Areas**: Accurate measurement capture, trend interpretation, regression identification, baseline currency
 **Communication Style**: Report results factually with trend context; flag regressions immediately with severity assessment
 
-## When to Use
-
-- After Performance Test Creation — new tests need initial baselines (📋 → ✅)
-- After code changes to hot paths — verify no regression
-- Pre-release verification — capture release baseline, confirm no regressions
-- When performance-test-tracking.md has ⚠️ Needs Re-baseline entries that need refresh
-- Periodic health check (e.g., quarterly or before major releases)
-
 ## Context Requirements
 
 - **Critical (Must Read):**
 
-  - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Current baselines and lifecycle statuses
-  - [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) — Baseline management and trend analysis sections
+  - [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Current baselines and lifecycle statuses
+  - [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) — Baseline management and trend analysis sections
 
 - **Important (Load If Space):**
 
-  - [Performance Results Database](/process-framework/scripts/test/performance_db.py) — record/trend/regressions subcommands
+  - [Performance Results Database](../../scripts/test/performance_db.py) — record/trend/regressions subcommands
   - Recent git log — to correlate results with code changes
 
 - **Reference Only (Access When Needed):**
-  - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) — For filing degradation-related tech debt
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — For filing degradation-related tech debt
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 ## Process
 
@@ -53,13 +46,13 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 ### Preparation
 
-1. **[Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md)** to identify which tests to run:
+1. **[Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md)** to identify which tests to run:
    - `📋 Needs Baseline` entries → need initial baselines
    - `⚠️ Needs Re-baseline` entries → need re-capture
    - `✅ Baselined` entries → run for regression check if triggered by code change
    - Optionally filter by Related Features column if triggered by a specific feature change
 
-2. **🚨 Verify audit gate for `📋 Needs Baseline` entries**: Before capturing baselines for newly created tests, the **Audit Status** column in performance-test-tracking.md must be `✅ Audit Approved`. Any other value — empty, `⬜ Not Audited`, `🔄 Needs Update`, `🔴 Audit Failed` — blocks baseline capture; the test must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Needs Re-baseline` or `✅ Baselined` entries (they were already audited when first created).
+2. **🚨 Verify audit gate for `📋 Needs Baseline` entries**: Before capturing baselines for newly created tests, the **Audit Status** column in performance-test-tracking.md must be `✅ Audit Approved`. Any other value — empty, `⬜ Not Audited`, `🔄 Needs Update`, `🔴 Audit Failed` — blocks baseline capture; the test must pass [Test Audit (PF-TSK-030)](test-audit-task.md) with `-TestType Performance` first. This gate does **not** apply to `⚠️ Needs Re-baseline` or `✅ Baselined` entries (they were already audited when first created).
 
 3. **Check environment** — close unnecessary applications, ensure consistent test conditions. Note any environmental factors that could affect results.
 
@@ -71,7 +64,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    python -m pytest test/automated/performance/ -v -s -m performance
 
    # Or run specific tests by file
-   python -m pytest test/automated/performance/test_benchmark.py -v -s
+   python -m pytest test/automated/performance/level2-operation/test_benchmark.py -v -s
 
    # Or run by Related Features (if filtering)
    python -m pytest test/automated/performance/ -v -s -k "bm_001 or bm_003"
@@ -152,9 +145,9 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 ## Tools and Scripts
 
-- **[Update-PerformanceTracking.ps1](/process-framework/scripts/update/Update-PerformanceTracking.ps1)** — Automate status transitions, column updates, and summary recalculation in performance-test-tracking.md (📋 → ✅, refresh results, mark ⚠️ Needs Re-baseline)
-- **[performance_db.py](/process-framework/scripts/test/performance_db.py)** — Record measurements, query trends, detect regressions (`record`, `trend`, `regressions` subcommands)
-- **[New-FeedbackForm.ps1](/process-framework/scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
+- **[Update-PerformanceTracking.ps1](../../scripts/update/Update-PerformanceTracking.ps1)** — Automate status transitions, column updates, and summary recalculation in performance-test-tracking.md (📋 → ✅, refresh results, mark ⚠️ Needs Re-baseline)
+- **[performance_db.py](../../scripts/test/performance_db.py)** — Record measurements, query trends, detect regressions (`record`, `trend`, `regressions` subcommands)
+- **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
 
 ## Outputs
 
@@ -166,9 +159,9 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 The following state files must be updated as part of this task:
 
-- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Update results, statuses, and summary
-- [Bug Tracking](/doc/state-tracking/permanent/bug-tracking.md) — If regression filed as bug
-- [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) — If trend degradation filed as debt
+- [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Update results, statuses, and summary
+- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) — If regression filed as bug
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — If trend degradation filed as debt
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -182,20 +175,20 @@ Before considering this task finished:
   - [ ] Regressions check completed (`performance_db.py regressions`)
   - [ ] Any regressions filed appropriately (bug or tech debt)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Last Result, Last Run, Status columns updated
+  - [ ] [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Last Result, Last Run, Status columns updated
   - [ ] Summary table recalculated
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-085" and context "Performance Baseline Capture"
 
 ## Next Tasks
 
-- **[Code Review](/process-framework/tasks/06-maintenance/code-review-task.md)** — If regressions found, review the causing commits
-- **[Bug Fixing](/process-framework/tasks/06-maintenance/bug-fixing-task.md)** — If regression filed as bug
-- **[Release & Deployment](/process-framework/tasks/07-deployment/release-deployment-task.md)** — If this was a pre-release capture with no regressions
+- **[Code Review](../06-maintenance/code-review-task.md)** — If regressions found, review the causing commits
+- **[Bug Fixing](../06-maintenance/bug-fixing-task.md)** — If regression filed as bug
+- **[Release & Deployment](../07-deployment/release-deployment-task.md)** — If this was a pre-release capture with no regressions
 
 ## Related Resources
 
-- [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) — Baseline management and trend analysis
-- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
-- [Performance Results Database](/process-framework/scripts/test/performance_db.py) — Trend storage and query tool
-- [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) — Upstream task that creates tests
-- [Test Audit](/process-framework/tasks/03-testing/test-audit-task.md) — Audit gate task; `📋 Needs Baseline` tests must be audited before baseline capture
+- [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) — Baseline management and trend analysis
+- [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
+- [Performance Results Database](../../scripts/test/performance_db.py) — Trend storage and query tool
+- [Performance Test Creation](performance-test-creation-task.md) — Upstream task that creates tests
+- [Test Audit](test-audit-task.md) — Audit gate task; `📋 Needs Baseline` tests must be audited before baseline capture

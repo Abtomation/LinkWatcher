@@ -10,6 +10,12 @@ feature_id: [Feature ID]
 test_file_id: [Test File ID]
 auditor: [Auditor Name]
 audit_date: [Audit Date]
+variant_group: test-audit-report-templates
+variant_siblings:
+  - test-audit-report-template.md
+  - performance-test-audit-report-template.md
+  - e2e-test-audit-report-template.md
+description: "Lightweight template for test audit reports"
 ---
 
 # Test Audit Report - Feature [Feature ID] (Lightweight)

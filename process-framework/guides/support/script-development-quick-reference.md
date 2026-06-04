@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-21
 updated: 2025-07-21
 guide_description: Quick reference for common script development issues and solutions
+description: "Quick reference for common script development issues and solutions"
 ---
 # Script Development Quick Reference
 
@@ -104,7 +105,7 @@ function Your-Function {
 }
 ```
 
-Canonical example: [DocumentManagement.psm1](/process-framework/scripts/Common-ScriptHelpers/DocumentManagement.psm1) lines 22-30.
+Canonical example: [DocumentManagement.psm1](../../scripts/Common-ScriptHelpers/DocumentManagement.psm1) lines 22-30.
 
 **Avoid**:
 
@@ -116,6 +117,52 @@ function Your-Function {
 ```
 
 > Applies only to authors *extending* Common-ScriptHelpers sub-modules. Scripts that consume Common-ScriptHelpers via the umbrella import are unaffected — `Import-ProjectModule` works fine when called from a script (script scope is separate from module scope).
+
+### 🚨 Reserved PowerShell Automatic Variables
+
+**Issue**: Your function parameter shadows a PowerShell automatic variable, causing silent type coercion or argument-parsing failures.
+
+**Cause**: PowerShell reserves several variable names for automatic use. The most common collision in custom scripts and test helpers is `$Args` — PowerShell pre-populates it with unbound positional arguments. Even when you declare `[hashtable]$Args` as a parameter, callers passing `@{...}` may have their hashtable silently coerced to `System.Object[]`, producing `Cannot convert the "System.Object[]" value of type "System.Object[]" to type "System.Collections.Hashtable"`.
+
+**Fix**: Rename the parameter. Common safe alternatives: `$Params`, `$Splat`, `$Arguments`, `$Options`.
+
+```powershell
+# ❌ Avoid — collides with PowerShell's $Args automatic
+function Invoke-Helper { param([hashtable]$Args) ... }
+
+# ✅ Safe
+function Invoke-Helper { param([hashtable]$Params) ... }
+```
+
+**Other reserved automatic variables to avoid as parameters, iterators, or assignment targets**: `$Input`, `$MyInvocation`, `$PSItem` / `$_`, `$Error`, `$Host`, `$PSCmdlet`, `$ExecutionContext`, `$PWD`, `$PID`, `$Home`, `$PSScriptRoot`, `$PSCommandPath`, `$Matches`, `$LASTEXITCODE`, `$null`, `$true`, `$false`. The full list is in `Get-Help about_Automatic_Variables`. The collision site can be a parameter declaration, a `foreach` iterator, or any variable assignment — all three forms count. Surfaced 2026-05-14 during PF-IMP-871 Phase 2a synthetic-fixture test development (the `$Args` case above); a complementary case (PF-FEE-039) hit Push-FrameworkUpdate.ps1 via `foreach ($pid in $eligible.Keys)` — `$PID` is **read-only**, so the failure mode is `Cannot overwrite variable PID` rather than the silent `$Args`-style coercion.
+
+### 🚨 Script-Level Functions Are Not Hoisted
+
+**Issue**: A function called from a script-level `if` / early-exit block throws `CommandNotFoundException`, even though the function is defined lower in the same file. Common in dual-mode scripts (e.g. `-Scaffold` / `-Update`) whose mode branch sits above the helper definitions.
+
+**Cause**: PowerShell executes a script top-to-bottom, and a `function Foo { }` definition only takes effect once execution reaches that line. Unlike JavaScript, script-level function declarations are **not hoisted**. A branch that runs (and may `exit`) before the definition line cannot see the function.
+
+**Fix**: Declare all functions at the top of the script — immediately after `param()` and module imports, above any executable or early-exit logic.
+
+```powershell
+# ❌ Fails — Get-FeatureCategoriesFromTracking runs before its definition line
+param([switch]$Update)
+if ($Update) {
+    $cats = Get-FeatureCategoriesFromTracking   # CommandNotFoundException
+    exit 0
+}
+function Get-FeatureCategoriesFromTracking { ... }
+
+# ✅ Works — definitions precede the mode branches that call them
+param([switch]$Update)
+function Get-FeatureCategoriesFromTracking { ... }
+if ($Update) {
+    $cats = Get-FeatureCategoriesFromTracking
+    exit 0
+}
+```
+
+Surfaced 2026-05-14 during PF-IMP-871 Phase 2b: `New-TestInfrastructure.ps1`'s parser functions were defined below the `-Update` branch that called them (~5 min to diagnose). Companion to the `$Args` automatic-variable footgun above.
 
 ### 🚨 Template Replacements Not Working
 
@@ -145,6 +192,77 @@ $customReplacements = @{
 $templatePath = Join-Path $PSScriptRoot "../../templates/your-template.md"
 $resolvedTemplatePath = Resolve-Path $templatePath
 ```
+
+### 🚨 Wrapper Detection of Parameter-Binding Failures
+
+**Issue**: A wrapper script iterates over inputs invoking a framework script, checks `$LASTEXITCODE` after each call to detect failures, and silently skips entries that failed `[ValidateLength]` / `[ValidateScript]` / `[ValidateSet]` validation. The wrapper reports success while one or more entries were never actually created.
+
+**Cause**: PowerShell parameter-binding errors are terminating errors that fire *before* the script body runs. The script's own `try { ... } catch { ... }` block can't intercept them — by the time the body starts, the script has already exited. Critically, `$LASTEXITCODE` is **not set** by these failures (it's only set by native exits or explicit `exit N` calls inside the body). Wrappers relying on `$LASTEXITCODE` alone see `$null` and infer success.
+
+**Fix**: In the wrapper, use `try { & $script ... } catch { ... }` instead of checking `$LASTEXITCODE`. The exception propagates from parameter binding cleanly.
+
+```powershell
+# ❌ Avoid — misses parameter-binding failures
+foreach ($entry in $entries) {
+    & $script @entry -Confirm:$false
+    if ($LASTEXITCODE -ne 0) { Write-Warning "Failed: $($entry.Name)" }
+}
+
+# ✅ Safe — try/catch captures both param-binding and body errors
+foreach ($entry in $entries) {
+    try {
+        & $script @entry -Confirm:$false -ErrorAction Stop
+    } catch {
+        Write-Warning "Failed: $($entry.Name) — $($_.Exception.Message)"
+    }
+}
+```
+
+> **Why not "fix the script to call `exit 1`"**: Parameter-binding failures happen outside the script body's execution. No top-level `try`/`catch` or `trap` inside the script can intercept them. Body-level `exit 1` after the fact can't help either — control never reached the body. The correct fix is at the call site.
+
+Surfaced 2026-05-17 during the Framework Self-Testing extension (Bug C) when a wrapper looping over 11 workflow inputs silently skipped one whose `Description` failed a `ValidateScript` length check.
+
+### 🚨 `-WhatIf` Output Is Not Capturable In-Process
+
+**Issue**: A test runs a `SupportsShouldProcess` script with `-WhatIf` in the current session and tries to capture the `"What if:"` lines via `2>&1` / `*>&1`. The captured output is empty.
+
+**Cause**: `ShouldProcess` `"What if:"` messages are written to the PowerShell **host**, not to the output / error / warning / verbose / information streams that redirection operators tap. In-process redirection never sees them.
+
+**Fix**: Run the script in a child `pwsh.exe` process and capture its combined output — the child host renders the `"What if:"` lines to its stdout, which the parent captures via `2>&1`. This is one reason the [Subprocess + WhatIf + Side-Effect-Counting Test Pattern](#subprocess--whatif--side-effect-counting-test-pattern) uses a subprocess rather than an in-process call.
+
+```powershell
+# ✅ Subprocess capture (Update-ProcessImprovement.Tests.ps1)
+$cmd = "& '$Script' -ImprovementId 'PF-IMP-001' -NewStatus 'InProgress' -WhatIf"
+$whatIf = (pwsh.exe -NoProfile -ExecutionPolicy Bypass -Command $cmd 2>&1) -join "`n"
+$whatIf | Should -Match 'What if: Performing the operation'
+```
+
+Surfaced repeatedly during the Framework Self-Testing extension (2026-05-13 to 05-20) when asserting that side-effecting scripts reach their `ShouldProcess` gates.
+
+### 🚨 Capturing `Write-Error` From a Script Under Test
+
+**Issue**: A Pester test needs to assert on the error text a script emits, but the script reports failure via `Write-Error` (often a `Write-ProjectError` helper) followed by `exit 1`, not `throw`. Calling it in-process either aborts the test (governed by the caller's `$ErrorActionPreference`) or yields no catchable exception to inspect.
+
+**Cause**: `Write-Error` + `exit` writes to the error stream and terminates; it does not surface a `throw`-style exception the test can catch. In-process, the error record is subject to the *caller's* `$ErrorActionPreference` and stream context, so its text cannot be asserted on cleanly.
+
+**Fix**: Invoke the script as a subprocess and capture stderr. Two forms:
+
+- **Inline `-Command` + `2>&1`** — simplest; merges stderr into the captured string:
+  ```powershell
+  $cmd = "& '$Script' -DryRun"   # missing required arg → Write-Error + exit 1
+  $out = (pwsh.exe -NoProfile -ExecutionPolicy Bypass -Command $cmd 2>&1) -join "`n"
+  $out | Should -Match 'AssessmentId or AssessmentFile must be provided'
+  ```
+- **`Start-Process -RedirectStandardError <tempfile>`** — when stdout and stderr must stay separate (e.g. exit-code plus clean-stderr assertions):
+  ```powershell
+  $tempErr = [System.IO.Path]::GetTempFileName()
+  $p = Start-Process pwsh.exe -ArgumentList @('-NoProfile','-File',$Script,'-Bad') `
+      -RedirectStandardError $tempErr -Wait -PassThru -NoNewWindow
+  $errText = Get-Content $tempErr -Raw
+  Remove-Item $tempErr -Force
+  ```
+
+Surfaced across the Framework Self-Testing extension; the subprocess + tempfile form recurs across the orchestration / creation / update / validation test directories. Pairs with the [Subprocess + WhatIf + Side-Effect-Counting Test Pattern](#subprocess--whatif--side-effect-counting-test-pattern) above.
 
 ## Testing Checklist
 
@@ -195,9 +313,57 @@ $documentId = New-StandardProjectDocument `
     -OpenInEditor:$OpenInEditor
 ```
 
+### Subprocess + WhatIf + Side-Effect-Counting Test Pattern
+
+The canonical approach for testing side-effecting framework scripts (those that create files, update tracking tables, or modify registries). The three components work together:
+
+1. **Subprocess isolation** — invoke the script under test via `pwsh.exe -NoProfile -ExecutionPolicy Bypass -Command` so the test host's module state, variables, and `$PSScriptRoot` don't leak into the script.
+2. **`-WhatIf` mode** — the script body runs its full logic path but `ShouldProcess`-guarded operations (file writes, registry updates) are skipped, emitting `"What if:"` markers instead. This lets you assert that the script *reaches* each side-effect without *executing* it.
+3. **Side-effect counting** — snapshot the affected directory or file state before and after the `-WhatIf` invocation. Assert that counts are unchanged. This catches leaks where a code path bypasses `ShouldProcess`.
+
+```powershell
+# Canonical example (from New-SourceStructure.Tests.ps1)
+
+BeforeAll {
+    $script:RepoRoot  = Resolve-Path (Join-Path $PSScriptRoot '../../../../..')
+    $script:ScriptPath = Join-Path $script:RepoRoot 'blueprint/.../Script.ps1'
+    $script:TargetDir  = Join-Path $script:RepoRoot 'target-dir'
+}
+
+Context '-WhatIf integration' {
+    BeforeAll {
+        # 1. Snapshot: count dirs/files before
+        $script:PreCount = (Get-ChildItem $script:TargetDir -Directory).Count
+
+        # 2. Subprocess: run with -WhatIf
+        $cmd = "& '$($script:ScriptPath)' -Mode -WhatIf"
+        $script:Output = (pwsh.exe -NoProfile -ExecutionPolicy Bypass `
+            -Command $cmd 2>&1) -join "`n"
+
+        # 3. Snapshot: count dirs/files after
+        $script:PostCount = (Get-ChildItem $script:TargetDir -Directory).Count
+    }
+
+    It 'reaches the expected ShouldProcess marker' {
+        $script:Output | Should -Match 'What if:.*Create.*'
+    }
+
+    It 'creates nothing on disk (side-effect check)' {
+        $script:PostCount | Should -Be $script:PreCount `
+            -Because '-WhatIf must not create files'
+    }
+}
+```
+
+**When to use**: Any Pester test for a framework `.ps1` that creates or modifies files. The pattern emerged during Framework Self-Testing Phase 3b–3d (2026-05-14) and is now the standard across `test/automated/unit/framework/`.
+
+**When NOT to use**: Pure-function helpers (string transforms, slug generators, validators) that have no side effects — test those with direct invocation, no subprocess needed.
+
 ## Troubleshooting
 
 ### PowerShell Script Execution (AI Agents)
+
+> **Single source of truth.** This section is the canonical reference for running framework PowerShell scripts. `CLAUDE.md` and `.ai-entry-point.md` (both appdev and project copies) carry only a short `-File` snippet plus a pointer here — keep the full recipe (preferred/fallback patterns, human-terminal usage, troubleshooting) in this section rather than duplicating it there.
 
 **Before running any script, check its parameters first:**
 ```bash
@@ -276,4 +442,5 @@ If files aren't being created, check that you're not running with `-WhatIf` flag
 
 ## Related Resources
 
-- [External resource](https://example.com)
+- [Document Creation Script Development Guide](document-creation-script-development-guide.md) - Comprehensive, standardized approach for creating documents from templates through PowerShell scripts (this quick reference is its troubleshooting companion)
+- [Template Development Guide](template-development-guide.md) - Developing and maintaining the framework templates these scripts consume

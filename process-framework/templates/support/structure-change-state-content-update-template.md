@@ -6,11 +6,18 @@ version: 1.0
 created: [CREATED-DATE]
 updated: [UPDATED-DATE]
 change_name: [CHANGE-NAME]
+variant_group: structure-change-state-templates
+variant_siblings:
+  - structure-change-state-template.md
+  - structure-change-state-framework-extension-template.md
+  - structure-change-state-from-proposal-template.md
+  - structure-change-state-rename-template.md
+description: "Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)"
 ---
 
 # Structure Change State: [Change Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks implementation of a content update structure change. Move to `process-framework-local/state-tracking/temporary/old` after all changes are validated.
+> **⚠️ TEMPORARY FILE**: This file tracks implementation of a content update structure change. Move to `process-framework-central/state-tracking/temporary/old` after all changes are validated.
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]

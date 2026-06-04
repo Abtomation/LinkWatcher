@@ -7,6 +7,7 @@ created: 2026-03-23
 updated: 2026-03-23
 workflow_phase: 05-validation
 related_task: PF-TSK-074
+description: "Components for validating logging coverage, monitoring instrumentation, and diagnostic traceability"
 ---
 
 # Observability Validation Context Map

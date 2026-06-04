@@ -7,6 +7,7 @@ created: 2026-03-27
 updated: 2026-04-16
 workflow_phase: 07-deployment
 related_task: PF-TSK-081
+description: "Components for creating and maintaining user-facing handbook documentation"
 ---
 
 # User Documentation Creation Context Map
@@ -77,10 +78,10 @@ graph TD
 
 ## Related Documentation
 
-- [Task Definition](/process-framework/tasks/07-deployment/user-documentation-creation.md) - Full task process
-- [Handbook Template](/process-framework/templates/07-deployment/handbook-template.md) - Template for new handbooks
-- [New-Handbook.ps1](/process-framework/scripts/file-creation/07-deployment/New-Handbook.ps1) - Creation script
-- [Update-UserDocumentationState.ps1](/process-framework/scripts/update/Update-UserDocumentationState.ps1) - Finalization script for feature state updates
-- [Existing Handbooks](/doc/user/handbooks) - Style reference
+- [Task Definition](../../../tasks/07-deployment/user-documentation-creation.md) - Full task process
+- [Handbook Template](../../../templates/07-deployment/handbook-template.md) - Template for new handbooks
+- [New-Handbook.ps1](../../../scripts/file-creation/07-deployment/New-Handbook.ps1) - Creation script
+- [Update-UserDocumentationState.ps1](../../../scripts/update/Update-UserDocumentationState.ps1) - Finalization script for feature state updates
+- [Existing Handbooks](../../../../doc/user/handbooks) - Style reference
 
 ---

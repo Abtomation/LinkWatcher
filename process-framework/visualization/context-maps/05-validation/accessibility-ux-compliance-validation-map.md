@@ -7,6 +7,7 @@ created: 2026-03-23
 updated: 2026-03-23
 workflow_phase: 05-validation
 related_task: PF-TSK-075
+description: "Components for validating accessibility standards, UX compliance, and inclusive design patterns"
 ---
 
 # Accessibility / UX Compliance Validation Context Map

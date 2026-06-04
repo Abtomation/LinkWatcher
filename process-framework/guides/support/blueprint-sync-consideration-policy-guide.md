@@ -2,21 +2,26 @@
 id: PF-GDE-065
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2026-05-05
-updated: 2026-05-05
+updated: 2026-05-11
 related_task: PF-TSK-087
+status: deprecated
+deprecated_on: 2026-05-11
+replaced_by: PF-TSK-088
 ---
 
 # Blueprint Sync Consideration Policy
 
+> **🗄️ DEPRECATED (2026-05-11)**: This guide supported the now-deprecated PF-TSK-087 framework-blueprint-sync task and has no current consumer. The Push/Restore model in [Framework Rollout Task (PF-TSK-088)](../../tasks/support/framework-rollout-task.md) replaces the workflow this guide informed. The content below is retained for historical reference only — references to `process-framework-local/` describe pre-migration source-project layout that does not apply to registered projects post-migration. **Do not consult this guide for new work.**
+
 ## Overview
 
-Per-subdirectory and per-skeleton-file classification policy for [PF-TSK-087 framework-blueprint-sync](/process-framework/tasks/support/framework-blueprint-sync-task.md) drift discovery (Step 5). Classifies every top-level and second-level directory and the skeleton files inside them as one of three handling modes so the agent walks deeply enough on the first pass to catch framework-shape drift.
+Per-subdirectory and per-skeleton-file classification policy for [PF-TSK-087 framework-blueprint-sync](../../tasks/support/framework-blueprint-sync-task.md) drift discovery (Step 5). Classifies every top-level and second-level directory and the skeleton files inside them as one of three handling modes so the agent walks deeply enough on the first pass to catch framework-shape drift.
 
 ## When to Use
 
-Use this guide when executing **Step 5 (Discover new drift)** of [PF-TSK-087](/process-framework/tasks/support/framework-blueprint-sync-task.md). For each in-scope top-level directory, look up its second-level subdirs and skeleton files in the [Coverage Tables](#coverage-tables) below to determine the depth of comparison required.
+Use this guide when executing **Step 5 (Discover new drift)** of [PF-TSK-087](../../tasks/support/framework-blueprint-sync-task.md). For each in-scope top-level directory, look up its second-level subdirs and skeleton files in the [Coverage Tables](#coverage-tables) below to determine the depth of comparison required.
 
 > **🚨 CRITICAL**: Do not declare a directory "no structural drift" after a 1-level walk. Subdirectories tagged **Always Consider Section-Shape** require deep skeleton-file comparison (sections, table columns, status legends, schema fields), not just file-presence comparison. The first execution of PF-TSK-087 (2026-05-05) needed 3 catch-up rounds because this depth was skipped.
 
@@ -60,7 +65,7 @@ A second-level subdir can mix classifications — e.g., `feedback/archive/` is C
 
 ### Top-Level Directories
 
-The top-level rules from [PF-TSK-087 Per-Directory Handling Rules](/process-framework/tasks/support/framework-blueprint-sync-task.md#per-directory-handling-rules) determine the strategy. The tables below detail **second-level** classification within each top-level dir.
+The top-level rules from [PF-TSK-087 Per-Directory Handling Rules](../../tasks/support/framework-blueprint-sync-task.md#per-directory-handling-rules) determine the strategy. The tables below detail **second-level** classification within each top-level dir.
 
 | Directory | Top-level rule (from PF-TSK-087) | Second-level walk required? |
 |-----------|----------------------------------|------------------------------|
@@ -123,7 +128,9 @@ The top-level rules from [PF-TSK-087 Per-Directory Handling Rules](/process-fram
 | `TE-documentation-map.md` | Always Consider Section-Shape | Compare section header structure. Do not sync project-specific entries. |
 | `archive/` | Ignore Content | Archived tests are project content. Consider Structure for presence. |
 | `audits/` | Consider Structure | Verify all category subdirs exist (`foundation/`, `authentication/`, `core-features/`, `e2e/`, `performance/`). Audit reports inside are project content. |
-| `automated/` | Consider Structure | Verify all category subdirs exist (`unit/`, `integration/`, `parsers/`, `performance/`). Test files inside are project content. |
+| `audits/README.md` | Ignore Content | Project-managed README describing audit category taxonomy. Do not sync from project to blueprint. (Future: when [PF-IMP-010](/process-framework-central/state-tracking/permanent/process-improvement-tracking.md) lands and the README becomes auto-generated from `TE-id-registry.json` `TE-TAR.directories`, reclassify as Always Consider Section-Shape with auto-generation as the canonical state.) |
+| `automated/` | Consider Structure | Verify all category subdirs exist (`unit/`, `integration/`, `parsers/`, `performance/`, `bug-validation/`). Test files inside are project content. |
+| `automated/bug-validation/` | Consider Structure | Canonical category for PD-BUG-* regression validation scripts (per [test-infrastructure-guide.md:34](../03-testing/test-infrastructure-guide.md#L34)). Presence required; contents are project-specific (e.g., bug-reproduction scripts and regression test files). The blueprint must not contain a `test_procedures.md` or any other populated procedures doc — those are pure project content. |
 | `e2e-acceptance-testing/` | Consider Structure | Presence required. |
 | `e2e-acceptance-testing/templates/` | Consider Structure | Templates here are framework-canonical; if a new template is added in project, sync it (treat as Always Consider Section-Shape). |
 | `specifications/` | Consider Structure | Verify `feature-specs/` and `cross-cutting-specs/` subdirs exist. Specs inside are project content. |
@@ -146,6 +153,8 @@ The top-level rules from [PF-TSK-087 Per-Directory Handling Rules](/process-fram
 ## Skeleton-File Section-Shape Comparison
 
 For each file tagged **Always Consider Section-Shape** above, compare these surfaces between project and blueprint. Sync structural drift; do not sync project-specific values.
+
+> **🚨 Reset rule for template-backed files**: For any skeleton file with a corresponding framework template under `process-framework/templates/` (listed as `Template source:` in the entries below), the blueprint's canonical state is the **empty template**. Structural drift (new sections, new table columns, new taxonomy rows) is propagated into the template *and* the blueprint instance — never by copying the project's populated version. The reason this matters: a project's populated tracker can satisfy section-shape comparison while still carrying project-specific rows, populated counters, accumulated history, and project-name leakage. Treating "structurally equal" as "safe to sync" is what allowed LinkWatcher's `test_procedures.md` and tracker pollution to reach the appdev blueprint and propagate into TimeTrackingV2 at bootstrap. Verification: at PF-TSK-087 Step 11, blueprint state-tracking files must match the empty-template version (after placeholder substitution); see [PF-TSK-087 Step 11](../../tasks/support/framework-blueprint-sync-task.md#process).
 
 ### `process-improvement-tracking.md`
 
@@ -195,6 +204,7 @@ For each file tagged **Always Consider Section-Shape** above, compare these surf
 
 ### `test-tracking.md`
 
+- **Canonical empty form**: the blueprint copy of `test/state-tracking/permanent/test-tracking.md` IS the canonical starter; no template file exists. The blueprint version must contain no project test rows, no Coverage Summary entries, no Testing Infrastructure rows, and no per-feature category sections beyond placeholder comments.
 - Status Legend section presence and vocabulary
 - Audit columns (3-column or 2-column variants)
 - Test category sections
@@ -202,6 +212,7 @@ For each file tagged **Always Consider Section-Shape** above, compare these surf
 
 ### `e2e-test-tracking.md`
 
+- **Canonical empty form**: the blueprint copy of `test/state-tracking/permanent/e2e-test-tracking.md` IS the canonical starter; no template file exists. The blueprint version must contain no Workflow Milestone rows and no E2E Test Case rows.
 - Dual-status framework (acceptance status + audit status)
 - Workflow Milestone Tracking table presence and columns
 - Status Legend section
@@ -209,6 +220,7 @@ For each file tagged **Always Consider Section-Shape** above, compare these surf
 
 ### `performance-test-tracking.md`
 
+- **Canonical empty form**: the blueprint copy of `test/state-tracking/permanent/performance-test-tracking.md` IS the canonical starter; no template file exists. The blueprint version must contain no Test Inventory rows; Summary table all zeroed.
 - Status Legend section presence
 - Level taxonomy (Component / Operation / Scale / Resource)
 - Audit columns
@@ -257,5 +269,5 @@ This guide is referenced from PF-TSK-087 Step 5. Out-of-date classifications cau
 
 ## Related Resources
 
-- [PF-TSK-087 framework-blueprint-sync](/process-framework/tasks/support/framework-blueprint-sync-task.md) — the consuming task
-- [PF-TSK-087 Per-Directory Handling Rules](/process-framework/tasks/support/framework-blueprint-sync-task.md#per-directory-handling-rules) — the top-level rules this guide refines
+- [PF-TSK-087 framework-blueprint-sync](../../tasks/support/framework-blueprint-sync-task.md) — the consuming task
+- [PF-TSK-087 Per-Directory Handling Rules](../../tasks/support/framework-blueprint-sync-task.md#per-directory-handling-rules) — the top-level rules this guide refines

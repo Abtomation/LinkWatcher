@@ -1,498 +1,603 @@
----
-id: PF-MAI-001
-type: Process Framework
-category: Documentation Map
-version: 2.0
-created: 2023-06-15
-updated: 2026-02-20
----
+<!-- AUTO-GENERATED FILE — DO NOT EDIT MANUALLY -->
+<!-- Regenerate with: blueprint/process-framework/scripts/validation/Build-DocumentationMap.ps1 -->
 
 # Process Framework Documentation Map
 
-This document indexes all process framework documentation in the `process-framework` directory — tasks, templates, guides, scripts, and context maps.
-
-> **See also**: [Product Documentation Map](/doc/PD-documentation-map.md) | [Test Documentation Map](/test/TE-documentation-map.md)
-
-## Process Framework Documents
-
-These documents describe how we work and our development processes:
-
-### Task Definitions
-
-Our tasks are organized to mirror the `tasks` directory structure:
-
-> **📋 Recent Enhancement (2025-08-01)**: All task definitions now include **AI Agent Role** sections that specify the professional role, mindset, focus areas, and communication style for optimal AI agent behavior during task execution.
-
-#### 00 - Setup Tasks
-
-- [Task: Codebase Feature Discovery](tasks/00-setup/codebase-feature-discovery.md) - Discover all features in existing codebase and assign every source file
-- [Task: Codebase Feature Analysis](tasks/00-setup/codebase-feature-analysis.md) - Analyze implementation patterns, dependencies, and design decisions
-- [Task: Retrospective Documentation Creation](tasks/00-setup/retrospective-documentation-creation.md) - Create tier assessments and required design documentation
-- [Task: Project Initiation](tasks/00-setup/project-initiation-task.md) - Initial project setup including ../doc/project-config.json creation
-
-#### 01 - Planning Tasks
-
-- [Task: Feature Request Evaluation](tasks/01-planning/feature-request-evaluation.md) - Classify change requests as new features or enhancements, scope enhancements, and create Enhancement State Tracking Files
-- [Task: Feature Tier Assessment](tasks/01-planning/feature-tier-assessment-task.md) - Assess complexity of new features
-- [Task: Feature Discovery](tasks/01-planning/feature-discovery-task.md) - Identify and document potential new features
-- [Task: System Architecture Review](tasks/01-planning/system-architecture-review.md) - Evaluate how new features fit into existing system architecture before implementation
-
-#### 02 - Design Tasks
-
-- [Task: Integration Narrative Creation](tasks/02-design/integration-narrative-creation.md) - Create Integration Narratives explaining how 2+ features collaborate in cross-cutting workflows
-- [Task: FDD Creation](tasks/02-design/fdd-creation-task.md) - Create Functional Design Documents for Tier 2+ features
-- [Task: TDD Creation](tasks/02-design/tdd-creation-task.md) - Create Technical Design Documents
-- [Task: API Design](tasks/02-design/api-design-task.md) - Design comprehensive API contracts and specifications before implementation begins
-- [Task: Database Schema Design](tasks/02-design/database-schema-design-task.md) - Plan data model changes before coding to prevent data integrity issues
-
-#### 03 - Testing Tasks
-- [Task: Performance and E2E Test Scoping](tasks/03-testing/performance-and-e2e-test-scoping-task.md) - Identify per-feature performance and E2E test needs after code review
-
-- [Task: Performance Test Creation](tasks/03-testing/performance-test-creation-task.md) - Implement performance tests from specifications, register in tracking, capture initial measurements
-- [Task: Performance Baseline Capture](tasks/03-testing/performance-baseline-capture-task.md) - Run performance tests, record results in trend database, update tracking, flag regressions
-- [Task: Test Specification Creation](tasks/03-testing/test-specification-creation-task.md) - Create comprehensive test specifications from TDDs
-- [Task: E2E Acceptance Test Case Creation](tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes
-- [Task: E2E Acceptance Test Execution](tasks/03-testing/e2e-acceptance-test-execution-task.md) - Execute E2E acceptance test cases systematically, record results, and report issues through human interaction with the running system
-- [Task: Test Audit](tasks/03-testing/test-audit-task.md) - Systematic quality assessment of test implementations using six evaluation criteria
-
-#### 04 - Implementation Tasks
-
-- [Task: Feature Implementation Planning](tasks/04-implementation/feature-implementation-planning-task.md) - Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping
-- [Task: Foundation Feature Implementation](tasks/04-implementation/foundation-feature-implementation-task.md) - Implement foundation features (0.x.x) that provide architectural foundations for the application
-- [Task: Core Logic Implementation](tasks/04-implementation/core-logic-implementation.md) - General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests
-- [Task: Data Layer Implementation](tasks/04-implementation/data-layer-implementation.md) - Implement data models, repositories, and database integration for feature
-- [Task: UI Implementation](tasks/04-implementation/ui-implementation.md) - Build user interface components and layouts for feature
-- [Task: State Management Implementation](tasks/04-implementation/state-management-implementation.md) - Implement state management layer connecting data layer to UI layer
-- [Task: Integration and Testing](tasks/04-implementation/integration-and-testing.md) - Integrate components and establish comprehensive test coverage
-- [Task: Quality Validation](tasks/04-implementation/quality-validation.md) - Validate implementation against quality standards and business requirements
-- [Task: Implementation Finalization](tasks/04-implementation/implementation-finalization.md) - Complete remaining items and prepare feature for production
-- [Task: Feature Enhancement](tasks/04-implementation/feature-enhancement.md) - Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context
-
-#### 05 - Validation Tasks
-
-- [Task: Validation Preparation](tasks/05-validation/validation-preparation.md) - Plan validation rounds by selecting features and applicable dimensions, create tracking state file
-- [Task: Architectural Consistency Validation](tasks/05-validation/architectural-consistency-validation.md) - Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency
-- [Task: Code Quality Standards Validation](tasks/05-validation/code-quality-standards-validation.md) - Validate selected features for code quality standards, SOLID principles, and best practices adherence
-- [Task: Integration Dependencies Validation](tasks/05-validation/integration-dependencies-validation.md) - Validate selected features for dependency health, interface contracts, and data flow integrity
-- [Task: Documentation Alignment Validation](tasks/05-validation/documentation-alignment-validation.md) - Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy
-- [Task: Extensibility Maintainability Validation](tasks/05-validation/extensibility-maintainability-validation.md) - Validate selected features for extension points, configuration flexibility, and testing support
-- [Task: AI Agent Continuity Validation](tasks/05-validation/ai-agent-continuity-validation.md) - Validate selected features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity
-- [Task: Security & Data Protection Validation](tasks/05-validation/security-data-protection-validation.md) - Validate selected features for security best practices, data protection, input validation, and secrets management
-- [Task: Performance & Scalability Validation](tasks/05-validation/performance-scalability-validation.md) - Validate selected features for performance characteristics, resource efficiency, and scalability patterns
-- [Task: Observability Validation](tasks/05-validation/observability-validation.md) - Validate selected features for logging coverage, monitoring instrumentation, alerting readiness, and diagnostic traceability
-- [Task: Accessibility / UX Compliance Validation](tasks/05-validation/accessibility-ux-compliance-validation.md) - Validate selected features for accessibility standards, UX compliance, keyboard navigation, and inclusive design patterns
-- [Task: Data Integrity Validation](tasks/05-validation/data-integrity-validation.md) - Validate selected features for data consistency, constraint enforcement, migration safety, and backup/recovery patterns
-
-#### 06 - Maintenance Tasks
-
-- [Task: Code Review](tasks/06-maintenance/code-review-task.md) - Review code for quality and correctness
-- [Task: Code Refactoring](tasks/06-maintenance/code-refactoring-task.md) - Systematic code improvement and technical debt reduction without changing external behavior
-  - [Code Refactoring — Lightweight Path](tasks/06-maintenance/code-refactoring-lightweight-path.md) - Process steps and checklist for low-effort refactorings (≤ 15 min, single file)
-  - [Code Refactoring — Standard Path](tasks/06-maintenance/code-refactoring-standard-path.md) - Process steps and checklist for medium/complex refactorings (multi-file, architectural)
-- [Task: Bug Triage](tasks/06-maintenance/bug-triage-task.md) - Systematically evaluate, prioritize, and assign reported bugs
-- [Task: Bug Fixing](tasks/06-maintenance/bug-fixing-task.md) - Diagnose and fix bugs
-
-#### 07 - Deployment Tasks
-- [Task: Git Commit and Push](tasks/07-deployment/git-commit-and-push.md) - Commit current working directory changes and push to remote repository
-
-- [Task: Release Deployment](tasks/07-deployment/release-deployment-task.md) - Manage releases and deployments
-- [Task: User Documentation Creation](tasks/07-deployment/user-documentation-creation.md) - Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates
-
-#### Cyclical Tasks
-
-- [Task: Documentation Tier Adjustment](tasks/cyclical/documentation-tier-adjustment-task.md) - Adjust documentation requirements
-- [Task: Technical Debt Assessment](tasks/cyclical/technical-debt-assessment-task.md) - Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase
-
-#### Support Tasks
-- [Task: framework-blueprint-sync](tasks/support/framework-blueprint-sync-task.md) - Propagate framework improvements made within real working projects back to the corresponding FrameworkBuilder blueprint, ensuring blueprints stay current with battle-tested evolutions. Covers all top-level framework directories (process-framework, doc, test, src, root files) — not limited to any one subdir. User specifies the target framework variant; sync flows project to blueprint only.
-
-- [Task: New Task Creation Process](tasks/support/new-task-creation-process.md) - Complete process for creating new tasks from concept to implementation-ready definition
-- [Task: Process Improvement](tasks/support/process-improvement-task.md) - Improve development processes
-- [Task: Structure Change](tasks/support/structure-change-task.md) - Manage structural changes to documentation
-- [Task: Framework Extension Task](tasks/support/framework-extension-task.md) - Support task for fundamentally extending the framework with new functionalities and capabilities
-- [Task: Tools Review](tasks/support/tools-review-task.md) - Review and improve project tools and templates
-- [Task: Framework Evaluation](tasks/support/framework-evaluation.md) - Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability
-- [Task: Framework Domain Adaptation](tasks/support/framework-domain-adaptation.md) - Systematically adapt the process framework from one business domain to another while preserving core structure
-
-### Infrastructure
-
-- [Infrastructure: Process Framework Task Registry](infrastructure/process-framework-task-registry.md) - Comprehensive catalog of all tasks with automation status, script locations, file update patterns, trigger/output chains (`🔗 TRIGGER & OUTPUT` blocks), State File Trigger Index, and trigger chain diagrams
-- [Infrastructure: Task Transition Registry](infrastructure/task-transition-registry.md) - Per-task transition procedures: prerequisites, handover artifacts, and next-task routing (moved from guides/framework/task-transition-guide.md; Information Flow content extracted to PF-GDE-062)
-- ~~Infrastructure: Task Trigger & Output Traceability~~ — **MERGED** into [Process Framework Task Registry](infrastructure/process-framework-task-registry.md) (2026-04-12)
-
-### Core Process Documents
-
-- [Process: Test Query Tool](scripts/test/test_query.py) - AST-based query tool for test metadata from pytest markers (replaces test-registry.yaml — SC-007)
-- [Process: Ratings Extraction Tool](scripts/extract_ratings.py) - Parses feedback form markdown and generates JSON for `feedback_db.py record`, eliminating manual JSON construction during PF-TSK-010
-- [Process: ExecutionVerification Module](scripts/Common-ScriptHelpers/ExecutionVerification.psm1) - Common-ScriptHelpers sub-module providing `Register-SoakScript` / `Test-ScriptInSoak` / `Confirm-SoakInvocation` / `Get-SoakStatus` for script self-verification (PF-PRO-028, PF-TSK-026). v2.0: `$DefaultSoakCounter` parameterized (default 3, was 5); caller-aware no-arg variants resolve calling `.ps1` via `Get-PSCallStack` (skipping `.psm1` frames), enabling helper-routed armoring (Pattern B) where one helper-module edit covers many calling scripts. Backs the soak workflow that requires explicit agent acknowledgment over `$DefaultSoakCounter` successful invocations of newly registered or hash-changed scripts.
-- [Process: Enhancement Workflow Concept](../process-framework-local/proposals/old/enhancement-workflow-concept.md) - Framework extension concept for feature enhancement classification and execution workflow
-- ~~Process: Code Quality Standards Validation Concept~~ - 🗄️ Removed (file deleted)
-
-### State Tracking Files
-
-#### `state-tracking/permanent`
-
-- [State: Process Improvement Tracking](../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process improvement opportunities and status; also hosts the **Active Pilots** section (PF-PRO-030) tracking in-flight Framework Extension pilots (pilot rows use the same PF-IMP-NNN ID pool)
-
-#### `process-framework/state-tracking/permanent` (shareable across projects)
-
-- [State: Script Soak Tracking](state-tracking/permanent/script-soak-tracking.md) - Per-script soak counters and history for the Script Self-Verification workflow (PF-PRO-028, PF-TSK-026). v2.0: default counter = 3 (was 5). Lives in the shareable `process-framework/` location (not `process-framework-local/`) because the scripts it tracks are themselves shared across projects. Uses the `PF-SST` (Shareable State Tracking) prefix from the main framework registry.
-
-### Templates
-
-#### 00 - Setup Templates
-
-- [Template: Retrospective State](templates/00-setup/retrospective-state-template.md) - Template for retrospective documentation state tracking
-- [Template: Quality-Assessment-Report](templates/00-setup/quality-assessment-report-template.md) - Template for Quality Assessment Reports created during onboarding for Target-State features
-
-#### 01 - Planning Templates
-
-- [Template: Assessment](templates/01-planning/assessment-template.md) - Template for feature tier assessments
-
-#### 02 - Design Templates
-
-- [Template: FDD](templates/02-design/fdd-template.md) - Template for creating Functional Design Documents
-- [Template: TDD Tier 1](templates/02-design/tdd-t1-template.md) - Template for Tier 1 Technical Design Documents
-- [Template: TDD Tier 2](templates/02-design/tdd-t2-template.md) - Template for Tier 2 Technical Design Documents
-- [Template: TDD Tier 3](templates/02-design/tdd-t3-template.md) - Template for Tier 3 Technical Design Documents
-- [Template: ADR](templates/02-design/adr-template.md) - Template for Architecture Decision Records
-- [Template: UI Design](templates/02-design/ui-design-template.md) - Comprehensive template for creating UI/UX Design Documents with wireframes, visual specifications, accessibility requirements, and platform adaptations
-- [Template: Architecture Impact Assessment](templates/02-design/architecture-impact-assessment-template.md) - Template for creating architecture impact assessments
-- [Template: Architecture](templates/02-design/architecture-template.md) - Template for architecture documentation
-- [Template: Architecture Context Package Update](templates/02-design/architecture-context-package-update-template.md) - Template for architecture context package updates
-- [Template: API Specification](templates/02-design/api-specification-template.md) - Template for creating comprehensive API contract definitions
-- [Template: API Data Model](templates/02-design/api-data-model-template.md) - Template for API data model definitions
-- [Template: API Documentation](templates/02-design/api-documentation-template.md) - Template for user-facing API documentation
-- [Template: API Reference](templates/02-design/api-reference-template.md) - Template for API reference documentation
-- [Template: Schema Design](templates/02-design/schema-design-template.md) - Template for database schema design documents
-- [Template: Integration Narrative](templates/02-design/integration-narrative-template.md) - Template for creating Integration Narrative documents that explain how 2+ features collaborate in cross-cutting workflows
-
-#### 03 - Testing Templates
-
-- [Template: Test Specification](templates/03-testing/test-specification-template.md) - Template for feature-level test specifications
-- [Template: Cross-Cutting Test Specification](templates/03-testing/cross-cutting-test-specification-template.md) - Template for test specifications spanning multiple features
-- [Template: Test Audit Report](templates/03-testing/test-audit-report-template.md) - Template for systematic test quality assessment reports
-- [Template: Test Audit Report Lightweight](templates/03-testing/test-audit-report-lightweight-template.md) - Lightweight template for test audit reports
-- [Template: Performance Test Audit Report](templates/03-testing/performance-test-audit-report-template.md) - Template for performance test audit reports with 4 criteria: Measurement Methodology, Tolerance Appropriateness, Baseline Readiness, Regression Detection Config
-- [Template: E2E Test Audit Report](templates/03-testing/e2e-test-audit-report-template.md) - Template for E2E acceptance test audit reports with 5 criteria: Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage
-- [Template: Test File](templates/03-testing/test-file-template.py.template) - Python test file template with pytest markers
-- [Template: E2E Acceptance Master Test](templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master test files with quick validation sequences
-- [Template: E2E Acceptance Test Case](templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual E2E acceptance test case files with exact steps, preconditions, and expected outcomes
-- [Template: Test Tracking](templates/03-testing/test-tracking-template.md) - Template for bootstrapping empty test-tracking.md in new projects, used by New-TestInfrastructure.ps1
-- [Template: E2E Test Tracking](templates/03-testing/e2e-test-tracking-template.md) - Template for bootstrapping empty e2e-test-tracking.md in new projects, used by New-TestInfrastructure.ps1
-- [Template: Performance Test Tracking](templates/03-testing/performance-test-tracking-template.md) - Template for bootstrapping empty performance-test-tracking.md in new projects, used by New-TestInfrastructure.ps1
-- [Template: TE ID Registry](templates/03-testing/TE-id-registry-template.json) - Template for bootstrapping empty TE-id-registry.json in new projects, used by New-TestInfrastructure.ps1
-- [Template: Audit Tracking](templates/03-testing/audit-tracking-template.md) - Template for multi-session test audit round tracking state files, used by New-AuditTracking.ps1
-- [Template: Performance Test Specification](templates/03-testing/performance-test-specification-template.md) - Template for performance test specifications with level-specific criteria, baseline references, and measurement methodology
-- [Template: Performance Test Audit Report](templates/03-testing/performance-test-audit-report-template.md) - Template for performance test audit reports with 4 criteria: Measurement Methodology, Tolerance Appropriateness, Baseline Readiness, Regression Detection Config
-- [Template: E2E Test Audit Report](templates/03-testing/e2e-test-audit-report-template.md) - Template for E2E acceptance test audit reports with 5 criteria: Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage
-
-#### 04 - Implementation Templates
-
-- [Template: Implementation Plan](templates/04-implementation/implementation-plan-template.md) - Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
-- [Template: Implementation Plan Tier 1](templates/04-implementation/implementation-plan-tier1-template.md) - Lightweight implementation plan template for Tier 1 features
-- [Template: Foundation Feature](templates/04-implementation/foundation-feature-template.md) - Template for foundation feature structure and architectural documentation
-- [Template: Feature Implementation State](templates/04-implementation/feature-implementation-state-template.md) - Full template for feature implementation state tracking files (Tier 2/3)
-- [Template: Feature Implementation State Lightweight](templates/04-implementation/feature-implementation-state-lightweight-template.md) - Lightweight template for Tier 1 features and retrospective analysis (7 sections)
-- [Template: Enhancement State Tracking](templates/04-implementation/enhancement-state-tracking-template.md) - Template for tracking enhancement work on existing features, used by New-EnhancementState.ps1
-
-#### 05 - Validation Templates
-
-- [Template: Validation Report](templates/05-validation/validation-report-template.md) - Template for creating feature validation reports
-- [Template: Validation Tracking](templates/05-validation/validation-tracking-template.md) - Template for validation round tracking state files
-
-#### 06 - Maintenance Templates
-
-- [Template: Bug Fix State Tracking](templates/06-maintenance/bug-fix-state-tracking-template.md) - Template for tracking multi-session complex bug fix work, used by New-BugFixState.ps1
-- [Template: Refactoring Plan](templates/06-maintenance/refactoring-plan-template.md) - Template for code refactoring plans
-- [Template: Lightweight Refactoring Plan](templates/06-maintenance/lightweight-refactoring-plan-template.md) - Lightweight template for simple refactoring plans
-- [Template: Documentation-Only Refactoring Plan](templates/06-maintenance/documentation-refactoring-plan-template.md) - Template for documentation-only refactoring plans (no code metrics/test sections), used by New-RefactoringPlan.ps1 -DocumentationOnly
-- [Template: Performance Refactoring Plan](templates/06-maintenance/performance-refactoring-plan-template.md) - Template for performance-focused refactoring plans with user-defined metrics (I/O, timing, algorithmic complexity, etc.), used by New-RefactoringPlan.ps1 -Performance
-
-#### 07 - Deployment Templates
-
-- [Template: Handbook](templates/07-deployment/handbook-template.md) - Template for creating user-facing handbook documents, used by New-Handbook.ps1
-
-#### Cyclical Templates
-
-- [Template: Technical Debt Assessment](templates/cyclical/technical-debt-assessment-template.md) - Template for technical debt assessment reports
-- [Template: Debt Item](templates/cyclical/debt-item-template.md) - Template for individual debt item records
-- [Template: Prioritization Matrix](templates/cyclical/prioritization-matrix-template.md) - Template for debt prioritization matrices
-
-#### Support Templates
-
-- [Template: Task](templates/support/task-template.md) - Template for creating new task definitions
-- [Template: Task Completion](templates/support/task-completion-template.md) - Template for task completion checklists
-- [Template: Guide](templates/support/guide-template.md) - Template for creating new guides
-- [Template: Template Base](templates/support/template-base-template.md) - Base template for creating new templates
-- [Template: Context Map](templates/support/context-map-template.md) - Template for creating new context maps
-- [Template: State File](templates/support/state-file-template.md) - Template for creating new tracking files
-- [Template: Feedback Form](templates/support/feedback-form-template.md) - Template for creating tool and process feedback forms
-- [Template: Feedback DB Input](templates/support/feedback-db-input-template.json) - JSON reference template for `feedback_db.py record --json` input format
-- [Template: Language Config](templates/support/language-config-template.json) - JSON template for adding new language configurations to languages-config/
-- [Template: Tools Review Summary](templates/support/tools-review-summary-template.md) - Standardized template for Tools Review task (PF-TSK-010) summary output documents
-- [Template: Framework Extension Concept](templates/support/framework-extension-concept-template.md) - Template for creating framework extension concept documents (Hybrid type; also used as base)
-- [Template: Framework Extension Concept Creation](templates/support/framework-extension-concept-creation-template.md) - Creation-type template for extensions that add entirely new artifacts
-- [Template: Framework Extension Concept Modification](templates/support/framework-extension-concept-modification-template.md) - Modification-type template for extensions that modify existing artifacts
-- [Template: Structure Change State](templates/support/structure-change-state-template.md) - Template for tracking multi-session structure change implementation
-- [Template: Structure Change State Content Update](templates/support/structure-change-state-content-update-template.md) - Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)
-- [Template: Structure Change State From-Proposal](templates/support/structure-change-state-from-proposal-template.md) - Lightweight execution-tracking template for proposal-backed structure changes (phase checklist + session log only)
-- [Template: Structure Change State Framework Extension](templates/support/structure-change-state-framework-extension-template.md) - Lightweight template for framework extension structure changes (artifact tracking, no pilot/rollback/metrics)
-- [Template: Structure Change State Rename](templates/support/structure-change-state-rename-template.md) - Template for rename-focused structure changes
-- [Template: Structure Change Proposal](templates/support/structure-change-proposal-template.md) - Template for structure change proposals
-- [Template: Temporary Task Creation State](templates/support/temp-task-creation-state-template.md) - Template for tracking multi-session task creation implementation
-- [Template: Temporary Process Improvement State](templates/support/temp-process-improvement-state-template.md) - Template for tracking multi-session process improvement implementation (via `New-TempTaskState.ps1 -Variant ProcessImprovement`)
-- [Template: Temporary Framework Extension State](templates/support/temp-framework-extension-state-template.md) - Template for tracking multi-session framework extension implementation with artifact tracking and task impact analysis (via `New-TempTaskState.ps1 -Variant FrameworkExtension`)
-- [Template: Temporary Blueprint Sync State](templates/support/temp-blueprint-sync-state-template.md) - Per-session state tracker for framework-blueprint-sync sessions (PF-TSK-087): Session Parameters, Per-Item Classification table, Notes on Specific Items, Session Log, Completion Criteria (via `New-TempTaskState.ps1 -Variant BlueprintSync`)
-- [Template: Document Creation Script](templates/support/document-creation-script-template.ps1) - PowerShell template for document creation scripts
-- [Template: Update Script](templates/support/update-script-template.ps1) - PowerShell template for state update scripts
-- [Template: Framework Evaluation Report](templates/support/framework-evaluation-report-template.md) - Template for structured framework evaluation reports with dimension scoring
-
-### Automation Scripts
-
-- [Process: New Feature Request Script](scripts/file-creation/01-planning/New-FeatureRequest.ps1) - PowerShell script for adding product feature requests to feature-request-tracking.md with auto-assigned PD-FRQ IDs
-- [Process: New E2E Acceptance Test Case Script](scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) - PowerShell script for creating E2E acceptance test case directories with auto-assigned E2E IDs, state tracking updates, and master test integration
-- [Process: New Performance Test Entry Script](scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1) - PowerShell script for adding performance test entries to performance-test-tracking.md with auto-assigned test IDs (BM-xxx/PH-xxx via TE-id-registry), level-section insertion, and summary updates (PF-TSK-086)
-- [Process: New Workflow Entry Script](scripts/file-creation/03-testing/New-WorkflowEntry.ps1) - PowerShell script for adding user workflow entries to user-workflow-tracking.md with auto-assigned WF-xxx IDs (via PD-id-registry), table row + details section (PF-TSK-086)
-- [Process: New E2E Milestone Entry Script](scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1) - PowerShell script for adding workflow milestone entries to e2e-test-tracking.md Workflow Milestone Tracking table, validates WF-xxx exists, counts ready features (PF-TSK-086)
-- [Process: New Bug Report Script](scripts/file-creation/06-maintenance/New-BugReport.ps1) - PowerShell script for creating standardized bug reports during task execution
-- [Process: New Bug Fix State Script](scripts/file-creation/06-maintenance/New-BugFixState.ps1) - PowerShell script for creating multi-session bug fix state tracking files (Large-effort bugs)
-- [Process: New Handbook Script](scripts/file-creation/07-deployment/New-Handbook.ps1) - PowerShell script for creating user handbook documents with auto-assigned PD-UGD IDs, category-based subdirectory organization via -Subdirectory, auto-updates PD-documentation-map.md (PF-IMP-541, PF-IMP-568)
-- [Process: New UI Design Script](scripts/file-creation/02-design/New-UIDesign.ps1) - PowerShell script for creating UI/UX Design documents with auto-assigned IDs and Design Guidelines references
-- [Process: New Test Specification Script](scripts/file-creation/03-testing/New-TestSpecification.ps1) - PowerShell script for creating test specifications (supports both feature-specific and cross-cutting modes via -CrossCutting switch)
-- [Process: New Process Improvement Script](scripts/file-creation/support/New-ProcessImprovement.ps1) - PowerShell script for adding new improvement opportunities to process-improvement-tracking.md with auto-assigned PF-IMP IDs (supports -BatchFile for bulk JSON input; -AsPilot mode (PF-PRO-030) registers a Framework Extension pilot in the Active Pilots section using the same PF-IMP ID pool)
-- [Process: New Framework Evaluation Report Script](scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) - PowerShell script for creating structured framework evaluation reports with auto-assigned PF-EVR IDs
-- [Process: New Test Infrastructure Script](scripts/file-creation/00-setup/New-TestInfrastructure.ps1) - Language-agnostic bootstrapping script for test directory structure, tracking files, and TE-id-registry from ../doc/project-config.json and language config
-- [Process: New Quality Assessment Report Script](scripts/file-creation/00-setup/New-QualityAssessmentReport.ps1) - PowerShell script for creating Quality Assessment Reports for Target-State features during onboarding with auto-assigned PD-QAR IDs
-- [Process: New Retrospective Master State Script](scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1) - PowerShell script for creating retrospective master state tracking files for parallel session coordination during PF-TSK-065/PF-TSK-066
-- [Process: New Source Structure Script](scripts/file-creation/00-setup/New-SourceStructure.ps1) - Dual-mode script for source code directory scaffolding (-Scaffold) and directory tree maintenance (-Update) based on feature tracking and language config (PF-PRO-002)
-- [Process: New Validation Tracking Script](scripts/file-creation/05-validation/New-ValidationTracking.ps1) - PowerShell script for creating validation tracking state files with auto-assigned PF-STA IDs, auto-populated Feature Scope from feature-tracking.md, prior round quality scores, and optional prior round archiving (PF-TSK-077)
-- [Process: Generate Validation Summary Script](scripts/file-creation/05-validation/Generate-ValidationSummary.ps1) - PowerShell script for generating consolidated validation summaries from multiple validation reports with codebase health scores, improvement roadmaps, and auto-populated Feature Quality Rankings in the tracking file
-- [Process: New Audit Tracking Script](scripts/file-creation/03-testing/New-AuditTracking.ps1) - PowerShell script for creating test audit tracking state files with auto-populated inventory from test-tracking.md for multi-session audit rounds (PF-TSK-030)
-- [Process: New Prioritization Matrix Script](scripts/file-creation/cyclical/New-PrioritizationMatrix.ps1) - PowerShell script for creating technical debt prioritization matrices with auto-assigned PD-TDA IDs (PF-TSK-023)
-- [Process: New API Documentation Script](scripts/file-creation/02-design/New-APIDocumentation.ps1) - PowerShell script for creating user-facing API documentation with auto-assigned PD-API IDs (PF-TSK-020)
-- [Process: New Integration Narrative Script](scripts/file-creation/02-design/New-IntegrationNarrative.ps1) - PowerShell script for creating Integration Narrative documents with auto-assigned PD-INT IDs, auto-updates PD-documentation-map.md and user-workflow-tracking.md (PF-TSK-083)
-- [Process: New Review Summary Script](scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) - PowerShell script for creating Tools Review Summary documents with auto-assigned ART-REV IDs and timestamped filenames (PF-TSK-010)
-
-### Testing Scripts
-
-- [Process: Run-Tests Script](scripts/test/Run-Tests.ps1) - Language-agnostic test runner that reads ../doc/project-config.json and languages-config/{language}/{language}-config.json for dynamic category-based execution (-Category, -Quick, -All, -Coverage, -ListCategories)
-- [Process: Language Configurations](languages-config/README.md) - Language-specific command configurations for framework scripts (testing, linting, coverage)
-- [Process: Setup-TestEnvironment Script](scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) - Copies pristine test fixtures into workspace for clean E2E acceptance test execution
-- [Process: Verify-TestResult Script](scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) - Compares workspace state against expected state after E2E acceptance test execution
-- [Process: Run-E2EAcceptanceTest Script](scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) - Orchestrates scripted E2E acceptance test pipeline: Setup → run.ps1 → wait → Verify
-- [Process: Update-TestExecutionStatus Script](scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) - Updates e2e-test-tracking.md and feature-tracking.md with E2E acceptance test execution results
-- [Process: Performance Results Database](scripts/test/performance_db.py) - SQLite-based performance results storage with record/trend/regressions/export/list-test-ids subcommands for baseline management and regression detection
-
-### State Update Scripts
-
-- [Process: Update Process Improvement Script](scripts/update/Update-ProcessImprovement.ps1) - Automates status transitions and completion moves in process-improvement-tracking.md; also handles pilot status transitions in the Active Pilots section (PF-PRO-030) — `-NewStatus Resolved` records the decision, archives the linked concept doc to `proposals/old/`, and moves the pilot row from Active Pilots to Completed Improvements (PF-IMP-729) automatically
-- [Process: Update Feature Request Script](scripts/update/Update-FeatureRequest.ps1) - Classifies and closes feature requests in feature-request-tracking.md, updates feature-tracking.md for enhancements
-- [Process: Update Tech Debt Script](scripts/update/Update-TechDebt.ps1) - Automates technical debt lifecycle management: add new items (-Add), status transitions, resolution moves, and in-place Description/Notes edits on open Registry items (-EditDescription / -EditNotes) in technical-debt-tracking.md
-- [Process: Update Language Config Script](scripts/update/Update-LanguageConfig.ps1) - Adds fields consistently across all language config files and template to prevent drift (-List to audit, -Section/-FieldName to add)
-- [Process: Update Feature Dependencies Script](scripts/update/Update-FeatureDependencies.ps1) - Auto-generates feature-dependencies.md from feature state files (Mermaid graph + priority matrix). Integrated into Validate-StateTracking.ps1 Surface 6
-- [Process: Update User Documentation State Script](scripts/update/Update-UserDocumentationState.ps1) - Automates PF-TSK-081 finalization: appends handbook row to feature state file Documentation Inventory
-- [Process: Update Retrospective Master State Script](scripts/update/Update-RetrospectiveMasterState.ps1) - Atomic updates to retrospective master state Feature Inventory (claim/complete features, recalculate Progress Overview counters) for parallel session coordination during PF-TSK-065/PF-TSK-066
-- [Process: Update Performance Tracking Script](scripts/update/Update-PerformanceTracking.ps1) - Automates performance test lifecycle management: status transitions (⬜→📋→✅→⚠️), column updates (Baseline, Last Result, Test File), and summary recalculation in performance-test-tracking.md (PF-TSK-084, PF-TSK-085)
-
-### Validation Scripts
-
-- [Process: Validate ID Registry](scripts/validation/Validate-IdRegistry.ps1) - Validates ID registry against actual files in the repository
-- [Process: Validate Test Tracking](scripts/validation/Validate-TestTracking.ps1) - Validates pytest markers (via test_query.py) consistency with test-tracking.md and actual test files on disk
-- [Process: Validate State Tracking](scripts/validation/Validate-StateTracking.ps1) - Master validation across 15 surfaces: feature-tracking links, feature state files, test-tracking, cross-references, ID counters, feature dependencies, dimension consistency, workflow tracking, task registry completeness, metadata schema conformance, context map orphan detection, ai-tasks.md consistency, master state consistency, source layout, and test status aggregation consistency
-- [Process: Validate Onboarding Completeness](scripts/validation/Validate-OnboardingCompleteness.ps1) - Validates 100% source file coverage and feature state file existence after Codebase Feature Discovery (PF-TSK-064)
-- [Process: Validate Feedback Forms](scripts/validation/Validate-FeedbackForms.ps1) - Validates feedback forms for completeness and identifies forms with template placeholders
-- [Process: Quick Validation Check](scripts/validation/Quick-ValidationCheck.ps1) - Quick health check for selected features covering code quality, architectural consistency, and implementation status
-- [Process: Run Foundational Validation](scripts/validation/Run-FoundationalValidation.ps1) - Comprehensive feature validation across all 6 validation types with detailed reports and tracking updates
-- [Process: Validate Audit Report](scripts/validation/Validate-AuditReport.ps1) - Validates Test Audit Reports for completeness, consistency, and quality standards
-- [Process: Check Git Objects Literal](scripts/validation/Check-GitObjectsLiteral.ps1) - Pre-commit guard against `.git/objects/<2-hex>/<38-hex>` literal corruption (PF-IMP-615). Wired into `.pre-commit-config.yaml` as the `no-git-objects-literal` hook. Exits 1 with file:line violations when staged content matches the pattern; allowlists 3 forensic-record files
-
-### Guides
-
-#### 00 - Setup Guides
-
-- [Guide: Onboarding Edge Cases](guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging during codebase onboarding
-- [Guide: Source Code Layout](guides/00-setup/source-code-layout-guide.md) - How to fill in the source layout doc, layer definitions, sublayer thresholds, file placement guidance, scale transition criteria
-
-#### 01 - Planning Guides
-
-- [Guide: Assessment](guides/01-planning/assessment-guide.md) - Guide for feature tier assessment
-- [Guide: Architectural Framework Usage](guides/01-planning/architectural-framework-usage-guide.md) - Step-by-step guide for using the Architectural Integration Framework to manage cross-cutting architectural work
-- [Guide: Feature Granularity](guides/01-planning/feature-granularity-guide.md) - Defines well-scoped features and provides practical tests for validating feature granularity
-
-#### 02 - Design Guides
-
-- [Guide: TDD Creation](guides/02-design/tdd-creation-guide.md) - Guide for customizing Technical Design Document templates
-- [Guide: FDD Customization](guides/02-design/fdd-customization-guide.md) - Guide for customizing Functional Design Document templates
-- [Guide: UI Design Customization](guides/02-design/ui-design-customization-guide.md) - 19-step guide across 6 phases for customizing UI/UX Design Document templates with tiered examples
-- [Guide: API Specification Creation](guides/02-design/api-specification-creation-guide.md) - Guide for customizing API specification templates
-- [Guide: API Data Model Creation](guides/02-design/api-data-model-creation-guide.md) - Guide for customizing API data model templates
-- [Guide: Architecture Assessment Creation](guides/02-design/architecture-assessment-creation-guide.md) - Guide for customizing architecture assessment templates
-- [Guide: Architecture Decision Creation](guides/02-design/architecture-decision-creation-guide.md) - Guide for customizing Architecture Decision Record templates
-- [Guide: Schema Design Creation](guides/02-design/schema-design-creation-guide.md) - Guide for customizing database schema design templates
-- [Guide: Integration Narrative Customization](guides/02-design/integration-narrative-customization-guide.md) - Step-by-step instructions for customizing Integration Narrative template sections with emphasis on source code verification
-
-#### 03 - Testing Guides
-
-- [Guide: Test Specification Creation](guides/03-testing/test-specification-creation-guide.md) - Comprehensive guide for using the Test Specification Creation task effectively
-- [Guide: Test Audit Usage](guides/03-testing/test-audit-usage-guide.md) - Comprehensive guide for conducting systematic test quality assessments
-- [Guide: Test Infrastructure](guides/03-testing/test-infrastructure-guide.md) - How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, and new-project scaffolding
-- [Guide: Test File Creation](guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
-- [Guide: Integration & Testing Usage](guides/03-testing/integration-and-testing-usage-guide.md) - Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively
-- [Guide: E2E Acceptance Test Case Customization](guides/03-testing/e2e-acceptance-test-case-customization-guide.md) - Step-by-step instructions for customizing E2E acceptance test case and master test templates created by New-E2EAcceptanceTestCase.ps1
-- [Guide: Performance Testing](guides/03-testing/performance-testing-guide.md) - 4-level performance testing methodology with baselines, trend tracking, and decision matrix
-- [Guide: Performance and E2E Test Scoping](guides/03-testing/performance-and-e2e-test-scoping-guide.md) - Decision matrix and worked examples for identifying per-feature performance and E2E test needs
-
-#### 04 - Implementation Guides
-
-- [Guide: Development](guides/04-implementation/development-guide.md) - Best practices and guidelines for development
-- [Guide: Definition of Done](guides/04-implementation/definition-of-done.md) - Clear criteria for when a feature is considered complete
-- [Guide: Foundation Feature Implementation Usage](guides/04-implementation/foundation-feature-implementation-usage-guide.md) - Comprehensive guide for using the Foundation Feature Implementation task effectively
-- [Guide: Feature Implementation State Tracking](guides/04-implementation/feature-implementation-state-tracking-guide.md) - How to create and maintain feature implementation state tracking documents
-- [Guide: Enhancement State Tracking Customization](guides/04-implementation/enhancement-state-tracking-customization-guide.md) - Step-by-step instructions for customizing Enhancement State Tracking files
-- [Guide: Implementation Plan Customization](guides/04-implementation/implementation-plan-customization-guide.md) - How to use New-ImplementationPlan.ps1 and customize implementation plan templates
-
-#### 05 - Validation Guides
-
-- [Guide: Documentation](guides/05-validation/documentation-guide.md) - Guidelines for documentation
-- [Guide: Feature Validation](guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation using the 6-type validation framework
-
-#### 06 - Maintenance Guides
-
-- [Guide: Code Refactoring Task Usage](guides/06-maintenance/code-refactoring-task-usage-guide.md) - Comprehensive guide for using the Code Refactoring Task effectively
-- [Guide: Bug Reporting](guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs discovered during task execution
-
-#### 07 - Deployment Guides
-
-- [Guide: CI/CD Setup](guides/07-deployment/ci-cd-setup-guide.md) - Guide for scaffolding CI/CD infrastructure (pipelines, pre-commit hooks, dev scripts)
-- [Guide: Diataxis Content Type Guide](guides/07-deployment/diataxis-content-type-guide.md) - Canonical Diataxis decision matrix and status taxonomy for user documentation classification. Referenced by PF-TSK-044, PF-TSK-066, and PF-TSK-081.
-
-#### Cyclical Guides
-
-- [Guide: Assessment Criteria](guides/cyclical/assessment-criteria-guide.md) - Detailed criteria for identifying technical debt
-- [Guide: Prioritization](guides/cyclical/prioritization-guide.md) - Guide for applying impact/effort matrix to prioritize debt
-- [Guide: Debt Item Creation](guides/cyclical/debt-item-creation-guide.md) - Guide for customizing technical debt item templates
-
-#### Framework Guides
-
-- [Guide: Development Dimensions](guides/framework/development-dimensions-guide.md) - Single authoritative reference for 10 development dimensions across all task phases (planning, implementation, review, validation)
-- [Guide: Terminology](guides/framework/terminology-guide.md) - Explains the terminology separation between Process Framework and Product Documentation
-- [Guide: Documentation Structure](guides/framework/documentation-structure-guide.md) - Guide for organizing documentation structure within the framework
-- [Guide: Feedback Form](guides/framework/feedback-form-guide.md) - Comprehensive guide for completing feedback forms effectively (referenced by all tasks)
-- [Guide: Information Flow](guides/framework/information-flow-guide.md) - Information flow patterns, task ownership boundaries, cross-reference standards, and separation of concerns between tasks
-
-#### Support Guides
-
-- [Guide: Visual Notation](guides/support/visual-notation-guide.md) - Standard notation used in diagrams and context maps
-- [Guide: Script Development Quick Reference](guides/support/script-development-quick-reference.md) - Quick reference for common script development issues and solutions
-- [Guide: Guide Creation Best Practices](guides/support/guide-creation-best-practices-guide.md) - Best practices for creating effective guides within the task framework
-- [Guide: State File Creation](guides/support/state-file-creation-guide.md) - Guide for customizing state tracking file templates
-- [Guide: Temporary State File Customization](guides/support/temp-state-tracking-customization-guide.md) - Guide for customizing temporary state files for different workflows
-- [Guide: Framework Extension Customization](guides/support/framework-extension-customization-guide.md) - Essential guide for customizing Framework Extension Concept documents
-- [Guide: Migration Best Practices](guides/support/migration-best-practices.md) - Best practices for migrating documentation and framework components
-- [Guide: Process Improvement Task Implementation](guides/support/process-improvement-task-implementation-guide.md) - Practical instructions for executing the Process Improvement task (PF-TSK-009)
-- [Guide: Task Creation](guides/support/task-creation-guide.md) - Guide for creating and improving task definitions
-- [Guide: Visualization Creation](guides/support/visualization-creation-guide.md) - Guide for creating context maps and other visualizations
-- [Guide: Template Development](guides/support/template-development-guide.md) - Guide for developing and maintaining framework templates
-- [Guide: Document Creation Script Development](guides/support/document-creation-script-development-guide.md) - Standardized approach for creating documents from templates through PowerShell scripts
-- [Guide: Schema Audit Procedure](guides/support/schema-audit-procedure-guide.md) - How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)
-- [Guide: Blueprint Sync Consideration Policy](guides/support/blueprint-sync-consideration-policy-guide.md) - Per-subdirectory and per-skeleton-file classification policy for PF-TSK-087 framework-blueprint-sync drift discovery
-
-### Tools
-
-Project-agnostic operational tooling that ships with the framework. Runtime artifacts live under `process-framework-local/tools/` (not in this map — they are project-specific).
-
-- [Tool: LinkWatcher Background Starter](tools/linkWatcher/start_linkwatcher_background.ps1) - Agnostic startup script: resolves the global LinkWatcher install via `$env:LINKWATCHER_INSTALL_DIR` or auto-detect (`~/bin`, `~/tools`, `~/scripts`, `~/.local/bin`, `~/LinkWatcher`); resolves project root from `doc/project-config.json`; writes logs to `process-framework-local/tools/linkWatcher/logs/`; auto-creates `.linkwatcher-ignore` skeleton at the same location if missing
-
-### Visualization Resources
-
-- [Context Maps README](visualization/context-maps/README.md) - Guide to using context maps for tasks
-- [Context Maps Template](templates/support/context-map-template.md) - Template for creating new context maps
-
-#### 00 - Setup Context Maps
-
-- [Codebase Feature Discovery Map](visualization/context-maps/00-setup/codebase-feature-discovery-map.md) - Components for discovering features in existing codebases
-- [Codebase Feature Analysis Map](visualization/context-maps/00-setup/codebase-feature-analysis-map.md) - Components for analyzing implementation patterns and dependencies
-- [Retrospective Documentation Creation Map](visualization/context-maps/00-setup/retrospective-documentation-creation-map.md) - Components for creating retrospective design documentation
-- [Project Initiation Map](visualization/context-maps/00-setup/project-initiation-map.md) - Components for initial project setup and framework adoption
-
-#### 01 - Planning Context Maps
-
-- [Feature Discovery Map](visualization/context-maps/01-planning/feature-discovery-map.md) - Components for exploring features
-- [Feature Request Evaluation Map](visualization/context-maps/01-planning/feature-request-evaluation-map.md) - Components for classifying change requests and scoping enhancements
-- [Feature Tier Assessment Map](visualization/context-maps/01-planning/feature-tier-assessment-map.md) - Components for assessing complexity
-- [System Architecture Review Map](visualization/context-maps/01-planning/system-architecture-review-map.md) - Components for evaluating system architecture
-
-#### 02 - Design Context Maps
-
-- [API Design Map](visualization/context-maps/02-design/api-design-task-map.md) - Components for designing API contracts and specifications
-- [FDD Creation Map](visualization/context-maps/02-design/fdd-creation-map.md) - Components for creating Functional Design Documents
-- [TDD Creation Map](visualization/context-maps/02-design/tdd-creation-map.md) - Components for creating design documents
-- [Integration Narrative Creation Map](visualization/context-maps/02-design/integration-narrative-creation-map.md) - Components for creating Integration Narrative documents that explain how 2+ features collaborate in cross-cutting workflows
-
-#### 03 - Testing Context Maps
-
-- [Test Specification Creation Map](visualization/context-maps/03-testing/test-specification-creation-map.md) - Components for creating test specifications from TDDs
-- [E2E Acceptance Test Case Creation Map](visualization/context-maps/03-testing/e2e-acceptance-test-case-creation-map.md) - Components for creating concrete E2E acceptance test cases from test specifications
-- [E2E Acceptance Test Execution Map](visualization/context-maps/03-testing/e2e-acceptance-test-execution-map.md) - Components for executing E2E acceptance test cases and recording results
-- [Test Audit Map](visualization/context-maps/03-testing/test-audit-map.md) - Components for systematic test quality assessment workflow
-
-#### 04 - Implementation Context Maps
-
-- [Feature Enhancement Map](visualization/context-maps/04-implementation/feature-enhancement-map.md) - Components for executing enhancement steps from state file
-- [Feature Implementation Map](visualization/context-maps/04-implementation/feature-implementation-map.md) - Components for implementing features
-- [Integration & Testing Map](visualization/context-maps/04-implementation/integration-and-testing-map.md) - Components for implementing comprehensive tests and validating integration
-- [UI Implementation Map](visualization/context-maps/04-implementation/ui-implementation-map.md) - Components for building user interface components and layouts
-- [State Management Implementation Map](visualization/context-maps/04-implementation/state-management-implementation-map.md) - Components for implementing state management layer connecting data to UI
-- [Quality Validation Map](visualization/context-maps/04-implementation/quality-validation-map.md) - Components for validating implementation against quality standards and acceptance criteria
-- [Implementation Finalization Map](visualization/context-maps/04-implementation/implementation-finalization-map.md) - Components for completing remaining items and preparing feature for production
-
-#### 05 - Validation Context Maps
-
-- [Validation Preparation Map](visualization/context-maps/05-validation/validation-preparation-map.md) - Components for planning validation rounds and creating tracking state files
-- [Architectural Consistency Validation Map](visualization/context-maps/05-validation/architectural-consistency-validation-map.md) - Components for validating architectural pattern adherence and ADR compliance
-- [Code Quality Standards Validation Map](visualization/context-maps/05-validation/code-quality-standards-validation-map.md) - Components for validating code quality standards and SOLID principles
-- [Integration Dependencies Validation Map](visualization/context-maps/05-validation/integration-dependencies-validation-map.md) - Components for validating dependency health, interface contracts, and data flow integrity
-- [Documentation Alignment Validation Map](visualization/context-maps/05-validation/documentation-alignment-validation-map.md) - Components for validating TDD alignment, ADR compliance, and API documentation accuracy
-- [Extensibility Maintainability Validation Map](visualization/context-maps/05-validation/extensibility-maintainability-validation-map.md) - Components for validating extension points, configuration flexibility, and testing support
-- [AI Agent Continuity Validation Map](visualization/context-maps/05-validation/ai-agent-continuity-validation-map.md) - Components for validating context clarity, modular structure, and documentation quality for AI agent workflow continuity
-- [Security & Data Protection Validation Map](visualization/context-maps/05-validation/security-data-protection-validation-map.md) - Components for validating security best practices, data protection, and secrets management
-- [Performance & Scalability Validation Map](visualization/context-maps/05-validation/performance-scalability-validation-map.md) - Components for validating performance characteristics, resource efficiency, and scalability patterns
-- [Observability Validation Map](visualization/context-maps/05-validation/observability-validation-map.md) - Components for validating logging coverage, monitoring instrumentation, and diagnostic traceability
-- [Accessibility / UX Compliance Validation Map](visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md) - Components for validating accessibility standards, UX compliance, and inclusive design patterns
-- [Data Integrity Validation Map](visualization/context-maps/05-validation/data-integrity-validation-map.md) - Components for validating data consistency, constraint enforcement, and recovery patterns
-
-#### 06 - Maintenance Context Maps
-
-- [Bug Fixing Map](visualization/context-maps/06-maintenance/bug-fixing-map.md) - Components for fixing bugs
-- [Code Refactoring Map](visualization/context-maps/06-maintenance/code-refactoring-task-map.md) - Components for systematic code improvement and technical debt reduction
-- [Code Review Map](visualization/context-maps/06-maintenance/code-review-map.md) - Components for reviewing code changes
-
-#### 07 - Deployment Context Maps
-
-- [Release Deployment Map](visualization/context-maps/07-deployment/release-deployment-map.md) - Components for deployment
-- [User Documentation Creation Map](visualization/context-maps/07-deployment/user-documentation-creation-map.md) - Components for creating and maintaining user-facing handbook documentation
-- [Git Commit and Push Map](visualization/context-maps/07-deployment/git-commit-and-push-map.md) - Context map for Git Commit and Push task
-
-#### Cyclical Context Maps
-
-- [Documentation Tier Adjustment Map](visualization/context-maps/cyclical/documentation-tier-adjustment-map.md) - Components for adjusting tiers
-- [Technical Debt Assessment Map](visualization/context-maps/cyclical/technical-debt-assessment-task-map.md) - Context map for Technical Debt Assessment task
-
-#### Support Context Maps
-
-- [Process Improvement Map](visualization/context-maps/support/process-improvement-map.md) - Components for improving processes
-- [Structure Change Map](visualization/context-maps/support/structure-change-map.md) - Components for structural changes
-- [Framework Extension Task Map](visualization/context-maps/support/framework-extension-task-map.md) - Context map for Framework Extension Task showing component relationships and workflow
-- [Framework Evaluation Map](visualization/context-maps/support/framework-evaluation-map.md) - Context map for Framework Evaluation task showing evaluation scope, dimensions, and output relationships
-- [Framework Domain Adaptation Map](visualization/context-maps/support/framework-domain-adaptation-map.md) - Context map for Framework Domain Adaptation task showing adaptation phases, document classification, and execution flow
-- [Tools Review Map](visualization/context-maps/support/tools-review-map.md) - Components for reviewing tools
-
-
-## Maintaining This Documentation
-
-When adding new process framework documentation:
-1. Add the entry to the appropriate section in this map
-2. Use local relative paths from `process-framework` (no `../process-framework/` prefix needed)
-3. For product documentation (FDDs, TDDs, ADRs, validation reports, handbooks), add to [Product Documentation Map](/doc/PD-documentation-map.md) instead
-4. For test documentation (test specs, audit reports), add to [Test Documentation Map](/test/TE-documentation-map.md) instead
+This index of every framework artifact is **generated** from each artifact's own one-line
+description — `.SYNOPSIS` for scripts, the `description:` frontmatter field for markdown.
+Do not edit this file by hand: run `scripts/validation/Build-DocumentationMap.ps1` to regenerate it,
+and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
+"⚠️ _(no description — add to .SYNOPSIS/frontmatter)_" need a description added at the artifact's source.
+
+## process-framework/ (root)
+
+- [.ai-entry-point.md](.ai-entry-point.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [ai-tasks.md](ai-tasks.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [domain-config.json](domain-config.json) — Domain-specific configuration for process framework scripts. Update this file when adapting framework to a new business domain. To reconcile Surface 10 schema drift surfaced by Validate-StateTracking.ps1 -Detailed, follow process-framework/guides/support/schema-audit-procedure-guide.md.
+- [PF-id-registry.json](PF-id-registry.json) — Process Framework ID Registry - framework-level document IDs portable across projects
+
+## guides/00-setup
+
+- [onboarding-edge-cases.md](guides/00-setup/onboarding-edge-cases.md) — Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging during codebase onboarding
+- [source-code-layout-guide.md](guides/00-setup/source-code-layout-guide.md) — How to fill in the source layout doc, layer definitions, sublayer thresholds, file placement guidance, scale transition criteria
+- [source-migration-guide.md](guides/00-setup/source-migration-guide.md) — Safe behavior-preserving relocation of legacy source into per-feature src/ dirs during onboarding — split-boundary decisions, the verification stack, and residual-risk caveats
+
+## guides/01-planning
+
+- [architectural-framework-usage-guide.md](guides/01-planning/architectural-framework-usage-guide.md) — Step-by-step guide for using the Architectural Integration Framework to manage cross-cutting architectural work
+- [assessment-guide.md](guides/01-planning/assessment-guide.md) — Guide for feature tier assessment
+- [feature-granularity-guide.md](guides/01-planning/feature-granularity-guide.md) — Defines well-scoped features and provides practical tests for validating feature granularity
+
+## guides/02-design
+
+- [api-data-model-creation-guide.md](guides/02-design/api-data-model-creation-guide.md) — Guide for customizing API data model templates
+- [api-specification-creation-guide.md](guides/02-design/api-specification-creation-guide.md) — Guide for customizing API specification templates
+- [architecture-assessment-creation-guide.md](guides/02-design/architecture-assessment-creation-guide.md) — Guide for customizing architecture assessment templates
+- [architecture-decision-creation-guide.md](guides/02-design/architecture-decision-creation-guide.md) — Guide for customizing Architecture Decision Record templates
+- [fdd-customization-guide.md](guides/02-design/fdd-customization-guide.md) — Guide for customizing Functional Design Document templates
+- [integration-narrative-customization-guide.md](guides/02-design/integration-narrative-customization-guide.md) — Step-by-step instructions for customizing Integration Narrative template sections with emphasis on source code verification
+- [schema-design-creation-guide.md](guides/02-design/schema-design-creation-guide.md) — Guide for customizing database schema design templates
+- [tdd-creation-guide.md](guides/02-design/tdd-creation-guide.md) — Guide for customizing Technical Design Document templates
+- [ui-design-customization-guide.md](guides/02-design/ui-design-customization-guide.md) — 19-step guide across 6 phases for customizing UI/UX Design Document templates with tiered examples
+
+## guides/03-testing
+
+- [e2e-acceptance-test-case-customization-guide.md](guides/03-testing/e2e-acceptance-test-case-customization-guide.md) — Step-by-step instructions for customizing E2E acceptance test case and master test templates created by New-E2EAcceptanceTestCase.ps1
+- [integration-and-testing-usage-guide.md](guides/03-testing/integration-and-testing-usage-guide.md) — Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively
+- [performance-and-e2e-test-scoping-guide.md](guides/03-testing/performance-and-e2e-test-scoping-guide.md) — Decision matrix and worked examples for identifying per-feature performance and E2E test needs
+- [performance-testing-guide.md](guides/03-testing/performance-testing-guide.md) — 4-level performance testing methodology with baselines, trend tracking, and decision matrix
+- [test-audit-usage-guide.md](guides/03-testing/test-audit-usage-guide.md) — Comprehensive guide for conducting systematic test quality assessments
+- [test-file-creation-guide.md](guides/03-testing/test-file-creation-guide.md) — Guide for customizing test file templates
+- [test-infrastructure-guide.md](guides/03-testing/test-infrastructure-guide.md) — How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, new-project scaffolding, and pre-existing-test migration
+- [test-specification-creation-guide.md](guides/03-testing/test-specification-creation-guide.md) — Comprehensive guide for using the Test Specification Creation task effectively
+
+## guides/04-implementation
+
+- [definition-of-done.md](guides/04-implementation/definition-of-done.md) — Clear criteria for when a feature is considered complete
+- [development-guide.md](guides/04-implementation/development-guide.md) — Best practices and guidelines for development
+- [enhancement-state-tracking-customization-guide.md](guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Step-by-step instructions for customizing Enhancement State Tracking files
+- [feature-implementation-state-tracking-guide.md](guides/04-implementation/feature-implementation-state-tracking-guide.md) — How to create and maintain feature implementation state tracking documents
+- [foundation-feature-implementation-usage-guide.md](guides/04-implementation/foundation-feature-implementation-usage-guide.md) — Comprehensive guide for using the Foundation Feature Implementation task effectively
+- [implementation-plan-customization-guide.md](guides/04-implementation/implementation-plan-customization-guide.md) — How to use New-ImplementationPlan.ps1 and customize implementation plan templates
+
+## guides/05-validation
+
+- [documentation-guide.md](guides/05-validation/documentation-guide.md) — Guidelines for documentation
+- [feature-validation-guide.md](guides/05-validation/feature-validation-guide.md) — Comprehensive guide for conducting feature validation using the 6-type validation framework
+
+## guides/06-maintenance
+
+- [bug-reporting-guide.md](guides/06-maintenance/bug-reporting-guide.md) — Standardized procedures for reporting bugs discovered during task execution
+- [code-refactoring-task-usage-guide.md](guides/06-maintenance/code-refactoring-task-usage-guide.md) — Comprehensive guide for using the Code Refactoring Task effectively
+
+## guides/07-deployment
+
+- [ci-cd-setup-guide.md](guides/07-deployment/ci-cd-setup-guide.md) — Guide for scaffolding CI/CD infrastructure (pipelines, pre-commit hooks, dev scripts)
+- [diataxis-content-type-guide.md](guides/07-deployment/diataxis-content-type-guide.md) — Canonical Diataxis decision matrix and status taxonomy for user documentation classification.
+
+## guides/cyclical
+
+- [assessment-criteria-guide.md](guides/cyclical/assessment-criteria-guide.md) — Detailed criteria for identifying technical debt
+- [debt-item-creation-guide.md](guides/cyclical/debt-item-creation-guide.md) — Guide for customizing technical debt item templates
+- [prioritization-guide.md](guides/cyclical/prioritization-guide.md) — Guide for applying impact/effort matrix to prioritize debt
+
+## guides/framework
+
+- [development-dimensions-guide.md](guides/framework/development-dimensions-guide.md) — Single authoritative reference for 10 development dimensions across all task phases (planning, implementation, review, validation)
+- [documentation-structure-guide.md](guides/framework/documentation-structure-guide.md) — Guide for organizing documentation structure within the framework
+- [feedback-form-completion-instructions.md](guides/framework/feedback-form-completion-instructions.md) — Standardized feedback form completion process referenced by all task definitions to eliminate duplication
+- [feedback-form-guide.md](guides/framework/feedback-form-guide.md) — Comprehensive guide for completing feedback forms effectively (referenced by all tasks)
+- [information-flow-guide.md](guides/framework/information-flow-guide.md) — Information flow patterns, task ownership boundaries, cross-reference standards, and separation of concerns between tasks
+- [terminology-guide.md](guides/framework/terminology-guide.md) — Explains the terminology separation between Process Framework and Product Documentation
+
+## guides/support
+
+- [blueprint-sync-consideration-policy-guide.md](guides/support/blueprint-sync-consideration-policy-guide.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [document-creation-script-development-guide.md](guides/support/document-creation-script-development-guide.md) — Standardized approach for creating documents from templates through PowerShell scripts
+- [feature-tracking-mutation-guide.md](guides/support/feature-tracking-mutation-guide.md) — Canonical policy and script reference for mutating feature-tracking.md
+- [framework-extension-customization-guide.md](guides/support/framework-extension-customization-guide.md) — Essential guide for customizing Framework Extension Concept documents
+- [framework-rollout-usage-guide.md](guides/support/framework-rollout-usage-guide.md) — Customization and usage patterns for Framework Rollout (PF-TSK-088): Push/Restore/Register script invocations, dry-run interpretation, partial-rollout recovery, frozen-project handling, and Pending Migration Entry Template usage by Structure Change task authors.
+- [guide-creation-best-practices-guide.md](guides/support/guide-creation-best-practices-guide.md) — Best practices for creating effective guides within the task framework
+- [imp-triage-usage-guide.md](guides/support/imp-triage-usage-guide.md) — Decision criteria, cluster-detection patterns, and consolidation worked examples for the PF-TSK-089 IMP Triage Task
+- [migration-best-practices.md](guides/support/migration-best-practices.md) — Best practices for migrating documentation and framework components
+- [process-improvement-task-implementation-guide.md](guides/support/process-improvement-task-implementation-guide.md) — Practical instructions for executing the Process Improvement task (PF-TSK-009)
+- [process-improvement-task-reference-guide.md](guides/support/process-improvement-task-reference-guide.md) — Lookup tables and conventions consulted at specific steps of the Process Improvement task: evaluation criteria, routing destinations, risk classification, common stale-description sites, TOOL_DOC_ID convention.
+- [schema-audit-procedure-guide.md](guides/support/schema-audit-procedure-guide.md) — How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)
+- [script-development-quick-reference.md](guides/support/script-development-quick-reference.md) — Quick reference for common script development issues and solutions
+- [state-file-creation-guide.md](guides/support/state-file-creation-guide.md) — Guide for customizing state tracking file templates
+- [task-creation-guide.md](guides/support/task-creation-guide.md) — Guide for creating and improving task definitions
+- [temp-state-tracking-customization-guide.md](guides/support/temp-state-tracking-customization-guide.md) — Guide for customizing temporary state files for different workflows
+- [template-development-guide.md](guides/support/template-development-guide.md) — Guide for developing and maintaining framework templates
+- [visual-notation-guide.md](guides/support/visual-notation-guide.md) — Standard notation used in diagrams and context maps
+- [visualization-creation-guide.md](guides/support/visualization-creation-guide.md) — Guide for creating context maps and other visualizations
+
+## infrastructure
+
+- [process-framework-task-registry.md](infrastructure/process-framework-task-registry.md) — Comprehensive catalog of all tasks with automation status, script locations, file update patterns, trigger/output chains (🔗 TRIGGER & OUTPUT blocks), State File Trigger Index, and trigger chain diagrams
+- [task-transition-registry.md](infrastructure/task-transition-registry.md) — Per-task transition procedures: prerequisites, handover artifacts, and next-task routing (moved from guides/framework/task-transition-guide.md; Information Flow content extracted to PF-GDE-062)
+
+## scripts
+
+- [Add-MarkdownTableColumn.ps1](scripts/Add-MarkdownTableColumn.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [Common-ScriptHelpers.psm1](scripts/Common-ScriptHelpers.psm1) — Common helper functions for PowerShell scripts across the project
+- [extract_ratings.py](scripts/extract_ratings.py) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [feedback_db.py](scripts/feedback_db.py) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [Get-FeatureDesignArtifacts.ps1](scripts/Get-FeatureDesignArtifacts.ps1) — Cross-feature query for design artifacts recorded in feature state files.
+- [IdRegistry.psm1](scripts/IdRegistry.psm1) — Inlined two-pass walk that mirrors Common-ScriptHelpers/Core.psm1's Get-ProjectRoot, returning
+
+## scripts/Common-ScriptHelpers
+
+- [AdvancedUtilities.psm1](scripts/Common-ScriptHelpers/AdvancedUtilities.psm1) — Advanced utility functions and dependency management for PowerShell scripts
+- [AssessmentParsing.psm1](scripts/Common-ScriptHelpers/AssessmentParsing.psm1) — Reads a feature's tier assessment file and returns design requirements + tier.
+- [BatchProcessing.psm1](scripts/Common-ScriptHelpers/BatchProcessing.psm1) — Batch operations and multi-file processing utilities for PowerShell scripts
+- [Core.psm1](scripts/Common-ScriptHelpers/Core.psm1) — Core infrastructure functions for PowerShell scripts across the project
+- [DesignArtifactCreation.psm1](scripts/Common-ScriptHelpers/DesignArtifactCreation.psm1) — Orchestration core for the 7 design-creator wrapper scripts.
+- [DocumentManagement.psm1](scripts/Common-ScriptHelpers/DocumentManagement.psm1) — Document creation and template management functions for PowerShell scripts
+- [DocumentTracking.psm1](scripts/Common-ScriptHelpers/DocumentTracking.psm1) — Document tracking operations and file management for PowerShell scripts
+- [ExecutionVerification.psm1](scripts/Common-ScriptHelpers/ExecutionVerification.psm1) — Registers a script for soak verification.
+- [FeatureTracking.psm1](scripts/Common-ScriptHelpers/FeatureTracking.psm1) — Feature tracking operations and status management for PowerShell scripts
+- [FileOperations.psm1](scripts/Common-ScriptHelpers/FileOperations.psm1) — File system operations and backup functions for PowerShell scripts
+- [Naming.psm1](scripts/Common-ScriptHelpers/Naming.psm1) — Converts a human-typed name to a canonical slug for use in dir/filenames.
+- [OutputFormatting.psm1](scripts/Common-ScriptHelpers/OutputFormatting.psm1) — Output formatting and utility functions for PowerShell scripts
+- [StateFileInventory.psm1](scripts/Common-ScriptHelpers/StateFileInventory.psm1) — Resolves a feature ID to its state file path.
+- [StateFileManagement.psm1](scripts/Common-ScriptHelpers/StateFileManagement.psm1) — State file operations and tracking file management for PowerShell scripts
+- [TableOperations.psm1](scripts/Common-ScriptHelpers/TableOperations.psm1) — Core markdown table manipulation functions for PowerShell scripts
+- [TestRunner.psm1](scripts/Common-ScriptHelpers/TestRunner.psm1) — Resolve the path to the per-language test runner script (Run-Tests.<language>.ps1).
+- [TestTracking.psm1](scripts/Common-ScriptHelpers/TestTracking.psm1) — Test tracking operations and pytest marker management for PowerShell scripts
+
+## scripts/file-creation/00-setup
+
+- [New-QualityAssessmentReport.ps1](scripts/file-creation/00-setup/New-QualityAssessmentReport.ps1) — Creates a new Quality Assessment Report for a Target-State feature.
+- [New-RetrospectiveMasterState.ps1](scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1) — Creates a new Retrospective Master State tracking file for framework onboarding.
+- [New-SourceStructure.ps1](scripts/file-creation/00-setup/New-SourceStructure.ps1) — Creates or updates the source code directory structure and source-code-layout.md.
+- [New-TestInfrastructure.ps1](scripts/file-creation/00-setup/New-TestInfrastructure.ps1) — Dual-mode infrastructure script for test/audit directories.
+
+## scripts/file-creation/01-planning
+
+- [New-Assessment.ps1](scripts/file-creation/01-planning/New-Assessment.ps1) — Creates a new documentation tier assessment file for a feature.
+- [New-FeatureRequest.ps1](scripts/file-creation/01-planning/New-FeatureRequest.ps1) — Adds a new feature request to feature-request-tracking.md with an auto-assigned ID.
+
+## scripts/file-creation/02-design
+
+- [New-APIDataModel.ps1](scripts/file-creation/02-design/New-APIDataModel.ps1) — Creates a new API Data Model document (PD-API-XXX).
+- [New-APIDocumentation.ps1](scripts/file-creation/02-design/New-APIDocumentation.ps1) — Creates a new user-facing API documentation document.
+- [New-APISpecification.ps1](scripts/file-creation/02-design/New-APISpecification.ps1) — Creates a new API Specification document (PD-API-XXX).
+- [New-ArchitectureAssessment.ps1](scripts/file-creation/02-design/New-ArchitectureAssessment.ps1) — Creates a new Architecture Impact Assessment document with an automatically assigned ID.
+- [New-ArchitectureDecision.ps1](scripts/file-creation/02-design/New-ArchitectureDecision.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [New-ContextMap.ps1](scripts/file-creation/02-design/New-ContextMap.ps1) — Creates a new context map visualization document with an automatically assigned ID.
+- [New-FDD.ps1](scripts/file-creation/02-design/New-FDD.ps1) — Creates a new Functional Design Document (FDD) with an automatically assigned ID.
+- [New-IntegrationNarrative.ps1](scripts/file-creation/02-design/New-IntegrationNarrative.ps1) — Creates a new Integration Narrative document with an automatically assigned ID.
+- [New-SchemaDesign.ps1](scripts/file-creation/02-design/New-SchemaDesign.ps1) — Creates a new Database Schema Design document (PD-SCH-XXX).
+- [New-TDD.ps1](scripts/file-creation/02-design/New-TDD.ps1) — Creates a Technical Design Document at the tier-appropriate complexity.
+- [New-UIDesign.ps1](scripts/file-creation/02-design/New-UIDesign.ps1) — Creates a new UI/UX Design Document (PD-UIX-XXX).
+
+## scripts/file-creation/03-testing
+
+- [New-AuditTracking.ps1](scripts/file-creation/03-testing/New-AuditTracking.ps1) — Creates a new test audit tracking state file for a multi-session audit round.
+- [New-E2EAcceptanceTestCase.ps1](scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) — Creates a new E2E acceptance test case with an automatically assigned E2E-NNN ID.
+- [New-E2EMilestoneEntry.ps1](scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1) — Adds a new workflow milestone entry to e2e-test-tracking.md.
+- [New-PerformanceTestEntry.ps1](scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1) — Adds a new performance test entry to performance-test-tracking.md with an auto-assigned test ID.
+- [New-TestAuditReport.ps1](scripts/file-creation/03-testing/New-TestAuditReport.ps1) — Creates a new Test Audit Report document with an automatically assigned ID.
+- [New-TestFile.ps1](scripts/file-creation/03-testing/New-TestFile.ps1) — Creates a new test file with an automatically assigned ID.
+- [New-TestSpecification.ps1](scripts/file-creation/03-testing/New-TestSpecification.ps1) — Creates a new Test Specification (TE-TSP-XXX), feature-specific or cross-cutting.
+- [New-WorkflowEntry.ps1](scripts/file-creation/03-testing/New-WorkflowEntry.ps1) — Adds a new user workflow to user-workflow-tracking.md with an auto-assigned WF-xxx ID.
+
+## scripts/file-creation/04-implementation
+
+- [New-EnhancementState.ps1](scripts/file-creation/04-implementation/New-EnhancementState.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [New-FeatureImplementationState.ps1](scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1) — Creates a new Feature Implementation State tracking file for a feature.
+- [New-ImplementationPlan.ps1](scripts/file-creation/04-implementation/New-ImplementationPlan.ps1) — Creates a new Implementation Plan document with an automatically assigned ID.
+
+## scripts/file-creation/05-validation
+
+- [Generate-ValidationSummary.ps1](scripts/file-creation/05-validation/Generate-ValidationSummary.ps1) — Generates consolidated validation summaries from multiple validation reports.
+- [New-ValidationReport.ps1](scripts/file-creation/05-validation/New-ValidationReport.ps1) — Creates a new validation report from template.
+- [New-ValidationTracking.ps1](scripts/file-creation/05-validation/New-ValidationTracking.ps1) — Creates a new validation tracking state file for a validation round.
+
+## scripts/file-creation/06-maintenance
+
+- [New-BugFixState.ps1](scripts/file-creation/06-maintenance/New-BugFixState.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [New-BugReport.ps1](scripts/file-creation/06-maintenance/New-BugReport.ps1) — Creates a new bug report with an automatically assigned ID.
+- [New-RefactoringPlan.ps1](scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1) — Creates a new Refactoring Plan document with an automatically assigned ID.
+- [New-ReviewSummary.ps1](scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) — Creates a new Tools Review Summary document with an automatically assigned ID.
+
+## scripts/file-creation/07-deployment
+
+- [New-Handbook.ps1](scripts/file-creation/07-deployment/New-Handbook.ps1) — Creates a new user handbook document with an automatically assigned ID.
+
+## scripts/file-creation/cyclical
+
+- [New-DebtItem.ps1](scripts/file-creation/cyclical/New-DebtItem.ps1) — Creates a new Technical Debt Item record with an automatically assigned ID.
+- [New-PrioritizationMatrix.ps1](scripts/file-creation/cyclical/New-PrioritizationMatrix.ps1) — Creates a new Technical Debt Prioritization Matrix document.
+- [New-TechnicalDebtAssessment.ps1](scripts/file-creation/cyclical/New-TechnicalDebtAssessment.ps1) — Creates a new Technical Debt Assessment document with an automatically assigned ID.
+
+## scripts/file-creation/support
+
+- [New-FeedbackForm.ps1](scripts/file-creation/support/New-FeedbackForm.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [New-FrameworkEvaluationReport.ps1](scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) — Creates a new Framework Evaluation Report document with an automatically assigned ID.
+- [New-FrameworkExtensionConcept.ps1](scripts/file-creation/support/New-FrameworkExtensionConcept.ps1) — Creates a new Framework Extension Concept document with an automatically assigned ID.
+- [New-Guide.ps1](scripts/file-creation/support/New-Guide.ps1) — Creates a new guide document with an automatically assigned ID.
+- [New-PendingMigration.ps1](scripts/file-creation/support/New-PendingMigration.ps1) — Scaffolds Pending Migration Entries (Summary row + entry skeleton) across one or more project ledgers, allocating each per-project MIG-NNN automatically.
+- [New-PermanentState.ps1](scripts/file-creation/support/New-PermanentState.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [New-ProcessImprovement.ps1](scripts/file-creation/support/New-ProcessImprovement.ps1) — Adds a new improvement opportunity to process-improvement-tracking.md with an auto-assigned ID.
+- [New-StructureChangeProposal.ps1](scripts/file-creation/support/New-StructureChangeProposal.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [New-StructureChangeState.ps1](scripts/file-creation/support/New-StructureChangeState.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [New-Task.ps1](scripts/file-creation/support/New-Task.ps1) — Creates a new task definition document with an automatically assigned PF-TSK ID.
+- [New-Template.ps1](scripts/file-creation/support/New-Template.ps1) — Creates a new template document with an automatically assigned ID.
+- [New-TempTaskState.ps1](scripts/file-creation/support/New-TempTaskState.ps1) — Creates a new temporary state tracking file for multi-session task creation, process improvement, framework extension, framework evaluation, blueprint sync, refactoring, or retrospective documentation workflows.
+- [Register-Project.ps1](scripts/file-creation/support/Register-Project.ps1) — Registers a project with appdev's central registry, assigning it a stable PRJ-NNN ID.
+
+## scripts/language-specific-scripts/powershell
+
+- [Run-Tests.powershell.ps1](scripts/language-specific-scripts/powershell/Run-Tests.powershell.ps1) — PowerShell/Pester test runner — invoked by Run-Tests.ps1 dispatcher when testing.language='powershell'.
+
+## scripts/language-specific-scripts/python
+
+- [Run-Tests.python.ps1](scripts/language-specific-scripts/python/Run-Tests.python.ps1) — Language-agnostic test runner that uses project and language configuration for command execution.
+
+## scripts/patterns
+
+- [environment-variable-fallback-pattern.ps1](scripts/patterns/environment-variable-fallback-pattern.ps1) — Template showing environment variable fallback pattern for CMD.exe compatibility
+
+## scripts/test
+
+- [performance_db.py](scripts/test/performance_db.py) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [Run-Tests.ps1](scripts/test/Run-Tests.ps1) — Language-agnostic dispatcher to the per-language test runner declared in project-config.json.
+- [test_query.py](scripts/test/test_query.py) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+
+## scripts/test/e2e-acceptance-testing
+
+- [Reset-SandboxFixtures.ps1](scripts/test/e2e-acceptance-testing/Reset-SandboxFixtures.ps1) — Reset per-test sandbox state for a framework-self-test E2E case (PRJ-T01 sandbox only).
+- [Run-E2EAcceptanceTest.ps1](scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — Orchestrates scripted E2E acceptance test execution: Setup -> run.ps1 -> wait -> Verify.
+- [sandbox-reset-registry.json](scripts/test/e2e-acceptance-testing/sandbox-reset-registry.json) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [Setup-TestEnvironment.ps1](scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) — Sets up the E2E acceptance test execution environment by copying pristine fixtures into workspace.
+- [Update-TestExecutionStatus.ps1](scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) — Updates E2E acceptance test execution status in e2e-test-tracking.md and feature-tracking.md.
+- [Verify-TestResult.ps1](scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) — Compares workspace state against expected state after E2E acceptance test execution.
+
+## scripts/update
+
+- [Archive-Feature.ps1](scripts/update/Archive-Feature.ps1) — Moves a feature from active tracking to the Archived Features section in feature-tracking.md
+- [Finalize-Enhancement.ps1](scripts/update/Finalize-Enhancement.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [Update-BatchFeatureStatus.ps1](scripts/update/Update-BatchFeatureStatus.ps1) — Updates multiple features simultaneously across all tracking files
+- [Update-BugStatus.ps1](scripts/update/Update-BugStatus.ps1) — Automates bug status updates in the Bug Tracking state file
+- [Update-CodeReviewState.ps1](scripts/update/Update-CodeReviewState.ps1) — Automates state file updates for Code Review Task (PF-TSK-006)
+- [Update-FeatureCategory.ps1](scripts/update/Update-FeatureCategory.ps1) — Atomic level-aware mutation of feature-tracking.md — creates a category, subgroup, or feature row
+- [Update-FeatureDependencies.ps1](scripts/update/Update-FeatureDependencies.ps1) — Auto-generates the Feature Dependencies Map (feature-dependencies.md) from feature state files.
+- [Update-FeatureImplementationState.ps1](scripts/update/Update-FeatureImplementationState.ps1) — Automates state file updates for Feature Implementation Planning Task (PF-TSK-044)
+- [Update-FeatureRequest.ps1](scripts/update/Update-FeatureRequest.ps1) — Updates feature request status in the Feature Request Tracking state file
+- [Update-FeatureTrackingFromAssessment.ps1](scripts/update/Update-FeatureTrackingFromAssessment.ps1) — Updates feature tracking status based on completed documentation tier assessment results.
+- [Update-LanguageConfig.ps1](scripts/update/Update-LanguageConfig.ps1) — Adds or updates a field in all language config files and the language config template.
+- [Update-PendingMigration.ps1](scripts/update/Update-PendingMigration.ps1) — Resolves (or skips) a single Pending Migration Entry, updating the Summary-table row and the per-entry section atomically so their Status fields cannot drift.
+- [Update-PerformanceTracking.ps1](scripts/update/Update-PerformanceTracking.ps1) — Automates status transitions and column updates in performance-test-tracking.md
+- [Update-ProcessImprovement.ps1](scripts/update/Update-ProcessImprovement.ps1) — Automates improvement status updates and section moves in the Process Improvement Tracking state file
+- [Update-QualityClassification.ps1](scripts/update/Update-QualityClassification.ps1) — Computes and writes the Quality Assessment classification in a feature implementation state file (PF-TSK-065 Step 9).
+- [Update-RetrospectiveMasterState.ps1](scripts/update/Update-RetrospectiveMasterState.ps1) — Atomically updates a retrospective master state file — Feature Inventory rows, Unassigned Files batch flips, or Coverage Metrics recalculation
+- [Update-ScriptReferences.ps1](scripts/update/Update-ScriptReferences.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [Update-TechDebt.ps1](scripts/update/Update-TechDebt.ps1) — Automates technical debt lifecycle management in the Technical Debt Tracker state file
+- [Update-TechnicalDebtFromAssessment.ps1](scripts/update/Update-TechnicalDebtFromAssessment.ps1) — Automates the integration of technical debt items from assessments into the Technical Debt Tracking registry
+- [Update-TestFileAuditState.ps1](scripts/update/Update-TestFileAuditState.ps1) — Automates state file updates for individual Test File Audit (PF-TSK-030)
+- [Update-UserDocumentationState.ps1](scripts/update/Update-UserDocumentationState.ps1) — Automates state file updates when user documentation (handbooks) is created via PF-TSK-081
+- [Update-ValidationReportState.ps1](scripts/update/Update-ValidationReportState.ps1) — Atomically updates validation tracking state files after a validation session.
+- [Update-WorkflowTracking.ps1](scripts/update/Update-WorkflowTracking.ps1) — Updates Impl Status and E2E Status columns in user-workflow-tracking.md.
+
+## scripts/validation
+
+- [Build-DocumentationMap.ps1](scripts/validation/Build-DocumentationMap.ps1) — Generates PF-documentation-map.md from per-artifact .SYNOPSIS/frontmatter descriptions; also checks for drift and reports artifacts missing a source description (PF-PRO-037).
+- [Check-GitObjectsLiteral.ps1](scripts/validation/Check-GitObjectsLiteral.ps1) — Pre-commit guard against .git/objects/<hex>/<sha> literal corruption (PF-IMP-615).
+- [Quick-ValidationCheck.ps1](scripts/validation/Quick-ValidationCheck.ps1) — Quick validation check for selected features and codebase health
+- [Run-FoundationalValidation.ps1](scripts/validation/Run-FoundationalValidation.ps1) — Comprehensive feature validation for selected features
+- [Validate-AuditReport.ps1](scripts/validation/Validate-AuditReport.ps1) — Validates a Test Audit Report for completeness and consistency.
+- [Validate-BlueprintPollution.ps1](scripts/validation/Validate-BlueprintPollution.ps1) — [DEPRECATED 2026-05-11] Detect blueprint pollution: occurrences of a source-project name in a target tree.
+- [Validate-FeedbackForms.ps1](scripts/validation/Validate-FeedbackForms.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [Validate-IdRegistry.ps1](scripts/validation/Validate-IdRegistry.ps1) — Validates the ID registry against actual files in the repository
+- [Validate-IMPSectionRouting.ps1](scripts/validation/Validate-IMPSectionRouting.ps1) — Static cross-check: every -MoveToSection ValidateSet member in Update-ProcessImprovement.ps1
+- [Validate-OnboardingCompleteness.ps1](scripts/validation/Validate-OnboardingCompleteness.ps1) — Validates onboarding completeness after Codebase Feature Discovery (PF-TSK-064).
+- [Validate-ProjectConfig.ps1](scripts/validation/Validate-ProjectConfig.ps1) — Validates a project-config.json for JSON syntax, populated required fields, and leftover placeholders.
+- [Validate-StateTracking.ps1](scripts/validation/Validate-StateTracking.ps1) — Master state validation script — validates that state tracking entries match actual files on disk.
+- [Validate-TestTracking.ps1](scripts/validation/Validate-TestTracking.ps1) — Validates test tracking consistency using pytest markers as single source of truth.
+
+## tasks/00-setup
+
+- [codebase-feature-analysis.md](tasks/00-setup/codebase-feature-analysis.md) — Analyze implementation patterns, dependencies, and design decisions
+- [codebase-feature-discovery.md](tasks/00-setup/codebase-feature-discovery.md) — Discover all features in existing codebase and assign every source file
+- [codebase-source-migration-task.md](tasks/00-setup/codebase-source-migration-task.md) — Relocate legacy source into the scaffolded per-feature src/ directories during onboarding, file-by-file, with behavior-preserving per-item verification
+- [project-initiation-task.md](tasks/00-setup/project-initiation-task.md) — Initial project setup including ../doc/project-config.json creation
+- [retrospective-documentation-creation.md](tasks/00-setup/retrospective-documentation-creation.md) — Create tier assessments and required design documentation
+- [retrospective-documentation-tier-1-path.md](tasks/00-setup/retrospective-documentation-tier-1-path.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+
+## tasks/01-planning
+
+- [feature-discovery-task.md](tasks/01-planning/feature-discovery-task.md) — Identify and document potential new features
+- [feature-request-evaluation.md](tasks/01-planning/feature-request-evaluation.md) — Classify change requests as new features or enhancements, scope enhancements, and create Enhancement State Tracking Files
+- [feature-tier-assessment-task.md](tasks/01-planning/feature-tier-assessment-task.md) — Assess complexity of new features
+- [system-architecture-review.md](tasks/01-planning/system-architecture-review.md) — Evaluate how new features fit into existing system architecture before implementation
+
+## tasks/02-design
+
+- [api-design-task.md](tasks/02-design/api-design-task.md) — Design comprehensive API contracts and specifications before implementation begins
+- [database-schema-design-task.md](tasks/02-design/database-schema-design-task.md) — Plan data model changes before coding to prevent data integrity issues
+- [fdd-creation-task.md](tasks/02-design/fdd-creation-task.md) — Create Functional Design Documents for Tier 2+ features
+- [integration-narrative-creation.md](tasks/02-design/integration-narrative-creation.md) — Create Integration Narratives explaining how 2+ features collaborate in cross-cutting workflows
+- [tdd-creation-task.md](tasks/02-design/tdd-creation-task.md) — Create Technical Design Documents
+- [ui-design-task.md](tasks/02-design/ui-design-task.md) — Systematic UI/UX design planning before implementation: translate functional requirements into wireframes, visual specifications, component definitions, accessibility requirements, and platform adaptations as a PD-UIX design document.
+
+## tasks/03-testing
+
+- [e2e-acceptance-test-case-creation-task.md](tasks/03-testing/e2e-acceptance-test-case-creation-task.md) — Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes
+- [e2e-acceptance-test-execution-task.md](tasks/03-testing/e2e-acceptance-test-execution-task.md) — Execute E2E acceptance test cases systematically, record results, and report issues through human interaction with the running system
+- [performance-and-e2e-test-scoping-task.md](tasks/03-testing/performance-and-e2e-test-scoping-task.md) — Identify per-feature performance and E2E test needs after code review
+- [performance-baseline-capture-task.md](tasks/03-testing/performance-baseline-capture-task.md) — Run performance tests, record results in trend database, update tracking, flag regressions
+- [performance-test-creation-task.md](tasks/03-testing/performance-test-creation-task.md) — Implement performance tests from specifications, register in tracking, capture initial measurements
+- [test-audit-task.md](tasks/03-testing/test-audit-task.md) — Systematic quality assessment of test implementations using six evaluation criteria
+- [test-specification-creation-task.md](tasks/03-testing/test-specification-creation-task.md) — Create comprehensive test specifications from TDDs
+
+## tasks/04-implementation
+
+- [core-logic-implementation.md](tasks/04-implementation/core-logic-implementation.md) — General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests
+- [data-layer-implementation.md](tasks/04-implementation/data-layer-implementation.md) — Implement data models, repositories, and database integration for feature
+- [feature-enhancement.md](tasks/04-implementation/feature-enhancement.md) — Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context
+- [feature-implementation-planning-task.md](tasks/04-implementation/feature-implementation-planning-task.md) — Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping
+- [foundation-feature-implementation-task.md](tasks/04-implementation/foundation-feature-implementation-task.md) — Implement foundation features (0.x.x) that provide architectural foundations for the application
+- [implementation-finalization.md](tasks/04-implementation/implementation-finalization.md) — Complete remaining items and prepare feature for production
+- [integration-and-testing.md](tasks/04-implementation/integration-and-testing.md) — Integrate components and establish comprehensive test coverage
+- [quality-validation.md](tasks/04-implementation/quality-validation.md) — Validate implementation against quality standards and business requirements
+- [state-management-implementation.md](tasks/04-implementation/state-management-implementation.md) — Implement state management layer connecting data layer to UI layer
+- [ui-implementation.md](tasks/04-implementation/ui-implementation.md) — Build user interface components and layouts for feature
+
+## tasks/05-validation
+
+- [accessibility-ux-compliance-validation.md](tasks/05-validation/accessibility-ux-compliance-validation.md) — Validate selected features for accessibility standards, UX compliance, keyboard navigation, and inclusive design patterns
+- [ai-agent-continuity-validation.md](tasks/05-validation/ai-agent-continuity-validation.md) — Validate selected features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity
+- [architectural-consistency-validation.md](tasks/05-validation/architectural-consistency-validation.md) — Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency
+- [code-quality-standards-validation.md](tasks/05-validation/code-quality-standards-validation.md) — Validate selected features for code quality standards, SOLID principles, and best practices adherence
+- [data-integrity-validation.md](tasks/05-validation/data-integrity-validation.md) — Validate selected features for data consistency, constraint enforcement, migration safety, and backup/recovery patterns
+- [documentation-alignment-validation.md](tasks/05-validation/documentation-alignment-validation.md) — Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy
+- [extensibility-maintainability-validation.md](tasks/05-validation/extensibility-maintainability-validation.md) — Validate selected features for extension points, configuration flexibility, and testing support
+- [integration-dependencies-validation.md](tasks/05-validation/integration-dependencies-validation.md) — Validate selected features for dependency health, interface contracts, and data flow integrity
+- [observability-validation.md](tasks/05-validation/observability-validation.md) — Validate selected features for logging coverage, monitoring instrumentation, alerting readiness, and diagnostic traceability
+- [performance-scalability-validation.md](tasks/05-validation/performance-scalability-validation.md) — Validate selected features for performance characteristics, resource efficiency, and scalability patterns
+- [security-data-protection-validation.md](tasks/05-validation/security-data-protection-validation.md) — Validate selected features for security best practices, data protection, input validation, and secrets management
+- [validation-preparation.md](tasks/05-validation/validation-preparation.md) — Plan validation rounds by selecting features and applicable dimensions, create tracking state file
+
+## tasks/06-maintenance
+
+- [bug-fixing-task.md](tasks/06-maintenance/bug-fixing-task.md) — Diagnose and fix bugs
+- [bug-triage-task.md](tasks/06-maintenance/bug-triage-task.md) — Systematically evaluate, prioritize, and assign reported bugs
+- [code-refactoring-lightweight-path.md](tasks/06-maintenance/code-refactoring-lightweight-path.md) — Process steps and checklist for low-effort refactorings (≤ 15 min, single file)
+- [code-refactoring-standard-path.md](tasks/06-maintenance/code-refactoring-standard-path.md) — Process steps and checklist for medium/complex refactorings (multi-file, architectural)
+- [code-refactoring-task.md](tasks/06-maintenance/code-refactoring-task.md) — Systematic code improvement and technical debt reduction without changing external behavior
+- [code-review-task.md](tasks/06-maintenance/code-review-task.md) — Review code for quality and correctness
+
+## tasks/07-deployment
+
+- [git-commit-and-push.md](tasks/07-deployment/git-commit-and-push.md) — Commit current working directory changes and push to remote repository
+- [release-deployment-task.md](tasks/07-deployment/release-deployment-task.md) — Manage releases and deployments
+- [user-documentation-creation.md](tasks/07-deployment/user-documentation-creation.md) — Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates
+
+## tasks/cyclical
+
+- [documentation-tier-adjustment-task.md](tasks/cyclical/documentation-tier-adjustment-task.md) — Adjust documentation requirements
+- [technical-debt-assessment-task.md](tasks/cyclical/technical-debt-assessment-task.md) — Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase
+
+## tasks/support
+
+- [framework-blueprint-sync-task.md](tasks/support/framework-blueprint-sync-task.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [framework-domain-adaptation.md](tasks/support/framework-domain-adaptation.md) — Systematically adapt the process framework from one business domain to another while preserving core structure
+- [framework-evaluation.md](tasks/support/framework-evaluation.md) — Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability
+- [framework-extension-task.md](tasks/support/framework-extension-task.md) — Support task for fundamentally extending the framework with new functionalities and capabilities
+- [framework-rollout-task.md](tasks/support/framework-rollout-task.md) — Deploy framework code from canonical appdev to registered projects.
+- [imp-triage-task.md](tasks/support/imp-triage-task.md) — Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected.
+- [new-task-creation-process.md](tasks/support/new-task-creation-process.md) — Complete process for creating new tasks from concept to implementation-ready definition
+- [process-improvement-task.md](tasks/support/process-improvement-task.md) — Improve development processes
+- [structure-change-task.md](tasks/support/structure-change-task.md) — Manage structural changes to documentation
+- [tools-review-task.md](tasks/support/tools-review-task.md) — Review and improve project tools and templates
+
+## templates/00-setup
+
+- [quality-assessment-report-template.md](templates/00-setup/quality-assessment-report-template.md) — Template for Quality Assessment Reports created during onboarding for Target-State features
+- [retrospective-state-template.md](templates/00-setup/retrospective-state-template.md) — Template for retrospective master state tracking during onboarding
+
+## templates/01-planning
+
+- [assessment-template.md](templates/01-planning/assessment-template.md) — Template for feature tier assessments
+
+## templates/02-design
+
+- [adr-template.md](templates/02-design/adr-template.md) — Template for Architecture Decision Records
+- [api-data-model-template.md](templates/02-design/api-data-model-template.md) — Template for creating API data transfer objects and data structures
+- [api-documentation-template.md](templates/02-design/api-documentation-template.md) — Template for creating user-facing API documentation
+- [api-reference-template.md](templates/02-design/api-reference-template.md) — Template for API reference documentation
+- [api-specification-service-interface-template.md](templates/02-design/api-specification-service-interface-template.md) — Template for Service-Interface API specifications — subprocess invocations, COM/in-process integrations, file-system contracts, library contracts. Sibling of PF-TEM-021 (REST/HTTP variant); selected by New-APISpecification.ps1 when -APIType "Service Interface".
+- [api-specification-template.md](templates/02-design/api-specification-template.md) — Template for creating comprehensive API contract definitions
+- [architecture-context-package-update-template.md](templates/02-design/architecture-context-package-update-template.md) — Template for updating Architecture Context Packages during architectural work to ensure AI agent continuity
+- [architecture-impact-assessment-template.md](templates/02-design/architecture-impact-assessment-template.md) — Template for creating architecture impact assessments
+- [architecture-template.md](templates/02-design/architecture-template.md) — Template for architecture documentation
+- [fdd-template.md](templates/02-design/fdd-template.md) — Template for creating Functional Design Documents
+- [integration-narrative-template.md](templates/02-design/integration-narrative-template.md) — Template for creating Integration Narrative documents that explain how 2+ features collaborate in cross-cutting workflows
+- [schema-design-template.md](templates/02-design/schema-design-template.md) — Template for database schema design documents
+- [tdd-t1-template.md](templates/02-design/tdd-t1-template.md) — Creates lightweight planning documents for Tier 1 features
+- [tdd-t2-template.md](templates/02-design/tdd-t2-template.md) — Creates lightweight technical design documents for Tier 2 features
+- [tdd-t3-template.md](templates/02-design/tdd-t3-template.md) — Creates comprehensive technical design documents for Tier 3 features
+- [ui-design-template.md](templates/02-design/ui-design-template.md) — Template for creating UI/UX Design Documents for UI features
+
+## templates/03-testing
+
+- [audit-tracking-template.md](templates/03-testing/audit-tracking-template.md) — Template for creating test audit tracking state files
+- [cross-cutting-test-specification-template.md](templates/03-testing/cross-cutting-test-specification-template.md) — Template for test specifications spanning multiple features
+- [e2e-acceptance-master-test-template.md](templates/03-testing/e2e-acceptance-master-test-template.md) — Template for group-level master test files that provide quick validation sequences covering all test cases in a test group
+- [e2e-acceptance-test-case-template.md](templates/03-testing/e2e-acceptance-test-case-template.md) — Template for individual E2E acceptance test case files with exact steps, preconditions, expected outcomes, and verification methods
+- [e2e-test-audit-report-template.md](templates/03-testing/e2e-test-audit-report-template.md) — Template for E2E acceptance test audit reports with 5 criteria
+- [performance-test-audit-report-template.md](templates/03-testing/performance-test-audit-report-template.md) — Template for performance test audit reports with 4 criteria
+- [performance-test-specification-template.md](templates/03-testing/performance-test-specification-template.md) — Template for performance test specifications with level-specific criteria, baseline references, and measurement methodology
+- [test-audit-report-lightweight-template.md](templates/03-testing/test-audit-report-lightweight-template.md) — Lightweight template for test audit reports
+- [test-audit-report-template.md](templates/03-testing/test-audit-report-template.md) — Template for systematic test quality assessment reports
+- [test-file-template.py.template](templates/03-testing/test-file-template.py.template) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [test-specification-template.md](templates/03-testing/test-specification-template.md) — Template for feature-level test specifications
+
+## templates/04-implementation
+
+- [enhancement-state-tracking-template.md](templates/04-implementation/enhancement-state-tracking-template.md) — Template for tracking enhancement work on existing features, produced by Feature Request Evaluation and consumed by Feature Enhancement
+- [feature-implementation-state-lightweight-template.md](templates/04-implementation/feature-implementation-state-lightweight-template.md) — Lightweight template for Tier 1 feature implementation state tracking — fewer sections, optimized for simple features and retrospective analysis
+- [feature-implementation-state-template.md](templates/04-implementation/feature-implementation-state-template.md) — Template for permanent feature implementation state tracking throughout feature lifecycle
+- [foundation-feature-template.md](templates/04-implementation/foundation-feature-template.md) — Template for implementing foundation features (0.x.x) that provide architectural foundations for regular features
+- [implementation-plan-template.md](templates/04-implementation/implementation-plan-template.md) — Template for creating implementation plan documents that define sequenced execution strategies for feature implementation
+- [implementation-plan-tier1-template.md](templates/04-implementation/implementation-plan-tier1-template.md) — Lightweight implementation plan template for Tier 1 features
+
+## templates/05-validation
+
+- [validation-report-template.md](templates/05-validation/validation-report-template.md) — Template for feature validation reports
+- [validation-tracking-template.md](templates/05-validation/validation-tracking-template.md) — Template for creating validation tracking state files
+
+## templates/06-maintenance
+
+- [bug-fix-state-tracking-template.md](templates/06-maintenance/bug-fix-state-tracking-template.md) — Template for tracking multi-session complex bug fix work, produced by Bug Fixing task (PF-TSK-007) for Large-effort bugs
+- [documentation-refactoring-plan-template.md](templates/06-maintenance/documentation-refactoring-plan-template.md) — Refactoring plan for documentation-only changes (no code changes, no test impact). Removes code metrics, performance benchmarks, and test coverage sections from the standard template.
+- [lightweight-refactoring-plan-template.md](templates/06-maintenance/lightweight-refactoring-plan-template.md) — Compact refactoring plan for changes with no architectural impact. Supports batch mode for multiple quick fixes in one session.
+- [performance-refactoring-plan-template.md](templates/06-maintenance/performance-refactoring-plan-template.md) — Refactoring plan for performance-focused changes. Replaces code quality metrics with performance baselines (user-defined metrics such as I/O counts, timing, throughput, memory, or algorithmic complexity).
+- [refactoring-plan-template.md](templates/06-maintenance/refactoring-plan-template.md) — Template for code refactoring plans
+
+## templates/07-deployment
+
+- [handbook-template.md](templates/07-deployment/handbook-template.md) — Template for creating user-facing handbook documents. Sections are optional — AI agent removes unused sections during customization.
+
+## templates/cyclical
+
+- [debt-item-template.md](templates/cyclical/debt-item-template.md) — Template for individual debt item records
+- [prioritization-matrix-template.md](templates/cyclical/prioritization-matrix-template.md) — Template for debt prioritization matrices
+- [technical-debt-assessment-template.md](templates/cyclical/technical-debt-assessment-template.md) — Template for technical debt assessment reports
+
+## templates/support
+
+- [context-map-template.md](templates/support/context-map-template.md) — Template for creating new context maps
+- [document-creation-script-template.ps1](templates/support/document-creation-script-template.ps1) — Creates a new [DOCUMENT_TYPE] document with an automatically assigned ID.
+- [feedback-db-input-template.json](templates/support/feedback-db-input-template.json) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [feedback-form-template.md](templates/support/feedback-form-template.md) — Creates feedback forms for evaluating tools and processes
+- [framework-evaluation-report-template.md](templates/support/framework-evaluation-report-template.md) — Template for structured framework evaluation reports with dimension scoring
+- [framework-extension-concept-creation-template.md](templates/support/framework-extension-concept-creation-template.md) — Creation-type template for extensions that add entirely new artifacts
+- [framework-extension-concept-minimal-template.md](templates/support/framework-extension-concept-minimal-template.md) — Minimal template for small-scope creation extensions (single artifact), used by New-FrameworkExtensionConcept.ps1 -Minimal
+- [framework-extension-concept-modification-template.md](templates/support/framework-extension-concept-modification-template.md) — Modification-type template for extensions that modify existing artifacts
+- [framework-extension-concept-template.md](templates/support/framework-extension-concept-template.md) — Template for creating framework extension concept documents (Hybrid type; also used as base)
+- [guide-template.md](templates/support/guide-template.md) — Template for creating new guides
+- [language-config-template.json](templates/support/language-config-template.json) — Language-specific configuration for [Language] projects using the process framework. Copy this file to process-framework/languages-config/{language}/{language}-config.json and fill in the values.
+- [pending-migration-entry-cleanup-template.md](templates/support/pending-migration-entry-cleanup-template.md) — Trimmed variant of the Pending Migration Entry Template (PF-TEM-079) for no-data-motion migrations (empty-dir or placeholder-only cleanup)
+- [pending-migration-entry-template.md](templates/support/pending-migration-entry-template.md) — Template for one entry in appdev/process-framework-central/per-project-migrations/PRJ-NNN/pending-migrations.md. Each entry is one project working-doc migration written by Structure Change (PF-TSK-014) and applied by Framework Rollout Mode C (PF-TSK-088).
+- [Run-Tests-runner-template.ps1](templates/support/Run-Tests-runner-template.ps1) — Template for creating a per-language test runner (Run-Tests.<language>.ps1).
+- [state-file-template.md](templates/support/state-file-template.md) — Creates state tracking files for monitoring project status
+- [structure-change-proposal-template.md](templates/support/structure-change-proposal-template.md) — Template for structure change proposals
+- [structure-change-state-content-update-template.md](templates/support/structure-change-state-content-update-template.md) — Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)
+- [structure-change-state-framework-extension-template.md](templates/support/structure-change-state-framework-extension-template.md) — Lightweight template for framework extension structure changes (artifact tracking, no pilot/rollback/metrics)
+- [structure-change-state-from-proposal-template.md](templates/support/structure-change-state-from-proposal-template.md) — Lightweight execution-tracking template for proposal-backed structure changes (phase checklist + session log only)
+- [structure-change-state-rename-template.md](templates/support/structure-change-state-rename-template.md) — Template for rename-focused structure changes
+- [structure-change-state-template.md](templates/support/structure-change-state-template.md) — Template for tracking multi-session structure change implementation
+- [task-completion-template.md](templates/support/task-completion-template.md) — Template for task completion checklists
+- [task-template.md](templates/support/task-template.md) — Creates task definition documents for process framework
+- [temp-blueprint-sync-state-template.md](templates/support/temp-blueprint-sync-state-template.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [temp-framework-evaluation-state-template.md](templates/support/temp-framework-evaluation-state-template.md) — Template for tracking multi-session framework evaluation (PF-TSK-079) — Artifacts-in-Scope inventory, per-dimension progress across the seven evaluation dimensions, findings log with scores and routing, and session plan (via New-TempTaskState.ps1 -Variant FrameworkEvaluation)
+- [temp-framework-extension-state-template.md](templates/support/temp-framework-extension-state-template.md) — Template for tracking multi-session framework extension implementation with artifact tracking and task impact analysis (via New-TempTaskState.ps1 -Variant FrameworkExtension)
+- [temp-process-improvement-state-template.md](templates/support/temp-process-improvement-state-template.md) — Template for tracking multi-session process improvement implementation (via New-TempTaskState.ps1 -Variant ProcessImprovement)
+- [temp-refactoring-state-template.md](templates/support/temp-refactoring-state-template.md) — Multi-session state tracking for code refactoring work (PF-TSK-022 Standard Path) — includes Test Baseline anchor (Step 5), Phase 0/A/B/C/D structure, bug-discovery log, and 3-phase closure (via New-TempTaskState.ps1 -Variant Refactoring)
+- [temp-retrospective-documentation-state-template.md](templates/support/temp-retrospective-documentation-state-template.md) — Multi-session per-feature state tracking for retrospective documentation creation (PF-TSK-066 Phase 3) — includes Feature Overview, Required Phase 3 Deliverables table (Steps 5–13), Per-Feature Closure Updates table (Steps 15–17), Session Plan (via New-TempTaskState.ps1 -Variant RetrospectiveDocumentation)
+- [temp-task-creation-state-template.md](templates/support/temp-task-creation-state-template.md) — Template for tracking multi-session task creation implementation
+- [template-base-template.md](templates/support/template-base-template.md) — Base template for creating new document templates
+- [tools-review-summary-template.md](templates/support/tools-review-summary-template.md) — Standardized template for Tools Review task (PF-TSK-010) summary output documents
+- [update-script-template.ps1](templates/support/update-script-template.ps1) — Automates [TARGET_DESCRIPTION] updates in [TARGET_FILE_NAME]
+
+## tools/linkWatcher
+
+- [start_linkwatcher_background.ps1](tools/linkWatcher/start_linkwatcher_background.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [start_linkwatcher_hook_wrapper.ps1](tools/linkWatcher/start_linkwatcher_hook_wrapper.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+
+## visualization/context-maps/00-setup
+
+- [codebase-feature-analysis-map.md](visualization/context-maps/00-setup/codebase-feature-analysis-map.md) — Components for analyzing implementation patterns and dependencies
+- [codebase-feature-discovery-map.md](visualization/context-maps/00-setup/codebase-feature-discovery-map.md) — Components for discovering features in existing codebases
+- [codebase-source-migration-map.md](visualization/context-maps/00-setup/codebase-source-migration-map.md) — Components for relocating legacy source into scaffolded per-feature dirs during onboarding
+- [project-initiation-map.md](visualization/context-maps/00-setup/project-initiation-map.md) — Components for initial project setup and framework adoption
+- [retrospective-documentation-creation-map.md](visualization/context-maps/00-setup/retrospective-documentation-creation-map.md) — Components for creating retrospective design documentation
+
+## visualization/context-maps/01-planning
+
+- [feature-discovery-map.md](visualization/context-maps/01-planning/feature-discovery-map.md) — Components for exploring features
+- [feature-request-evaluation-map.md](visualization/context-maps/01-planning/feature-request-evaluation-map.md) — Components for classifying change requests and scoping enhancements
+- [feature-tier-assessment-map.md](visualization/context-maps/01-planning/feature-tier-assessment-map.md) — Components for assessing complexity
+- [system-architecture-review-map.md](visualization/context-maps/01-planning/system-architecture-review-map.md) — Components for evaluating system architecture
+
+## visualization/context-maps/02-design
+
+- [api-design-task-map.md](visualization/context-maps/02-design/api-design-task-map.md) — Components for designing API contracts and specifications
+- [database-schema-design-task-map.md](visualization/context-maps/02-design/database-schema-design-task-map.md) — Components for designing database schemas
+- [fdd-creation-map.md](visualization/context-maps/02-design/fdd-creation-map.md) — Components for creating Functional Design Documents
+- [integration-narrative-creation-map.md](visualization/context-maps/02-design/integration-narrative-creation-map.md) — Components for creating Integration Narrative documents that explain how 2+ features collaborate in cross-cutting workflows
+- [tdd-creation-map.md](visualization/context-maps/02-design/tdd-creation-map.md) — Components for creating design documents
+- [ui-design-task-map.md](visualization/context-maps/02-design/ui-design-task-map.md) — Components for UI/UX design (wireframes, visual specs, accessibility, platform adaptations)
+
+## visualization/context-maps/03-testing
+
+- [e2e-acceptance-test-case-creation-map.md](visualization/context-maps/03-testing/e2e-acceptance-test-case-creation-map.md) — Components for creating concrete E2E acceptance test cases from test specifications
+- [e2e-acceptance-test-execution-map.md](visualization/context-maps/03-testing/e2e-acceptance-test-execution-map.md) — Components for executing E2E acceptance test cases and recording results
+- [performance-e2e-test-scoping-map.md](visualization/context-maps/03-testing/performance-e2e-test-scoping-map.md) — Components for identifying per-feature performance and E2E test needs after code review
+- [test-audit-map.md](visualization/context-maps/03-testing/test-audit-map.md) — Components for systematic test quality assessment workflow
+- [test-specification-creation-map.md](visualization/context-maps/03-testing/test-specification-creation-map.md) — Components for creating test specifications from TDDs
+
+## visualization/context-maps/04-implementation
+
+- [core-logic-implementation-map.md](visualization/context-maps/04-implementation/core-logic-implementation-map.md) — Components for general-purpose coding of non-foundation features
+- [data-layer-implementation-map.md](visualization/context-maps/04-implementation/data-layer-implementation-map.md) — Components for data layer implementation (models, repositories, database integration)
+- [feature-enhancement-map.md](visualization/context-maps/04-implementation/feature-enhancement-map.md) — Components for executing enhancement steps from state file
+- [feature-implementation-map.md](visualization/context-maps/04-implementation/feature-implementation-map.md) — Components for implementing features
+- [feature-implementation-planning-map.md](visualization/context-maps/04-implementation/feature-implementation-planning-map.md) — Components for analyzing design documentation and planning implementation sequencing
+- [foundation-feature-implementation-task-map.md](visualization/context-maps/04-implementation/foundation-feature-implementation-task-map.md) — Components for implementing foundation features (0.x.x architectural foundations)
+- [implementation-finalization-map.md](visualization/context-maps/04-implementation/implementation-finalization-map.md) — Components for completing remaining items and preparing feature for production
+- [integration-and-testing-map.md](visualization/context-maps/04-implementation/integration-and-testing-map.md) — Components for implementing comprehensive tests and validating integration
+- [quality-validation-map.md](visualization/context-maps/04-implementation/quality-validation-map.md) — Components for validating implementation against quality standards and acceptance criteria
+- [state-management-implementation-map.md](visualization/context-maps/04-implementation/state-management-implementation-map.md) — Components for implementing state management layer connecting data to UI
+- [ui-implementation-map.md](visualization/context-maps/04-implementation/ui-implementation-map.md) — Components for building user interface components and layouts
+
+## visualization/context-maps/05-validation
+
+- [accessibility-ux-compliance-validation-map.md](visualization/context-maps/05-validation/accessibility-ux-compliance-validation-map.md) — Components for validating accessibility standards, UX compliance, and inclusive design patterns
+- [ai-agent-continuity-validation-map.md](visualization/context-maps/05-validation/ai-agent-continuity-validation-map.md) — Components for validating context clarity, modular structure, and documentation quality for AI agent workflow continuity
+- [architectural-consistency-validation-map.md](visualization/context-maps/05-validation/architectural-consistency-validation-map.md) — Components for validating architectural pattern adherence and ADR compliance
+- [code-quality-standards-validation-map.md](visualization/context-maps/05-validation/code-quality-standards-validation-map.md) — Components for validating code quality standards and SOLID principles
+- [data-integrity-validation-map.md](visualization/context-maps/05-validation/data-integrity-validation-map.md) — Components for validating data consistency, constraint enforcement, and recovery patterns
+- [documentation-alignment-validation-map.md](visualization/context-maps/05-validation/documentation-alignment-validation-map.md) — Components for validating TDD alignment, ADR compliance, and API documentation accuracy
+- [extensibility-maintainability-validation-map.md](visualization/context-maps/05-validation/extensibility-maintainability-validation-map.md) — Components for validating extension points, configuration flexibility, and testing support
+- [integration-dependencies-validation-map.md](visualization/context-maps/05-validation/integration-dependencies-validation-map.md) — Components for validating dependency health, interface contracts, and data flow integrity
+- [observability-validation-map.md](visualization/context-maps/05-validation/observability-validation-map.md) — Components for validating logging coverage, monitoring instrumentation, and diagnostic traceability
+- [performance-scalability-validation-map.md](visualization/context-maps/05-validation/performance-scalability-validation-map.md) — Components for validating performance characteristics, resource efficiency, and scalability patterns
+- [security-data-protection-validation-map.md](visualization/context-maps/05-validation/security-data-protection-validation-map.md) — Components for validating security best practices, data protection, and secrets management
+- [validation-preparation-map.md](visualization/context-maps/05-validation/validation-preparation-map.md) — Components for planning validation rounds and creating tracking state files
+
+## visualization/context-maps/06-maintenance
+
+- [bug-fixing-map.md](visualization/context-maps/06-maintenance/bug-fixing-map.md) — Components for fixing bugs
+- [bug-triage-map.md](visualization/context-maps/06-maintenance/bug-triage-map.md) — Components for systematically evaluating, prioritizing, and assigning reported bugs
+- [code-refactoring-task-map.md](visualization/context-maps/06-maintenance/code-refactoring-task-map.md) — Components for systematic code improvement and technical debt reduction
+- [code-review-map.md](visualization/context-maps/06-maintenance/code-review-map.md) — Components for reviewing code changes
+
+## visualization/context-maps/07-deployment
+
+- [git-commit-and-push-map.md](visualization/context-maps/07-deployment/git-commit-and-push-map.md) — Context map for Git Commit and Push task
+- [release-deployment-map.md](visualization/context-maps/07-deployment/release-deployment-map.md) — Components for deployment
+- [user-documentation-creation-map.md](visualization/context-maps/07-deployment/user-documentation-creation-map.md) — Components for creating and maintaining user-facing handbook documentation
+
+## visualization/context-maps/cyclical
+
+- [documentation-tier-adjustment-map.md](visualization/context-maps/cyclical/documentation-tier-adjustment-map.md) — Components for adjusting tiers
+- [technical-debt-assessment-task-map.md](visualization/context-maps/cyclical/technical-debt-assessment-task-map.md) — Context map for Technical Debt Assessment task
+
+## visualization/context-maps/support
+
+- [framework-domain-adaptation-map.md](visualization/context-maps/support/framework-domain-adaptation-map.md) — Context map for Framework Domain Adaptation task showing adaptation phases, document classification, and execution flow
+- [framework-evaluation-map.md](visualization/context-maps/support/framework-evaluation-map.md) — Context map for Framework Evaluation task showing evaluation scope, dimensions, and output relationships
+- [framework-extension-task-map.md](visualization/context-maps/support/framework-extension-task-map.md) — Context map for Framework Extension Task showing component relationships and workflow
+- [framework-rollout-map.md](visualization/context-maps/support/framework-rollout-map.md) — Components and relationships for the Framework Rollout Task (PF-TSK-088): four operating modes (Project Registration / Phase 1 Push / Phase 2 Migrations / Rollback), three driver scripts (Register-Project, Push-FrameworkUpdate, Restore-FrameworkVersion), central state artifacts (project-registry.json, rollout-log.md, pending-migrations.md), and per-project version-stamp files.
+- [imp-triage-map.md](visualization/context-maps/support/imp-triage-map.md) — Component relationships for the IMP Triage Task (PF-TSK-089): Tools Review feeds Intake; Triage drains Intake into destination sections via the SectionMove helper; downstream tasks pull from their owned sections; re-route loop closes back through the same helper.
+- [new-task-creation-process-map.md](visualization/context-maps/support/new-task-creation-process-map.md) — Components for creating new task definitions
+- [process-improvement-map.md](visualization/context-maps/support/process-improvement-map.md) — Components for improving processes
+- [structure-change-map.md](visualization/context-maps/support/structure-change-map.md) — Components for structural changes
+- [tools-review-map.md](visualization/context-maps/support/tools-review-map.md) — Components for reviewing tools
+
+## visualization/process-flows
+
+- [feedback-process-flowchart.md](visualization/process-flows/feedback-process-flowchart.md) — Visual guide to the feedback collection and processing workflow (Tools Review → IMP Triage → owning task), referenced from ai-tasks.md.

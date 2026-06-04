@@ -7,6 +7,7 @@ created: 2026-02-19
 updated: 2026-02-19
 workflow_phase: 04-implementation
 related_task: PF-TSK-068
+description: "Components for executing enhancement steps from state file"
 ---
 
 # Feature Enhancement Context Map
@@ -82,7 +83,7 @@ graph TD
 
 - [Feature Enhancement Task](../../../tasks/04-implementation/feature-enhancement.md) — Task definition
 - [Feature Request Evaluation Task](../../../tasks/01-planning/feature-request-evaluation.md) — The upstream task that produces the Enhancement State Tracking File
-- [Enhancement Workflow Concept (PF-PRO-002)](../../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../../process-framework-central/proposals/old/enhancement-workflow-concept.md) — Full design rationale (relocated to appdev central in Phase 7.5)
 
 ---
 

@@ -7,6 +7,7 @@ created: 2026-02-16
 updated: 2026-02-16
 workflow_phase: support
 related_task: PF-TSK-059
+description: "Components for initial project setup and framework adoption"
 ---
 
 # Project Initiation Context Map
@@ -66,13 +67,13 @@ graph TD
 
 ## Related Documentation
 
-- [Example project-config.json](/doc/project-config.json) - Reference template with complete structure
-- [Process Framework README](/process-framework/README.md) - Framework overview and directory organization
-- [PF ID Registry](/process-framework/PF-id-registry.json) - Process framework ID prefixes and directory mappings
-- [PD ID Registry](/doc/PD-id-registry.json) - Product documentation ID prefixes
-- [TE ID Registry](/test/TE-id-registry.json) - Test artifact ID prefixes
-- [Documentation Structure Guide](/process-framework/guides/framework/documentation-structure-guide.md) - Directory organization patterns
-- [Framework Domain Adaptation](/process-framework/tasks/support/framework-domain-adaptation.md) - Comprehensive framework customization
+- [Example project-config.json](../../../../doc/project-config.json) - Reference template with complete structure
+- [Process Framework README](../../../README.md) - Framework overview and directory organization
+- [PF ID Registry](../../../PF-id-registry.json) - Process framework ID prefixes and directory mappings
+- [PD ID Registry](../../../../doc/PD-id-registry.json) - Product documentation ID prefixes
+- [TE ID Registry](../../../../test/TE-id-registry.json) - Test artifact ID prefixes
+- [Documentation Structure Guide](../../../guides/framework/documentation-structure-guide.md) - Directory organization patterns
+- [Framework Domain Adaptation](../../../tasks/support/framework-domain-adaptation.md) - Comprehensive framework customization
 
 ---
 

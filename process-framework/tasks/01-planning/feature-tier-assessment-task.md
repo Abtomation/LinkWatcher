@@ -2,9 +2,10 @@
 id: PF-TSK-002
 type: Process Framework
 category: Task Definition
-version: 1.5
+version: 1.6
 created: 2023-06-15
-updated: 2026-04-04
+updated: 2026-05-16
+description: "Assess complexity of new features"
 ---
 
 # Feature Tier Assessment
@@ -20,14 +21,6 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 **Focus Areas**: User needs, requirements validation, feasibility analysis, complexity assessment
 **Communication Style**: Ask clarifying questions about user value and priorities, discuss feature impact and complexity trade-offs
 
-## When to Use
-
-- When new features are added to the feature tracking document
-- When features need to be prioritized for implementation
-- When determining documentation requirements for features
-- When planning resource allocation for feature development
-- Before creating Technical Design Documents (TDDs)
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/01-planning/feature-tier-assessment-map.md)
@@ -36,7 +29,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
   - [Assessment Guide](../../guides/01-planning/assessment-guide.md) - Detailed guidelines for assessing feature complexity tiers
   - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Definitions of each complexity tier and their criteria
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -116,20 +109,19 @@ Assess the complexity tier of unassessed features to determine appropriate docum
    cd doc/documentation-tiers
 
    # Run the automated update script (AssessmentId and FeatureId are required)
-   .\Update-FeatureTrackingFromAssessment.ps1 -FeatureId "X.X.X" -AssessmentId "ART-ASS-XXX"
+   .\Update-FeatureTrackingFromAssessment.ps1 -FeatureId "X.X.X" -AssessmentId "PD-ASS-XXX"
    ```
 
    **⚠️ CRITICAL**: This script automatically updates the feature tracking document with:
 
    - Status change from "⬜ Needs Assessment" to next status:
      - Tier 2+: `📋 Needs FDD`
-     - Tier 1 with DB Design = Yes: `🗄️ Needs DB Design`
-     - Tier 1 with API Design = Yes (no DB): `🔌 Needs API Design`
-     - Tier 1 with neither: `📝 Needs TDD`
+     - Tier 1 with DB design required (per Design Requirements Evaluation): `🗄️ Needs DB Design`
+     - Tier 1 with API design required (no DB) (per Design Requirements Evaluation): `🔌 Needs API Design`
+     - Tier 1 with neither: `🔧 Needs Impl Plan` (Tier 1 skips FDD/TDD/Test Spec)
+     - **Retrospective onboarding** (PF-TSK-064 Step 10): Override Tier 1 with `-Status "🔎 Needs Test Scoping"` since code already exists
    - Documentation tier emoji (🔵/🟠/🔴) and assessment link
-   - UI Design column with "Yes" or "No" based on the assessment
-   - API Design column with "Yes" or "No" based on the assessment
-   - DB Design column with "Yes" or "No" based on the assessment
+   - **Design requirement flags (UI / API / DB)** are recorded in the assessment document's Design Requirements Evaluation section — the single source of truth. They drive the next-action Status transition above and are consumed by the design-creator wrappers (New-FDD / New-SchemaDesign / New-APISpecification) via the shared `Get-FeatureDesignRequirements` / `Get-NextStatusAfterDesignArtifact` helpers (`AssessmentParsing.psm1`) when computing their post-creation next-status. The flags are **not** written to dedicated master columns or to the per-feature state file — per PF-PRO-002 / PF-IMP-760, feature-tracking.md is a lightweight cross-feature index, and per PF-IMP-766 the design-required state stays in the assessment file rather than being duplicated to §4 or §5 of the state file.
 
    **Manual verification**: After running the script, verify the feature tracking document was updated correctly
 
@@ -141,7 +133,7 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 
 - **Assessment Document** - New document in the `../../../doc/documentation-tiers/assessments` directory with tier assignment, design requirements evaluation, and rationale
 - **Feature Implementation State File** - Created at `/doc/state-tracking/features/` using lightweight template (Tier 1) or full template (Tier 2/3). This permanent living document is enriched by downstream tasks
-- **Updated Feature Tracking** - Feature entry in the tracking document updated with assessment results, including API Design and DB Design requirements
+- **Updated Feature Tracking** - Feature entry's Status / Doc Tier / Notes columns updated. Design-requirement flags (UI / API / DB) are recorded in the assessment document, not in master columns (PF-PRO-002 / PF-IMP-760).
 
 ## State Tracking
 
@@ -155,13 +147,11 @@ Assess the complexity tier of unassessed features to determine appropriate docum
 ### Existing State Files Updated
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with:
-  - Status change from "⬜ Needs Assessment" to "📋 Needs FDD" (Tier 2+) or next design status (Tier 1: `🗄️`/`🔌`/`📝` based on DB/API columns)
+  - Status change from "⬜ Needs Assessment" to "📋 Needs FDD" (Tier 2+) or next design status (Tier 1: `🗄️`/`🔌`/`🔧 Needs Impl Plan` based on assessment-time DB/API design-required flags; retrospective onboarding overrides to `🔎 Needs Test Scoping`)
   - Documentation tier emoji (🔵/🟠/🔴)
-  - UI Design column with "Yes" or "No"
-  - API Design column with "Yes" or "No"
-  - DB Design column with "Yes" or "No"
   - Link to the assessment document
   - Link to the Feature Implementation State file (auto-created by script)
+  - **Design-requirement flags (UI / API / DB) are NOT written to master columns** — they live in the assessment document's Design Requirements Evaluation section and drive the Status transition above (PF-PRO-002 / PF-IMP-760).
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -184,11 +174,9 @@ Before considering this task finished:
   - [ ] For retrospective onboarding: `implementation_mode: Retrospective Analysis` set in metadata
   - [ ] State file linked in Feature Tracking (auto-created by script)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] Feature Tracking document status updated from "⬜ Needs Assessment" to "📋 Needs FDD" (Tier 2+) or next design status (Tier 1: `🗄️`/`🔌`/`📝` based on DB/API columns)
+  - [ ] Feature Tracking document Status updated from "⬜ Needs Assessment" to "📋 Needs FDD" (Tier 2+) or next design status (Tier 1: `🗄️`/`🔌`/`🔧 Needs Impl Plan` based on assessment-time DB/API design-required flags; retrospective onboarding overrides to `🔎 Needs Test Scoping`)
   - [ ] Feature Tracking document updated with correct tier emoji and assessment link
-  - [ ] Feature Tracking document UI Design column updated with "Yes" or "No" based on assessment
-  - [ ] Feature Tracking document API Design column updated with "Yes" or "No" based on assessment
-  - [ ] Feature Tracking document DB Design column updated with "Yes" or "No" based on assessment
+  - [ ] Design-requirement flags (UI / API / DB) recorded in the assessment document's Design Requirements Evaluation section (NOT in master feature-tracking.md columns — PF-PRO-002 / PF-IMP-760)
   - [ ] For existing assessments: Added Design Requirements Evaluation section if it was missing
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-002" and context "Feature Tier Assessment"
 
@@ -211,6 +199,6 @@ For detailed criteria on evaluating UI Design, API Design, and Database Design r
 ## Related Resources
 
 - [Documentation Tier Assignments README](../../../doc/documentation-tiers/README.md) - Comprehensive overview of the tier system
-- [Normalized Scoring System](/doc/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
+- [Normalized Scoring System](../../../doc/documentation-tiers/README.md#normalized-scoring-system) - Details on how the scoring system works
 
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

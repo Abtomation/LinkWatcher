@@ -5,6 +5,7 @@ category: Guide
 version: 1.0
 created: 2025-07-08
 updated: 2025-07-08
+description: "Standardized approach for creating documents from templates through PowerShell scripts"
 ---
 
 # Document Creation Script Development Guide
@@ -270,7 +271,7 @@ catch {
 }
 ```
 
-> **Real-world examples**: See [New-Template.ps1](/process-framework/scripts/file-creation/support/New-Template.ps1) (metadata-heavy), [New-TempTaskState.ps1](/process-framework/scripts/file-creation/support/New-TempTaskState.ps1) (variant selection), or [New-E2EAcceptanceTestCase.ps1](/process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) (complex with state updates).
+> **Real-world examples**: See [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) (metadata-heavy), [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) (variant selection), or [New-E2EAcceptanceTestCase.ps1](../../scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) (complex with state updates).
 
 ## ID Registry Integration
 
@@ -657,7 +658,7 @@ $config = Get-Content $configPath -Raw | ConvertFrom-Json
 $language = $config.testing.language
 
 # --- Load language config ---
-$langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$language-config.json"
+$langConfigPath = Join-Path (Get-ProcessFrameworkPath) "languages-config/$language-config.json"
 if (-not (Test-Path $langConfigPath)) {
     Write-Error "Language config not found: $langConfigPath"
     exit 1
@@ -690,7 +691,7 @@ $command = Expand-Placeholders $langConfig.testing.baseCommand
 
 #### Adding New Fields to Language Config
 
-If your new script needs a language-specific command that isn't in the language config yet, use [Update-LanguageConfig.ps1](/process-framework/scripts/update/Update-LanguageConfig.ps1) to add the field consistently across all configs and the template:
+If your new script needs a language-specific command that isn't in the language config yet, use [Update-LanguageConfig.ps1](../../scripts/update/Update-LanguageConfig.ps1) to add the field consistently across all configs and the template:
 
 ```powershell
 # Add to all language configs + template in one command
@@ -709,11 +710,11 @@ This is done via the **Process Improvement task** (PF-TSK-009) or **Framework Ex
 
 When onboarding a project that uses a language without an existing config:
 
-1. Copy the [language config template](/process-framework/templates/support/language-config-template.json) to `process-framework/languages-config/{language}/{language}-config.json`
+1. Copy the [language config template](../../templates/support/language-config-template.json) to `process-framework/languages-config/{language}/{language}-config.json`
 2. Fill in language-specific values
 3. This is done during **Project Initiation** (PF-TSK-059)
 
-**Reference implementation**: See [Run-Tests.ps1](/process-framework/scripts/test/Run-Tests.ps1) for a complete example of language config usage.
+**Reference implementation**: See [Run-Tests.ps1](../../scripts/test/Run-Tests.ps1) for a complete example of language config usage.
 
 ### Conditional Processing
 
@@ -733,5 +734,5 @@ if ($Priority -eq "High") {
 ## Related Resources
 
 - [Template Development Guide](template-development-guide.md)
-- [Template Base Template](/process-framework/templates/support/template-base-template.md)
-- [New-Template.ps1 Script](/process-framework/scripts/file-creation/support/New-Template.ps1)
+- [Template Base Template](../../templates/support/template-base-template.md)
+- [New-Template.ps1 Script](../../scripts/file-creation/support/New-Template.ps1)

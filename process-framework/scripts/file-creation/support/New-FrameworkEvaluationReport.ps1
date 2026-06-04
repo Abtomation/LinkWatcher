@@ -69,16 +69,27 @@ Invoke-StandardScriptInitialization
 Register-SoakScript
 
 try {
-    # Get project root for dynamic path resolution
-    $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/support/framework-evaluation-report-template.md"
+    # Phase 7 (2026-05-11): template path resolved via configurable paths.process_framework;
+    # output writes to appdev/process-framework-central/evaluation-reports/ regardless of cwd.
+    $processFrameworkDir = Get-ProcessFrameworkPath
+    $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-evaluation-report-template.md"
+
+    # Phase 7: project_id stamping in frontmatter
+    $projectId = $null
+    try {
+        $cfg = Get-ProjectConfig
+        if ($cfg.project_id) { $projectId = $cfg.project_id }
+    } catch {
+        Write-Verbose "New-FrameworkEvaluationReport: could not read doc/project-config.json; project_id will be null."
+    }
 
     # Generate date for filename
     $dateStamp = Get-Date -Format "yyyyMMdd"
 
-    # Create a slug from the scope for the filename
-    $cleanScope = $EvaluationScope.ToLower() -replace '[^a-z0-9\s]', '' -replace '\s+', '-'
-    $scopeSlug = $cleanScope.Substring(0, [Math]::Min(50, $cleanScope.Length))
+    # Create a slug from the scope for the filename via the canonical helper
+    # from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008), then cap at 50 chars.
+    $cleanScope = ConvertTo-FeatureSlug -Name $EvaluationScope -Convention 'kebab-case'
+    $scopeSlug = $cleanScope.Substring(0, [Math]::Min(50, $cleanScope.Length)).TrimEnd('-')
 
     # Prepare custom replacements
     $customReplacements = @{
@@ -88,7 +99,10 @@ try {
     # Prepare additional metadata fields
     $additionalMetadataFields = @{
         "evaluation_scope" = $EvaluationScope
+        "project_id"       = $(if ($projectId) { $projectId } else { "null" })
     }
+
+    $outputDir = Join-Path -Path (Get-CentralFrameworkPath) -ChildPath "evaluation-reports"
 
     # Create document using standardized process
     $documentId = New-StandardProjectDocument `
@@ -96,7 +110,7 @@ try {
         -IdPrefix "PF-EVR" `
         -IdDescription "Framework Evaluation: ${EvaluationScope}" `
         -DocumentName $EvaluationScope `
-        -DirectoryType "main" `
+        -OutputDirectory $outputDir `
         -Replacements $customReplacements `
         -AdditionalMetadataFields $additionalMetadataFields `
         -FileNamePattern "$dateStamp-framework-evaluation-$scopeSlug.md" `
@@ -123,8 +137,7 @@ try {
         }
 
         if ($excludeNumbers.Count -gt 0) {
-            # Find the created file
-            $outputDir = Join-Path $projectRoot "process-framework-local/evaluation-reports"
+            # Find the created file (Phase 7: central evaluation-reports)
             $createdFile = Get-ChildItem $outputDir -Filter "*$scopeSlug*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
             if ($createdFile) {

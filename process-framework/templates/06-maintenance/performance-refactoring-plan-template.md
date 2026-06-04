@@ -16,6 +16,11 @@ mode: performance
 refactoring_scope: [Refactoring Scope]
 target_area: [Target Area]
 priority: [Priority Level]
+variant_group: refactoring-plan-templates
+variant_siblings:
+  - refactoring-plan-template.md
+  - lightweight-refactoring-plan-template.md
+  - documentation-refactoring-plan-template.md
 ---
 
 # Performance Refactoring Plan: [Refactoring Scope]
@@ -187,4 +192,4 @@ priority: [Priority Level]
 - Item 2: [Description and priority]
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)

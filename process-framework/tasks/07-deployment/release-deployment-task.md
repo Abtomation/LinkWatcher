@@ -2,9 +2,10 @@
 id: PF-TSK-008
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2024-07-15
-updated: 2026-03-22
+updated: 2026-05-16
+description: "Manage releases and deployments"
 ---
 
 # Release & Deployment
@@ -20,22 +21,14 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 **Focus Areas**: Deployment safety, automation, monitoring, rollback planning
 **Communication Style**: Focus on rollback plans and deployment verification, ask about risk mitigation and monitoring requirements
 
-## When to Use
-
-- When preparing a new release version
-- When deploying to staging or production environments
-- When hotfixes need to be deployed urgently
-- When a milestone of features is ready for release
-- When release notes need to be generated
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/07-deployment/release-deployment-map.md)
 
 - **Critical (Must Read):**
 
-  - [Release Process Guide](/doc/ci-cd/release-process.md) - Release process documentation
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Release Process Guide](../../../doc/ci-cd/release-process.md) - Release process documentation
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 

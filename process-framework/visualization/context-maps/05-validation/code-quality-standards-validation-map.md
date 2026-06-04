@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-08-15
 updated: 2025-08-15
 related_task: PF-TSK-032
+description: "Components for validating code quality standards and SOLID principles"
 ---
 
 # Code Quality Standards Validation Context Map

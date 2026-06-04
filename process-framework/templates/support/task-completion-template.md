@@ -7,6 +7,7 @@ created: 2025-07-04
 updated: 2026-04-02
 automation: manual
 automation_rationale: Reference snippet embedded into task definitions via New-Task.ps1 — not a standalone document
+description: "Template for task completion checklists"
 ---
 
 # Task Completion Template
@@ -27,7 +28,7 @@ Before considering this task finished:
 
    **Script automatically**:
    - Names file using format: `YYYYMMDD-HHMMSS-document-id-feedback.md`
-   - Places file in `/process-framework-local/feedback/feedback-forms`
+   - Places file in `appdev/process-framework-central/feedback/feedback-forms/`
    - Assigns unique artifact IDs (`PF-FEE-XXX`) in metadata
 
    For more details, see the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md).

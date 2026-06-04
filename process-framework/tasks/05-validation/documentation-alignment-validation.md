@@ -2,9 +2,10 @@
 id: PF-TSK-034
 type: Process Framework
 category: Task Definition
-version: 1.5
+version: 1.6
 created: 2025-08-16
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy"
 ---
 
 # Documentation Alignment Validation
@@ -19,14 +20,6 @@ Systematically validates selected features for documentation alignment, ensuring
 **Mindset**: Detail-oriented, accuracy-focused, consistency-driven
 **Focus Areas**: Documentation accuracy, TDD-code alignment, ADR compliance, API documentation completeness
 **Communication Style**: Identify documentation gaps and inconsistencies, recommend specific documentation updates, ask about documentation standards when multiple approaches exist
-
-## When to Use
-
-- When validating selected features for documentation alignment as part of the validation framework
-- Before major releases to ensure documentation accuracy and completeness
-- When investigating discrepancies between documentation and implementation
-- As part of regular documentation quality assessments
-- When onboarding new team members who rely on accurate documentation
 
 ## Context Requirements
 
@@ -43,11 +36,11 @@ Systematically validates selected features for documentation alignment, ensuring
 - **Important (Load If Space):**
 
   - **Architecture Decision Records** - [ADR Directory](../../../doc/technical/adr) - Architectural decisions to validate compliance
-  - **API Documentation** - [API Documentation](/doc/technical/api) - API specifications to validate against implementation
+  - **API Documentation** - [API Documentation](../../../doc/technical/api) - API specifications to validate against implementation
   - **Codebase Structure** - Source code directory - Source code for selected features to analyze
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
   <!-- Component Relationship Index - Removed: file deleted -->
-  - **Feature Implementation State Files** - [Feature State Directory](/doc/state-tracking/features/) - Implementation state files with feature status, TDD/FDD links, and validation context
+  - **Feature Implementation State Files** - [Feature State Directory](../../../doc/state-tracking/features) - Implementation state files with feature status, TDD/FDD links, and validation context
 
 - **Reference Only (Access When Needed):**
   - **Documentation Standards** - [Documentation Guide](../../guides/05-validation/documentation-guide.md) - Standards for documentation quality and consistency
@@ -120,7 +113,7 @@ Systematically validates selected features for documentation alignment, ensuring
 15. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 16. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 17. **Plan Remediation**: For scores below threshold, create action items for documentation improvements
-18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "DA" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

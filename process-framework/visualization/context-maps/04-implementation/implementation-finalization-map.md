@@ -7,6 +7,7 @@ created: 2026-04-03
 updated: 2026-04-03
 workflow_phase: 04-implementation
 related_task: PF-TSK-055
+description: "Components for completing remaining items and preparing feature for production"
 ---
 
 # Implementation Finalization Context Map
@@ -89,8 +90,8 @@ Release & Deployment (PF-TSK-016)
 
 ## Related Documentation
 
-- [Task Definition](/process-framework/tasks/04-implementation/implementation-finalization.md) - Full process steps and checklist
-- [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) - Completion criteria
-- [Release Deployment Task](/process-framework/tasks/07-deployment/release-deployment-task.md) - Next task in workflow
+- [Task Definition](../../../tasks/04-implementation/implementation-finalization.md) - Full process steps and checklist
+- [Definition of Done](../../../guides/04-implementation/definition-of-done.md) - Completion criteria
+- [Release Deployment Task](../../../tasks/07-deployment/release-deployment-task.md) - Next task in workflow
 
 ---

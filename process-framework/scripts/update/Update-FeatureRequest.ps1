@@ -101,7 +101,13 @@ param(
     [string]$EnhancementStateFile = "",
 
     [Parameter(Mandatory = $false)]
-    [string]$UpdatedBy = "AI Agent (PF-TSK-067)"
+    [string]$UpdatedBy = "AI Agent (PF-TSK-067)",
+
+    [Parameter(Mandatory = $false)]
+    [string]$TrackingFile = "",
+
+    [Parameter(Mandatory = $false)]
+    [string]$FeatureTrackingFile = ""
 )
 
 # Import the common helpers
@@ -121,9 +127,17 @@ Register-SoakScript
 $soakInSoak = Test-ScriptInSoak
 
 # Configuration
-$ProjectRoot = Get-ProjectRoot
-$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-request-tracking.md"
-$FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
+# project_id-aware path routing via Resolve-DocPath (PF-IMP-871 Session 3, 2026-05-14):
+# fixes latent bug where these paths hardcoded `doc/...` and would break in appdev (PRJ-000),
+# where doc template material lives at blueprint/doc/...
+# Caller-supplied -TrackingFile / -FeatureTrackingFile override the resolved defaults
+# (sandbox test entry point).
+if (-not $TrackingFile) {
+    $TrackingFile = Resolve-DocPath -Subpath "state-tracking/permanent/feature-request-tracking.md"
+}
+if (-not $FeatureTrackingFile) {
+    $FeatureTrackingFile = Resolve-DocPath -Subpath "state-tracking/permanent/feature-tracking.md"
+}
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
 function Write-Log {
@@ -345,14 +359,6 @@ function Add-UpdateHistoryEntry {
     return ($lines -join "`r`n")
 }
 
-function Update-FrontmatterDate {
-    param([string]$Content)
-
-    $result = $Content -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
-    Write-Log "Updated frontmatter date to $CurrentDate" -Level "SUCCESS"
-    return $result
-}
-
 function Update-FeatureTrackingForEnhancement {
     param(
         [string]$FeatureId,
@@ -385,6 +391,10 @@ function Update-FeatureTrackingForEnhancement {
     if ($ftContent) {
         # Update frontmatter date
         $ftContent = $ftContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
+
+        # PF-IMP-801: recompute Progress Summary — Status flip from any value to 🔄 Needs
+        # Enhancement shifts the Implementation Status Overview breakdown.
+        $ftContent = Update-FeatureTrackingSummary -Content $ftContent
 
         Set-Content -Path $FeatureTrackingFile -Value $ftContent -NoNewline
         Write-Log "Updated feature $FeatureId to 'Needs Enhancement' in feature-tracking.md" -Level "SUCCESS"
@@ -494,7 +504,7 @@ function Main {
     # Step 8: For new features, create feature implementation state file
     $stateFileCreated = $false
     if ($isCompletion -and $Classification -eq "NewFeature" -and $FeatureName) {
-        $stateScript = Join-Path -Path $ProjectRoot -ChildPath "process-framework/scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1"
+        $stateScript = Join-Path -Path (Get-ProcessFrameworkPath) -ChildPath "scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1"
         if (Test-Path $stateScript) {
             Write-Log "Creating feature implementation state file for $FeatureId ($FeatureName)..."
             try {

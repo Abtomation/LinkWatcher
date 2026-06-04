@@ -41,7 +41,7 @@ Two related changes to harden the PYTHON_IMPORT replacement path against duplica
 **Changes Made**:
 - [x] Replaced unbounded `line.replace` in `_replace_at_position` (PYTHON_IMPORT branch, [updater.py:472-483](src/linkwatcher/updater.py#L472-L483)) with bounded regex `(?<![.\w]) + re.escape(ref.link_text) + (?!\w)`, mirroring Phase 2's PD-BUG-094 pattern.
 - [x] Reordered the PYTHON_IMPORT filter in [reference_lookup.py:336-348](src/linkwatcher/reference_lookup.py#L336-L348) to execute before the `module_references = link_db.get_references_to_file(...)` lookup. Pure stylistic reorder; behavior unchanged.
-- [x] Added `TestPythonImportIdempotency` to [test/automated/unit/test_updater.py](test/automated/unit/test_updater.py) with 3 tests: `test_first_application_updates_import` (sanity), `test_second_application_is_no_op` (idempotency property), `test_dot_preceded_module_not_replaced` (negative-lookbehind property).
+- [x] Added `TestPythonImportIdempotency` to [test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py](test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) with 3 tests: `test_first_application_updates_import` (sanity), `test_second_application_is_no_op` (idempotency property), `test_dot_preceded_module_not_replaced` (negative-lookbehind property).
 
 **Test Baseline** (captured 2026-04-29 via `python -m pytest test/automated/ -m "not slow" --tb=no -q`):
 - 830 passed, 1 failed (pre-existing), 3 skipped, 4 deselected, 4 xfailed

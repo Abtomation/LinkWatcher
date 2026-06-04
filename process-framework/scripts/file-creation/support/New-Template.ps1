@@ -24,7 +24,7 @@
     The category of documents that will be created from this template (e.g., "Task", "Guide", "Reference")
 
 .PARAMETER OutputDirectory
-    The subdirectory under process-framework/templates/ where the template should be saved (e.g., "03-testing", "support"). Short names are auto-prefixed with process-framework/templates/. Defaults to process-framework/templates/.
+    The subdirectory under process-framework/templates/ where the template should be saved. Required. Must be one of the 10 known template subdirs: 00-setup, 01-planning, 02-design, 03-testing, 04-implementation, 05-validation, 06-maintenance, 07-deployment, cyclical, support.
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
@@ -64,8 +64,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$DocumentCategory,
 
-    [Parameter(Mandatory = $false)]
-    [string]$OutputDirectory = "process-framework/templates",
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('00-setup','01-planning','02-design','03-testing','04-implementation','05-validation','06-maintenance','07-deployment','cyclical','support')]
+    [string]$OutputDirectory,
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -129,18 +130,17 @@ $customReplacements = @{
     "**Last Updated:** 2025-07-15"                                                                                                                                       = "**Last Updated:** $currentDate"
 }
 
-# IMP-439: Normalize OutputDirectory to be relative to process-framework/templates/
-$templateBase = "process-framework/templates"
-if ($OutputDirectory -and -not $OutputDirectory.StartsWith($templateBase)) {
-    $OutputDirectory = "$templateBase/$OutputDirectory"
-}
+# Separate var: reassigning $OutputDirectory would re-trigger ValidateSet against the long path (PF-IMP-789).
+$templateBase = Join-Path (Get-ProcessFrameworkPath) "templates"
+$resolvedOutputDirectory = Join-Path $templateBase $OutputDirectory
 
 # Create the template using standardized process
 try {
-    # IMP-407: Auto-append "-template" suffix with double-suffix guard
-    $templateDocName = $TemplateName.ToLower().Replace(' ', '-')
+    # IMP-407: Auto-append "-template" suffix with double-suffix guard.
+    # Slug via the canonical helper from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
+    $templateDocName = ConvertTo-FeatureSlug -Name $TemplateName -Convention 'kebab-case'
     if ($templateDocName -notmatch '-template$') { $templateDocName = "$templateDocName-template" }
-    $templateId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/template-base-template.md" -IdPrefix "PF-TEM" -IdDescription "$TemplateName template" -DocumentName $templateDocName -OutputDirectory $OutputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $templateId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/support/template-base-template.md") -IdPrefix "PF-TEM" -IdDescription "$TemplateName template" -DocumentName $templateDocName -OutputDirectory $resolvedOutputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -149,7 +149,7 @@ try {
         "Document Prefix: $DocumentPrefix",
         "Document Category: $DocumentCategory",
         "",
-        "Template saved to: $OutputDirectory\$templateDocName.md"
+        "Template saved to: $resolvedOutputDirectory\$templateDocName.md"
     )
 
     # Add next steps if not opening in editor
@@ -157,35 +157,8 @@ try {
         $details += "Customization required — see process-framework/guides/support/template-development-guide.md"
     }
 
-    # Auto-append entry to PF-documentation-map.md under the correct Templates section
-    if ($templateId -or $WhatIfPreference) {
-        $projectRoot = Get-ProjectRoot
-        $docMapPath = Join-Path -Path $projectRoot -ChildPath "process-framework/PF-documentation-map.md"
-
-        # Extract subdirectory from OutputDirectory (last path segment)
-        $subDir = Split-Path -Leaf $OutputDirectory
-
-        # Derive section header from subdirectory
-        if ($subDir -match '^(\d{2})-(.+)$') {
-            $num = $Matches[1]
-            $name = (Get-Culture).TextInfo.ToTitleCase($Matches[2])
-            $sectionHeader = "#### $num - $name Templates"
-        }
-        else {
-            $name = (Get-Culture).TextInfo.ToTitleCase($subDir)
-            $sectionHeader = "#### $name Templates"
-        }
-
-        # IMP-407: Reuse guarded name from above
-        $fileName = "$templateDocName.md"
-        $relativePath = "templates/$subDir/$fileName"
-        $entryLine = "- [Template: $TemplateName]($relativePath) - $TemplateDescription"
-
-        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-        if ($updated) {
-            $details += "Documentation Map: Updated (section: $sectionHeader)"
-        }
-    }
+    # PF-documentation-map.md is generated from each artifact's `description:` frontmatter
+    # by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
 
     Write-ProjectSuccess -Message "Created template with ID: $templateId" -Details $details
 }

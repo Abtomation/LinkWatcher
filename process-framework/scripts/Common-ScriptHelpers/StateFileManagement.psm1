@@ -58,7 +58,9 @@ $SubModules = @(
     "FileOperations.psm1",
     "FeatureTracking.psm1",
     "DocumentTracking.psm1",
-    "TestTracking.psm1"
+    "TestTracking.psm1",
+    "StateFileInventory.psm1",
+    "DesignArtifactCreation.psm1"
 )
 
 Write-Verbose "Loading StateFileManagement v4.0 (Refactored Modular Architecture)"

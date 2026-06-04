@@ -12,21 +12,29 @@
     This PowerShell script generates E2E acceptance test case directory structures by:
     - Generating a unique test case ID (E2E-NNN) from the central ID registry
     - Creating the directory E2E-NNN-[name]/ with project/ and expected/ subdirectories
+      under <workflow>/templates/ (per-workflow layout, PF-IMP-871 Phase 3c2)
     - Copying and customizing test-case.md from the E2E acceptance test case template
     - Optionally creating a run.ps1 skeleton for scripted (automatable) test cases
-    - Adding the test case to the group's master test "If Failed" table
+    - Adding the test case to the workflow's master test "If Failed" table
     - Adding a new entry to e2e-test-tracking.md
     - Updating feature-tracking.md Test Status via Update-FeatureTrackingStatus
+
+    Per-workflow layout (PF-IMP-871 Phase 3c2): test cases live at
+    test/e2e-acceptance-testing/<workflow-slug>/templates/<E2E-NNN>-<name>/.
+    The workflow's templates/ subdir is scaffolded by Phase 3c1's New-WorkflowEntry.ps1 →
+    New-TestInfrastructure.ps1 -Update chain before any test case is created against it.
 
 .PARAMETER TestCaseName
     Short descriptive name for the test case (used in directory name, e.g., "single-file-rename")
 
-.PARAMETER GroupName
-    Name of the test group this case belongs to (e.g., "basic-file-operations").
-    Must match an existing group directory under test/e2e-acceptance-testing/templates/.
+.PARAMETER Workflow
+    The workflow this test case belongs to. Required. Either a WF-NNN ID matched against
+    user-workflow-tracking.md, or the workflow slug used as the directory name under
+    test/e2e-acceptance-testing/ (the slug variant maps to the same workflow). The workflow's
+    templates/ subdir must already exist (scaffolded by New-WorkflowEntry.ps1).
 
-.PARAMETER FeatureId
-    The feature ID this test case validates (e.g., "1.1.1")
+.PARAMETER FeatureIds
+    Comma-separated list of feature IDs this test case validates (e.g., "1.1.1, 1.2.3")
 
 .PARAMETER FeatureName
     Human-readable feature name (e.g., "File System Monitoring")
@@ -40,9 +48,12 @@
 .PARAMETER Description
     Brief description of what the test case validates
 
-.PARAMETER NewGroup
-    Switch to create a new test group directory and master test file.
-    When set, creates the group directory and a master test from template.
+.PARAMETER NewMaster
+    Switch to create the workflow's master test file. Use when adding the first test case
+    to a workflow that doesn't yet have a master test. Assigns a TE-E2G ID to the master
+    and adds a master row to e2e-test-tracking.md. The workflow's templates/ dir itself is
+    assumed to already exist (scaffolded by Phase 3c1's New-WorkflowEntry.ps1 chain) — this
+    switch creates only the master test file inside it.
 
 .PARAMETER Scripted
     Switch to create a scripted (automatable) test case.
@@ -55,27 +66,31 @@
     If specified, opens the created test-case.md in the default editor
 
 .EXAMPLE
-    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
 
 .EXAMPLE
-    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -NewGroup -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -NewMaster -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
 
 .EXAMPLE
-    New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme-to-archive" -GroupName "basic-file-operations" -FeatureId "1.1.1" -FeatureName "File System Monitoring" -Scripted -Source "Test Spec PF-TSP-038" -Description "Move readme.md and verify link updates"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme-to-archive" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -Scripted -Source "Test Spec PF-TSP-038" -Description "Move readme.md and verify link updates"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new E2E ID assignments
-    - Creates the test group directory if -NewGroup is specified
+    - The workflow's templates/ dir must already exist (scaffolded by New-WorkflowEntry.ps1);
+      use -NewMaster to additionally create the master test file
     - Updates master test, e2e-test-tracking.md, and feature-tracking.md automatically
     - The test-case.md, project/, and expected/ contents must be customized after creation
     - When -Scripted is used, run.ps1 skeleton is also created and must be customized
     - Scripted test cases can be executed via Run-E2EAcceptanceTest.ps1 (Setup → run.ps1 → wait → Verify)
 
     Created: 2026-03-15
-    Updated: 2026-03-18
-    Version: 1.1
-    Task: E2E Acceptance Test Case Creation (PF-TSK-069)
+    Updated: 2026-05-14 (PF-IMP-871 Phase 3c2 — per-workflow layout: `-GroupName` parameter removed,
+                        `-Workflow` is now required; `-NewGroup` renamed to `-NewMaster` (creates the
+                        workflow's master test, since the templates/ dir is pre-scaffolded by Phase 3c1);
+                        test cases live at `<workflow>/templates/<case>/` (Group layer collapsed))
+    Version: 1.2
+    Task: E2E Acceptance Test Case Creation (PF-TSK-069), PF-IMP-871
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -84,16 +99,13 @@ param(
     [string]$TestCaseName,
 
     [Parameter(Mandatory=$true)]
-    [string]$GroupName,
+    [string]$Workflow,
 
     [Parameter(Mandatory=$true)]
     [string]$FeatureIds,
 
     [Parameter(Mandatory=$true)]
     [string]$FeatureName,
-
-    [Parameter(Mandatory=$false)]
-    [string]$Workflow = "",
 
     [Parameter(Mandatory=$false)]
     [ValidateSet("P0", "P1", "P2", "P3")]
@@ -106,7 +118,7 @@ param(
     [string]$Description = "",
 
     [Parameter(Mandatory=$false)]
-    [switch]$NewGroup,
+    [switch]$NewMaster,
 
     [Parameter(Mandatory=$false)]
     [switch]$Scripted,
@@ -157,27 +169,26 @@ try {
 
     Write-Verbose "Assigned test case ID: $e2eId"
 
-    # --- 2. Resolve paths ---
-    $e2eTestingRoot = Join-Path $projectRoot "test/e2e-acceptance-testing/templates"
-    $groupDir = Join-Path $e2eTestingRoot $GroupName
-    $testCaseDir = Join-Path $groupDir "$e2eId-$TestCaseName"
+    # --- 2. Resolve paths (per-workflow layout, PF-IMP-871 Phase 3c2) ---
+    $baseE2EDir = Join-Path $projectRoot "test/e2e-acceptance-testing"
+    $workflowDir = Join-Path $baseE2EDir $Workflow
+    $templatesDir = Join-Path $workflowDir "templates"
+    $testCaseDir = Join-Path $templatesDir "$e2eId-$TestCaseName"
     $projectDir = Join-Path $testCaseDir "project"
     $expectedDir = Join-Path $testCaseDir "expected"
     $testCaseFile = Join-Path $testCaseDir "test-case.md"
-    $masterTestFile = Join-Path $groupDir "master-test-$GroupName.md"
+    $masterTestFile = Join-Path $templatesDir "master-test-$Workflow.md"
 
-    # --- 3. Create group directory if -NewGroup ---
-    if ($NewGroup) {
-        if (Test-Path $groupDir) {
-            Write-Warning "Group directory already exists: $groupDir"
-        } else {
-            if ($PSCmdlet.ShouldProcess($groupDir, "Create group directory")) {
-                New-Item -ItemType Directory -Path $groupDir -Force | Out-Null
-                Write-Verbose "Created group directory: $groupDir"
-            }
-        }
+    # --- 3. Verify workflow's templates/ exists; create master test if -NewMaster ---
+    # The workflow's templates/ dir is scaffolded by Phase 3c1's New-WorkflowEntry.ps1 →
+    # New-TestInfrastructure.ps1 -Update chain. If it doesn't exist, the workflow hasn't
+    # been registered yet — surface this clearly.
+    if (-not $WhatIfPreference -and -not (Test-Path $templatesDir)) {
+        throw "Workflow templates dir does not exist: $templatesDir. Register the workflow first via New-WorkflowEntry.ps1 (which scaffolds the per-workflow e2e dirs)."
+    }
 
-        # Assign TE-E2G ID
+    if ($NewMaster) {
+        # Assign TE-E2G ID (the master test's ID — one master test per workflow under Layout A)
         $grpPrefix = $idRegistry.prefixes.'TE-E2G'
         $grpId = "TE-E2G-{0:D3}" -f $grpPrefix.nextAvailable
         $grpPrefix.nextAvailable = $grpPrefix.nextAvailable + 1
@@ -185,50 +196,49 @@ try {
             $idRegistry | ConvertTo-Json -Depth 10 | Set-Content $idRegistryPath -Encoding UTF8
         }
 
-        Write-Verbose "Assigned group ID: $grpId"
+        Write-Verbose "Assigned master test ID: $grpId"
 
-        # Create master test from template
-        $masterTemplatePath = Join-Path $projectRoot "process-framework/templates/03-testing/e2e-acceptance-master-test-template.md"
-        if (Test-Path $masterTemplatePath) {
-            $masterContent = Get-Content $masterTemplatePath -Raw -Encoding UTF8
-
-            # Extract template content (everything after the frontmatter and instruction comments)
-            # Find the line "<!-- TEMPLATE STARTS BELOW THIS LINE -->" and take everything after it
-            $templateMarker = "<!-- TEMPLATE STARTS BELOW THIS LINE -->"
-            $markerIndex = $masterContent.IndexOf($templateMarker)
-            if ($markerIndex -ge 0) {
-                $masterContent = $masterContent.Substring($markerIndex + $templateMarker.Length).TrimStart()
-            }
-
-            # Remove remaining instruction comments
-            $masterContent = $masterContent -replace '<!-- Copy everything below into.*?-->\s*', ''
-
-            # Apply replacements
-            $masterContent = $masterContent -replace '\[GROUP-NAME\]', $GroupName
-            $masterContent = $masterContent -replace '\[GROUP-ID\]', $grpId
-            $masterContent = $masterContent -replace '\[FEATURE-ID\]', $featureIdsDisplay
-            $masterContent = $masterContent -replace '\[FEATURE-NAME\]', $FeatureName
-            $masterContent = $masterContent -replace '\[NUMBER\]', "0"
-            $masterContent = $masterContent -replace '\[YYYY-MM-DD\]', $timestamp
-            $masterContent = $masterContent -replace '\[X minutes\]', "[ESTIMATED DURATION]"
-
-            if ($PSCmdlet.ShouldProcess($masterTestFile, "Create master test file")) {
-                Set-Content $masterTestFile $masterContent -Encoding UTF8
-                Write-Verbose "Created master test: $masterTestFile"
-            }
+        if (Test-Path $masterTestFile) {
+            Write-Warning "Master test already exists: $masterTestFile (skipping creation; -NewMaster is a no-op here)"
         } else {
-            Write-Warning "Master test template not found: $masterTemplatePath"
+            # Create master test from template
+            $masterTemplatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/e2e-acceptance-master-test-template.md"
+            if (Test-Path $masterTemplatePath) {
+                $masterContent = Get-Content $masterTemplatePath -Raw -Encoding UTF8
+
+                # Extract template content (everything after the frontmatter and instruction comments)
+                $templateMarker = "<!-- TEMPLATE STARTS BELOW THIS LINE -->"
+                $markerIndex = $masterContent.IndexOf($templateMarker)
+                if ($markerIndex -ge 0) {
+                    $masterContent = $masterContent.Substring($markerIndex + $templateMarker.Length).TrimStart()
+                }
+
+                # Remove remaining instruction comments
+                $masterContent = $masterContent -replace '<!-- Copy everything below into.*?-->\s*', ''
+
+                # Apply replacements — the workflow slug fills both [GROUP-NAME] and [WORKFLOW-NAME]
+                # template slots since master test = workflow master under the per-workflow layout
+                $masterContent = $masterContent -replace '\[GROUP-NAME\]', $Workflow
+                $masterContent = $masterContent -replace '\[GROUP-ID\]', $grpId
+                $masterContent = $masterContent -replace '\[FEATURE-ID\]', $featureIdsDisplay
+                $masterContent = $masterContent -replace '\[FEATURE-NAME\]', $FeatureName
+                $masterContent = $masterContent -replace '\[NUMBER\]', "0"
+                $masterContent = $masterContent -replace '\[YYYY-MM-DD\]', $timestamp
+                $masterContent = $masterContent -replace '\[X minutes\]', "[ESTIMATED DURATION]"
+
+                if ($PSCmdlet.ShouldProcess($masterTestFile, "Create master test file")) {
+                    Set-Content $masterTestFile $masterContent -Encoding UTF8
+                    Write-Verbose "Created master test: $masterTestFile"
+                }
+            } else {
+                Write-Warning "Master test template not found: $masterTemplatePath"
+            }
         }
     }
 
-    # Verify group directory exists (skip check in WhatIf mode since creation was simulated)
-    if (-not $WhatIfPreference -and -not (Test-Path $groupDir)) {
-        throw "Group directory does not exist: $groupDir. Use -NewGroup to create it."
-    }
-
-    # Resolve group ID for existing groups (read from master test YAML frontmatter)
+    # Resolve master test ID for tracking (newly assigned via -NewMaster, or read from existing master)
     $grpIdForRegistry = "—"
-    if ($NewGroup) {
+    if ($NewMaster) {
         $grpIdForRegistry = $grpId
     } elseif (Test-Path $masterTestFile) {
         $masterLines = Get-Content $masterTestFile -Encoding UTF8
@@ -265,7 +275,7 @@ try {
 #   pwsh.exe -ExecutionPolicy Bypass -File run.ps1 -WorkspacePath <path>
 #
 # Usage (orchestrated):
-#   Run-E2EAcceptanceTest.ps1 -TestCase "$e2eId" -Group "$GroupName"
+#   Run-E2EAcceptanceTest.ps1 -TestCase "$e2eId" -Workflow "$Workflow"
 
 param(
     [Parameter(Mandatory=`$true)]
@@ -282,7 +292,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     }
 
     # --- 5. Create test-case.md from template ---
-    $testCaseTemplatePath = Join-Path $projectRoot "process-framework/templates/03-testing/e2e-acceptance-test-case-template.md"
+    $testCaseTemplatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/e2e-acceptance-test-case-template.md"
     if (Test-Path $testCaseTemplatePath) {
         $testCaseContent = Get-Content $testCaseTemplatePath -Raw -Encoding UTF8
 
@@ -296,16 +306,17 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         # Remove copy instruction comment
         $testCaseContent = $testCaseContent -replace '<!-- Copy everything below into.*?-->\s*', ''
 
-        # Apply replacements
+        # Apply replacements — the workflow slug fills [GROUP-NAME] since the workflow is the
+        # grouping under Layout A (PF-IMP-871 Phase 3c2)
         $testCaseContent = $testCaseContent -replace '\[E2E-NNN\]', $e2eId
         $testCaseContent = $testCaseContent -replace '\[TE-E2E-NNN\]', $e2eId
         $testCaseContent = $testCaseContent -replace '\[TITLE\]', ($TestCaseName -replace '-', ' ')
-        $testCaseContent = $testCaseContent -replace '\[GROUP-NAME\]', $GroupName
+        $testCaseContent = $testCaseContent -replace '\[GROUP-NAME\]', $Workflow
         $testCaseContent = $testCaseContent -replace '\[GROUP-ID\]', $grpIdForRegistry
         $testCaseContent = $testCaseContent -replace '\[FEATURE-IDS-YAML\]', $featureIdsYaml
         $testCaseContent = $testCaseContent -replace '\[FEATURE-ID\]', $featureIdsDisplay
         $testCaseContent = $testCaseContent -replace '\[FEATURE-NAME\]', $FeatureName
-        $testCaseContent = $testCaseContent -replace '\[WF-NNN\]', $(if ($Workflow) { $Workflow } else { "[WF-NNN]" })
+        $testCaseContent = $testCaseContent -replace '\[WF-NNN\]', $Workflow
         $testCaseContent = $testCaseContent -replace '\[P0 / P1 / P2 / P3\]', $Priority
         $testCaseContent = $testCaseContent -replace '\[YYYY-MM-DD\]', $timestamp
         if ($Source) {
@@ -403,27 +414,27 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     }
 
     # --- 7. Update e2e-test-tracking.md ---
-    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
+    $testTrackingPath = Resolve-TrackingFilePath -File "e2e-test-tracking.md"
     if (Test-Path $testTrackingPath) {
         $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
-        # Build relative path from e2e-test-tracking.md to the test case
-        $testCaseRelativePath = "../../../../test/e2e-acceptance-testing/templates/$GroupName/$e2eId-$TestCaseName/test-case.md"
+        # Build relative path from e2e-test-tracking.md to the test case (per-workflow layout)
+        $testCaseRelativePath = "../../../../test/e2e-acceptance-testing/$Workflow/templates/$e2eId-$TestCaseName/test-case.md"
         $trackingNotes = if ($Description) { $Description } else { ($TestCaseName -replace '-', ' ') }
-        $workflowCol = if ($Workflow) { $Workflow } else { "—" }
+        $workflowCol = $Workflow
         $testCaseLink = "[$e2eId-$TestCaseName]($testCaseRelativePath)"
 
         # Build the new row for the dedicated E2E Test Cases table
         # Columns: Test ID | Workflow | Feature IDs | Test Type | Test File/Case | Status | Last Executed | Last Updated | Audit Status | Audit Report | Notes
         $newRow = "| $e2eId | $workflowCol | $featureIdsDisplay | E2E Case | $testCaseLink | 📋 Needs Execution | — | $timestamp | — | — | $trackingNotes |"
 
-        # Build TE-E2G group row if -NewGroup (inserted before the test case row)
+        # Build TE-E2G master row if -NewMaster (inserted before the test case row)
         $newGroupRow = $null
-        if ($NewGroup) {
-            $masterTestRelativePath = "../../../../test/e2e-acceptance-testing/templates/$GroupName/master-test-$GroupName.md"
-            $masterTestLink = "[master-test-$GroupName.md]($masterTestRelativePath)"
-            $groupNotes = ($GroupName -replace '-', ' ')
-            $newGroupRow = "| $grpIdForRegistry | $workflowCol | $featureIdsDisplay | E2E Group | $masterTestLink | 📋 Needs Execution | — | $timestamp | — | — | $groupNotes |"
+        if ($NewMaster) {
+            $masterTestRelativePath = "../../../../test/e2e-acceptance-testing/$Workflow/templates/master-test-$Workflow.md"
+            $masterTestLink = "[master-test-$Workflow.md]($masterTestRelativePath)"
+            $masterNotes = "$Workflow workflow master test"
+            $newGroupRow = "| $grpIdForRegistry | $workflowCol | $featureIdsDisplay | E2E Group | $masterTestLink | 📋 Needs Execution | — | $timestamp | — | — | $masterNotes |"
         }
 
         # Find the E2E Test Cases table and append the row(s) before the --- separator
@@ -471,8 +482,8 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
 
         $updatedContent = $updatedLines -join "`n"
 
-        # --- 7b. Update Workflow Milestone Tracking table (if -NewGroup and -Workflow) ---
-        if ($NewGroup -and $Workflow) {
+        # --- 7b. Update Workflow Milestone Tracking table (if -NewMaster — workflow is always set) ---
+        if ($NewMaster) {
             $milestoneLines = $updatedContent -split '\r?\n'
             $milestoneUpdated = @()
             $milestoneFound = $false
@@ -542,14 +553,14 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     # --- Success output ---
     $details = @(
         "Test Case ID: $e2eId",
-        "Directory: test/e2e-acceptance-testing/templates/$GroupName/$e2eId-$TestCaseName/",
+        "Directory: test/e2e-acceptance-testing/$Workflow/templates/$e2eId-$TestCaseName/",
         "Features: $featureIdsDisplay — $FeatureName",
-        "Workflow: $(if ($Workflow) { $Workflow } else { '(not specified)' })",
+        "Workflow: $Workflow",
         "Priority: $Priority"
     )
-    if ($NewGroup) {
-        $details += "Group ID: $grpId (new group created)"
-        $details += "Master Test: master-test-$GroupName.md"
+    if ($NewMaster) {
+        $details += "Master Test ID: $grpId (new master test created)"
+        $details += "Master Test: $Workflow/templates/master-test-$Workflow.md"
     }
     $details += @(
         "Execution Mode: $(if ($Scripted) { 'scripted' } else { 'manual' })",
@@ -567,15 +578,17 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         "State tracking updated:",
         "  - e2e-test-tracking.md: $e2eId entry added"
     )
-    if ($NewGroup) {
-        $details += "  - e2e-test-tracking.md: $grpIdForRegistry group entry added (E2E Test Cases table)"
-        if ($Workflow) {
+    if ($NewMaster) {
+        $details += "  - e2e-test-tracking.md: $grpIdForRegistry master entry added (E2E Test Cases table)"
+        if ($milestoneFound) {
             $details += "  - e2e-test-tracking.md: Workflow Milestone Tracking updated ($Workflow += $grpIdForRegistry)"
+        } else {
+            $details += "  - e2e-test-tracking.md: Workflow Milestone Tracking — no row for $Workflow (create via PF-TSK-086 to enable milestone tracking)"
         }
     }
     $details += @(
         "  - feature-tracking.md: Test Status updated for $featureIdsDisplay",
-        "  - master-test-$GroupName.md: If Failed table updated"
+        "  - master-test-$Workflow.md: If Failed table updated"
     )
 
     if (-not $OpenInEditor) {

@@ -5,6 +5,7 @@ category: Guide
 version: 1.0
 created: 2025-01-15
 updated: 2025-01-15
+description: "Standardized procedures for reporting bugs discovered during task execution"
 ---
 
 # Bug Reporting Guide
@@ -72,7 +73,7 @@ New-BugReport.ps1 `
 | **Environment**       | Where bug was found          | "Development" | "Testing", "Staging", "Production"        |
 | **Evidence**          | Links to proof/documentation | ""            | Screenshot URLs, log file paths           |
 | **RelatedFeature**    | Associated feature           | ""            | Feature name or ID                        |
-| **Workflows**         | Affected user workflows      | ""            | "WF-001, WF-003" (from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)) |
+| **Workflows**         | Affected user workflows      | ""            | "WF-001, WF-003" (from [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)) |
 
 ## Bug Reporting Standards
 
@@ -214,7 +215,7 @@ Pass `-Verbose` to also see the per-status next-steps guidance and tip lines.
 
 ```
 Solution: Ensure you're in the correct directory
-cd process-framework-local/state-tracking
+cd doc/state-tracking
 ```
 
 **Permission denied**
@@ -239,6 +240,10 @@ Solution: Use only: Critical, High, Medium, Low
 
 - [Bug Tracking State File](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry
 - [Bug Triage Task](../../tasks/06-maintenance/bug-triage-task.md) - Bug evaluation and prioritization
-- [Bug Fixing Task](../../tasks/06-maintenance/bug-fixing-task.md) - Bug resolution workflow
+- [Bug Fixing Task](../../tasks/06-maintenance/bug-fixing-task.md) - Bug resolution workflow (Step 21 places manual regression validation scripts in `test/bug-validation/`)
 - [Test Audit Task](../../tasks/03-testing/test-audit-task.md) - Testing workflow with bug discovery
 - [Code Review Task](../../tasks/06-maintenance/code-review-task.md) - Review workflow with bug discovery
+
+## Where Validation Scripts Live
+
+Manual regression validation scripts (one per `PD-BUG-*` resolved by [Bug Fixing](../../tasks/06-maintenance/bug-fixing-task.md)) live at `test/bug-validation/<PD-BUG-NNN>_<short-description>_validation.py` (top-level since PF-IMP-871 Phase 2b — formerly `test/automated/bug-validation/`). The directory is a framework-fixed bone provided by the blueprint with a `.gitkeep` marker; both `New-TestInfrastructure.ps1 -Scaffold` and `-Update` modes idempotently create/recover it. Validation scripts are intentionally outside `test/automated/` — they are human-run reproduction harnesses, not part of the automated test suite (and therefore not collected by `Run-Tests.ps1`).

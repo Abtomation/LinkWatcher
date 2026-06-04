@@ -2,9 +2,12 @@
 id: PF-TSK-087
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.5
 created: 2026-05-05
-updated: 2026-05-05
+updated: 2026-05-16
+status: deprecated
+deprecated_on: 2026-05-11
+replaced_by: PF-TSK-088
 ---
 
 # framework-blueprint-sync
@@ -12,6 +15,8 @@ updated: 2026-05-05
 ## Purpose & Context
 
 Propagate framework improvements made within real working projects back to the corresponding FrameworkBuilder blueprint, ensuring blueprints stay current with battle-tested evolutions.
+
+> **🗄️ DEPRECATED (2026-05-11)**: This task is superseded by the [Framework Rollout Task (PF-TSK-088)](framework-rollout-task.md) Push/Restore model. Deprecated as part of the Centralized Framework Management extension (Phase 10). The content below is retained for historical reference only — references to `process-framework-local/` describe pre-migration source-project layout and do not apply to registered projects post-migration. **Do not select this task for new work**; use Framework Rollout instead.
 
 **Operating model**: improvements are made at the project level (where they get exercised in real work), not directly in blueprints. This task is the deliberate pull-back step. Blueprints are intentionally one sync behind reality — that lag is the validation period.
 
@@ -25,19 +30,6 @@ Propagate framework improvements made within real working projects back to the c
 **Mindset**: Conservative — propagate only proven, framework-general evolutions; preserve project-specific content; treat the blueprint as a published interface that downstream projects will copy.
 **Focus Areas**: Diff detection, classifying changes as framework-general vs project-specific, schema preservation in registries and doc-maps, blueprint internal consistency.
 **Communication Style**: Surface every "is this project-specific or framework-general?" classification to the human partner. Default to asking when in doubt — wrong-direction syncs (project-specific content into blueprint) are harder to reverse than missed syncs.
-
-## When to Use
-
-**Triggers**:
-- After a session in any project that introduced framework-level structural changes (new directories, registry prefixes, template fields, doc-map sections)
-- After a Process Improvement (PF-TSK-009) or Tools Review (PF-TSK-010) that touched framework files
-- Periodically (e.g., monthly) to catch accumulated drift the user hasn't explicitly flagged
-- Before starting a new project from a blueprint, to verify the blueprint is current
-- When the **sync backlog** for the target variant has accumulated enough items to warrant a session
-
-**Prerequisites**:
-- The framework variant being synced exists under `FrameworkBuilder/` and is identifiable by name (e.g., `appdev`) or path
-- The source project has the framework files in a known location (typically project root subdirs)
 
 ## Key Concepts
 
@@ -101,7 +93,7 @@ Add new entries when a new cross-project artifact is identified (i.e., one that 
   - Sync log for the target variant: `FrameworkBuilder/{variant}/sync-log.md`
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - [Process Improvement Task](process-framework/tasks/support/process-improvement-task.md) - Often the upstream task that produced changes worth syncing
   - [Tools Review Task](process-framework/tasks/support/tools-review-task.md) - Same upstream relationship
 
@@ -195,7 +187,12 @@ Add new entries when a new cross-project artifact is identified (i.e., one that 
 11. **Validate blueprint internal consistency**:
     - All new ID-registry prefixes have a corresponding template OR are referenced by an existing script
     - All new doc-map entries point to files that exist in the blueprint
-    - No project-specific identifier leaked outside `process-framework/` (grep for project name in changed blueprint files; `process-framework/` is exempt since it's wholesale-replaced and assumed to be project-neutral by design — flag if grep finds anything there as a project hygiene issue)
+    - **Template-backed skeleton files match the empty template** — for every blueprint file that has a `Template source:` entry in the [Skeleton-File Section-Shape Comparison](../../guides/support/blueprint-sync-consideration-policy-guide.md#skeleton-file-section-shape-comparison) section (e.g., `test-tracking.md`, `e2e-test-tracking.md`, `performance-test-tracking.md`), verify the blueprint version equals the empty template after placeholder substitution (no project rows, no populated tables, no accumulated history). A "structurally equal" populated tracker passing the section-shape check is **not** sufficient — populated content carries project-specific entries and project-name leakage. Quick check: `diff` the blueprint file against the template, ignoring placeholder lines (`[DATE]`, `[PROJECT_NAME]`); any non-placeholder difference is a violation. This rule was added after LinkWatcher's populated trackers reached the appdev blueprint via "structurally equal" wholesale sync (PF-IMP-029, 2026-05-07).
+    - **No source-project identifier leaked into the blueprint** — run [`Validate-BlueprintPollution.ps1`](../../scripts/validation/Validate-BlueprintPollution.ps1) against the blueprint root, passing the source project's name:
+      ```bash
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Validate-BlueprintPollution.ps1 -ProjectName "<source-project>" -Path "<blueprint-root>"
+      ```
+      Findings outside `process-framework/` are direct leaks — resolve them in the blueprint before completing the sync. Findings *inside* `process-framework/` indicate the source project's `process-framework/` itself was polluted before the wholesale-replace; flag as a project hygiene issue (file an IMP against the source project) and resolve in the blueprint by hand.
     - **Protected artifacts unmodified**: every populated DB/binary file at blueprint root either appears in the [Known Protected Artifacts](#known-protected-artifacts-root-files) list (no action) or has explicit user confirmation as protected/leak before any DELETE or overwrite. **No autonomous DELETE on populated binary files at blueprint root.**
     - Scaffolders (if touched) still produce a self-consistent tree
 
@@ -255,7 +252,8 @@ The backlog + log are the canonical durable artifacts. The temp state is scaffol
   - [ ] `doc/`, `test/`, root files: per-item classified items applied
   - [ ] Scaffolder updates applied (if needed)
 - [ ] **Blueprint internal consistency validated**:
-  - [ ] No project-specific identifiers leaked outside `process-framework/`
+  - [ ] `Validate-BlueprintPollution.ps1 -ProjectName "<source>" -Path "<blueprint-root>"` returns 0 violations (or all findings triaged)
+  - [ ] Template-backed skeleton files match the empty template (per `Template source:` entries in [blueprint-sync-consideration-policy-guide.md](../../guides/support/blueprint-sync-consideration-policy-guide.md#skeleton-file-section-shape-comparison))
   - [ ] All new registry prefixes have a template or script reference
   - [ ] All new doc-map entries point to existing blueprint files
   - [ ] No autonomous DELETE on populated binary files at blueprint root; protected artifacts list checked

@@ -453,7 +453,7 @@ from .utils import normalize_path
 
 ### 5.4 Testing Reference
 
-> **📋 Primary Documentation**: `test/automated/unit/test_database.py`
+> **📋 Primary Documentation**: `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py`
 
 **Brief Summary**: Unit tests cover CRUD operations, thread safety (concurrent add/query operations), path lookups (anchors, relative paths), O(1) performance verification (10,000+ references), and statistics reporting.
 

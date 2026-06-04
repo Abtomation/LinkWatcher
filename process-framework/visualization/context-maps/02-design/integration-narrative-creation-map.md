@@ -7,6 +7,7 @@ created: 2026-04-08
 updated: 2026-04-08
 workflow_phase: 02-design
 related_task: PF-TSK-083
+description: "Components for creating Integration Narrative documents that explain how 2+ features collaborate in cross-cutting workflows"
 ---
 
 # Integration Narrative Creation Context Map

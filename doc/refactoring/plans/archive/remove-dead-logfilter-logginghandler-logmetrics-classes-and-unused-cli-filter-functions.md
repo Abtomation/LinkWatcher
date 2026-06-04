@@ -21,7 +21,7 @@ priority: Medium
 - **Mode**: Lightweight (no architectural impact)
 
 ## Dependencies and Impact
-- **Affected Components**: `src/linkwatcher/logging_config.py`, `test/automated/unit/test_advanced_logging.py`
+- **Affected Components**: `src/linkwatcher/logging_config.py`, `test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_advanced_logging.py`
 - **Internal Dependencies**: None — removed classes/functions are never called from production code
 - **Risk Assessment**: Low — dead code removal only, no behavior change
 

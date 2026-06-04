@@ -6,11 +6,18 @@ version: 1.0
 created: [CREATED-DATE]
 updated: [UPDATED-DATE]
 change_name: [CHANGE-NAME]
+variant_group: structure-change-state-templates
+variant_siblings:
+  - structure-change-state-template.md
+  - structure-change-state-content-update-template.md
+  - structure-change-state-from-proposal-template.md
+  - structure-change-state-rename-template.md
+description: "Lightweight template for framework extension structure changes (artifact tracking, no pilot/rollback/metrics)"
 ---
 
 # Structure Change State: [Change Name]
 
-> **TEMPORARY FILE**: This file tracks multi-session implementation of a framework extension structure change. Move to `process-framework-local/state-tracking/temporary/old` after all changes are implemented and validated.
+> **TEMPORARY FILE**: This file tracks multi-session implementation of a framework extension structure change. Move to `process-framework-central/state-tracking/temporary/old` after all changes are implemented and validated.
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]

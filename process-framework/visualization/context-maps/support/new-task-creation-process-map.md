@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-12
 updated: 2025-07-12
 related_task: PF-TSK-001
+description: "Components for creating new task definitions"
 ---
 
 # New Task Creation Process Context Map
@@ -86,6 +87,6 @@ graph TD
 - [AI Tasks System](../../../ai-tasks.md) - Main task registry and categorization
 - [New-Task.ps1](../../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
 - [Documentation Map](../../../PF-documentation-map.md) - Central documentation registry
-- [Process Improvement Tracking](../../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Infrastructure completion tracking
+- [Process Improvement Tracking](../../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - Central infrastructure completion tracking (Phase 7 central, post-2026-05-11)
 
 ---

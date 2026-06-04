@@ -109,8 +109,9 @@ if (-not $projectRoot) {
     Write-Error "Could not find project root (no doc/project-config.json found)"
     exit 1
 }
-$langConfigDir = Join-Path $projectRoot "process-framework/languages-config"
-$templatePath = Join-Path $projectRoot "process-framework/templates/support/language-config-template.json"
+$fwDir = Get-ProcessFrameworkPath
+$langConfigDir = Join-Path $fwDir "languages-config"
+$templatePath = Join-Path $fwDir "templates/support/language-config-template.json"
 
 # --- Validate paths ---
 if (-not (Test-Path $langConfigDir)) {

@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-04-03
 updated: 2026-04-03
-target_area: test/automated/unit/test_validator.py
+target_area: test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py
 mode: lightweight
 refactoring_scope: Cover 11 remaining uncovered lines in validator.py (96% to ~100%)
 priority: Medium
@@ -13,7 +13,7 @@ priority: Medium
 
 # Lightweight Refactoring Plan: Cover 11 remaining uncovered lines in validator.py (96% to ~100%)
 
-- **Target Area**: test/automated/unit/test_validator.py
+- **Target Area**: test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py
 - **Priority**: Medium
 - **Created**: 2026-04-03
 - **Author**: AI Agent & Human Partner

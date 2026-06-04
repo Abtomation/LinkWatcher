@@ -10,7 +10,9 @@ task_name: [TASK-NAME]
 
 # Session Temp State: framework-blueprint-sync — [Variant] — [YYYY-MM-DD]
 
-> **⚠️ TEMPORARY FILE**: One-session inventory + selection tracker for a sync from a source project to `FrameworkBuilder/{variant}/`. Move to `process-framework-local/state-tracking/temporary/old/` after session ends. The durable record lives in the variant's `sync-backlog.md` and `sync-log.md`.
+> **⚠️ PENDING DEPRECATION**: PF-TSK-087 framework-blueprint-sync is being deprecated as part of the Centralized Framework Management extension (Phase 10). The Push/Restore model in [Framework Rollout Task (PF-TSK-088)](../../tasks/support/framework-rollout-task.md) replaces it. References to `process-framework-local/` in the legacy scope rows below describe pre-migration source-project layout that no longer exists in registered projects.
+>
+> **⚠️ TEMPORARY FILE**: One-session inventory + selection tracker for a sync from a source project to `FrameworkBuilder/{variant}/`. Move to `process-framework-central/state-tracking/temporary/old/` after session ends. The durable record lives in the variant's `sync-backlog.md` and `sync-log.md`.
 
 ## Session Parameters
 
@@ -24,7 +26,7 @@ task_name: [TASK-NAME]
 
 ## Per-Item Classification & Selection (this session)
 
-> **Rule column** values follow the [Per-Directory Handling Rules](/process-framework/tasks/support/framework-blueprint-sync-task.md#per-directory-handling-rules):
+> **Rule column** values follow the [Per-Directory Handling Rules](../../tasks/support/framework-blueprint-sync-task.md#per-directory-handling-rules):
 > `wholesale-replace` (process-framework/), `structure-only` (process-framework-local/), `per-item` (doc/, test/, root files), `skip-default` (src/).
 >
 > **Classification column** values: `SYNC` / `SKIP` / `ASK USER` / `RETAIN IN BLUEPRINT` / `PROTECT` / `NO ACTION`.
@@ -64,7 +66,7 @@ task_name: [TASK-NAME]
 
 ## Completion Criteria
 
-This temporary state file can be moved to `process-framework-local/state-tracking/temporary/old/` when:
+This temporary state file can be moved to `process-framework-central/state-tracking/temporary/old/` when:
 
 - [ ] User confirmed item selection at PF-TSK-087 Step 9 checkpoint
 - [ ] Approved changes applied per directory rule (PF-TSK-087 Step 10)

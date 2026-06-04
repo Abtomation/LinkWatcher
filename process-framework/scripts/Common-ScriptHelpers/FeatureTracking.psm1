@@ -169,7 +169,7 @@ function Update-FeatureTrackingStatusWithAppend {
     If specified, shows what would be updated without making changes
 
     .EXAMPLE
-    $appendUpdates = @{ "API Design" = "[New Design](link)" }
+    $appendUpdates = @{ "Notes" = "Additional context" }
     Update-FeatureTrackingStatusWithAppend -FeatureId "1.2.3" -Status "🟢 Complete" -AppendUpdates $appendUpdates -Notes "Added new design"
     #>
 
@@ -370,6 +370,16 @@ function Update-MultipleTrackingFiles {
             $updatedContent = Update-MarkdownTable -Content $content -FeatureId $FeatureId -StatusColumn $StatusColumn -Status $Status -AdditionalUpdates $AdditionalUpdates -Notes $Notes
 
             if (-not $DryRun) {
+                # PF-IMP-801: recompute Progress Summary so feature-tracking.md mutations
+                # through this helper don't leave the Implementation Status Overview /
+                # Documentation Tier Distribution counts stale. Restricted to the
+                # feature-tracking file (Type "Feature") — other tracking files
+                # (test-tracking, etc.) have no Progress Summary section. Gated to
+                # the write branch since DryRun does not mutate the file.
+                if ($fileType -eq "Feature") {
+                    $updatedContent = Update-FeatureTrackingSummary -Content $updatedContent
+                }
+
                 # Write updated content
                 Set-Content -Path $filePath -Value $updatedContent -Encoding UTF8
                 Write-Verbose "Updated tracking file: $filePath"
@@ -561,58 +571,21 @@ function Update-FeatureTrackingSummary {
     }
     $tierTableLines += "| **Total Active**    | **$total**  | **100%**   |"
 
-    # --- 3. Documentation Coverage ---
-    $fddExists = 0; $tddExists = 0; $adrExists = 0; $testSpecExists = 0; $assessmentExists = 0
-    $tier1Info = @()
-    $adrList = @()
+    # --- Documentation Coverage section ---
+    # PF-PRO-002 Phase 4 (2026-05-08): the auto-generated Documentation Coverage
+    # table is dropped here. Per-feature design artifacts (FDD/TDD/Test Spec/ADR)
+    # now live exclusively in state files' §4 Documentation Inventory; the master
+    # feature-tracking.md row no longer carries those columns. Cross-feature
+    # queries use `process-framework/scripts/Get-FeatureDesignArtifacts.ps1`.
+    #
+    # The Documentation Coverage section, if present in feature-tracking.md, is
+    # now treated as curated informational content (humans/AI agents maintain it
+    # by hand or via dedicated query scripts) and is preserved untouched by this
+    # regenerator. The replacement boundary below stops at the start of the
+    # "Documentation Coverage" section instead of running through to "Tasks That
+    # Update This File".
 
-    foreach ($f in $features) {
-        $featureId = ''
-        if ($f['ID'] -match '(\d+\.\d+\.\d+)') { $featureId = $matches[1] }
-        $featureName = $f['Feature']
-
-        if ($f['FDD'] -and $f['FDD'] -match '\[PD-FDD-') { $fddExists++ }
-        if ($f['TDD'] -and $f['TDD'] -match '\[PD-TDD-') { $tddExists++ }
-        if ($f.ContainsKey('ADR') -and $f['ADR'] -match '\[(PD-ADR-\d+)\]') {
-            $adrExists++
-            $adrList += "$($matches[1]) ($featureId)"
-        }
-        if ($f['Test Spec'] -and $f['Test Spec'] -match '\[PF-TSP-') { $testSpecExists++ }
-        if ($f['Doc Tier'] -and $f['Doc Tier'] -match '\[.*Tier.*\]\(') { $assessmentExists++ }
-
-        # Track Tier 1 features (don't need FDD/TDD)
-        if ($f['Doc Tier'] -match 'Tier\s+1') {
-            $tier1Info += "$featureId $featureName"
-        }
-    }
-
-    $fddMissing = $total - $fddExists
-    $tddMissing = $total - $tddExists
-    $testSpecMissing = $total - $testSpecExists
-    $assessmentMissing = $total - $assessmentExists
-
-    # Build missing notes for FDD/TDD (Tier 1 features don't need them)
-    $fddMissingNote = "$fddMissing"
-    $tddMissingNote = "$tddMissing"
-    if ($tier1Info.Count -gt 0 -and $fddMissing -gt 0) {
-        $tier1Note = ($tier1Info | ForEach-Object { $_ }) -join ', '
-        $fddMissingNote = "$fddMissing ($tier1Note — Tier 1, not required)"
-        $tddMissingNote = "$tddMissing ($tier1Note — Tier 1, not required)"
-    }
-
-    $adrNote = if ($adrList.Count -gt 0) { $adrList -join ', ' } else { '' }
-
-    $coverageTableLines = @(
-        "| Artifact | Exists | Missing | Notes |"
-        "|----------|--------|---------|-------|"
-        "| FDDs | $fddExists | $fddMissingNote | |"
-        "| TDDs | $tddExists | $tddMissingNote | |"
-        "| ADRs | $adrExists | $([char]0x2014) | $adrNote |"
-        "| Test Specs | $testSpecExists | $testSpecMissing | |"
-        "| Tier Assessments | $assessmentExists | $assessmentMissing | |"
-    )
-
-    # --- Build full replacement block ---
+    # --- Build full replacement block (Status + Tier Distribution only) ---
     $summaryBlock = @()
     $summaryBlock += "## Progress Summary"
     $summaryBlock += ""
@@ -632,19 +605,23 @@ function Update-FeatureTrackingSummary {
     $summaryBlock += $tierTableLines
     $summaryBlock += ""
     $summaryBlock += "</details>"
-    $summaryBlock += ""
-    $summaryBlock += "<details>"
-    $summaryBlock += "<summary><strong>Documentation Coverage</strong></summary>"
-    $summaryBlock += ""
-    $summaryBlock += $coverageTableLines
-    $summaryBlock += ""
-    $summaryBlock += "</details>"
 
-    # Replace the section between "## Progress Summary" and "## Tasks That Update This File"
+    # Replace the section between "## Progress Summary" and either the "Documentation
+    # Coverage" subsection header (preserving curated Coverage content) or "## Tasks
+    # That Update This File" (when Coverage section is absent).
     $startIdx = -1
     $endIdx = -1
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -match '^## Progress Summary') { $startIdx = $i }
+        elseif ($startIdx -ge 0 -and $lines[$i] -match '^<summary><strong>Documentation Coverage</strong></summary>') {
+            # Walk back to the opening `<details>` of the Coverage section so the
+            # whole curated block (incl. its <details> wrapper) is preserved.
+            for ($j = $i - 1; $j -ge $startIdx; $j--) {
+                if ($lines[$j] -match '^<details>') { $endIdx = $j; break }
+            }
+            if ($endIdx -lt 0) { $endIdx = $i }   # fall back to the summary line itself
+            break
+        }
         elseif ($startIdx -ge 0 -and $lines[$i] -match '^## Tasks That Update This File') {
             $endIdx = $i
             break

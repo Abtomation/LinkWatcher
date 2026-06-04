@@ -118,7 +118,7 @@ Dependencies: Phase 1 (validator module must exist)
 
 | Action | File | Details |
 |--------|------|---------|
-| Create | `test/automated/unit/test_validator.py` | Unit tests for `LinkValidator` |
+| Create | `test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py` | Unit tests for `LinkValidator` |
 
 Dependencies: Phase 1 and 2 complete
 
@@ -211,7 +211,7 @@ Key test scenarios:
 |------|--------|---------|
 | `src/linkwatcher/validator.py` | Create | Core validation logic, report generation |
 | `main.py` | Modify | Add `--validate` CLI flag and early-exit branch |
-| `test/automated/unit/test_validator.py` | Create | Unit tests |
+| `test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py` | Create | Unit tests |
 
 ## Success Criteria
 

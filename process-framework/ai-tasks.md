@@ -6,7 +6,7 @@
 | ------------- | ----------------------- |
 | Document Type | Task System Entry Point |
 | Created Date  | 2025-05-26              |
-| Last Updated  | 2026-05-05              |
+| Last Updated  | 2026-06-03              |
 | Version       | 3.2                     |
 | Status        | Active                  |
 
@@ -20,81 +20,31 @@
 >
 > **⚠️ If no task fits your work, you MUST ask the human partner before proceeding.**
 
-### Step 1: What are you working on?
+### How to Choose a Task
 
-> **🎯 Framework path vs. product path** (decisive for routing — read first):
->
-> - **Framework path** = anything under `process-framework/`, `process-framework-local/`, or root-level routing files (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`).
-> - **Product path** = everything else (`src/linkwatcher/`, `test/`, `doc/`, `README.md`, etc.).
->
-> **Policy (absolute, no escalation)**: Work targeting the framework path routes through Support Tasks only. PF-TSK-022 (Code Refactoring), PF-TSK-007 (Bug Fixing), and PF-TSK-005 (Code Review) are for product code only — even when the framework work is shaped like a refactor, a bug fix, or a code review. Behavior-preserving code edits to framework scripts (`*.ps1`, `*.psm1`) are handled inside [Process Improvement](#process-improvement) (PF-TSK-009) Step 10 medium-risk path. When a target spans both paths, framework wins — split the work or route framework parts through PF-TSK-009.
+The human partner tells you what to work on. Your job is to map that instruction to the right task:
 
-```
-Are you ADOPTING THE FRAMEWORK into an existing project?
-├─ Yes → Start with [Codebase Feature Discovery](#codebase-feature-discovery) (includes tier assessment)
-│        Then → [Codebase Feature Analysis](#codebase-feature-analysis)
-│        Then → [Retrospective Documentation Creation](#retrospective-documentation-creation)
-│
-├─ No → Are you WORKING ON THE FRAMEWORK ITSELF? (target is in framework path — see definition above)
-│  ├─ Yes → What kind of framework work?
-│  │  ├─ Improving an existing task/guide/template/script (content edits OR behavior-preserving code refactors)
-│  │  │   → Use [Process Improvement](#process-improvement) (PF-TSK-009)
-│  │  ├─ Reorganizing files, directories, or document sections
-│  │  │   → Use [Structure Change](#structure-change) (PF-TSK-014)
-│  │  ├─ Adding a new framework capability (new task + template + script + guide)
-│  │  │   → Use [Framework Extension Task](#framework-extension-task) (PF-TSK-026)
-│  │  ├─ Creating a new task definition
-│  │  │   → Use [New Task Creation Process](#new-task-creation-process) (PF-TSK-001)
-│  │  ├─ Periodic feedback / tools review
-│  │  │   → Use [Tools Review](#tools-review) (PF-TSK-010)
-│  │  ├─ Structurally evaluating the framework
-│  │  │   → Use [Framework Evaluation](#framework-evaluation) (PF-TSK-079)
-│  │  └─ Migrating framework to a different business domain
-│  │      → Use [Framework Domain Adaptation](#framework-domain-adaptation) (PF-TSK-029)
-│  │
-│  │  > **Why framework code refactors live in PF-TSK-009 and not PF-TSK-022**: PF-TSK-022 prescribes pytest baselines, characterization tests via `New-TestFile.ps1`, TDD/FDD/ADR alignment, audit-flagged TD closure — all product-shaped artifacts that don't apply to framework scripts. PF-TSK-009 Step 10 medium-risk path is the right home: agent runs a synthetic PowerShell harness against real state files (happy / error / defect-specific cases), records pre-fix and post-fix counts in IMP completion notes.
-│
-├─ No → Are you working on a CHANGE REQUEST (new feature or enhancement)? *(product code only)*
-│  ├─ Yes → Do you need to research/discover what to build first?
-│  │  ├─ Yes → Start with [Feature Discovery](#feature-discovery)
-│  │  └─ No → Start with [Feature Request Evaluation](#feature-request-evaluation)
-│  │           It classifies the request and routes to the correct next task:
-│  │           ├─ New feature → [Feature Tier Assessment](#feature-tier-assessment) → Design → Implementation
-│  │           └─ Enhancement → [Feature Enhancement](#feature-enhancement) (executes from state file)
-│  │
-│  ├─ No → Are you WORKING WITH BUGS? *(product code only — framework defects are filed as IMPs and fixed via Process Improvement above)*
-│  │  ├─ Yes → What stage of bug management?
-│  │  │  ├─ Discovered a bug during development → Use [Bug Triage](#bug-triage) (evaluate and prioritize)
-│  │  │  ├─ Have a triaged bug to fix → Use [Bug Fixing](#bug-fixing)
-│  │  │  └─ Need to systematically find bugs → Use testing tasks (Test Audit, Code Review)
-│  │
-│  ├─ No → Are you WORKING ON TECHNICAL DEBT or REFACTORING? *(product code only — framework refactors route to Process Improvement above)*
-│  │  ├─ Yes → What stage of tech debt management?
-│  │  │  ├─ Need to identify/assess tech debt → Use [Technical Debt Assessment](#technical-debt-assessment) (cyclical)
-│  │  │  └─ Have assessed debt to fix → Use [Code Refactoring](#code-refactoring)
-│  │
-│  ├─ No → Are you REVIEWING CODE? *(product code only — framework changes are reviewed inline at Process Improvement Step 13)*
-│  │  └─ Yes → Use [Code Review](#code-review)
-│  │
-│  ├─ No → Are you WRITING USER DOCUMENTATION (handbooks, quick-reference, README)?
-│  │  └─ Yes → Use [User Documentation Creation](#user-documentation-creation)
-│  │
-│  ├─ No → Are you COMMITTING AND PUSHING to GitHub?
-│  │  └─ Yes → Use [Git Commit and Push](#git-commit-and-push)
-│  │
-│  ├─ No → Are you PREPARING A RELEASE?
-│  │  └─ Yes → Use [Release & Deployment](#release--deployment)
-│  │
-│  └─ No → NONE OF THE ABOVE TASKS FIT?
-│     └─ 🛑 **STOP: Ask your human partner before proceeding**
-│        "No existing task fits this work. Should we proceed without a task template, or do we need to create a new task?"
-```
+1. **Scan the Use When column** in the [Task Definitions table](#task-definitions) below. Each task's Use When description includes example trigger phrasings — match against the human's wording (literal or semantic).
+2. **If the instruction could route to either framework or product path**, consult the [Framework Path vs. Product Path Disambiguation](#framework-path-vs-product-path-disambiguation) note below.
+3. **Read the matched task's full definition** including its completion checklist before starting work.
+4. **If no task's Use When matches**, stop and ask the human partner — do not invent a task or proceed without a framework.
 
-### Step 2: Check for Ongoing Activities
+### Framework Path vs. Product Path Disambiguation
 
-These tasks run alongside your main work:
+When the human's instruction could route to either path, this disambiguation applies:
 
-- 🔧 **Tools Review cycle** — periodic review of feedback forms to surface improvement opportunities → [Tools Review](#tools-review) (PF-TSK-010)
+- **Framework path** = anything under `process-framework/` or root-level routing files (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`). Phase 5/7 (post-2026-05-11): the legacy `process-framework-local/` directory has been eliminated — project-local framework state lives under `doc/state-tracking/` (state files, PF-STA/PF-TMP registries) and the project's `logs/linkwatcher/` (LinkWatcher runtime); cross-project framework state (IMP tracking, feedback, proposals, evaluation reports) lives in `appdev/process-framework-central/` resolved via the project's `.framework-central-pointer`.
+- **Product path** = everything else (`src/`, `test/`, `doc/`, `README.md`, etc.).
+
+**Policy (absolute, no escalation)**: Work targeting the framework path routes through Support Tasks only. PF-TSK-022 (Code Refactoring), PF-TSK-007 (Bug Fixing), and PF-TSK-005 (Code Review) are for product code only — even when the framework work is shaped like a refactor, a bug fix, or a code review.
+
+> **Why framework code refactors live in PF-TSK-009 and not PF-TSK-022**: PF-TSK-022 prescribes pytest baselines, characterization tests via `New-TestFile.ps1`, TDD/FDD/ADR alignment, audit-flagged TD closure — all product-shaped artifacts that don't apply to framework scripts. PF-TSK-009 Step 10 medium-risk path is the right home: agent runs a synthetic PowerShell harness against real state files (happy / error / defect-specific cases), records pre-fix and post-fix counts in IMP completion notes.
+
+### Ongoing Activity Chains
+
+These task chains span multiple sessions — each link is its own task selection, triggered by the prior link's output:
+
+- 🔧 **Framework feedback chain** (Phase 7 workflow, post-2026-05-11): [Tools Review (PF-TSK-010)](#tools-review) collects feedback forms and writes raw IMPs into the central **Section 1 — Intake** → [IMP Triage (PF-TSK-089)](#imp-triage) sorts Intake into destination sections (Improvements / Extensions / Structural Changes / Active Pilots / Rejected) → owning task ([Process Improvement (PF-TSK-009)](#process-improvement) / [Structure Change (PF-TSK-014)](#structure-change) / [Framework Extension Task (PF-TSK-026)](#framework-extension-task)) implements.
 
 ### Still Unsure?
 
@@ -124,10 +74,11 @@ _Project setup, framework adoption, and existing codebase documentation activiti
 
 | Task                                     | Use When                                                                                | Complexity | Link                                                                                               |
 | ---------------------------------------- | --------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
-| **Codebase Feature Discovery**           | Adopting process framework into existing project - discover features and assign all code | 🟡 Medium  | [→ Definition](/process-framework/tasks/00-setup/codebase-feature-discovery.md)           |
-| **Codebase Feature Analysis**            | After feature discovery - analyze patterns, dependencies, and design decisions           | 🟡 Medium  | [→ Definition](/process-framework/tasks/00-setup/codebase-feature-analysis.md)            |
-| **Retrospective Documentation Creation** | After analysis - validate tier assessments and create required design documentation (FDD, TDD, ADRs) for Tier 2+ features | 🔴 Complex | [→ Definition](/process-framework/tasks/00-setup/retrospective-documentation-creation.md) |
-| **Project Initiation**                   | Starting a new project or adapting the process framework to a new domain                | 🟡 Medium  | [→ Definition](/process-framework/tasks/00-setup/project-initiation-task.md) |
+| **Codebase Source Migration**            | Relocate legacy source into the scaffolded per-feature src/ directories during onboarding, file-by-file, with behavior-preserving per-item verification | 🟡 Medium  | [→ Definition](tasks/00-setup/codebase-source-migration-task.md)                                   |
+| **Codebase Feature Discovery**           | Adopting process framework into existing project - discover features and assign all code. Triggers: 'onboard the codebase', 'adopt the framework', 'discover features in existing code'. | 🟡 Medium  | [→ Definition](tasks/00-setup/codebase-feature-discovery.md)           |
+| **Codebase Feature Analysis**            | After feature discovery - analyze patterns, dependencies, and design decisions           | 🟡 Medium  | [→ Definition](tasks/00-setup/codebase-feature-analysis.md)            |
+| **Retrospective Documentation Creation** | After analysis - validate tier assessments and create required design documentation (FDD, TDD, ADRs) for Tier 2+ features | 🔴 Complex | [→ Definition](tasks/00-setup/retrospective-documentation-creation.md) |
+| **Project Initiation**                   | Starting a new project or adapting the process framework to a new domain                | 🟡 Medium  | [→ Definition](tasks/00-setup/project-initiation-task.md) |
 
 ### 📋 01 - Planning Tasks
 
@@ -135,10 +86,10 @@ _Research, assessment, and architectural planning activities_
 
 | Task                           | Use When                                                                                | Complexity | Link                                                                                     |
 | ------------------------------ | --------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
-| **Feature Request Evaluation** | **ENTRY POINT for all change requests** — classifies as new feature or enhancement, routes to correct workflow. For new features: adds to tracking and routes to Feature Tier Assessment. For enhancements: creates scoped Enhancement State Tracking File | 🟡 Medium | [→ Definition](/process-framework/tasks/01-planning/feature-request-evaluation.md) |
-| **Feature Discovery**          | Planning new features through research and analysis                                     | 🟡 Medium  | [→ Definition](/process-framework/tasks/01-planning/feature-discovery-task.md)       |
-| **Feature Tier Assessment**    | New feature needs complexity evaluation                                                 | 🟢 Simple  | [→ Definition](/process-framework/tasks/01-planning/feature-tier-assessment-task.md) |
-| **System Architecture Review** | Evaluating how new features fit into existing system architecture before implementation | 🟡 Medium  | [→ Definition](/process-framework/tasks/01-planning/system-architecture-review.md)   |
+| **Feature Request Evaluation** | **ENTRY POINT for all change requests** — classifies as new feature or enhancement, routes to correct workflow. For new features: adds to tracking and routes to Feature Tier Assessment. For enhancements: creates scoped Enhancement State Tracking File. Triggers: 'new feature request', 'classify this change request', 'scope this enhancement'. | 🟡 Medium | [→ Definition](tasks/01-planning/feature-request-evaluation.md) |
+| **Feature Discovery**          | Planning new features through research and analysis                                     | 🟡 Medium  | [→ Definition](tasks/01-planning/feature-discovery-task.md)       |
+| **Feature Tier Assessment**    | New feature needs complexity evaluation                                                 | 🟢 Simple  | [→ Definition](tasks/01-planning/feature-tier-assessment-task.md) |
+| **System Architecture Review** | Evaluating how new features fit into existing system architecture before implementation | 🟡 Medium  | [→ Definition](tasks/01-planning/system-architecture-review.md)   |
 
 ### 🎨 02 - Design Tasks
 
@@ -146,11 +97,12 @@ _Technical and functional design activities_
 
 | Task                       | Use When                                                                                  | Complexity | Link                                                                                  |
 | -------------------------- | ----------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
-| **Integration Narrative Creation** | Create Integration Narratives for cross-feature workflows                                 | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/integration-narrative-creation.md)  |
-| **FDD Creation**           | Create functional specifications for Tier 2/3 features before technical design            | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/fdd-creation-task.md)           |
-| **TDD Creation**           | Complex feature needs technical design                                                    | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/tdd-creation-task.md)           |
-| **API Design**             | Design comprehensive API contracts and specifications before implementation begins        | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/api-design-task.md)             |
-| **Database Schema Design** | Plan data model changes before coding to prevent data integrity issues                    | 🟡 Medium  | [→ Definition](/process-framework/tasks/02-design/database-schema-design-task.md) |
+| **UI Design**              | Create UI/UX design specifications: wireframes, visual specs, component definitions, accessibility requirements, platform adaptations as a PD-UIX design document. Triggers: 'create UI design', 'design the UI for feature X', 'spec the screens'. | 🟡 Medium  | [→ Definition](tasks/02-design/ui-design-task.md)                  |
+| **Integration Narrative Creation** | Create Integration Narratives for cross-feature workflows                                 | 🟡 Medium  | [→ Definition](tasks/02-design/integration-narrative-creation.md)  |
+| **FDD Creation**           | Create functional specifications for Tier 2/3 features before technical design. Triggers: 'create FDD', 'write functional design', 'document feature X functionally'. | 🟡 Medium  | [→ Definition](tasks/02-design/fdd-creation-task.md)           |
+| **TDD Creation**           | Complex feature needs technical design. Triggers: 'create TDD', 'write technical design', 'design feature X technically'. | 🟡 Medium  | [→ Definition](tasks/02-design/tdd-creation-task.md)           |
+| **API Design**             | Design comprehensive API contracts and specifications before implementation begins        | 🟡 Medium  | [→ Definition](tasks/02-design/api-design-task.md)             |
+| **Database Schema Design** | Plan data model changes before coding to prevent data integrity issues                    | 🟡 Medium  | [→ Definition](tasks/02-design/database-schema-design-task.md) |
 
 ### 🧪 03 - Testing Tasks
 
@@ -158,13 +110,13 @@ _Test planning, implementation, and quality assurance activities_
 
 | Task                            | Use When                                                                               | Complexity | Link                                                                                        |
 | ------------------------------- | -------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------- |
-| **Performance and E2E Test Scoping** | Identify per-feature performance and E2E test needs after code review                  | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
-| **Performance Test Creation**   | Implement performance tests from specifications, register in tracking, capture initial measurements | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/performance-test-creation-task.md)       |
-| **Performance Baseline Capture** | Run performance tests, record results in trend database, update tracking, flag regressions | 🟢 Simple  | [→ Definition](/process-framework/tasks/03-testing/performance-baseline-capture-task.md)    |
-| **E2E Acceptance Test Execution** | Execute E2E acceptance test cases systematically, record results, and report issues discovered through human interaction with the running system | 🟡 Medium | [→ Definition](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) |
-| **E2E Acceptance Test Case Creation** | Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes | 🟡 Medium | [→ Definition](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) |
-| **Test Specification Creation** | Create automated test specifications from TDDs for Test-First Development              | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/test-specification-creation-task.md) |
-| **Test Audit**                  | Quality assurance evaluation of implemented test suites against effectiveness criteria | 🟡 Medium  | [→ Definition](/process-framework/tasks/03-testing/test-audit-task.md)                  |
+| **Performance and E2E Test Scoping** | Identify per-feature performance and E2E test needs after code review                  | 🟡 Medium  | [→ Definition](tasks/03-testing/performance-and-e2e-test-scoping-task.md) |
+| **Performance Test Creation**   | Implement performance tests from specifications, register in tracking, capture initial measurements | 🟡 Medium  | [→ Definition](tasks/03-testing/performance-test-creation-task.md)       |
+| **Performance Baseline Capture** | Run performance tests, record results in trend database, update tracking, flag regressions | 🟢 Simple  | [→ Definition](tasks/03-testing/performance-baseline-capture-task.md)    |
+| **E2E Acceptance Test Execution** | Execute E2E acceptance test cases systematically, record results, and report issues discovered through human interaction with the running system. Triggers: 'run e2e tests', 'execute acceptance tests', 'do the E2E for workflow X'. | 🟡 Medium | [→ Definition](tasks/03-testing/e2e-acceptance-test-execution-task.md) |
+| **E2E Acceptance Test Case Creation** | Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes. Triggers: 'create e2e test case', 'write acceptance test', 'add E2E test for workflow X'. | 🟡 Medium | [→ Definition](tasks/03-testing/e2e-acceptance-test-case-creation-task.md) |
+| **Test Specification Creation** | Create automated test specifications from TDDs for Test-First Development. Triggers: 'create test spec', 'write test specification', 'spec the tests for feature X'. | 🟡 Medium  | [→ Definition](tasks/03-testing/test-specification-creation-task.md) |
+| **Test Audit**                  | Quality assurance evaluation of implemented test suites against effectiveness criteria. Triggers: 'audit the tests', 'review test quality', 'audit e2e/perf/unit tests'. | 🟡 Medium  | [→ Definition](tasks/03-testing/test-audit-task.md)                  |
 
 ### ⚙️ 04 - Implementation Tasks
 
@@ -172,16 +124,16 @@ _Feature development and coding activities_
 
 | Task                                  | Use When                                                                                            | Complexity | Link                                                                                                     |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------- |
-| **Core Logic Implementation** | General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests | 🟡 Medium | [→ Definition](/process-framework/tasks/04-implementation/core-logic-implementation.md) |
-| **Feature Enhancement** | Execute enhancement steps from the Enhancement State Tracking File, referencing existing task documentation for quality guidance, adapted to the amendment context | 🟡 Medium | [→ Definition](/process-framework/tasks/04-implementation/feature-enhancement.md) |
-| **Implementation Finalization** | Complete remaining items and prepare feature for production | 🟡 Medium | [→ Definition](/process-framework/tasks/04-implementation/implementation-finalization.md) |
-| **Quality Validation** | Validate implementation against quality standards and business requirements | 🟡 Medium | [→ Definition](/process-framework/tasks/04-implementation/quality-validation.md) |
-| **Integration and Testing** | Integrate components and establish comprehensive test coverage | 🟡 Medium | [→ Definition](/process-framework/tasks/04-implementation/integration-and-testing.md) |
-| **UI Implementation** | Build user interface components and layouts for feature | 🟡 Medium | [→ Definition](/process-framework/tasks/04-implementation/ui-implementation.md) |
-| **State Management Implementation** | Implement state management layer connecting data layer to UI layer | 🟡 Medium | [→ Definition](/process-framework/tasks/04-implementation/state-management-implementation.md) |
-| **Feature Implementation Planning**   | Analyze design documentation and create detailed implementation plan with task sequencing           | 🟡 Medium  | [→ Definition](/process-framework/tasks/04-implementation/feature-implementation-planning-task.md)   |
-| **Data Layer Implementation**         | Implement data models, repositories, and database integration for feature                           | 🟡 Medium  | [→ Definition](/process-framework/tasks/04-implementation/data-layer-implementation.md)              |
-| **Foundation Feature Implementation** | Implementing foundation features (0.x.x) that provide architectural foundations for the application | 🔴 Complex | [→ Definition](/process-framework/tasks/04-implementation/foundation-feature-implementation-task.md) |
+| **Core Logic Implementation** | General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests | 🟡 Medium | [→ Definition](tasks/04-implementation/core-logic-implementation.md) |
+| **Feature Enhancement** | Execute enhancement steps from the Enhancement State Tracking File, referencing existing task documentation for quality guidance, adapted to the amendment context | 🟡 Medium | [→ Definition](tasks/04-implementation/feature-enhancement.md) |
+| **Implementation Finalization** | Complete remaining items and prepare feature for production | 🟡 Medium | [→ Definition](tasks/04-implementation/implementation-finalization.md) |
+| **Quality Validation** | Validate implementation against quality standards and business requirements | 🟡 Medium | [→ Definition](tasks/04-implementation/quality-validation.md) |
+| **Integration and Testing** | Integrate components and establish comprehensive test coverage | 🟡 Medium | [→ Definition](tasks/04-implementation/integration-and-testing.md) |
+| **UI Implementation** | Build user interface components and layouts for feature | 🟡 Medium | [→ Definition](tasks/04-implementation/ui-implementation.md) |
+| **State Management Implementation** | Implement state management layer connecting data layer to UI layer | 🟡 Medium | [→ Definition](tasks/04-implementation/state-management-implementation.md) |
+| **Feature Implementation Planning**   | Analyze design documentation and create detailed implementation plan with task sequencing           | 🟡 Medium  | [→ Definition](tasks/04-implementation/feature-implementation-planning-task.md)   |
+| **Data Layer Implementation**         | Implement data models, repositories, and database integration for feature                           | 🟡 Medium  | [→ Definition](tasks/04-implementation/data-layer-implementation.md)              |
+| **Foundation Feature Implementation** | Implementing foundation features (0.x.x) that provide architectural foundations for the application | 🔴 Complex | [→ Definition](tasks/04-implementation/foundation-feature-implementation-task.md) |
 
 ### ✅ 05 - Validation Tasks
 
@@ -189,18 +141,18 @@ _Quality validation and compliance verification activities_
 
 | Task                                         | Use When                                                                                                                                 | Complexity | Link                                                                                                   |
 | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------ |
-| **Validation Preparation**                   | **ENTRY POINT for validation rounds** — select features, evaluate dimension applicability, create tracking state file, plan session sequence | 🟢 Simple  | [→ Definition](/process-framework/tasks/05-validation/validation-preparation.md)                   |
-| **Architectural Consistency Validation**     | Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency                            | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/architectural-consistency-validation.md)     |
-| **Code Quality Standards Validation**        | Validate selected features for code quality standards, SOLID principles, and best practices adherence                        | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/code-quality-standards-validation.md)        |
-| **Integration Dependencies Validation**      | Validate selected features for dependency health, interface contracts, and data flow integrity                                       | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/integration-dependencies-validation.md)      |
-| **Documentation Alignment Validation**       | Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy                                         | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/documentation-alignment-validation.md)       |
-| **Extensibility Maintainability Validation** | Validate selected features for extension points, configuration flexibility, and testing support                                      | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/extensibility-maintainability-validation.md) |
-| **AI Agent Continuity Validation**           | Validate selected features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/ai-agent-continuity-validation.md)           |
-| **Security & Data Protection Validation**    | Validate selected features for security best practices, data protection, input validation, and secrets management | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/security-data-protection-validation.md)      |
-| **Performance & Scalability Validation**     | Validate selected features for performance characteristics, resource efficiency, and scalability patterns | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/performance-scalability-validation.md)       |
-| **Observability Validation**                 | Validate selected features for logging coverage, monitoring instrumentation, alerting readiness, and diagnostic traceability | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/observability-validation.md)                 |
-| **Accessibility / UX Compliance Validation** | Validate selected features for accessibility standards, UX compliance, keyboard navigation, and inclusive design patterns | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/accessibility-ux-compliance-validation.md)   |
-| **Data Integrity Validation**                | Validate selected features for data consistency, constraint enforcement, migration safety, and backup/recovery patterns | 🟡 Medium  | [→ Definition](/process-framework/tasks/05-validation/data-integrity-validation.md)                |
+| **Validation Preparation**                   | **ENTRY POINT for validation rounds** — select features, evaluate dimension applicability, create tracking state file, plan session sequence. Triggers: 'start a validation round', 'plan validation', 'prepare for validation'. | 🟢 Simple  | [→ Definition](tasks/05-validation/validation-preparation.md)                   |
+| **Architectural Consistency Validation**     | Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency                            | 🟡 Medium  | [→ Definition](tasks/05-validation/architectural-consistency-validation.md)     |
+| **Code Quality Standards Validation**        | Validate selected features for code quality standards, SOLID principles, and best practices adherence                        | 🟡 Medium  | [→ Definition](tasks/05-validation/code-quality-standards-validation.md)        |
+| **Integration Dependencies Validation**      | Validate selected features for dependency health, interface contracts, and data flow integrity                                       | 🟡 Medium  | [→ Definition](tasks/05-validation/integration-dependencies-validation.md)      |
+| **Documentation Alignment Validation**       | Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy                                         | 🟡 Medium  | [→ Definition](tasks/05-validation/documentation-alignment-validation.md)       |
+| **Extensibility Maintainability Validation** | Validate selected features for extension points, configuration flexibility, and testing support                                      | 🟡 Medium  | [→ Definition](tasks/05-validation/extensibility-maintainability-validation.md) |
+| **AI Agent Continuity Validation**           | Validate selected features for context clarity, modular structure, and documentation quality to support AI agent workflow continuity | 🟡 Medium  | [→ Definition](tasks/05-validation/ai-agent-continuity-validation.md)           |
+| **Security & Data Protection Validation**    | Validate selected features for security best practices, data protection, input validation, and secrets management | 🟡 Medium  | [→ Definition](tasks/05-validation/security-data-protection-validation.md)      |
+| **Performance & Scalability Validation**     | Validate selected features for performance characteristics, resource efficiency, and scalability patterns | 🟡 Medium  | [→ Definition](tasks/05-validation/performance-scalability-validation.md)       |
+| **Observability Validation**                 | Validate selected features for logging coverage, monitoring instrumentation, alerting readiness, and diagnostic traceability | 🟡 Medium  | [→ Definition](tasks/05-validation/observability-validation.md)                 |
+| **Accessibility / UX Compliance Validation** | Validate selected features for accessibility standards, UX compliance, keyboard navigation, and inclusive design patterns | 🟡 Medium  | [→ Definition](tasks/05-validation/accessibility-ux-compliance-validation.md)   |
+| **Data Integrity Validation**                | Validate selected features for data consistency, constraint enforcement, migration safety, and backup/recovery patterns | 🟡 Medium  | [→ Definition](tasks/05-validation/data-integrity-validation.md)                |
 
 ### 🔧 06 - Maintenance Tasks
 
@@ -208,10 +160,10 @@ _Code maintenance, review, and bug management activities_
 
 | Task                 | Use When                                                                                    | Complexity | Link                                                                                 |
 | -------------------- | ------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------ |
-| **Code Refactoring** | Systematic code improvement and technical debt reduction without changing external behavior | 🟡 Medium  | [→ Definition](/process-framework/tasks/06-maintenance/code-refactoring-task.md) |
-| **Code Review**      | Reviewing implemented code for quality                                                      | 🟢 Simple  | [→ Definition](/process-framework/tasks/06-maintenance/code-review-task.md)      |
-| **Bug Triage**       | Systematically evaluate, prioritize, and assign reported bugs                               | 🟢 Simple  | [→ Definition](/process-framework/tasks/06-maintenance/bug-triage-task.md)       |
-| **Bug Fixing**       | Implement fixes for triaged bugs with root cause analysis and regression prevention         | 🟡 Medium  | [→ Definition](/process-framework/tasks/06-maintenance/bug-fixing-task.md)       |
+| **Code Refactoring** | Systematic product-code improvement and technical debt reduction without changing external behavior. Does **NOT** cover building comprehensive test suites for new features (unit / component / integration / e2e) — route to [Integration & Testing](tasks/04-implementation/integration-and-testing.md) (PF-TSK-053). Triggers: 'refactor X', 'reduce tech debt in module Y', 'clean up Z' (product code only — framework refactors go to Process Improvement). | 🟡 Medium  | [→ Definition](tasks/06-maintenance/code-refactoring-task.md) |
+| **Code Review**      | Reviewing implemented product code for quality. Triggers: 'review the code', 'do a code review', 'check this PR' (product code only — framework changes are reviewed inline at Process Improvement Step 13). | 🟢 Simple  | [→ Definition](tasks/06-maintenance/code-review-task.md)      |
+| **Bug Triage**       | Systematically evaluate, prioritize, and assign reported product bugs. Triggers: 'triage this bug', 'evaluate bug report X', 'prioritize the bug backlog' (product code only — framework defects are filed as IMPs and fixed via Process Improvement). | 🟢 Simple  | [→ Definition](tasks/06-maintenance/bug-triage-task.md)       |
+| **Bug Fixing**       | Implement fixes for triaged product bugs with root cause analysis and regression prevention. Triggers: 'fix this bug', 'resolve issue X', 'fix the bug from PD-BUG-NNN' (product code only). | 🟡 Medium  | [→ Definition](tasks/06-maintenance/bug-fixing-task.md)       |
 
 ### 🚀 07 - Deployment Tasks
 
@@ -219,9 +171,9 @@ _Release preparation and deployment activities_
 
 | Task                     | Use When                         | Complexity | Link                                                                                  |
 | ------------------------ | -------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
-| **Git Commit and Push**  | Commit current working directory changes and push to remote repository | 🟢 Simple  | [→ Definition](/process-framework/tasks/07-deployment/git-commit-and-push.md)         |
-| **Release & Deployment** | Preparing and deploying releases | 🔴 Complex | [→ Definition](/process-framework/tasks/07-deployment/release-deployment-task.md) |
-| **User Documentation Creation** | Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates | 🟡 Medium | [→ Definition](/process-framework/tasks/07-deployment/user-documentation-creation.md) |
+| **Git Commit and Push**  | Commit current working directory changes and push to remote repository | 🟢 Simple  | [→ Definition](tasks/07-deployment/git-commit-and-push.md)         |
+| **Release & Deployment** | Preparing and deploying releases | 🔴 Complex | [→ Definition](tasks/07-deployment/release-deployment-task.md) |
+| **User Documentation Creation** | Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates | 🟡 Medium | [→ Definition](tasks/07-deployment/user-documentation-creation.md) |
 
 ### 🔁 Cyclical Tasks
 
@@ -229,8 +181,8 @@ _Recurring activities triggered by events or schedules_
 
 | Task                                    | Trigger                                               | Frequency           | Link                                                                                             |
 | --------------------------------------- | ----------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------ |
-| **Documentation Tier Adjustment**       | Complexity changes during implementation              | As needed           | [→ Definition](/process-framework/tasks/cyclical/documentation-tier-adjustment-task.md)      |
-| **Technical Debt Assessment**           | Periodic code quality review or before major releases | Quarterly/As needed | [→ Definition](/process-framework/tasks/cyclical/technical-debt-assessment-task.md)          |
+| **Documentation Tier Adjustment**       | Complexity changes during implementation              | As needed           | [→ Definition](tasks/cyclical/documentation-tier-adjustment-task.md)      |
+| **Technical Debt Assessment**           | Periodic code quality review or before major releases | Quarterly/As needed | [→ Definition](tasks/cyclical/technical-debt-assessment-task.md)          |
 
 ### 🔧 Support Tasks
 
@@ -238,20 +190,21 @@ _Meta-framework tasks that work on the process framework itself_
 
 | Task                          | Use When                                                                         | Link                                                                              |
 | ----------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **framework-blueprint-sync**  | Propagate framework improvements made within real working projects back to the corresponding FrameworkBuilder blueprint, ensuring blueprints stay current with battle-tested evolutions. Covers all top-level framework directories (process-framework, doc, test, src, root files) — not limited to any one subdir. User specifies the target framework variant; sync flows project to blueprint only. | [→ Definition](/process-framework/tasks/support/framework-blueprint-sync-task.md) |
-| **Framework Evaluation**      | Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability | [→ Definition](/process-framework/tasks/support/framework-evaluation.md)      |
-| **New Task Creation Process** | Creating new tasks for the framework                                             | [→ Definition](/process-framework/tasks/support/new-task-creation-process.md) |
-| **Process Improvement**       | Enhancing development workflows                                                  | [→ Definition](/process-framework/tasks/support/process-improvement-task.md)  |
-| **Structure Change**          | Reorganizing directory structures, file locations, or documentation architecture | [→ Definition](/process-framework/tasks/support/structure-change-task.md)     |
-| **Framework Extension Task**  | Adding new framework capabilities with multiple interconnected components        | [→ Definition](/process-framework/tasks/support/framework-extension-task.md)  |
-| **Tools Review**              | Evaluating and enhancing project tools                                           | [→ Definition](/process-framework/tasks/support/tools-review-task.md)         |
-| **Framework Domain Adaptation** | Migrating the process framework to a different business domain while preserving core structure | [→ Definition](/process-framework/tasks/support/framework-domain-adaptation.md) |
+| **IMP Triage**                | Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected. Detect duplicate-topic clusters across open sections and consolidate them into new Extension IMPs. Triggers: 'triage the IMP intake', 'drain the intake', 'sort the incoming IMPs'. | [→ Definition](tasks/support/imp-triage-task.md)               |
+| **Framework Rollout**         | Deploy framework code from canonical appdev to registered projects. Phase 1 (cwd=appdev): commit + tag appdev, push to GitHub remote, mirror process-framework to projects. Phase 2 (cwd=Project): apply per-project working-doc migrations from the central pending-migrations ledger. Triggers: 'push framework to project X', 'roll out framework update', 'rollback framework version', 'register new project'. | [→ Definition](tasks/support/framework-rollout-task.md)        |
+| **Framework Evaluation**      | Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability. Triggers: 'evaluate the framework', 'audit the framework', 'review framework area X'. | [→ Definition](tasks/support/framework-evaluation.md)      |
+| **New Task Creation Process** | Creating new tasks for the framework. Triggers: 'create a new task', 'add a task definition', 'we need a task for X'. | [→ Definition](tasks/support/new-task-creation-process.md) |
+| **Process Improvement**       | Enhancing existing framework artifacts: content edits to tasks/guides/templates, behavior-preserving script refactors, defect fixes. Triggers: 'improve task X', 'fix script Y', 'update guide Z', 'implement IMP-NNN'. | [→ Definition](tasks/support/process-improvement-task.md)  |
+| **Structure Change**          | Reorganizing directory structures, file locations, or documentation architecture. Triggers: 'reorganize directory X', 'move files from A to B', 'restructure docs', 'rename X to Y'. | [→ Definition](tasks/support/structure-change-task.md)     |
+| **Framework Extension Task**  | Adding new framework capabilities with multiple interconnected components (multi-phase, multi-session). Triggers: 'start framework extension X', 'continue the centralized framework management extension', 'work on phase N of extension Y'. | [→ Definition](tasks/support/framework-extension-task.md)  |
+| **Tools Review**              | Periodic review of feedback forms accumulated since last review — extract findings, file raw IMPs into central Intake. Triggers: 'do tools review', 'review feedback forms', 'process the feedback backlog'. | [→ Definition](tasks/support/tools-review-task.md)         |
+| **Framework Domain Adaptation** | Migrating the process framework to a different business domain while preserving core structure | [→ Definition](tasks/support/framework-domain-adaptation.md) |
 
 ---
 
 ## 🔄 Common Workflows
 
-**📋 For detailed guidance on task transitions, see the [Task Transition Registry](/process-framework/infrastructure/task-transition-registry.md)**
+**📋 For detailed guidance on task transitions, see the [Task Transition Registry](infrastructure/task-transition-registry.md)**
 
 ### For New Feature Planning (research needed)
 
@@ -280,10 +233,14 @@ Feature Request Evaluation (classify as enhancement + scope + create state file)
 ### For Framework Adoption (existing project)
 
 ```
-Codebase Feature Discovery (discover + tier assessment + state files + code inventory) → Codebase Feature Analysis (enrich state files) → Retrospective Documentation Creation (FDD/TDD/ADR for Tier 2+)
+Project Initiation (project-config.json + source-code-layout.md) → Codebase Feature Discovery (discover + tier assessment + state files + code inventory) → Codebase Source Migration (relocate legacy code into src/<feature>/, file-by-file with verification) → Codebase Feature Analysis (enrich state files) → Retrospective Documentation Creation (FDD/TDD/ADR for Tier 2+)
 ```
 
+> **Prerequisite**: [Project Initiation](tasks/00-setup/project-initiation-task.md) runs first even for an existing codebase — it creates `project-config.json` and `source-code-layout.md`, which Codebase Feature Discovery's source-structure step (Step 7.f) consumes (directory creation is intentionally deferred from Project Initiation to Discovery).
+>
 > **Note**: Tier assessment and state file creation happen within Codebase Feature Discovery (Step 10). The assessed tier determines whether the lightweight (Tier 1) or full (Tier 2/3) state file template is used.
+>
+> **Source relocation**: Discovery scaffolds empty `src/<feature>/` directories and assigns every file to an owning feature but leaves the code in place; [Codebase Source Migration](tasks/00-setup/codebase-source-migration-task.md) moves it in afterward — one file at a time, rewriting references both directions and verifying behavior against a per-file baseline — so Analysis operates on code already in its final locations.
 
 ### For Greenfield Projects (Architecture-First)
 
@@ -291,7 +248,7 @@ Codebase Feature Discovery (discover + tier assessment + state files + code inve
 Project Initiation → [Feature Request Evaluation → Feature Tier Assessment → [ADR Creation] → TDD Creation → Foundation Feature Implementation] (repeat for each 0.x feature) → then use standard workflows above for business features (1.x+)
 ```
 
-> **When to use**: For new projects that need architectural foundations (0.x features) before business features. The 0.x foundation category is an opt-in decision made during [Project Initiation](/process-framework/tasks/00-setup/project-initiation-task.md). Complete all foundation features first — business feature workflows (Simple/Complex/Enhancement above) depend on the architectural patterns established by 0.x features.
+> **When to use**: For new projects that need architectural foundations (0.x features) before business features. The 0.x foundation category is an opt-in decision made during [Project Initiation](tasks/00-setup/project-initiation-task.md). Complete all foundation features first — business feature workflows (Simple/Complex/Enhancement above) depend on the architectural patterns established by 0.x features.
 
 ### For Bug Fixes
 
@@ -323,7 +280,7 @@ Performance & E2E Test Scoping (PF-TSK-086) identifies workflow as E2E-ready →
   [Integration Narrative Creation (PF-TSK-083)] → Cross-cutting E2E Test Specification (New-TestSpecification.ps1 -CrossCutting) → E2E Test Case Creation (PF-TSK-069) → Test Audit (PF-TSK-030, -TestType E2E) → E2E Test Execution (PF-TSK-070)
 ```
 
-> **Milestone trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) checks [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) after each feature passes code review. When all required features for a workflow are implemented, the scoping task adds a milestone entry to e2e-test-tracking.md. Create the Integration Narrative first (provides verified cross-feature understanding), then the cross-cutting E2E test specification.
+> **Milestone trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](tasks/03-testing/performance-and-e2e-test-scoping-task.md) checks [User Workflow Tracking](../doc/state-tracking/permanent/user-workflow-tracking.md) after each feature passes code review. When all required features for a workflow are implemented, the scoping task adds a milestone entry to e2e-test-tracking.md. Create the Integration Narrative first (provides verified cross-feature understanding), then the cross-cutting E2E test specification.
 >
 > **Audit gate**: Newly created E2E test cases must pass Test Audit (`✅ Audit Approved`) before execution. Test cases marked `🔄 Needs Re-execution` are exempt (already audited).
 
@@ -334,7 +291,7 @@ Performance & E2E Test Scoping (PF-TSK-086) identifies perf tests needed →
   Performance Test Creation (PF-TSK-084) → Test Audit (PF-TSK-030, -TestType Performance) → Performance Baseline Capture (PF-TSK-085)
 ```
 
-> **Trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) after code review and adds `⬜ Needs Creation` entries to performance-test-tracking.md. Performance Test Creation implements tests from those entries; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
+> **Trigger**: The [Performance & E2E Test Scoping task (PF-TSK-086)](tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the [decision matrix](guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) after code review and adds `⬜ Needs Creation` entries to performance-test-tracking.md. Performance Test Creation implements tests from those entries; Baseline Capture records results and detects regressions. Baseline Capture also runs standalone for pre-release verification and post-refactoring checks.
 >
 > **Audit gate**: Newly created performance tests must pass Test Audit (`✅ Audit Approved`) before baseline capture. Tests marked `⚠️ Needs Re-baseline` are exempt (already audited).
 
@@ -344,7 +301,7 @@ Performance & E2E Test Scoping (PF-TSK-086) identifies perf tests needed →
 Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimension Task(s) → Code Review → Release & Deployment
 ```
 
-> **Entry point**: Always start with [Validation Preparation](/process-framework/tasks/05-validation/validation-preparation.md) to select features, evaluate dimension applicability, and create tracking state file. See [Dimension Catalog](/process-framework/guides/05-validation/feature-validation-guide.md#dimension-catalog) for the full list of 11 validation dimensions.
+> **Entry point**: Always start with [Validation Preparation](tasks/05-validation/validation-preparation.md) to select features, evaluate dimension applicability, and create tracking state file. See [Dimension Catalog](guides/05-validation/feature-validation-guide.md#dimension-catalog) for the full list of 11 validation dimensions.
 
 ### Always Running
 
@@ -384,7 +341,7 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 
 | Resource                                                                                                    | Purpose                                                                                                  | Use When                                                                           |
 | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [Process Framework Task Registry](/process-framework/infrastructure/process-framework-task-registry.md) | Comprehensive catalog of all 32 tasks with automation status, script locations, and file update patterns | Understanding task capabilities, automation coverage, or coordination requirements |
+| [Process Framework Task Registry](infrastructure/process-framework-task-registry.md) | Comprehensive catalog of all 32 tasks with automation status, script locations, and file update patterns | Understanding task capabilities, automation coverage, or coordination requirements |
 
 **Key Features:**
 
@@ -400,25 +357,25 @@ Validation Preparation (PF-TSK-077) → [Select features + dimensions] → Dimen
 | ----------------------- | --------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | **📋 Task Definitions** | All Categorized Tasks             | Complete task workflows and processes        | [↑ Task Definitions](#task-definitions)                                                                                                |
 | **🔄 Workflows**        | Common Task Workflows             | Standard development workflows               | [↑ Common Workflows](#common-workflows)                                                                                                |
-| **🏗️ Infrastructure**   | Process Framework Registry        | Complete task catalog with automation status | [Process Framework Task Registry](/process-framework/infrastructure/process-framework-task-registry.md)                            |
-| **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md)                                                |
-| **📊 State Tracking**   | Feature Request Tracking          | Intake queue for product feature requests    | [Feature Request Tracking](/doc/state-tracking/permanent/feature-request-tracking.md)                                |
-| **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)                                  |
-| **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](/process-framework/templates/support/state-file-template.md)                                               |
-| **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](/process-framework/tasks/support/new-task-creation-process.md)                                         |
-| **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/process-framework-local/feedback/archive/README.md)                                                            |
-| **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](/process-framework/visualization/process-flows/feedback-process-flowchart.md)                                            |
-| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Registry](/process-framework/infrastructure/task-transition-registry.md)                                                 |
-| **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](/process-framework/guides/02-design/api-specification-creation-guide.md)                           |
-| **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](/process-framework/guides/02-design/api-data-model-creation-guide.md)                                 |
-| **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](/process-framework/guides/04-implementation/foundation-feature-implementation-usage-guide.md) |
-| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](/process-framework/guides/03-testing/integration-and-testing-usage-guide.md)                           |
-| **🗺️ Context Maps**     | API Design Task Map               | Visual API design relationships              | [API Design Task Context Map](/process-framework/visualization/context-maps/02-design/api-design-task-map.md)                      |
-| **🔧 Support Tasks**    | Process Improvement               | Enhance development workflows                | [Process Improvement Task](/process-framework/tasks/support/process-improvement-task.md)                                           |
-| **🔧 Support Tasks**    | Structure Change                  | Reorganize framework structure               | [Structure Change Task](/process-framework/tasks/support/structure-change-task.md)                                                 |
-| **🔧 Support Tasks**    | Framework Extension               | Add new framework capabilities               | [Framework Extension Task](/process-framework/tasks/support/framework-extension-task.md)                                           |
-| **🔧 Support Tasks**    | Tools Review                      | Evaluate and enhance tools                   | [Tools Review Task](/process-framework/tasks/support/tools-review-task.md)                                                         |
-| **🔧 Support Tasks**    | Framework Domain Adaptation       | Migrate framework to different domain        | [Framework Domain Adaptation](/process-framework/tasks/support/framework-domain-adaptation.md)                                      |
+| **🏗️ Infrastructure**   | Process Framework Registry        | Complete task catalog with automation status | [Process Framework Task Registry](infrastructure/process-framework-task-registry.md)                            |
+| **📊 State Tracking**   | Feature Tracking                  | Track feature development status             | [Feature Tracking](../doc/state-tracking/permanent/feature-tracking.md)                                                |
+| **📊 State Tracking**   | Feature Request Tracking          | Intake queue for product feature requests    | [Feature Request Tracking](../doc/state-tracking/permanent/feature-request-tracking.md)                                |
+| **📊 State Tracking**   | Technical Debt Tracking           | Track technical debt items                   | [Technical Debt Tracking](../doc/state-tracking/permanent/technical-debt-tracking.md)                                  |
+| **📖 Templates**        | State File Template               | Create new tracking files                    | [State File Template](templates/support/state-file-template.md)                                               |
+| **🔧 Automation**       | Task Creation Script              | Create new framework tasks                   | [New Task Creation Process](tasks/support/new-task-creation-process.md)                                         |
+| **📝 Feedback**         | Feedback Process                  | Submit tool and task feedback                | [Feedback Process Guide](/process-framework-central/feedback/archive/README.md)                                                            |
+| **📝 Feedback**         | Feedback Flowchart                | Visual feedback process guide                | [Feedback Process Flowchart](visualization/process-flows/feedback-process-flowchart.md)                                            |
+| **🎯 Guides**           | Task Transition Guide             | Guidance on task transitions                 | [Task Transition Registry](infrastructure/task-transition-registry.md)                                                 |
+| **🎯 Guides**           | API Specification Creation        | How to create API specifications             | [API Specification Creation Guide](guides/02-design/api-specification-creation-guide.md)                           |
+| **🎯 Guides**           | API Data Model Creation           | How to create API data models                | [API Data Model Creation Guide](guides/02-design/api-data-model-creation-guide.md)                                 |
+| **🎯 Guides**           | Foundation Feature Implementation | Comprehensive implementation guidance        | [Foundation Feature Implementation Usage Guide](guides/04-implementation/foundation-feature-implementation-usage-guide.md) |
+| **🎯 Guides**           | Integration & Testing             | Comprehensive testing guidance               | [Integration & Testing Usage Guide](guides/03-testing/integration-and-testing-usage-guide.md)                           |
+| **🗺️ Context Maps**     | API Design Task Map               | Visual API design relationships              | [API Design Task Context Map](visualization/context-maps/02-design/api-design-task-map.md)                      |
+| **🔧 Support Tasks**    | Process Improvement               | Enhance development workflows                | [Process Improvement Task](tasks/support/process-improvement-task.md)                                           |
+| **🔧 Support Tasks**    | Structure Change                  | Reorganize framework structure               | [Structure Change Task](tasks/support/structure-change-task.md)                                                 |
+| **🔧 Support Tasks**    | Framework Extension               | Add new framework capabilities               | [Framework Extension Task](tasks/support/framework-extension-task.md)                                           |
+| **🔧 Support Tasks**    | Tools Review                      | Evaluate and enhance tools                   | [Tools Review Task](tasks/support/tools-review-task.md)                                                         |
+| **🔧 Support Tasks**    | Framework Domain Adaptation       | Migrate framework to different domain        | [Framework Domain Adaptation](tasks/support/framework-domain-adaptation.md)                                      |
 
 ---
 
@@ -431,7 +388,7 @@ Understanding the different types of documentation helps you choose the right re
 - **Purpose**: Define complete workflows and processes
 - **Content**: Step-by-step instructions, context requirements, outputs, checklists
 - **Use When**: You need to execute a specific development process
-- **Example**: [API Design Task](/process-framework/tasks/02-design/api-design-task.md)
+- **Example**: [API Design Task](tasks/02-design/api-design-task.md)
 
 ### 🔧 **Creation Guides** (HOW to use the tools)
 
@@ -439,15 +396,15 @@ Understanding the different types of documentation helps you choose the right re
 - **Content**: Script parameters, template customization, examples, troubleshooting
 - **Use When**: You need to use a PowerShell script or customize a template
 - **Examples**:
-  - [API Specification Creation Guide](/process-framework/guides/02-design/api-specification-creation-guide.md)
-  - [API Data Model Creation Guide](/process-framework/guides/02-design/api-data-model-creation-guide.md)
+  - [API Specification Creation Guide](guides/02-design/api-specification-creation-guide.md)
+  - [API Data Model Creation Guide](guides/02-design/api-data-model-creation-guide.md)
 
 ### 🗺️ **Context Maps** (Visual relationships)
 
 - **Purpose**: Visual representation of component relationships and dependencies
 - **Content**: Mermaid diagrams, component classifications, relationship explanations
 - **Use When**: You need to understand how different components interact
-- **Example**: [API Design Task Context Map](/process-framework/visualization/context-maps/02-design/api-design-task-map.md)
+- **Example**: [API Design Task Context Map](visualization/context-maps/02-design/api-design-task-map.md)
 
 ### 📖 **Usage Guides** (Comprehensive how-to)
 
@@ -455,8 +412,8 @@ Understanding the different types of documentation helps you choose the right re
 - **Content**: Workflows, best practices, common pitfalls, advanced techniques
 - **Use When**: You need comprehensive guidance beyond individual tasks
 - **Examples**:
-  - [Foundation Feature Implementation Usage Guide](/process-framework/guides/04-implementation/foundation-feature-implementation-usage-guide.md)
-  - [Integration & Testing Usage Guide](/process-framework/guides/03-testing/integration-and-testing-usage-guide.md)
+  - [Foundation Feature Implementation Usage Guide](guides/04-implementation/foundation-feature-implementation-usage-guide.md)
+  - [Integration & Testing Usage Guide](guides/03-testing/integration-and-testing-usage-guide.md)
 
 ### 🎯 **Key Principle**: No Redundant Documentation
 
@@ -475,13 +432,13 @@ Understanding the different types of documentation helps you choose the right re
 
 | File                                                                                                  | Purpose                          | Status    |
 | ----------------------------------------------------------------------------------------------------- | -------------------------------- | --------- |
-| [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md)               | Track feature development status | ✅ Active |
-| [Feature Request Tracking](/doc/state-tracking/permanent/feature-request-tracking.md) | Intake queue for product feature requests | ✅ Active |
-| [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) | Track technical debt items       | ✅ Active |
+| [Feature Tracking](../doc/state-tracking/permanent/feature-tracking.md)               | Track feature development status | ✅ Active |
+| [Feature Request Tracking](../doc/state-tracking/permanent/feature-request-tracking.md) | Intake queue for product feature requests | ✅ Active |
+| [Technical Debt Tracking](../doc/state-tracking/permanent/technical-debt-tracking.md) | Track technical debt items       | ✅ Active |
 
 ### Creating New State Files
 
-Need to track something new? Use the [State File Template](/process-framework/templates/support/state-file-template.md) to create:
+Need to track something new? Use the [State File Template](templates/support/state-file-template.md) to create:
 
 - Bug Tracking
 - Release Status
@@ -506,7 +463,7 @@ Need to track something new? Use the [State File Template](/process-framework/te
 ### BEFORE Starting Any Task:
 
 1. ✅ **🚨 Select a task FIRST** — Task selection must be your **very first action** after reading the user's request. Do not explore code, read files, or begin any work until a task is selected from this document. Even "simple" fixes require a task framework.
-2. ✅ **Execute [.ai-entry-point.md](.ai-entry-point.md) as a startup procedure** — This is not passive context. Actively run through its checklist (LinkWatcher, time tracking, task selection) before responding to the user.
+2. ✅ **Execute [.ai-entry-point.md](.ai-entry-point.md) as a startup procedure** — This is not passive context. Actively run through its checklist (task selection + task-definition read; LinkWatcher and timestamp are hook-emitted) before responding to the user.
 3. ✅ **Read the COMPLETE task definition** including completion checklist — understand the full scope before starting
 4. ✅ **Adopt the assigned AI Agent Role** specified in the task definition for optimal task execution
 5. ✅ **Understand ALL required outputs** (not just primary deliverables)
@@ -514,14 +471,14 @@ Need to track something new? Use the [State File Template](/process-framework/te
 
 ### DURING Task Execution:
 
-7. ✅ **Follow the task process step-by-step in order** — Do not skip steps, reorder them, or take shortcuts. Present findings at every checkpoint and wait for human approval before proceeding.
+7. ✅ **Follow the task process step-by-step in order (Read-Do)** — Don't execute from memory or a summary. After reading the task definition, **seed a faithful per-step checklist** — one item per numbered step *and* sub-step, transcribed 1:1, never grouped or summarized. Then work **one step at a time**: re-read the step in the definition (the checklist says *which* step; the definition says *what to do*), do it, and give it an explicit disposition — `done` / `skipped (reason)` / `N-A (reason)`. No step is silently dropped. Human-checkpoint steps **block**: present findings and wait for approval before checking them off.
 8. ✅ **Always use automation scripts** when referenced by a task (never create tracked files manually). Scripts update surrounding infrastructure (ID registries, tracking files, counters) that manual edits miss, causing inconsistencies.
 9. ✅ **If a script fails**: Report the error → diagnose and fix the script → re-run the fixed script. Never bypass a broken script by manually creating files — fix the script first.
 10. ✅ **Update state files** as you progress through the work
 
 ### BEFORE Claiming Task Completion:
 
-11. ✅ **Verify ALL outputs by re-reading files** — Do not rely on memory. Re-read state tracking files and grep for `- [ ]` / `PENDING` / `NOT_STARTED` to confirm nothing was missed.
+11. ✅ **Verify ALL outputs by re-reading files, and reconcile the per-step checklist** — Do not rely on memory. Re-read state tracking files and grep for `- [ ]` / `PENDING` / `NOT_STARTED` to confirm nothing was missed. Then walk the per-step checklist from item 7 and confirm every step carries an explicit disposition — `done` / `skipped (reason)` / `N-A (reason)`. "I think I'm finished" is not a stop condition; "every step accounted for" is.
 12. ✅ **Complete ALL items** in the mandatory completion checklist — every checkbox, every state file update, every linked document
 13. ✅ **Complete feedback forms** for all tools used during the task — do not solicit human feedback; leave the "Human User Feedback" section for the human partner to fill after the session
 
@@ -557,15 +514,15 @@ At the end of each session, the AI agent creates a feedback form and **fills in 
 
 2. **Fill in all sections** except "Human User Feedback" — that section is left for the human partner to complete after the session
 
-**Files saved**: process-framework-local/feedback/feedback-forms/YYYYMMDD-HHMMSS-TASK-ID-feedback.md (template format)
+**Files saved**: `appdev/process-framework-central/feedback/feedback-forms/YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-XXX_feedback.md` (Phase 7 underscore-separated format with `<PRJ-ID>` segment, 2026-05-11). Resolved via `Get-CentralFrameworkPath` regardless of cwd.
 
 > ⚠️ **Important**: Use **TASK ID** (e.g., PF-TSK-002) in filename, NOT artifact IDs created during task
 >
-> 📈 **Why this matters**: Your feedback drives continuous improvement through the [Tools Review Task](/process-framework/tasks/support/tools-review-task.md)
+> 📈 **Why this matters**: Your feedback drives continuous improvement through the [Tools Review Task](tasks/support/tools-review-task.md)
 >
-> 📋 **More details**: See the [Feedback Process Guide](/process-framework-local/feedback/archive/README.md)
+> 📋 **More details**: See the [Feedback Process Guide](/process-framework-central/feedback/archive/README.md)
 >
-> 🔄 **Visual guide**: See the [Feedback Process Flowchart](/process-framework/visualization/process-flows/feedback-process-flowchart.md)
+> 🔄 **Visual guide**: See the [Feedback Process Flowchart](visualization/process-flows/feedback-process-flowchart.md)
 
 ### Best Practices
 
@@ -580,8 +537,7 @@ At the end of each session, the AI agent creates a feedback form and **fills in 
 - ✅ **Involve your partner** - Collaborate on important decisions
 - ✅ **Minimize documentation overhead** - Update state files rather than creating new docs
 - ✅ **🔗 MAINTAIN DOCUMENT LINKS**:
-  - **🚨 CRITICAL**: ALWAYS start LinkWatcher at session beginning: `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`
-  - **⚠️ IMPORTANT**: NEVER run LinkWatcher in foreground - it will block the session!
+  - LinkWatcher starts automatically at session beginning via the `SessionStart` hook in `.claude/settings.json` (set up during Project Initiation PF-TSK-059 Step 14).
   - LinkWatcher automatically maintains all document references in real-time
   - Use any method to move/rename files - LinkWatcher handles all updates automatically
 
@@ -597,11 +553,10 @@ At the end of each session, the AI agent creates a feedback form and **fills in 
 | **Task definition unclear**            | Check the full task definition or ask for clarification                                                                                         |
 | **Need to work across multiple tasks** | Discuss the approach with your human partner                                                                                                    |
 | **Process feels inefficient**          | Note it for the next [Process Improvement](#process-improvement) task                                                                           |
-| **Broken document links**              | Ensure LinkWatcher is running in background (`process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`) - it prevents and fixes broken links automatically |
-| **Session blocked/frozen**             | LinkWatcher running in foreground - kill process: `Get-Process python* \| Stop-Process -Force` then restart in background                       |
+| **Broken document links**              | Confirm the SessionStart hook fired (look for the LinkWatcher startup line in initial context); if absent, check `.claude/settings.json` and re-trigger via `/hooks` or a new session |
 | **Need to rename or move files**       | Use any method (VS Code, File Explorer, git commands) - LinkWatcher updates all references automatically                                        |
 | **Need to delete files**               | Use any method - LinkWatcher will detect and handle reference cleanup automatically                                                             |
-| **LinkWatcher not working**            | Check if running: `Get-Process python*` - If not found, restart: `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`                                 |
+| **LinkWatcher not working**            | Check if running: `Get-Process python*`. If not, manually invoke the hook wrapper: `pwsh.exe -ExecutionPolicy Bypass -File process-framework/tools/linkWatcher/start_linkwatcher_hook_wrapper.ps1` and inspect `logs/linkwatcher/LinkWatcherError.txt` |
 
 ---
 

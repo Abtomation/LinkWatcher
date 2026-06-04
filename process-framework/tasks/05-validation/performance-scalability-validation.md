@@ -2,9 +2,10 @@
 id: PF-TSK-073
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2026-03-23
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for performance characteristics, resource efficiency, and scalability patterns"
 ---
 
 # Performance & Scalability Validation
@@ -20,14 +21,6 @@ Systematically validates selected features for performance characteristics, reso
 **Focus Areas**: Response times, resource consumption, algorithmic complexity, concurrency patterns, caching strategies, I/O efficiency
 **Communication Style**: Quantify performance characteristics where possible, identify scalability ceilings and bottlenecks, ask about performance requirements and acceptable latency thresholds
 
-## When to Use
-
-- When validating selected features for performance as part of the validation framework
-- Before deploying features to production environments with significant load
-- When investigating performance regressions or resource consumption issues
-- As part of capacity planning or scalability assessments
-- When features involve file I/O, network calls, database operations, or large data processing
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/05-validation/performance-scalability-validation-map.md)
@@ -42,14 +35,14 @@ Systematically validates selected features for performance characteristics, reso
 
 - **Important (Load If Space):**
 
-  - **Technical Design Documents** - [TDD Directory](/doc/technical/tdd) - Performance requirements and design constraints
+  - **Technical Design Documents** - [TDD Directory](../../../doc/technical/tdd) - Performance requirements and design constraints
   - **Performance Test Suites** - Test directory - Existing performance/benchmark tests
   - **Configuration Files** - Timeout settings, buffer sizes, thread pool configurations
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
   <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
-  - **Architecture Decision Records** - [ADR Directory](/doc/technical/architecture) - Performance-related architectural decisions
+  - **Architecture Decision Records** - [ADR Directory](../../../doc/technical/architecture) - Performance-related architectural decisions
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
@@ -93,7 +86,7 @@ Systematically validates selected features for performance characteristics, reso
 15. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 16. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 17. **Plan Remediation**: For scores below threshold, create action items for performance improvements — prioritize by impact on user experience
-18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "PE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
@@ -143,4 +136,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Technical Design Documents](/doc/technical/tdd) - Performance requirements and constraints
+- [Technical Design Documents](../../../doc/technical/tdd) - Performance requirements and constraints

@@ -29,7 +29,9 @@
     .\New-RetrospectiveMasterState.ps1 -ProjectName "MyProject" -OpenInEditor
 
 .NOTES
-    - The output file is placed in process-framework-local/state-tracking/temporary/
+    - The output file is placed in <state-tracking-root>/temporary/ where state-tracking-root
+      is resolved via Get-StateTrackingContext: process-framework-central/state-tracking/ for
+      appdev (PRJ-000) or doc/state-tracking/ for regular projects (PRJ-001+).
     - The file is TEMPORARY and will be archived when onboarding is complete
     - Only one retrospective master state file should exist per project at a time
     - Assigns a PF-STA-XXX ID from the central ID registry
@@ -70,10 +72,11 @@ Invoke-StandardScriptInitialization
 # Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Resolve paths
-$projectRoot = Get-ProjectRoot
-$templatePath = Join-Path $projectRoot "process-framework/templates/00-setup/retrospective-state-template.md"
-$outputDir = Join-Path $projectRoot "process-framework-local/state-tracking/temporary"
+# Resolve paths (Phase 5.5: configurable framework subtree via paths.process_framework)
+$processFrameworkDir = Get-ProcessFrameworkPath
+$templatePath = Join-Path $processFrameworkDir "templates/00-setup/retrospective-state-template.md"
+$stContext = Get-StateTrackingContext
+$outputDir = Join-Path $stContext.StateTrackingRoot "temporary"
 $outputFile = Join-Path $outputDir "retrospective-master-state.md"
 
 # Validate template exists
@@ -134,7 +137,7 @@ try {
 
     $details = @(
         "Project: $ProjectName",
-        "Location: doc/state-tracking/temporary/archived/retrospective-master-state.md",
+        "Location: $($stContext.StateTrackingRelative)/temporary/retrospective-master-state.md",
         "Status: DISCOVERY",
         "Started: $today",
         "",

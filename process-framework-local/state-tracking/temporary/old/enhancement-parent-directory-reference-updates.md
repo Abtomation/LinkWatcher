@@ -29,7 +29,7 @@ target_feature: 1.1.1
 
 | Criterion | Assessment |
 |-----------|------------|
-| **Files Affected** | 3-4 source files (`handler.py`, `reference_lookup.py`, `database.py`), 1-2 test files (`test/automated/integration/test_file_movement.py` or new test file) |
+| **Files Affected** | 3-4 source files (`handler.py`, `reference_lookup.py`, `database.py`), 1-2 test files (`test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_file_movement.py` or new test file) |
 | **Design Docs to Amend** | TDD (PD-TDD-023) — directory move handling section; FDD (PD-FDD-024) — directory move behavior |
 | **New Tests Required** | Yes — parent directory reference update scenarios when subdirectories move |
 | **Interface Impact** | Internal only — no public API change |

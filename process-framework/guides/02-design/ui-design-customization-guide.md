@@ -7,6 +7,7 @@ created: 2025-01-18
 updated: 2025-01-18
 related_script: New-UIDesign.ps1
 guide_title: UI/UX Design Customization Guide
+description: "19-step guide across 6 phases for customizing UI/UX Design Document templates with tiered examples"
 ---
 
 # UI/UX Design Customization Guide
@@ -823,7 +824,7 @@ Before considering the UI Design complete, verify:
 - **Design Guidelines (PD-UIX-001)**: Foundational design system - MUST consult
 - **FDD Template**: Functional requirements that inform UI design
 - **TDD Template**: Technical implementation that follows UI design
-- **Feature Tracking**: UI Design column for linking completed designs
+- **Feature State File §4 Documentation Inventory**: Per-feature state file row where completed UI Design is registered (PF-PRO-002 / PF-IMP-760)
 
 ### Platform Guidelines
 
@@ -848,7 +849,7 @@ Before considering the UI Design complete, verify:
 
 - **New-UIDesign.ps1**: Script that created this template
 - **ui-design-template.md**: The template this guide customizes
-- **Add-MarkdownTableColumn.ps1**: Used to add UI Design column to feature tracking
+- **Add-StateFileDocumentationInventoryRow** (in [StateFileInventory.psm1](../../scripts/Common-ScriptHelpers/StateFileInventory.psm1)): Inserts the UI Design row into the per-feature state file's §4 Documentation Inventory (called by `New-UIDesign.ps1` via the shared `Invoke-DesignArtifactCreation` core; PF-PRO-002 / PF-IMP-760)
 
 ---
 

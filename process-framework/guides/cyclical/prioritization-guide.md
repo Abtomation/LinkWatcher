@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-24
 updated: 2025-07-24
 guide_status: Active
+description: "Guide for applying impact/effort matrix to prioritize debt"
 ---
 # Prioritization Guide
 

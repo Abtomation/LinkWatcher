@@ -2,9 +2,10 @@
 id: PF-TSK-019
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-07-18
-updated: 2026-03-02
+updated: 2026-05-16
+description: "Evaluate how new features fit into existing system architecture before implementation"
 ---
 
 # System Architecture Review
@@ -22,16 +23,6 @@ Evaluate how new features fit into existing system architecture before implement
 **Focus Areas**: Cross-cutting concerns, reusable patterns, system integration, architectural consistency
 **Communication Style**: Discuss architectural implications and long-term impact, ask about system-wide effects and integration requirements
 
-## When to Use
-
-- Before implementing any complex feature (Tier 2 or Tier 3 complexity)
-- When a feature may impact existing system architecture or introduce new components
-- Before features that modify existing component relationships or dependencies
-- When architectural decisions need to be made or validated
-- After FDD Creation for Tier 2+ features (when functional requirements are defined) but before TDD Creation
-- After Feature Tier Assessment for Tier 1 features (when architectural impact is suspected)
-- When integration with external systems or APIs is required
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/01-planning/system-architecture-review-map.md)
@@ -42,16 +33,16 @@ Evaluate how new features fit into existing system architecture before implement
   - [Feature Discovery Document](feature-discovery-task.md) - Understanding of the feature requirements and scope
   - [Feature Tier Assessment](feature-tier-assessment-task.md) - Complexity evaluation of the feature being reviewed
   - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Current architectural state and cross-cutting decisions
-  - [Architecture Decision Records](/doc/technical/adr) - Existing architectural decisions and context
+  - [Architecture Decision Records](../../../doc/technical/adr) - Existing architectural decisions and context
 
 - **Important (Load If Space):**
 
   - [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
-  - [Technical Design Documents](/doc/technical/tdd) - Existing TDDs for related components
+  - [Technical Design Documents](../../../doc/technical/tdd) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
-  - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -118,7 +109,7 @@ Evaluate how new features fit into existing system architecture before implement
     # Create ADR if architectural decisions are required
     process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed"
     ```
-    Follow the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) for content customization.
+    Follow the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) for content customization.
 18. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis
     - Update existing context packages with new information
     - Create new context packages if new architectural areas identified
@@ -151,9 +142,9 @@ Evaluate how new features fit into existing system architecture before implement
 The following state files must be updated as part of this task:
 
 - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Update with architectural analysis outcomes and next steps
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Add Architecture Impact Assessment link to Arch Review column (no primary status change)
+- **Per-feature implementation state file** §4 Documentation Inventory - Add a row for the Architecture Impact Assessment using `Add-StateFileDocumentationInventoryRow` (in [`StateFileInventory.psm1`](../../scripts/Common-ScriptHelpers/StateFileInventory.psm1)). Per PF-PRO-002 / PF-IMP-760, design artifact links live in the per-feature state file — [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) is not mutated by this task. See [Feature Tracking Mutation Guide](../../guides/support/feature-tracking-mutation-guide.md).
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add any architectural debt items identified during review
-- [Architecture Decision Log](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Record architectural decisions made during review (if applicable)
+- [Architecture Decision Log](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - Record architectural decisions made during review (if applicable)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -171,9 +162,9 @@ Before considering this task finished:
   - [ ] Foundation feature specification created if foundation feature needed
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with session outcomes
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with Architecture Impact Assessment link in Arch Review column (no primary status change)
+  - [ ] Per-feature implementation state file §4 Documentation Inventory updated with Architecture Impact Assessment row (via `Add-StateFileDocumentationInventoryRow`); [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) is not mutated by this task
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any identified architectural debt
-  - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
+  - [ ] [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
 
 ## Next Tasks
@@ -186,5 +177,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Architecture Decision Records System](/doc/technical/adr) - For creating architectural decisions
+- [Architecture Decision Records System](../../../doc/technical/adr) - For creating architectural decisions
 - [Feature Tier Assessment Task](feature-tier-assessment-task.md) - Prerequisite task for complexity evaluation

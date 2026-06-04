@@ -8,6 +8,7 @@ updated: 2025-01-27
 related_script: New-SchemaDesign.ps1
 related_task: PF-TSK-021
 change_notes: "v1.1 - Updated for IMP-097/IMP-098: Added separation of concerns guidance and cross-referencing standards"
+description: "Guide for customizing database schema design templates"
 ---
 
 # Schema Design Creation Guide

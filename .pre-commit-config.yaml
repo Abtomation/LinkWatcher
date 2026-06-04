@@ -28,6 +28,10 @@ repos:
     hooks:
       - id: flake8
         args: [--max-line-length=120, --extend-ignore=E203]
+        # E2E acceptance test trees under test/e2e-acceptance-testing/ are sample-project
+        # *fixtures* that LinkWatcher parses as data, not source to lint — linting them would
+        # force edits that alter fixture content and the behavior the E2E cases verify.
+        exclude: ^test/e2e-acceptance-testing/
 
   - repo: local
     hooks:

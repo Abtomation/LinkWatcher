@@ -6,6 +6,7 @@ version: 1.1
 created: 2025-06-12
 updated: 2025-01-27
 related_task: PF-TSK-002
+description: "Components for assessing complexity"
 ---
 
 # Feature Tier Assessment Context Map
@@ -78,13 +79,13 @@ graph TD
 5. **Evaluate Design Requirements**: Determine if API and/or Database design documentation is needed
 6. Complete the Tier Assessment Document with justified tier assignment and design requirements
 7. Identify the appropriate TDD Template based on the assessment
-8. Update Feature Tracking with assessment results, including API Design and DB Design columns
+8. Update Feature Tracking (Status / Doc Tier / Notes) with assessment results; design-requirement flags (DB / API / UI) feed the next-action Status transition. Per-design tracking lives in the per-feature state file (PF-PRO-002 / PF-IMP-760).
 
 ## Related Documentation
 
-- [Documentation Tiers README](/doc/documentation-tiers/README.md) - Tier definitions and assessment guidelines
-- [Assessment Guide](/process-framework/guides/01-planning/assessment-guide.md) - Detailed guide for tier determination
-- [TDD Templates](/process-framework/templates/02-design) - Tier-specific TDD templates (tdd-t1, tdd-t2, tdd-t3)
+- [Documentation Tiers README](../../../../doc/documentation-tiers/README.md) - Tier definitions and assessment guidelines
+- [Assessment Guide](../../../guides/01-planning/assessment-guide.md) - Detailed guide for tier determination
+- [TDD Templates](../../../templates/02-design) - Tier-specific TDD templates (tdd-t1, tdd-t2, tdd-t3)
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---

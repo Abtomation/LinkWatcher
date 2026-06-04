@@ -7,7 +7,7 @@ created: 2026-04-16
 updated: 2026-04-16
 auditor: AI Agent
 audit_date: 2026-04-16
-test_file_path: test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-013-nested-directory-move/test-case.md
+test_file_path: test/e2e-acceptance-testing/directory-move-contained-refs-updated/templates/TE-E2E-013-nested-directory-move/test-case.md
 feature_id: 1.1.1
 ---
 
@@ -20,7 +20,7 @@ feature_id: 1.1.1
 | **Feature ID** | 1.1.1, 0.1.2, 2.1.1, 2.2.1 |
 | **Test Case ID** | TE-E2E-013 |
 | **Test Group** | TE-E2G-005 (runtime-dynamic-operations) |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-013-nested-directory-move/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/directory-move-contained-refs-updated/templates/TE-E2E-013-nested-directory-move/` |
 | **Workflow** | WF-002: Directory Move — All Contained References Updated |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-16 |

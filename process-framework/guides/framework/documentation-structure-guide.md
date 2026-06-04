@@ -5,6 +5,7 @@ category: Guide
 version: 1.1
 created: 2025-06-07
 updated: 2025-01-11
+description: "Guide for organizing documentation structure within the framework"
 ---
 
 # Documentation Structure Guide

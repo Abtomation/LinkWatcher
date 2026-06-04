@@ -28,7 +28,7 @@ AI Context
     reads the file, filters for relative links, recalculates targets from
     the new location via ``_calculate_updated_relative_path()``, and writes
     back atomically.
-  - Testing: ``test/automated/unit/test_reference_lookup.py``.
+  - Testing: ``test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py``.
 """
 
 import os

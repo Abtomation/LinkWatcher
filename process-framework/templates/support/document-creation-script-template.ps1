@@ -107,9 +107,9 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    # Get project root for dynamic path resolution
-    $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/[SUBFOLDER]/[TEMPLATE_NAME].md"
+    # Resolve template path via Get-ProcessFrameworkPath so the script works in both layouts
+    # (rolled-out projects: process-framework/ at top level; appdev: blueprint/process-framework/).
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/[SUBFOLDER]/[TEMPLATE_NAME].md"
 
     # Use DirectoryType for ID registry-based directory resolution (recommended)
     # Alternative: Use -OutputDirectory "[EXPLICIT_PATH]" for custom directory paths

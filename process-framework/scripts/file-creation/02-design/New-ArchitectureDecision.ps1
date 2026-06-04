@@ -52,14 +52,13 @@ $customReplacements = @{
 }
 
 try {
-    $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/02-design/adr-template.md"
-    $arcId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-ADR" -IdDescription "Architecture Decision: ${Title}" -DocumentName $Title -OutputDirectory "doc/technical/architecture/design-docs/adr/adr" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/adr-template.md"
+    $arcId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-ADR" -IdDescription "Architecture Decision: ${Title}" -DocumentName $Title -OutputDirectory "doc/technical/adr" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     # Update tracking files automatically
     try {
         $kebabTitle = ConvertTo-KebabCase -InputString $Title
-        $documentPath = Join-Path (Get-ProjectRoot) "doc/technical/architecture/design-docs/adr/adr/$kebabTitle.md"
+        $documentPath = Join-Path (Get-ProjectRoot) "doc/technical/adr/$kebabTitle.md"
         Write-Verbose "Constructed document path: $documentPath"
         $trackingMetadata = @{
             "title" = $Title
@@ -119,7 +118,7 @@ try {
             $relatedFeature = if ($RelatedFeatureId -and $RelatedFeatureId -ne "" -and $RelatedFeatureId -ne "TBD") { $RelatedFeatureId } else { "-" }
             $dateStamp = Get-ProjectTimestamp -Format "Date"
             $kebabTitle = ConvertTo-KebabCase -InputString $Title
-            $adrLink = "[$arcId](/doc/technical/architecture/design-docs/adr/adr/$kebabTitle.md)"
+            $adrLink = "[$arcId](/doc/technical/adr/$kebabTitle.md)"
             $newRow = "| $adrLink | $Title | $Status | $ImpactLevel | $relatedFeature | $dateStamp |"
 
             if ($PSCmdlet.ShouldProcess("architecture-tracking.md", "Append ADR to ADR Index table")) {

@@ -33,7 +33,7 @@ debt_item: TD242
 - [x] Replace inline guard in `reference_lookup.py:765-770` with helper call
 - [x] Replace inline guard in `path_resolver.py:122-129` with helper call
 - [ ] ~~Add helper call to `path_resolver.py:109-114` direct-equality early-exit~~ — **deferred** (see scope decision above)
-- [ ] ~~Update unit tests in `test/automated/unit/test_updater.py`~~ — **N/A** (line-109 deferred, no tests need updating)
+- [ ] ~~Update unit tests in `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py`~~ — **N/A** (line-109 deferred, no tests need updating)
 
 **Test Baseline**: 819 passed, 0 failed, 5 skipped, 5 xfailed, 4 deselected (slow-marked) — `pytest test/automated/ -m "not slow"`. No pre-existing failing tests.
 **Test Result**: 819 passed, 0 failed, 5 skipped, 5 xfailed, 4 deselected. **No diff vs baseline — clean.**

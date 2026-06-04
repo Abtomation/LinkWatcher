@@ -277,7 +277,7 @@ Validation conducted by systematically reading all source files for each feature
 - `src/linkwatcher/parser.py`, `src/linkwatcher/updater.py`
 
 **Test Files Reviewed:**
-- `test/automated/unit/test_service.py`, `test/automated/unit/test_database.py`, `test/automated/unit/test_config.py`
+- `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py`, `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py`, `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py`
 
 **Prior Validation Reports:**
 - PD-VAL-046 (Architectural Consistency, Round 2 Batch A)

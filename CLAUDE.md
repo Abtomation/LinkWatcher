@@ -20,14 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Session Startup Requirements
 
-At the start of EVERY session, you must:
-
-1. **Start LinkWatcher** (maintains cross-references automatically):
-   ```powershell
-   process-framework/tools/linkWatcher/start_linkwatcher_background.ps1
-   ```
-
-2. **Get current time** (for time tracking - use MCP server if available)
+LinkWatcher background startup and session-start timestamp are emitted automatically by the `SessionStart` hooks in `.claude/settings.json` (set up during [Project Initiation (PF-TSK-059)](process-framework/tasks/00-setup/project-initiation-task.md) Step 14) — no agent action required.
 
 ## Prohibited Git Commands
 
@@ -44,31 +37,14 @@ At the start of EVERY session, you must:
 
 ## PowerShell Script Execution
 
-**Before running any script, check its parameters first:**
-```bash
-pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 -?
-```
-Do not guess parameter names — scripts use `ValidateSet` constraints that reject unknown values.
-
-**Preferred pattern** — use `pwsh.exe -Command` with the entire argument wrapped in **bash single quotes**:
+Check a script's parameters before invoking it, then prefer `-File` with a direct path:
 
 ```bash
-cd process-framework/scripts/file-creation && pwsh.exe -ExecutionPolicy Bypass -Command '& .\Script.ps1 -Param1 "value1" -Param2 "value2" -Confirm:$false'
+pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 -?                                 # inspect params (don't guess — ValidateSet rejects unknowns)
+pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 -Param "value" -Confirm:\$false     # run (escape $ as \$)
 ```
 
-> **Key rule**: Wrap the entire `-Command` argument in bash single quotes (`'...'`). Inside, use double quotes for PowerShell string parameters. Bash single quotes prevent interpretation of `$`, `&`, and other special characters.
-
-**Fallback pattern** — for complex cases where nested quoting is problematic, write a temp `.ps1` file:
-
-```bash
-cat > temp.ps1 << 'ENDOFSCRIPT'
-Set-Location 'process-framework/scripts/file-creation'
-& .\Script.ps1 -Params -Confirm:$false
-ENDOFSCRIPT
-pwsh.exe -ExecutionPolicy Bypass -File temp.ps1 && rm temp.ps1
-```
-
-See @process-framework/guides/support/script-development-quick-reference.md for details and examples.
+`-File` needs no `cd` or quoting wrapper. For the `-Command` fallback, human-terminal usage, and Bash-tool troubleshooting, see the single source of truth: @process-framework/guides/support/script-development-quick-reference.md (§ PowerShell Script Execution (AI Agents)).
 
 ## Architecture Overview
 

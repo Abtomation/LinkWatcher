@@ -306,7 +306,7 @@ Source code review of all primary implementation files for features 2.1.1, 2.2.1
 
 **Test Files:**
 - test/automated/parsers/test_generic_parser.py, test_markdown_parser.py, test_powershell_parser.py, test_dart_parser.py, test_json_parser.py, test_python_parser.py, test_yaml_parser.py
-- test/automated/unit/test_updater.py, test_logging.py, test_validator.py
+- test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py, test_logging.py, test_validator.py
 
 ---
 

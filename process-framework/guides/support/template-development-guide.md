@@ -5,6 +5,7 @@ category: Guide
 version: 1.1
 created: 2025-06-07
 updated: 2025-07-15
+description: "Guide for developing and maintaining framework templates"
 ---
 
 # Template Development Guide
@@ -142,10 +143,10 @@ The project provides a script to automate template structure creation:
 
 ```powershell
 # Create a new template with basic information
-..\..\scripts\file-creation\New-Template.ps1lateName "Feature Request" -TemplateDescription "Template for creating feature requests" -DocumentPrefix "PF-REQ" -DocumentCategory "Request"
+..\..\scripts\file-creation\support\New-Template.ps1 -TemplateName "Feature Request" -TemplateDescription "Template for creating feature requests" -DocumentPrefix "PF-REQ" -DocumentCategory "Request" -OutputDirectory "support"
 
 # Create and immediately open in editor
-..\..\scripts\file-creation\New-Template.ps1lateName "Architecture Overview" -TemplateDescription "Template for architecture documentation" -DocumentPrefix "PD-ARC" -DocumentCategory "Architecture" -OpenInEditor
+..\..\scripts\file-creation\support\New-Template.ps1 -TemplateName "Architecture Overview" -TemplateDescription "Template for architecture documentation" -DocumentPrefix "PD-ARC" -DocumentCategory "Architecture" -OutputDirectory "02-design" -OpenInEditor
 ```
 
 **Phase A Script Output:**
@@ -250,6 +251,6 @@ The project provides a script to automate template structure creation:
 - [Migration Best Practices](migration-best-practices.md)
 - [Structure Change Task](../../tasks/support/structure-change-task.md)
 - [Task Creation and Improvement Guide](task-creation-guide.md)
-- [Template Creation Script](/process-framework/scripts/file-creation/support/New-Template.ps1)
-- [Template Base Template](/process-framework/templates/support/template-base-template.md)
+- [Template Creation Script](../../scripts/file-creation/support/New-Template.ps1)
+- [Template Base Template](../../templates/support/template-base-template.md)
 - [Document Creation Script Development Guide](document-creation-script-development-guide.md)

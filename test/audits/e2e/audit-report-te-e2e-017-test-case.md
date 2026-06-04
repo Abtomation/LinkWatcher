@@ -7,7 +7,7 @@ created: 2026-04-15
 updated: 2026-04-15
 auditor: AI Agent
 feature_id: TE-E2E-017
-test_file_path: test/e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-017-move-file-then-referencing-file/test-case.md
+test_file_path: test/e2e-acceptance-testing/rapid-sequential-moves-consistency/templates/TE-E2E-017-move-file-then-referencing-file/test-case.md
 audit_date: 2026-04-15
 ---
 
@@ -20,7 +20,7 @@ audit_date: 2026-04-15
 | **Feature ID** | TE-E2E-017 |
 | **Test Case ID** | TE-E2E-017 |
 | **Test Group** | TE-E2G-007 |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-017-move-file-then-referencing-file/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/rapid-sequential-moves-consistency/templates/TE-E2E-017-move-file-then-referencing-file/` |
 | **Workflow** | WF-004: Rapid Sequential File Moves |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-15 |

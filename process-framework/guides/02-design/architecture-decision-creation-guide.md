@@ -7,6 +7,7 @@ created: 2025-07-27
 updated: 2025-08-03
 related_script: New-ArchitectureDecision.ps1
 guide_description: Guide for customizing Architecture Decision Record templates
+description: "Guide for customizing Architecture Decision Record templates"
 ---
 
 # Architecture Decision Creation Guide

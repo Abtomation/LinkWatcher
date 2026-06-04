@@ -6,6 +6,7 @@ version: 1.1
 created: 2025-07-19
 updated: 2025-01-27
 related_task: PF-TSK-020
+description: "Components for designing API contracts and specifications"
 ---
 
 # API Design Task Context Map
@@ -94,10 +95,10 @@ graph TD
 
 ## Related Documentation
 
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Current feature requirements and status
-- [System Architecture Review Task](/process-framework/tasks/01-planning/system-architecture-review.md) - Prerequisite architectural analysis
-- [API Design Task](/process-framework/tasks/02-design/api-design-task.md) - Complete task definition using this context map
-- [API Specification Creation Guide](/process-framework/guides/02-design/api-specification-creation-guide.md) - How to use the [../../../scripts/file-creation/02-design/New-APISpecification.ps1](../../../scripts/file-creation/02-design/New-APISpecification.ps1) script
-- [API Data Model Creation Guide](/process-framework/guides/02-design/api-data-model-creation-guide.md) - How to use the [../../../scripts/file-creation/02-design/New-APIDataModel.ps1](../../../scripts/file-creation/02-design/New-APIDataModel.ps1) script
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current feature requirements and status
+- [System Architecture Review Task](../../../tasks/01-planning/system-architecture-review.md) - Prerequisite architectural analysis
+- [API Design Task](../../../tasks/02-design/api-design-task.md) - Complete task definition using this context map
+- [API Specification Creation Guide](../../../guides/02-design/api-specification-creation-guide.md) - How to use the [../../../scripts/file-creation/02-design/New-APISpecification.ps1](../../../scripts/file-creation/02-design/New-APISpecification.ps1) script
+- [API Data Model Creation Guide](../../../guides/02-design/api-data-model-creation-guide.md) - How to use the [../../../scripts/file-creation/02-design/New-APIDataModel.ps1](../../../scripts/file-creation/02-design/New-APIDataModel.ps1) script
 
 ---

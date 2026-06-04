@@ -64,14 +64,15 @@ if ($Dims -ne "") {
 $kebabName = ConvertTo-KebabCase -InputString $EnhancementName
 $customFileName = "enhancement-$kebabName.md"
 
-# Build absolute template path
-$projectRoot = Get-ProjectRoot
-$processFrameworkDir = Join-Path $projectRoot "process-framework"
+# Build absolute template path (Phase 5.5: configurable via paths.process_framework)
+$processFrameworkDir = Get-ProcessFrameworkPath
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates/04-implementation/enhancement-state-tracking-template.md"
 
 try {
     $idDesc = "Enhancement state tracking for ${TargetFeature}: ${EnhancementName}"
-    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $EnhancementName -OutputDirectory "doc/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+    $stContext = Get-StateTrackingContext
+    $outputDir = "$($stContext.StateTrackingRelative)/temporary"
+    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $EnhancementName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     $details = @(
         "Target Feature: $TargetFeature",

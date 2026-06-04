@@ -6,6 +6,7 @@ version: 1.0
 created: 2026-04-12
 updated: 2026-04-12
 related_task: PF-TSK-086
+description: "Decision matrix and worked examples for identifying per-feature performance and E2E test needs"
 ---
 
 # Performance & E2E Test Scoping Guide
@@ -17,7 +18,7 @@ This guide provides the decision matrix and evaluation process for the Performan
 1. **Does this feature need performance tests?** — Use the decision matrix
 2. **Does this feature's completion make any user workflow E2E-ready?** — Use the E2E milestone evaluation
 
-This guide owns "when to test." For "how to test," see the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) (test levels, baselines, trends) and the [E2E Acceptance Test Case Customization Guide](/process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md).
+This guide owns "when to test." For "how to test," see the [Performance Testing Guide](performance-testing-guide.md) (test levels, baselines, trends) and the [E2E Acceptance Test Case Customization Guide](e2e-acceptance-test-case-customization-guide.md).
 
 ## When to Use
 
@@ -90,7 +91,7 @@ Changes to configuration, logging, CLI, or documentation are **not** hot-path an
 
 ### Process
 
-1. **Read [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md)** to find all tracked workflows this feature participates in
+1. **Read [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md)** to find all tracked workflows this feature participates in
 2. **Discover untracked cross-feature interactions**: Using the feature's dependencies and integration points, check for E2E-worthy scenarios not yet in user-workflow-tracking.md:
    - Does the feature introduce a new interaction path between two or more features?
    - Does the feature change an interface that other features depend on?
@@ -115,7 +116,7 @@ If a feature does not appear in any tracked workflow and no new cross-feature in
 
 ### Performance Test Entries
 
-When adding rows to [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md):
+When adding rows to [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md):
 
 | Field | Value |
 |-------|-------|
@@ -127,7 +128,7 @@ When adding rows to [performance-test-tracking.md](/test/state-tracking/permanen
 
 ### E2E Test Entries
 
-When adding entries to [e2e-test-tracking.md](/test/state-tracking/permanent/e2e-test-tracking.md):
+When adding entries to [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md):
 
 | Field | Value |
 |-------|-------|
@@ -197,7 +198,7 @@ Evaluate each subsystem independently through the decision matrix. A single feat
 
 ### Existing Performance Tests Already Cover the Area
 
-If [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) already has a test for the affected subsystem at the relevant level, do not add a duplicate. Instead, note: "Existing test BM-XXX covers this — verify no regression during next Baseline Capture."
+If [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md) already has a test for the affected subsystem at the relevant level, do not add a duplicate. Instead, note: "Existing test BM-XXX covers this — verify no regression during next Baseline Capture."
 
 ### Retrospective Scoping (Pre-Existing Features)
 
@@ -214,11 +215,11 @@ The audit gate is mandatory for newly created tests. Re-executions (`⚠️ Need
 
 ## Related Resources
 
-- [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) - 4-level methodology, baseline management, trend analysis ("how to test")
-- [Performance & E2E Test Scoping Task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) - The task that uses this guide
-- [Test Audit Task (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) - Audit gate for newly created performance and E2E tests
-- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) - Registry of all performance tests
-- [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md) - Registry of all E2E acceptance tests
-- [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) - Workflow-to-feature mappings
-- [Feature Dependencies](/doc/technical/architecture/feature-dependencies.md) - Feature dependency graph
-- [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) - Performance section
+- [Performance Testing Guide](performance-testing-guide.md) - 4-level methodology, baseline management, trend analysis ("how to test")
+- [Performance & E2E Test Scoping Task (PF-TSK-086)](../../tasks/03-testing/performance-and-e2e-test-scoping-task.md) - The task that uses this guide
+- [Test Audit Task (PF-TSK-030)](../../tasks/03-testing/test-audit-task.md) - Audit gate for newly created performance and E2E tests
+- [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) - Registry of all performance tests
+- [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md) - Registry of all E2E acceptance tests
+- [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) - Workflow-to-feature mappings
+- [Feature Dependencies](../../../doc/technical/architecture/feature-dependencies.md) - Feature dependency graph
+- [Definition of Done](../04-implementation/definition-of-done.md) - Performance section

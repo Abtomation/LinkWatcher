@@ -12,6 +12,9 @@ creates_document_type: Process Framework
 usage_context: Process Framework - Feature State Tracking (Lightweight)
 creates_document_category: Feature Implementation State
 template_for: Feature State Tracking (Lightweight)
+variant_group: feature-implementation-state-templates
+variant_siblings:
+  - feature-implementation-state-template.md
 ---
 
 # [Feature Name] - Implementation State
@@ -79,9 +82,7 @@ template_for: Feature State Tracking (Lightweight)
 
 ### User Documentation
 
-> **Trigger for [User Documentation Creation](../../../process-framework/tasks/07-deployment/user-documentation-creation.md)**: When this feature has user-visible behavior, identify required Diátaxis content types (tutorials/how-to/reference/explanation) during PF-TSK-081's analysis step, then add one row per required content type with Status `❌ Needed`. The task resolves each row to `✅ Created` with a link. Use `N/A` for internal-only features. Feature is `🟢 Completed` only when ALL rows are `✅ Created`.
->
-> **Content Type column** values: declared in [PD-id-registry.json](../../../doc/PD-id-registry.json) under `PD-UGD.subdirectories.values`. Framework default: `tutorials`, `how-to`, `reference`, `explanation` (Diátaxis).
+> See [Diátaxis Content Type Guide (PF-GDE-063)](../../guides/07-deployment/diataxis-content-type-guide.md) for the decision matrix, content-type values, and status taxonomy (`✅ Created` / `✅ Covered Elsewhere` / `❌ Needed` / `N/A`).
 
 | Document   | Content Type | Status   | Location | Last Updated |
 | ---------- | ------------ | -------- | -------- | ------------ |
@@ -110,10 +111,10 @@ template_for: Feature State Tracking (Lightweight)
 
 | File Path | Role | Ownership | Origin | Notes |
 | --------- | ---- | --------- | ------ | ----- |
-| [path] | [Core/Supporting/Shared] | [Owned/Co-owned/External] | [Created/Modified/Pre-existing] | [Notes] |
+| [path] | [Core/Supporting/Shared] | [Owned/Co-owned/External/Tech Debt] | [Created/Modified/Pre-existing] | [Notes] |
 
 - **Role**: Core (central to feature), Supporting (used but not central), Shared (used by multiple features)
-- **Ownership**: Owned (this feature is primary owner), Co-owned (shared responsibility), External (owned by another feature)
+- **Ownership**: Owned (this feature is primary owner), Co-owned (shared responsibility), External (owned by another feature), Tech Debt (file is owned but slated for archival/removal — explain why in Notes; common subtypes: `.bak` stub, Dead Code, Stale Doc)
 - **Origin**: Created (new file), Modified (changed existing file), Pre-existing (used without changes)
 
 **Code Markers**: Created files include `// FEATURE: {feature-id}` header marker. Modifications include `// [FEATURE: {feature-id}]` inline markers.
@@ -211,10 +212,13 @@ template_for: Feature State Tracking (Lightweight)
 
 > **Onboarding Quality Gate** (PF-TSK-065): Populated during Codebase Feature Analysis. Scores determine whether this feature is documented as **As-Built** (descriptive) or **Target-State** (prescriptive with gap analysis) during PF-TSK-066.
 >
+> Dual-score model (PF-IMP-019/032): **Code Maturity** drives the As-Built/Target-State classification; **Test Maturity** drives a separate test-plan-urgency signal (does not affect classification).
+>
 > For new features (not onboarding): _Leave this section empty — quality gate applies only during framework adoption._
 
 **Classification**: [As-Built / Target-State / Not Assessed]
-**Average Score**: [X.X] / 3.0
+**Code Maturity**: [X.X] / 3.0  *(avg of Structural clarity, Error handling, Data integrity, Maintainability)*
+**Test Maturity**: [0-3] / 3.0  *(Test coverage alone)*
 
 | Dimension | Score (0-3) | Notes |
 |-----------|-------------|-------|

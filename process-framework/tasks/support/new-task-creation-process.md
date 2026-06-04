@@ -3,9 +3,10 @@ id: PF-TSK-001
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.3
+version: 1.4
 created: 2025-07-06
-updated: 2026-03-25
+updated: 2026-05-16
+description: "Complete process for creating new tasks from concept to implementation-ready definition"
 ---
 
 # New Task Creation Process
@@ -20,14 +21,6 @@ Complete process for creating a new task from concept to implementation-ready de
 **Mindset**: Systematic, efficiency-focused, improvement-oriented
 **Focus Areas**: Workflow optimization, automation opportunities, standardization, process completeness
 **Communication Style**: Identify process bottlenecks and improvement opportunities, ask about workflow preferences and automation needs
-
-## When to Use
-
-- When you have a new task concept that needs to be turned into a complete task definition
-- When creating a task that requires supporting infrastructure (directories, templates, guides)
-- When a task concept references components that don't exist yet
-- Before implementing a complex task that needs multiple supporting artifacts
-- When the new task will be implemented across multiple sessions and needs state tracking
 
 ## Context Requirements
 
@@ -54,7 +47,7 @@ Complete process for creating a new task from concept to implementation-ready de
   - [Task Transition Registry](../../infrastructure/task-transition-registry.md) - For adding "Transitioning FROM" section for the new task
   - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) - For adding new task entry (includes trigger/output chain via `🔗 TRIGGER & OUTPUT` blocks and State File Trigger Index)
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For creating context maps
-  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - For tracking infrastructure completion
+  - [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - For tracking infrastructure completion
   - [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) - Script for creating task definitions
   - [New-TempTaskState.ps1](../../scripts/file-creation/support/New-TempTaskState.ps1) - Script for creating temporary state files
   - [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) - Script for creating templates
@@ -103,12 +96,15 @@ All creation scripts emit a single-line `Customization required — see <guide>`
 ### Preparation
 
 1. **Gather Task Concept**: Obtain clear description of the new task concept from human partner. Require him to take critical decisions
-2. **Create Concept Document** (Recommended): Create a comprehensive concept document in `/process-framework-local/proposals/[task-name]-concept.md` for human review before implementation
+2. **Create Concept Document** (Recommended): Create a comprehensive concept document in `appdev/process-framework-central/proposals/[task-name]-concept.md` for human review before implementation
    - Include purpose, context, process outline, outputs, and integration considerations
    - Allow human partner to review and approve concept before proceeding
    - Reference concept document in temporary state tracking file
 3. **Review Available Artifacts**: Examine what directories, templates, guides, and state files currently exist in the process framework
 4. **Evaluate Task Requirements**: Determine which artifacts are actually needed for this specific task (not all tasks need all types of artifacts)
+
+   > **Existing-artifacts reuse**: When supporting artifacts (template, guide, script, context map, or output directory) already exist for the area and only the task definition is missing, this task is **supplementing an existing artifact family**, not building greenfield. Make a reuse-vs-create decision per artifact here in Step 4. **Reuse** means: link the artifact from the new task's Context Requirements / Related Resources, update the existing artifact to reference the new task back, and rename/update it in place rather than creating a duplicate (LinkWatcher follows renames automatically). The artifact-creation steps below — Lightweight Step 9L and Full-Mode Sessions 2–3 — carry this reuse branch.
+
 5. **🚨 CHECKPOINT**: Present task concept summary, available artifacts review, and required artifacts to human partner for alignment
 
 6. **🔍 Scope Assessment — Propose Approach to Human Partner**:
@@ -149,7 +145,6 @@ All creation scripts emit a single-line `Customization required — see <guide>`
    > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`)
 
 7L. **🚨 CRITICAL: Customize Task Definition Content** — Using the [Task Creation Guide](../../guides/support/task-creation-guide.md), customize all placeholder sections:
-   - **When to Use** — Concrete triggers (specific events, states, or conditions) — not generic "when needed"
    - **Context Requirements** — Critical, Important, and Reference inputs with actual links
    - **Process** — Detailed step-by-step instructions (Preparation, Execution, Finalization)
    - **Outputs** — Specific outputs with exact file locations and formats
@@ -159,11 +154,14 @@ All creation scripts emit a single-line `Customization required — see <guide>`
    - **AI Agent Role** — Appropriate professional role after "Purpose & Context" section
    > **🌍 IMPORTANT**: Make tasks **generic and reusable** — use category references and examples instead of project-specific details.
 
+7L-a. **Search for Recommended Skills**: Search for Claude Code skills (e.g., from the [Anthropic skills repository](https://github.com/anthropics/courses) or other known skill sources) that could support the new task's work. If a relevant skill exists, add a "Check Recommended Skills" step as the first Preparation step in the task definition, referencing both `languages-config` and `project-config.json` `recommended_skills` entries keyed to the task's slug (filename without `.md`). Also note the skill in the seed mapping table in the [Project Initiation task](../00-setup/project-initiation-task.md) Step 10a if it is broadly applicable.
+
 8L. **🚨 CHECKPOINT**: Present customized task definition to human partner for review before creating supporting artifacts
 9L. **Create Context Map**: Use [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1) and customize
    ```bash
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:\$false
    ```
+   > **Reuse**: If a context map already exists for this area (the task supplements an existing artifact family), rename and update it to reference the new task instead of creating a new one — see *Existing-artifacts reuse* in Preparation.
 
 10L. **Verify Documentation Updates**: Confirm that New-Task.ps1 automatically updated PF-documentation-map.md, tasks/README.md, and process-framework/ai-tasks.md
 
@@ -171,6 +169,7 @@ All creation scripts emit a single-line `Customization required — see <guide>`
    - **[Task Transition Registry](../../infrastructure/task-transition-registry.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
    - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns. Also add a `🔗 TRIGGER & OUTPUT` block (Self-Doc, Trigger, Output) and update the State File Trigger Index (if the task has a state-file trigger).
    - **Existing task definitions**: Grep for task definitions that precede or follow the new task in the workflow. Update their "Next Tasks" and "Related Resources" sections to reference the new task where appropriate. Also check the [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams for needed updates (these are NOT automated by New-Task.ps1 — the script only adds the table row).
+   - **Reused supporting artifacts**: For any template, guide, script, or context map reused rather than newly created, ensure each references the new task (Related Resources section and/or `related_task` frontmatter).
 
 12L. **Framework Evaluation (separate session)**: Run [Framework Evaluation](framework-evaluation.md) (PF-TSK-062) targeting the new task in a dedicated session to validate completeness, consistency, and integration quality. The new task must **not** be used in production workflows until Framework Evaluation passes.
 
@@ -224,7 +223,6 @@ All creation scripts emit a single-line `Customization required — see <guide>`
      > **📝 NAMING**: Rename the generated file to include `-task` suffix (e.g., `your-task-name.md` → `your-task-name-task.md`) for easy identification
 
    - **🚨 CRITICAL: Phase 2 - Customize Task Definition Content** - Using the [Task Creation Guide](../../guides/support/task-creation-guide.md), customize all placeholder sections in the generated task file:
-     - **When to Use** - Concrete triggers (specific events, states, or conditions) — not generic "when needed"
      - **Context Requirements** - Critical, Important, and Reference inputs with actual links to files
      - **Process** - Detailed step-by-step instructions (Preparation, Execution, Finalization) specific to this task
      - **Outputs** - Specific outputs with exact file locations and formats
@@ -234,6 +232,8 @@ All creation scripts emit a single-line `Customization required — see <guide>`
      > **Reference**: See "Phase 2: Content Customization" section above - this transforms the meta-template into a functional task definition
      >
      > **🌍 IMPORTANT**: Make tasks **generic and reusable** - use category references and examples (e.g., "business types: B2B, B2C, SaaS") instead of project-specific details. Use placeholders in commands. See [Task Creation Guide](../../guides/support/task-creation-guide.md) for detailed guidance.
+
+   - **Search for Recommended Skills**: Search for Claude Code skills that could support the new task's work. If a relevant skill exists, add a "Check Recommended Skills" step as the first Preparation step in the task definition, referencing both `languages-config` and `project-config.json` `recommended_skills` entries keyed to the task's slug (filename without `.md`). Also note the skill in the seed mapping table in the [Project Initiation task](../00-setup/project-initiation-task.md) Step 10a if broadly applicable.
 
    - **🚨 CHECKPOINT**: Present customized task definition to human partner for review before proceeding to infrastructure setup
    - **Assign AI Agent Role**: Add appropriate professional role assignment to the task definition after "Purpose & Context" section
@@ -245,12 +245,14 @@ All creation scripts emit a single-line `Customization required — see <guide>`
 
    > **⚠️ CONDITIONAL**: Only execute if task creates new files as outputs
 
+   > **Reuse**: If the output directory, creation script, template, or guide already exists for the area, reuse and link it (and update it to reference the new task) rather than creating a new one — see *Existing-artifacts reuse* in Preparation. The Session 2–3 "create" steps then become "verify + link" steps.
+
    - Create directory structure for task outputs (consider using subdirectories for better organization)
    - Create document creation script using [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1)
      - Use `DirectoryType` parameter for ID registry-based directory resolution
      - Configure subdirectory mappings in ID registry if needed
    - Update [PF ID Registry](../../PF-id-registry.json) with new ID prefix for file types created by task
-   - **Register the new document creation script for soak verification** with `Register-SoakScript -ScriptId <relative-path-from-project-root> -ScriptPath <absolute-path>` (loaded via `Common-ScriptHelpers`). The script's first 5 successful real invocations must then call `Confirm-SoakInvocation -Outcome success` after agent verification of the on-disk effects — see [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) and [PF-PRO-028 Script Self-Verification](../../../process-framework-local/proposals/old/script-self-verification.md).
+   - **Register the new document creation script for soak verification** with `Register-SoakScript -ScriptId <relative-path-from-project-root> -ScriptPath <absolute-path>` (loaded via `Common-ScriptHelpers`). The script's first 5 successful real invocations must then call `Confirm-SoakInvocation -Outcome success` after agent verification of the on-disk effects — see [`script-soak-tracking.md`](../../../../process-framework-central/state-tracking/permanent/script-soak-tracking.md) and [PF-PRO-028 Script Self-Verification](../../../process-framework-central/proposals/old/script-self-verification.md).
 
    **Session 3 - Templates and Guides:**
 
@@ -279,6 +281,7 @@ All creation scripts emit a single-line `Customization required — see <guide>`
      - **[Task Transition Registry](../../infrastructure/task-transition-registry.md)**: Add a "Transitioning FROM [New Task Name]" section listing the tasks that typically follow this new task, with transition triggers and required handover artifacts. Update any existing scenarios that should include the new task.
      - **[Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md)**: Add a new task entry with process type, automation status, script locations, and file update patterns. Also add a `🔗 TRIGGER & OUTPUT` block (Self-Doc, Trigger, Output) and update the State File Trigger Index (if the task has a state-file trigger).
      - **Existing task definitions**: Grep for task definitions that precede or follow the new task in the workflow. Update their "Next Tasks" and "Related Resources" sections to reference the new task where appropriate. Also check the [ai-tasks.md](../../ai-tasks.md) decision tree and workflow diagrams for needed updates (these are NOT automated by New-Task.ps1 — the script only adds the table row).
+     - **Reused supporting artifacts**: For any template, guide, script, or context map reused rather than newly created, ensure each references the new task (Related Resources section and/or `related_task` frontmatter).
    - Create context map using [Visualization Creation Guide](../../guides/support/visualization-creation-guide.md) and [New-ContextMap.ps1](../../scripts/file-creation/02-design/New-ContextMap.ps1)
      ```bash
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-ContextMap.ps1 -TaskName "Your Task Name" -WorkflowPhase "02-drafting" -MapDescription "Context map for Your Task Name task" -Confirm:\$false
@@ -307,12 +310,12 @@ All creation scripts emit a single-line `Customization required — see <guide>`
 
 ### Preparation Outputs (Optional but Recommended)
 
-- **Task Concept Document** - Comprehensive concept document in `/process-framework-local/proposals/[task-name]-concept.md` for human review and approval
+- **Task Concept Document** - Comprehensive concept document in `appdev/process-framework-central/proposals/[task-name]-concept.md` for human review and approval
 
 ### Session 1 Outputs (Core Infrastructure)
 
 - **Task Definition File** - Generated task definition in `/process-framework/tasks/[type]/[task-name].md` with assigned AI Agent Role
-- **Temporary State Tracking File** - Multi-session implementation tracker in `/process-framework-local/state-tracking/temporary/temp-task-creation-[task-name].md`
+- **Temporary State Tracking File** - Multi-session implementation tracker in `process-framework-central/state-tracking/temporary/temp-task-creation-[task-name].md`
 - **✅ AUTOMATED Documentation Updates** - Three files automatically updated by New-Task.ps1:
   - **Documentation Map** - New task added to [PF-documentation-map.md](../../PF-documentation-map.md) with proper categorization
   - **Tasks README** - New task added to [tasks/README.md](../README.md) in appropriate section table
@@ -378,7 +381,6 @@ The following state files are updated as part of this task:
 - [ ] **Task Definition Verified**:
   - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1)
   - [ ] **🚨 Task definition content fully customized** — All placeholder sections replaced with task-specific content:
-    - [ ] When to Use section has concrete triggers (specific events, states, or conditions — not generic "when needed")
     - [ ] Context Requirements lists actual files with links
     - [ ] Process section has detailed step-by-step instructions
     - [ ] Outputs section specifies exact deliverables and locations
@@ -413,7 +415,6 @@ The following state files are updated as part of this task:
 - [ ] **Core Outputs Verified**:
   - [ ] Task definition file generated using [New-Task.ps1](../../scripts/file-creation/support/New-Task.ps1) and [Task Creation Guide](../../guides/support/task-creation-guide.md)
   - [ ] **🚨 Phase 2: Task definition content fully customized** - All placeholder sections replaced with task-specific content:
-    - [ ] When to Use section has concrete triggers (specific events, states, or conditions — not generic "when needed")
     - [ ] Context Requirements lists actual files with links
     - [ ] Process section has detailed step-by-step instructions
     - [ ] Outputs section specifies exact deliverables and locations
@@ -435,7 +436,7 @@ The following state files are updated as part of this task:
   - [ ] Document creation script created using [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) and [Document Creation Script Template](../../templates/support/document-creation-script-template.ps1)
   - [ ] ID registry updated with new prefix for file types created by task
   - [ ] Script tested and functional
-  - [ ] Script registered for soak verification — entry visible in [`script-soak-tracking.md`](../../state-tracking/permanent/script-soak-tracking.md) (verify via `Get-SoakStatus -ScriptId <relative-path>`)
+  - [ ] Script registered for soak verification — entry visible in [`script-soak-tracking.md`](../../../../process-framework-central/state-tracking/permanent/script-soak-tracking.md) (verify via `Get-SoakStatus -ScriptId <relative-path>`)
 
 #### Session 3 Completion (Templates and Guides)
 

@@ -2,9 +2,10 @@
 id: PF-TSK-072
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2026-03-23
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for security best practices, data protection, input validation, and secrets management"
 ---
 
 # Security & Data Protection Validation
@@ -19,14 +20,6 @@ Systematically validates selected features for security best practices, data pro
 **Mindset**: Threat-aware, defense-in-depth, risk-based prioritization
 **Focus Areas**: Authentication, authorization, input validation, secrets management, data protection, OWASP principles
 **Communication Style**: Identify security vulnerabilities and data exposure risks, recommend mitigations with severity ratings, ask about threat model assumptions and acceptable risk levels
-
-## When to Use
-
-- When validating selected features for security posture as part of the validation framework
-- Before deploying features that handle user input, authentication, or sensitive data
-- When investigating potential security vulnerabilities or data exposure risks
-- As part of regular security assessments or compliance reviews
-- After introducing new external dependencies or API integrations
 
 ## Context Requirements
 
@@ -49,7 +42,7 @@ Systematically validates selected features for security best practices, data pro
   <!-- Component Relationship Index - Removed: file deleted -->
 
 - **Reference Only (Access When Needed):**
-  - **Architecture Decision Records** - [ADR Directory](/doc/technical/architecture) - Security-related architectural decisions
+  - **Architecture Decision Records** - [ADR Directory](../../../doc/technical/architecture) - Security-related architectural decisions
   - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding validation report ID assignments
 
@@ -92,7 +85,7 @@ Systematically validates selected features for security best practices, data pro
 14. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 16. **Plan Remediation**: For scores below threshold, create action items for security improvements — prioritize by severity (Critical > High > Medium > Low)
-17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "SE" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
@@ -142,4 +135,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Architecture Decision Records](/doc/technical/architecture) - Security-related architectural decisions
+- [Architecture Decision Records](../../../doc/technical/architecture) - Security-related architectural decisions

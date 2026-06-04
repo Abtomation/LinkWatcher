@@ -7,6 +7,7 @@ created: 2026-04-03
 updated: 2026-04-03
 workflow_phase: support
 related_task: PF-TSK-080
+description: "Context map for Framework Domain Adaptation task showing adaptation phases, document classification, and execution flow"
 ---
 
 # Framework Domain Adaptation Context Map
@@ -111,7 +112,7 @@ graph TD
 
 ## Related Documentation
 
-- [Framework Domain Adaptation Task](/process-framework/tasks/support/framework-domain-adaptation.md) — Task definition for this adaptation process
-- [Documentation Map](/process-framework/PF-documentation-map.md) — Central index of all framework artifacts
-- [AI Tasks System](/process-framework/ai-tasks.md) — Task registry and workflow definitions
-- [Structure Change Task](/process-framework/tasks/support/structure-change-task.md) — Related task for structural reorganization
+- [Framework Domain Adaptation Task](../../../tasks/support/framework-domain-adaptation.md) — Task definition for this adaptation process
+- [Documentation Map](../../../PF-documentation-map.md) — Central index of all framework artifacts
+- [AI Tasks System](../../../ai-tasks.md) — Task registry and workflow definitions
+- [Structure Change Task](../../../tasks/support/structure-change-task.md) — Related task for structural reorganization

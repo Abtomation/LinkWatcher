@@ -6,11 +6,12 @@ version: 1.1
 created: 2026-03-23
 updated: 2026-04-08
 task_name: [TASK-NAME]
+description: "Template for tracking multi-session process improvement implementation (via New-TempTaskState.ps1 -Variant ProcessImprovement)"
 ---
 
 # Temporary Process Improvement State: [Task Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of a process improvement. Move to `process-framework-local/state-tracking/temporary/old` after all phases are complete.
+> **⚠️ TEMPORARY FILE**: This file tracks multi-session implementation of a process improvement. Move to `process-framework-central/state-tracking/temporary/old` after all phases are complete.
 
 ## Improvement Overview
 
@@ -83,7 +84,7 @@ task_name: [TASK-NAME]
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Convention for `<TOOL_DOC_ID>`**: task definitions (file with `id: PF-TSK-NNN` frontmatter) → `PF-TSK-NNN`; everything else (templates, guides, scripts, context maps, handbooks, companion task files) → filename (e.g., `New-FeedbackForm.ps1`)
   - **Verify canonical ID first**: `python process-framework/scripts/feedback_db.py list-tools --filter <substring>`
-  - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"` (add `--new-tool` if it's a first-time tool registration)
+  - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"` (add `--new-tool` if it's a first-time tool registration; for `--batch` mixed batches, prefer per-entry `"new_tool": true` in JSON so typo detection stays armed on the other entries — PF-IMP-866)
 
 - [ ] **Update process-improvement-tracking.md**: Mark improvement as Completed
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
@@ -126,7 +127,7 @@ task_name: [TASK-NAME]
 
 ## Completion Criteria
 
-This temporary state file can be moved to `process-framework-local/state-tracking/temporary/old` when:
+This temporary state file can be moved to `process-framework-central/state-tracking/temporary/old` when:
 
 - [ ] All implementation phases are complete
 - [ ] All affected components are updated and tested

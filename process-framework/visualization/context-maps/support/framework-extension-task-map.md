@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-28
 updated: 2025-07-28
 related_task: PF-TSK-026
+description: "Context map for Framework Extension Task showing component relationships and workflow"
 ---
 # Framework Extension Task Context Map
 

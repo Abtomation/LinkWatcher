@@ -51,7 +51,7 @@ The first (pre-config) `setup_logging()` call stays as-is in both branches — n
 - [x] Replaced conditional block at lines 336-345 with single unconditional helper call at [main.py:364](/main.py#L364)
 
 **Test Baseline**: 819 passed, 5 skipped, 4 deselected (slow), 5 xfailed, 0 failed (clean baseline; no pre-existing failures owned by this session).
-**Test Result**: 828 passed, 5 skipped, 4 deselected (slow), 5 xfailed, 0 failed. Diff: +9 passed (7 new tests in [test_main_logging_setup.py](/test/automated/unit/test_main_logging_setup.py) + 2 incidental from collection ordering). No regressions.
+**Test Result**: 828 passed, 5 skipped, 4 deselected (slow), 5 xfailed, 0 failed. Diff: +9 passed (7 new tests in [test_main_logging_setup.py](/test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_main_logging_setup.py) + 2 incidental from collection ordering). No regressions.
 
 **Documentation & State Updates**:
 - [x] Feature implementation state file (3.1.1 Logging) updated, or N/A — N/A: grepped [3.1.1-logging-system-implementation-state.md](/doc/state-tracking/features/3.1.1-logging-system-implementation-state.md) for `setup_logging`/`main.py:33`/`conditional` — no references to the changed wiring.

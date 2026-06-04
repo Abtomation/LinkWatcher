@@ -6,6 +6,7 @@ version: 1.1
 created: 2025-08-16
 updated: 2026-03-04
 related_task: PF-TSK-034
+description: "Components for validating TDD alignment, ADR compliance, and API documentation accuracy"
 ---
 
 # Documentation Alignment Validation Context Map
@@ -111,8 +112,8 @@ graph TD
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
 - [Validation Report Template](../../../templates/05-validation/validation-report-template.md) - Standardized report structure
-- [Technical Design Documents](/doc/technical/tdd) - TDD directory for alignment validation
-- [Architecture Decision Records](/doc/technical/adr) - ADR directory for compliance validation
+- [Technical Design Documents](../../../../doc/technical/tdd) - TDD directory for alignment validation
+- [Architecture Decision Records](../../../../doc/technical/adr) - ADR directory for compliance validation
 - [../../scripts/file-creation/New-ValidationReport.ps1](../../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Automation script for report generation
 - [Documentation Guide](../../../guides/05-validation/documentation-guide.md) - Documentation standards and quality criteria
 

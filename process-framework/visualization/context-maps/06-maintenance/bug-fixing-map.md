@@ -6,6 +6,7 @@ version: 1.2
 created: 2025-06-12
 updated: 2026-03-02
 related_task: PF-TSK-007
+description: "Components for fixing bugs"
 ---
 
 # Bug Fixing Context Map

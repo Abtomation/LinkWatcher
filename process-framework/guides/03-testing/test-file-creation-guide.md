@@ -8,6 +8,7 @@ updated: 2026-04-03
 related_task: PF-TSK-012
 related_script: New-TestFile.ps1
 guide_title: Test File Creation Guide
+description: "Guide for customizing test file templates"
 ---
 
 # Test File Creation Guide
@@ -215,7 +216,7 @@ refs = parser.parse_content(content, "test.ps1")
 assert "process-framework/scripts" in [r.link_target for r in refs]
 ```
 
-See [Test Infrastructure Guide — Test Isolation Rules](/process-framework/guides/03-testing/test-infrastructure-guide.md#test-isolation-rules) for the complete isolation rules and mapping convention.
+See [Test Infrastructure Guide — Test Isolation Rules](test-infrastructure-guide.md#test-isolation-rules) for the complete isolation rules and mapping convention.
 
 ## Step-by-Step Instructions
 
@@ -402,7 +403,7 @@ After creating or modifying test files, complete these documentation steps to ke
 
 3. **Decide whether to escalate to formal Test Specification Creation**:
    - **Inline update is sufficient** when: adding 1–3 scenarios to an existing spec, or the change is a straightforward regression/characterization test
-   - **Escalate to [Test Specification Creation (PF-TSK-012)](/process-framework/tasks/03-testing/test-specification-creation-task.md)** when: no spec exists for the feature, systemic test gaps are discovered (>3 new scenarios needed), or the test design requires behavioral analysis beyond what inline updates can capture
+   - **Escalate to [Test Specification Creation (PF-TSK-012)](../../tasks/03-testing/test-specification-creation-task.md)** when: no spec exists for the feature, systemic test gaps are discovered (>3 new scenarios needed), or the test design requires behavioral analysis beyond what inline updates can capture
 
 > **Why this matters**: Tasks outside the formal testing pipeline (bug fixing, refactoring, feature enhancement, core logic implementation) create tests that get tracked mechanically via `New-TestFile.ps1`, but the test _specification_ — which documents what scenario is tested and why — does not get updated automatically. Without this step, test specs drift from actual coverage and become unreliable.
 

@@ -6,14 +6,14 @@ version: 1.0
 created: 2026-04-03
 updated: 2026-04-03
 refactoring_scope: TD167: Replace tempfile with tmp_path, remove hardcoded extension lists in test_comprehensive_file_monitoring.py
-target_area: test/automated/unit/test_comprehensive_file_monitoring.py
+target_area: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_comprehensive_file_monitoring.py
 mode: lightweight
 priority: Medium
 ---
 
 # Lightweight Refactoring Plan: TD167: Replace tempfile with tmp_path, remove hardcoded extension lists in test_comprehensive_file_monitoring.py
 
-- **Target Area**: test/automated/unit/test_comprehensive_file_monitoring.py
+- **Target Area**: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_comprehensive_file_monitoring.py
 - **Priority**: Medium
 - **Created**: 2026-04-03
 - **Author**: AI Agent & Human Partner

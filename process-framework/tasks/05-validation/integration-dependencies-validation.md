@@ -2,9 +2,10 @@
 id: PF-TSK-033
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-08-15
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for dependency health, interface contracts, and data flow integrity"
 ---
 
 # Integration Dependencies Validation
@@ -19,14 +20,6 @@ Systematically validates selected features for dependency health, interface cont
 **Mindset**: Systems-thinking, dependency-aware, integration-focused
 **Focus Areas**: Dependency management, interface contracts, data flow analysis, integration patterns
 **Communication Style**: Identify integration bottlenecks and dependency issues, recommend decoupling strategies, ask about integration trade-offs when multiple approaches exist
-
-## When to Use
-
-- When validating selected features for integration and dependency health as part of the validation framework
-- Before major system integrations to establish baseline dependency health
-- When investigating integration issues or dependency conflicts
-- As part of regular system health assessments focusing on component interactions
-- When evaluating the impact of new dependencies or external system changes
 
 ## Context Requirements
 
@@ -92,7 +85,7 @@ Systematically validates selected features for dependency health, interface cont
 13. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 14. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 15. **Plan Remediation**: For scores below threshold, create action items for dependency and integration improvements
-16. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+16. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "ID" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

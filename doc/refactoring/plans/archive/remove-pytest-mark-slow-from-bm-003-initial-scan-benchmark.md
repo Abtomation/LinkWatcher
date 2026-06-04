@@ -8,13 +8,13 @@ updated: 2026-04-29
 refactoring_scope: TE-TAR-066 audit follow-up bookkeeping — resolve TD219/TD240 (BM-003 slow marker) and close the audit-trail loop on TD236/TD237/TD238/TD239 (already implemented via PD-REF-196 but not marked resolved)
 debt_item: TD219,TD240,TD236,TD237,TD238,TD239
 mode: lightweight
-target_area: test/automated/performance/test_benchmark.py + doc/state-tracking/permanent/technical-debt-tracking.md
+target_area: test/automated/performance/level2-operation/test_benchmark.py + doc/state-tracking/permanent/technical-debt-tracking.md
 priority: Low
 ---
 
 # Lightweight Refactoring Plan: TE-TAR-066 audit follow-up bookkeeping (TD219/TD236/TD237/TD238/TD239/TD240)
 
-- **Target Area**: test/automated/performance/test_benchmark.py + technical-debt-tracking.md
+- **Target Area**: test/automated/performance/level2-operation/test_benchmark.py + technical-debt-tracking.md
 - **Priority**: Low
 - **Created**: 2026-04-29
 - **Author**: AI Agent & Human Partner
@@ -24,7 +24,7 @@ priority: Low
 
 ## Shared Context
 
-All six items target audit [TE-TAR-066](/test/audits/performance/audit-report-2-1-1-test-benchmark.md) on `test_benchmark.py`. Item 1 is the only one with code work — a single decorator removal for BM-003. Items 2–6 are **bookkeeping cleanup** to close audit-trail loops:
+All six items target audit [TE-TAR-066](/test/audits/performance/level2-operation/audit-report-2-1-1-test-benchmark.md) on `test_benchmark.py`. Item 1 is the only one with code work — a single decorator removal for BM-003. Items 2–6 are **bookkeeping cleanup** to close audit-trail loops:
 
 - **TD240** is a verbatim duplicate of TD219 (created 2 days later from the same audit report).
 - **TD236/237/238/239** describe code work that was already implemented on 2026-04-28 via [PD-REF-196](/doc/refactoring/plans/archive/tighten-bm-002-bm-006-tolerances-add-warmups-switch-to-perf.md) (commit 130b3ea). PD-REF-196 marked four corresponding rows resolved as **TD215, TD216, TD217, TD218** (lines 263–266 of the Recently Resolved table). Each of TD236/237/238/239 is therefore a duplicate of an already-resolved item:
@@ -40,12 +40,12 @@ All six items target audit [TE-TAR-066](/test/audits/performance/audit-report-2-
 
 ## Item 1: TD219 — Remove @pytest.mark.slow from BM-003 initial scan benchmark
 
-**Scope**: BM-003 (`test_bm_003_initial_scan` at [test_benchmark.py:219](/test/automated/performance/test_benchmark.py#L219)) currently carries `@pytest.mark.slow`, but the test completes in ~2 seconds — well below the 10-second threshold the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) defines for the `slow` marker. The marker excludes the test from default test runs and creates noise in audit trails. Remove the single decorator line.
+**Scope**: BM-003 (`test_bm_003_initial_scan` at [test_benchmark.py:219](/test/automated/performance/level2-operation/test_benchmark.py#L219)) currently carries `@pytest.mark.slow`, but the test completes in ~2 seconds — well below the 10-second threshold the [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) defines for the `slow` marker. The marker excludes the test from default test runs and creates noise in audit trails. Remove the single decorator line.
 
 **Dimension** (TD219 Dims column): TST (Testing).
 
 **Changes Made**:
-- [x] Removed `@pytest.mark.slow` (was line 218) from `test_bm_003_initial_scan` in `test/automated/performance/test_benchmark.py`
+- [x] Removed `@pytest.mark.slow` (was line 218) from `test_bm_003_initial_scan` in `test/automated/performance/level2-operation/test_benchmark.py`
 
 **Test Result**: 815 passed, 5 skipped, 4 deselected, 5 xfailed, 0 failed. Diff vs baseline: **+1 passed, −1 deselected** (BM-003 moved from slow bucket to default run, completes in ~2s). No new failures. Pre-existing failures: none.
 

@@ -1,11 +1,35 @@
 # ExecutionVerification.psm1
 # Soak-verification helpers for newly created or recently modified PowerShell scripts.
 #
-# VERSION 2.0 - PF-IMP-728 broad-rollout revision (PF-TSK-026 v2.0)
+# VERSION 2.2 - PF-IMP-904 synthetic-test soak bypass (PF-TSK-009)
 # Implements PF-PRO-028 v2.0 (Script Self-Verification) — see
-# process-framework-local/proposals/old/script-self-verification.md.
+# appdev/process-framework-central/proposals/old/script-self-verification.md.
 #
-# v2.0 changes:
+# v2.2 changes (2026-05-29, PF-IMP-904):
+#   - Synthetic-test bypass: when $env:PF_SOAK_DISABLE is truthy ('1'/'true'/'yes';
+#     '0'/'false'/'no'/unset = off), Register-SoakScript / Test-ScriptInSoak /
+#     Confirm-SoakInvocation short-circuit before any state read/write — mirroring
+#     the existing -WhatIf bypass. Stops test-harness invocations (e.g. running a
+#     soak-armored script against a -TestRoot sandbox) from advancing the real soak
+#     counter, so soak validates real consumer usage. Set automatically for the
+#     duration of a Pester run by Run-Tests.powershell.ps1; set explicitly by agents
+#     doing ad-hoc synthetic-fixture testing. Independent of FRAMEWORK_CENTRAL_OVERRIDE
+#     (which redirects soak state to a sandbox file rather than suppressing counting).
+#
+# v2.1 changes (2026-05-12, PF-PRO-032):
+#   - State file moved from blueprint/process-framework/state-tracking/permanent/ to
+#     process-framework-central/state-tracking/permanent/. Soak state is now genuinely
+#     cross-project rather than per-project.
+#   - _Get-SoakStateFilePath resolves via Get-CentralFrameworkPath instead of
+#     Get-ProcessFrameworkPath.
+#   - _Resolve-CallingScript strips the framework-path prefix from the resolved Script
+#     ID so the same script bytes resolve to the same row regardless of cwd
+#     (blueprint/process-framework/scripts/X.ps1 from appdev and
+#     process-framework/scripts/X.ps1 from a rolled-out project both → scripts/X.ps1).
+#     Scripts living outside the framework path (e.g. process-framework-central/scripts/...)
+#     keep their full relative path.
+#
+# v2.0 changes (PF-IMP-728):
 #   - $DefaultSoakCounter parameterized (default 3, was hardcoded 5).
 #   - Caller-aware mode: Register-SoakScript / Test-ScriptInSoak / Confirm-SoakInvocation
 #     now accept zero positional args. When called without -ScriptId/-ScriptPath, the
@@ -17,8 +41,9 @@
 # Concept: every newly registered or hash-changed script must be confirmed by
 # the agent over $DefaultSoakCounter consecutive successful invocations before it is
 # considered soak-complete. Failures or script-body changes reset the counter to
-# $DefaultSoakCounter. WhatIf invocations bypass the soak entirely (no decrement,
-# no state write).
+# $DefaultSoakCounter. WhatIf invocations — and invocations where
+# $env:PF_SOAK_DISABLE is truthy (synthetic-fixture / test-harness runs, PF-IMP-904)
+# — bypass the soak entirely (no decrement, no state write).
 #
 # Public functions (4):
 #   Register-SoakScript      - add a script to the soak registry
@@ -26,10 +51,14 @@
 #   Confirm-SoakInvocation   - record success/failure outcome of a soak invocation
 #   Get-SoakStatus           - inspect the registry (all rows or one row)
 #
-# State file: process-framework/state-tracking/permanent/script-soak-tracking.md
+# State file: process-framework-central/state-tracking/permanent/script-soak-tracking.md
+#             (v2.1; was process-framework/state-tracking/... pre-2026-05-12)
 # Dependencies (resolved via Common-ScriptHelpers facade load order):
-#   - Get-ProjectRoot       (Core.psm1)
-#   - Assert-LineInFile     (FileOperations.psm1) — used internally for read-after-write verification
+#   - Get-ProjectRoot           (Core.psm1)
+#   - Get-CentralFrameworkPath  (Core.psm1) — v2.1: replaces Get-ProcessFrameworkPath for soak state file
+#   - Get-ProcessFrameworkPath  (Core.psm1) — v2.1: still used by _Resolve-CallingScript for prefix stripping
+#   - Get-ProjectConfig         (Core.psm1) — v2.1: read paths.process_framework for prefix stripping
+#   - Assert-LineInFile         (FileOperations.psm1) — used internally for read-after-write verification
 
 $PSDefaultParameterValues['*:Encoding'] = 'UTF8'
 
@@ -44,8 +73,14 @@ $script:DefaultSoakCounter = 3
 # ============================================================================
 
 function _Get-SoakStateFilePath {
-    $projectRoot = Get-ProjectRoot
-    return (Join-Path -Path $projectRoot -ChildPath "process-framework/state-tracking/permanent/script-soak-tracking.md")
+    # v2.1 (PF-PRO-032): soak state file now lives in central — one canonical copy
+    # shared across all projects. Resolved via Get-CentralFrameworkPath:
+    #   - From cwd=appdev: <appdev>/process-framework-central/state-tracking/permanent/...
+    #   - From cwd=project: reads <project>/process-framework/.framework-central-pointer
+    #                       and returns <appdev>/process-framework-central/state-tracking/permanent/...
+    # Pre-v2.1 location was <fw-path>/state-tracking/permanent/... (per-project copy).
+    $central = Get-CentralFrameworkPath
+    return (Join-Path -Path $central -ChildPath "state-tracking/permanent/script-soak-tracking.md")
 }
 
 function _Get-SoakScriptHash {
@@ -93,6 +128,20 @@ function _Test-CallerWhatIf {
     }
 }
 
+function _Test-SoakDisabled {
+    # Synthetic-test bypass (PF-IMP-904). Returns $true when $env:PF_SOAK_DISABLE
+    # is set to a truthy value, signalling that the current invocation is a
+    # synthetic-fixture / test-harness run that must NOT advance the soak counter.
+    # Truthy = non-empty and not one of '0' / 'false' / 'no' (case-insensitive);
+    # unset or falsy = off (production behaviour unchanged). Wired into the same
+    # early-return guards as the -WhatIf bypass in the three mutating / gating
+    # public functions. Independent of FRAMEWORK_CENTRAL_OVERRIDE, which redirects
+    # soak state to a sandbox file rather than suppressing counting.
+    $val = $env:PF_SOAK_DISABLE
+    if ([string]::IsNullOrWhiteSpace($val)) { return $false }
+    return ($val.Trim() -notin @('0', 'false', 'no'))
+}
+
 function _Resolve-CallingScript {
     # v2.0 — caller-aware mode support.
     # Walks up Get-PSCallStack and returns the first frame whose ScriptName ends in .ps1
@@ -104,6 +153,16 @@ function _Resolve-CallingScript {
     #   ScriptA.ps1 → DocumentManagement.psm1::New-StandardProjectDocument → ExecutionVerification.psm1::Test-ScriptInSoak
     # The .psm1 frames are skipped; ScriptA.ps1 is identified as the calling script,
     # so the soak entry/counter is keyed on ScriptA, not on the helper module.
+    #
+    # v2.1 (PF-PRO-032) — Script-ID prefix stripping for cross-project consistency:
+    # After computing the relative path, if it starts with the framework-path prefix
+    # from doc/project-config.json (`paths.process_framework`, typically
+    # 'blueprint/process-framework' in appdev or 'process-framework' in rolled-out
+    # projects), strip that prefix. This means the same script bytes resolve to the
+    # same ScriptId regardless of whether the script ran from cwd=appdev or
+    # cwd=PRJ-NNN — soak state is genuinely cross-project. Scripts living OUTSIDE
+    # the framework path (e.g. process-framework-central/scripts/...) keep their
+    # full relative path because the prefix check is anchored.
     $stack = Get-PSCallStack
     foreach ($frame in $stack) {
         if ($frame.ScriptName -and $frame.ScriptName -like '*.ps1') {
@@ -117,6 +176,25 @@ function _Resolve-CallingScript {
             } catch {
                 $relForward = $absolute -replace '\\', '/'
             }
+
+            # v2.1 — strip framework-path prefix if present.
+            try {
+                $config = Get-ProjectConfig
+                $fwRelative = $config.paths.process_framework
+                if ($fwRelative) {
+                    # Normalize the configured prefix to forward slashes for comparison.
+                    $fwForward = ($fwRelative -replace '\\', '/').TrimEnd('/')
+                    $prefix = "$fwForward/"
+                    if ($relForward.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+                        $relForward = $relForward.Substring($prefix.Length)
+                    }
+                }
+            } catch {
+                # If project-config.json is missing or unparseable, fall back to no stripping.
+                # Soak still works; the ScriptId just retains the framework-path prefix.
+                Write-Verbose "_Resolve-CallingScript: could not read paths.process_framework from project-config; skipping prefix stripping."
+            }
+
             return @{ ScriptId = $relForward; ScriptPath = $absolute }
         }
     }
@@ -252,15 +330,21 @@ function Register-SoakScript {
 
     -WhatIf: no-op (no state file write).
 
+    Synthetic-test bypass (v2.2, PF-IMP-904): also no-ops when $env:PF_SOAK_DISABLE
+    is truthy ('1'/'true'/'yes'), so test-harness runs do not register scripts.
+
     Caller-aware mode (v2.0): when called with no -ScriptId / -ScriptPath, the
     function resolves the calling script via Get-PSCallStack (skipping any
     .psm1 frames). Use this from the top of any script that wants to opt into
     soak verification — single line, no ScriptId/ScriptPath bookkeeping.
 
     .PARAMETER ScriptId
-    Optional. Stable identifier for the script. Convention: relative path from project
-    root, e.g. "process-framework/scripts/file-creation/02-design/New-IntegrationNarrative.ps1".
-    If omitted, auto-resolved from the calling script's path. Must be passed together with -ScriptPath or omitted entirely.
+    Optional. Stable identifier for the script. Convention (v2.1): relative path from project
+    root with the framework-path prefix stripped, e.g. "scripts/file-creation/02-design/New-IntegrationNarrative.ps1"
+    (NOT "blueprint/process-framework/scripts/..." or "process-framework/scripts/..."). Scripts outside
+    the framework path keep their full relative path (e.g. "process-framework-central/scripts/Push-FrameworkUpdate.ps1").
+    If omitted, auto-resolved from the calling script's path via _Resolve-CallingScript (which performs the
+    prefix-stripping automatically). Must be passed together with -ScriptPath or omitted entirely.
 
     .PARAMETER ScriptPath
     Optional. Absolute or relative on-disk path to the script file (used to compute the
@@ -278,8 +362,8 @@ function Register-SoakScript {
         [string]$Notes = ""
     )
 
-    if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference) {
-        Write-Verbose "Register-SoakScript: -WhatIf mode, skipping registration."
+    if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference -or (_Test-SoakDisabled)) {
+        Write-Verbose "Register-SoakScript: -WhatIf or PF_SOAK_DISABLE active, skipping registration."
         return
     }
 
@@ -346,6 +430,10 @@ function Test-ScriptInSoak {
     -WhatIf: returns $false immediately (bypass — WhatIf runs do not count
     toward soak progress).
 
+    Synthetic-test bypass (v2.2, PF-IMP-904): returns $false immediately when
+    $env:PF_SOAK_DISABLE is truthy ('1'/'true'/'yes'), so test-harness runs are
+    never "in soak".
+
     Unregistered scripts: returns $false (not an error). Callers can treat
     "not in soak" identically whether the script was never registered or has
     completed soak.
@@ -369,7 +457,7 @@ function Test-ScriptInSoak {
         [string]$ScriptPath
     )
 
-    if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference) { return $false }
+    if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference -or (_Test-SoakDisabled)) { return $false }
 
     # v2.0 — caller-aware mode: auto-detect ScriptId / ScriptPath from callstack
     # when neither is provided. Both-or-neither rule prevents partial-arg ambiguity.
@@ -429,6 +517,9 @@ function Confirm-SoakInvocation {
 
     -WhatIf: no-op (WhatIf runs do not count toward soak progress).
 
+    Synthetic-test bypass (v2.2, PF-IMP-904): also a no-op when $env:PF_SOAK_DISABLE
+    is truthy ('1'/'true'/'yes'), so test-harness runs do not advance the counter.
+
     No-ops silently if ScriptId is not registered (was: throw in v1.x). This
     accommodates helper-routed callers (Pattern B) where the helper invokes
     Confirm-SoakInvocation unconditionally and the calling script may or may
@@ -455,8 +546,8 @@ function Confirm-SoakInvocation {
         [string]$Notes = ""
     )
 
-    if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference) {
-        Write-Verbose "Confirm-SoakInvocation: -WhatIf mode, skipping write."
+    if ((_Test-CallerWhatIf -Cmdlet $PSCmdlet) -or $WhatIfPreference -or (_Test-SoakDisabled)) {
+        Write-Verbose "Confirm-SoakInvocation: -WhatIf or PF_SOAK_DISABLE active, skipping write."
         return
     }
 

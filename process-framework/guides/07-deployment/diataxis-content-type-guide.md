@@ -6,6 +6,7 @@ version: 1.0
 created: 2026-04-27
 updated: 2026-04-27
 related_task: PF-TSK-044,PF-TSK-066,PF-TSK-081
+description: "Canonical Diataxis decision matrix and status taxonomy for user documentation classification."
 ---
 
 # Diátaxis Content Type Guide
@@ -19,7 +20,7 @@ Single source of truth for the Diátaxis content-type taxonomy used throughout t
 Consult this guide whenever you need to:
 
 - Decide which Diátaxis content types apply to a feature (during planning, retrospective audit, or creation)
-- Populate or refine the `### User Documentation` section of a [Feature Implementation State file](/doc/state-tracking/features)
+- Populate or refine the `### User Documentation` section of a [Feature Implementation State file](../../../doc/state-tracking/features)
 - Choose between status values for a content-type row
 - Understand how user-doc planning, retrospective audit, and creation tasks connect
 
@@ -27,9 +28,9 @@ The three primary consumers are:
 
 | Task | When | Action |
 |------|------|--------|
-| [PF-TSK-044 (Feature Implementation Planning)](/process-framework/tasks/04-implementation/feature-implementation-planning-task.md) | Forward planning for new features | Apply matrix to identify needed content types; populate `### User Documentation` rows with status `❌ Needed` |
-| [PF-TSK-066 (Retrospective Documentation Creation)](/process-framework/tasks/00-setup/retrospective-documentation-creation.md) | Onboarding existing codebase | Apply matrix per feature; categorize against existing handbook coverage; populate rows and flag `📖 Needs User Docs` where new handbooks are required |
-| [PF-TSK-081 (User Documentation Creation)](/process-framework/tasks/07-deployment/user-documentation-creation.md) | Creating handbooks | Validate/refine the rows populated by PF-TSK-044 or PF-TSK-066; create the handbooks themselves |
+| [PF-TSK-044 (Feature Implementation Planning)](../../tasks/04-implementation/feature-implementation-planning-task.md) | Forward planning for new features | Apply matrix to identify needed content types; populate `### User Documentation` rows with status `❌ Needed` |
+| [PF-TSK-066 (Retrospective Documentation Creation)](../../tasks/00-setup/retrospective-documentation-creation.md) | Onboarding existing codebase | Apply matrix per feature; categorize against existing handbook coverage; populate rows and flag `📖 Needs User Docs` where new handbooks are required |
+| [PF-TSK-081 (User Documentation Creation)](../../tasks/07-deployment/user-documentation-creation.md) | Creating handbooks | Validate/refine the rows populated by PF-TSK-044 or PF-TSK-066; create the handbooks themselves |
 
 ## Decision Matrix
 
@@ -57,7 +58,7 @@ These shortcuts catch the common cases. The decision-matrix questions above rema
 
 ## Content Type Values
 
-The four Diátaxis values are the framework default, declared in [PD-id-registry.json](/doc/PD-id-registry.json) under `PD-UGD.subdirectories.values`:
+The four Diátaxis values are the framework default, declared in [PD-id-registry.json](../../../doc/PD-id-registry.json) under `PD-UGD.subdirectories.values`:
 
 ```json
 "PD-UGD": {
@@ -69,7 +70,7 @@ The four Diátaxis values are the framework default, declared in [PD-id-registry
 }
 ```
 
-Projects may customize these values during [Project Initiation (PF-TSK-059)](/process-framework/tasks/00-setup/project-initiation-task.md) — for instance, renaming `how-to` to `guides`. Keeping the Diátaxis defaults aids onboarding and tool reuse, but the registry is the source of truth: if a project has customized values, use those.
+Projects may customize these values during [Project Initiation (PF-TSK-059)](../../tasks/00-setup/project-initiation-task.md) — for instance, renaming `how-to` to `guides`. Keeping the Diátaxis defaults aids onboarding and tool reuse, but the registry is the source of truth: if a project has customized values, use those.
 
 ### L2 Topics (Optional)
 
@@ -81,14 +82,14 @@ Each content-type row in a feature's `### User Documentation` table carries one 
 
 | Status | Meaning | When to use |
 |--------|---------|-------------|
-| `✅ Created — [link]` | A dedicated handbook of this content type exists for this feature | Handbook lives in `doc/user/handbooks/<content-type>/[<topic>/]` and is registered in [PD Documentation Map](/doc/PD-documentation-map.md) |
+| `✅ Created — [link]` | A dedicated handbook of this content type exists for this feature | Handbook lives in `doc/user/handbooks/<content-type>/[<topic>/]` and is registered in [PD Documentation Map](../../../doc/PD-documentation-map.md) |
 | `✅ Covered Elsewhere — [link]` | Content of this type for this feature is captured in a cross-cutting handbook (quick-reference, capabilities-reference, etc.) | A cross-cutting handbook adequately covers this need without a feature-dedicated handbook. Include a note describing the coverage |
 | `❌ Needed` | The content type is relevant but no coverage exists | Feature qualifies via the decision matrix but no current handbook (dedicated or cross-cutting) covers it. Triggers `📖 Needs User Docs` on the feature |
 | `N/A` | This content type is not relevant for this feature | Internal/architectural feature, or content type ruled out by the decision matrix. Include a brief rationale |
 
 ### Triggering Conditions
 
-- **Any row `❌ Needed`** → set the feature to `📖 Needs User Docs` in [feature-tracking.md](/doc/state-tracking/permanent/feature-tracking.md). This enters the [PF-TSK-081](/process-framework/tasks/07-deployment/user-documentation-creation.md) queue.
+- **Any row `❌ Needed`** → set the feature to `📖 Needs User Docs` in [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md). This enters the [PF-TSK-081](../../tasks/07-deployment/user-documentation-creation.md) queue.
 - **All rows `✅ Created` / `✅ Covered Elsewhere` / `N/A`** → feature is `🟢 Completed` from a user-doc perspective.
 
 ## Examples
@@ -146,9 +147,9 @@ If unsure, prefer `✅ Created` only when you can point to a handbook whose prim
 
 ## Related Resources
 
-- [PF-TSK-044 (Feature Implementation Planning)](/process-framework/tasks/04-implementation/feature-implementation-planning-task.md) — Forward planning consumer
-- [PF-TSK-066 (Retrospective Documentation Creation)](/process-framework/tasks/00-setup/retrospective-documentation-creation.md) — Retrospective audit consumer
-- [PF-TSK-081 (User Documentation Creation)](/process-framework/tasks/07-deployment/user-documentation-creation.md) — Creation/refinement consumer
-- [PF-TSK-059 (Project Initiation)](/process-framework/tasks/00-setup/project-initiation-task.md) — Where the taxonomy is declared/customized
-- [PD-id-registry.json](/doc/PD-id-registry.json) — Source of truth for declared content-type and topic values
+- [PF-TSK-044 (Feature Implementation Planning)](../../tasks/04-implementation/feature-implementation-planning-task.md) — Forward planning consumer
+- [PF-TSK-066 (Retrospective Documentation Creation)](../../tasks/00-setup/retrospective-documentation-creation.md) — Retrospective audit consumer
+- [PF-TSK-081 (User Documentation Creation)](../../tasks/07-deployment/user-documentation-creation.md) — Creation/refinement consumer
+- [PF-TSK-059 (Project Initiation)](../../tasks/00-setup/project-initiation-task.md) — Where the taxonomy is declared/customized
+- [PD-id-registry.json](../../../doc/PD-id-registry.json) — Source of truth for declared content-type and topic values
 - [Diátaxis framework (external)](https://diataxis.fr/) — Original framework reference

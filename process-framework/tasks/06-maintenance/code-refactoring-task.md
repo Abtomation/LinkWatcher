@@ -2,9 +2,10 @@
 id: PF-TSK-022
 type: Process Framework
 category: Task Definition
-version: 2.3
+version: 2.4
 created: 2025-07-21
-updated: 2026-05-05
+updated: 2026-05-16
+description: "Systematic code improvement and technical debt reduction without changing external behavior"
 ---
 
 # Code Refactoring Task
@@ -19,19 +20,6 @@ Systematic code improvement and technical debt reduction without changing extern
 **Mindset**: Pragmatic, quality-focused, delivery-oriented
 **Focus Areas**: Code quality, maintainability, performance, technical debt reduction
 **Communication Style**: Present trade-offs between speed and quality, discuss refactoring benefits and risks
-
-## When to Use
-
-- When code quality metrics decline or technical debt accumulates
-- Before implementing new features in areas with known technical debt
-- When code complexity makes maintenance difficult or error-prone
-- After identifying code smells during code reviews
-- When refactoring is recommended by Technical Debt Assessment Task
-- Before major feature releases to improve code maintainability
-
-## When NOT to Use
-
-- For building comprehensive test suites for new features (unit + component + integration + e2e) — use [Integration & Testing](../04-implementation/integration-and-testing.md) (PF-TSK-053) instead
 
 ## Context Requirements
 
@@ -53,7 +41,7 @@ Systematic code improvement and technical debt reduction without changing extern
 - **Reference Only (Access When Needed):**
   - **Coding Standards** - Project-specific coding conventions and style guides
   - **Performance Benchmarks** - Current performance metrics to ensure refactoring doesn't degrade performance
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) - For creating new test files when coverage gaps are identified
 
 ## Process
@@ -68,7 +56,7 @@ Systematic code improvement and technical debt reduction without changing extern
 
 ### Step 1: Effort Assessment Gate
 
-> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code only**. Before proceeding, verify the refactor target. If any target file lives in `process-framework/`, `process-framework-local/`, or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Behavior-preserving framework code refactors (regex replacement, helper extraction, parser swap in `*.ps1`/`*.psm1` scripts) are handled in [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) Step 10 medium-risk path with synthetic-harness verification — not here. **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#step-1-what-are-you-working-on).
+> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code only**. Before proceeding, verify the refactor target. If any target file lives in `process-framework/` or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Behavior-preserving framework code refactors (regex replacement, helper extraction, parser swap in `*.ps1`/`*.psm1` scripts) are handled in [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) Step 10 medium-risk path with synthetic-harness verification — not here. **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#framework-path-vs-product-path-disambiguation).
 
 > **⚠️ IMPORTANT: Independently verify tech debt descriptions.** Do not accept a TD item's problem description or proposed fix at face value. Read the actual target code and trace the full code path yourself. TD descriptions may be inaccurate about root cause, incomplete about scope, or propose a fix that only addresses part of the problem. Ask: "Is this the COMPLETE picture? Does the proposed fix address the dominant cost?" Map all branches, loops, and early exits before recommending Proceed.
 
@@ -94,7 +82,7 @@ Evaluate the refactoring scope against these criteria:
 > - **Rejected** — Refactoring is not justified (cost > benefit, risk too high, issue is cosmetic, code is scheduled for replacement, etc.). Provide a brief rationale.
 >
 > **Reclassification**: If the TD describes valid work that is not technical debt, reject it and route to the correct tracker. Use the **domain heuristic**: `process-framework/`, `doc/` = IMP; `src/linkwatcher` = BUG; `test/` = either (infrastructure = IMP, product defect = BUG).
-> - **Process improvement** → [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1)
+> - **Process improvement** → [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1)
 > - **Product bug** → [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)
 > - **Feature request** → [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) via [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
 >
@@ -107,7 +95,7 @@ Evaluate the refactoring scope against these criteria:
 > 4. **Aspirational standard check**: If the rejection reason is that the referenced standard (ADR, guideline, or design doc) describes aspirational behavior rather than actual practice, update the standard to reflect reality — or create a process improvement (via `New-ProcessImprovement.ps1`) to do so — before closing the rejection. Leaving an inaccurate standard in place causes repeat false-positive TDs in future validation rounds.
 > 5. Skip to the Task Completion Checklist below — no refactoring plan or code changes are needed.
 >
-> **Workflow awareness**: Before proceeding, check the `workflows:` metadata in the affected feature's [implementation state file](/doc/state-tracking/features/) (or look up the feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)). Note which user workflows the refactored code participates in — this informs the scope of regression testing needed after refactoring to ensure workflow correctness is preserved.
+> **Workflow awareness**: Before proceeding, check the `workflows:` metadata in the affected feature's [implementation state file](../../../doc/state-tracking/features) (or look up the feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)). Note which user workflows the refactored code participates in — this informs the scope of regression testing needed after refactoring to ensure workflow correctness is preserved.
 >
 > **Effort classification** (present alongside justification if recommending Proceed or Modify scope):
 > - **If Lightweight**: Read and follow the **[Lightweight Path](code-refactoring-lightweight-path.md)** document.
@@ -128,7 +116,7 @@ Evaluate the refactoring scope against these criteria:
 ## Next Tasks
 
 - [**Code Review Task**](code-review-task.md) - Review refactored code for quality and correctness
-- [**Performance Baseline Capture**](../03-testing/performance-baseline-capture-task.md) - Re-capture performance baselines after refactoring to detect regressions. Recommended when the refactored code participates in performance-critical paths (check [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) Related Features column)
+- [**Performance Baseline Capture**](../03-testing/performance-baseline-capture-task.md) - Re-capture performance baselines after refactoring to detect regressions. Recommended when the refactored code participates in performance-critical paths (check [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md) Related Features column)
 - [**Manual Test Execution**](../03-testing/e2e-acceptance-test-execution-task.md) - Execute manual tests for groups marked for re-execution after refactoring
 - [**Technical Debt Assessment Task**](../cyclical/technical-debt-assessment-task.md) - Reassess technical debt after refactoring completion
 - [**Test Specification Creation**](../03-testing/test-specification-creation-task.md) - If refactoring reveals systemic test gaps that warrant a formal test specification

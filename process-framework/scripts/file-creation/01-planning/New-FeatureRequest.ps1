@@ -90,6 +90,13 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 Invoke-StandardScriptInitialization
 
+# MSYS path-mangling guard for user-provided -SourceLink (PF-IMP-767). On Windows + bash,
+# leading-slash paths are silently rewritten to "C:/Program Files/Git/..." before PowerShell
+# sees them — landing mangled values in the tracking file. Helper no-ops on empty input.
+if (Test-MSYSPathMangled -Path $SourceLink -ParameterName 'SourceLink') {
+    exit 1
+}
+
 # Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
 Register-SoakScript
 $soakInSoak = Test-ScriptInSoak

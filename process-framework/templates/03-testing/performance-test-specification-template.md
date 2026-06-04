@@ -118,12 +118,12 @@ creates_document_category: Testing
 ## Acceptance Criteria
 
 - [ ] All HIGH priority tests implemented and passing
-- [ ] All tests registered in [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md)
+- [ ] All tests registered in [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md)
 - [ ] Tolerances justified with rationale (not arbitrary round numbers)
-- [ ] Measurement methodology follows [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md)
+- [ ] Measurement methodology follows [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md)
 
 ## Related Resources
 
-- [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md)
-- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md)
-- [Performance Test Creation Task](/process-framework/tasks/03-testing/performance-test-creation-task.md)
+- [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md)
+- [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md)
+- [Performance Test Creation Task](../../tasks/03-testing/performance-test-creation-task.md)

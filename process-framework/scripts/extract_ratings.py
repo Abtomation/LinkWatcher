@@ -5,26 +5,30 @@ Parses feedback form markdown and outputs JSON matching the
 feedback-db-input-template.json schema, ready for:
     python process-framework/scripts/feedback_db.py record --json output.json
 
-Usage:
-    # Single file
-    python process-framework/scripts/extract_ratings.py feedback-forms/form1.md
+Usage (Phase 7 / centralized layout, 2026-05-11+):
+    # Single file (resolved against the central feedback-forms directory)
+    python process-framework/scripts/extract_ratings.py \\
+        appdev/process-framework-central/feedback/feedback-forms/form1.md
 
     # Multiple files
-    python process-framework/scripts/extract_ratings.py feedback-forms/*.md
+    python process-framework/scripts/extract_ratings.py \\
+        appdev/process-framework-central/feedback/feedback-forms/*.md
 
     # With review cycle ID and archived path prefix
     python process-framework/scripts/extract_ratings.py \\
         --review-cycle-id tools-review-20260403 \\
         --archived-prefix \\
-            "process-framework-local/feedback/archive/\\
+            "appdev/process-framework-central/feedback/archive/\\
             2026-04/tools-review-20260403/processed-forms" \\
-        feedback-forms/*.md
+        appdev/process-framework-central/feedback/feedback-forms/*.md
 
     # Output to file
-    python process-framework/scripts/extract_ratings.py feedback-forms/*.md -o ratings.json
+    python process-framework/scripts/extract_ratings.py \\
+        appdev/process-framework-central/feedback/feedback-forms/*.md -o ratings.json
 
     # Pipe directly to feedback_db.py
-    python process-framework/scripts/extract_ratings.py feedback-forms/*.md | \\
+    python process-framework/scripts/extract_ratings.py \\
+        appdev/process-framework-central/feedback/feedback-forms/*.md | \\
         python process-framework/scripts/feedback_db.py record --json -
 """
 
@@ -94,6 +98,34 @@ def parse_rating_value(text: str) -> int | None:
         return None
 
 
+def derive_tool_doc_id(name_raw: str) -> tuple[str | None, str]:
+    """Derive the canonical tool_doc_id and display name from a tool heading name.
+
+    tool_doc_id is the database key that links ratings to a tool's change history:
+    the task ID for a task definition ("New Task Creation (PF-TSK-001)") and the
+    FILENAME for everything else — scripts, guides, templates, context maps
+    ("New-Task script (New-Task.ps1)"). Both forms are captured from the parens;
+    a bare/leading filename name carries its own id inline ("feedback_db.py log-change").
+    Returns (tool_doc_id_or_None, display_name_with_parens_stripped).
+
+    Shared by parse_tools (new extraction) and feedback_db.py's backfill subcommand
+    (re-derivation of historical NULL rows) so both apply identical rules.
+    """
+    name_raw = name_raw.strip()
+    filename_re = r"[\w.\-]+\.(?:ps1|psm1|py|md|json)"
+    paren_pattern = rf"\(({filename_re}|[A-Z]+-[A-Z]+-\d+)\)"
+    paren_match = re.search(paren_pattern, name_raw)
+    if paren_match:
+        display = re.sub(rf"\s*{paren_pattern}\s*", "", name_raw).strip()
+        return paren_match.group(1), display
+    # Fallback: a heading whose name is (or starts with) a filename carries its
+    # tool_doc_id inline — e.g. "New-Task.ps1" or "feedback_db.py log-change".
+    file_match = re.match(rf"({filename_re})", name_raw)
+    if file_match:
+        return file_match.group(1), name_raw
+    return None, name_raw
+
+
 def parse_tools(content: str) -> list[dict]:
     """Extract tool sections with their ratings."""
     tools = []
@@ -110,12 +142,7 @@ def parse_tools(content: str) -> list[dict]:
         end = tool_matches[i + 1].start() if i + 1 < len(tool_matches) else len(content)
         section = content[start:end]
 
-        tool_name_raw = match.group(1).strip()
-
-        # Extract doc ID from name like "Task Definition (PF-TSK-030)" or just use name
-        doc_id_match = re.search(r"\(([A-Z]+-[A-Z]+-\d+)\)", tool_name_raw)
-        tool_doc_id = doc_id_match.group(1) if doc_id_match else None
-        tool_name = re.sub(r"\s*\([A-Z]+-[A-Z]+-\d+\)\s*", "", tool_name_raw).strip()
+        tool_doc_id, tool_name = derive_tool_doc_id(match.group(1))
 
         # Extract each rating dimension — handles both ### and #### headers
         ratings = {}
@@ -184,7 +211,13 @@ def extract_form(
     if archived_prefix:
         archived_form_path = f"{archived_prefix}/{filepath.name}"
 
-    return {
+    # PF-IMP-833 (e): emit per-form project_name from frontmatter so a single record
+    # invocation correctly attributes forms spanning multiple projects. When absent,
+    # the field is omitted entirely so feedback_db.py record_form() falls back to its
+    # instance default (cwd-resolved project) — preserves behavior on pre-frontmatter forms.
+    project_name = frontmatter.get("project_name", "").strip()
+
+    result = {
         "form_id": form_id,
         "task_id": task_id,
         "task_context": task_context,
@@ -197,6 +230,9 @@ def extract_form(
         "process_conciseness": conciseness,
         "tools": tools,
     }
+    if project_name:
+        result["project_name"] = project_name
+    return result
 
 
 def main():
@@ -213,7 +249,7 @@ def main():
     parser.add_argument(
         "--archived-prefix",
         help="Path prefix for archived forms "
-        "(e.g., process-framework-local/feedback/archive/2026-04/...)",
+        "(e.g., appdev/process-framework-central/feedback/archive/2026-04/...)",
     )
     parser.add_argument(
         "-o",

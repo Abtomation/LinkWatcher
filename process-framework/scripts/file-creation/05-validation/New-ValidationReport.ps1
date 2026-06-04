@@ -141,7 +141,7 @@ catch {
 
 # Resolve paths using project root for reliability
 $ProjectRoot = if ($useEnhancedTracking) { Get-ProjectRoot } else { (Get-Item (Join-Path $ScriptDirectory "../../../..")).FullName }
-$TemplateFile = Join-Path $ProjectRoot "process-framework/templates/05-validation/validation-report-template.md"
+$TemplateFile = Join-Path (Get-ProcessFrameworkPath) "templates/05-validation/validation-report-template.md"
 # Discover active validation tracking file (highest -N suffix in state-tracking/validation/)
 $trackingDir = Join-Path $ProjectRoot "doc/state-tracking/validation"
 $trackingFiles = Get-ChildItem -Path $trackingDir -Filter "validation-tracking-*.md" -File |

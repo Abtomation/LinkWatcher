@@ -2,9 +2,10 @@
 id: PF-TSK-076
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2026-03-23
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for data consistency, constraint enforcement, migration safety, and backup/recovery patterns"
 ---
 
 # Data Integrity Validation
@@ -20,14 +21,6 @@ Systematically validates selected features for data consistency, constraint enfo
 **Focus Areas**: Data validation rules, constraint enforcement, referential integrity, migration safety, idempotency, backup/recovery, data transformation correctness
 **Communication Style**: Identify data corruption risks and integrity gaps, recommend defensive patterns, ask about data criticality levels and acceptable data loss thresholds
 
-## When to Use
-
-- When validating selected features for data integrity as part of the validation framework
-- Before deploying features that modify, transform, or migrate data
-- When investigating data corruption, inconsistency, or loss incidents
-- As part of data migration planning or database schema change reviews
-- When features involve concurrent data access, caching with write-back, or multi-step transactions
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/05-validation/data-integrity-validation-map.md)
@@ -42,7 +35,7 @@ Systematically validates selected features for data consistency, constraint enfo
 
 - **Important (Load If Space):**
 
-  - **Database Schema Designs** - [Schema Directory](/doc/technical/database/schemas) - Data model specifications
+  - **Database Schema Designs** - [Schema Directory](../../../doc/technical/database/schemas) - Data model specifications
   - **Technical Design Documents** - [TDD Directory](../../../doc/technical/tdd) - Data handling design specifications
   - **Test Suites** - Test directory - Existing data integrity and edge case tests
   - **New-ValidationReport Script** - [../../scripts/file-creation/05-validation/New-ValidationReport.ps1](../../scripts/file-creation/05-validation/New-ValidationReport.ps1) - Script for generating validation reports
@@ -93,7 +86,7 @@ Systematically validates selected features for data consistency, constraint enfo
 15. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 16. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 17. **Plan Remediation**: For scores below threshold, create action items for data integrity improvements — prioritize by data loss risk severity
-18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "DI" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"
@@ -143,4 +136,4 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-- [Database Schema Designs](/doc/technical/database/schemas) - Data model specifications
+- [Database Schema Designs](../../../doc/technical/database/schemas) - Data model specifications

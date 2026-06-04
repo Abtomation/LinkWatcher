@@ -8,6 +8,7 @@ updated: [Identification Date]
 debt_dim: [Dimension]
 debt_priority: [Initial Priority]
 debt_location: [Location/Component]
+description: "Template for individual debt item records"
 ---
 
 # Technical Debt Item: [Debt Item Title]

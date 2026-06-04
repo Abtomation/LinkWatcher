@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Framework wrapper config for PowerShell projects — used by Run-Tests.ps1 dispatcher → Run-Tests.powershell.ps1. Pester-native config (Run/Output/CodeCoverage settings) is constructed programmatically in Run-Tests.powershell.ps1 from these fields; this file documents the contract used by the per-language runner.",
+  "language": "powershell",
+  "version": "1.0",
+  "testing": {
+    "_comment_baseCommand": "Documentary value — Run-Tests.powershell.ps1 invokes Pester programmatically via Invoke-Pester -PassThru, not as a CLI command. {testDir} resolved by Run-Tests.powershell.ps1 from project-config.json.",
+    "baseCommand": "Invoke-Pester {testDir}",
+    "_comment_coverageArgs": "Documentary — Pester coverage is constructed as a CodeCoverage @{ Path = '...' } hashtable inside Run-Tests.powershell.ps1, not a CLI string. {module} substitution preserved for parity with python-config.",
+    "coverageArgs": "-CodeCoverage {module}",
+    "_comment_coverageFullArgs": "Documentary — Pester full coverage adds CoverageFormat='JaCoCo' and OutputPath in the programmatic config.",
+    "coverageFullArgs": "-CodeCoverage {module} -CoverageFormat JaCoCo",
+    "_comment_discoveryCommand": "Pester dry-run lists discovered tests without running them. Run-Tests.powershell.ps1 may use Invoke-Pester -DryRun programmatically.",
+    "discoveryCommand": "Invoke-Pester {testDir} -DryRun",
+    "_comment_discoveryOutputPattern": "Regex to extract file path from Pester dry-run output. Matches discovery lines like 'Discovery in test/automated/unit/.../Foo.Tests.ps1'.",
+    "discoveryOutputPattern": "^(?:Discovery in |Executing in )?(.+\\.Tests\\.ps1)",
+    "testFileExtension": ".Tests.ps1",
+    "testFileNamePattern": "{name}.Tests",
+    "testFileExclusions": [
+      "TestHelpers.psm1",
+      ".pester-cache"
+    ],
+    "_comment_lintCommand": "PSScriptAnalyzer for Pester test files. -Severity Warning filters out informational notes.",
+    "lintCommand": "Invoke-ScriptAnalyzer -Path {testDir} -Recurse -Severity Warning",
+    "_comment_stopOnFirstFailure": "Pester 5+ uses -Run.SkipRemainingOnFailure programmatic config; the CLI -Strict alias is closest single-flag equivalent. Run-Tests.powershell.ps1 maps -Quick to programmatic SkipRemainingOnFailure=$true.",
+    "stopOnFirstFailure": "-Strict",
+    "_comment_verboseFlag": "Pester verbose output uses -Output Detailed (or -Output Diagnostic for more). Programmatic equivalent: Output.Verbosity = 'Detailed'.",
+    "verboseFlag": "-Output Detailed",
+    "_comment_markers": "Pester uses -Tag and -ExcludeTag for test filtering. Tag values declared in the test file via Describe/Context/It -Tag 'name'. Maps from semantic names (slow/critical/notSlow/performance) to Pester CLI args.",
+    "markers": {
+      "slow": "-Tag slow",
+      "critical": "-Tag critical",
+      "notSlow": "-ExcludeTag slow",
+      "performance": "-Tag performance"
+    },
+    "_comment_testSetup": "Pester convention: shared fixtures and helpers live in TestHelpers.psm1 imported via BeforeAll { Import-Module ... }. Pester has no global discovery command for fixtures equivalent to pytest --fixtures; testSetup.discoveryCommand is null.",
+    "testSetup": {
+      "mechanism": "pester-beforeall + helper-module",
+      "configFiles": [
+        "test/automated/unit/TestHelpers.psm1"
+      ],
+      "discoveryCommand": null
+    },
+    "_comment_featureMarkerPattern": "PowerShell tests don't have a pytest.mark.feature equivalent. Feature association is via the Describe block's -Tag attribute. Empty string disables auto-detect.",
+    "featureMarkerPattern": ""
+  },
+  "directoryStructure": {
+    "_comment": "PowerShell projects vary widely in source layout. Defaults below are reasonable for framework-self-test contexts (appdev) and most module-based PS projects; override per project as needed.",
+    "sourceRoot": "",
+    "sharedDirectory": "Common",
+    "directoryNaming": "PascalCase",
+    "fileNaming": "PascalCase",
+    "entryPoint": "",
+    "packageMarkers": [],
+    "layers": {
+      "data": {
+        "name": "Data",
+        "purpose": "Data access modules and providers"
+      },
+      "services": {
+        "name": "Services",
+        "purpose": "Business-logic and orchestration modules"
+      },
+      "ui": {
+        "name": "UI",
+        "purpose": "User-interface modules (if applicable)"
+      }
+    },
+    "sublayerThreshold": 8,
+    "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files",
+    "importRewriteTool": "manual"
+  },
+  "_comment_headerComment": "PowerShell block-comment syntax for document metadata prepended by New-ProjectCodeMetadata.",
+  "headerComment": {
+    "open": "<#",
+    "close": "#>",
+    "linePrefix": ""
+  }
+}

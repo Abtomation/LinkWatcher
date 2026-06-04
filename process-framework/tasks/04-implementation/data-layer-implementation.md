@@ -2,9 +2,10 @@
 id: PF-TSK-051
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-12-11
-updated: 2026-03-25
+updated: 2026-05-16
+description: "Implement data models, repositories, and database integration for feature"
 ---
 
 # Data Layer Implementation
@@ -20,21 +21,13 @@ Implement data models, repositories, and database integration for feature
 **Focus Areas**: Data modeling, repository pattern implementation, database schema execution, data validation, and migration safety
 **Communication Style**: Present data model options with trade-offs, highlight data integrity concerns, ask about performance requirements and caching strategies
 
-## When to Use
-
-- After Feature Implementation Planning Task (PF-TSK-044) has created the implementation roadmap
-- When database schema design is complete and migrations are ready to execute
-- Before implementing state management or business logic layers
-- When data models and repository interfaces need to be created according to TDD specifications
-- **Prerequisites**: Implementation plan completed, database schema design finalized, migration scripts prepared
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/data-layer-implementation-map.md)
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-[feature-id]-implementation.md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/doc/state-tracking/features/[feature-id]-implementation-state.md` containing implementation progress and context
   - **Database Schema Design** - Schema specifications and migration scripts at `/doc/technical/database/[feature-name]-schema.md`
   - **TDD (Technical Design Document)** - Data model specifications and repository requirements at `/doc/technical/tdd/[feature-name]-tdd.md`
   - **Implementation Roadmap** - Task sequence and dependencies from Feature Implementation Planning Task
@@ -44,12 +37,12 @@ Implement data models, repositories, and database integration for feature
   - **Existing Repository Patterns** - Review similar repositories in the source directory for consistency
   - **Existing Data Models** - Review similar models in the source directory for patterns
   - **Database Client Configuration** - Review database connection configuration for connection patterns
-  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
+  - [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 
 - **Reference Only (Access When Needed):**
   - **Database Documentation** - For understanding database client API patterns
   - **Language Best Practices** - For data class and repository implementation standards
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 

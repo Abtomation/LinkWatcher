@@ -8,6 +8,7 @@ updated: 2025-01-27
 related_script: New-TDD.ps1
 related_task: PF-TSK-015
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098 (cross-reference guidance)"
+description: "Guide for customizing Technical Design Document templates"
 ---
 
 # TDD Creation Guide
@@ -422,7 +423,7 @@ Use this decision tree when deciding what to include in TDDs:
 
 ### 3. Populate Workflow Context
 
-1. **Look up workflows**: Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) for the feature's workflow participation
+1. **Look up workflows**: Check [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) for the feature's workflow participation
 2. **Reference FDD**: If an FDD exists, copy the workflow information from its "Workflow Participation" section
 3. **Fill in the field**: List the WF-IDs in the Workflow Context section (e.g., "WF-001, WF-002, WF-005"). If the feature doesn't participate in any workflow, write "None"
 

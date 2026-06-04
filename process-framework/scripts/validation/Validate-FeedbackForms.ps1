@@ -32,11 +32,11 @@ Invoke-StandardScriptInitialization
 Write-Host "🔍 Validating Feedback Forms..." -ForegroundColor Cyan
 Write-Host ""
 
-# Get all feedback form files
+# Get all feedback form files. Phase 7 (2026-05-11): default reads from the central
+# feedback-forms directory under appdev (resolved via Get-CentralFrameworkPath, so the
+# script works the same from cwd=appdev and cwd=project).
 if ([string]::IsNullOrEmpty($FeedbackFormsPath)) {
-    # Default: derive canonical location from project root (works regardless of CWD)
-    $projectRoot = Get-ProjectRoot
-    $feedbackFormsDir = Join-Path $projectRoot "process-framework-local/feedback/feedback-forms"
+    $feedbackFormsDir = Join-Path -Path (Get-CentralFrameworkPath) -ChildPath "feedback/feedback-forms"
 } elseif ([System.IO.Path]::IsPathRooted($FeedbackFormsPath)) {
     $feedbackFormsDir = $FeedbackFormsPath
 } else {

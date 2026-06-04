@@ -3,7 +3,7 @@
     "name": "PD-id-registry",
     "version": "1.0",
     "created": "2026-03-24",
-    "updated": "2026-04-02",
+    "updated": "2026-05-18",
     "description": "Product Documentation ID Registry - project-specific document IDs",
     "format": "semantic",
     "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
@@ -18,6 +18,16 @@
         "default": "main"
       },
       "nextAvailable": 1
+    },
+    "PD-MAI": {
+      "description": "Product Documentation - Main/Index (singleton: PD-documentation-map.md). Parallel to PF-MAI for the framework documentation map.",
+      "category": "Product Documentation",
+      "type": "Main",
+      "directories": {
+        "main": "doc",
+        "default": "main"
+      },
+      "nextAvailable": 2
     },
     "PD-UIX": {
       "description": "Product Documentation - UI/UX Design",
@@ -136,6 +146,16 @@
       },
       "nextAvailable": 11
     },
+    "PD-QAR": {
+      "description": "Product Documentation - Quality Assessment Reports (onboarding)",
+      "category": "Product Documentation",
+      "type": "Quality Assessment Report",
+      "directories": {
+        "quality-assessments": "doc/pre-framework/quality-assessments",
+        "default": "quality-assessments"
+      },
+      "nextAvailable": 1
+    },
     "PD-MIG": {
       "description": "Product Documentation - Database Migration Scripts",
       "category": "Product Documentation",
@@ -166,7 +186,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 99
+      "nextAvailable": 100
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -198,7 +218,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 5
+      "nextAvailable": 6
     },
     "PD-FIS": {
       "description": "Product Documentation - Feature Implementation States",
@@ -234,7 +254,7 @@
         "plans": "doc/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 230
+      "nextAvailable": 236
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",

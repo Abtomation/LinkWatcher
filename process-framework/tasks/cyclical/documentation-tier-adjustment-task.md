@@ -2,9 +2,10 @@
 id: PF-TSK-011
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2023-06-15
-updated: 2025-06-08
+updated: 2026-05-16
+description: "Adjust documentation requirements"
 ---
 
 # Documentation Tier Adjustment Task
@@ -20,23 +21,15 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 **Focus Areas**: Documentation quality, information architecture, usability, appropriate documentation levels
 **Communication Style**: Ensure documentation serves its intended audience, ask about documentation needs and complexity changes
 
-## When to Use
-
-- When implementation reveals that a feature's complexity differs significantly from initial assessment
-- After completing key implementation milestones (data model, business logic, UI components)
-- When encountering unexpected challenges that affect feature complexity
-- During regular implementation reviews
-- When feature requirements change significantly
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/cyclical/documentation-tier-adjustment-map.md)
 
 - **Critical (Must Read):**
 
-  - [Original Assessment Document](/doc/documentation-tiers/assessments) - Initial complexity assessment
-  - [Normalized Scoring System](/doc/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Original Assessment Document](../../../doc/documentation-tiers/assessments) - Initial complexity assessment
+  - [Normalized Scoring System](../../../doc/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking Document](../../../doc/state-tracking/permanent/feature-tracking.md) - Current documentation tier assignment

@@ -16,6 +16,11 @@ mode: documentation-only
 refactoring_scope: [Refactoring Scope]
 target_area: [Target Area]
 priority: [Priority Level]
+variant_group: refactoring-plan-templates
+variant_siblings:
+  - refactoring-plan-template.md
+  - lightweight-refactoring-plan-template.md
+  - performance-refactoring-plan-template.md
 ---
 
 # Documentation Refactoring Plan: [Refactoring Scope]
@@ -118,7 +123,7 @@ priority: [Priority Level]
 ## Documentation & State Updates
 <!-- Check each — for N/A, write brief justification (e.g., "Grepped TDD — no references to changed content") -->
 
-> **Doc-only shortcut**: Per [code-refactoring-lightweight-path.md L8](/process-framework/tasks/06-maintenance/code-refactoring-lightweight-path.md), items 1–7 may be batched as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design and state documents do not need updates for [description of change]."* Still check item 8 individually. Update items 1–7 individually only if a specific document requires changes (e.g., a TDD that documented affected file paths).
+> **Doc-only shortcut**: Per [code-refactoring-lightweight-path.md L8](../../tasks/06-maintenance/code-refactoring-lightweight-path.md), items 1–7 may be batched as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design and state documents do not need updates for [description of change]."* Still check item 8 individually. Update items 1–7 individually only if a specific document requires changes (e.g., a TDD that documented affected file paths).
 
 - [ ] Feature implementation state file ([Feature ID]) updated, or N/A — verified no reference to changed content: _[justification]_
 - [ ] TDD ([Feature ID]) updated, or N/A — verified no interface or significant internal design changes documented in TDD: _[justification]_
@@ -136,4 +141,4 @@ priority: [Priority Level]
 - Item 1: [Description and priority]
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)

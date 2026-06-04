@@ -105,8 +105,7 @@ function Test-ScriptDependencies {
                     try {
                         # Attempt to import the module
                         if ($module -eq "Common-ScriptHelpers") {
-                            $projectRoot = Get-ProjectRoot
-                            $modulePath = Join-Path $projectRoot "process-framework/scripts/Common-ScriptHelpers.psm1"
+                            $modulePath = Join-Path (Get-ProcessFrameworkPath) "scripts/Common-ScriptHelpers.psm1"
                             if (Test-Path $modulePath) {
                                 Import-Module $modulePath -Force
                                 Write-Host "Successfully imported: $module" -ForegroundColor Green
@@ -143,8 +142,7 @@ function Test-ScriptDependencies {
                 if ($FixMissingDependencies) {
                     try {
                         # Attempt to load Common-ScriptHelpers if function is missing
-                        $projectRoot = Get-ProjectRoot
-                        $modulePath = Join-Path $projectRoot "process-framework/scripts/Common-ScriptHelpers.psm1"
+                        $modulePath = Join-Path (Get-ProcessFrameworkPath) "scripts/Common-ScriptHelpers.psm1"
                         if (Test-Path $modulePath) {
                             Import-Module $modulePath -Force
 

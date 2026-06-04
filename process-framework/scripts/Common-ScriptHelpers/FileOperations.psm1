@@ -59,13 +59,14 @@ function Get-RelevantTrackingFiles {
     )
 
     $projectRoot = Get-ProjectRoot
+    $stContext = Get-StateTrackingContext
     $trackingFiles = @()
 
     switch ($DocumentType) {
         "TestSpecification" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "doc/state-tracking/permanent/test-tracking.md"
+                    Path = Resolve-TrackingFilePath -File "test-tracking.md"
                     Type = "TestImplementation"
                     Required = $true
                 }
@@ -92,7 +93,7 @@ function Get-RelevantTrackingFiles {
         "CodeReview" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "process-framework-local/state-tracking/permanent/code-review-tracking.md"
+                    Path = Join-Path $stContext.StateTrackingRoot "permanent/code-review-tracking.md"
                     Type = "CodeReviewTracking"
                     Required = $true
                 }
@@ -101,7 +102,7 @@ function Get-RelevantTrackingFiles {
         "BugFix" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "process-framework-local/state-tracking/permanent/bug-fix-tracking.md"
+                    Path = Join-Path $stContext.StateTrackingRoot "permanent/bug-fix-tracking.md"
                     Type = "BugFixTracking"
                     Required = $true
                 }
@@ -110,7 +111,7 @@ function Get-RelevantTrackingFiles {
         "TestAudit" {
             $trackingFiles += @(
                 @{
-                    Path = Join-Path $projectRoot "process-framework-local/state-tracking/permanent/test-audit-tracking.md"
+                    Path = Join-Path $stContext.StateTrackingRoot "permanent/test-audit-tracking.md"
                     Type = "TestAuditTracking"
                     Required = $true
                 }

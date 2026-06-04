@@ -2,9 +2,9 @@
 id: PF-TEM-049
 type: Process Framework
 category: Template
-version: 1.3
+version: 1.4
 created: 2026-02-17
-updated: 2026-04-05
+updated: 2026-06-03
 creates_document_prefix: PF-STA
 creates_document_version: 1.0
 description: Template for retrospective master state tracking during onboarding
@@ -30,6 +30,7 @@ template_for: Retrospective Master State
 ## Phase Completion Status
 
 - [ ] **Phase 1: Feature Discovery & Code Assignment** (Target: 100% file coverage)
+- [ ] **Phase 1.5: Source Migration** (Target: all assigned source relocated into `src/<feature>/`; Source Migration Queue 100% ✅ Verified — see [Codebase Source Migration (PF-TSK-091)](../../tasks/00-setup/codebase-source-migration-task.md))
 - [ ] **Phase 2: Analysis** (Target: All features analyzed)
 - [ ] **Phase 3: Tier Assessment & Documentation Creation** (Target: All features assessed and documented)
 - [ ] **Phase 4: Finalization** (Target: All links, tracking complete)
@@ -44,6 +45,10 @@ template_for: Retrospective Master State
 - **Files Assigned to Features**: [M]
 - **Unassigned Files**: [N-M]
 - **Coverage**: [M/N * 100]%
+
+### Source Migration (Phase 1.5)
+
+- **Files Migrated**: [K] / [M assigned] (queue rows marked ✅ Verified — see Source Migration Queue below)
 
 ### Feature Progress Overview
 
@@ -95,6 +100,19 @@ template_for: Retrospective Master State
 | File Path | Notes | Candidate Feature | Status |
 |-----------|-------|-------------------|--------|
 | [path/to/file.ext] | [note about what this file does] | [suggested feature ID] | ⬜ |
+
+---
+
+## Source Migration Queue
+
+> **Phase 1.5** ([Codebase Source Migration, PF-TSK-091](../../tasks/00-setup/codebase-source-migration-task.md)). Built from each feature's File Inventory after Discovery assigns 100% of files. **One row per migration action** (not per file), so n-to-n Split/Co-locate cases fit. Update each row's Status the moment its move is verified — per-move, never batched — so the queue stays an exact record if a session is interrupted.
+>
+> **Action**: Move (one file → one target) · Split (one file → multiple features) · Co-locate (multiple files → one feature dir).
+> **Status**: ⬜ Pending → 🔄 Moving → ✅ Verified. A Split row is ✅ only when *all* target pieces are placed, *all* callers are updated, and the local tests pass.
+
+| Source path(s) | Owning Feature | Target path(s) | Action | Refs to Update | Characterization | Status |
+|----------------|----------------|----------------|--------|----------------|------------------|--------|
+| [legacy/path.ext] | [Feature ID] | [src/<feature-slug>/path.ext] | [Move / Split / Co-locate] | [caller paths — "Files Used by"] | [needed? / created?] | ⬜ |
 
 ---
 

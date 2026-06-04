@@ -7,17 +7,18 @@
 .DESCRIPTION
     After executing E2E acceptance tests, this script updates tracking files with results.
     Reads from e2e-test-tracking.md (split from test-tracking.md per PF-IMP-210).
-    Can mark individual E2E test cases, entire groups, or all tests for a feature.
+    Can mark individual E2E test cases, entire workflows, or all tests for a feature.
     When multiple selectors are specified, all must match (AND logic), enabling
-    per-case filtering within a group (e.g., -Group + -TestCase updates only that case).
+    per-case filtering within a workflow (e.g., -Workflow + -TestCase updates only that case).
     Updates feature-tracking.md Test Status for all features listed in the entry's Feature IDs column.
     Updates Workflow Milestone Tracking row status based on aggregate test results.
 
 .PARAMETER FeatureId
     Optional: Mark all E2E entries where Feature IDs column contains this feature.
 
-.PARAMETER Group
-    Optional: Mark a specific test group by name (matches group name in Test File/Case column).
+.PARAMETER Workflow
+    Optional: Mark all entries for a specific workflow (matches the Workflow column —
+    WF-NNN or workflow slug — in e2e-test-tracking.md).
 
 .PARAMETER TestCase
     Optional: Mark a specific test case by ID (e.g., "TE-E2E-001").
@@ -33,7 +34,7 @@
     Optional: Project root path. Auto-detected if not specified.
 
 .EXAMPLE
-    Update-TestExecutionStatus.ps1 -Group "powershell-regex-preservation" -Status "Passed"
+    Update-TestExecutionStatus.ps1 -Workflow "WF-001" -Status "Passed"
 
 .EXAMPLE
     Update-TestExecutionStatus.ps1 -FeatureId "1.1.1" -Status "Needs Re-execution" -Reason "Bug fix PD-BUG-032"
@@ -42,13 +43,14 @@
     Update-TestExecutionStatus.ps1 -TestCase "TE-E2E-001" -Status "Failed" -Reason "Link not updated after rename"
 
 .EXAMPLE
-    Update-TestExecutionStatus.ps1 -Group "powershell-regex-preservation" -TestCase "TE-E2E-005" -Status "Failed" -Reason "Case 5 failed, others passed"
+    Update-TestExecutionStatus.ps1 -Workflow "WF-001" -TestCase "TE-E2E-005" -Status "Failed" -Reason "Case 5 failed, others passed"
 
 .NOTES
     Created: 2026-03-15
-    Updated: 2026-04-14
-    Version: 2.5
-    Task: E2E Acceptance Test Execution (PF-TSK-070)
+    Updated: 2026-05-14 (PF-IMP-871 Phase 3c2 — `-Group` renamed to `-Workflow`; matches against
+                        the Workflow column (index 1) instead of the whole line for cleaner semantics)
+    Version: 2.6
+    Task: E2E Acceptance Test Execution (PF-TSK-070), PF-IMP-871
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -57,7 +59,7 @@ param(
     [string]$FeatureId = "",
 
     [Parameter(Mandatory=$false)]
-    [string]$Group = "",
+    [string]$Workflow = "",
 
     [Parameter(Mandatory=$false)]
     [string]$TestCase = "",
@@ -85,8 +87,8 @@ try {
 }
 
 # Validate at least one selector is provided
-if (-not $FeatureId -and -not $Group -and -not $TestCase) {
-    Write-ProjectError -Message "At least one of -FeatureId, -Group, or -TestCase must be specified." -ExitCode 1
+if (-not $FeatureId -and -not $Workflow -and -not $TestCase) {
+    Write-ProjectError -Message "At least one of -FeatureId, -Workflow, or -TestCase must be specified." -ExitCode 1
 }
 
 # Resolve project root
@@ -145,9 +147,12 @@ foreach ($line in $lines) {
 
             # AND logic: all specified selectors must match
             $matchTestCase = (-not $TestCase) -or ($testId -eq $TestCase)
-            $matchGroup = (-not $Group) -or ($line -match [regex]::Escape($Group))
+            # -Workflow matches against the Workflow column (index 1) specifically — cleaner
+            # semantics than the prior whole-line match used by the legacy -Group selector
+            # (PF-IMP-871 Phase 3c2).
+            $matchWorkflow = (-not $Workflow) -or ($workflowCol -match [regex]::Escape($Workflow))
             $matchFeature = (-not $FeatureId) -or ($featureIdsCol -match [regex]::Escape($FeatureId))
-            $isMatch = $matchTestCase -and $matchGroup -and $matchFeature
+            $isMatch = $matchTestCase -and $matchWorkflow -and $matchFeature
 
             if ($isMatch) {
                 # Update Status (index 5), Last Executed (index 6), Last Updated (index 7)
@@ -288,10 +293,13 @@ if ($TestCase -and $matchCount -gt 0) {
 
 if ($matchCount -eq 0) {
     Write-Warning "No matching entries found in e2e-test-tracking.md."
-    Write-Warning "Selectors: FeatureId='$FeatureId', Group='$Group', TestCase='$TestCase'"
+    Write-Warning "Selectors: FeatureId='$FeatureId', Workflow='$Workflow', TestCase='$TestCase'"
 } else {
     # --- Update Workflow Milestone Tracking rows ---
-    # Update milestone status based on execution results for each affected workflow
+    # Update milestone status based on execution results for each affected workflow.
+    # Tracks $milestoneRowsUpdated so the success message reflects actual writes vs. silent no-op
+    # (the table is empty until PF-TSK-086 Performance & E2E Test Scoping creates milestone rows).
+    $milestoneRowsUpdated = 0
     if ($affectedWorkflows.Count -gt 0) {
         $finalLines = @()
         $inMilestoneSection = $false
@@ -318,6 +326,7 @@ if ($matchCount -eq 0) {
                             }
                             $cells[6] = $milestoneStatus
                             $line = ConvertTo-MarkdownTableRow -Cells $cells
+                            $milestoneRowsUpdated++
                         }
                         break
                     }
@@ -333,7 +342,11 @@ if ($matchCount -eq 0) {
         Set-Content $testTrackingPath $updatedContent -Encoding UTF8
         Write-ProjectSuccess -Message "Updated $matchCount entries in e2e-test-tracking.md -> $emojiStatus"
         if ($affectedWorkflows.Count -gt 0) {
-            Write-ProjectSuccess -Message "Updated milestone status for workflows: $($affectedWorkflows -join ', ')"
+            if ($milestoneRowsUpdated -gt 0) {
+                Write-ProjectSuccess -Message "Updated milestone status for workflows: $($affectedWorkflows -join ', ')"
+            } else {
+                Write-Host "  Workflow Milestone Tracking: no rows for affected workflows ($($affectedWorkflows -join ', ')) — create via PF-TSK-086 to enable milestone tracking" -ForegroundColor Yellow
+            }
         }
     }
 }
@@ -386,7 +399,7 @@ if ($affectedFeatureIds.Count -gt 0) {
 }
 
 # Update workflow tracking (E2E Status column derives from test execution results)
-$workflowScript = Join-Path $ProjectRoot "process-framework/scripts/update/Update-WorkflowTracking.ps1"
+$workflowScript = Join-Path (Get-ProcessFrameworkPath) "scripts/update/Update-WorkflowTracking.ps1"
 if (Test-Path $workflowScript) {
     Write-Host ""
     Write-Host "Updating workflow tracking..." -ForegroundColor Yellow

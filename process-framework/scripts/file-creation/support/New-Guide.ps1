@@ -33,8 +33,10 @@
 
 .PARAMETER SubDirectory
     Subdirectory within process-framework/guides/ where the guide will be placed.
-    Examples: "01-planning", "02-design", "03-testing", "04-implementation", "05-validation",
-    "06-maintenance", "07-deployment", "cyclical", "framework", "support"
+    Constrained by ValidateSet to the known guide subdirectories: "00-setup", "01-planning",
+    "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance",
+    "07-deployment", "cyclical", "framework", "support". (Mirrors New-Task.ps1 -WorkflowPhase
+    and New-Template.ps1 -OutputDirectory.)
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
@@ -83,6 +85,7 @@ param(
     [string]$RelatedTasks = "",
 
     [Parameter(Mandatory = $true)]
+    [ValidateSet('00-setup','01-planning','02-design','03-testing','04-implementation','05-validation','06-maintenance','07-deployment','cyclical','framework','support')]
     [string]$SubDirectory,
 
     [Parameter(Mandatory = $false)]
@@ -136,7 +139,7 @@ try {
         $guideDocName = "$guideDocName-guide"
     }
     # IMP-568: Use -DirectoryType with -Subdirectory instead of manually constructed -OutputDirectory
-    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/guide-template.md" -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $guideDocName -DirectoryType "main" -Subdirectory $SubDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $documentId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/support/guide-template.md") -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $guideDocName -DirectoryType "main" -Subdirectory $SubDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -165,47 +168,8 @@ try {
         $details += "Customization required — see process-framework/guides/support/guide-creation-best-practices-guide.md"
     }
 
-    # Auto-append entry to PF-documentation-map.md under the correct Guides section
-    if ($documentId -or $WhatIfPreference) {
-        $projectRoot = Get-ProjectRoot
-        $docMapPath = Join-Path -Path $projectRoot -ChildPath "process-framework/PF-documentation-map.md"
-
-        # Derive section header from SubDirectory
-        # "01-planning" → "#### 01 - Planning Guides", "support" → "#### Support Guides"
-        if ($SubDirectory -match '^(\d{2})-(.+)$') {
-            $num = $Matches[1]
-            $name = (Get-Culture).TextInfo.ToTitleCase($Matches[2])
-            $sectionHeader = "#### $num - $name Guides"
-        }
-        else {
-            $name = (Get-Culture).TextInfo.ToTitleCase($SubDirectory)
-            $sectionHeader = "#### $name Guides"
-        }
-
-        # Validate SubDirectory against domain-config.json workflow phases
-        $domainConfigPath = Join-Path -Path $projectRoot -ChildPath "process-framework/domain-config.json"
-        if (Test-Path $domainConfigPath) {
-            $domainConfig = Get-Content -Path $domainConfigPath -Raw | ConvertFrom-Json
-            $validPhases = @($domainConfig.workflow_phases.values)
-            if ($SubDirectory -notin $validPhases -and $SubDirectory -ne "framework") {
-                Write-Warning "SubDirectory '$SubDirectory' is not in domain-config.json workflow_phases. Documentation map update may fail."
-            }
-        }
-
-        # IMP-407: Auto-append "-guide" suffix with double-suffix guard
-        $kebabName = ConvertTo-KebabCase -InputString $GuideTitle
-        if ($kebabName -notmatch '-guide$') {
-            $kebabName = "$kebabName-guide"
-        }
-        $relativePath = "guides/$SubDirectory/$kebabName.md"
-        $description = if ($GuideDescription -ne "") { $GuideDescription } else { "Guide for $GuideTitle" }
-        $entryLine = "- [Guide: $GuideTitle]($relativePath) - $description"
-
-        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-        if ($updated) {
-            $details += "Documentation Map: Updated (section: $sectionHeader)"
-        }
-    }
+    # PF-documentation-map.md is generated from each artifact's `description:` frontmatter
+    # by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
 
     Write-ProjectSuccess -Message "Created guide with ID: $documentId" -Details $details
 }

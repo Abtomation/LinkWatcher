@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-18
 updated: 2025-07-18
 related_task: PF-TSK-019
+description: "Components for evaluating system architecture"
 ---
 # System Architecture Review Context Map
 

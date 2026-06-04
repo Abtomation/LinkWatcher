@@ -3,9 +3,10 @@ id: PF-TSK-067
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.2
+version: 1.3
 created: 2026-02-19
-updated: 2026-03-17
+updated: 2026-05-16
+description: "Classify change requests as new features or enhancements, scope enhancements, and create Enhancement State Tracking Files"
 ---
 
 # Feature Request Evaluation
@@ -21,13 +22,6 @@ This task evaluates incoming change requests to determine whether they represent
 **Focus Areas**: Feature inventory analysis, scope assessment, execution planning, state file design
 **Communication Style**: Present classification rationale clearly, propose target features with evidence, ask for human confirmation before proceeding
 
-## When to Use
-
-- When a change request arrives and it's unclear whether it's a new feature or an enhancement to an existing one
-- When someone wants to add, modify, or extend functionality of an existing feature
-- When a feature already exists in feature tracking but needs additional capability, behavioral changes, or scope expansion
-- Before starting any modification to existing features — this task determines the right workflow
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/01-planning/feature-request-evaluation-map.md)
@@ -39,14 +33,14 @@ This task evaluates incoming change requests to determine whether they represent
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory to identify existing features
   - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature (used when classifying requests and validating new feature scope)
   - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing the Enhancement State Tracking File
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
   - Feature State Files (`state-tracking/features/X.Y.Z-*-implementation-state.md`) — Implementation state of candidate target features (includes Dimension Profile for inheritance)
   - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) — Dimension definitions and applicability criteria for evaluating if enhancement scope changes dimension applicability
   - Existing Design Docs (FDD, TDD, ADR) associated with the target feature — For understanding current scope and design
-  - [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+  - [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-central/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 
 - **Reference Only (Access When Needed):**
   - [Feature Tier Assessment Task](feature-tier-assessment-task.md) — For routing new features to the correct workflow
@@ -67,22 +61,46 @@ This task evaluates incoming change requests to determine whether they represent
 1. **Read the change request** — Understand what the human partner wants to add or change. Also check [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for queued requests with status "📥 Submitted" — the human partner may point to a specific request ID, or the agent can propose which queued request to evaluate
 2. **Review feature tracking** — Read `feature-tracking.md` to understand the current feature inventory. Make yourself familiar with some potential features by looking at the feature state tracking files.
 3. **Classify the request** — Determine: is this a new feature or an enhancement to an existing feature? Apply the three validation tests from the [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) to validate the scope of new features.
-4. **🚨 CHECKPOINT**: Present classification decision with rationale to human partner for approval
+
+3a. **Detect structural level (new feature path only)** — For new features, determine the smallest structural creation needed in `feature-tracking.md`:
+   - **Level 3 (feature row)**: New feature fits an existing subgroup → only a feature row is added to that subgroup's table
+   - **Level 2 (subgroup)**: New feature needs a new subgroup under an existing category → a new `### N.X` heading + empty table is created, then the feature row
+   - **Level 1 (category)**: New feature belongs in a wholly new category → a new `<details><summary>` block is created, then a subgroup, then the feature row
+
+   The level determines the `-Id` argument passed to [`Update-FeatureCategory.ps1`](../../scripts/update/Update-FeatureCategory.ps1) in step 5a (single digit `1` for category, `1.2` for subgroup, `1.2.3` for feature row). The script chains to [`New-TestInfrastructure.ps1 -Update`](../../scripts/file-creation/00-setup/New-TestInfrastructure.ps1) to scaffold the matching test/audit dirs (PF-IMP-871 / PF-PRO-034).
+
+3b. **Confirm names (new structural levels only)** — Name new categories and subgroups using noun-based phrases that produce clean kebab-case slugs (e.g., "Customer Management" → `1-customer-management/`). Avoid `&` and `/` in names.
+
+4. **🚨 CHECKPOINT**: Present classification decision (and structural-level finding for new features) with rationale to human partner for approval
    - **New Feature** → Continue to step 5a
    - **Enhancement** → Continue to step 5b
 
 ### Phase 2a: New Feature Routing
 
 5a. **Route to existing workflow** — For new features:
-   - Add the new feature to `feature-tracking.md` and note the assigned feature ID
-   - Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — does this feature create a new user workflow or extend an existing one? Update the workflow tracking file accordingly (add new workflows, add feature to existing workflows' Required Features). Set `workflows:` metadata in the new feature's implementation state file with the applicable WF-IDs.
-   - **Update feature request tracking and create state file** — If this request originated from [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md), close it using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1). The script also creates the feature implementation state file and links it in feature-tracking:
+   - **Add feature to tracking** — Use [`Update-FeatureCategory.ps1`](../../scripts/update/Update-FeatureCategory.ps1) to atomically create the structural row(s) identified in step 3a. The script's level is inferred from the `-Id` dot-count and creates parent levels in order from outer to inner (call once per level needed):
+     ```powershell
+     # Level-3 only (existing subgroup):
+     .\Update-FeatureCategory.ps1 -Id "1.2.3" -Name "Read by ID" -Priority "P2"
+
+     # Level-2 + level-3 (new subgroup under category 1):
+     .\Update-FeatureCategory.ps1 -Id "1.2" -Name "Customer Read"
+     .\Update-FeatureCategory.ps1 -Id "1.2.3" -Name "Read by ID"
+
+     # Level-1 + level-2 + level-3 (new category):
+     .\Update-FeatureCategory.ps1 -Id "1" -Name "Customer Management"
+     .\Update-FeatureCategory.ps1 -Id "1.2" -Name "Customer Read"
+     .\Update-FeatureCategory.ps1 -Id "1.2.3" -Name "Read by ID"
+     ```
+     The script chains to `New-TestInfrastructure.ps1 -Update` after the mutation, which scaffolds the matching `automated/unit/<N>-<slug>/[<N.X>-<slug>/]` test dirs and `audits/unit/...` mirrors automatically (PF-IMP-871 / PF-PRO-034).
+   - Check [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) — does this feature create a new user workflow or extend an existing one? Update the workflow tracking file accordingly (add new workflows, add feature to existing workflows' Required Features). Set `workflows:` metadata in the new feature's implementation state file with the applicable WF-IDs.
+   - **Update feature request tracking and create state file** — If this request originated from [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md), close it using [`Update-FeatureRequest.ps1`](../../scripts/update/Update-FeatureRequest.ps1). The script also creates the feature implementation state file:
      ```powershell
      cd process-framework/scripts/update
      .\Update-FeatureRequest.ps1 -RequestId "PD-FRQ-XXX" -Classification "NewFeature" -FeatureId "X.Y.Z" -FeatureName "Feature Name" -NewStatus "Completed" -Notes "Brief description"
      ```
      If the request did NOT originate from feature-request-tracking, create the state file manually using `New-FeatureImplementationState.ps1`.
-   - **Source directory auto-creation**: When `New-FeatureImplementationState.ps1` runs, it automatically calls `New-SourceStructure.ps1 -Update` to create the feature's source directory and refresh the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) directory tree (only if source-code-layout.md exists).
+   - **Source directory auto-creation**: When `New-FeatureImplementationState.ps1` runs, it automatically calls `New-SourceStructure.ps1 -Update` to create the feature's source directory and refresh the [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) directory tree (only if source-code-layout.md exists). It also calls `New-TestInfrastructure.ps1 -Update` (PF-IMP-871 Phase 3a) to ensure test/audit dirs exist for the feature's category/subgroup.
    - Inform the human partner that the existing workflow applies (Feature Tier Assessment → Design → Implementation)
    - This task is complete. Proceed to the Task Completion Checklist.
 
@@ -92,7 +110,7 @@ This task evaluates incoming change requests to determine whether they represent
    - Locate the candidate feature(s) in `feature-tracking.md`
    - Read each feature's implementation state file to understand its current scope
    - Locate any existing design documentation (FDD, TDD, ADR)
-   - Check [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — does this enhancement affect any user workflows? If so, note the affected WF-IDs in the enhancement scope. If the enhancement changes which workflows the feature participates in, update the feature state file's `workflows:` metadata accordingly.
+   - Check [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) — does this enhancement affect any user workflows? If so, note the affected WF-IDs in the enhancement scope. If the enhancement changes which workflows the feature participates in, update the feature state file's `workflows:` metadata accordingly.
    - **Multi-feature requests**: If the change request affects multiple existing features, identify all of them. Present the full list at the checkpoint below.
 6. **🚨 CHECKPOINT**: Present target feature proposal with rationale to human partner and wait for explicit approval before continuing
    - **For multi-feature requests**: Present all affected features and confirm with the human partner whether to proceed with separate Enhancement State Tracking Files for each, or whether the request should be split into independent evaluations. The default is **one state file per target feature**, each scoped to that feature's portion of the work, with cross-references linking the related state files.
@@ -135,7 +153,12 @@ This task evaluates incoming change requests to determine whether they represent
     ```
     This script moves the request to ✅ Completed in feature-request-tracking.md and sets the target feature's status to "🔄 Needs Enhancement" in feature-tracking.md with a link to the Enhancement State Tracking File.
 
-    If the request did NOT originate from feature-request-tracking (e.g., ad-hoc human request), manually set the target feature's status to "🔄 Needs Enhancement" in `feature-tracking.md` and add a link to the Enhancement State Tracking File.
+    If the request did NOT originate from feature-request-tracking (e.g., ad-hoc human request), invoke the `Update-FeatureTrackingStatus` helper from Common-ScriptHelpers to set the target feature's status and notes — never edit `feature-tracking.md` directly (see [Feature Tracking Mutation Guide](../../guides/support/feature-tracking-mutation-guide.md)):
+    ```powershell
+    Import-Module process-framework/scripts/Common-ScriptHelpers.psm1
+    Update-FeatureTrackingStatus -FeatureId "X.Y.Z" -Status "🔄 Needs Enhancement" `
+        -Notes "Enhancement State File: [PF-STA-XXX](path/to/file.md)"
+    ```
 12. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -188,6 +211,6 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Granularity Guide](../../guides/01-planning/feature-granularity-guide.md) — Defines what constitutes a well-scoped feature with validation tests and scaling guidance
-- [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-central/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory
 - [Enhancement State Tracking Customization Guide](../../guides/04-implementation/enhancement-state-tracking-customization-guide.md) — Guide for customizing state files

@@ -7,14 +7,14 @@ created: 2026-04-29
 updated: 2026-04-29
 debt_item: TD248
 mode: lightweight
-target_area: test/automated/performance/test_large_projects.py
+target_area: test/automated/performance/level3-scale/test_large_projects.py
 refactoring_scope: Remove sleep contamination from PH-005 timed loop
 priority: Medium
 ---
 
 # Lightweight Refactoring Plan: Remove sleep contamination from PH-005 timed loop
 
-- **Target Area**: test/automated/performance/test_large_projects.py
+- **Target Area**: test/automated/performance/level3-scale/test_large_projects.py
 - **Priority**: Medium
 - **Created**: 2026-04-29
 - **Author**: AI Agent & Human Partner

@@ -19,7 +19,7 @@ Updates the following files (based on -TestType):
 - E2E: e2e-test-tracking.md (Audit Status + Audit Report columns)
 
 .PARAMETER TestFilePath
-Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
+Relative path to the test file being audited (e.g., "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py")
 
 .PARAMETER AuditStatus
 The audit status (e.g., "Audit Approved", "Needs Update", "Audit In Progress")
@@ -57,17 +57,17 @@ invalidate the captured baseline. Rows whose current Lifecycle Status is not
 If specified, shows what would be updated without making changes
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditStatus "Audit Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditStatus "Audit Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
 
 .EXAMPLE
 # Performance: false-compliance correction — audit fails and the row(s) need to roll back to 📋 Needs Baseline
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditReportPath "test/audits/performance/audit-report-2-1-1-test-benchmark.md" -LifecycleCorrection
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditStatus "Needs Update" -AuditReportPath "test/audits/performance/level2-operation/audit-report-2-1-1-test-benchmark.md" -LifecycleCorrection
 
 .NOTES
 This script addresses Process Improvement items:
@@ -202,7 +202,7 @@ function Get-FeatureIdFromTestFile {
     }
 
     # Multiple matches — disambiguate using directory from TestFilePath
-    # Build a suffix from input path: e.g., "test/automated/unit/test_config.py" → "unit/test_config.py"
+    # Build a suffix from input path: e.g., "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py" → "unit/test_config.py"
     $normalizedInput = $TestFilePath -replace '\\', '/'
     $inputParts = $normalizedInput -split '/'
     # Use parent-dir/filename as the disambiguation suffix (at minimum)
@@ -365,12 +365,10 @@ try {
 
     # --- Performance / E2E: update dedicated tracking file Audit Status + Audit Report columns ---
     if ($TestType -ne "Automated") {
-        $projectRoot = Get-ProjectRoot
-        $trackingRelPath = switch ($TestType) {
-            "Performance" { "test/state-tracking/permanent/performance-test-tracking.md" }
-            "E2E" { "test/state-tracking/permanent/e2e-test-tracking.md" }
+        $trackingFilePath = switch ($TestType) {
+            "Performance" { Resolve-TrackingFilePath -File "performance-test-tracking.md" }
+            "E2E"         { Resolve-TrackingFilePath -File "e2e-test-tracking.md" }
         }
-        $trackingFilePath = Join-Path $projectRoot $trackingRelPath
         $trackingFileName = Split-Path $trackingFilePath -Leaf
         $testFileName = Split-Path $TestFilePath -Leaf
 
@@ -554,15 +552,13 @@ try {
     # Create backup of all files before making changes
     if (-not $DryRun) {
         Write-Host "Creating backups..." -ForegroundColor Yellow
-        $projectRoot = Get-ProjectRoot
         $filesToBackup = @(
-            "test/state-tracking/permanent/test-tracking.md",
-            "doc/state-tracking/permanent/feature-tracking.md"
+            (Resolve-TrackingFilePath -File "test-tracking.md"),
+            (Resolve-DocPath -Subpath "state-tracking/permanent/feature-tracking.md")
         )
 
         $backupCount = 0
-        foreach ($file in $filesToBackup) {
-            $fullPath = Join-Path $projectRoot $file
+        foreach ($fullPath in $filesToBackup) {
             if (Test-Path $fullPath) {
                 $backupResult = Get-StateFileBackup -FilePath $fullPath
                 $backupCount++
@@ -627,8 +623,7 @@ try {
     Write-Host "Updating Feature Tracking (Aggregated)..." -ForegroundColor Yellow
 
     # Calculate aggregated test status for the feature
-    $projectRoot = Get-ProjectRoot
-    $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+    $testTrackingPath = Resolve-TrackingFilePath -File "test-tracking.md"
     $content = Get-Content $testTrackingPath -Raw
 
     # Find all test files for this feature and their statuses
@@ -654,12 +649,19 @@ try {
     }
 
     # Calculate aggregated status (emits feature-tracking.md legend vocabulary per SC-027)
-    $aggregatedStatus = if ($featureTestStatuses -contains "🔴 Audit Failed") {
+    # Mirrors Validate-StateTracking.ps1 Surface 15 Get-AggregatedTestStatus.
+    # PF-IMP-765: "🔴 Needs Fix" rows (emitted by Run-Tests.python.ps1 on pytest
+    # failures) are treated as failing alongside this script's own "🔴 Audit Failed"
+    # rows, matching Surface 15's deliberate extension.
+    $aggregatedStatus = if ($featureTestStatuses -contains "🔴 Audit Failed" -or $featureTestStatuses -contains "🔴 Needs Fix") {
         "🔴 Some Failing"
     } elseif ($featureTestStatuses -contains "🔄 Needs Update") {
         "🔄 Re-testing Needed"
     } elseif ($featureTestStatuses -contains "🔍 Audit In Progress") {
         "🔍 Audit In Progress"
+    } elseif ($featureTestStatuses.Count -gt 0 -and (($featureTestStatuses | Where-Object { $_ -eq "📝 Needs Implementation" }).Count -eq $featureTestStatuses.Count)) {
+        # PF-IMP-037: all entries are 📝 Needs Implementation (specs created, no impl) → 📋 Specs Created
+        "📋 Specs Created"
     } elseif ($featureTestStatuses -notcontains "✅ Audit Approved" -and $featureTestStatuses.Count -gt 0) {
         "🟡 In Progress"
     } elseif ($featureTestStatuses -contains "✅ Audit Approved" -and $featureTestStatuses.Count -gt 0) {

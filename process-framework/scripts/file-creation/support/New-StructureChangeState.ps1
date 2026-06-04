@@ -50,19 +50,20 @@ if ($FromProposal -and ($ChangeType -eq "Content Update" -or $ChangeType -eq "Fr
     Write-ProjectError -Message "-FromProposal cannot be used with ChangeType '$ChangeType' because the $ChangeType template contains type-specific content/artifact tables (Affected Files / New Artifacts) that don't belong in a generic execution-tracking-only state file. Use -ChangeType '$ChangeType' alone — its dedicated template is already lightweight." -ExitCode 1
 }
 
-# Select template:
+# Select template (Phase 5.5: framework subtree path resolved via configurable paths.process_framework)
 #   -FromProposal: always use from-proposal template (execution tracking only; proposal owns the content)
 #   Otherwise: select by ChangeType
+$processFrameworkDir = Get-ProcessFrameworkPath
 if ($FromProposal) {
-    $templatePath = "process-framework/templates/support/structure-change-state-from-proposal-template.md"
+    $templatePath = Join-Path $processFrameworkDir "templates/support/structure-change-state-from-proposal-template.md"
 } elseif ($ChangeType -eq "Rename") {
-    $templatePath = "process-framework/templates/support/structure-change-state-rename-template.md"
+    $templatePath = Join-Path $processFrameworkDir "templates/support/structure-change-state-rename-template.md"
 } elseif ($ChangeType -eq "Content Update") {
-    $templatePath = "process-framework/templates/support/structure-change-state-content-update-template.md"
+    $templatePath = Join-Path $processFrameworkDir "templates/support/structure-change-state-content-update-template.md"
 } elseif ($ChangeType -eq "Framework Extension") {
-    $templatePath = "process-framework/templates/support/structure-change-state-framework-extension-template.md"
+    $templatePath = Join-Path $processFrameworkDir "templates/support/structure-change-state-framework-extension-template.md"
 } else {
-    $templatePath = "process-framework/templates/support/structure-change-state-template.md"
+    $templatePath = Join-Path $processFrameworkDir "templates/support/structure-change-state-template.md"
 }
 
 # Prepare custom replacements
@@ -81,7 +82,9 @@ $kebabName = ConvertTo-KebabCase -InputString $ChangeName
 $customFileName = "structure-change-$kebabName.md"
 
 try {
-    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Structure change state for: ${ChangeName}" -DocumentName $ChangeName -OutputDirectory "process-framework-local/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+    $stContext = Get-StateTrackingContext
+    $outputDir = "$($stContext.StateTrackingRelative)/temporary"
+    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Structure change state for: ${ChangeName}" -DocumentName $ChangeName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     if ($FromProposal) {
         $details = @(
@@ -91,7 +94,7 @@ try {
             "✅ This state file tracks execution progress only.",
             "✅ See the linked proposal document for rationale, affected files, and migration strategy.",
             "",
-            "⚠️  CUSTOMIZE the phase checklists to match your proposal's phases.",
+            "⚠️  COPY your proposal's phases into the Implementation Roadmap section.",
             "⚠️  CROSS-CHECK: Verify every file in the proposal's affected files table",
             "   appears in at least one phase checklist.",
             "",

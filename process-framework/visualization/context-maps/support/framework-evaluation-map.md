@@ -7,6 +7,7 @@ created: 2026-03-24
 updated: 2026-04-10
 workflow_phase: support
 related_task: PF-TSK-079
+description: "Context map for Framework Evaluation task showing evaluation scope, dimensions, and output relationships"
 ---
 
 # Framework Evaluation Context Map
@@ -97,7 +98,7 @@ graph TD
 
 ## Related Documentation
 
-- [Framework Evaluation Task](/process-framework/tasks/support/framework-evaluation.md) — Task definition for this evaluation process
-- [Documentation Map](/process-framework/PF-documentation-map.md) — Central index of all framework artifacts
-- [AI Tasks System](/process-framework/ai-tasks.md) — Task registry and workflow definitions
-- [Process Improvement Tracking](/process-framework-local/state-tracking/permanent/process-improvement-tracking.md) — Where IMP entries are registered
+- [Framework Evaluation Task](../../../tasks/support/framework-evaluation.md) — Task definition for this evaluation process
+- [Documentation Map](../../../PF-documentation-map.md) — Central index of all framework artifacts
+- [AI Tasks System](../../../ai-tasks.md) — Task registry and workflow definitions
+- [Process Improvement Tracking](/process-framework-central/state-tracking/permanent/process-improvement-tracking.md) — Where IMP entries are registered (Phase 7 central, post-2026-05-11)

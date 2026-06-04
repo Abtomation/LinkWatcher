@@ -1,239 +1,131 @@
 # New-SchemaDesign.ps1
-# Creates a new Database Schema Design document with an automatically assigned ID
-# Uses the central ID registry system and standardized document creation
+# Creates a new Database Schema Design document with an automatically assigned ID.
+#
+# Refactored 2026-05-08 (PF-PRO-002 Phase 2 / option B): orchestration delegated
+# to Invoke-DesignArtifactCreation in Common-ScriptHelpers/DesignArtifactCreation.psm1.
 
 <#
 .SYNOPSIS
-    Creates a new Database Schema Design document with an automatically assigned ID.
+    Creates a new Database Schema Design document (PD-SCH-XXX).
 
 .DESCRIPTION
-    This PowerShell script generates Database Schema Design documents by:
-    - Generating a unique document ID (PD-SCH-XXX)
-    - Creating a properly formatted schema design document file
-    - Updating the ID tracker in the central ID registry
-    - Providing a complete template for database schema design and planning
-    - Automatically updating DB Design column in feature tracking from "Yes" to schema design link (when FeatureId provided)
+    Generates a Schema Design document, appends to PD-documentation-map.md,
+    and (when -FeatureId is provided) updates master Status and inserts a row
+    into the feature state file's §4 ▸ Design Documentation table.
 
 .PARAMETER FeatureName
-    The name of the feature requiring schema changes
+    Feature requiring schema changes.
 
 .PARAMETER SchemaType
-    The type of schema change (New, Modification, Optimization)
+    Type of schema change: New, Modification, or Optimization.
 
 .PARAMETER Description
-    Optional description of the schema changes needed
+    Optional free-text description.
 
 .PARAMETER FeatureId
-    Optional feature ID to link this schema design to for automatic state updates
+    Optional feature ID — when provided, master Status + state-file §4 row are
+    updated; when empty, only the doc + docmap are touched.
 
 .PARAMETER OpenInEditor
-    If specified, opens the created file in the default editor
+    Open the created document in the default editor.
 
 .PARAMETER DryRun
-    If specified, shows what would be updated without making changes
-
-.EXAMPLE
-    doc/technical/database/New-SchemaDesign.ps1 -FeatureName "User Authentication" -SchemaType "New"
-
-.EXAMPLE
-    doc/technical/database/New-SchemaDesign.ps1 -FeatureName "User Profile Enhancement" -SchemaType "Modification" -Description "Add new fields for user preferences" -OpenInEditor
-
-.EXAMPLE
-    doc/technical/database/New-SchemaDesign.ps1 -FeatureName "Booking Fee Calculation" -SchemaType "New" -Description "Schema for booking fee calculations" -FeatureId "5.1.1"
-
-.NOTES
-    - Requires PowerShell execution policy to allow script execution
-    - Automatically updates the central ID registry with new ID assignments
-    - Creates the output directory if it doesn't exist
-    - Uses standardized document creation process
-    - When FeatureId is provided, automatically updates DB Design column in feature tracking from "Yes" to schema design link
-    - Integrates with Process Framework automation infrastructure
-
-    Template Metadata:
-    - Template ID: PF-TEM-020
-    - Template Type: Document Creation Script
-    - Created: 2025-07-08
-    - For: Creating PowerShell scripts that generate documents from templates
+    Preview the entire pipeline without performing any writes.
+    Equivalent to -WhatIf (PF-IMP-785).
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$FeatureName,
-
-    [Parameter(Mandatory = $true)]
-    [ValidateSet("New", "Modification", "Optimization")]
-    [string]$SchemaType,
-
-    [Parameter(Mandatory = $false)]
-    [string]$Description = "",
-
-    [Parameter(Mandatory = $false)]
-    [string]$FeatureId = "",
-
-    [Parameter(Mandatory = $false)]
-    [switch]$OpenInEditor,
-
-    [Parameter(Mandatory = $false)]
-    [switch]$DryRun
+    [Parameter(Mandatory = $true)]  [string]$FeatureName,
+    [Parameter(Mandatory = $true)]  [ValidateSet("New", "Modification", "Optimization")] [string]$SchemaType,
+    [Parameter(Mandatory = $false)] [string]$Description = "",
+    [Parameter(Mandatory = $false)] [string]$FeatureId = "",
+    [Parameter(Mandatory = $false)] [switch]$OpenInEditor,
+    [Parameter(Mandatory = $false)] [switch]$DryRun
 )
 
-# Import the common helpers with walk-up path resolution
+# Walk-up Common-ScriptHelpers import
 $dir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
 Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Prepare additional metadata fields (customize as needed)
+# ---- Per-type composition ----
 $additionalMetadataFields = @{
     "feature_name" = ConvertTo-KebabCase -InputString $FeatureName
     "schema_type"  = $SchemaType.ToLower()
 }
+if ($FeatureId -ne "") { $additionalMetadataFields["feature_id"] = $FeatureId }
 
-# Add feature ID if provided
-if ($FeatureId -ne "") {
-    $additionalMetadataFields["feature_id"] = $FeatureId
-}
-
-# Prepare custom replacements (customize based on template needs)
 $customReplacements = @{
     "[Feature Name]" = $FeatureName
     "[Schema Type]"  = $SchemaType
     "[Description]"  = if ($Description -ne "") { $Description } else { "Schema design for $FeatureName feature" }
 }
 
-# Create the document using standardized process
+$documentName = if ($FeatureId -ne "") { "$FeatureId-$FeatureName" } else { $FeatureName }
+$schemaSlug = ConvertTo-FeatureSlug -Name $documentName -Convention 'kebab-case'
+$customFileName = "$schemaSlug.md"
+$schemaRelativePath = "doc/technical/database/schemas/$customFileName"
+
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/schema-design-template.md"
+
+# ---- Compute next master Status (only when FeatureId given) ----
+# Reads design requirements from the feature's tier assessment (PF-IMP-766).
+# Branches to "🔌 Needs API Design" if API design is still required, else falls
+# through to "📝 Needs TDD" (Tier 2+) or "🔧 Needs Impl Plan" (Tier 1).
+$nextStatus = ""
+if ($FeatureId -ne "") {
+    $nextStatus = Get-NextStatusAfterDesignArtifact -FeatureId $FeatureId -CurrentArtifact 'SchemaDesign'
+}
+
+# ---- Delegate orchestration ----
 try {
-    # Prepare document name with feature ID prefix if provided
-    $documentName = if ($FeatureId -ne "") {
-        "$FeatureId-$FeatureName"
+    $invokeArgs = @{
+        ArtifactType               = "Schema Design"
+        IdPrefix                   = "PD-SCH"
+        IdDescription              = "Schema design for $SchemaType changes in ${FeatureName}"
+        TemplatePath               = $templatePath
+        FileNamePattern            = $customFileName
+        DocumentName               = $documentName
+        DirectoryType              = "schemas"
+        FeatureName                = $FeatureName
+        Replacements               = $customReplacements
+        AdditionalMetadataFields   = $additionalMetadataFields
+        DocMapSectionHeader        = "### ``technical/database/schemas/``"
+        DocMapEntryFormatter       = { param($id) "- [Schema: $FeatureName ($id)](technical/database/schemas/$customFileName) - $SchemaType schema for $FeatureName" }
+        OpenInEditor               = $OpenInEditor
+        DryRun                     = $DryRun
+        CallerCmdlet               = $PSCmdlet
     }
-    else {
-        $FeatureName
+    if ($FeatureId -ne "") {
+        $invokeArgs['FeatureId']                  = $FeatureId
+        $invokeArgs['ArtifactRelativePath']       = $schemaRelativePath
+        $invokeArgs['NewMasterStatus']            = $nextStatus
+        $invokeArgs['MasterStatusNotesFormatter'] = { param($id) "Database schema design created: $id ($(Get-ProjectTimestamp -Format 'Date')) - $SchemaType schema for $FeatureName" }
     }
+    $result = Invoke-DesignArtifactCreation @invokeArgs
 
-    # Use DirectoryType for ID registry-based directory resolution (recommended)
-    # Alternative: Use -OutputDirectory "[EXPLICIT_PATH]" for custom directory paths
-    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/02-design/schema-design-template.md" -IdPrefix "PD-SCH" -IdDescription "Schema design for $SchemaType changes in ${FeatureName}" -DocumentName $documentName -DirectoryType "schemas" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
-
-    # Optional: Update related documentation (customize as needed)
-    # Example: Update documentation maps, README files, etc.
-    # [OPTIONAL_DOCUMENTATION_UPDATES]
-
-    # Provide success details
+    # ---- Display ----
     $details = @(
         "Feature: $FeatureName",
         "Schema Type: $SchemaType"
     )
-
-    # Add conditional details
-    if ($Description -ne "") {
-        $details += "Description: $Description"
-    }
-
-    # Add next steps if not opening in editor
+    if ($Description -ne "") { $details += "Description: $Description" }
     if (-not $OpenInEditor) {
-        $details += @(
-            "Customization required — see process-framework/guides/02-design/schema-design-creation-guide.md",
-            "",
-            "Next steps:",
-            "1. Complete the schema design document with detailed data model specifications",
-            "2. Create entity-relationship diagrams using the ER diagram template",
-            "3. Design migration scripts for safe database changes",
-            "4. Review schema design with the team before implementation"
-        )
+        $details += "Customization required — see process-framework/guides/02-design/schema-design-creation-guide.md"
+    }
+    if ($result.DocMapUpdated)   { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
+    if ($result.StateFileResult) {
+        $sf = $result.StateFileResult
+        $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"
     }
 
-    Write-ProjectSuccess -Message "Created Database Schema Design with ID: $documentId" -Details $details
-
-    # Automation Integration: Update DB Design state if FeatureId provided
-    if ($FeatureId -ne "") {
-        Write-Host "`n🤖 Updating Feature Tracking..." -ForegroundColor Yellow
-
-        try {
-            # Validate dependencies for automation
-            $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
-                "Update-FeatureTrackingStatus"
-            )
-            if (-not $dependencyCheck.AllDependenciesMet) {
-                Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
-                Write-Host "Manual Update Required:" -ForegroundColor Yellow
-
-                Write-Host "  - Update DB Design column from 'Yes' to schema design link" -ForegroundColor Cyan
-                Write-Host "  - Add schema design creation notes" -ForegroundColor Cyan
-            }
-            else {
-                # Prepare schema design document link for feature tracking
-                # Use the same filename pattern as New-StandardProjectDocument (kebab-case of feature name)
-                $schemaFileName = "$($FeatureName.ToLower() -replace '\s+', '-').md"
-                $relativePath = "doc/technical/database/schemas/$schemaFileName"
-                $dbDesignLink = "[$documentId]($relativePath)"
-
-                # Prepare additional updates for feature tracking
-                $additionalUpdates = @{
-                    "DB Design" = $dbDesignLink
-                }
-
-                # Add notes about schema design creation
-                $automationNotes = "Database schema design created: $documentId ($(Get-ProjectTimestamp -Format 'Date')) - $SchemaType schema for $FeatureName"
-
-                if ($DryRun) {
-                    Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                    Write-Host "  DB Design Column: Yes → [$documentId]($relativePath)" -ForegroundColor Cyan
-                    Write-Host "  Schema Type: $SchemaType" -ForegroundColor Cyan
-                    Write-Host "  Feature Name: $FeatureName" -ForegroundColor Cyan
-                    Write-Host "  Notes: $automationNotes" -ForegroundColor Cyan
-                }
-                else {
-                    # Validate prerequisites - ensure DB Design requirement exists
-                    Write-Host "  🔍 Validating prerequisites..." -ForegroundColor Cyan
-
-                    # Determine next status based on API Design column
-                    $featureTrackingPath = Join-Path (Get-ProjectRoot) "doc/state-tracking/permanent/feature-tracking.md"
-                    $ftContent = Get-Content $featureTrackingPath -Raw
-                    $featureRow = [regex]::Match($ftContent, "\|[^\r\n]*\b$([regex]::Escape($FeatureId))\b[^\r\n]*\|")
-                    $nextStatus = "📝 Needs TDD"  # default
-                    $ftLines = $ftContent -split "`n"
-                    $headerLine = $ftLines | Where-Object { $_ -match 'API Design' } | Select-Object -First 1
-                    if ($headerLine -and $featureRow.Success) {
-                        $headers = $headerLine -split '\|' | ForEach-Object { $_.Trim() }
-                        $apiIdx = [array]::IndexOf($headers, "API Design")
-                        if ($apiIdx -ge 0) {
-                            $cols = $featureRow.Value -split '\|' | ForEach-Object { $_.Trim() }
-                            $apiVal = if ($apiIdx -lt $cols.Count) { $cols[$apiIdx] } else { "No" }
-                            if ($apiVal -eq "Yes") {
-                                $nextStatus = "🔌 Needs API Design"
-                            }
-                        }
-                    }
-
-                    # Update feature tracking with DB Design completion and next status
-                    $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $nextStatus -AdditionalUpdates $additionalUpdates -Notes $automationNotes
-
-                    Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                    Write-Host "  🔗 DB Design: Yes → [$documentId]($relativePath)" -ForegroundColor Green
-                    Write-Host "  📋 Status: 🗄️ Needs DB Design → $nextStatus" -ForegroundColor Green
-                }
-            }
-        }
-        catch {
-            Write-ProjectError -Message "Failed to update feature tracking automatically: $($_.Exception.Message)"
-            Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Update feature $FeatureId DB Design column to '[$documentId]($relativePath)'" -ForegroundColor Cyan
-            Write-Host "  - Replace 'Yes' with schema design link in feature-tracking.md" -ForegroundColor Cyan
-            Write-Host "  - Add notes: $automationNotes" -ForegroundColor Cyan
-        }
-    }
+    Write-ProjectSuccess -Message "Created Database Schema Design with ID: $($result.DocumentId)" -Details $details
 }
 catch {
     Write-ProjectError -Message "Failed to create Database Schema Design: $($_.Exception.Message)" -ExitCode 1

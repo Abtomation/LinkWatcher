@@ -227,40 +227,40 @@ status: FINALIZED
 | ../../../../../tests/conftest.py | Pytest fixtures and configuration | 4.1.1 | ✅ |
 | test/automated/utils.py | Test utility functions | 4.1.7 | ✅ |
 | test/automated/test_config.py | Config tests | 4.1.2 | ✅ |
-| test/automated/test_move_detection.py | Move detection tests | 4.1.2 | ✅ |
+| test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_move_detection.py | Move detection tests | 4.1.2 | ✅ |
 | test/automated/fixtures/__init__.py | Fixtures package init | 4.1.6 | ✅ |
 | test/automated/fixtures/sample_config.yaml | Sample YAML config fixture | 4.1.6 | ✅ |
 | test/automated/fixtures/sample_data.json | Sample JSON data fixture | 4.1.6 | ✅ |
 | test/automated/fixtures/sample_markdown.md | Sample markdown fixture | 4.1.6 | ✅ |
 | test/automated/unit/__init__.py | Unit tests package init | 4.1.2 | ✅ |
-| test/automated/unit/test_advanced_logging.py | Advanced logging unit tests | 4.1.2 | ✅ |
-| test/automated/unit/test_config.py | Configuration unit tests | 4.1.2 | ✅ |
-| test/automated/unit/test_database.py | Database unit tests | 4.1.2 | ✅ |
-| test/automated/unit/test_logging.py | Logging unit tests | 4.1.2 | ✅ |
-| test/automated/unit/test_parser.py | Parser unit tests | 4.1.2 | ✅ |
-| test/automated/unit/test_service.py | Service unit tests | 4.1.2 | ✅ |
-| test/automated/unit/test_updater.py | Updater unit tests | 4.1.2 | ✅ |
+| test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_advanced_logging.py | Advanced logging unit tests | 4.1.2 | ✅ |
+| test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py | Configuration unit tests | 4.1.2 | ✅ |
+| test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py | Database unit tests | 4.1.2 | ✅ |
+| test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_logging.py | Logging unit tests | 4.1.2 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py | Parser unit tests | 4.1.2 | ✅ |
+| test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py | Service unit tests | 4.1.2 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py | Updater unit tests | 4.1.2 | ✅ |
 | test/automated/integration/__init__.py | Integration tests package init | 4.1.3 | ✅ |
-| test/automated/integration/test_complex_scenarios.py | Complex scenario integration tests | 4.1.3 | ✅ |
-| test/automated/unit/test_comprehensive_file_monitoring.py | Comprehensive file monitoring tests | 4.1.3 | ✅ |
-| test/automated/integration/test_error_handling.py | Error handling integration tests | 4.1.3 | ✅ |
-| test/automated/integration/test_file_movement.py | File movement integration tests | 4.1.3 | ✅ |
-| test/automated/integration/test_image_file_monitoring.py | Image file monitoring tests | 4.1.3 | ✅ |
-| test/automated/integration/test_link_updates.py | Link update integration tests | 4.1.3 | ✅ |
-| test/automated/integration/test_powershell_script_monitoring.py | PowerShell script monitoring tests | 4.1.3 | ✅ |
-| test/automated/integration/test_sequential_moves.py | Sequential move tests | 4.1.3 | ✅ |
-| test/automated/integration/test_service_integration.py | Service integration tests | 4.1.3 | ✅ |
-| test/automated/integration/test_windows_platform.py | Windows platform tests | 4.1.3 | ✅ |
+| test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_complex_scenarios.py | Complex scenario integration tests | 4.1.3 | ✅ |
+| test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_comprehensive_file_monitoring.py | Comprehensive file monitoring tests | 4.1.3 | ✅ |
+| test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_error_handling.py | Error handling integration tests | 4.1.3 | ✅ |
+| test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_file_movement.py | File movement integration tests | 4.1.3 | ✅ |
+| test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_image_file_monitoring.py | Image file monitoring tests | 4.1.3 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py | Link update integration tests | 4.1.3 | ✅ |
+| test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_powershell_script_monitoring.py | PowerShell script monitoring tests | 4.1.3 | ✅ |
+| test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_sequential_moves.py | Sequential move tests | 4.1.3 | ✅ |
+| test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service_integration.py | Service integration tests | 4.1.3 | ✅ |
+| test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_windows_platform.py | Windows platform tests | 4.1.3 | ✅ |
 | test/automated/parsers/__init__.py | Parser tests package init | 4.1.4 | ✅ |
-| test/automated/parsers/test_dart.py | Dart parser tests | 4.1.4 | ✅ |
-| test/automated/parsers/test_generic.py | Generic parser tests | 4.1.4 | ✅ |
-| test/automated/parsers/test_image_files.py | Image file parser tests | 4.1.4 | ✅ |
-| test/automated/parsers/test_json.py | JSON parser tests | 4.1.4 | ✅ |
-| test/automated/parsers/test_markdown.py | Markdown parser tests | 4.1.4 | ✅ |
-| test/automated/parsers/test_python.py | Python parser tests | 4.1.4 | ✅ |
-| test/automated/parsers/test_yaml.py | YAML parser tests | 4.1.4 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_dart.py | Dart parser tests | 4.1.4 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_generic.py | Generic parser tests | 4.1.4 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_image_files.py | Image file parser tests | 4.1.4 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py | JSON parser tests | 4.1.4 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py | Markdown parser tests | 4.1.4 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py | Python parser tests | 4.1.4 | ✅ |
+| test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py | YAML parser tests | 4.1.4 | ✅ |
 | test/automated/performance/__init__.py | Performance tests package init | 4.1.5 | ✅ |
-| test/automated/performance/test_large_projects.py | Large project performance tests | 4.1.5 | ✅ |
+| test/automated/performance/level3-scale/test_large_projects.py | Large project performance tests | 4.1.5 | ✅ |
 | test/automated/bug-validation/test_procedures.md | Manual test procedures document | 4.1.8 | ✅ |
 | tests/README.md | Test suite documentation | 4.1.8 | ✅ |
 | tests/TEST_CASE_STATUS.md | Test case implementation tracking | 4.1.8 | ✅ |

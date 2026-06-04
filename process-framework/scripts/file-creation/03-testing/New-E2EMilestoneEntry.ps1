@@ -39,7 +39,7 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidatePattern("^WF-\d{3}$")]
+    [ValidatePattern("^WF-\d+$")]
     [string]$WorkflowId,
 
     [Parameter(Mandatory = $false)]
@@ -66,10 +66,9 @@ $soakInSoak = Test-ScriptInSoak
 try {
 
 # Configuration
-$ProjectRoot = Get-ProjectRoot
-$WorkflowFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/user-workflow-tracking.md"
-$E2ETrackingFile = Join-Path -Path $ProjectRoot -ChildPath "test/state-tracking/permanent/e2e-test-tracking.md"
-$FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
+$WorkflowFile = Resolve-TrackingFilePath -File "user-workflow-tracking.md"
+$E2ETrackingFile = Resolve-TrackingFilePath -File "e2e-test-tracking.md"
+$FeatureTrackingFile = Resolve-DocPath -Subpath "state-tracking/permanent/feature-tracking.md"
 
 foreach ($p in @($WorkflowFile, $E2ETrackingFile, $FeatureTrackingFile)) {
     if (-not (Test-Path $p)) {
@@ -160,7 +159,7 @@ $inMilestoneSection = $false
 for ($i = 0; $i -lt $e2eLines.Count; $i++) {
     if ($e2eLines[$i] -match "## Workflow Milestone Tracking") { $inMilestoneSection = $true; continue }
     if ($inMilestoneSection) {
-        if ($e2eLines[$i] -match "^\|\s*WF-\d{3}\b") { $insertAfterIndex = $i }
+        if ($e2eLines[$i] -match "^\|\s*WF-\d+\b") { $insertAfterIndex = $i }
         if ($e2eLines[$i] -match "^## " -and $e2eLines[$i] -notmatch "## Workflow Milestone") { break }
     }
 }

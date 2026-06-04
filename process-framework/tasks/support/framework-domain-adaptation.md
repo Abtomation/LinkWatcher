@@ -2,10 +2,11 @@
 id: PF-TSK-080
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 domain: agnostic
 created: 2026-01-28
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Systematically adapt the process framework from one business domain to another while preserving core structure"
 ---
 
 # Framework Domain Adaptation
@@ -24,13 +25,6 @@ Systematically adapt the process framework from one business domain (software de
 **Mindset**: Systematic, methodical, preservation-focused while driving necessary change
 **Focus Areas**: Framework coherence, cross-reference integrity, domain terminology mapping, selective deletion vs. adaptation
 **Communication Style**: Present decisions with clear rationale, seek approval for critical deletions, highlight risks and dependencies
-
-## When to Use
-
-- When migrating the process framework to a fundamentally different business domain
-- When inherited framework requires systematic domain-specific adaptation
-- When scope affects majority of framework documents (50%+ affected)
-- When domain terminology needs comprehensive translation
 
 ## Context Requirements
 
@@ -310,11 +304,11 @@ Systematically adapt the process framework from one business domain (software de
 - **Adapted Templates** - Templates for legal documents and processes in `/process-framework/templates`
 - **Adapted Guides** - Guides using legal terminology and examples in `/process-framework/guides`
 - **Updated Documentation Map** - Reflects cleaned-up structure at `/process-framework/PF-documentation-map.md`
-- **Legal Document Tracking** - Replacement for feature-tracking.md at `/process-framework-local/state-tracking/permanent/legal-document-tracking.md`
+- **Legal Document Tracking** - Replacement for feature-tracking.md at `/doc/state-tracking/permanent/legal-document-tracking.md`
 - **Cleaned Directory Structure** - Removed unnecessary directories
 - **Updated Scripts** - Scripts adapted for legal context (parameter names, help text)
 - **Updated ID Registry** - New ID prefixes for legal document types in the appropriate ID registry
-- **Archived Temporary State** - Domain adaptation state file archived at `/process-framework-local/state-tracking/temporary/old`
+- **Archived Temporary State** - Domain adaptation state file archived at `/process-framework-central/state-tracking/temporary/old`
 
 ## State Tracking
 

@@ -26,7 +26,7 @@
         "permanent": "process-framework-local/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 734
+      "nextAvailable": 751
     },
     "PF-STA": {
       "description": "Process Framework - Project-Local State Tracking",
@@ -37,7 +37,7 @@
         "temporary": "process-framework-local/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 103
+      "nextAvailable": 106
     },
     "PF-FEE": {
       "description": "Process Framework - Feedback Artifacts",
@@ -48,7 +48,7 @@
         "archive": "process-framework-local/feedback/archive",
         "default": "forms"
       },
-      "nextAvailable": 1109
+      "nextAvailable": 1121
     },
     "PF-REV": {
       "description": "Process Framework - Review Artifacts",
@@ -58,7 +58,7 @@
         "reviews": "process-framework-local/feedback/reviews",
         "default": "reviews"
       },
-      "nextAvailable": 37
+      "nextAvailable": 38
     },
     "PF-TMP": {
       "description": "Process Framework - Temporary State Tracking",

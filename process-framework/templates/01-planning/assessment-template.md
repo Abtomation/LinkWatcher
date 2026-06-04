@@ -5,6 +5,7 @@ category: Template
 version: 1.1
 created: 2025-07-04
 updated: 2025-01-27
+description: "Template for feature tier assessments"
 ---
 
 # Documentation Tier Assessment: [Feature Name]

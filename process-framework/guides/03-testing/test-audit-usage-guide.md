@@ -7,6 +7,7 @@ created: 2025-08-07
 updated: 2026-04-13
 related_task: PF-TSK-030
 related_script: New-TestAuditReport.ps1
+description: "Comprehensive guide for conducting systematic test quality assessments"
 ---
 # Test Audit Usage Guide
 
@@ -705,7 +706,7 @@ Critical coverage gaps in authentication testing pose security risks. The test s
 
 ### Templates and References
 - [Test Audit Report Template](../../templates/03-testing/test-audit-report-template.md) - Report structure template
-- [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
+- [Test Query Tool](../../scripts/test/test_query.py) - Query test file metadata via pytest markers
 
 ### Process Framework
 - [AI Tasks Registry](../../ai-tasks.md) - Complete task catalog and workflow integration

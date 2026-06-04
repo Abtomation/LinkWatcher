@@ -3,9 +3,10 @@ id: PF-TSK-068
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-02-19
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context"
 ---
 
 # Feature Enhancement
@@ -21,12 +22,6 @@ This task executes enhancement work on existing features by following the Enhanc
 **Focus Areas**: Adapting existing task guidance to amendment context, maintaining consistency with existing design docs, tracking progress in state file
 **Communication Style**: Report step completion clearly, flag deviations from the state file plan, ask for guidance when referenced task docs don't directly address the amendment scenario
 
-## When to Use
-
-- When the Feature Request Evaluation task has produced an Enhancement State Tracking File for an enhancement
-- When the target feature's status in feature tracking shows "🔄 Needs Enhancement" with a link to the Enhancement State Tracking File
-- When continuing a multi-session enhancement where the state file shows remaining incomplete steps
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/feature-enhancement-map.md)
@@ -35,7 +30,7 @@ This task executes enhancement work on existing features by following the Enhanc
 
   - **Enhancement State Tracking File** — The customized state file produced by Feature Request Evaluation, located in `doc/state-tracking/temporary`. This is the primary input driving all work.
   - **Referenced task documentation** — Each step in the state file references an existing task definition. Read the referenced task before executing each step.
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -44,8 +39,8 @@ This task executes enhancement work on existing features by following the Enhanc
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — For status restoration on completion
 
 - **Reference Only (Access When Needed):**
-  - [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
-  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) — Consult for correct file placement within feature directories
+  - [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-central/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+  - [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) — Consult for correct file placement within feature directories
   - Source code files affected by the enhancement
 
 ## Process
@@ -75,7 +70,7 @@ This task executes enhancement work on existing features by following the Enhanc
      - Amend existing design docs rather than creating new ones
      - Extend existing code rather than building from scratch
      - Modify existing tests rather than creating a full new test suite (unless the state file specifies otherwise). If a new test file is needed, use [New-TestFile.ps1](../../scripts/file-creation/03-testing/New-TestFile.ps1)
-     - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+     - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
    - Execute the step
    - **Verify all modified artifacts**: If the step produces or modifies artifacts that are not covered by the project's automated test suite (e.g., scripts, configuration files, build definitions, deployment manifests), manually invoke or inspect them to confirm they work correctly before marking the step complete
    - Mark the step complete in the state file immediately after completion
@@ -164,5 +159,5 @@ Before considering this task finished:
 ## Related Resources
 
 - [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) — The task that creates the Enhancement State Tracking File consumed by this task
-- [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../process-framework-central/proposals/old/enhancement-workflow-concept.md) — Full design rationale for this workflow
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory and status

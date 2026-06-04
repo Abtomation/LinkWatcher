@@ -2,9 +2,10 @@
 id: PF-TSK-023
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-07-24
-updated: 2026-03-04
+updated: 2026-05-16
+description: "Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase"
 ---
 
 # Technical Debt Assessment Task
@@ -20,14 +21,6 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 **Focus Areas**: Technical specifications, risk mitigation, code quality assessment, debt prioritization
 **Communication Style**: Present design options with pros/cons and risk assessment, ask about technical constraints and quality standards
 
-## When to Use
-
-- Before major releases to assess debt that could impact release stability
-- After significant feature development to identify newly introduced debt
-- On scheduled intervals (monthly or quarterly) for systematic assessment
-- When planning refactoring efforts or technical improvement initiatives
-- When technical debt becomes a blocker for new feature development
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/cyclical/technical-debt-assessment-task-map.md)
@@ -41,8 +34,8 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 - **Important (Load If Space):**
 
   - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions and abbreviations for tagging debt items with their primary dimension (AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI, TST, AIC)
-  - [Architecture Documentation](/doc/technical/architecture) - System architecture and design patterns
-  - [Coding Standards](/process-framework/guides/03-testing) - Project coding standards and best practices
+  - [Architecture Documentation](../../../doc/technical/architecture) - System architecture and design patterns
+  - [Coding Standards](../../guides/03-testing) - Project coding standards and best practices
   - **Test Coverage Reports** - Current test coverage metrics and gaps
   - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Known bugs that may indicate debt areas
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Recent feature development that may have introduced debt
@@ -50,8 +43,8 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 - **Reference Only (Access When Needed):**
   - **Performance Metrics** - Application performance data and bottlenecks
   - **Developer Feedback** - Team feedback on code maintainability and development friction
-  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -85,7 +78,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    - **Accessibility / UX Issues** (UX): Missing accessibility features, compliance gaps, UX compromises
    - **Data Integrity Issues** (DI): Missing atomicity, inconsistent state handling
    - **Testing Gaps** (TST): Missing tests, inadequate coverage, test quality issues
-   - **Source Layout Compliance** (AC): Verify files are in the correct feature directories per [Source Code Layout](/doc/technical/architecture/source-code-layout.md) — no source files at repository root, no files in wrong feature directories, naming conventions followed
+   - **Source Layout Compliance** (AC): Verify files are in the correct feature directories per [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) — no source files at repository root, no files in wrong feature directories, naming conventions followed
 
 6. **Document Debt Items**: For each identified debt item, document:
    - Detailed description and location
@@ -183,7 +176,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
 The following state files must be updated as part of this task:
 
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Add newly identified debt items with complete metadata (ID, description, category, location, priority, effort estimation, status)
-- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Track assessment effectiveness and process improvements identified during the assessment
+- [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - Track assessment effectiveness and process improvements identified during the assessment
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Update with debt-related blockers or considerations that may impact feature development
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -201,7 +194,7 @@ Before considering this task finished:
   - [ ] **AUTOMATED**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with newly identified debt items using `Update-TechnicalDebtFromAssessment.ps1`
   - [ ] **AUTOMATED**: All debt items assigned TD### IDs and linked to assessment ID (PF-TDA-XXX) via automation
   - [ ] **AUTOMATED**: Individual debt item files (PF-TDI-XXX) updated with registry IDs and marked as "Added" via automation
-  - [ ] **MANUAL**: [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with assessment effectiveness metrics
+  - [ ] **MANUAL**: [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) updated with assessment effectiveness metrics
   - [ ] **MANUAL**: [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated with debt-related considerations (if applicable)
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-023" and context "Technical Debt Assessment"
 
@@ -243,4 +236,4 @@ Before considering this task finished:
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Current debt registry and management strategy
 - [Code Refactoring Task](../06-maintenance/code-refactoring-task.md) - Systematic approach to debt remediation
 - [System Architecture Review](../01-planning/system-architecture-review.md) - Architectural assessment and improvement
-- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics and improvements
+- [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - Process effectiveness metrics and improvements

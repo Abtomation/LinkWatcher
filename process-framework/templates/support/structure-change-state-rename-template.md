@@ -6,11 +6,18 @@ version: 1.0
 created: [CREATED-DATE]
 updated: [UPDATED-DATE]
 change_name: [CHANGE-NAME]
+variant_group: structure-change-state-templates
+variant_siblings:
+  - structure-change-state-template.md
+  - structure-change-state-content-update-template.md
+  - structure-change-state-framework-extension-template.md
+  - structure-change-state-from-proposal-template.md
+description: "Template for rename-focused structure changes"
 ---
 
 # Structure Change State: [Change Name]
 
-> **⚠️ TEMPORARY FILE**: This file tracks implementation of a rename/move structure change. Move to `process-framework-local/state-tracking/temporary/old` after all changes are validated.
+> **⚠️ TEMPORARY FILE**: This file tracks implementation of a rename/move structure change. Move to `process-framework-central/state-tracking/temporary/old` after all changes are validated.
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]

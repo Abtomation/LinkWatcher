@@ -75,14 +75,15 @@ if ($Dims -ne "") {
 $kebabBugId = $BugId.ToLower().Replace(" ", "-")
 $customFileName = "bug-fix-state-$kebabBugId.md"
 
-# Build absolute template path
-$projectRoot = Get-ProjectRoot
-$processFrameworkDir = Join-Path $projectRoot "process-framework"
+# Build absolute template path (Phase 5.5: configurable via paths.process_framework)
+$processFrameworkDir = Get-ProcessFrameworkPath
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\06-maintenance\bug-fix-state-tracking-template.md"
 
 try {
     $idDesc = "Bug fix state tracking for ${BugId}: ${BugTitle}"
-    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $BugTitle -OutputDirectory "doc/state-tracking/temporary" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+    $stContext = Get-StateTrackingContext
+    $outputDir = "$($stContext.StateTrackingRelative)/temporary"
+    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $BugTitle -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
 
     $details = @(
         "",

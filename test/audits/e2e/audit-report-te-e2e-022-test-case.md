@@ -8,7 +8,7 @@ updated: 2026-04-16
 feature_id: te-e2e-022
 auditor: AI Agent
 audit_date: 2026-04-16
-test_file_path: test/e2e-acceptance-testing/templates/error-recovery/TE-E2E-022-read-only-referencing-file/test-case.md
+test_file_path: test/e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-022-read-only-referencing-file/test-case.md
 ---
 
 # E2E Test Audit Report — TE-E2E-022 Read-Only Referencing File
@@ -20,7 +20,7 @@ test_file_path: test/e2e-acceptance-testing/templates/error-recovery/TE-E2E-022-
 | **Feature ID** | 0.1.1, 2.2.1, 3.1.1 |
 | **Test Case ID** | TE-E2E-022 |
 | **Test Group** | TE-E2G-011 (Error Recovery) |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/error-recovery/TE-E2E-022-read-only-referencing-file/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-022-read-only-referencing-file/` |
 | **Workflow** | Error Recovery (no WF- assigned) |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-16 |

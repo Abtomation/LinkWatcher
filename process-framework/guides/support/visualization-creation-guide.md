@@ -7,6 +7,7 @@ created: 2025-07-11
 updated: 2025-07-27
 related_script: New-ContextMap.ps1
 related_task: PF-TSK-001
+description: "Guide for creating context maps and other visualizations"
 ---
 
 # Visualization Creation Guide

@@ -7,6 +7,7 @@ created: 2025-07-21
 updated: 2025-07-29
 related_script: New-RefactoringPlan.ps1
 related_task: PF-TSK-022
+description: "Comprehensive guide for using the Code Refactoring Task effectively"
 ---
 
 # Refactoring Plan Template Customization Guide

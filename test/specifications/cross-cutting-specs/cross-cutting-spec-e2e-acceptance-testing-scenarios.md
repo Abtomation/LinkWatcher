@@ -58,13 +58,13 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-001 | Move markdown file with standard links | Project with MD file referenced by other MD files via relative links | Move the MD file to a subdirectory | All referencing files have updated relative paths | High | [TE-E2E-004](../../e2e-acceptance-testing/templates/markdown-parser-scenarios/TE-E2E-004-markdown-link-update-on-file-move/test-case.md) |
-| S-002 | Move PowerShell script referenced via Import-Module | Project with PS1 file referenced by other PS1 files | Move the PS1 script to a subdirectory | All Import-Module/Join-Path references updated; regex patterns preserved | High | [TE-E2E-002](../../e2e-acceptance-testing/templates/powershell-parser-patterns/TE-E2E-002-powershell-md-file-move/test-case.md), [TE-E2E-003](../../e2e-acceptance-testing/templates/powershell-parser-patterns/TE-E2E-003-powershell-script-file-move/test-case.md) |
-| S-003 | Move file referenced from YAML config | Project with file referenced in YAML configs | Move the referenced file | YAML path values updated correctly | Medium | [TE-E2E-005](../../e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-005-yaml-link-update-on-file-move/test-case.md) |
-| S-004 | Move file referenced from JSON config | Project with file referenced in JSON files | Move the referenced file | JSON path values updated correctly | Medium | [TE-E2E-006](../../e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-006-json-link-update-on-file-move/test-case.md) |
-| S-005 | Move Python module referenced via imports | Project with Python file referenced via import statements | Move the Python file | Import paths updated correctly | Medium | [TE-E2E-007](../../e2e-acceptance-testing/templates/yaml-json-python-parser-scenarios/TE-E2E-007-python-import-update-on-file-move/test-case.md) |
+| S-001 | Move markdown file with standard links | Project with MD file referenced by other MD files via relative links | Move the MD file to a subdirectory | All referencing files have updated relative paths | High | [TE-E2E-004](../../e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-004-markdown-link-update-on-file-move/test-case.md) |
+| S-002 | Move PowerShell script referenced via Import-Module | Project with PS1 file referenced by other PS1 files | Move the PS1 script to a subdirectory | All Import-Module/Join-Path references updated; regex patterns preserved | High | [TE-E2E-002](../../e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-002-powershell-md-file-move/test-case.md), [TE-E2E-003](../../e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-003-powershell-script-file-move/test-case.md) |
+| S-003 | Move file referenced from YAML config | Project with file referenced in YAML configs | Move the referenced file | YAML path values updated correctly | Medium | [TE-E2E-005](../../e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-005-yaml-link-update-on-file-move/test-case.md) |
+| S-004 | Move file referenced from JSON config | Project with file referenced in JSON files | Move the referenced file | JSON path values updated correctly | Medium | [TE-E2E-006](../../e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-006-json-link-update-on-file-move/test-case.md) |
+| S-005 | Move Python module referenced via imports | Project with Python file referenced via import statements | Move the Python file | Import paths updated correctly | Medium | [TE-E2E-007](../../e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-007-python-import-update-on-file-move/test-case.md) |
 | S-006 | Move file with special characters in name | Project with files containing spaces, brackets, ampersands in names | Move a special-character file | References updated, special chars handled correctly | High | Partially in TE-E2E-004 |
-| S-007 | Regex patterns preserved during PS1 file move | PS1 with regex patterns + real file references | Move the PS1 file | Regex patterns byte-identical, real paths updated | Critical | [TE-E2E-001](../../e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md) |
+| S-007 | Regex patterns preserved during PS1 file move | PS1 with regex patterns + real file references | Move the PS1 file | Regex patterns byte-identical, real paths updated | Critical | [TE-E2E-001](../../e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-001-regex-preserved-on-file-move/test-case.md) |
 
 ### WF-002: Directory Move — All Contained References Updated
 
@@ -74,9 +74,9 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-008 | Move directory with multiple referenced files | Directory with 3+ files referenced from outside | Move the entire directory | All references to all contained files updated | High | [TE-E2E-009](../../e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-009-directory-create-and-move/test-case.md) |
-| S-009 | Move nested directory structure | Directory with subdirectories containing referenced files | Move the top-level directory | References at all nesting levels updated | High | [TE-E2E-013](../../e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-013-nested-directory-move/test-case.md) |
-| S-010 | Move directory — internal references preserved | Directory where files reference each other internally | Move the directory | Internal relative references still valid (no change needed) | Medium | [TE-E2E-014](../../e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-014-directory-move-internal-refs/test-case.md) |
+| S-008 | Move directory with multiple referenced files | Directory with 3+ files referenced from outside | Move the entire directory | All references to all contained files updated | High | [TE-E2E-009](../../e2e-acceptance-testing/directory-move-contained-refs-updated/templates/TE-E2E-009-directory-create-and-move/test-case.md) |
+| S-009 | Move nested directory structure | Directory with subdirectories containing referenced files | Move the top-level directory | References at all nesting levels updated | High | [TE-E2E-013](../../e2e-acceptance-testing/directory-move-contained-refs-updated/templates/TE-E2E-013-nested-directory-move/test-case.md) |
+| S-010 | Move directory — internal references preserved | Directory where files reference each other internally | Move the directory | Internal relative references still valid (no change needed) | Medium | [TE-E2E-014](../../e2e-acceptance-testing/directory-move-contained-refs-updated/templates/TE-E2E-014-directory-move-internal-refs/test-case.md) |
 
 ### WF-003: Startup — Initial Project Scan
 
@@ -86,8 +86,8 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-011 | Fresh startup on existing project | Project with known files and references | Start LinkWatcher | Log shows all files scanned, database populated, monitoring active | High | [TE-E2E-012](../../e2e-acceptance-testing/templates/startup-operations/TE-E2E-012-file-operations-during-startup/test-case.md) |
-| S-012 | Startup with custom config (exclude directories) | Project + config excluding a directory | Start LinkWatcher with config | Excluded directory's files not scanned or monitored | Medium | [TE-E2E-015](../../e2e-acceptance-testing/templates/startup-operations/TE-E2E-015-startup-custom-config-excludes/test-case.md) |
+| S-011 | Fresh startup on existing project | Project with known files and references | Start LinkWatcher | Log shows all files scanned, database populated, monitoring active | High | [TE-E2E-012](../../e2e-acceptance-testing/startup-initial-project-scan/templates/TE-E2E-012-file-operations-during-startup/test-case.md) |
+| S-012 | Startup with custom config (exclude directories) | Project + config excluding a directory | Start LinkWatcher with config | Excluded directory's files not scanned or monitored | Medium | [TE-E2E-015](../../e2e-acceptance-testing/startup-initial-project-scan/templates/TE-E2E-015-startup-custom-config-excludes/test-case.md) |
 
 ### WF-004: Rapid Sequential Moves — Consistency Maintained
 
@@ -97,8 +97,8 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-013 | Two files moved within 1 second | Project with 2 files referenced from a third | Move both files rapidly | Both references updated correctly, no race conditions | High | [TE-E2E-016](../../e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-016-two-files-moved-rapidly/test-case.md) |
-| S-014 | Move file, then move its referencing file | File A references File B | Move B, then immediately move A | Both files have correct references after both moves | Medium | [TE-E2E-017](../../e2e-acceptance-testing/templates/rapid-sequential-moves/TE-E2E-017-move-file-then-referencing-file/test-case.md) |
+| S-013 | Two files moved within 1 second | Project with 2 files referenced from a third | Move both files rapidly | Both references updated correctly, no race conditions | High | [TE-E2E-016](../../e2e-acceptance-testing/rapid-sequential-moves-consistency/templates/TE-E2E-016-two-files-moved-rapidly/test-case.md) |
+| S-014 | Move file, then move its referencing file | File A references File B | Move B, then immediately move A | Both files have correct references after both moves | Medium | [TE-E2E-017](../../e2e-acceptance-testing/rapid-sequential-moves-consistency/templates/TE-E2E-017-move-file-then-referencing-file/test-case.md) |
 
 ### WF-005: Multi-Format File Move
 
@@ -108,7 +108,7 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-015 | File referenced from MD, YAML, JSON, and Python simultaneously | File referenced in all 4 formats | Move the referenced file | All 4 format types have updated references | High | [TE-E2E-018](../../e2e-acceptance-testing/templates/multi-format-references/TE-E2E-018-file-referenced-from-all-formats/test-case.md) |
+| S-015 | File referenced from MD, YAML, JSON, and Python simultaneously | File referenced in all 4 formats | Move the referenced file | All 4 format types have updated references | High | [TE-E2E-018](../../e2e-acceptance-testing/multi-format-file-move-all-parsers-handle/templates/TE-E2E-018-file-referenced-from-all-formats/test-case.md) |
 
 ### WF-007: Dry-Run Mode — Preview Without Changes
 
@@ -118,7 +118,7 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-016 | Move file in dry-run mode | Start LinkWatcher with --dry-run, project with references | Move a referenced file | Log shows what would be updated, but files are unchanged | High | [TE-E2E-019](../../e2e-acceptance-testing/templates/dry-run-mode/TE-E2E-019-move-file-dry-run-no-changes/test-case.md) |
+| S-016 | Move file in dry-run mode | Start LinkWatcher with --dry-run, project with references | Move a referenced file | Log shows what would be updated, but files are unchanged | High | [TE-E2E-019](../../e2e-acceptance-testing/dry-run-mode-preview-without-changes/templates/TE-E2E-019-move-file-dry-run-no-changes/test-case.md) |
 
 ### WF-008: Graceful Shutdown — No Corrupted Files
 
@@ -128,8 +128,8 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-017 | Stop during idle | LinkWatcher running, no pending moves | Stop the process | Clean shutdown, no errors | Medium | [TE-E2E-020](../../e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-020-stop-during-idle/test-case.md) |
-| S-018 | Stop immediately after file move | Move a file, then immediately stop LinkWatcher | Stop within 1 second of move | Files are either fully updated or not modified at all (atomic) | High | [TE-E2E-021](../../e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-021-stop-immediately-after-move/test-case.md) |
+| S-017 | Stop during idle | LinkWatcher running, no pending moves | Stop the process | Clean shutdown, no errors | Medium | [TE-E2E-020](../../e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-020-stop-during-idle/test-case.md) |
+| S-018 | Stop immediately after file move | Move a file, then immediately stop LinkWatcher | Stop within 1 second of move | Files are either fully updated or not modified at all (atomic) | High | [TE-E2E-021](../../e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-021-stop-immediately-after-move/test-case.md) |
 
 ### Error Recovery
 
@@ -139,7 +139,7 @@ Scenarios are organized by user workflow (from [User Workflow Tracking](/doc/sta
 
 | ID | Scenario | Arrange | Act | Assert | Priority | E2E Case |
 |----|----------|---------|-----|--------|----------|----------|
-| S-019 | Move file to read-only directory | Project with references, target location is read-only | Move a file; LinkWatcher attempts to update a read-only referencing file | Error logged, other files still updated, no crash | Medium | [TE-E2E-022](../../e2e-acceptance-testing/templates/error-recovery/TE-E2E-022-read-only-referencing-file/test-case.md) |
+| S-019 | Move file to read-only directory | Project with references, target location is read-only | Move a file; LinkWatcher attempts to update a read-only referencing file | Error logged, other files still updated, no crash | Medium | [TE-E2E-022](../../e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-022-read-only-referencing-file/test-case.md) |
 
 ## Mock Requirements
 

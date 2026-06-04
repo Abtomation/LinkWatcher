@@ -6,6 +6,7 @@ version: 1.0
 created: 2026-04-05
 updated: 2026-04-05
 related_task: PF-TSK-064,PF-TSK-065,PF-TSK-066
+description: "Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging during codebase onboarding"
 ---
 
 # Onboarding Edge Cases Guide
@@ -132,7 +133,7 @@ from 3 sample entries in the test database.
 
 ## Related Resources
 
-- [Codebase Feature Discovery Task](/process-framework/tasks/00-setup/codebase-feature-discovery.md) — Primary task for file-to-feature assignment
-- [Codebase Feature Analysis Task](/process-framework/tasks/00-setup/codebase-feature-analysis.md) — Cross-cutting pattern analysis
-- [Retrospective Documentation Creation Task](/process-framework/tasks/00-setup/retrospective-documentation-creation.md) — Where confidence tagging applies
-- [Feature Granularity Guide](/process-framework/guides/01-planning/feature-granularity-guide.md) — Criteria for well-scoped features
+- [Codebase Feature Discovery Task](../../tasks/00-setup/codebase-feature-discovery.md) — Primary task for file-to-feature assignment
+- [Codebase Feature Analysis Task](../../tasks/00-setup/codebase-feature-analysis.md) — Cross-cutting pattern analysis
+- [Retrospective Documentation Creation Task](../../tasks/00-setup/retrospective-documentation-creation.md) — Where confidence tagging applies
+- [Feature Granularity Guide](../01-planning/feature-granularity-guide.md) — Criteria for well-scoped features

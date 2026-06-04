@@ -7,6 +7,7 @@ created: 2026-02-17
 updated: 2026-02-17
 workflow_phase: support
 related_task: PF-TSK-064
+description: "Components for discovering features in existing codebases"
 ---
 
 # Codebase Feature Discovery Context Map

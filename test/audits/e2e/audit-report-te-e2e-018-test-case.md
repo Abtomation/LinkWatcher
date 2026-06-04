@@ -7,7 +7,7 @@ created: 2026-04-15
 updated: 2026-04-15
 audit_date: 2026-04-15
 feature_id: TE-E2E-018
-test_file_path: test/e2e-acceptance-testing/templates/multi-format-references/TE-E2E-018-file-referenced-from-all-formats/test-case.md
+test_file_path: test/e2e-acceptance-testing/multi-format-file-move-all-parsers-handle/templates/TE-E2E-018-file-referenced-from-all-formats/test-case.md
 auditor: AI Agent
 ---
 
@@ -20,7 +20,7 @@ auditor: AI Agent
 | **Feature ID** | TE-E2E-018 |
 | **Test Case ID** | TE-E2E-018 |
 | **Test Group** | TE-E2G-008 |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/multi-format-references/TE-E2E-018-file-referenced-from-all-formats/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/multi-format-file-move-all-parsers-handle/templates/TE-E2E-018-file-referenced-from-all-formats/` |
 | **Workflow** | WF-005: Multi-Format File Move |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-15 |

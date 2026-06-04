@@ -101,7 +101,7 @@
     New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "src/linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
 
 .EXAMPLE
-    New-RefactoringPlan.ps1 -RefactoringScope "Tighten parser test (TD230)" -TargetArea "test/automated/parsers/test_dart.py" -Lightweight -DebtItemId "TD230"
+    New-RefactoringPlan.ps1 -RefactoringScope "Tighten parser test (TD230)" -TargetArea "test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_dart.py" -Lightweight -DebtItemId "TD230"
     # FeatureId auto-detected from pytest.mark.feature("2.1.1") marker — no -FeatureId arg needed for test files in languages with featureMarkerPattern configured.
 
 .EXAMPLE
@@ -210,7 +210,7 @@ try {
         $projectConfig = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
         $autoDetectLanguage = $projectConfig.testing.language
         if ($autoDetectLanguage) {
-            $langConfigPath = Join-Path $autoDetectProjectRoot "process-framework/languages-config/$autoDetectLanguage/$autoDetectLanguage-config.json"
+            $langConfigPath = Join-Path (Get-ProcessFrameworkPath) "languages-config/$autoDetectLanguage/$autoDetectLanguage-config.json"
             if (Test-Path $langConfigPath) {
                 $langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
                 $markerPattern = $langConfig.testing.featureMarkerPattern
@@ -235,17 +235,18 @@ try {
 }
 
 # Select template based on mode switches
+$fwDir = Get-ProcessFrameworkPath
 if ($Lightweight) {
-    $templatePath = "process-framework/templates/06-maintenance/lightweight-refactoring-plan-template.md"
+    $templatePath = Join-Path $fwDir "templates/06-maintenance/lightweight-refactoring-plan-template.md"
     $modeLabel = "Lightweight"
 } elseif ($DocumentationOnly) {
-    $templatePath = "process-framework/templates/06-maintenance/documentation-refactoring-plan-template.md"
+    $templatePath = Join-Path $fwDir "templates/06-maintenance/documentation-refactoring-plan-template.md"
     $modeLabel = "Documentation-only"
 } elseif ($Performance) {
-    $templatePath = "process-framework/templates/06-maintenance/performance-refactoring-plan-template.md"
+    $templatePath = Join-Path $fwDir "templates/06-maintenance/performance-refactoring-plan-template.md"
     $modeLabel = "Performance"
 } else {
-    $templatePath = "process-framework/templates/06-maintenance/refactoring-plan-template.md"
+    $templatePath = Join-Path $fwDir "templates/06-maintenance/refactoring-plan-template.md"
     $modeLabel = "Standard"
 }
 

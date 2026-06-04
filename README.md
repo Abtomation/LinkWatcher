@@ -159,7 +159,7 @@ pytest test/automated/performance/       # Performance tests (slower)
 
 ### **Alternative: Process Framework Test Runner**
 ```cmd
-# Language-agnostic test runner (reads project-config.json + languages-config/)
+# Language-agnostic test runner (reads doc/project-config.json + process-framework/languages-config/)
 pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -ListCategories'
 pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -Category unit'
 pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/test/Run-Tests.ps1 -All -Coverage'

@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-06-12
 updated: 2025-06-12
 related_task: PF-TSK-010
+description: "Components for reviewing tools"
 ---
 
 # Tools Review Context Map
@@ -68,9 +69,9 @@ graph TD
 
 ## Related Documentation
 
-- [Tool Feedback Forms](/process-framework-local/feedback/feedback-forms) - Repository of tool feedback
-- [Automation Scripts](/process-framework/scripts) - Project automation scripts
-- [Process Improvement Task](/process-framework/tasks/support/process-improvement-task.md) - Task for implementing improvements
+- [Tool Feedback Forms](/process-framework-central/feedback/feedback-forms) - Central repository of tool feedback (Phase 7 central, post-2026-05-11)
+- [Automation Scripts](../../../scripts) - Project automation scripts
+- [Process Improvement Task](../../../tasks/support/process-improvement-task.md) - Task for implementing improvements
 - [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---

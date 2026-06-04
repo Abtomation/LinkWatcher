@@ -5,6 +5,7 @@ category: Guide
 version: 1.0
 created: 2025-05-29
 updated: 2025-05-29
+description: "Explains the terminology separation between Process Framework and Product Documentation"
 ---
 
 # Documentation Terminology Guide

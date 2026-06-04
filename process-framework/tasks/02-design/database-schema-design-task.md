@@ -2,15 +2,16 @@
 id: PF-TSK-021
 type: Process Framework
 category: Task Definition
-version: 1.4
+version: 1.5
 created: 2025-07-21
-updated: 2026-03-02
+updated: 2026-05-16
 change_notes: "v1.3 - Updated for IMP-097/IMP-098: Clarified database-only scope, added information flow section, updated outputs to remove non-database concerns"
+description: "Plan data model changes before coding to prevent data integrity issues"
 ---
 
 # Database Schema Design Task
 
-**🤖 AUTOMATION UPDATE (2025-01-27)**: This task is now **FULLY AUTOMATED** for feature tracking updates. The `New-SchemaDesign.ps1` script automatically updates the DB Design column in feature tracking from "Yes" to the schema design document link when a FeatureId is provided.
+**🤖 AUTOMATION UPDATE (PF-PRO-002 / PF-IMP-760)**: This task is **FULLY AUTOMATED**. The `New-SchemaDesign.ps1` script (via the shared `Invoke-DesignArtifactCreation` core) inserts a Schema Design row into the per-feature state file's §4 Documentation Inventory and updates the feature-tracking.md row's Status. The feature-tracking.md schema no longer carries a DB Design column — the design-required flag from Tier Assessment is preserved in the per-feature state file and drives the next-action Status transition.
 
 ## Purpose & Context
 
@@ -24,16 +25,6 @@ Systematic data model planning before implementation to prevent data integrity i
 **Mindset**: Data-integrity focused, performance-aware, scalability-minded
 **Focus Areas**: Data modeling, query optimization, migration safety, data consistency
 **Communication Style**: Consider data consistency and performance implications, ask about scalability requirements and data access patterns
-
-## When to Use
-
-- When the feature status in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) is `🗄️ Needs DB Design`
-- Features requiring new data structures or database schema modifications
-- Before implementing any feature that changes the data model
-- When existing schema needs optimization or refactoring
-- Before major database migrations or structural changes
-- When data integrity issues are identified that require schema changes
-- Prerequisites: Feature requirements defined, Feature Tier Assessment completed
 
 ## Information Flow
 
@@ -77,8 +68,8 @@ Systematic data model planning before implementation to prevent data integrity i
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and data requirements that inform schema design (located in `/doc/functional-design/fdds`)
-  - [Feature Requirements](/doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
-  - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md))
+  - [Feature Requirements](../../../doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
+  - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md))
   - **Current Database Schema** - Existing schema documentation and structure:
     - Current schema: `/data`
     - Database reference: `/doc/technical/architecture/database-reference.md`
@@ -97,7 +88,7 @@ Systematic data model planning before implementation to prevent data integrity i
     - Architecture documentation: `/doc/technical/architecture`
     - Database diagrams: `/doc/technical/database/diagrams`
   - **Security Policies** - Data security and privacy requirements
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -111,7 +102,7 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ### Preparation
 
-1. **Verify DB Design Requirement**: Confirm in the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document that the DB Design column shows "Yes" for this feature
+1. **Verify DB Design Requirement**: Confirm the feature's Status in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) is `🗄️ Needs DB Design` (set by Tier Assessment when database design is required for this feature)
 2. Review the [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) that determined database design is needed
 3. **Gather Context**: Load all critical context files including feature requirements, current schema, and data flow requirements
 4. **Analyze Current State**: Review existing database schema (`/data` and `/doc/technical/architecture/database-reference.md`) and identify areas that will be affected by the changes
@@ -137,7 +128,7 @@ Systematic data model planning before implementation to prevent data integrity i
 13. **Create Migration Scripts**: Generate production-ready migration scripts with proper rollback procedures
 14. **Document Database-Level Integration Notes**: Add brief notes on database access requirements and cross-schema dependencies (detailed API specifications belong in API Design task)
 15. **Add Cross-References**: Include brief cross-reference sections linking to API Design and Test Specification tasks where appropriate
-16. **Verify Automated Updates**: Confirm that the schema design script automatically updated the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document, changing the DB Design column from "Yes" to a link to the schema design
+16. **Verify Automated Updates**: Confirm that `New-SchemaDesign.ps1` automatically inserted a Schema Design row into the per-feature state file's §4 Documentation Inventory and updated the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) row's Status to the next design gate
 17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -192,8 +183,9 @@ DROP TABLE IF EXISTS public.user_profiles;
 The following state files are updated as part of this task:
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script:
-  - DB Design column: changes from "Yes" to a link to the completed database schema design document
-  - Status: set to `🔌 Needs API Design` (if API Design = `Yes`) or `📝 Needs TDD` (if API Design = `No`)
+  - Status: set to `🔌 Needs API Design` (if API design is required); else `📝 Needs TDD` (Tier 2+) or `🔧 Needs Impl Plan` (Tier 1, since Tier 1 skips TDD)
+- Per-feature state file (`doc/state-tracking/features/<id>-implementation-state.md`) - **AUTOMATICALLY UPDATED**:
+  - Schema Design row inserted into §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - **MANUAL UPDATE REQUIRED**: Add any schema optimization opportunities identified during design
 - **Database Schema Tracking** - Track schema changes across features (to be created as part of task infrastructure)
 
@@ -211,7 +203,7 @@ Before considering this task finished:
   - [ ] Database-level integration notes documented (with cross-references to API Design task for detailed specifications)
   - [ ] Cross-reference sections added linking to API Design and Test Specification tasks
 - [ ] **Verify State File Updates**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) DB Design column **AUTOMATICALLY UPDATED** from "Yes" to link to completed database schema design document (verify the automation worked correctly)
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) row Status **AUTOMATICALLY UPDATED** to next design gate; Schema Design row **AUTOMATICALLY INSERTED** into per-feature state file's §4 Documentation Inventory (verify both automations worked correctly)
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
   - [ ] Database Schema Tracking updated with new schema changes
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"

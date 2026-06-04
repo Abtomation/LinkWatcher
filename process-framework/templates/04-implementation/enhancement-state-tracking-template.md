@@ -52,7 +52,7 @@ template_for: Enhancement State Tracking
 
 ## Dimension Impact Assessment
 
-> **Reference**: [Development Dimensions Guide](/process-framework/guides/framework/development-dimensions-guide.md)
+> **Reference**: [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md)
 >
 > Inherited from parent feature ([Feature ID]): [List inherited dimension abbreviations with importance]
 > **Additional for this enhancement**: [Dimension (Importance) — rationale, or "none"]

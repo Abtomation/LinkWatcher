@@ -95,11 +95,11 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/02-design/integration-narrative-template.md"
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/integration-narrative-template.md"
 
-    # Generate filename from workflow name
-    $workflowNameForFilename = $WorkflowName.ToLower().Replace(' ', '-').Replace('_', '-')
+    # Generate filename from workflow name via the canonical helper from
+    # Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
+    $workflowNameForFilename = ConvertTo-FeatureSlug -Name $WorkflowName -Convention 'kebab-case'
     $customFileName = "$workflowNameForFilename-integration-narrative.md"
 
     $documentId = New-StandardProjectDocument `
@@ -145,7 +145,7 @@ try {
 
     # Auto-update user-workflow-tracking.md "Integration Doc" column
     if ($documentId -or $WhatIfPreference) {
-        $workflowTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/state-tracking/permanent/user-workflow-tracking.md"
+        $workflowTrackingPath = Resolve-TrackingFilePath -File "user-workflow-tracking.md"
 
         if (Test-Path $workflowTrackingPath) {
             $trackingLines = Get-Content $workflowTrackingPath -Encoding UTF8

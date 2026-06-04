@@ -7,6 +7,7 @@ created: 2026-02-17
 updated: 2026-04-05
 workflow_phase: support
 related_task: PF-TSK-065
+description: "Components for analyzing implementation patterns and dependencies"
 ---
 
 # Codebase Feature Analysis Context Map
@@ -26,8 +27,8 @@ graph TD
     StateGuide[State Tracking Guide] --> FeatureStates
     FeatureStates --> EnrichedStates[Enriched Implementation States]
     EnrichedStates --> QualityEval{{Quality Evaluation}}
-    QualityEval --> |"avg >= 2.0"| AsBuilt[As-Built Classification]
-    QualityEval --> |"avg < 2.0"| TargetState[Target-State Classification]
+    QualityEval --> |"Code Maturity >= 2.0"| AsBuilt[As-Built Classification]
+    QualityEval --> |"Code Maturity < 2.0"| TargetState[Target-State Classification]
     TierTask[Tier Assessment Task] -.-> EnrichedStates
     DocTiers[Documentation Tiers README] -.-> TierTask
     FeatureDeps[Feature Dependencies] -.-> FeatureStates
@@ -40,8 +41,8 @@ graph TD
 ## Essential Components
 
 ### Critical Components (Must Understand)
-- **[Retrospective Master State File](../../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)**: Tracks overall progress across all onboarding phases; read to verify Phase 1 complete, update after each session with analysis progress
-- **[Feature Implementation State Files](/doc/state-tracking/features)**: Per-feature files created in PF-TSK-064 containing code inventories; these are enriched during analysis with Design Decisions, Dependencies, and Implementation Patterns
+- **[Retrospective Master State File](../../../../doc/state-tracking/temporary/old/retrospective-master-state.md)**: Tracks overall progress across all onboarding phases; read to verify Phase 1 complete, update after each session with analysis progress
+- **[Feature Implementation State Files](../../../../doc/state-tracking/features)**: Per-feature files created in PF-TSK-064 containing code inventories; these are enriched during analysis with Design Decisions, Dependencies, and Implementation Patterns
 - **[Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md)**: Permanent registry of all features; used to identify which features need analysis
 - **[Feature Implementation State Tracking Guide](../../../guides/04-implementation/feature-implementation-state-tracking-guide.md)**: Guide for populating Design Decisions, Dependencies, and Implementation Patterns sections
 
@@ -59,19 +60,19 @@ graph TD
 3. **State Tracking Guide → Feature Implementation States**: Guide provides instructions for populating analysis sections (Design Decisions, Dependencies, etc.)
 4. **Enriched Implementation States → Feature Tracking**: Analysis findings are tracked in master state and feature tracking
 5. **Tier Assessment Task -.-> Enriched Implementation States**: Analysis content (complexity factors, patterns) feeds into tier assessment in PF-TSK-066
-6. **Enriched Implementation States → Quality Evaluation**: After analysis, each feature is scored on 5 quality dimensions (0-3 scale) and classified as As-Built (avg >= 2.0) or Target-State (avg < 2.0). Classification is recorded in Section 8 of the Feature Implementation State file and determines documentation mode in PF-TSK-066
+6. **Enriched Implementation States → Quality Evaluation**: After analysis, each feature is scored on 5 quality dimensions (0-3 scale). Two summary scores are emitted: **Code Maturity** (avg of 4 dims excluding Test coverage) drives the As-Built (>= 2.0) / Target-State (< 2.0) classification; **Test Maturity** (Test coverage alone) is a separate test-plan-urgency signal that does not affect classification. Both scores plus Classification are recorded in Section 8 of the Feature Implementation State file. Classification determines documentation mode in PF-TSK-066. (Dual-score model — PF-IMP-019/032 resolution, 2026-05-08.)
 
 ## Implementation in AI Sessions
 
-1. **Every Session Start**: Read [Retrospective Master State](../../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) to verify Phase 1 complete and identify features needing analysis
+1. **Every Session Start**: Read [Retrospective Master State](../../../../doc/state-tracking/temporary/old/retrospective-master-state.md) to verify Phase 1 complete and identify features needing analysis
 2. **Per-Feature Analysis Loop**:
-   - Read [Feature Implementation State file](/doc/state-tracking/features) with code inventory
+   - Read [Feature Implementation State file](../../../../doc/state-tracking/features) with code inventory
    - Analyze component architecture, data flow, error handling → Document in Design Decisions section
    - Identify feature dependencies, system dependencies, code dependencies → Document in Dependencies section
    - Map test coverage, test types, test gaps → Document in Test Files section
    - Note complexity factors (file count, integration complexity, state management) → Document for tier assessment
-   - **Quality Evaluation** (Step 9): Score 5 dimensions (structural clarity, error handling, data integrity, test coverage, maintainability) on 0-3 scale → Classify as As-Built or Target-State → Record in Section 8 of Feature Implementation State file → Present to human partner for validation (Step 10 checkpoint)
-3. **Every Session End**: Update [Retrospective Master State](../../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) with analyzed features marked "Analyzed ✅", log session notes
+   - **Quality Evaluation** (Step 9): Score 5 dimensions (structural clarity, error handling, data integrity, test coverage, maintainability) on 0-3 scale → run `Update-QualityClassification.ps1` to compute Code Maturity (4-dim avg, excludes test coverage) and Test Maturity (test coverage alone) → Classify as As-Built (Code Maturity >= 2.0) or Target-State (< 2.0) → Record Classification + Code Maturity + Test Maturity in Section 8 of Feature Implementation State file → Present to human partner for validation (Step 10 checkpoint)
+3. **Every Session End**: Update [Retrospective Master State](../../../../doc/state-tracking/temporary/old/retrospective-master-state.md) with analyzed features marked "Analyzed ✅", log session notes
 4. **Task Complete When**: All features have enriched implementation state files with Design Decisions, Dependencies, and Implementation Patterns documented
 
 ## Related Documentation

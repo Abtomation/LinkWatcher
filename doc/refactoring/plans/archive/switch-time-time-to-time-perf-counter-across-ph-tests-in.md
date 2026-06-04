@@ -8,14 +8,14 @@ updated: 2026-04-29
 mode: lightweight
 feature_id: 4.1.1
 priority: Low
-target_area: test/automated/performance/test_large_projects.py
+target_area: test/automated/performance/level3-scale/test_large_projects.py
 debt_item: TD244
 refactoring_scope: Switch time.time() to time.perf_counter() across PH tests in test_large_projects.py (TD244)
 ---
 
 # Lightweight Refactoring Plan: Switch time.time() to time.perf_counter() across PH tests in test_large_projects.py (TD244)
 
-- **Target Area**: test/automated/performance/test_large_projects.py
+- **Target Area**: test/automated/performance/level3-scale/test_large_projects.py
 - **Priority**: Low
 - **Created**: 2026-04-29
 - **Author**: AI Agent & Human Partner

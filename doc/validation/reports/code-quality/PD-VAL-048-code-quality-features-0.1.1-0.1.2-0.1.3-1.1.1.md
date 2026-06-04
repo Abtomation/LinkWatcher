@@ -191,7 +191,7 @@ validation_round: 2
 
 | Severity | Issue | Impact | Recommendation |
 |----------|-------|--------|----------------|
-| Medium | `reference_lookup.py` (622 LOC) has no dedicated unit test file | Complex logic (path variation lookup, stale retry, link content updates) only tested via integration | Create `test/automated/unit/test_reference_lookup.py` |
+| Medium | `reference_lookup.py` (622 LOC) has no dedicated unit test file | Complex logic (path variation lookup, stale retry, link content updates) only tested via integration | Create `test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py` |
 | Medium | Encapsulation violation at handler.py:576 — `self.link_db._lock` accesses private member | Breaks `LinkDatabaseInterface` abstraction; any alternative DB impl must expose same private field | Add `has_target_with_basename()` to interface (also in PD-VAL-046) |
 | Low | `update_links_within_moved_file()` is 163 LOC — largest method across all features | Hard to test individual aspects; multiple responsibilities (read, parse, calculate, replace, write) | Extract helper methods for path calculation and content replacement |
 | Low | `_handle_directory_moved()` is 116 LOC with deep nesting in directory-path reference grouping | Complex logic for Phase 2 directory-path reference updates | Consider extracting directory-path update logic to a separate method |
@@ -218,7 +218,7 @@ validation_round: 2
    - **Dependencies**: None
 
 2. **Create dedicated unit tests for reference_lookup.py**
-   - **Description**: Create `test/automated/unit/test_reference_lookup.py` covering path variation generation, stale reference retry, and link content update logic
+   - **Description**: Create `test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py` covering path variation generation, stale reference retry, and link content update logic
    - **Rationale**: 622 LOC of complex logic with no unit-level test coverage
    - **Estimated Effort**: Medium (1-2 hours)
    - **Dependencies**: None

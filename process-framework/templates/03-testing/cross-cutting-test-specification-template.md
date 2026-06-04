@@ -8,6 +8,7 @@ updated: [CREATION-DATE]
 feature_ids: [FEATURE-ID-1, FEATURE-ID-2, ...]
 test_name: [TEST-NAME]
 test_type: cross-cutting
+description: "Template for test specifications spanning multiple features"
 ---
 
 # Cross-Cutting Test Specification: [TEST-NAME]
@@ -93,7 +94,7 @@ test_[scenario-name].[ext]   # Adapt naming to project's language conventions
 ## Related Resources
 
 - [Feature Test Specifications] - Individual feature test specs for the features covered
-- [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query cross-cutting test files via pytest markers with `cross_cutting` field
-- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Implementation status
+- [Test Query Tool](../../scripts/test/test_query.py) - Query cross-cutting test files via pytest markers with `cross_cutting` field
+- [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Implementation status
 
 ---

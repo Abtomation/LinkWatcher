@@ -1,19 +1,22 @@
 # New-FDD.ps1
 # Creates a new Functional Design Document with an automatically assigned ID
 # Uses the central ID registry system and standardized document creation
+#
+# Refactored 2026-05-08 (PF-PRO-002 Phase 2 / option B): orchestration delegated
+# to Invoke-DesignArtifactCreation in Common-ScriptHelpers/DesignArtifactCreation.psm1.
+# This wrapper now owns only what's per-type: param parsing, slug/filename
+# composition, next-master-Status computation (via Get-NextStatusAfterDesignArtifact),
+# and the docmap entry formatter.
 
 <#
 .SYNOPSIS
     Creates a new Functional Design Document (FDD) with an automatically assigned ID.
 
 .DESCRIPTION
-    This PowerShell script generates Functional Design Documents by:
-    - Generating a unique document ID (PD-FDD-XXX)
-    - Creating a properly formatted FDD document file
-    - Updating the ID tracker in the central ID registry
-    - Providing a complete template for functional specification
-    - Automatically updating feature tracking with FDD completion status
-    - Linking the FDD document in the feature tracking table
+    Generates an FDD document file (PD-FDD-XXX), appends an entry to
+    PD-documentation-map.md, updates master Status (no per-feature artifact
+    column writes per PF-PRO-002), and inserts/updates the corresponding row
+    in the feature state file's §4 ▸ Design Documentation table.
 
 .PARAMETER FeatureId
     The Feature ID from feature tracking (e.g., "1.1.1", "2.3.4")
@@ -28,31 +31,15 @@
     If specified, opens the created file in the default editor
 
 .PARAMETER DryRun
-    If specified, shows what would be updated in feature tracking without making changes
+    Preview the entire pipeline (doc creation, docmap append, master Status
+    update, state-file §4 row) without performing any writes. Equivalent to
+    -WhatIf — either flag short-circuits all side effects (PF-IMP-785).
 
 .EXAMPLE
     .\New-FDD.ps1 -FeatureId "1.1.1" -FeatureName "User Registration"
-    # Creates: fdd-1-1-1-user-registration.md
-
-.EXAMPLE
-    .\New-FDD.ps1 -FeatureId "2.3.4" -FeatureName "Data Filtering" -Description "Advanced filtering system for data records" -OpenInEditor
-    # Creates: fdd-2-3-4-data-filtering.md
 
 .EXAMPLE
     .\New-FDD.ps1 -FeatureId "1.2.3" -FeatureName "Payment Processing" -Description "Stripe integration" -DryRun
-    # Shows what would be updated in feature tracking without making changes
-
-.NOTES
-    - Requires PowerShell execution policy to allow script execution
-    - Automatically updates the central ID registry with new ID assignments
-    - Creates the output directory if it doesn't exist
-    - Uses standardized document creation process
-
-    Template Metadata:
-    - Template ID: PF-TEM-020
-    - Template Type: Document Creation Script
-    - Created: 2025-08-01
-    - For: Creating Functional Design Documents from templates
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -85,22 +72,18 @@ try {
     exit 1
 }
 
-# Perform standard initialization
 Invoke-StandardScriptInitialization
 
-
 # Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Prepare additional metadata fields
-$additionalMetadataFields = @{
-    "feature_id" = $FeatureId
-    "feature_name" = $FeatureName
-}
+# ---- Per-type composition: filename, template, replacements, metadata ----
+$featureIdForFilename = $FeatureId.Replace('.', '-')
+$featureNameForFilename = ConvertTo-FeatureSlug -Name $FeatureName -Convention 'kebab-case'
+$customFileName = "fdd-$featureIdForFilename-$featureNameForFilename.md"
+$fddRelativePath = "doc/functional-design/fdds/$customFileName"
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/fdd-template.md"
 
-# Prepare custom replacements for the template
 $customReplacements = @{
     "[Feature ID]" = $FeatureId
     "[Feature Name]" = $FeatureName
@@ -109,162 +92,67 @@ $customReplacements = @{
     "[Author]" = "AI Agent & Human Partner"
 }
 
-# Create the document using standardized process
+$additionalMetadataFields = @{
+    "feature_id" = $FeatureId
+    "feature_name" = $FeatureName
+}
+
+# Compute next master Status from the feature's tier assessment (PF-IMP-766).
+# Branches to "🗄️ Needs DB Design" / "🔌 Needs API Design" if those designs are
+# still required, else falls through to "📝 Needs TDD" (Tier 2+) or
+# "🔧 Needs Impl Plan" (Tier 1).
+$nextStatus = Get-NextStatusAfterDesignArtifact -FeatureId $FeatureId -CurrentArtifact 'FDD'
+
+# ---- Delegate the rest to the shared core ----
+# Per-type closures inlined into the splat — they capture $FeatureName,
+# $customFileName, etc. from this scope and are invoked by the core after
+# $documentId is assigned.
+$docMapDescription = if ($Description -ne "") { "$FeatureId — $Description" } else { "$FeatureId Functional Design Document" }
+
 try {
-    # Use DirectoryType for ID registry-based directory resolution
-    # Get the absolute path to the template using project root for reliability
-    $templatePath = Join-Path (Get-ProjectRoot) "process-framework/templates/02-design/fdd-template.md"
+    $invokeArgs = @{
+        ArtifactType               = "FDD"
+        IdPrefix                   = "PD-FDD"
+        IdDescription              = "fdd-$featureIdForFilename-$featureNameForFilename"
+        TemplatePath               = $templatePath
+        FileNamePattern            = $customFileName
+        DocumentName               = $FeatureName
+        DirectoryType              = "fdds"
+        FeatureId                  = $FeatureId
+        FeatureName                = $FeatureName
+        Replacements               = $customReplacements
+        AdditionalMetadataFields   = $additionalMetadataFields
+        DocMapSectionHeader        = "### ``functional-design/fdds/``"
+        DocMapEntryFormatter       = { param($id) "- [FDD: $FeatureName ($id)](functional-design/fdds/$customFileName) - $docMapDescription" }
+        NewMasterStatus            = $nextStatus
+        MasterStatusNotesFormatter = { param($id) "FDD created: $id ($(Get-ProjectTimestamp -Format 'Date'))" }
+        ArtifactRelativePath       = $fddRelativePath
+        OpenInEditor               = $OpenInEditor
+        DryRun                     = $DryRun
+        CallerCmdlet               = $PSCmdlet
+    }
+    $result = Invoke-DesignArtifactCreation @invokeArgs
 
-    # Generate filename with feature ID prefix for better organization and traceability
-    $featureIdForFilename = $FeatureId.Replace('.', '-')
-    $featureNameForFilename = $FeatureName.ToLower().Replace(' ', '-').Replace('_', '-')
-    $customFileName = "fdd-$featureIdForFilename-$featureNameForFilename.md"
+    # Replace the placeholder MasterStatusNotes after we have the real ID.
+    # (Notes were already written in the core; this is a no-op for now —
+    # the caller's MasterStatusNotes is informational. Future: thread the ID
+    # through into Notes via formatter, like docmap.)
 
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-FDD" -IdDescription "fdd-$featureIdForFilename-$featureNameForFilename" -DocumentName $FeatureName -DirectoryType "fdds" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
-
-    # Provide success details
+    # ---- Display ----
     $details = @(
         "Feature ID: $FeatureId",
         "Feature Name: $FeatureName"
     )
-
-    # Add conditional details
-    if ($Description -ne "") {
-        $details += "Description: $Description"
+    if ($Description -ne "") { $details += "Description: $Description" }
+    if (-not $OpenInEditor)   { $details += "Customization required — see process-framework/guides/02-design/fdd-customization-guide.md" }
+    if ($result.DocMapUpdated) { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
+    if ($result.StateFileResult) {
+        $sf = $result.StateFileResult
+        $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"
     }
 
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/02-design/fdd-customization-guide.md"
-    }
-
-    # Auto-append entry to PD-documentation-map.md under FDDs section
-    if ($documentId -or $WhatIfPreference) {
-        $projectRoot = Get-ProjectRoot
-        $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = "### ``functional-design/fdds/``"
-        $description = if ($Description -ne "") { "$FeatureId — $Description" } else { "$FeatureId Functional Design Document" }
-        $entryLine = "- [FDD: $FeatureName ($documentId)](functional-design/fdds/$customFileName) - $description"
-
-        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-        if ($updated) {
-            $details += "Documentation Map: Updated (PD-documentation-map.md)"
-        }
-    }
-
-    Write-ProjectSuccess -Message "Created Functional Design Document with ID: $documentId" -Details $details
-
-    # 🚀 AUTOMATION ENHANCEMENT: Update feature tracking with FDD completion
-    Write-Host ""
-    Write-Host "🤖 Updating Feature Tracking..." -ForegroundColor Yellow
-
-    try {
-        # Validate dependencies for automation
-        $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
-            "Update-FeatureTrackingStatus"
-        )
-
-        if (-not $dependencyCheck.AllDependenciesMet) {
-            Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
-            Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Check DB/API Design columns and set next status" -ForegroundColor Cyan
-            Write-Host "  - Add FDD link to feature tracking" -ForegroundColor Cyan
-        } else {
-            # Prepare FDD document link
-            $fddLink = "[$documentId](/doc/functional-design/fdds/$customFileName)"
-
-            # Determine next status based on DB/API Design columns
-            $featureTrackingPath = Join-Path (Get-ProjectRoot) "doc/state-tracking/permanent/feature-tracking.md"
-            $ftContent = Get-Content $featureTrackingPath -Raw
-            $featureRow = [regex]::Match($ftContent, "\|[^\r\n]*\b$([regex]::Escape($FeatureId))\b[^\r\n]*\|")
-            $nextStatus = "📝 Needs TDD"  # default fallback
-            if ($featureRow.Success) {
-                $cols = $featureRow.Value -split '\|' | ForEach-Object { $_.Trim() }
-                # Check DB Design and API Design columns for "Yes"
-                $colText = $featureRow.Value
-                if ($colText -match '\|\s*Yes\s*\|.*DB Design' -or ($cols | Where-Object { $_ -eq 'Yes' }).Count -ge 1) {
-                    # Parse columns to find DB Design and API Design values
-                    # Column order varies — search for "Yes" in design columns
-                }
-                # Simpler approach: check if "Yes" appears in DB Design position and API Design position
-                $hasDbDesign = $colText -match 'DB Design'  # header check not useful here
-            }
-            # Read header to find column indices
-            $ftLines = $ftContent -split "`n"
-            $headerLine = $ftLines | Where-Object { $_ -match 'Feature.*Status.*DB Design|DB Design.*API Design' } | Select-Object -First 1
-            if ($headerLine) {
-                $headers = $headerLine -split '\|' | ForEach-Object { $_.Trim() }
-                $dbIdx = [array]::IndexOf($headers, "DB Design")
-                $apiIdx = [array]::IndexOf($headers, "API Design")
-                if ($dbIdx -ge 0 -and $apiIdx -ge 0 -and $featureRow.Success) {
-                    $cols = $featureRow.Value -split '\|' | ForEach-Object { $_.Trim() }
-                    $dbVal = if ($dbIdx -lt $cols.Count) { $cols[$dbIdx] } else { "No" }
-                    $apiVal = if ($apiIdx -lt $cols.Count) { $cols[$apiIdx] } else { "No" }
-                    if ($dbVal -eq "Yes") {
-                        $nextStatus = "🗄️ Needs DB Design"
-                    } elseif ($apiVal -eq "Yes") {
-                        $nextStatus = "🔌 Needs API Design"
-                    }
-                    # else stays "📝 Needs TDD"
-                }
-            }
-
-            # Prepare additional updates for feature tracking
-            $additionalUpdates = @{
-                "FDD" = $fddLink
-            }
-
-            # Add notes about FDD creation
-            $automationNotes = "FDD created: $documentId ($(Get-ProjectTimestamp -Format 'Date'))"
-
-            if ($DryRun) {
-                Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                Write-Host "  Status: 📋 Needs FDD → $nextStatus" -ForegroundColor Cyan
-                Write-Host "  FDD Link: $fddLink" -ForegroundColor Cyan
-                Write-Host "  Notes: $automationNotes" -ForegroundColor Cyan
-            } else {
-                # Validate prerequisites - ensure assessment exists
-                Write-Host "  🔍 Validating prerequisites..." -ForegroundColor Cyan
-
-                # Update feature tracking with FDD completion
-                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $nextStatus -AdditionalUpdates $additionalUpdates -Notes $automationNotes
-
-                Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                Write-Host "  📋 Status: 📋 Needs FDD → $nextStatus" -ForegroundColor Green
-                Write-Host "  🔗 FDD linked in feature tracking" -ForegroundColor Green
-            }
-        }
-    }
-    catch {
-        Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
-        Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Check DB/API Design columns and set next status (🗄️/🔌/📝)" -ForegroundColor Cyan
-        Write-Host "  - Add FDD link: [$documentId](/doc/functional-design/fdds/$customFileName)" -ForegroundColor Cyan
-    }
+    Write-ProjectSuccess -Message "Created Functional Design Document with ID: $($result.DocumentId)" -Details $details
 }
 catch {
     Write-ProjectError -Message "Failed to create Functional Design Document: $($_.Exception.Message)" -ExitCode 1
 }
-
-<#
-.NOTES
-TESTING CHECKLIST:
-Before considering this script complete, test the following:
-
-1. ✅ Script creates FDD with proper ID assignment
-2. ✅ Template replacements work correctly
-3. ✅ Directory structure is created if missing
-4. ✅ ID registry is updated properly
-5. ✅ Error handling works for invalid inputs
-6. ✅ OpenInEditor parameter functions correctly
-7. ✅ Success messages provide helpful information
-8. ✅ Feature ID and Name are properly integrated into filename and content
-9. ✅ Generated filename includes feature ID (format: fdd-[feature-id]-[feature-name].md)
-
-CUSTOMIZATION REQUIREMENTS:
-- Ensure fdd-template.md exists in the templates directory
-- Verify process-framework/guides/02-design/fdd-customization-guide.md exists for user guidance
-- Test with various Feature ID formats (e.g., "1.1.1", "2.3.4")
-- Validate filename generation includes feature ID (format: fdd-[feature-id]-[feature-name].md)
-- Verify filename generation handles special characters in feature names correctly
-#>

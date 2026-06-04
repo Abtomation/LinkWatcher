@@ -8,6 +8,12 @@ updated: 2026-03-04
 refactoring_scope: [Refactoring Scope]
 target_area: [Target Area]
 priority: [Priority Level]
+variant_group: refactoring-plan-templates
+variant_siblings:
+  - lightweight-refactoring-plan-template.md
+  - documentation-refactoring-plan-template.md
+  - performance-refactoring-plan-template.md
+description: "Template for code refactoring plans"
 ---
 
 # Refactoring Plan: [Refactoring Scope]
@@ -167,4 +173,4 @@ priority: [Priority Level]
 - Item 2: [Description and priority]
 
 ## Related Documentation
-- [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)

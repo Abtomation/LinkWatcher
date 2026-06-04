@@ -5,6 +5,7 @@ category: Guide
 version: 2.0
 created: 2023-06-15
 updated: 2026-02-27
+description: "Guidelines for documentation"
 ---
 
 # Documentation Guide

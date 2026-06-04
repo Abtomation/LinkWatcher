@@ -5,11 +5,13 @@
 Automates bug status updates in the Bug Tracking state file
 
 .DESCRIPTION
-This script automates bug status transitions in the ../bug-tracking.md state file,
+This script automates bug status transitions in the bug-tracking.md state file,
 supporting the complete bug lifecycle from Needs Triage to Closed.
 
-Updates the following file:
-- doc/state-tracking/permanent/bug-tracking.md
+Updates the following files (defaults; override with -TrackingFile / -ArchiveFile):
+- doc/state-tracking/permanent/bug-tracking.md (live sections: 4 priority subsections + Bug Statistics)
+- doc/state-tracking/permanent/archive/bug-tracking-archive.md (## Closed Bugs + ## Rejected Bugs;
+  archive-split 2026-05-26 per PF-IMP-872)
 
 Supports all bug status transitions:
 - 🆕 Needs Triage → 🔍 Needs Fix (Bug Triage Task)
@@ -20,11 +22,17 @@ Supports all bug status transitions:
 - Any Status → 🔄 Reopened (Bug Triage Task)
 
 When transitioning to Closed:
-- Automatically moves the bug entry from its active priority table to the Closed Bugs section
+- Moves the bug entry from its active priority table to ## Closed Bugs in the archive file
+- Recalculates Bug Statistics (active counts by priority)
+
+When transitioning to Rejected (PF-IMP-872):
+- Moves the bug entry from its active priority table to ## Rejected Bugs in the archive file
+  (separate section from Closed — kept distinct for trend analysis: "decided not to fix" vs "fixed")
 - Recalculates Bug Statistics (active counts by priority)
 
 When transitioning to Reopened:
-- Automatically moves the bug entry from the Closed Bugs section back to the appropriate active priority table
+- Searches BOTH archive sections (## Closed Bugs and ## Rejected Bugs) for the row
+- Moves it back to the appropriate active priority table in the live file
 - Recalculates Bug Statistics (active counts by priority)
 
 .PARAMETER BugId
@@ -35,9 +43,9 @@ The new status for the bug. Valid values:
 - "NeedsFix" (🔍 Needs Fix)
 - "InProgress" (🟡 In Progress)
 - "NeedsReview" (👀 Needs Review)
-- "Closed" (🔒 Closed) — auto-moves to Closed section, recalculates stats
-- "Reopened" (🔄 Reopened)
-- "Rejected" (❌ Rejected) — not-a-bug, won't-fix, or other rationale per Bug Fixing Step 11; auto-moves to Closed section, recalculates stats
+- "Closed" (🔒 Closed) — auto-moves to archive ## Closed Bugs section (PF-IMP-872), recalculates stats
+- "Reopened" (🔄 Reopened) — auto-moves from archive (## Closed Bugs or ## Rejected Bugs) back to active priority section
+- "Rejected" (❌ Rejected) — not-a-bug, won't-fix, or other rationale per Bug Fixing Step 11; auto-moves to archive ## Rejected Bugs section (PF-IMP-872), recalculates stats
 
 .PARAMETER FastClose
 S-scope quick path: chains NeedsFix → InProgress → Closed in one call.
@@ -81,6 +89,15 @@ Affected user workflows (e.g., "WF-001, WF-003") - used when transitioning to Ne
 
 .PARAMETER TriageNotes
 Triage rationale to append to the Notes field - used when transitioning to NeedsFix
+
+.PARAMETER TrackingFile
+Path to the live bug-tracking.md file (override default for tests / non-standard layouts).
+Default: doc/state-tracking/permanent/bug-tracking.md under Get-ProjectRoot.
+
+.PARAMETER ArchiveFile
+Path to the sibling archive file containing ## Closed Bugs and ## Rejected Bugs sections
+(archive-split 2026-05-26 per PF-IMP-872). Defaults to `archive/bug-tracking-archive.md`
+relative to the directory of -TrackingFile, mirroring the Update-ProcessImprovement.ps1 pattern.
 
 .PARAMETER UpdateDate
 Date of the status update (optional - uses current date if not specified)
@@ -185,7 +202,18 @@ param(
     [string]$TriageNotes,
 
     [Parameter(Mandatory = $false)]
-    [datetime]$UpdateDate = (Get-Date)
+    [datetime]$UpdateDate = (Get-Date),
+
+    [Parameter(Mandatory = $false)]
+    [string]$TrackingFile,
+
+    # Archive-split (2026-05-26 per PF-IMP-872): sibling archive file holding
+    # ## Closed Bugs and ## Rejected Bugs sections. Default sits in an `archive/`
+    # subdir next to -TrackingFile, mirroring Update-ProcessImprovement.ps1's
+    # -ArchiveFile resolution. Callers passing a custom -TrackingFile get an
+    # archive path computed relative to it.
+    [Parameter(Mandatory = $false)]
+    [string]$ArchiveFile
 )
 
 # Import the common helpers for Get-ProjectRoot
@@ -202,11 +230,22 @@ $VerbosePreference = $prevVerbosePreference
 
 # Configuration - use project-root-relative path for reliability
 $ProjectRoot = Get-ProjectRoot
-$BugTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/bug-tracking.md"
+if (-not $TrackingFile) {
+    $TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/bug-tracking.md"
+}
+$BugTrackingFile = $TrackingFile
+
+# Archive-split (2026-05-26, PF-IMP-872): default ArchiveFile sits in an `archive/`
+# subdir next to -TrackingFile. Mirrors the Update-ProcessImprovement.ps1 pattern.
+if (-not $ArchiveFile) {
+    $trackingDir = Split-Path -Parent $BugTrackingFile
+    $ArchiveFile = Join-Path -Path $trackingDir -ChildPath "archive/bug-tracking-archive.md"
+}
+
 $ScriptName = "../Update-BugStatus.ps1"
 
-# Soak verification (PF-PRO-028 — see process-framework/state-tracking/permanent/script-soak-tracking.md)
-$soakScriptId = "process-framework/scripts/update/Update-BugStatus.ps1"
+# Soak verification (PF-PRO-028 — see process-framework-central/state-tracking/permanent/script-soak-tracking.md; v2.1 normalized ScriptId per PF-PRO-032)
+$soakScriptId = "scripts/update/Update-BugStatus.ps1"
 $soakInSoak   = Test-ScriptInSoak -ScriptId $soakScriptId -ScriptPath $PSCommandPath
 
 # Status emoji mapping
@@ -284,6 +323,18 @@ function Test-Prerequisites {
 
     if (-not (Test-Path $BugTrackingFile)) {
         Write-Log "Bug tracking file not found: $BugTrackingFile" -Level "ERROR"
+        return $false
+    }
+
+    # Archive file (PF-IMP-872): only required for status transitions that touch it
+    # (Closed / Rejected / Reopened). Other transitions (NeedsFix / InProgress / NeedsReview)
+    # operate only on the live file. Skip the existence check for those.
+    $archiveRequired = $false
+    if ($FastClose) { $archiveRequired = $true }
+    elseif ($NewStatus -in @("Closed", "Rejected", "Reopened")) { $archiveRequired = $true }
+
+    if ($archiveRequired -and -not (Test-Path $ArchiveFile)) {
+        Write-Log "Archive file not found: $ArchiveFile (required for $NewStatus transitions per PF-IMP-872 archive-split). Create from blueprint or pass -ArchiveFile pointing at an existing archive." -Level "ERROR"
         return $false
     }
 
@@ -403,79 +454,99 @@ function Update-BugEntryContent {
     return $result
 }
 
-function Move-BugFromClosedToActiveSectionContent {
+function Move-BugFromArchiveContent {
+    # PF-IMP-872 (2026-05-26): two-file Reopened path. Source = $ArchiveContent
+    # (## Closed Bugs OR ## Rejected Bugs); destination = $LiveContent (the bug's
+    # priority-appropriate subsection). Returns @{ LiveContent; ArchiveContent }
+    # or $null on failure.
     param(
-        [string]$Content,
+        [string]$LiveContent,
+        [string]$ArchiveContent,
         [string]$BugId
     )
 
-    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
-
-    # Find the bug entry line within the Closed Bugs section
-    $bugLineIndex = -1
-    $inClosedSection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Closed Bugs") { $inClosedSection = $true }
-        if ($lines[$i] -match "^## Bug Statistics") { break }
-        if ($inClosedSection -and $lines[$i] -match "^\|\s*$BugId\s*\|") {
-            $bugLineIndex = $i
+    # Locate the row in the archive — scan both ## Closed Bugs and ## Rejected Bugs
+    # to discover which section holds it AND extract its Priority cell to determine
+    # the target live subsection.
+    $archiveLines = $ArchiveContent -split "\r?\n"
+    $bugLine = $null
+    $sourceArchiveSection = $null
+    $currentArchiveSection = $null
+    foreach ($line in $archiveLines) {
+        if ($line -match '^## (Closed Bugs|Rejected Bugs)\s*$') {
+            $currentArchiveSection = "## $($Matches[1])"
+            continue
+        }
+        if ($currentArchiveSection -and $line -match "^\|\s*$BugId\s*\|") {
+            $bugLine = $line
+            $sourceArchiveSection = $currentArchiveSection
             break
         }
     }
 
-    if ($bugLineIndex -eq -1) {
-        Write-Log "Could not find bug $BugId in Closed Bugs section" -Level "ERROR"
+    if (-not $bugLine) {
+        Write-Log "Could not find bug $BugId in archive (neither ## Closed Bugs nor ## Rejected Bugs)" -Level "ERROR"
         return $null
     }
 
-    $bugLine = $lines[$bugLineIndex]
-    $lines.RemoveAt($bugLineIndex)
-
-    # Determine target priority section from the bug's Priority column (column index 3)
+    # Extract Priority column (index 3) to determine target live subsection.
     $columns = $bugLine -split '\|' | ForEach-Object { $_.Trim() }
     if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
     $priorityValue = $columns[3].Trim()
 
-    $sectionHeader = switch ($priorityValue) {
+    $targetSubsection = switch ($priorityValue) {
         "Critical" { "### Critical Bugs" }
         "High"     { "### High Priority Bugs" }
         "Medium"   { "### Medium Priority Bugs" }
         "Low"      { "### Low Priority Bugs" }
         default {
-            Write-Log "Unknown priority '$priorityValue' for bug $BugId, defaulting to Medium" -Level "WARN"
+            Write-Log "Unknown priority '$priorityValue' for bug $BugId, defaulting to ### Medium Priority Bugs" -Level "WARN"
             "### Medium Priority Bugs"
         }
     }
 
-    # Find insertion point: after the last PD-BUG row (or table separator) in the target section
-    $insertAfterIndex = -1
-    $targetSectionFound = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i].Trim() -eq $sectionHeader) {
-            $targetSectionFound = $true
-        }
-        if ($targetSectionFound) {
-            # Stop at the next section header
-            if ($i -gt 0 -and $lines[$i] -match "^(###|##) " -and $lines[$i] -ne $sectionHeader) { break }
-            if ($lines[$i] -match "^\|\s*PD-BUG-") { $insertAfterIndex = $i }
-            if ($lines[$i] -match "^\| -") { if ($insertAfterIndex -eq -1) { $insertAfterIndex = $i } }
-        }
-    }
+    # Build ColumnMapping identity (live and archive tables share the same 11-column schema)
+    $bugHeaders = @('ID','Title','Status','Priority','Scope','Reported','Description','Related Feature','Workflows','Dims','Notes')
+    $columnMapping = [ordered]@{}
+    foreach ($h in $bugHeaders) { $columnMapping[$h] = $h }
 
-    if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find target section '$sectionHeader' for reinsertion" -Level "ERROR"
+    # Use Move-MarkdownTableRow in reverse two-file mode (archive → live).
+    # SectionEndPattern '^### ' ensures the destination scan stops at the next priority
+    # subsection (not at next `##` which would skip past sibling priority sections).
+    $result = Move-MarkdownTableRow `
+        -Content $ArchiveContent `
+        -DestinationContent $LiveContent `
+        -RowIdPattern ([regex]::Escape($BugId)) `
+        -SourceSection $sourceArchiveSection `
+        -DestinationSection $targetSubsection `
+        -ColumnMapping $columnMapping `
+        -SectionEndPattern '^### '
+
+    if (-not $result -or $null -eq $result.Content) {
+        Write-Log "Move-MarkdownTableRow failed: archive($sourceArchiveSection) → live($targetSubsection) for $BugId" -Level "ERROR"
         return $null
     }
 
-    # Remove "No X bugs currently active" placeholder if present
-    if ($insertAfterIndex + 1 -lt $lines.Count -and $lines[$insertAfterIndex + 1] -match "^\|\s*_No .+ bugs currently") {
-        $lines.RemoveAt($insertAfterIndex + 1)
+    # Remove "No X bugs currently active" placeholder if the target subsection had one
+    # (Move-MarkdownTableRow doesn't know about these decorative-empty markers).
+    $newLiveLines = [System.Collections.ArrayList]@($result.DestinationContent -split "\r?\n")
+    for ($i = 0; $i -lt $newLiveLines.Count; $i++) {
+        if ($newLiveLines[$i].Trim() -eq $targetSubsection) {
+            for ($j = $i + 1; $j -lt $newLiveLines.Count -and -not ($newLiveLines[$j] -match '^### |^## '); $j++) {
+                if ($newLiveLines[$j] -match "^\|\s*_No .+ bugs currently") {
+                    $newLiveLines.RemoveAt($j)
+                    break
+                }
+            }
+            break
+        }
     }
 
-    $lines.Insert($insertAfterIndex + 1, $bugLine)
-
-    Write-Log "Moved bug $BugId from Closed section to $sectionHeader" -Level "SUCCESS"
-    return ($lines -join "`r`n")
+    Write-Log "Moved bug $BugId from archive ($sourceArchiveSection) to live ($targetSubsection)" -Level "SUCCESS"
+    return @{
+        LiveContent    = ($newLiveLines -join "`r`n")
+        ArchiveContent = $result.Content
+    }
 }
 
 function Move-BugBetweenActiveSectionsContent {
@@ -599,98 +670,96 @@ function Move-BugBetweenActiveSectionsContent {
     return ($lines -join "`r`n")
 }
 
-function Move-BugToClosedSectionContent {
+function Move-BugToArchiveContent {
+    # PF-IMP-872 (2026-05-26): two-file archive path for Closed / Rejected.
+    # Source = $LiveContent (one of the 4 priority subsections); destination =
+    # $ArchiveContent (## Closed Bugs for Closed, ## Rejected Bugs for Rejected).
+    # Returns @{ LiveContent; ArchiveContent } or $null on failure.
     param(
-        [string]$Content,
-        [string]$BugId
+        [string]$LiveContent,
+        [string]$ArchiveContent,
+        [string]$BugId,
+        [Parameter(Mandatory)][ValidateSet("Closed", "Rejected")]
+        [string]$Disposition
     )
 
-    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
-
-    # Find the bug entry line
-    $bugLineIndex = -1
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^\|\s*$BugId\s*\|") {
-            $bugLineIndex = $i
+    # Discover which priority subsection holds the bug in live content.
+    # We do this manually rather than scanning blindly with Move-MarkdownTableRow,
+    # because the row could be in any of the 4 priority subsections.
+    $liveLines = $LiveContent -split "\r?\n"
+    $sourceSubsection = $null
+    $currentSubsection = $null
+    foreach ($line in $liveLines) {
+        if ($line -match '^### (Critical|High Priority|Medium Priority|Low Priority) Bugs\s*$') {
+            $currentSubsection = "### $($Matches[1]) Bugs"
+            continue
+        }
+        if ($line -match '^## (?!#)') {
+            # Left the Bug Registry section — stop scanning
+            if ($currentSubsection) { $currentSubsection = $null }
+        }
+        if ($currentSubsection -and $line -match "^\|\s*$BugId\s*\|") {
+            $sourceSubsection = $currentSubsection
             break
         }
     }
 
-    if ($bugLineIndex -eq -1) {
-        Write-Log "Could not find bug entry line for $BugId to move" -Level "ERROR"
+    if (-not $sourceSubsection) {
+        Write-Log "Could not find bug $BugId in any live priority subsection" -Level "ERROR"
         return $null
     }
 
-    $bugLine = $lines[$bugLineIndex]
-    $lines.RemoveAt($bugLineIndex)
+    # Destination section depends on disposition (dual-section archive per PF-IMP-872).
+    $destinationSection = if ($Disposition -eq "Closed") { "## Closed Bugs" } else { "## Rejected Bugs" }
 
-    # Check if the priority section is now empty (no remaining PD-BUG rows)
-    $sectionHeaderIndex = -1
-    for ($i = [Math]::Min($bugLineIndex - 1, $lines.Count - 1); $i -ge 0; $i--) {
-        if ($lines[$i] -match "^### (Critical|High Priority|Medium Priority|Low Priority) Bugs") {
-            $sectionHeaderIndex = $i
+    # Build ColumnMapping identity (live priority tables and archive sections share schema)
+    $bugHeaders = @('ID','Title','Status','Priority','Scope','Reported','Description','Related Feature','Workflows','Dims','Notes')
+    $columnMapping = [ordered]@{}
+    foreach ($h in $bugHeaders) { $columnMapping[$h] = $h }
+
+    # Two-file Move-MarkdownTableRow: live → archive.
+    # SectionEndPattern '^### ' bounds the source-row search to just the matched
+    # priority subsection (without it, the search would skim through all 4 subsections).
+    $result = Move-MarkdownTableRow `
+        -Content $LiveContent `
+        -DestinationContent $ArchiveContent `
+        -RowIdPattern ([regex]::Escape($BugId)) `
+        -SourceSection $sourceSubsection `
+        -DestinationSection $destinationSection `
+        -ColumnMapping $columnMapping `
+        -SectionEndPattern '^### '
+
+    if (-not $result -or $null -eq $result.Content) {
+        Write-Log "Move-MarkdownTableRow failed: live($sourceSubsection) → archive($destinationSection) for $BugId" -Level "ERROR"
+        return $null
+    }
+
+    # Add "_No X bugs currently active_" placeholder if the source subsection is now empty.
+    $newLiveLines = [System.Collections.ArrayList]@($result.Content -split "\r?\n")
+    for ($i = 0; $i -lt $newLiveLines.Count; $i++) {
+        if ($newLiveLines[$i].Trim() -eq $sourceSubsection) {
+            $hasDataRows = $false
+            $separatorIdx = -1
+            for ($j = $i + 1; $j -lt $newLiveLines.Count -and -not ($newLiveLines[$j] -match '^### |^## '); $j++) {
+                if ($newLiveLines[$j] -match "^\|\s*PD-BUG-") { $hasDataRows = $true; break }
+                if ($newLiveLines[$j] -match '^\|\s*[-\s:|]+\s*\|') { $separatorIdx = $j }
+            }
+            if (-not $hasDataRows -and $separatorIdx -ge 0) {
+                $priorityLabel = if ($sourceSubsection -match 'Critical') { 'critical' }
+                                 elseif ($sourceSubsection -match 'High') { 'high priority' }
+                                 elseif ($sourceSubsection -match 'Medium') { 'medium priority' }
+                                 else { 'low priority' }
+                $newLiveLines.Insert($separatorIdx + 1, "| _No $priorityLabel bugs currently active_ |")
+            }
             break
         }
     }
 
-    if ($sectionHeaderIndex -ge 0) {
-        $hasDataRows = $false
-        for ($i = $sectionHeaderIndex + 1; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^(###|##) " -and $i -gt $sectionHeaderIndex + 2) { break }
-            if ($lines[$i] -match "^\|\s*PD-BUG-") {
-                $hasDataRows = $true
-                break
-            }
-        }
-
-        if (-not $hasDataRows) {
-            # Add placeholder after the table separator line
-            for ($i = $sectionHeaderIndex + 1; $i -lt $lines.Count; $i++) {
-                if ($lines[$i] -match "^\| -") {
-                    $sectionName = $lines[$sectionHeaderIndex]
-                    $priorityLabel = if ($sectionName -match "Critical") { "critical" }
-                                     elseif ($sectionName -match "High") { "high priority" }
-                                     elseif ($sectionName -match "Medium") { "medium priority" }
-                                     else { "low priority" }
-                    $lines.Insert($i + 1, "| _No $priorityLabel bugs currently active_ |")
-                    break
-                }
-            }
-        }
+    Write-Log "Moved bug $BugId from live ($sourceSubsection) to archive ($destinationSection)" -Level "SUCCESS"
+    return @{
+        LiveContent    = ($newLiveLines -join "`r`n")
+        ArchiveContent = $result.DestinationContent
     }
-
-    # Find insertion point: after the last PD-BUG row in the Closed Bugs section
-    $insertAfterIndex = -1
-    $inClosedSection = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Closed Bugs") { $inClosedSection = $true }
-        if ($inClosedSection) {
-            if ($lines[$i] -match "^\|\s*PD-BUG-") { $insertAfterIndex = $i }
-            if ($lines[$i] -match "^\s*</details>") { break }
-        }
-    }
-
-    # If no PD-BUG rows in Closed section, insert after the table separator line
-    if ($insertAfterIndex -eq -1) {
-        $inClosedSection = $false
-        for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^## Closed Bugs") { $inClosedSection = $true }
-            if ($inClosedSection -and $lines[$i] -match "^\| -") {
-                $insertAfterIndex = $i
-                break
-            }
-        }
-    }
-
-    if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find insertion point in Closed Bugs section" -Level "ERROR"
-        return $null
-    }
-
-    $lines.Insert($insertAfterIndex + 1, $bugLine)
-
-    Write-Log "Moved bug $BugId to Closed Bugs section" -Level "SUCCESS"
-    return ($lines -join "`r`n")
 }
 
 function Update-BugStatisticsContent {
@@ -763,7 +832,9 @@ function Main {
             Write-Log "VerificationNotes is required for -FastClose" -Level "ERROR"; exit 1
         }
 
+        # Two-file mode (PF-IMP-872): load both live and archive content.
         $content = Get-Content $BugTrackingFile -Raw
+        $archiveContent = Get-Content $ArchiveFile -Raw
 
         # Phase 1: NeedsFix (triage)
         $triageData = @{ Priority = $Priority }
@@ -797,20 +868,23 @@ function Main {
         if ($null -eq $content) { Write-Log "FastClose failed at Closed" -Level "ERROR"; exit 1 }
         Write-Log "FastClose phase 3/3: 🔒 Closed" -Level "SUCCESS"
 
-        # Move to Closed section and recalculate stats
-        $content = Move-BugToClosedSectionContent -Content $content -BugId $BugId
-        if ($null -eq $content) { Write-Log "Failed to move bug to Closed section" -Level "ERROR"; exit 1 }
+        # Move to archive ## Closed Bugs section (PF-IMP-872) and recalculate stats
+        $moveResult = Move-BugToArchiveContent -LiveContent $content -ArchiveContent $archiveContent -BugId $BugId -Disposition "Closed"
+        if ($null -eq $moveResult) { Write-Log "Failed to move bug to archive ## Closed Bugs" -Level "ERROR"; exit 1 }
+        $content = $moveResult.LiveContent
+        $archiveContent = $moveResult.ArchiveContent
         $content = Update-BugStatisticsContent -Content $content
 
         try {
             if ($PSCmdlet.ShouldProcess($BugTrackingFile, "FastClose $BugId (NeedsFix → InProgress → Closed)")) {
                 Set-Content -Path $BugTrackingFile -Value $content -NoNewline
+                Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
                 Write-SummaryLine "$BugId → Closed (FastClose: NeedsFix → InProgress → Closed)"
 
-                # Read-after-write verification: confirm the bug row exists in tracking file
+                # Read-after-write verification: confirm the bug row exists in archive (it moved there)
                 if (-not $WhatIfPreference) {
                     $rowPattern = "\|\s*" + [regex]::Escape($BugId) + "\s*\|"
-                    Assert-LineInFile -Path $BugTrackingFile -Pattern $rowPattern -Context "bug row for $BugId in $BugTrackingFile"
+                    Assert-LineInFile -Path $ArchiveFile -Pattern $rowPattern -Context "bug row for $BugId in $ArchiveFile (archive)"
                 }
 
                 if ($soakInSoak) {
@@ -890,9 +964,29 @@ function Main {
     # Single read-modify-write cycle to avoid file locking issues
     # IMP-443: ShouldProcess moved to guard only the file write (line below Set-Content),
     # so -WhatIf runs the full transformation logic and logs what would happen.
+    # PF-IMP-872 (2026-05-26): two-file mode. Archive content loaded only when the
+    # transition touches it (Closed / Rejected / Reopened).
     $content = Get-Content $BugTrackingFile -Raw
+    $archiveContent = $null
+    $touchesArchive = $NewStatus -in @("Closed", "Rejected", "Reopened")
+    if ($touchesArchive) {
+        $archiveContent = Get-Content $ArchiveFile -Raw
+    }
 
-    # Step 1: Update the bug entry (status, notes)
+    # Step 0 (Reopened only): move the row archive → live BEFORE updating the row.
+    # The row currently lives in archive; subsequent Update-BugEntryContent must
+    # find it in live.
+    if ($NewStatus -eq "Reopened") {
+        $moveResult = Move-BugFromArchiveContent -LiveContent $content -ArchiveContent $archiveContent -BugId $BugId
+        if ($null -eq $moveResult) {
+            Write-Log "Failed to move bug $BugId from archive to active section" -Level "ERROR"
+            exit 1
+        }
+        $content = $moveResult.LiveContent
+        $archiveContent = $moveResult.ArchiveContent
+    }
+
+    # Step 1: Update the bug entry (status, notes) in live content
     $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus $NewStatus -UpdateData $updateData
     if ($null -eq $content) {
         Write-Log "Bug status update failed" -Level "ERROR"
@@ -908,37 +1002,35 @@ function Main {
         }
     }
 
-    # Step 2: When closing or rejecting, move the row to the Closed Bugs section
+    # Step 2 (Closed / Rejected only): move the now-updated row live → archive.
+    # Dual-section routing per PF-IMP-872: Closed → ## Closed Bugs, Rejected → ## Rejected Bugs.
     if ($NewStatus -eq "Closed" -or $NewStatus -eq "Rejected") {
-        $content = Move-BugToClosedSectionContent -Content $content -BugId $BugId
-        if ($null -eq $content) {
-            Write-Log "Failed to move bug $BugId to Closed section" -Level "ERROR"
+        $moveResult = Move-BugToArchiveContent -LiveContent $content -ArchiveContent $archiveContent -BugId $BugId -Disposition $NewStatus
+        if ($null -eq $moveResult) {
+            Write-Log "Failed to move bug $BugId to archive ## $NewStatus Bugs section" -Level "ERROR"
             exit 1
         }
+        $content = $moveResult.LiveContent
+        $archiveContent = $moveResult.ArchiveContent
     }
 
-    # Step 2b: When reopening, move the row from Closed section back to active priority table
-    if ($NewStatus -eq "Reopened") {
-        $content = Move-BugFromClosedToActiveSectionContent -Content $content -BugId $BugId
-        if ($null -eq $content) {
-            Write-Log "Failed to move bug $BugId from Closed to active section" -Level "ERROR"
-            exit 1
-        }
-    }
-
-    # Step 3: Recalculate statistics
+    # Step 3: Recalculate statistics (live only)
     $content = Update-BugStatisticsContent -Content $content
 
-    # Single write — guarded by ShouldProcess so -WhatIf skips only the file write
+    # Write — guarded by ShouldProcess so -WhatIf skips only the file writes
     try {
         if ($PSCmdlet.ShouldProcess($BugTrackingFile, "Update $BugId to $NewStatus")) {
             Set-Content -Path $BugTrackingFile -Value $content -NoNewline
+            if ($touchesArchive) {
+                Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
+            }
             Write-SummaryLine "$BugId → $NewStatus"
 
-            # Read-after-write verification: confirm the bug row exists in tracking file
+            # Read-after-write verification: confirm the bug row exists where it should be after the move
             if (-not $WhatIfPreference) {
                 $rowPattern = "\|\s*" + [regex]::Escape($BugId) + "\s*\|"
-                Assert-LineInFile -Path $BugTrackingFile -Pattern $rowPattern -Context "bug row for $BugId in $BugTrackingFile"
+                $verifyFile = if ($NewStatus -in @("Closed", "Rejected")) { $ArchiveFile } else { $BugTrackingFile }
+                Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "bug row for $BugId in $verifyFile"
             }
 
             if ($soakInSoak) {

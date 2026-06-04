@@ -7,6 +7,7 @@ created: 2026-02-19
 updated: 2026-02-19
 workflow_phase: 01-planning
 related_task: PF-TSK-067
+description: "Components for classifying change requests and scoping enhancements"
 ---
 
 # Feature Request Evaluation Context Map
@@ -89,7 +90,7 @@ graph TD
 - [Feature Request Evaluation Task](../../../tasks/01-planning/feature-request-evaluation.md) — Task definition
 - [Feature Request Tracking](../../../../doc/state-tracking/permanent/feature-request-tracking.md) — Intake queue for product feature requests
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) — Current feature inventory
-- [Enhancement Workflow Concept (PF-PRO-002)](../../../../process-framework-local/proposals/old/enhancement-workflow-concept.md) — Full design rationale
+- [Enhancement Workflow Concept (PF-PRO-002)](../../../../process-framework-central/proposals/old/enhancement-workflow-concept.md) — Full design rationale (relocated to appdev central in Phase 7.5)
 
 ---
 

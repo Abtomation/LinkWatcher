@@ -7,6 +7,7 @@ created: [CREATION_DATE]
 updated: [LAST_UPDATE_DATE]
 feature_name: [Feature Name]
 feature_id: [Feature ID if available]
+description: "Template for creating implementation plan documents that define sequenced execution strategies for feature implementation"
 ---
 
 # [Feature Name] - Implementation Plan

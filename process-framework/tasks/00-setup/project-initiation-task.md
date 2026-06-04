@@ -3,9 +3,10 @@ id: PF-TSK-059
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.2
+version: 1.4
 created: 2026-02-16
-updated: 2026-04-14
+updated: 2026-06-03
+description: "Initial project setup including ../doc/project-config.json creation"
 ---
 
 # Project Initiation
@@ -20,13 +21,6 @@ Establishes foundational project configuration and metadata when initializing a 
 **Mindset**: Methodical, detail-oriented, focused on establishing clear foundations
 **Focus Areas**: Configuration accuracy, path structure consistency, metadata completeness
 **Communication Style**: Ask clarifying questions about project details, confirm critical decisions, explain configuration choices
-
-## When to Use
-
-- When starting a new project that will use the process framework
-- When adapting the process framework to a different business domain or technology stack
-- When project structure or naming conventions have fundamentally changed and need re-initialization
-- Before running any automation scripts that depend on project-config.json
 
 ## Context Requirements
 
@@ -74,7 +68,7 @@ Establishes foundational project configuration and metadata when initializing a 
 4. **🚨 CHECKPOINT**: Present gathered project information and identified paths to human partner for confirmation before creating configuration file
 
 5. **Decide on Foundation Category (0.x)**: Ask the human partner whether this project needs architectural foundation features before business features. Foundation features (0.x category) are appropriate when the project requires custom frameworks, core infrastructure patterns, or shared architectural enablers that business features will build on. This is an **opt-in decision** — not all projects need a foundation layer.
-   > If yes: after Project Initiation completes, follow the [Architecture-First workflow](/process-framework/ai-tasks.md#for-greenfield-projects-architecture-first) to implement 0.x features before business features.
+   > If yes: after Project Initiation completes, follow the [Architecture-First workflow](../../ai-tasks.md#for-greenfield-projects-architecture-first) to implement 0.x features before business features.
    >
    > If no: proceed directly to business feature workflows after Project Initiation.
 
@@ -108,10 +102,15 @@ Establishes foundational project configuration and metadata when initializing a 
      "paths": {
        "description": "Project-specific directory paths relative to root",
        "documentation_root": "doc",
-       "process_framework": "doc",
+       "process_framework": "process-framework",
+       "product_docs": "doc",
        "source_code": "[src directory name]",
        "tests": "[test directory name]",
-       "scripts": "scripts"
+       "test_tracking_dir": "test/state-tracking/permanent",
+       "e2e_test_tracking_dir": "test/state-tracking/permanent",
+       "performance_test_tracking_dir": "test/state-tracking/permanent",
+       "scripts": "scripts",
+       "examples": "examples"
      },
 
      "testing": {
@@ -142,7 +141,20 @@ Establishes foundational project configuration and metadata when initializing a 
        "ci_cd_platform": "[CI/CD platform name or null]",
        "code_hosting": "[Code hosting platform]",
        "documentation_hosting": "[Documentation hosting location]"
-     }
+     },
+
+     "recommended_skills": {
+       "description": "Claude Code skills recommended for specific tasks. Each key under 'tasks' is a task slug (task filename without .md); value is an array of {skill, note} objects. Language-bound skills go in languages-config instead. Populated during Step 10a — leave 'tasks' empty here.",
+       "tasks": {}
+     },
+
+     "layering_rules": {
+       "description": "Per-project layer dependency rules — source of truth for layer-boundary checks at Code Quality Standards Validation (PF-TSK-032). Empty 'layers' = no enforcement (the default). Populate during onboarding (PF-TSK-064/066) or after ADRs codify layer boundaries; see source-code-layout-guide.md.",
+       "layers": [],
+       "cross_feature_isolation": { "enabled": false }
+     },
+
+     "project_id": null
    }
    ```
 
@@ -150,16 +162,46 @@ Establishes foundational project configuration and metadata when initializing a 
    - Use Windows path format with double backslashes (`\\`) for paths on Windows
    - Use forward slashes (`/`) for relative paths in the `paths` section
    - Set values to `null` for optional fields that don't apply
-   - **`paths.source_code`**: Set to the actual source directory name (e.g., `src`, `lib`, `app`). Do **not** leave as `"."` — this value drives the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) scaffold script and validation. The `source-code-layout.md` file should already exist at `doc/technical/architecture/` (created from the blueprint template). No directories are created at this point — that is deferred to Codebase Feature Discovery (PF-TSK-064) after features are known.
+   - **Leave at their defaults** (do not hand-fill here): `project_id` stays `null` — `Register-Project.ps1` writes it at Step 19; `recommended_skills.tasks` stays `{}` — populated at Step 10a; `layering_rules.layers` stays `[]` — populated during onboarding or once ADRs codify layer boundaries
+   - **`paths.source_code`**: Set to the actual source directory name (e.g., `src`, `lib`, `app`). Do **not** leave as `"."` — this value drives the [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) scaffold script and validation. The `source-code-layout.md` file should already exist at `doc/technical/architecture/` (created from the blueprint template). No directories are created at this point — that is deferred to Codebase Feature Discovery (PF-TSK-064) after features are known.
+   - **`paths.test_tracking_dir` / `paths.e2e_test_tracking_dir` / `paths.performance_test_tracking_dir`**: Parameterize where each tracking file lives. Defaults match historical hardcoded behavior (`test/state-tracking/permanent`) and should be left as-is for new projects. Used by framework scripts that read/write the three tracking files (e.g., `Run-Tests.ps1`, `Update-WorkflowTracking.ps1`, `Validate-StateTracking.ps1`). Introduced by the Framework Self-Testing extension (PF-PRO-035) so appdev (PRJ-000) can host its own framework-self-test workspace state outside the default location.
 
-9. **Validate JSON Syntax**: Ensure the file is valid JSON (check for missing commas, brackets, quotes)
-10. **Set Up Language Configuration**: Check if `process-framework/languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](/process-framework/templates/support/language-config-template.json) to `process-framework/languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](/process-framework/languages-config/README.md).
+9. **Validate the configuration**: Run the validator to confirm valid JSON syntax, populated load-bearing fields, and no unreplaced `[...]` placeholders:
+   ```bash
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Validate-ProjectConfig.ps1
+   ```
+   Fix any reported errors and re-run until it prints `✅ project-config.json is valid`. The `project_id is null` informational note is expected at this point — `Register-Project.ps1` sets it at Step 19.
+10. **Set Up Language Configuration**: Check if `process-framework/languages-config/{language}/{language}-config.json` exists for the project's language. If not, copy the [language config template](../../templates/support/language-config-template.json) to `process-framework/languages-config/{language}/{language}-config.json` and fill in language-specific values (test runner, coverage, lint commands). See [languages-config README](../../languages-config/README.md).
 
-11. **Set Up Testing Infrastructure**: Run the bootstrapping script to scaffold the test environment:
+    > **New-to-framework language?** If neither the language config nor a per-language test runner exists for this project's language, create both before continuing:
+    >
+    > 1. Copy [`templates/support/language-config-template.json`](../../templates/support/language-config-template.json) to `process-framework/languages-config/{language}/{language}-config.json` and fill in test runner / coverage / lint commands.
+    > 2. Copy [`templates/support/Run-Tests-runner-template.ps1`](../../templates/support/Run-Tests-runner-template.ps1) to `process-framework/scripts/language-specific-scripts/{language}/Run-Tests.{language}.ps1` and adapt it to the language's test framework (the top-level `Run-Tests.ps1` dispatcher reads `testing.language` from `project-config.json` and routes to this per-language runner via `Resolve-TestLanguageRunner` from `TestRunner.psm1`).
+    > 3. Add the new language as a row in [`languages-config/README.md`](../../languages-config/README.md)'s Available Configurations table.
+    >
+    > Languages already shipped: `python` (pytest) and `powershell` (Pester). Skip this expansion when the project's language is one of those.
+
+10a. **Populate Recommended Skills**: Check which Claude Code skills are available in the current session (listed in the system context). Match them against the project's technology stack (`project_metadata.primary_language`, `project_metadata.framework`, `project_metadata.platform`) and populate:
+    - **Language-config** `recommended_skills` — for skills tied to the project's language/UI technology (e.g., `frontend-design` for JS/TS web projects → `ui-implementation`, `foundation-feature-implementation`)
+    - **Project-config** `recommended_skills.tasks` — for project-level skills not tied to a language (e.g., `playwright` for web projects → `e2e-acceptance-test-execution`; `claude-api` for Claude-consuming projects → `foundation-feature-implementation`, `core-logic-implementation`)
+
+    Each entry is an object with `skill` (skill name) and `note` (one-line purpose). Task slugs are task definition filenames without `.md`. Use the seed mapping table below as a starting point — adapt to the project's actual needs:
+
+    | Skill | Config Location | Applicable Tasks | Note |
+    |---|---|---|---|
+    | `frontend-design` | Language-config (JS/TS) | `ui-implementation`, `foundation-feature-implementation` | Aesthetic design guardrails for web UI code generation |
+    | `webapp-testing` | Language-config (JS/TS) | `integration-and-testing` | Web app test automation |
+    | `playwright` | Project-config (web projects) | `e2e-acceptance-test-execution` | Browser automation for E2E testing |
+    | `claude-api` | Project-config (Claude-consuming) | `foundation-feature-implementation`, `core-logic-implementation` | Claude API integration patterns |
+
+    > Skip if no available skills match the project's technology stack. The `recommended_skills` fields remain empty arrays / empty objects — consuming tasks handle absence silently.
+
+11. **Apply Language Customizations to Test Tree**: The blueprint copy already provides the test directory structure — including the fixed bones `test/automated/unit/`, `test/automated/performance/level{1-4}-*/`, `test/audits/{unit,performance/level{1-4}-*,e2e}/`, `test/e2e-acceptance-testing/`, and `test/bug-validation/` (top-level since PF-IMP-871 Phase 2b — formerly under `test/automated/`) — along with tracking files (`test-tracking.md`, `e2e-test-tracking.md`, `performance-test-tracking.md`) and `TE-id-registry.json`. Run `New-TestInfrastructure.ps1 -Scaffold` to layer the language-specific customizations on top:
    ```bash
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/00-setup/New-TestInfrastructure.ps1 -Language "<language>"
    ```
-   This creates: test directory structure, tracking files (`test-tracking.md`, `e2e-test-tracking.md`), `TE-id-registry.json`, shared fixtures, and package markers. See the [Test Infrastructure Guide](/process-framework/guides/03-testing/test-infrastructure-guide.md) for details.
+   This applies: shared fixture file (e.g., `conftest.py` for Python), package marker files (e.g., `__init__.py`), `.gitignore` for E2E workspace/results, and idempotent verification of the tracking files inherited from the blueprint copy. It also creates `test/bug-validation/` if missing (defensive for projects bootstrapped without a current blueprint copy). See the [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md) for details.
+   - **Scaffold vs Update mode**: `-Scaffold` (the default, used here) layers language customizations + defensively creates fixed bones. The companion `-Update` mode (auto-invoked later by `New-FeatureImplementationState.ps1` and `New-WorkflowEntry.ps1`) scaffolds the *variable* parts of the tree — per-feature-category subdirs under `automated/unit/` and per-workflow subdirs under `e2e-acceptance-testing/` — driven by feature-tracking.md + user-workflow-tracking.md. Both modes are idempotent and mutually exclusive (`ParameterSetName`).
    - After running: create native test runner config (e.g., `pytest.ini` for Python)
    - After running: install test dependencies (e.g., `pip install pytest pytest-cov`)
 
@@ -190,26 +232,86 @@ Establishes foundational project configuration and metadata when initializing a 
     - **L2 (topics)**: Leave `values: []` for new projects — L2 becomes useful once any L1 directory exceeds ~15-20 docs. When you're ready, populate with the project's primary domain areas (e.g., `["networking", "storage", "security"]` for an infrastructure platform, `["auth", "payments", "users"]` for an API service). L2 represents **topic/domain area**, not audience segments or document formats.
     - Framework default is appropriate for 95% of projects; skip customization unless your domain strongly suggests otherwise.
 
-13. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](/process-framework/guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
+13. **Set Up CI/CD Infrastructure** (optional): Follow the [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md) to scaffold development tooling:
     - Create pre-commit hooks config (`.pre-commit-config.yaml`)
     - Create dev script (`dev.bat` / `dev.sh`)
     - Create CI pipeline (if using a Git hosting platform)
 
-14. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, documentation taxonomy, and CI/CD setup to human partner for review before finalization
+14. **Set Up SessionStart Hooks**: Add a `SessionStart` hook block to `.claude/settings.json` that automates startup-procedure steps as deterministic side effects rather than agent-honored CLAUDE.md instructions. Anthropic's Opus 4.7 (April 2026) regressed on CLAUDE.md instruction adherence; agents began silently skipping startup steps that the doc instructed but the harness did not enforce ([PF-IMP-854](#)). Moving startup mechanics into hooks sidesteps the regression — the side effects happen whether the agent obeys text instructions or not.
+
+    Three hooks are included by default:
+
+    ```json
+    {
+      "$schema": "https://json.schemastore.org/claude-code-settings.json",
+      "hooks": {
+        "SessionStart": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "pwsh.exe -ExecutionPolicy Bypass -File process-framework/tools/linkWatcher/start_linkwatcher_hook_wrapper.ps1"
+              },
+              {
+                "type": "command",
+                "command": "pwsh.exe -Command \"Write-Output ('Session start: ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))\""
+              },
+              {
+                "type": "command",
+                "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Before any tool call, select a task from process-framework/ai-tasks.md. For purely conversational questions (e.g. what time is it), name *no task — conversational* and proceed. Acknowledge the chosen task in your first reply, even for analytical or meta questions about the framework.\"}}'"
+              }
+            ]
+          }
+        ]
+      }
+    }
+    ```
+
+    What each hook does:
+
+    - **Hook 1 — LinkWatcher startup**: Invokes [start_linkwatcher_hook_wrapper.ps1](../../tools/linkWatcher/start_linkwatcher_hook_wrapper.ps1), which calls the sibling [start_linkwatcher_background.ps1](../../tools/linkWatcher/start_linkwatcher_background.ps1) inside a `Start-Process` + `WaitForExit(8000)` isolation envelope. The wrapper is required because the LinkWatcher daemon inherits stdout handles — invoking the startup script directly from a stdout-capturing hook hangs the session ([documented in the startup script's header](../../tools/linkWatcher/start_linkwatcher_background.ps1)). Idempotent — the startup script detects an already-running instance via lock file and no-ops.
+    - **Hook 2 — Session start timestamp**: Emits a single line `Session start: YYYY-MM-DD HH:mm:ss` into initial context. The agent uses this when calculating session duration for feedback forms (PF-TSK-XXX completion checklists).
+    - **Hook 3 — Task-selection reminder**: Reinforces the framework's task-discipline gate. Edit the `additionalContext` string to add project-specific routing hints if a particular task category is frequently misrouted.
+
+    Settings:
+
+    - **File location**: `.claude/settings.json` (committed to git, team-wide). `.claude/settings.local.json` is gitignored and won't propagate to collaborators.
+    - **Take effect**: only at the *next* session start (the hook config is loaded at session-start time). After saving the file, run `/hooks` in Claude Code or start a new session to activate.
+    - **Verify**: at the next session start, initial context should contain (a) a LinkWatcher startup line, (b) the timestamp line, and (c) the task-selection reminder being applied (the agent acknowledges a task in its first reply).
+    - **If LinkWatcher is not installed for this project**: omit Hook 1. Hooks 2 and 3 still apply.
+
+15. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, documentation taxonomy, and CI/CD setup to human partner for review before finalization
 
 ### Finalization
 
-15. **Verify File Location**: Confirm `project-config.json` is in `doc/` and language config is in `languages-config`
+16. **Verify File Location**: Confirm `project-config.json` is in `doc/` and language config is in `languages-config`
 
-16. **Test Configuration**: Verify the full setup works:
+17. **Test Configuration**: Verify the full setup works:
     - `Run-Tests.ps1 -ListCategories` shows test categories
     - `Run-Tests.ps1 -Quick` runs successfully (if test files exist)
     - `pre-commit run --all-files` passes (if pre-commit was set up)
     - `dev test` works (if dev script was created)
 
-17. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
+18. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
 
-18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+19. **Register Project in Appdev Central Registry**: This step assigns the project a stable `PRJ-NNN` ID and adds it to appdev's `project-registry.json`. The script also writes the assigned `project_id` back into the project's own `doc/project-config.json`, which downstream framework scripts (state-creating, ID-assigning) read to route appropriately.
+
+    > **⚙️ This step runs from `cwd=appdev`**, NOT from the new project's cwd. Temporarily switch contexts, run the command, then return to the project cwd for the remaining task completion items.
+
+    From `cwd=appdev`:
+    ```bash
+    pwsh.exe -ExecutionPolicy Bypass -File blueprint/process-framework/scripts/file-creation/support/Register-Project.ps1 -Path "<absolute-path-to-new-project>" -Name "<project-name>" -AppdevPath "<absolute-path-to-appdev>" -Confirm:\$false
+    ```
+
+    The script:
+    - Assigns the next `PRJ-NNN` from `<appdev>/process-framework-central/PF-id-registry-central.json` (PRJ pool).
+    - Adds an entry to `<appdev>/process-framework-central/project-registry.json`.
+    - Writes `"project_id": "PRJ-NNN"` into `<new-project>/doc/project-config.json`.
+    - Creates `<appdev>/process-framework-central/per-project-migrations/PRJ-NNN/` with a `pending-migrations.md` skeleton.
+
+    **🚨 CHECKPOINT**: After the script completes, return to `cwd=Project` and confirm `project_id: "PRJ-NNN"` appears in the new project's `doc/project-config.json`.
+
+20. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -224,6 +326,8 @@ Establishes foundational project configuration and metadata when initializing a 
 - **Language config** (if new) - `process-framework/languages-config/{language}/{language}-config.json` with language-specific test runner commands
 - **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-tracking.md`
 - **CI/CD infrastructure** (optional) - Pre-commit hooks, dev script, CI pipeline
+- **SessionStart hooks** - `.claude/settings.json` `SessionStart` hook block with three commands: LinkWatcher background startup (via wrapper), session start timestamp, and task-selection reminder (PF-IMP-854)
+- **Project registration** - `PRJ-NNN` ID assigned in appdev's `project-registry.json`; `project_id` field written into the project's `doc/project-config.json`; per-project migration ledger created at `<appdev>/process-framework-central/per-project-migrations/PRJ-NNN/`
 
 ## State Tracking
 
@@ -239,9 +343,15 @@ Establishes foundational project configuration and metadata when initializing a 
   - Purpose: Language-specific command configurations for test runner, coverage, and lint tools
   - Lifecycle: Permanent (never archived)
 
+- **Per-project migration ledger** (PERMANENT, in appdev):
+  - Location: `<appdev>/process-framework-central/per-project-migrations/PRJ-NNN/pending-migrations.md`
+  - Purpose: Tracks per-project working-doc migrations queued by Structure Change task; applied by Framework Rollout Mode C
+  - Lifecycle: Permanent; entries added/resolved over time by Structure Change + Framework Rollout work
+
 ### Existing State Files Updated
 
-None — this task creates foundational configuration before any state tracking files exist.
+- **appdev's `process-framework-central/project-registry.json`**: a new entry is appended for the registered project (keyed by `PRJ-NNN`).
+- **appdev's `process-framework-central/PF-id-registry-central.json`**: the `PRJ` prefix's `nextAvailable` counter is incremented.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -256,7 +366,7 @@ Before considering this task finished:
   - [ ] Remote configured (if applicable)
   - [ ] `project-config.json` file exists at `doc/project-config.json`
   - [ ] All required fields are populated with project-specific values (no `[...]` placeholders remain)
-  - [ ] JSON syntax is valid (file can be parsed without errors)
+  - [ ] `Validate-ProjectConfig.ps1` reports `✅ project-config.json is valid` (valid JSON, load-bearing fields populated, no leftover placeholders)
   - [ ] Paths use correct format (double backslashes for absolute Windows paths, forward slashes for relative paths)
   - [ ] Project metadata accurately reflects the technology stack and setup
 
@@ -269,10 +379,16 @@ Before considering this task finished:
   - [ ] Shared fixtures/setup file exists (e.g., `conftest.py`)
   - [ ] Pre-commit hooks work (if configured): `pre-commit run --all-files`
 
+- [ ] **Project Registration**: Confirm the project is registered in appdev's central registry
+  - [ ] `project_id: "PRJ-NNN"` field is present in `doc/project-config.json`
+  - [ ] Appdev's `process-framework-central/project-registry.json` contains an entry for the new `PRJ-NNN`
+  - [ ] Per-project migration ledger directory exists at `<appdev>/process-framework-central/per-project-migrations/PRJ-NNN/`
+
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for task ID "PF-TSK-059" and context "Project Initiation"
 
 ## Next Tasks
 
+- [**Codebase Feature Discovery (PF-TSK-064)**](codebase-feature-discovery.md) - When adopting the framework into an **existing codebase**: Discovery's source-structure step (Step 7.f) consumes the `project-config.json` and `source-code-layout.md` produced here.
 - [**Framework Domain Adaptation**](../support/framework-domain-adaptation.md) - For comprehensive framework customization beyond configuration file (adapting task categories, document types, ID prefixes)
 - **Begin Development Workflow** - Use appropriate task from [AI Tasks Registry](../../ai-tasks.md) based on your next activity (feature planning, implementation, etc.)
 

@@ -48,7 +48,10 @@ $SubModules = @(
     "StateFileManagement.psm1",
     "BatchProcessing.psm1",
     "AdvancedUtilities.psm1",
-    "ExecutionVerification.psm1"
+    "ExecutionVerification.psm1",
+    "Naming.psm1",
+    "TestRunner.psm1",
+    "AssessmentParsing.psm1"
 )
 
 Write-Verbose "Loading Common-ScriptHelpers v3.0 (Modularized Architecture)"
@@ -88,11 +91,18 @@ if ($LoadedFunctions.Count -gt 0) {
     # Core functions
     $CoreFunctions = @(
         'Get-ProjectRoot',
+        'Get-ProcessFrameworkPath',
+        'Get-CentralFrameworkPath',
         'Import-ProjectModule',
         'New-ProjectId',
         'Get-ProjectIdDirectory',
         'Get-ProjectConfig',
-        'Get-DomainConfig'
+        'Get-DomainConfig',
+        'Get-StateTrackingContext',
+        'Resolve-DocPath',
+        'Resolve-TrackingFilePath',
+        'Test-MSYSPathMangled',
+        'Get-EffectiveWhatIf'
     )
 
     # Output formatting functions
@@ -154,8 +164,14 @@ if ($LoadedFunctions.Count -gt 0) {
         'Get-SoakStatus'
     )
 
+    # Test runner helpers (PF-PRO-035 Framework Self-Testing extension Phase 3a)
+    $TestRunnerFunctions = @(
+        'Resolve-TestLanguageRunner',
+        'Get-TestRunnerLanguageConfig'
+    )
+
     # Combine all functions for export
-    $AllExportedFunctions = $CoreFunctions + $OutputFunctions + $DocumentFunctions + $StateFunctions + $BatchFunctions + $AdvancedFunctions + $VerificationFunctions
+    $AllExportedFunctions = $CoreFunctions + $OutputFunctions + $DocumentFunctions + $StateFunctions + $BatchFunctions + $AdvancedFunctions + $VerificationFunctions + $TestRunnerFunctions
 }
 
 # Export all functions to maintain backward compatibility

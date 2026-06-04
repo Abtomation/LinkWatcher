@@ -3,10 +3,11 @@ id: PF-TSK-012
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 3.0
+version: 3.1
 created: 2025-01-15
-updated: 2026-04-10
+updated: 2026-05-16
 change_notes: "v3.0 - Removed Routing Phase entirely (PF-IMP-486/PF-EVR-012). E2E and performance routing eliminated — cannot be reliably decided pre-code from single-feature scope. E2E relies on cross-cutting milestone trigger; performance relies on decision matrix at implementation time. Task now focused purely on automated test specification."
+description: "Create comprehensive test specifications from TDDs"
 ---
 
 # Test Specification Creation
@@ -22,36 +23,21 @@ Create automated test specifications from existing Technical Design Documents (T
 **Focus Areas**: Test coverage, edge cases, quality gates, behavioral validation
 **Communication Style**: Emphasize comprehensive testing and quality metrics, ask about edge cases and failure scenarios
 
-## When to Use
-
-- After a Technical Design Document (TDD) has been created for a feature
-- Before beginning Test-First Development Implementation of a feature
-- When transitioning from design phase to implementation phase
-- When preparing comprehensive test context for AI agent sessions
-- When implementing features that require behavioral validation alongside architectural guidance
-- When establishing test-driven development practices for complex features
-
-## When NOT to Use
-
-- For assessment/documentation features that don't produce testable code (mark as "🚫 No Test Required" in feature tracking)
-- For pure analysis tasks that only generate documentation
-- For architectural assessment features that establish baselines rather than implement functionality
-
 ## Information Flow
 
 > **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md)
 
 ### Inputs from Other Tasks
 
-- **[FDD Creation](/process-framework/tasks/02-design/fdd-creation-task.md)** (Tier 2+): Functional requirements, acceptance criteria, user workflows, business rules
-- **[Feature Tier Assessment](/process-framework/tasks/01-planning/feature-tier-assessment-task.md)**: Complexity tier, test depth requirements, quality attribute priorities
-- **[TDD Creation](/process-framework/tasks/02-design/tdd-creation-task.md)**: Technical architecture, component interactions, quality attribute requirements, implementation approach
-- **[API Design](/process-framework/tasks/02-design/api-design-task.md)**: API contracts, endpoint specifications, request/response schemas
-- **[Database Schema Design](/process-framework/tasks/02-design/database-schema-design-task.md)**: Data validation rules, security policies, performance requirements
+- **[FDD Creation](../02-design/fdd-creation-task.md)** (Tier 2+): Functional requirements, acceptance criteria, user workflows, business rules
+- **[Feature Tier Assessment](../01-planning/feature-tier-assessment-task.md)**: Complexity tier, test depth requirements, quality attribute priorities
+- **[TDD Creation](../02-design/tdd-creation-task.md)**: Technical architecture, component interactions, quality attribute requirements, implementation approach
+- **[API Design](../02-design/api-design-task.md)**: API contracts, endpoint specifications, request/response schemas
+- **[Database Schema Design](../02-design/database-schema-design-task.md)**: Data validation rules, security policies, performance requirements
 
 ### Outputs to Other Tasks
 
-- **[Integration and Testing](/process-framework/tasks/04-implementation/integration-and-testing.md)**: Test cases, test data, mock strategies, validation criteria, test implementation roadmap
+- **[Integration and Testing](../04-implementation/integration-and-testing.md)**: Test cases, test data, mock strategies, validation criteria, test implementation roadmap
 
 ### Cross-Reference Standards
 
@@ -91,21 +77,21 @@ When referencing other tasks' outputs in Test Specifications:
 
 - **Critical (Must Read):**
 
-  - [Functional Design Document](/doc/functional-design/fdds) - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
-  - [Technical Design Document](/doc/technical/tdd) - The TDD for the feature being specified
-  - [Tier Assessments](/doc/documentation-tiers/assessments) - Complexity assessment to determine test depth
-  - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
+  - [Functional Design Document](../../../doc/functional-design/fdds) - For Tier 2+ features, the FDD containing acceptance criteria and user flows that inform test scenarios
+  - [Technical Design Document](../../../doc/technical/tdd) - The TDD for the feature being specified
+  - [Tier Assessments](../../../doc/documentation-tiers/assessments) - Complexity assessment to determine test depth
+  - [Development Guide](../../guides/04-implementation/development-guide.md) - Testing standards and practices
 
 - **Important (Load If Space):**
 
   - Pytest markers (via `test_query.py --feature X.Y.Z`) - Current test file metadata
-  - [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Current test implementation status
-  - [Existing Test Structure](/test/) - Current test organization and patterns
+  - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
+  - [Existing Test Structure](../../../test) - Current test organization and patterns
 
 - **Reference Only (Access When Needed):**
-  - [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Feature development status
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
-  - [TE ID Registry](/test/TE-id-registry.json) - Test document ID counter management
+  - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature development status
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [TE ID Registry](../../../test/TE-id-registry.json) - Test document ID counter management
 
 ## Process
 
@@ -159,7 +145,7 @@ When referencing other tasks' outputs in Test Specifications:
 12. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
 
 13. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
-    - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
+    - **Test File** references (e.g., `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `src/linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs` to project root is `../../../doc`
@@ -170,7 +156,7 @@ When referencing other tasks' outputs in Test Specifications:
 
 15. **Review Test Coverage**: Ensure all TDD components have corresponding test specifications
 16. **Validate Test Feasibility**: Confirm all specified tests can be implemented with available tools
-17. **Update State Tracking**: Add feature section to [Test Tracking](/test/state-tracking/permanent/test-tracking.md) if missing. Update [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) Test Status to "📋 Specs Created".
+17. **Update State Tracking**: Add feature section to [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) if missing. Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status to "📋 Specs Created". The Test Specification document link itself is inserted into the per-feature state file's §4 Documentation Inventory by `New-TestSpecification.ps1` (PF-PRO-002 / PF-IMP-760).
 18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -183,10 +169,11 @@ When referencing other tasks' outputs in Test Specifications:
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — Update Test Status to "📋 Specs Created" and add Test Spec link
-- [TE ID Registry](/test/TE-id-registry.json) — Update `TE-TSP.nextAvailable` counter after creating specifications
-- [Test Documentation Map](/test/TE-documentation-map.md) — Add new test specification entries to the Test Specifications section
-- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Add feature section if missing
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Update Test Status to "📋 Specs Created"
+- Per-feature state file (`doc/state-tracking/features/<id>-implementation-state.md`) — Test Specification row inserted into §4 Documentation Inventory by `New-TestSpecification.ps1` (PF-PRO-002 / PF-IMP-760)
+- [TE ID Registry](../../../test/TE-id-registry.json) — Update `TE-TSP.nextAvailable` counter after creating specifications
+- [Test Documentation Map](../../../test/TE-documentation-map.md) — Add new test specification entries to the Test Specifications section
+- [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) — Add feature section if missing
 
 **Note**: If a feature is determined to not require tests (assessment/documentation features), update the Feature Tracking Test Status directly to "🚫 No Test Required" instead of using this task.
 
@@ -202,10 +189,11 @@ Before considering this task finished:
   - [ ] Component-to-test mapping completed (TDD components → unit/integration/component tests)
   - [ ] Mock Requirements Documentation completed
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — Test Status updated to "📋 Specs Created" and Test Spec link added
-  - [ ] [TE ID Registry](/test/TE-id-registry.json) — `TE-TSP.nextAvailable` counter incremented
-  - [ ] [Test Documentation Map](/test/TE-documentation-map.md) — New test spec entries added to Test Specifications section
-  - [ ] [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — Feature section added if missing
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Test Status updated to "📋 Specs Created"
+  - [ ] Per-feature state file §4 Documentation Inventory — Test Specification row inserted by `New-TestSpecification.ps1` (PF-PRO-002 / PF-IMP-760)
+  - [ ] [TE ID Registry](../../../test/TE-id-registry.json) — `TE-TSP.nextAvailable` counter incremented
+  - [ ] [Test Documentation Map](../../../test/TE-documentation-map.md) — New test spec entries added to Test Specifications section
+  - [ ] [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) — Feature section added if missing
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-012" and context "Test Specification Creation"
 
 ## Next Tasks

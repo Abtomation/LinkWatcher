@@ -112,7 +112,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 | setup_logging | Setup | `test_setup_logging` — returns LinkWatcherLogger, get_logger returns same | None |
 | get_logger | Default | `test_get_logger_default` — creates default INFO-level logger | None |
 
-**Test File**: [`test/automated/unit/test_logging.py`](../../../test/automated/unit/test_logging.py) (20 methods)
+**Test File**: [`test/automated/unit/test_logging.py`](../../automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_logging.py) (20 methods)
 
 ### Unit Tests — Advanced Logging
 
@@ -137,7 +137,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
 |-----------|-----------|----------------|----------|
 | Logging overhead | `test_logging_overhead` | 1000 log ops < 1 second | None |
 
-**Test File**: [`test/automated/unit/test_advanced_logging.py`](../../../test/automated/unit/test_advanced_logging.py) (6 methods)
+**Test File**: [`test/automated/unit/test_advanced_logging.py`](../../automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_advanced_logging.py) (6 methods)
 
 ## Test Implementation Roadmap
 
@@ -160,6 +160,7 @@ The Logging System provides `LinkWatcherLogger` with domain-specific methods, `L
    - [ ] Config hot-reload with daemon thread (TDD: polling mtime every 1s, applies within 1 second)
    - [ ] Invalid config handling (TDD: malformed config → ERROR, last valid retained)
    - [ ] Log file rotation at 10MB (TDD: RotatingFileHandler with 5 backups)
+   - [x] Rotation-failure resilience: a failed rename backs off instead of retrying every emit, and escalates one CRITICAL after persistent failure (PD-BUG-099; `TestTimestampRotatingFileHandlerRotationFailure`)
    - [ ] File handler failure fallback to console-only (TDD: independent handlers)
    - [ ] `cache_logger_on_first_use` behavior (TDD: structlog immutable after first call)
    - [ ] Domain-specific methods: `links_updated()`, `scan_progress()`, `operation_stats()` (only `file_moved`/`file_deleted` tested)

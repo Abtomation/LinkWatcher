@@ -7,6 +7,7 @@ created: 2026-02-20
 updated: 2026-02-20
 related_task: PF-TSK-064,PF-TSK-013,PF-TSK-067
 guide_title: Feature Granularity Guide
+description: "Defines well-scoped features and provides practical tests for validating feature granularity"
 ---
 
 # Feature Granularity Guide

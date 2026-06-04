@@ -8,6 +8,7 @@ updated: [LAST_UPDATE_DATE]
 feature_name: [Feature Name]
 feature_id: [Feature ID if available]
 tier: 1
+description: "Lightweight implementation plan template for Tier 1 features"
 ---
 
 # [Feature Name] - Implementation Plan
@@ -91,7 +92,7 @@ tier: 1
 
 ## Related Documentation
 
-- [Feature Implementation State](/doc/state-tracking/features/[feature-id]-implementation-state.md)
+- [Feature Implementation State](../../../doc/state-tracking/features/[feature-id]-implementation-state.md)
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 - [Task: Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md)
 

@@ -2,10 +2,11 @@
 id: PF-TSK-020
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.4
 created: 2025-07-19
-updated: 2026-03-02
+updated: 2026-05-16
 change_notes: "v1.2 - Added Information Flow section for IMP-097/IMP-098"
+description: "Design comprehensive API contracts and specifications before implementation begins"
 ---
 
 # API Design Task
@@ -41,15 +42,6 @@ Design comprehensive API contracts and specifications before implementation begi
 **Mindset**: Contract-first, integration-focused, standards-aware
 **Focus Areas**: API design, integration patterns, versioning, backward compatibility
 **Communication Style**: Discuss API evolution and backward compatibility, ask about integration requirements and consumer needs
-
-## When to Use
-
-- When the feature status in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) is `🔌 Needs API Design`
-- Before implementing any feature that requires new API endpoints or modifies existing ones
-- When creating microservices or service interfaces that will be consumed by other components
-- After completing System Architecture Review but before TDD Creation
-- When integrating with external APIs or third-party services
-- Prerequisites: Feature requirements defined, system architecture decisions made, Feature Tier Assessment completed
 
 ## Information Flow
 
@@ -107,19 +99,19 @@ When referencing this task's outputs in other tasks:
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform API design
-  - [Feature Requirements](/doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
-  - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md))
+  - [Feature Requirements](../../../doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality the API must support and confirming API Design is required
+  - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md))
   - **System Architecture Review Results** - Architecture decisions that impact API design (if a review was conducted)
 
 - **Important (Load If Space):**
 
   - **Existing API Documentation** - Current API patterns and conventions for the project (if available)
-  - [Technical Design Documents](/doc/technical/tdd) - Related technical designs
+  - [Technical Design Documents](../../../doc/technical/tdd) - Related technical designs
 
 - **Reference Only (Access When Needed):**
   - [API Design Best Practices](https://restfulapi.net/) - Industry standards for REST API design
   - [OpenAPI Specification](https://swagger.io/specification/) - Standard for API documentation
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -133,7 +125,7 @@ When referencing this task's outputs in other tasks:
 
 ### Preparation
 
-1. **Verify API Design Requirement**: Confirm in the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document that the API Design column shows "Yes" for this feature
+1. **Verify API Design Requirement**: Confirm the feature's Status in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) is `🔌 Needs API Design` (set by Tier Assessment when API design is required for this feature)
 2. Review the [Feature Tier Assessment](../../../doc/documentation-tiers/assessments) of this feature that determined API design is needed
 3. Review feature requirements and understand the functionality that needs API support
 4. Examine existing API patterns and conventions in the project
@@ -152,11 +144,9 @@ When referencing this task's outputs in other tasks:
    **✅ AUTOMATION FEATURES:**
 
    - Creates API specification document with proper ID and structure
-   - **Automatically updates feature tracking** with intelligent replacement/append logic:
-     - **First API specification**: Replaces "Yes" with clickable link to API specification
-     - **Additional API specifications**: Appends with " • " separator to existing links
-   - Generates correct relative paths for clickable links in feature tracking
-   - Adds timestamped automation notes to feature tracking
+   - **Automatically inserts an API Specification row** into the per-feature state file's §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760). Additional API specs become additional rows.
+   - **Automatically updates feature-tracking.md** Status to the next gate (`📝 Needs TDD` / `🔧 Needs Impl Plan`)
+   - Adds timestamped automation notes to feature-tracking.md Notes column
    - Provides comprehensive feedback and next steps
 
 8. **Define API Contract**: Specify endpoints, HTTP methods, URL patterns, authentication, and error handling following RESTful conventions
@@ -171,7 +161,7 @@ When referencing this task's outputs in other tasks:
     ../../scripts/file-creation/02-design/New-APIDataModel.ps1 -ModelName "[API Name] Request" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
     ```
 
-    **✅ AUTOMATED**: Feature tracking API Design column automatically updated with intelligent replacement/append logic
+    **✅ AUTOMATED**: API Data Model row inserted into the per-feature state file's §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
 
 10. **🔄 SEMI-AUTOMATED - Create Response Data Model**: Generate detailed response schema with field definitions (only if not reusing existing model):
 
@@ -180,7 +170,7 @@ When referencing this task's outputs in other tasks:
     ../../scripts/file-creation/02-design/New-APIDataModel.ps1 -ModelName "[API Name] Response" -ModelDescription "[Brief description]" -FeatureId "[FeatureId]"
     ```
 
-    **✅ AUTOMATED**: Feature tracking API Design column automatically updated with intelligent replacement/append logic
+    **✅ AUTOMATED**: API Data Model row inserted into the per-feature state file's §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
 
 11. **🤖 AUTOMATED - Create API Documentation** (optional): If developer-facing documentation is needed, generate it from template:
 
@@ -197,9 +187,7 @@ When referencing this task's outputs in other tasks:
 ### Finalization
 
 14. **Validate Complete Design**: Ensure API specification and data models work together cohesively
-15. **✅ AUTOMATED - Feature Tracking Updates**: API specification and data model links automatically managed:
-    - **../../scripts/file-creation/New-APISpecification.ps1**: Replaces "Yes" with first API spec, appends additional specs with " • " separator
-    - **../../scripts/file-creation/New-APIDataModel.ps1**: Appends data model links with " • " separator using intelligent replacement/append logic
+15. **✅ AUTOMATED - State File Updates**: API specification and data model rows automatically inserted into the per-feature state file's §4 Documentation Inventory by `New-APISpecification.ps1` and `New-APIDataModel.ps1` (via the shared `Invoke-DesignArtifactCreation` core, PF-PRO-002 / PF-IMP-760). Feature-tracking.md Status auto-advances to next gate.
 16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
@@ -250,8 +238,9 @@ Bearer token authentication.
 The following state files must be updated as part of this task:
 
 - **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md):
-  - API Design column: Replaces "Yes" with first API spec link, appends additional specs with " • " separator
-  - Status: set to `📝 Needs TDD` (API Design is always the last design step before TDD)
+  - Status: set to `📝 Needs TDD` (Tier 2+ — API Design is the last design step before TDD) or `🔧 Needs Impl Plan` (Tier 1 — Tier 1 skips TDD)
+- **✅ AUTOMATED** - Per-feature state file (`doc/state-tracking/features/<id>-implementation-state.md`):
+  - API Specification and API Data Model rows inserted into §4 Documentation Inventory by `New-APISpecification.ps1` / `New-APIDataModel.ps1` (PF-PRO-002 / PF-IMP-760)
 - **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Record any API design decisions that create technical debt
 
 ## ⚠️ MANDATORY Task Completion Checklist
@@ -265,8 +254,7 @@ Before considering this task finished:
   - [ ] Request Data Model created with comprehensive validation rules and examples
   - [ ] Response Data Model created with complete structure and field definitions
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) API Design column updates:
-    - [x] **✅ AUTOMATED**: API specification and data model links automatically managed (intelligent replacement/append logic)
+  - [ ] **✅ AUTOMATED** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Status updated to next gate; API Specification and API Data Model rows inserted into per-feature state file's §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
   - [ ] **🔧 MANUAL** - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any design decisions creating technical debt
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-020" and context "API Design Task"
 

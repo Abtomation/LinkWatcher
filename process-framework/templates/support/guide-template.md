@@ -8,6 +8,7 @@ updated: 2026-04-03
 status: Active
 creates_document_type: Process Framework
 creates_document_category: Guide
+description: "Template for creating new guides"
 ---
 
 # [Guide Title]

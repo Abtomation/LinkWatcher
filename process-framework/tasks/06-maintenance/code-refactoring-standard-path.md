@@ -1,3 +1,10 @@
+---
+variant_group: code-refactoring-paths
+variant_siblings:
+  - code-refactoring-lightweight-path.md
+description: "Process steps and checklist for medium/complex refactorings (multi-file, architectural)"
+---
+
 # Code Refactoring — Standard Path
 
 > **Parent task**: [Code Refactoring Task](code-refactoring-task.md) (PF-TSK-022)
@@ -32,11 +39,13 @@
 
    ```powershell
    # Navigate to state tracking directory
-   Set-Location "process-framework-local/state-tracking"
+   Set-Location "doc/state-tracking"
 
    # Create temporary tracking file for refactoring work
-   ../../scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "[Refactoring Scope] Refactoring" -Description "Refactoring work for [specific component/feature]"
+   ../../scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "[Refactoring Scope] Refactoring" -Variant Refactoring -Description "Refactoring work for [specific component/feature]"
    ```
+
+   > **Variant note**: Pass `-Variant Refactoring` to instantiate the refactoring-specific template ([temp-refactoring-state-template.md](../../templates/support/temp-refactoring-state-template.md) — PF-TEM-076). It includes the mandatory Test Baseline anchor (Step 5), Phase 0/A/B/C/D structure, bug-discovery log, and the 3-phase state-file-update closure. Omitting the flag gets the generic TaskCreation template, which is built for new framework infrastructure (task definitions, ID registries, context maps) and is ~80% misfit for refactor work.
 
    - Document refactoring progress and blockers in the chosen tracking surface
    - Update status regularly during implementation
@@ -60,7 +69,7 @@
      New-TestFile.ps1 -FeatureId "X.Y.Z" -TestType "unit" -Component "ComponentName"
      ```
    - Characterization tests capture *current* behavior (even if imperfect) — they are a safety net, not a quality judgment.
-   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 7. **Create Baseline Measurements**: Record current performance metrics and code quality indicators
 8. **🚨 CHECKPOINT**: Present analysis findings, baseline metrics, and test coverage status to human partner
 
@@ -78,7 +87,7 @@
    process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "[Decision Title]" -Context "[Refactoring context and need for decision]"
    ```
 
-   Follow the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) for content customization.
+   Follow the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) for content customization.
 
    **When to Create ADRs During Refactoring**:
 
@@ -171,7 +180,7 @@ When bugs are discovered during refactoring, follow this decision process:
 
    > **Scope check**: If test gaps are systemic (spanning multiple components or features beyond the refactoring scope), document the gap and recommend [Test Specification Creation (PF-TSK-012)](../03-testing/test-specification-creation-task.md) as a follow-up rather than addressing it inline.
 
-   After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+   After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 
 17. **Report Discovered Bugs**: If bugs are identified during refactoring:
 
@@ -255,5 +264,5 @@ When bugs are discovered during refactoring, follow this decision process:
   - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
   - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 13)
   - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated for architectural changes, refactoring plan archived to `doc/refactoring/plans/archive`
-  - [ ] If file moves changed the source directory structure: run `New-SourceStructure.ps1 -Update` to refresh the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) directory tree
+  - [ ] If file moves changed the source directory structure: run `New-SourceStructure.ps1 -Update` to refresh the [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) directory tree
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"

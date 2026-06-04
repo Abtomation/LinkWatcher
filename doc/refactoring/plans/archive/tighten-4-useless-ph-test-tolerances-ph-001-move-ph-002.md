@@ -25,7 +25,7 @@ priority: Medium
 
 ## Item 1: TD249 — Tighten 4 useless PH-test tolerances
 
-**Scope**: Tighten 4 PH-test tolerance assertions in `test/automated/performance/test_large_projects.py` from 30x-60x of the post-warmup measured baselines to guide-aligned 5-10x ratios. The current loose tolerances are decoupled from real performance — a 10x regression would still pass them, defeating the point of the assertion. Mirror of TD215 / PD-REF-196 work for BM tests. **Dim**: TST. The fix changes only test thresholds (numeric constants); no production code is affected.
+**Scope**: Tighten 4 PH-test tolerance assertions in `test/automated/performance/level3-scale/test_large_projects.py` from 30x-60x of the post-warmup measured baselines to guide-aligned 5-10x ratios. The current loose tolerances are decoupled from real performance — a 10x regression would still pass them, defeating the point of the assertion. Mirror of TD215 / PD-REF-196 work for BM tests. **Dim**: TST. The fix changes only test thresholds (numeric constants); no production code is affected.
 
 **Post-warmup baselines** (single measurement, 2026-04-29, on the post-TD244+TD246 code; PF-TSK-085 re-baseline still pending and will replace these as authoritative):
 

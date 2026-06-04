@@ -34,7 +34,7 @@
     "featureMarkerPattern": "pytest\\.mark\\.feature\\([\"']([^\"']+)[\"']\\)"
   },
   "directoryStructure": {
-    "sourceRoot": "src/linkwatcher",
+    "sourceRoot": "",
     "sharedDirectory": "",
     "directoryNaming": "snake_case",
     "fileNaming": "snake_case",
@@ -44,7 +44,8 @@
     ],
     "layers": {},
     "sublayerThreshold": 8,
-    "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files"
+    "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files",
+    "importRewriteTool": "libcst"
   },
   "headerComment": {
     "open": "\"\"\"",

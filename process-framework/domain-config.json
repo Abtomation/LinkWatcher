@@ -91,7 +91,7 @@
         "change_notes"
       ],
       "field_values": {
-        "id_pattern": "^PF-TSK-\\d{3}$",
+        "id_pattern": "^PF-TSK-\\d+$",
         "type": [
           "Process Framework"
         ],
@@ -121,10 +121,13 @@
         "creates_document_prefix",
         "creates_document_version",
         "change_notes",
-        "workflow_phase"
+        "workflow_phase",
+        "task_name",
+        "parent_state",
+        "feature_id"
       ],
       "field_values": {
-        "id_pattern": "^(PF-TEM-\\d{3}|TE-STA-\\d{3})$",
+        "id_pattern": "^(PF-TEM-\\d+|TE-STA-\\d+)$",
         "type": [
           "Process Framework"
         ],
@@ -157,7 +160,7 @@
         "related_script"
       ],
       "field_values": {
-        "id_pattern": "^(PF-GDE-\\d{3}|PF-MTH-\\d{3})$",
+        "id_pattern": "^(PF-GDE-\\d+|PF-MTH-\\d+)$",
         "type": [
           "Process Framework"
         ],
@@ -182,7 +185,7 @@
         "workflow_phase"
       ],
       "field_values": {
-        "id_pattern": "^PF-VIS-\\d{3}$",
+        "id_pattern": "^PF-VIS-\\d+$",
         "type": [
           "Process Framework"
         ],

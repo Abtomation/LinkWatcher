@@ -7,6 +7,7 @@ created: 2023-06-15
 updated: 2026-03-27
 creates_document_type: Product Documentation
 creates_document_category: Architecture Decision Records
+description: "Template for Architecture Decision Records"
 ---
 
 # ADR-NNNN: [Title]

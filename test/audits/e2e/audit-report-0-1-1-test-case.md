@@ -5,7 +5,7 @@ category: Test Audit Report
 version: 1.0
 created: 2026-04-16
 updated: 2026-04-16
-test_file_path: test/e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-020-stop-during-idle/test-case.md
+test_file_path: test/e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-020-stop-during-idle/test-case.md
 auditor: AI Agent
 feature_id: 0.1.1
 audit_date: 2026-04-16
@@ -20,7 +20,7 @@ audit_date: 2026-04-16
 | **Feature ID** | 0.1.1, 2.2.1, 0.1.2 |
 | **Test Case ID** | TE-E2E-020 |
 | **Test Group** | TE-E2G-010 (Graceful Shutdown) |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/graceful-shutdown/TE-E2E-020-stop-during-idle/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-020-stop-during-idle/` |
 | **Workflow** | WF-008: Graceful Shutdown — No Corrupted Files |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-16 |

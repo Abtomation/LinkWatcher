@@ -7,6 +7,7 @@ created: 2026-03-22
 updated: 2026-03-22
 related_task: PF-TSK-014,PF-TSK-008
 guide_title: CI-CD Setup Guide
+description: "Guide for scaffolding CI/CD infrastructure (pipelines, pre-commit hooks, dev scripts)"
 ---
 
 # CI/CD Setup Guide
@@ -94,7 +95,7 @@ Create `dev.bat` (Windows) or `dev.sh` (Unix) for shortcut commands:
 
 ```batch
 @echo off
-if "%1"=="test" python -m pytest test/automated/unit/ test/automated/parsers/ -x -q --tb=short
+if "%1"=="test" python -m pytest test/automated/unit/ -x -q --tb=short
 if "%1"=="test-all" python -m pytest test/automated/ -q --tb=short
 if "%1"=="coverage" python -m pytest test/automated/ --cov=YOUR_MODULE --cov-report=html --cov-report=term-missing -q --tb=short
 if "%1"=="lint" python -m flake8 YOUR_MODULE/ test/ --max-line-length=100
@@ -179,5 +180,5 @@ act -j test
 ## Related Resources
 
 - [Test Infrastructure Guide](../03-testing/test-infrastructure-guide.md) — Test directory structure, tracking, and scaffolding (complementary to this guide)
-- [Release & Deployment Task](/process-framework/tasks/07-deployment/release-deployment-task.md) — Release process using the CI/CD infrastructure
+- [Release & Deployment Task](../../tasks/07-deployment/release-deployment-task.md) — Release process using the CI/CD infrastructure
 - [Development Guide](../04-implementation/development-guide.md) — Development best practices

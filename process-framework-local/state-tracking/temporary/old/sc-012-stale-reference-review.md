@@ -154,13 +154,13 @@ All clean — LinkWatcher already updated all references to `src/linkwatcher/`. 
 
 ## 18. Test Files (9 files)
 
-- [F] `test/audits/core-features/audit-report-2-1-1-test-json.md` — Clean
-- [F] `test/audits/core-features/audit-report-2-1-1-test-markdown.md` — Clean
-- [F] `test/audits/core-features/audit-report-2-1-1-test-parser.md` — Clean
-- [F] `test/audits/core-features/audit-report-2-1-1-test-python.md` — Clean
-- [F] `test/audits/core-features/audit-report-2-1-1-test-yaml.md` — Clean
-- [F] `test/audits/core-features/audit-report-6-1-1-test-validator.md` — Clean
-- [F] `test/audits/foundation/audit-report-0-1-3-test-config.md` — Clean
+- [F] `test/audits/unit/2-link-parsing-update/2-0-link-parsing-update/audit-report-2-1-1-test-json.md` — Clean
+- [F] `test/audits/unit/2-link-parsing-update/2-0-link-parsing-update/audit-report-2-1-1-test-markdown.md` — Clean
+- [F] `test/audits/unit/2-link-parsing-update/2-0-link-parsing-update/audit-report-2-1-1-test-parser.md` — Clean
+- [F] `test/audits/unit/2-link-parsing-update/2-0-link-parsing-update/audit-report-2-1-1-test-python.md` — Clean
+- [F] `test/audits/unit/2-link-parsing-update/2-0-link-parsing-update/audit-report-2-1-1-test-yaml.md` — Clean
+- [F] `test/audits/unit/6-link-validation-reporting/6-0-link-validation-reporting/audit-report-6-1-1-test-validator.md` — Clean
+- [F] `test/audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-3-test-config.md` — Clean
 - [F] `test/automated/conftest.py` — L19: comment listing dir names to avoid in test strings
 - [B] `test/state-tracking/permanent/test-tracking.md` — L107: coverage notation (PD-BUG-093)
 

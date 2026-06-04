@@ -2,9 +2,10 @@
 id: PF-TSK-032
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-08-15
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for code quality standards, SOLID principles, and best practices adherence"
 ---
 
 # Code Quality Standards Validation
@@ -19,14 +20,6 @@ Systematically validates selected features for adherence to code quality standar
 **Mindset**: Detail-oriented, standards-focused, improvement-oriented
 **Focus Areas**: Code quality metrics, SOLID principles, coding best practices, maintainability assessment
 **Communication Style**: Provide specific examples of quality issues with concrete improvement suggestions, ask about quality trade-offs when multiple approaches exist
-
-## When to Use
-
-- When validating selected features for code quality as part of the validation framework
-- Before major refactoring efforts to establish baseline quality metrics
-- When investigating code maintainability issues or technical debt
-- As part of regular code quality assessments
-- When establishing coding standards for new team members
 
 ## Context Requirements
 
@@ -76,6 +69,7 @@ Systematically validates selected features for adherence to code quality standar
 5. **Code Style Analysis**: Review code formatting, naming conventions, and organizational structure against project coding standards
 6. **SOLID Principles Assessment**: Evaluate each feature's adherence to Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion principles
 7. **Best Practices Review**: Check component composition patterns, state management implementation, and platform-specific optimizations
+   - **Layer-Boundary Validation** *(if `doc/project-config.json::layering_rules.layers` is non-empty)*: Read the declared layer rules and emit findings for source-code violations. See [feature-validation-guide.md § Layer-Boundary Validation](../../guides/05-validation/feature-validation-guide.md#layer-boundary-validation) for the detection workflow and a worked example. Empty `layers` = skip this sub-check (default).
 8. **Quality Metrics Evaluation**: Assess cyclomatic complexity, code duplication, method/class sizes, and maintainability indicators
 9. **Generate Validation Report**: Create detailed validation report using the automation script
    ```powershell
@@ -91,7 +85,7 @@ Systematically validates selected features for adherence to code quality standar
 12. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for code quality improvements
-15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "CQ" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

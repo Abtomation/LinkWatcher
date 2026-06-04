@@ -11,6 +11,11 @@ creates_document_category: Test Audit Report
 creates_document_type: Performance Test Audit
 description: Template for performance test audit reports with 4 criteria
 usage_context: Used by New-TestAuditReport.ps1 -TestType Performance during PF-TSK-030
+variant_group: test-audit-report-templates
+variant_siblings:
+  - test-audit-report-template.md
+  - test-audit-report-lightweight-template.md
+  - e2e-test-audit-report-template.md
 ---
 
 # Performance Test Audit Report - Feature [Feature ID]

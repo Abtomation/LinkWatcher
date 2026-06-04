@@ -7,6 +7,7 @@ created: 2025-07-27
 updated: 2025-07-29
 related_task: related_script: New-Guide.ps1
 guide_title: Guide Creation Best Practices Guide
+description: "Best practices for creating effective guides within the task framework"
 ---
 
 # Guide Creation Best Practices Guide

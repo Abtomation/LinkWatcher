@@ -40,7 +40,7 @@ template_for: Bug Fix State Tracking
 
 ### Affected Dimensions
 
-> **Reference**: [Development Dimensions Guide](/process-framework/guides/framework/development-dimensions-guide.md)
+> **Reference**: [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md)
 >
 > Identify which dimensions this bug affects. Use dimension abbreviations (AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI).
 

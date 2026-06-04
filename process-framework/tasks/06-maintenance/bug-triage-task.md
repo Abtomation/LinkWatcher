@@ -2,9 +2,10 @@
 id: PF-TSK-041
 type: Process Framework
 category: Task Definition
-version: 1.4
+version: 1.5
 created: 2025-08-30
-updated: 2026-04-08
+updated: 2026-05-16
+description: "Systematically evaluate, prioritize, and assign reported bugs"
 ---
 
 # Bug Triage
@@ -20,14 +21,6 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 **Focus Areas**: Impact assessment, priority assignment, resource allocation, stakeholder communication
 **Communication Style**: Ask detailed questions about bug impact and user experience, request reproduction steps, discuss priority rationale
 
-## When to Use
-
-- When new bugs have been reported and need evaluation
-- When bug priority needs reassessment due to changing circumstances
-- When multiple bugs need to be prioritized for development resources
-- When bug reports need validation and categorization
-- When duplicate bugs need to be identified and consolidated
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/06-maintenance/bug-triage-map.md)
@@ -36,16 +29,16 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
   - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Current bug registry and status
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To understand feature priorities and relationships
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - [Feature Implementation State Files](/doc/state-tracking/features/) - State file for the affected feature (known issues, related bugs, implementation progress, Dimension Profile)
+  - [Feature Implementation State Files](../../../doc/state-tracking/features) - State file for the affected feature (known issues, related bugs, implementation progress, Dimension Profile)
   - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions for identifying which dimensions a bug affects
-  - [Project Architecture](/doc/technical/architecture) - Understanding system architecture for impact assessment
+  - [Project Architecture](../../../doc/technical/architecture) - Understanding system architecture for impact assessment
 
 - **Reference Only (Access When Needed):**
-  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - For process-related bug patterns
+  - [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - For process-related bug patterns
 
 ## Process
 
@@ -62,7 +55,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Needs Triage or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
 2. Gather all available information about each bug (reproduction steps, screenshots, logs)
 3. Understand the current development priorities from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
-4. For each bug, consult the affected feature's [implementation state file](/doc/state-tracking/features/) for known issues, related bugs, and current implementation status
+4. For each bug, consult the affected feature's [implementation state file](../../../doc/state-tracking/features) for known issues, related bugs, and current implementation status
 5. Review any related bugs or patterns in the bug registry
 6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner
 
@@ -74,7 +67,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
    - **Description Accuracy**: Compare the reported description against observed behavior. Bug descriptions frequently overstate or understate the actual impact — correct the description in the bug report to match reality before assigning severity/priority.
    - **Bug vs Feature Request**: If the reported issue describes desired new behavior rather than broken existing behavior, reclassify it: close the bug as "Not a Bug" and route to [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) using [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
    - **Bug vs Process Improvement**: If the issue affects process framework tooling rather than the product itself, reclassify it as a process improvement — not a product bug. Use the file-location heuristic:
-     - `doc/` or `process-framework/` → always a process improvement (route to [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1))
+     - `doc/` or `process-framework/` → always a process improvement (route to [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1))
      - `src/linkwatcher` (product source code) → product bug (continue triage)
      - `test/` → evaluate case by case (test infrastructure issues are process improvements; test failures exposing product defects are bugs)
 8. **Evaluate Impact and Severity**:
@@ -97,7 +90,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ### Assignment and Documentation
 
-13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (Critical/High/Medium/Low), scope (S/M/L for fix complexity — see [Scope Levels](/doc/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
+13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (Critical/High/Medium/Low), scope (S/M/L for fix complexity — see [Scope Levels](../../../doc/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
 14. **Provide Triage Rationale**: Document the reasoning behind priority, scope, and dimension assignments
 15. **Identify Related Features**: Link bugs to affected features in Feature Tracking
     > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and populate this field.

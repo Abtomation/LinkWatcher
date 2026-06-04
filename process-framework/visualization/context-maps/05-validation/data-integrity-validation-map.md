@@ -7,6 +7,7 @@ created: 2026-03-23
 updated: 2026-03-23
 workflow_phase: 05-validation
 related_task: PF-TSK-076
+description: "Components for validating data consistency, constraint enforcement, and recovery patterns"
 ---
 
 # Data Integrity Validation Context Map

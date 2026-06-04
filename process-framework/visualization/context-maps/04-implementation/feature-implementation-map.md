@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-06-11
 updated: 2025-06-11
 related_task: PF-TSK-044
+description: "Components for implementing features"
 ---
 
 # Feature Implementation Context Map
@@ -66,8 +67,8 @@ graph TD
 
 ## Related Documentation
 
-- [Technical Design Documents](/doc/technical/tdd) - Detailed feature designs
-- [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Development standards and practices
+- [Technical Design Documents](../../../../doc/technical/tdd) - Detailed feature designs
+- [Development Guide](../../../guides/04-implementation/development-guide.md) - Development standards and practices
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---

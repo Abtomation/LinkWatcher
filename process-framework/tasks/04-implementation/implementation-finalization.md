@@ -2,9 +2,10 @@
 id: PF-TSK-055
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-12-13
-updated: 2026-03-02
+updated: 2026-05-16
+description: "Complete remaining items and prepare feature for production"
 ---
 
 # Implementation Finalization
@@ -22,21 +23,13 @@ Complete remaining items and prepare feature for production deployment. This tas
 **Focus Areas**: Documentation completeness, release planning, deployment procedures, rollback strategies, stakeholder communication
 **Communication Style**: Present deployment readiness status clearly, highlight deployment risks and mitigation strategies, ask for sign-off decisions and deployment scheduling preferences
 
-## When to Use
-
-- After quality validation is complete via PF-TSK-054
-- When feature is ready for production deployment
-- When all critical quality issues have been resolved
-- When stakeholders have approved feature for release
-- **Prerequisites**: All implementation complete, quality validation passed, deployment environment prepared, stakeholder approval obtained
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/implementation-finalization-map.md)
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/doc/state-tracking/features/[feature-id]-implementation-state.md` containing implementation progress and context
   - **Quality Validation Report** - Quality audit results from PF-TSK-054 confirming production readiness
   - **TDD (Technical Design Document)** - Deployment requirements section describing deployment procedures and acceptance criteria
   - **Deployment Documentation** - Project-specific deployment guides, CI/CD pipelines, and release procedures
@@ -47,7 +40,7 @@ Complete remaining items and prepare feature for production deployment. This tas
     - **Release Management Guide** - Project release versioning, branching strategies, and release cycles
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Previous Release Notes** - Historical release note format and content examples
   - **Deployment Runbooks** - Operational procedures for deployment execution
 
@@ -123,7 +116,7 @@ Complete remaining items and prepare feature for production deployment. This tas
 - **Deployment Configuration** - CI/CD pipeline updates, environment configurations, and feature flag settings in deployment repositories
 - **Post-Deployment Validation Plan** - Validation procedures in `/doc/features/[feature-name]/post-deployment-validation.md` for verifying successful deployment
 - **Updated Feature Tracking** - Feature status updated to "Deployed" or "Ready for Deployment" in feature-tracking.md
-- **Archived Feature Implementation State File** - Final state file moved to `/process-framework-local/state-tracking/permanent/archive/feature-implementation-state-[feature-id]-completed.md`
+- **Archived Feature Implementation State File** - Final state file moved to `/doc/state-tracking/features/archive/[feature-id]-implementation-state-completed.md`
 
 ## State Tracking
 

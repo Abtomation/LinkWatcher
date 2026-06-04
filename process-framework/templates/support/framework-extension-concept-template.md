@@ -8,6 +8,12 @@ updated: [Created Date]
 extension_name: [Extension Name]
 extension_description: [Extension Description]
 extension_scope: [Extension Scope]
+variant_group: framework-extension-concept-templates
+variant_siblings:
+  - framework-extension-concept-creation-template.md
+  - framework-extension-concept-modification-template.md
+  - framework-extension-concept-minimal-template.md
+description: "Template for creating framework extension concept documents (Hybrid type; also used as base)"
 ---
 
 # [Extension Name] - Framework Extension Concept
@@ -206,12 +212,12 @@ This framework extension should be used when:
 
 For each new state file:
 
-- [ ] **Locality decision**: Is this file **project-local** (lives in `process-framework-local/state-tracking/`) or **shareable across projects** (lives in `process-framework/state-tracking/`)?
+- [ ] **Locality decision**: Is this file **project-local** (lives in `process-framework-central/state-tracking/` for framework-management work in appdev, `doc/state-tracking/` for product-project work) or **shareable across projects** (lives in `process-framework/state-tracking/` — rolled out with the framework)?
 - [ ] **ID prefix match**: Does the assigned ID prefix's `directories` block in the relevant registry match that locality? Verify against the proposed file location.
 - [ ] **Registry update**: If no existing prefix matches, add a new prefix to the appropriate registry **before** assigning IDs (do not assign and migrate later).
 
 Common prefixes:
-- `PF-STA` (`process-framework-local/PF-id-registry-local.json`) — Project-Local State Tracking
+- `PF-STA` (`process-framework-central/PF-id-registry-central.json` in appdev; `doc/state-tracking/PF-id-registry-local.json` in product projects) — Project-Local State Tracking
 - `PF-SST` (`process-framework/PF-id-registry.json`) — Shareable State Tracking
 
 #### Updates to Existing State Files

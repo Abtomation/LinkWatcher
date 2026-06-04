@@ -7,6 +7,7 @@ created: [Assessment Date]
 updated: [Assessment Date]
 assessment_scope: [Assessment Scope]
 assessment_type: [Assessment Type]
+description: "Template for technical debt assessment reports"
 ---
 # Technical Debt Assessment: [Assessment Name]
 

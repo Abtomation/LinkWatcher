@@ -22,7 +22,7 @@ if _sys.platform == "win32":
     del _stream_name, _stream
 del _sys
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 __author__ = "LinkWatcher Team"
 
 from .database import LinkDatabase, LinkDatabaseInterface  # noqa: E402

@@ -5,6 +5,7 @@ category: Guide
 version: 1.0
 created: 2025-06-07
 updated: 2025-06-07
+description: "Best practices for migrating documentation and framework components"
 ---
 
 # Migration Best Practices

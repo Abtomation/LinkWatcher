@@ -2,7 +2,6 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Project-specific configuration for this instance of the process framework. Update this file when adapting framework to a new project.",
   "version": "1.0",
-
   "project": {
     "name": "LinkWatcher",
     "display_name": "LinkWatcher 2.0",
@@ -10,25 +9,27 @@
     "root_directory": "c:\\Users\\ronny\\VS_Code\\LinkWatcher",
     "repository_url": "https://github.com/Abtomation/LinkWatcher"
   },
-
   "paths": {
     "description": "Project-specific directory paths relative to root or absolute",
     "documentation_root": "doc",
     "process_framework": "process-framework",
     "product_docs": "doc",
-    "source_code": "linkwatcher",
-    "tests": "test/automated",
+    "source_code": "src/linkwatcher",
+    "tests": "test",
+    "test_tracking_dir": "test/state-tracking/permanent",
+    "e2e_test_tracking_dir": "test/state-tracking/permanent",
+    "performance_test_tracking_dir": "test/state-tracking/permanent",
     "scripts": "scripts",
     "examples": "examples"
   },
-
   "testing": {
-    "description": "Test runner configuration — language-specific commands are in languages-config/{language}/{language}-config.json",
+    "description": "Test runner configuration — language-specific commands are in process-framework/languages-config/{language}/{language}-config.json",
     "language": "python",
     "testDirectory": "test/automated",
-    "quickCategories": ["unit", "parsers"]
+    "quickCategories": [
+      "unit"
+    ]
   },
-
   "project_metadata": {
     "primary_language": "Python",
     "framework": "N/A",
@@ -36,19 +37,32 @@
     "development_approach": "Task-based development with AI-assisted workflow",
     "documentation_style": "Markdown with frontmatter metadata"
   },
-
   "team": {
     "description": "Team composition and roles",
     "primary_developer": "ronny",
-    "ai_assistant": "Zencoder",
+    "ai_assistant": "Claude Code",
     "collaboration_model": "Human-AI pair programming"
   },
-
   "integration": {
     "description": "Integration with project-specific tools and systems",
     "issue_tracker": null,
     "ci_cd_platform": "GitHub Actions",
     "code_hosting": "GitHub",
     "documentation_hosting": "Repository"
-  }
+  },
+  "layering_rules": {
+    "description": "Per-project layer dependency rules. Source of truth for layer-boundary checks at PF-TSK-032 Code Quality Standards Validation. See process-framework/guides/00-setup/source-code-layout-guide.md for narrative documentation and process-framework/guides/05-validation/feature-validation-guide.md (Layer-Boundary Validation) for usage. Empty 'layers' = no enforcement (backward-compatible default). Populate during PF-TSK-064/066 onboarding or after ADRs codify layer-boundary invariants.",
+    "layers": [],
+    "_layer_schema_example": {
+      "_comment": "Reference schema for a populated layer entry. Remove the leading underscore on the key when adopting. 'name' is the layer's identifier referenced by 'may_import_from' in other layers; 'directory_glob' identifies source files belonging to this layer; 'may_import_from' is the allowlist (importing from a layer not listed here is a finding).",
+      "name": "ui",
+      "directory_glob": "src/*/ui/**",
+      "may_import_from": ["services", "shared"]
+    },
+    "cross_feature_isolation": {
+      "description": "If true, services in one feature may not import non-service layers from another feature directly. Forces service-to-service composition across feature boundaries. Independent of 'layers' — can be enabled separately.",
+      "enabled": false
+    }
+  },
+  "project_id": "PRJ-001"
 }

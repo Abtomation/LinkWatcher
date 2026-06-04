@@ -5,6 +5,7 @@ category: Guide
 version: 1.1
 created: 2025-07-13
 updated: 2026-04-14
+description: "Standardized feedback form completion process referenced by all task definitions to eliminate duplication"
 ---
 
 # Feedback Form Completion Instructions
@@ -35,7 +36,7 @@ The AI agent fills in all sections of the feedback form: task-level evaluation, 
 
 The script automatically:
 - Names the file using format: `YYYYMMDD-HHMMSS-document-id-feedback.md`
-- Places the file in `/process-framework-local/feedback/feedback-forms`
+- Places the file in `appdev/process-framework-central/feedback/feedback-forms/`
 - Assigns unique artifact IDs (`ART-FEE-XXX`) in metadata
 
 ### Step 3: Follow Completion Guidelines
@@ -61,7 +62,7 @@ When creating or updating task definitions, reference this guide instead of dupl
 4. Leave the "Human User Feedback" section empty — the human partner fills it independently after the session
 
 ### For Human Partners
-1. After the session ends, open the feedback form in `/process-framework-local/feedback/feedback-forms`
+1. After the session ends, open the feedback form in `appdev/process-framework-central/feedback/feedback-forms/`
 2. Fill in the "Human User Feedback" section at your own pace
 3. See [Feedback Form Guide](feedback-form-guide.md) for detailed completion guidance
 

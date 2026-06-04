@@ -37,7 +37,7 @@ Apply both fields inside `LinkWatcherService.__init__` so the service constructo
 **Changes Made**:
 - [x] Apply `config.dry_run_mode` and `config.create_backups` to `self.updater` in `LinkWatcherService.__init__` after updater construction (guarded by `if config is not None:`) — [service.py:96-98](src/linkwatcher/service.py#L96-L98)
 - [x] Remove redundant post-init `service.set_dry_run()` and `service.updater.set_backup_enabled()` calls in main.py — [main.py:374](main.py#L374)
-- [x] Add `test_init_applies_config_dry_run_mode` and `test_init_applies_config_create_backups` to [test/automated/unit/test_service.py](test/automated/unit/test_service.py)
+- [x] Add `test_init_applies_config_dry_run_mode` and `test_init_applies_config_create_backups` to [test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py](test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py)
 - [x] Updated 5 Integration Narratives to reflect that the service constructor now applies the two flags (configuration-change, dry-run-mode, startup, graceful-shutdown, single-file-move). The configuration-change narrative's "Post-init setter ordering" error section and the dry-run-mode narrative's "set_dry_run() not called before start() (embedder scenario)" section are marked RESOLVED with TD235 / PD-REF-203 reference.
 
 **Test Baseline**: 814 passed, 5 skipped, 5 deselected, 5 xfailed, 0 failed (run 2026-04-29, `pytest test/automated/ -m "not slow"`)

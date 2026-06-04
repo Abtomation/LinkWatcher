@@ -122,8 +122,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/07-deployment/handbook-template.md"
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/07-deployment/handbook-template.md"
 
     $newDocParams = @{
         TemplatePath             = $templatePath

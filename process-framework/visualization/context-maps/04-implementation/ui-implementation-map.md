@@ -7,6 +7,7 @@ created: 2026-04-03
 updated: 2026-04-03
 workflow_phase: 04-implementation
 related_task: PF-TSK-052
+description: "Components for building user interface components and layouts"
 ---
 
 # UI Implementation Context Map
@@ -91,9 +92,9 @@ Implementation Finalization (PF-TSK-055)
 
 ## Related Documentation
 
-- [Task Definition](/process-framework/tasks/04-implementation/ui-implementation.md) - Full process steps and checklist
-- [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Coding best practices
-- [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) - Completion criteria
-- [Bug Reporting Guide](/process-framework/guides/06-maintenance/bug-reporting-guide.md) - Bug documentation standards
+- [Task Definition](../../../tasks/04-implementation/ui-implementation.md) - Full process steps and checklist
+- [Development Guide](../../../guides/04-implementation/development-guide.md) - Coding best practices
+- [Definition of Done](../../../guides/04-implementation/definition-of-done.md) - Completion criteria
+- [Bug Reporting Guide](../../../guides/06-maintenance/bug-reporting-guide.md) - Bug documentation standards
 
 ---

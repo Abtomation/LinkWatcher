@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "name": "PF-id-registry-local",
+    "version": "1.0",
+    "created": "2026-04-03",
+    "updated": "2026-05-28",
+    "description": "Project-local ID Registry — prefixes consumed by scripts running in cwd=project (PRJ-001+). Per Centralized Framework Management proposal §3.1: cross-project prefixes (PF-IMP, PF-PRO, PF-FEE, PF-REV, PF-EVR, PRJ, PF-SST) live in appdev's central registry and are NOT duplicated here. Backfilled by PF-IMP-879 (2026-05-28) to canonical schema produced by Initialize-ProjectLocalRegistry. Counter values for PF-STA and PF-TMP preserved from the legacy registry at process-framework-local/PF-id-registry-local.json; cross-project counters are already absorbed into appdev's central PF-id-registry-central.json (seeded 2026-05-09 from max(PRJ-001, PRJ-002) + 1).",
+    "format": "semantic",
+    "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
+  },
+  "prefixes": {
+    "PF-STA": {
+      "description": "Process Framework - Project-Local State Tracking",
+      "category": "Process Framework",
+      "type": "State",
+      "directories": {
+        "permanent": "doc/state-tracking/permanent",
+        "temporary": "doc/state-tracking/temporary",
+        "default": "permanent"
+      },
+      "nextAvailable": 107
+    },
+    "PF-TMP": {
+      "description": "Process Framework - Temporary State Tracking",
+      "category": "Process Framework",
+      "type": "Temporary State",
+      "directories": {
+        "temporary": "doc/state-tracking/temporary",
+        "default": "temporary"
+      },
+      "nextAvailable": 2
+    }
+  }
+}

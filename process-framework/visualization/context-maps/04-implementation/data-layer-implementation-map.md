@@ -7,6 +7,7 @@ created: 2025-12-11
 updated: 2025-12-11
 workflow_phase: 04-implementation
 related_task: PF-TSK-051
+description: "Components for data layer implementation (models, repositories, database integration)"
 ---
 
 # Data Layer Implementation Context Map
@@ -77,6 +78,6 @@ graph TD
 
 - [Data Layer Implementation Task](../../../tasks/04-implementation/data-layer-implementation.md) - Complete task definition with process steps
 - [Feature Implementation State Template](../../../templates/04-implementation/feature-implementation-state-template.md) - Template for tracking implementation progress
-- [TDD Creation Guide](/process-framework/guides/02-design/tdd-creation-guide.md) - Understanding technical design documents
+- [TDD Creation Guide](../../../guides/02-design/tdd-creation-guide.md) - Understanding technical design documents
 
 ---

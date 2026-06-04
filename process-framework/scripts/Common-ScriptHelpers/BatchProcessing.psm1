@@ -107,7 +107,9 @@ function Invoke-BatchFileOperation {
 
     Write-Progress -Activity $OperationName -Completed
 
-    $successCount = ($results | Where-Object { $_.Success }).Count
+    # @(...) wrap forces array semantics; without it, a single-element pipeline result
+    # unwraps to the underlying hashtable and .Count returns key count (BD-007).
+    $successCount = @($results | Where-Object { $_.Success }).Count
     $failureCount = $totalFiles - $successCount
 
     Write-Host "Batch operation completed: $successCount successful, $failureCount failed" -ForegroundColor Green
@@ -277,8 +279,10 @@ function New-BatchOperationReport {
         [string]$OperationName = "Batch Operation"
     )
 
-    $totalFiles = $Results.Count
-    $successCount = ($Results | Where-Object { $_.Success }).Count
+    $totalFiles = @($Results).Count
+    # @(...) wrap forces array semantics; without it, a single-element pipeline result
+    # unwraps to the underlying hashtable and .Count returns key count (BD-007).
+    $successCount = @($Results | Where-Object { $_.Success }).Count
     $failureCount = $totalFiles - $successCount
     $successRate = if ($totalFiles -gt 0) { [math]::Round(($successCount / $totalFiles) * 100, 1) } else { 0 }
 

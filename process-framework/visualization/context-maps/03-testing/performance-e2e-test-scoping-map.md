@@ -6,6 +6,7 @@ version: 1.0
 created: 2026-04-12
 updated: 2026-04-12
 related_task: PF-TSK-086
+description: "Components for identifying per-feature performance and E2E test needs after code review"
 ---
 
 # Performance & E2E Test Scoping Context Map
@@ -55,7 +56,7 @@ graph TD
 
 ### Important Components (Should Understand)
 
-- **Scoping Guide**: [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) containing the decision matrix, E2E evaluation process, and worked examples
+- **Scoping Guide**: [Performance & E2E Test Scoping Guide](../../../guides/03-testing/performance-and-e2e-test-scoping-guide.md) containing the decision matrix, E2E evaluation process, and worked examples
 - **User Workflow Tracking**: Workflow-to-feature mappings — read during E2E evaluation and written to when untracked cross-feature scenarios are discovered (bidirectional relationship)
 - **Performance Tests Needed?**: Decision point — results in new `⬜ Needs Creation` entries in performance-test-tracking.md or documented "not needed" rationale
 - **Workflow E2E-Ready?**: Decision point — results in new entries in e2e-test-tracking.md or documentation of which features are still pending

@@ -45,7 +45,7 @@ target_area: src/linkwatcher/parser.py, src/linkwatcher/config/settings.py
 - `src/linkwatcher/config/defaults.py` — Added missing flag to DEFAULT_CONFIG
 - `src/linkwatcher/parser.py` — Conditional parser registration based on config
 - `src/linkwatcher/service.py` — Passes config to LinkParser
-- `test/automated/unit/test_parser.py` — 12 new tests
+- `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py` — 12 new tests
 
 ### Dependencies and Impact
 - **Internal Dependencies**: service.py, handler.py, reference_lookup.py all use LinkParser

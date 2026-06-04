@@ -5,6 +5,7 @@ category: Methodology
 version: 1.0
 created: 2023-06-15
 updated: 2025-05-29
+description: "Clear criteria for when a feature is considered complete"
 ---
 
 # Definition of Done (DoD)
@@ -81,9 +82,9 @@ To ensure good performance:
 - [ ] No regression in Operation benchmarks (verified via Performance Baseline Capture if hot-path code changed)
 - [ ] If feature modifies a parser, database, updater, or handler subsystem: relevant Component benchmarks pass
 - [ ] If feature affects scaling characteristics: Scale tests pass at expected thresholds
-- [ ] Performance test tracking updated if new tests were added (see [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md))
-- [ ] Newly created performance tests have passed [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture (`✅ Audit Approved` in Audit Status column)
-- [ ] Newly created E2E test cases have passed [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType E2E` before execution (`✅ Audit Approved` in Audit Status column)
+- [ ] Performance test tracking updated if new tests were added (see [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md))
+- [ ] Newly created performance tests have passed [Test Audit (PF-TSK-030)](../../tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture (`✅ Audit Approved` in Audit Status column)
+- [ ] Newly created E2E test cases have passed [Test Audit (PF-TSK-030)](../../tasks/03-testing/test-audit-task.md) with `-TestType E2E` before execution (`✅ Audit Approved` in Audit Status column)
 
 ## Security Requirements
 

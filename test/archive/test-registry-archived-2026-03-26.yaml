@@ -72,7 +72,7 @@ testFiles:
   - id: TE-TST-101
     featureId: "1.1.1"
     fileName: test_move_detection.py
-    filePath: test/automated/test_move_detection.py
+    filePath: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_move_detection.py
     testType: Integration
     priority: Standard
     componentName: Move Detection
@@ -91,7 +91,7 @@ testFiles:
   - id: TE-TST-102
     featureId: "0.1.1"
     fileName: test_service.py
-    filePath: test/automated/unit/test_service.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py
     testType: Unit
     priority: Critical
     componentName: Core Service
@@ -107,7 +107,7 @@ testFiles:
   - id: TE-TST-103
     featureId: "2.1.1"
     fileName: test_parser.py
-    filePath: test/automated/unit/test_parser.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py
     testType: Unit
     priority: Critical
     componentName: Parser Framework
@@ -122,7 +122,7 @@ testFiles:
   - id: TE-TST-104
     featureId: "0.1.2"
     fileName: test_database.py
-    filePath: test/automated/unit/test_database.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py
     testType: Unit
     priority: Critical
     componentName: In-Memory Database
@@ -138,7 +138,7 @@ testFiles:
   - id: TE-TST-105
     featureId: "2.2.1"
     fileName: test_updater.py
-    filePath: test/automated/unit/test_updater.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py
     testType: Unit
     priority: Critical
     componentName: Link Updater
@@ -154,7 +154,7 @@ testFiles:
   - id: TE-TST-106
     featureId: "0.1.3"
     fileName: test_config.py
-    filePath: test/automated/unit/test_config.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py
     testType: Unit
     priority: Critical
     componentName: Configuration System
@@ -170,7 +170,7 @@ testFiles:
   - id: TE-TST-107
     featureId: "3.1.1"
     fileName: test_logging.py
-    filePath: test/automated/unit/test_logging.py
+    filePath: test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_logging.py
     testType: Unit
     priority: Standard
     componentName: Logging Framework
@@ -185,7 +185,7 @@ testFiles:
   - id: TE-TST-108
     featureId: "3.1.1"
     fileName: test_advanced_logging.py
-    filePath: test/automated/unit/test_advanced_logging.py
+    filePath: test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_advanced_logging.py
     testType: Unit
     priority: Standard
     componentName: Advanced Logging
@@ -203,7 +203,7 @@ testFiles:
   - id: TE-TST-109
     featureId: "2.1.1"
     fileName: test_markdown.py
-    filePath: test/automated/parsers/test_markdown.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py
     testType: Parser
     priority: Critical
     componentName: Markdown Parser
@@ -218,7 +218,7 @@ testFiles:
   - id: TE-TST-110
     featureId: "2.1.1"
     fileName: test_yaml.py
-    filePath: test/automated/parsers/test_yaml.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py
     testType: Parser
     priority: Critical
     componentName: YAML Parser
@@ -233,7 +233,7 @@ testFiles:
   - id: TE-TST-111
     featureId: "2.1.1"
     fileName: test_json.py
-    filePath: test/automated/parsers/test_json.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py
     testType: Parser
     priority: Critical
     componentName: JSON Parser
@@ -248,7 +248,7 @@ testFiles:
   - id: TE-TST-112
     featureId: "2.1.1"
     fileName: test_python.py
-    filePath: test/automated/parsers/test_python.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py
     testType: Parser
     priority: Critical
     componentName: Python Parser
@@ -263,7 +263,7 @@ testFiles:
   - id: TE-TST-113
     featureId: "2.1.1"
     fileName: test_dart.py
-    filePath: test/automated/parsers/test_dart.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_dart.py
     testType: Parser
     priority: Critical
     componentName: Dart Parser
@@ -278,7 +278,7 @@ testFiles:
   - id: TE-TST-114
     featureId: "2.1.1"
     fileName: test_generic.py
-    filePath: test/automated/parsers/test_generic.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_generic.py
     testType: Parser
     priority: Critical
     componentName: Generic Parser
@@ -293,7 +293,7 @@ testFiles:
   - id: TE-TST-115
     featureId: "2.1.1"
     fileName: test_image_files.py
-    filePath: test/automated/parsers/test_image_files.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_image_files.py
     testType: Parser
     priority: Critical
     componentName: Image File Parsing
@@ -312,7 +312,7 @@ testFiles:
   - id: TE-TST-116
     featureId: "0.1.1"
     fileName: test_service_integration.py
-    filePath: test/automated/integration/test_service_integration.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service_integration.py
     testType: Integration
     priority: Standard
     componentName: Service Integration
@@ -328,7 +328,7 @@ testFiles:
   - id: TE-TST-117
     featureId: "1.1.1"
     fileName: test_file_movement.py
-    filePath: test/automated/integration/test_file_movement.py
+    filePath: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_file_movement.py
     testType: Integration
     priority: Standard
     componentName: File Movement
@@ -344,7 +344,7 @@ testFiles:
   - id: TE-TST-118
     featureId: "2.2.1"
     fileName: test_link_updates.py
-    filePath: test/automated/integration/test_link_updates.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py
     testType: Integration
     priority: Standard
     componentName: Link Updates
@@ -360,7 +360,7 @@ testFiles:
   - id: TE-TST-119
     featureId: "0.1.1"
     fileName: test_complex_scenarios.py
-    filePath: test/automated/integration/test_complex_scenarios.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_complex_scenarios.py
     testType: Integration
     priority: Standard
     componentName: Complex Scenarios
@@ -376,7 +376,7 @@ testFiles:
   - id: TE-TST-120
     featureId: "0.1.1"
     fileName: test_error_handling.py
-    filePath: test/automated/integration/test_error_handling.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_error_handling.py
     testType: Integration
     priority: Standard
     componentName: Error Handling
@@ -392,7 +392,7 @@ testFiles:
   - id: TE-TST-121
     featureId: "1.1.1"
     fileName: test_sequential_moves.py
-    filePath: test/automated/integration/test_sequential_moves.py
+    filePath: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_sequential_moves.py
     testType: Integration
     priority: Standard
     componentName: Sequential Moves
@@ -408,7 +408,7 @@ testFiles:
   - id: TE-TST-122
     featureId: "0.1.1"
     fileName: test_windows_platform.py
-    filePath: test/automated/integration/test_windows_platform.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_windows_platform.py
     testType: Integration
     priority: Standard
     componentName: Windows Platform
@@ -424,7 +424,7 @@ testFiles:
   - id: TE-TST-123
     featureId: "1.1.1"
     fileName: test_comprehensive_file_monitoring.py
-    filePath: test/automated/unit/test_comprehensive_file_monitoring.py
+    filePath: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_comprehensive_file_monitoring.py
     testType: Integration
     priority: Standard
     componentName: Comprehensive File Monitoring
@@ -440,7 +440,7 @@ testFiles:
   - id: TE-TST-124
     featureId: "1.1.1"
     fileName: test_image_file_monitoring.py
-    filePath: test/automated/integration/test_image_file_monitoring.py
+    filePath: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_image_file_monitoring.py
     testType: Integration
     priority: Standard
     componentName: Image File Monitoring
@@ -456,7 +456,7 @@ testFiles:
   - id: TE-TST-125
     featureId: "1.1.1"
     fileName: test_powershell_script_monitoring.py
-    filePath: test/automated/integration/test_powershell_script_monitoring.py
+    filePath: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_powershell_script_monitoring.py
     testType: Integration
     priority: Standard
     componentName: PowerShell Script Monitoring
@@ -475,7 +475,7 @@ testFiles:
   - id: TE-TST-126
     featureId: "4.1.1"
     fileName: test_large_projects.py
-    filePath: test/automated/performance/test_large_projects.py
+    filePath: test/automated/performance/level3-scale/test_large_projects.py
     testType: Performance
     priority: Extended
     componentName: Large Project Performance
@@ -488,7 +488,7 @@ testFiles:
   - id: TE-TST-131
     featureId: "cross-cutting"
     fileName: test_benchmark.py
-    filePath: test/automated/performance/test_benchmark.py
+    filePath: test/automated/performance/level2-operation/test_benchmark.py
     testType: Performance
     priority: Extended
     componentName: Component Benchmarks
@@ -504,7 +504,7 @@ testFiles:
   - id: TE-TST-127
     featureId: "0.1.1"
     fileName: test_lock_file.py
-    filePath: test/automated/unit/test_lock_file.py
+    filePath: test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_lock_file.py
     testType: Unit
     priority: Critical
     componentName: Duplicate Instance Prevention
@@ -522,7 +522,7 @@ testFiles:
   - id: TE-TST-128
     featureId: "1.1.1"
     fileName: test_directory_move_detection.py
-    filePath: test/automated/test_directory_move_detection.py
+    filePath: test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_directory_move_detection.py
     testType: Integration
     priority: Standard
     componentName: Directory Move Detection
@@ -541,7 +541,7 @@ testFiles:
   - id: TE-TST-129
     featureId: "2.1.1"
     fileName: test_powershell.py
-    filePath: test/automated/parsers/test_powershell.py
+    filePath: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_powershell.py
     testType: Parser
     priority: Critical
     componentName: PowerShell Parser
@@ -573,7 +573,7 @@ testFiles:
   - id: TE-TST-132
     featureId: "6.1.1"
     fileName: test_validator.py
-    filePath: test/automated/unit/test_validator.py
+    filePath: test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py
     testType: Unit
     priority: Standard
     componentName: Link Validator

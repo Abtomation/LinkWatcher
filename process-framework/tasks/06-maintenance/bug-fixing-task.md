@@ -2,9 +2,10 @@
 id: PF-TSK-007
 type: Process Framework
 category: Task Definition
-version: 2.1
+version: 2.2
 created: 2023-06-15
-updated: 2026-05-05
+updated: 2026-05-16
+description: "Diagnose and fix bugs"
 ---
 
 # Bug Fixing
@@ -20,14 +21,6 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 **Focus Areas**: Issue reproduction, root cause analysis, prevention strategies, systematic debugging
 **Communication Style**: Ask detailed questions about symptoms and context, request specific reproduction steps, discuss prevention measures
 
-## When to Use
-
-- When a bug has been reported and needs to be fixed
-- When an issue has been identified during testing
-- When a regression has been detected in existing functionality
-- When a security vulnerability has been discovered
-- When a performance issue has been identified
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/06-maintenance/bug-fixing-map.md)
@@ -37,11 +30,11 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
   - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry and status tracking
   - Specific source files containing the bug
   - Tests related to the affected functionality
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
-  - [Project Architecture](/doc/technical/architecture) - Understanding of the system architecture
+  - [Project Architecture](../../../doc/technical/architecture) - Understanding of the system architecture
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To understand feature relationships and priorities when bugs affect specific features
@@ -60,7 +53,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 
 ### Preparation
 
-> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code defects only**. If the affected file(s) live in `process-framework/`, `process-framework-local/`, or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Framework defects are tracked as IMPs and resolved through [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) — file via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1), not [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1). **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#step-1-what-are-you-working-on).
+> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code defects only**. If the affected file(s) live in `process-framework/` or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Framework defects are tracked as IMPs and resolved through [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) — file via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1), not [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1). **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#framework-path-vs-product-path-disambiguation).
 
 1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify a bug ready for fixing (status 🔍 Needs Fix)
 2. If no bugs with status 🔍 Needs Fix are found but bugs with status 🆕 Needs Triage exist, **ask the human partner** whether to switch to [Bug Triage](bug-triage-task.md) first. Do not proceed with an un-triaged bug.
@@ -139,7 +132,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
       New-TestFile.ps1 -TestName "BugDescription" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
       ```
     - **If multi-session**: Note test file changes in the Implementation Progress table
-    - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](/process-framework/guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+    - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
 16. Develop a fix that addresses the root cause, not just the symptoms
     - **If multi-session**: Track each file change in the Implementation Progress table
 17. Verify regression tests now **PASS** with the fix applied, and test thoroughly to ensure the fix resolves the issue completely
@@ -149,7 +142,7 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
 20. Check for similar issues in other parts of the codebase
     - If the root cause is a shared pattern (e.g., regex, utility function), check **all** components that use the same pattern
     - Prioritize sibling components (same role/type, e.g., all parsers, all handlers) as they most likely share the same code pattern
-21. **Create a manual validation test** in the project's manual test directory — write it **before implementing the fix** so the bug is observable first:
+21. **Create a manual validation test** in `test/bug-validation/` (top-level since PF-IMP-871 Phase 2b — formerly `test/automated/bug-validation/`) — write it **before implementing the fix** so the bug is observable first. Name the file after the bug ID (e.g., `PD-BUG-NNN_<short-description>_validation.py`). The directory is a framework-fixed bone provided by the blueprint and scaffolded by `New-TestInfrastructure.ps1` (both Scaffold and Update modes).
     - The test must set up a scenario the human partner can **reproduce via UI or filesystem actions** — not via programmatic API calls
     - Print or display **before/after state** so the human can compare the result with and without the fix
     - Example: a script that creates a temp environment with the conditions that trigger the bug, prints the current (buggy) state, then instructs the human to apply the trigger action and observe the result
@@ -163,9 +156,9 @@ Diagnose, fix, and verify solutions for reported bugs or issues in the applicati
     - Test results (regression tests pass, full suite regression check)
     - Manual validation test results (if applicable, from Step 21)
     - Similar issues found and addressed (from Step 20)
-    - **E2E verification** (if bug was discovered via E2E testing): Run the specific E2E test(s) that originally exposed the bug using [`Run-E2EAcceptanceTest.ps1`](/process-framework/scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) and include pass/fail results in the checkpoint presentation
+    - **E2E verification** (if bug was discovered via E2E testing): Run the specific E2E test(s) that originally exposed the bug using [`Run-E2EAcceptanceTest.ps1`](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) and include pass/fail results in the checkpoint presentation
     - **Dimension verification**: Confirm the fix addresses all affected dimensions from the bug's Dims column (e.g., if DI was flagged, confirm atomicity/recovery is handled; if SE was flagged, confirm input validation is addressed)
-    > **ADR trigger**: If the fix changed architectural behavior, introduced a new pattern, or made a design trade-off not covered by existing ADRs, create an ADR using [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md).
+    > **ADR trigger**: If the fix changed architectural behavior, introduced a new pattern, or made a design trade-off not covered by existing ADRs, create an ADR using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md).
     > **L-scope test scoping assessment**: For L-scope bugs with architectural changes, evaluate whether the fix changes feature behavior significantly enough to warrant performance or E2E test scoping. If yes, note in the checkpoint presentation that after Code Review the bug should route to PF-TSK-086 (`🔎 Needs Test Scoping`) instead of directly to `🔒 Closed`.
 24. Update bug status from 🟡 In Progress to 👀 Needs Review (S-scope quick path: skip this step — already closed at Step 11)
     - **Automated Option**: Use [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script:
@@ -220,10 +213,10 @@ The following state files must be updated as part of this task:
   - Testing verification results
   - For bugs affecting specific features: Reference related feature ID from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 - **Conditional — multi-session** (only for Large-effort or architectural bugs):
-  - [Bug fix state file](/doc/state-tracking/temporary) — created via [`New-BugFixState.ps1`](../../scripts/file-creation/06-maintenance/New-BugFixState.ps1), tracks root cause, fix approach, implementation progress, validation status, and session log. Archive to `doc/state-tracking/temporary/old/` when bug is closed.
+  - [Bug fix state file](../../../doc/state-tracking/temporary) — created via [`New-BugFixState.ps1`](../../scripts/file-creation/06-maintenance/New-BugFixState.ps1), tracks root cause, fix approach, implementation progress, validation status, and session log. Archive to `doc/state-tracking/temporary/old/` when bug is closed.
   - **Notes column**: When a state file exists, the bug-tracking.md Notes column should contain only a link to the state file and a one-line status summary (e.g., `See [state file](path). Session 2/3 complete.`). Do not duplicate session logs or fix details inline.
 - **Conditional** (only when fix changes technical design or behavior):
-  - [Feature implementation state files](/doc/state-tracking/features/) — update implementation notes, known issues, or status
+  - [Feature implementation state files](../../../doc/state-tracking/features) — update implementation notes, known issues, or status
   - TDD for the affected feature — update technical design descriptions
   - Test specification for the affected feature — update expected behavior or test scenarios
   - FDD for the affected feature — update functional behavior descriptions
@@ -268,5 +261,5 @@ Before considering this task finished:
 
 ## Related Resources
 
-- [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams and component relationships
+- [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams and component relationships
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

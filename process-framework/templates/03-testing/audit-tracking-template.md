@@ -20,7 +20,7 @@ template_for: Audit Tracking
 
 This file tracks the progress and results of a **Test Audit round** across all test files in scope. It provides a centralized view of which files have been audited, session planning, and cross-session continuity.
 
-> **Task**: [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md)
+> **Task**: [Test Audit (PF-TSK-030)](../../tasks/03-testing/test-audit-task.md)
 
 ## Audit Round Overview
 
@@ -33,7 +33,7 @@ This file tracks the progress and results of a **Test Audit round** across all t
 
 ## Test File Inventory
 
-> Auto-populated from [Test Tracking](/test/state-tracking/permanent/test-tracking.md). Each row represents a test file eligible for audit.
+> Auto-populated from [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md). Each row represents a test file eligible for audit.
 
 | # | Feature ID | Test File | Current Status | Audit Status | Report Link | Session | Notes |
 |---|------------|-----------|----------------|--------------|-------------|---------|-------|
@@ -77,9 +77,9 @@ This file tracks the progress and results of a **Test Audit round** across all t
 
 ## Cross-References
 
-- **Test Tracking**: [Test Tracking](/test/state-tracking/permanent/test-tracking.md) — source of truth for test file status
-- **Feature Tracking**: [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — aggregated feature-level test status
-- **Technical Debt**: [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) — for significant audit findings
+- **Test Tracking**: [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) — source of truth for test file status
+- **Feature Tracking**: [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — aggregated feature-level test status
+- **Technical Debt**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — for significant audit findings
 
 ## Change Log
 

@@ -2,35 +2,31 @@
 
 <#
 .SYNOPSIS
-    Orchestrates scripted E2E acceptance test execution: Setup → run.ps1 → wait → Verify.
+    Orchestrates scripted E2E acceptance test execution: Setup -> run.ps1 -> wait -> Verify.
 
 .DESCRIPTION
     Runs the full pipeline for scripted E2E acceptance test cases that have a run.ps1 file:
     1. Setup-TestEnvironment.ps1 — copies pristine fixtures to workspace
     2. run.ps1 — executes the scripted test action
-    3. Wait — configurable delay for system propagation (e.g., LinkWatcher file events)
+    3. Wait — configurable post-action delay (default: 0s, no wait)
     4. Verify-TestResult.ps1 — compares workspace against expected state
 
     Test cases without a run.ps1 are skipped with a message suggesting direct execution.
 
 .PARAMETER TestCase
     Optional: Run a single test case by ID (e.g., "E2E-001").
-    Requires -Group to be specified.
+    Requires -Workflow to be specified.
 
-.PARAMETER Group
-    Optional: Run all scripted test cases in a group (e.g., "powershell-regex-preservation").
-    If neither -TestCase nor -Group is specified, runs all scripted test cases in all groups.
+.PARAMETER Workflow
+    Optional: Run all scripted test cases in a workflow (e.g., "user-login").
+    Matches the workflow directory name under test/e2e-acceptance-testing/.
+    If neither -TestCase nor -Workflow is specified, runs all scripted test cases in all workflows.
 
 .PARAMETER WaitSeconds
-    Seconds to wait between action execution and verification (default: 12).
-    Must exceed move_detect_delay (10s) plus processing buffer to avoid
-    premature verification. Allows the system under test to process events
-    before checking results.
-
-.PARAMETER SettleSeconds
-    Seconds to wait after LinkWatcher initial scan completes before executing
-    the test action (default: 3). Allows LinkWatcher to finish indexing all
-    links after file discovery.
+    Seconds to wait between action execution and verification (default: 0).
+    Use when run.ps1 triggers asynchronous effects that need time to settle
+    before verification. Pass a positive value (e.g., 12) for test cases
+    whose actions produce async side-effects.
 
 .PARAMETER Detailed
     Show line-by-line diff for mismatched files (passed to Verify-TestResult.ps1).
@@ -46,21 +42,27 @@
     Optional: Project root path. Auto-detected if not specified.
 
 .EXAMPLE
-    Run-E2EAcceptanceTest.ps1 -TestCase "E2E-001" -Group "powershell-regex-preservation"
+    Run-E2EAcceptanceTest.ps1 -TestCase "E2E-001" -Workflow "user-login"
 
 .EXAMPLE
-    Run-E2EAcceptanceTest.ps1 -Group "powershell-regex-preservation" -Clean -Detailed
+    Run-E2EAcceptanceTest.ps1 -Workflow "user-login" -Clean -Detailed
 
 .EXAMPLE
-    Run-E2EAcceptanceTest.ps1 -WaitSeconds 10
+    Run-E2EAcceptanceTest.ps1 -WaitSeconds 12
 
 .NOTES
     Test cases must have a run.ps1 file (created via New-E2EAcceptanceTestCase.ps1 -Scripted).
     Test cases without run.ps1 are skipped — execute them directly following test-case.md.
 
     Created: 2026-03-18
-    Version: 1.6
-    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169, PF-IMP-395, PF-IMP-472, PF-IMP-720, PF-IMP-724
+    Version: 2.0
+    Updated: 2026-05-28 (PF-IMP-878 — stripped LinkWatcher-specific lifecycle code to make
+                        the runner project-agnostic. Stop/Start/restart-LinkWatcher functions,
+                        lw_flags/skip_lw_start frontmatter parsing, SettleSeconds parameter,
+                        and end-of-run LW restart removed. WaitSeconds default changed from 12
+                        to 0. Projects that need tool-specific lifecycle management should
+                        handle it in their test cases' run.ps1 scripts.)
+    Task: Process Improvement (PF-TSK-009), PF-IMP-134, PF-IMP-154, PF-IMP-169, PF-IMP-395, PF-IMP-472, PF-IMP-720, PF-IMP-724, PF-IMP-871, PF-IMP-878
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -69,13 +71,10 @@ param(
     [string]$TestCase = "",
 
     [Parameter(Mandatory=$false)]
-    [string]$Group = "",
+    [string]$Workflow = "",
 
     [Parameter(Mandatory=$false)]
-    [int]$WaitSeconds = 12,
-
-    [Parameter(Mandatory=$false)]
-    [int]$SettleSeconds = 3,
+    [int]$WaitSeconds = 0,
 
     [Parameter(Mandatory=$false)]
     [switch]$Detailed,
@@ -109,8 +108,10 @@ if (-not $ProjectRoot) {
     }
 }
 
-$templatesDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/templates"
-$workspaceDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing/workspace"
+$baseE2EDir = Join-Path $ProjectRoot "test/e2e-acceptance-testing"
+# Per-workflow paths (PF-IMP-871 Phase 3c2): templates/workspace/results live under <workflow>/.
+# Test cases live directly under <workflow>/templates/ (no intermediate group layer).
+
 # Validate sibling scripts exist
 $setupScript = Join-Path $PSScriptRoot "Setup-TestEnvironment.ps1"
 $verifyScript = Join-Path $PSScriptRoot "Verify-TestResult.ps1"
@@ -126,36 +127,38 @@ if (-not (Test-Path $verifyScript)) {
 # --- Collect test cases ---
 $testCases = @()
 
-if ($TestCase -and $Group) {
-    # Single test case
-    $groupDir = Join-Path $templatesDir $Group
-    $tcDir = Get-ChildItem $groupDir -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match "^$TestCase-" }
+if ($TestCase -and $Workflow) {
+    # Single test case within a workflow
+    $workflowTemplatesDir = Join-Path $baseE2EDir "$Workflow/templates"
+    $tcDir = Get-ChildItem $workflowTemplatesDir -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match "^$TestCase-" }
     if (-not $tcDir) {
-        Write-ProjectError -Message "Test case $TestCase not found in group $Group" -ExitCode 1
+        Write-ProjectError -Message "Test case $TestCase not found in workflow $Workflow" -ExitCode 1
     }
-    $testCases += @{ Group = $Group; CaseDir = $tcDir.Name; CaseId = $TestCase; Path = $tcDir.FullName }
-} elseif ($Group) {
-    # All test cases in a group
-    $groupDir = Join-Path $templatesDir $Group
-    if (-not (Test-Path $groupDir)) {
-        Write-ProjectError -Message "Group not found: $Group" -ExitCode 1
+    $testCases += @{ Workflow = $Workflow; CaseDir = $tcDir.Name; CaseId = $TestCase; Path = $tcDir.FullName }
+} elseif ($Workflow) {
+    # All test cases in a workflow
+    $workflowTemplatesDir = Join-Path $baseE2EDir "$Workflow/templates"
+    if (-not (Test-Path $workflowTemplatesDir)) {
+        Write-ProjectError -Message "Workflow not found: $Workflow (expected templates dir at $workflowTemplatesDir)" -ExitCode 1
     }
-    $tcDirs = Get-ChildItem $groupDir -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
+    $tcDirs = Get-ChildItem $workflowTemplatesDir -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
     foreach ($tc in $tcDirs) {
         $id = ($tc.Name -split '-', 4)[0..2] -join '-'
-        $testCases += @{ Group = $Group; CaseDir = $tc.Name; CaseId = $id; Path = $tc.FullName }
+        $testCases += @{ Workflow = $Workflow; CaseDir = $tc.Name; CaseId = $id; Path = $tc.FullName }
     }
 } else {
-    # All groups, all test cases
-    if (-not (Test-Path $templatesDir)) {
-        Write-ProjectError -Message "Templates directory not found: $templatesDir" -ExitCode 1
+    # All workflows, all test cases
+    if (-not (Test-Path $baseE2EDir)) {
+        Write-ProjectError -Message "E2E acceptance testing root not found: $baseE2EDir" -ExitCode 1
     }
-    $allGroups = Get-ChildItem $templatesDir -Directory
-    foreach ($grp in $allGroups) {
-        $tcDirs = Get-ChildItem $grp.FullName -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
+    $allWorkflowDirs = Get-ChildItem $baseE2EDir -Directory
+    foreach ($wf in $allWorkflowDirs) {
+        $wfTemplatesDir = Join-Path $wf.FullName "templates"
+        if (-not (Test-Path $wfTemplatesDir)) { continue }
+        $tcDirs = Get-ChildItem $wfTemplatesDir -Directory | Where-Object { $_.Name -match '^TE-E2E-\d+' }
         foreach ($tc in $tcDirs) {
             $id = ($tc.Name -split '-', 4)[0..2] -join '-'
-            $testCases += @{ Group = $grp.Name; CaseDir = $tc.Name; CaseId = $id; Path = $tc.FullName }
+            $testCases += @{ Workflow = $wf.Name; CaseDir = $tc.Name; CaseId = $id; Path = $tc.FullName }
         }
     }
 }
@@ -182,7 +185,7 @@ if ($manualCases.Count -gt 0) {
     Write-Host ""
     Write-Host "Skipping $($manualCases.Count) non-scripted test case(s) (no run.ps1):" -ForegroundColor Yellow
     foreach ($mc in $manualCases) {
-        Write-Host "  ⏭️  $($mc.CaseId) ($($mc.Group)) — execute directly via test-case.md" -ForegroundColor Yellow
+        Write-Host "  ⏭️  $($mc.CaseId) ($($mc.Workflow)) — execute directly via test-case.md" -ForegroundColor Yellow
     }
 }
 
@@ -200,126 +203,17 @@ $passed = 0
 $failed = 0
 $errors = 0
 
-# --- Helper: Stop LinkWatcher ---
-$projectLockFile = Join-Path $ProjectRoot ".linkwatcher.lock"
-
-function Stop-LinkWatcher {
-    param(
-        [Parameter(Mandatory=$false)]
-        [string]$LockPath = $projectLockFile
-    )
-    if (Test-Path $LockPath) {
-        try {
-            $lwPid = [int](Get-Content $LockPath -Raw).Trim()
-            $lwProc = Get-Process -Id $lwPid -ErrorAction SilentlyContinue
-            if ($lwProc) {
-                Stop-Process -Id $lwPid -Force -ErrorAction SilentlyContinue
-                Start-Sleep -Milliseconds 500
-                Write-Host "  🛑 Stopped LinkWatcher (PID: $lwPid)" -ForegroundColor DarkYellow
-            }
-        } catch {
-            Write-Host "  ⚠️  Could not stop LinkWatcher: $($_.Exception.Message)" -ForegroundColor Yellow
-        }
-        Remove-Item $LockPath -Force -ErrorAction SilentlyContinue
-    }
-}
-
-function Stop-WorkspaceLinkWatchers {
-    # Sweep stray LinkWatcher processes left running under the workspace by prior test
-    # cases — particularly skip_lw_start cases whose run.ps1 starts LW scoped to a
-    # subdirectory (e.g., workspace/<group>/<case>/project/), placing the lock file
-    # outside the two paths that Stop-LinkWatcher checks. Without this sweep, the
-    # next case's Setup-TestEnvironment.ps1 fails to clean the prior workspace
-    # because the stray LW still holds it (PF-IMP-720, real failure: TE-E2E-015
-    # setup blocked by TE-E2E-012's stray LW per PF-FEE-1088).
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$Root
-    )
-    if (-not (Test-Path $Root)) { return }
-    $locks = Get-ChildItem -Path $Root -Recurse -Force -Filter ".linkwatcher.lock" -File -ErrorAction SilentlyContinue
-    foreach ($lock in $locks) {
-        Stop-LinkWatcher -LockPath $lock.FullName
-    }
-}
-
-function Start-LinkWatcher {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$WatchPath,
-        [int]$MaxWaitSeconds = 30,
-        [int]$SettleDelay = 3,
-        [string]$LwFlags = ""
-    )
-
-    # Start LinkWatcher scoped to the workspace directory (not full project)
-    $mainPy = Join-Path $ProjectRoot "main.py"
-    $logFile = Join-Path $WatchPath "linkwatcher-e2e.log"
-    $arguments = "`"$mainPy`" --project-root `"$WatchPath`" --log-file `"$logFile`" --debug"
-
-    # Resolve <workspace> placeholder and append any extra flags from test-case.md
-    if ($LwFlags -ne "") {
-        $resolvedFlags = $LwFlags -replace '<workspace>', $WatchPath
-        $arguments += " $resolvedFlags"
-    }
-
-    $lwProcess = Start-Process -FilePath "python" -ArgumentList $arguments -WorkingDirectory $WatchPath -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $WatchPath "lw-stdout.txt") -RedirectStandardError (Join-Path $WatchPath "lw-stderr.txt")
-
-    if (-not $lwProcess) {
-        Write-ProjectError -Message "Failed to start LinkWatcher"
-        return
-    }
-    $flagsLabel = if ($LwFlags -ne "") { ", flags: $LwFlags" } else { "" }
-    Write-Host "  ▶️  LinkWatcher started scoped to workspace (PID: $($lwProcess.Id)${flagsLabel})" -ForegroundColor DarkGray
-
-    # Wait for initial scan to complete by polling the log file
-    $startTime = Get-Date
-    $scanComplete = $false
-
-    Write-Host "  ⏳ Waiting for initial scan to complete (max ${MaxWaitSeconds}s)..." -ForegroundColor DarkGray
-    while (-not $scanComplete -and ((Get-Date) - $startTime).TotalSeconds -lt $MaxWaitSeconds) {
-        Start-Sleep -Seconds 1
-        if (Test-Path $logFile) {
-            $recentLines = Get-Content $logFile -Tail 20 -ErrorAction SilentlyContinue
-            if ($recentLines -match 'initial_scan_complete') {
-                $scanComplete = $true
-            }
-        }
-    }
-
-    if ($scanComplete) {
-        $elapsed = [math]::Round(((Get-Date) - $startTime).TotalSeconds, 1)
-        Write-Host "  ✅ Initial scan completed in ${elapsed}s" -ForegroundColor Green
-    } else {
-        Write-Host "  ⚠️  Scan wait timed out after ${MaxWaitSeconds}s — proceeding anyway" -ForegroundColor Yellow
-    }
-
-    # Settling delay: let LinkWatcher finish indexing links after file discovery
-    if ($SettleDelay -gt 0) {
-        Write-Host "  ⏳ Settling ${SettleDelay}s for link indexing..." -ForegroundColor DarkGray
-        Start-Sleep -Seconds $SettleDelay
-    }
-}
-
 foreach ($tc in $scriptedCases) {
     $runScriptPath = Join-Path $tc.Path "run.ps1"
-    $workspaceCasePath = Join-Path $workspaceDir "$($tc.Group)/$($tc.CaseDir)"
+    $workspaceCasePath = Join-Path $baseE2EDir "$($tc.Workflow)/workspace/$($tc.CaseDir)"
 
-    Write-Host "━━━ $($tc.CaseId) ($($tc.Group)/$($tc.CaseDir)) ━━━" -ForegroundColor White
+    Write-Host "━━━ $($tc.CaseId) ($($tc.Workflow)/$($tc.CaseDir)) ━━━" -ForegroundColor White
 
-    # Parse test-case.md frontmatter for lw_flags, skip_lw_start, expected_exit_code
+    # Parse test-case.md frontmatter for expected_exit_code
     $testCaseMd = Join-Path $tc.Path "test-case.md"
-    $lwFlags = ""
-    $skipLwStart = $false
     $expectedExitCode = 0
     if (Test-Path $testCaseMd) {
         $tcContent = Get-Content $testCaseMd -Raw -ErrorAction SilentlyContinue
-        if ($tcContent -match '(?m)^lw_flags:\s*"([^"]*)"') {
-            $lwFlags = $Matches[1]
-        }
-        if ($tcContent -match '(?m)^skip_lw_start:\s*true') {
-            $skipLwStart = $true
-        }
         if ($tcContent -match '(?m)^expected_exit_code:\s*(\d+)') {
             $expectedExitCode = [int]$Matches[1]
         }
@@ -327,40 +221,27 @@ foreach ($tc in $scriptedCases) {
 
     if ($WhatIfPreference) {
         Write-Host "  What if: Would execute E2E pipeline for $($tc.CaseId):" -ForegroundColor Cyan
-        Write-Host "    1. Stop LinkWatcher (project lock, current case lock, and recursive workspace sweep)" -ForegroundColor DarkGray
-        Write-Host "    2. Setup-TestEnvironment.ps1 -Group $($tc.Group) -ProjectRoot $ProjectRoot -Clean:$Clean" -ForegroundColor DarkGray
-        if ($skipLwStart) {
-            Write-Host "    3. Skip LinkWatcher start (skip_lw_start)" -ForegroundColor DarkYellow
-        } else {
-            $flagsMsg = if ($lwFlags -ne "") { " with flags: $lwFlags" } else { "" }
-            Write-Host "    3. Start LinkWatcher (workspace-scoped${flagsMsg})" -ForegroundColor DarkGray
-        }
+        Write-Host "    1. Setup-TestEnvironment.ps1 -Workflow $($tc.Workflow) -ProjectRoot $ProjectRoot -Clean:$Clean" -ForegroundColor DarkGray
         $exitCodeMsg = if ($expectedExitCode -ne 0) { " (expected exit code: $expectedExitCode)" } else { "" }
-        Write-Host "    4. Execute: $runScriptPath -WorkspacePath $workspaceCasePath${exitCodeMsg}" -ForegroundColor DarkGray
-        Write-Host "    5. Wait ${WaitSeconds}s for propagation" -ForegroundColor DarkGray
-        Write-Host "    6. Verify-TestResult.ps1 -TestCase $($tc.CaseId) -Group $($tc.Group)" -ForegroundColor DarkGray
-        if (-not $SkipTracking) {
-            Write-Host "    7. Update-TestExecutionStatus.ps1 -TestCase $($tc.CaseId)" -ForegroundColor DarkGray
+        Write-Host "    2. Execute: $runScriptPath -WorkspacePath $workspaceCasePath${exitCodeMsg}" -ForegroundColor DarkGray
+        if ($WaitSeconds -gt 0) {
+            Write-Host "    3. Wait ${WaitSeconds}s for propagation" -ForegroundColor DarkGray
+        } else {
+            Write-Host "    3. No post-action wait" -ForegroundColor DarkGray
         }
-        Write-Host "    8. Stop LinkWatcher + cleanup" -ForegroundColor DarkGray
+        Write-Host "    4. Verify-TestResult.ps1 -TestCase $($tc.CaseId) -Workflow $($tc.Workflow)" -ForegroundColor DarkGray
+        if (-not $SkipTracking) {
+            Write-Host "    5. Update-TestExecutionStatus.ps1 -TestCase $($tc.CaseId)" -ForegroundColor DarkGray
+        }
         $passed++
         Write-Host ""
         continue
     }
 
-    # Step 1: Stop any running LinkWatcher (project-level or previous workspace-scoped)
-    Write-Host "  1️⃣  Stopping LinkWatcher for clean setup..." -ForegroundColor DarkGray
-    Stop-LinkWatcher -LockPath $projectLockFile
-    $workspaceLockFile = Join-Path $workspaceCasePath ".linkwatcher.lock"
-    Stop-LinkWatcher -LockPath $workspaceLockFile
-    # Sweep stray LWs left under the workspace by prior cases — covers skip_lw_start
-    # cases whose lock lands in an arbitrary subdirectory (PF-IMP-720)
-    Stop-WorkspaceLinkWatchers -Root $workspaceDir
-
-    # Step 2: Setup test environment (no LW running = no false move events)
-    Write-Host "  2️⃣  Setting up test environment..." -ForegroundColor DarkGray
+    # Step 1: Setup test environment
+    Write-Host "  1️⃣  Setting up test environment..." -ForegroundColor DarkGray
     try {
-        & $setupScript -Group $tc.Group -ProjectRoot $ProjectRoot -Clean:$Clean
+        & $setupScript -Workflow $tc.Workflow -ProjectRoot $ProjectRoot -Clean:$Clean
     } catch {
         Write-ProjectError -Message "Setup failed: $($_.Exception.Message)"
         $errors++
@@ -375,18 +256,8 @@ foreach ($tc in $scriptedCases) {
         continue
     }
 
-    # Step 3: Start LinkWatcher scoped to workspace (not full project)
-    # Skipped when test-case.md sets skip_lw_start: true (test manages its own LW lifecycle)
-    if ($skipLwStart) {
-        Write-Host "  3️⃣  Skipping LinkWatcher start (skip_lw_start — test manages own LW)" -ForegroundColor DarkYellow
-    } else {
-        $flagsMsg = if ($lwFlags -ne "") { " with flags: $lwFlags" } else { "" }
-        Write-Host "  3️⃣  Starting LinkWatcher (workspace-scoped${flagsMsg})..." -ForegroundColor DarkGray
-        Start-LinkWatcher -WatchPath $workspaceCasePath -SettleDelay $SettleSeconds -LwFlags $lwFlags
-    }
-
-    # Step 4: Execute run.ps1
-    Write-Host "  4️⃣  Executing run.ps1..." -ForegroundColor DarkGray
+    # Step 2: Execute run.ps1
+    Write-Host "  2️⃣  Executing run.ps1..." -ForegroundColor DarkGray
     $runFailed = $false
     try {
         $global:LASTEXITCODE = 0
@@ -402,19 +273,18 @@ foreach ($tc in $scriptedCases) {
         $runFailed = $true
     }
     if ($runFailed) {
-        Stop-LinkWatcher -LockPath $workspaceLockFile
         continue
     }
 
-    # Step 5: Wait for system propagation
+    # Step 3: Wait for post-action propagation (if configured)
     if ($WaitSeconds -gt 0) {
-        Write-Host "  5️⃣  Waiting ${WaitSeconds}s for system propagation..." -ForegroundColor DarkGray
+        Write-Host "  3️⃣  Waiting ${WaitSeconds}s for propagation..." -ForegroundColor DarkGray
         Start-Sleep -Seconds $WaitSeconds
     }
 
-    # Step 6: Verify
-    Write-Host "  6️⃣  Verifying results..." -ForegroundColor DarkGray
-    & $verifyScript -TestCase $tc.CaseId -Group $tc.Group -ProjectRoot $ProjectRoot -Detailed:$Detailed
+    # Step 4: Verify
+    Write-Host "  4️⃣  Verifying results..." -ForegroundColor DarkGray
+    & $verifyScript -TestCase $tc.CaseId -Workflow $tc.Workflow -ProjectRoot $ProjectRoot -Detailed:$Detailed
 
     if ($LASTEXITCODE -eq 0) {
         $passed++
@@ -424,23 +294,15 @@ foreach ($tc in $scriptedCases) {
         $tcStatus = "Failed"
     }
 
-    # Step 7: Update tracking files
+    # Step 5: Update tracking files
     if (-not $SkipTracking -and (Test-Path $trackingScript)) {
-        Write-Host "  7️⃣  Updating tracking ($tcStatus)..." -ForegroundColor DarkGray
+        Write-Host "  5️⃣  Updating tracking ($tcStatus)..." -ForegroundColor DarkGray
         try {
             & $trackingScript -TestCase $tc.CaseId -Status $tcStatus -ProjectRoot $ProjectRoot
         } catch {
             Write-Host "  ⚠️  Tracking update failed: $($_.Exception.Message)" -ForegroundColor Yellow
         }
     }
-
-    # Step 8: Stop LinkWatcher (workspace-scoped or project-level if run.ps1 restarted it)
-    # Always stop — even when skip_lw_start, run.ps1 may have started its own LW instance
-    Stop-LinkWatcher -LockPath $workspaceLockFile
-    Stop-LinkWatcher -LockPath $projectLockFile
-    Remove-Item (Join-Path $workspaceCasePath "linkwatcher-e2e.log") -Force -ErrorAction SilentlyContinue
-    Remove-Item (Join-Path $workspaceCasePath "lw-stdout.txt") -Force -ErrorAction SilentlyContinue
-    Remove-Item (Join-Path $workspaceCasePath "lw-stderr.txt") -Force -ErrorAction SilentlyContinue
 
     Write-Host ""
 }
@@ -454,13 +316,6 @@ Write-Host "  ❌ Errors:  $errors" -ForegroundColor $(if ($errors -gt 0) { "Red
 Write-Host "  ⏭️  Skipped: $($manualCases.Count) (non-scripted)" -ForegroundColor Yellow
 Write-Host "  Total:     $($testCases.Count)" -ForegroundColor Cyan
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-
-# Restart project-level LinkWatcher (was stopped for E2E testing)
-$startLwScript = Join-Path $ProjectRoot "process-framework/tools/linkWatcher/start_linkwatcher_background.ps1"
-if (Test-Path $startLwScript) {
-    Write-Host "Restarting project-level LinkWatcher..." -ForegroundColor Cyan
-    & $startLwScript
-}
 
 if ($failed -gt 0 -or $errors -gt 0) {
     exit 1

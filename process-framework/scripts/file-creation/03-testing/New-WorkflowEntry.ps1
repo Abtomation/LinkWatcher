@@ -97,8 +97,7 @@ $soakInSoak = Test-ScriptInSoak
 try {
 
 # Configuration
-$ProjectRoot = Get-ProjectRoot
-$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/user-workflow-tracking.md"
+$TrackingFile = Resolve-TrackingFilePath -File "user-workflow-tracking.md"
 
 if (-not (Test-Path $TrackingFile)) {
     Write-ProjectError -Message "Tracking file not found: $TrackingFile" -ExitCode 1
@@ -130,7 +129,7 @@ $inWorkflowsSection = $false
 for ($i = 0; $i -lt $lines.Count; $i++) {
     if ($lines[$i] -match "^## Workflows") { $inWorkflowsSection = $true; continue }
     if ($inWorkflowsSection) {
-        if ($lines[$i] -match "^\|\s*WF-\d{3}\b") { $insertAfterIndex = $i }
+        if ($lines[$i] -match "^\|\s*WF-\d+\b") { $insertAfterIndex = $i }
         if ($lines[$i] -match "^## " -and $lines[$i] -notmatch "^## Workflows") { break }
     }
 }
@@ -155,20 +154,27 @@ $lines.Insert($insertAfterIndex + 1, $tableRow)
 Write-Host "Inserted $workflowId into Workflows table" -ForegroundColor Green
 
 # --- Step 3: Add a details section before the closing of Workflow Details ---
-# Find the last </details> in the Workflow Details section
+# Anchor on the last </details> when present, else on the ## Workflow Details heading
+# (handles the first-workflow case where no </details> exists yet).
 $lastDetailsCloseIndex = -1
+$workflowDetailsHeadingIndex = -1
 $inDetailsSection = $false
 
 for ($i = 0; $i -lt $lines.Count; $i++) {
-    if ($lines[$i] -match "^## Workflow Details") { $inDetailsSection = $true; continue }
+    if ($lines[$i] -match "^## Workflow Details") {
+        $inDetailsSection = $true
+        $workflowDetailsHeadingIndex = $i
+        continue
+    }
     if ($inDetailsSection) {
         if ($lines[$i] -match "^\s*</details>") { $lastDetailsCloseIndex = $i }
         if ($lines[$i] -match "^## " -and $lines[$i] -notmatch "^## Workflow Details") { break }
     }
 }
 
-if ($lastDetailsCloseIndex -ne -1) {
-    # Insert after the last </details>
+$insertionAfter = if ($lastDetailsCloseIndex -ne -1) { $lastDetailsCloseIndex } else { $workflowDetailsHeadingIndex }
+
+if ($insertionAfter -ne -1) {
     $detailsBlock = @(
         "",
         "<details>",
@@ -177,7 +183,7 @@ if ($lastDetailsCloseIndex -ne -1) {
         $Description,
         "</details>"
     )
-    $insertIdx = $lastDetailsCloseIndex + 1
+    $insertIdx = $insertionAfter + 1
     for ($j = 0; $j -lt $detailsBlock.Count; $j++) {
         $lines.Insert($insertIdx + $j, $detailsBlock[$j])
     }
@@ -210,6 +216,21 @@ Write-ProjectSuccess -Message "Created workflow entry: $workflowId" -Details $de
 
 Write-Verbose "Next Steps: Evaluate E2E milestone readiness for this workflow"
 Write-Verbose "Next Steps: If E2E-ready, use New-E2EMilestoneEntry.ps1 to add to e2e-test-tracking.md"
+
+# --- Post-action: Update test infrastructure (PF-IMP-871 / PF-PRO-034 Phase 3c1 wiring) ---
+# Mirror of the post-action in New-FeatureImplementationState.ps1 (Phase 3a). Scaffolds the
+# per-workflow e2e dirs (templates/workspace/results + audits/e2e/<slug>/) for the workflow
+# we just inserted.
+$testInfraScript = Join-Path (Get-ProcessFrameworkPath) "scripts/file-creation/00-setup/New-TestInfrastructure.ps1"
+if (Test-Path $testInfraScript) {
+    try {
+        Write-Host "Updating test infrastructure (workflow-driven e2e dirs)..." -ForegroundColor Cyan
+        & $testInfraScript -Update -Confirm:$false
+    } catch {
+        Write-Host "Warning: Test infrastructure update failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "Run manually: New-TestInfrastructure.ps1 -Update" -ForegroundColor Yellow
+    }
+}
 
     # Soak: success outcome (PF-PRO-028 v2.0)
     if ($soakInSoak) { Confirm-SoakInvocation -Outcome success }

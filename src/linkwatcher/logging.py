@@ -115,7 +115,76 @@ class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
     """RotatingFileHandler that uses timestamps in rotated filenames.
 
     Instead of LinkWatcherLog.txt.1, produces LinkWatcherLog_20260316-091500.txt
+
+    Rotation-failure back-off (PD-BUG-099)
+    --------------------------------------
+    On Windows a rename fails (WinError 32) when another process holds the log
+    file open — a duplicate daemon, antivirus, backup, or search indexer. The
+    base file is then left oversized, so ``shouldRollover()`` would keep
+    returning True and retry the (failing) rename on *every* subsequent record,
+    pegging the CPU and flooding stderr with identical warnings. To prevent that
+    storm:
+
+    - After a failed rename, rollover is suppressed for
+      ``_ROLLOVER_RETRY_COOLDOWN`` seconds (``shouldRollover()`` returns False
+      during the window), so the handler keeps appending instead of spinning.
+      It self-heals: once the lock clears, the next attempt after the cooldown
+      succeeds and normal rotation resumes.
+    - If failures persist past ``_ROLLOVER_FAILURE_ALERT_THRESHOLD`` consecutive
+      attempts, a single CRITICAL is emitted (not one per failure) so the
+      operator is told loudly that rotation is stuck. It stays quiet again until
+      the next successful rotation resets the state.
     """
+
+    # Seconds to suppress rollover after a failed rename (overridable in tests).
+    _ROLLOVER_RETRY_COOLDOWN = 60.0
+    # Consecutive failures before a one-time CRITICAL escalation.
+    _ROLLOVER_FAILURE_ALERT_THRESHOLD = 5
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._rollover_blocked_until = 0.0
+        self._rollover_consecutive_failures = 0
+        self._rollover_alerted = False
+
+    def shouldRollover(self, record):
+        # Suppress rollover during the post-failure cooldown so a locked base
+        # file cannot re-trigger doRollover() (and its warning) on every emit.
+        if time.monotonic() < self._rollover_blocked_until:
+            return False
+        return super().shouldRollover(record)
+
+    def _on_rollover_success(self):
+        self._rollover_consecutive_failures = 0
+        self._rollover_blocked_until = 0.0
+        self._rollover_alerted = False
+
+    def _on_rollover_failure(self, backup_name, error):
+        self._rollover_consecutive_failures += 1
+        self._rollover_blocked_until = time.monotonic() + self._ROLLOVER_RETRY_COOLDOWN
+        if (
+            self._rollover_consecutive_failures >= self._ROLLOVER_FAILURE_ALERT_THRESHOLD
+            and not self._rollover_alerted
+        ):
+            self._rollover_alerted = True
+            _fallback_logger.critical(
+                "Log rotation has failed %d consecutive times for %s (last error: %s). "
+                "The log file cannot be rotated — check for another process holding it "
+                "open (a duplicate LinkWatcher instance, antivirus, or backup). Rotation "
+                "will keep retrying every %.0fs and the active log may grow until the "
+                "lock clears.",
+                self._rollover_consecutive_failures,
+                self.baseFilename,
+                error,
+                self._ROLLOVER_RETRY_COOLDOWN,
+            )
+        else:
+            _fallback_logger.warning(
+                "Log rotation failed to rename %s -> %s: %s",
+                self.baseFilename,
+                backup_name,
+                error,
+            )
 
     def doRollover(self):
         if self.stream:
@@ -131,15 +200,14 @@ class TimestampRotatingFileHandler(logging.handlers.RotatingFileHandler):
         if os.path.exists(self.baseFilename):
             try:
                 os.rename(self.baseFilename, backup_name)
+            except OSError as e:
+                # A failed rename must not re-trigger rollover on every record
+                # (PD-BUG-099): back off, and escalate loudly if it persists.
+                self._on_rollover_failure(backup_name, e)
+            else:
+                self._on_rollover_success()
                 logging.getLogger(__name__).info(
                     "Log rotated: %s -> %s", self.baseFilename, backup_name
-                )
-            except OSError as e:
-                _fallback_logger.warning(
-                    "Log rotation failed to rename %s -> %s: %s",
-                    self.baseFilename,
-                    backup_name,
-                    e,
                 )
 
         # Clean up old backups (keep only backupCount most recent)

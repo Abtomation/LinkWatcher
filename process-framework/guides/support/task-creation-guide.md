@@ -2,9 +2,10 @@
 id: PF-GDE-004
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2025-05-27
-updated: 2025-05-30
+updated: 2026-05-16
+description: "Guide for creating and improving task definitions"
 ---
 
 # Task Creation and Improvement Guide
@@ -105,7 +106,6 @@ Follow these steps to create a new task:
 
    - **Purpose & Context**: Clearly explain what the task accomplishes and its role in the process
    - **AI Agent Role**: Assign appropriate professional role with mindset, focus areas, and communication style
-   - **When to Use**: Specify scenarios, prerequisites, and trigger conditions
    - **Inputs**: List all required inputs with links to sources
    - **Process**: Structure the process into Preparation, Execution, and Finalization phases
    - **Outputs**: Define all expected outputs with exact locations and detailed descriptions
@@ -167,10 +167,6 @@ Assign a professional role that optimizes the AI agent's approach to this specif
 **Communication Style**: Present trade-offs between speed and quality, ask about priorities when multiple approaches exist
 ```
 
-#### When to Use
-
-A bulleted list of specific scenarios where this task is appropriate, including any prerequisites or trigger conditions. This helps users quickly determine if this is the right task for their current work.
-
 #### Context Requirements
 
 A prioritized list of all files, information, and resources needed to complete the task, organized by importance:
@@ -188,7 +184,7 @@ A prioritized list of all files, information, and resources needed to complete t
 
 Include file paths where applicable and brief descriptions of each item, with links to source documents where appropriate.
 
-> **Note**: For any new task, create a corresponding context map using the [context map template](../../templates/support/context-map-template.md) and place it in the appropriate directory under `/process-framework/visualization/context-maps`.
+> **Note**: For any new task, create a corresponding context map using the [context map template](../../templates/support/context-map-template.md) and place it in the appropriate directory under `/process-framework/visualization/context-maps`. If a context map already exists for the area (the task supplements an existing artifact family), rename and update it to reference the new task rather than creating a duplicate.
 
 #### Process
 
@@ -391,6 +387,27 @@ The task structure should align with the AI-Tasks workflow described in `/ai-tas
    - Add dependency implementation to the Process Improvement Tracking document
    - NEVER reference non-existent components without proper documentation
 
+## Documenting Script Invocations: Smart Defaults Pattern
+
+When a script has smart-defaulted parameters (parameters auto-derived from other inputs or with sensible fallbacks), task-definition and usage-guide examples should foreground the **minimal invocation** and relegate explicit parameter overrides to an **"Advanced override"** callout.
+
+**Foreground (typical case)** — show only the parameters that carry decision content at the call site:
+
+```bash
+pwsh.exe -ExecutionPolicy Bypass -File Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-XXX" -MoveToSection "Improvements" -Priority "Medium" -Confirm:\$false
+```
+
+**Advanced override** — show only when the auto-default needs adjusting:
+
+```bash
+# Override the destination section's conventional owner (defaults to PF-TSK-009 for Improvements):
+... -RespTask "PF-TSK-014" ...
+```
+
+**Why**: auto-defaulted parameters carry no information at the typical-case call site. Including them in foregrounded examples teaches readers to copy boilerplate and obscures which parameters actually carry decision content. When the script's smart defaults change, every documented example that exposed them needs updating.
+
+**Sweep sites when a script gains a new smart default**: task definition's example block, usage guide's invocation patterns, and the script's SYNOPSIS / EXAMPLE block — all three are typical sites where stale exposure accumulates.
+
 ## Example: Creating a New Discrete Task
 
 Here's an example of creating a new categorized task following the **mandatory script-based approach**:
@@ -425,18 +442,11 @@ Here's an example of creating a new categorized task following the **mandatory s
 
    Systematically improve code quality and maintainability without changing external behavior. This task ensures technical debt is addressed proactively and codebase health is maintained.
 
-   ## When to Use
-
-   - When technical debt has accumulated in a specific area
-   - After completing several features in the same module
-   - Before adding significant new functionality to existing code
-   - When performance issues have been identified
-
    ## Context Requirements
 
    - **Critical (Must Read):**
 
-     - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Coding standards to follow
+     - [Development Guide](../04-implementation/development-guide.md) - Coding standards to follow
      - `Code Quality Reports` *(not yet created)* - Metrics indicating problem areas
 
    - **Reference Only (Access When Needed):**

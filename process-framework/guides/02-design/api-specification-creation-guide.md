@@ -8,6 +8,7 @@ updated: 2025-01-27
 related_task: PF-TSK-020
 related_script: New-APISpecification.ps1
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098"
+description: "Guide for customizing API specification templates"
 ---
 
 # API Specification Creation Guide
@@ -110,13 +111,40 @@ When creating API specifications, you must make several key decisions that impac
 ### API Type and Architecture Decision
 
 **Decision**: REST vs. GraphQL vs. gRPC vs. Service Interface
+
 **Criteria**:
 
-- REST for standard CRUD operations and resource-based APIs
-- GraphQL for complex data querying and flexible client requirements
-- gRPC for high-performance internal service communication
-- Service Interface for abstract service contracts
-  **Impact**: Determines endpoint structure, data exchange patterns, and client implementation approaches
+- **REST** — standard CRUD operations and resource-based APIs reachable over HTTP
+- **GraphQL** — complex data querying and flexible client requirements (HTTP-transported)
+- **gRPC** — high-performance internal service communication (HTTP/2 transport)
+- **Service Interface** — non-network integration boundaries: subprocess invocations (e.g. wrapping a CLI binary), COM/in-process integrations (e.g. Outlook automation on Windows), file-system contracts (e.g. template formats with placeholder vocabularies), library contracts, IPC pipes/sockets, or any other contract where the REST endpoint/auth/status-code model is structurally wrong
+
+**Impact**: Determines endpoint structure, data exchange patterns, and client implementation approaches.
+
+#### `-APIType` selection drives template choice
+
+`New-APISpecification.ps1` selects the underlying template based on the `-APIType` value:
+
+| `-APIType` value | Template emitted | Use when |
+|---|---|---|
+| `Service Interface` | [api-specification-service-interface-template.md](../../templates/02-design/api-specification-service-interface-template.md) (PF-TEM-078) | Documenting subprocess / COM / file-system / library / IPC contracts. The variant has per-integration sections (Purpose, Invocation contract, Inputs, Outputs, Error model, Concurrency, Versioning) instead of REST endpoints. |
+| `REST` (default) | [api-specification-template.md](../../templates/02-design/api-specification-template.md) (PF-TEM-021) | HTTP/REST APIs with endpoints, status codes, and credential-based auth. |
+| `GraphQL`, `gRPC`, anything else | Same as `REST` | Currently fall through to the REST template. The author manually adapts sections that don't fit (e.g., replaces `HTTP_METHOD ENDPOINT_PATH` with GraphQL operation names or gRPC service/method names). Dedicated variants may ship in future IMPs if friction emerges. |
+
+**Examples**:
+
+```powershell
+# REST API (default — same as omitting -APIType)
+.\New-APISpecification.ps1 -APIName "User Management" -FeatureId "1.2.0" -APIType "REST"
+
+# Service-Interface contract (subprocess / COM / file-system)
+.\New-APISpecification.ps1 -APIName "Invoice Generation External Integrations" -FeatureId "1.1.3" -APIType "Service Interface"
+
+# GraphQL or gRPC — gets the REST template; author adapts manually
+.\New-APISpecification.ps1 -APIName "Customer Query API" -FeatureId "1.2.1" -APIType "GraphQL"
+```
+
+> **Reference for Service-Interface authors**: [PD-API-001 Invoice Generation External Integrations](../../../doc/technical/api/specifications/api-1.1.3-invoice-generation-external-integrations.md) is the canonical worked example. It documents three integrations (wkhtmltopdf subprocess, Outlook COM, HTML/DOCX templates) using the section vocabulary the variant template provides.
 
 ### Authentication Strategy Decision
 

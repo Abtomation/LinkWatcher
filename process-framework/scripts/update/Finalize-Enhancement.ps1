@@ -1,7 +1,9 @@
 # Finalize-Enhancement.ps1
 # Automates the mechanical finalization steps of the Feature Enhancement task (PF-TSK-068):
 # 1. Restores the target feature's status in feature-tracking.md
-# 2. Archives the Enhancement State Tracking File to process-framework-local/state-tracking/temporary/old/
+# 2. Archives the Enhancement State Tracking File to <state-tracking>/temporary/old/
+#    (state-tracking root resolved via Get-StateTrackingContext: doc/state-tracking/ in
+#    projects, process-framework-central/state-tracking/ in appdev)
 #
 # Output behavior: Default output is one summary line per invocation (the outcome,
 # e.g. "Feature 6.1.1 → Enhancement finalized"). WARN and ERROR messages always
@@ -16,7 +18,13 @@ param(
     [string]$RestoredStatus = "✅ Complete",
 
     [Parameter(Mandatory = $false)]
-    [string]$StateFilePath
+    [string]$StateFilePath,
+
+    [Parameter(Mandatory = $false)]
+    [string]$FeatureTrackingFile = "",
+
+    [Parameter(Mandatory = $false)]
+    [string]$ArchiveDir = ""
 )
 
 # Import the common helpers for Get-ProjectRoot
@@ -39,9 +47,16 @@ $soakInSoak = Test-ScriptInSoak
 try {
 
 # Configuration
+# Caller-supplied -FeatureTrackingFile / -ArchiveDir override the resolved defaults
+# (sandbox test entry point).
 $ProjectRoot = Get-ProjectRoot
-$FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
-$ArchiveDir = Join-Path -Path $ProjectRoot -ChildPath "process-framework-local/state-tracking/temporary/old"
+$StContext = Get-StateTrackingContext
+if (-not $FeatureTrackingFile) {
+    $FeatureTrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
+}
+if (-not $ArchiveDir) {
+    $ArchiveDir = Join-Path -Path $StContext.StateTrackingRoot -ChildPath "temporary/old"
+}
 
 function Write-Log {
     # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
@@ -77,7 +92,7 @@ if (-not (Test-Path $FeatureTrackingFile)) {
 
 # Auto-detect state file if not provided
 if (-not $StateFilePath) {
-    $tempDir = Join-Path -Path $ProjectRoot -ChildPath "process-framework-local/state-tracking/temporary"
+    $tempDir = Join-Path -Path $StContext.StateTrackingRoot -ChildPath "temporary"
     $candidates = Get-ChildItem -Path $tempDir -Filter "enhancement-*.md" -File -ErrorAction SilentlyContinue
     if ($candidates.Count -eq 0) {
         Write-Log "No enhancement state files found in $tempDir. Provide -StateFilePath explicitly." -Level "ERROR"
@@ -146,6 +161,9 @@ if ($PSCmdlet.ShouldProcess($FeatureTrackingFile, "Restore feature $FeatureId st
         # Try pattern2
         $updatedContent = [regex]::Replace($content, $pattern2, "`${1} $RestoredStatus `${2}")
     }
+    # PF-IMP-801: recompute Progress Summary — status restoration shifts the
+    # Implementation Status Overview breakdown.
+    $updatedContent = Update-FeatureTrackingSummary -Content $updatedContent
     Set-Content -Path $FeatureTrackingFile -Value $updatedContent -NoNewline
     Write-Log "Restored feature $FeatureId status to '$RestoredStatus'" -Level "SUCCESS"
 }

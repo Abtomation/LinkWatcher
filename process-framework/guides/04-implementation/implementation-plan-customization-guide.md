@@ -7,6 +7,7 @@ created: 2025-11-03
 updated: 2025-11-03
 related_script: New-ImplementationPlan.ps1
 related_task: PF-TSK-044
+description: "How to use New-ImplementationPlan.ps1 and customize implementation plan templates"
 ---
 
 # Implementation Plan Customization Guide

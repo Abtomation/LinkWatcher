@@ -7,6 +7,7 @@ created: 2023-06-15
 updated: 2026-04-02
 automation: manual
 automation_rationale: Created once per project or major component — too infrequent to justify a script
+description: "Template for architecture documentation"
 ---
 
 # [Component/System Name] Architecture

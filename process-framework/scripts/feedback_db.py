@@ -21,6 +21,8 @@ Usage:
     python process-framework/scripts/feedback_db.py alerts --threshold 2.5 --min-ratings 5
     python process-framework/scripts/feedback_db.py consolidate-tools --dry-run
     python process-framework/scripts/feedback_db.py consolidate-tools
+    python process-framework/scripts/feedback_db.py backfill-tool-doc-ids --dry-run
+    python process-framework/scripts/feedback_db.py backfill-tool-doc-ids
 """
 
 import argparse
@@ -57,21 +59,37 @@ def _resolve_db_path() -> Path:
 
 
 def _resolve_project_name() -> str:
-    """Resolve project name from doc/project-config.json."""
-    config_path = Path(__file__).resolve().parent.parent.parent / "doc" / "project-config.json"
-    if config_path.exists():
-        try:
-            with open(config_path) as f:
-                config = json.load(f)
-            name = config.get("project", {}).get("name")
-            if name:
-                return name
-        except (json.JSONDecodeError, OSError):
-            pass
+    """Resolve project name from doc/project-config.json.
+
+    Walks up from __file__ looking for doc/project-config.json. Skips candidates whose
+    project.name is empty so an unfilled blueprint/doc/project-config.json template
+    (in appdev's blueprint/ tree) doesn't false-match before the real config above it.
+    """
+    checked = []
+    current = Path(__file__).resolve().parent
+    while current != current.parent:
+        candidate = current / "doc" / "project-config.json"
+        if candidate.exists():
+            checked.append(str(candidate))
+            try:
+                with open(candidate) as f:
+                    config = json.load(f)
+                name = config.get("project", {}).get("name")
+                if name:
+                    return name
+            except (json.JSONDecodeError, OSError):
+                pass
+        current = current.parent
+    if checked:
+        location_hint = "  Checked (project.name empty in each):\n" + "\n".join(
+            f"    {p}" for p in checked
+        )
+    else:
+        location_hint = "  No doc/project-config.json found above script location."
     print(
         "ERROR: Could not resolve project name.\n"
-        f"  Expected: {config_path}\n"
-        "  Ensure doc/project-config.json exists with project.name field.",
+        f"{location_hint}\n"
+        "  Ensure doc/project-config.json exists with non-empty project.name.",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -299,11 +317,19 @@ class FeedbackDB:
         """Record a single feedback form with its tool ratings.
 
         Returns the form_id of the recorded form.
+
+        Per-form project attribution (PF-IMP-833 (e)): if the form dict carries a
+        non-empty "project_name" field, that value is used for both the feedback_forms
+        and tool_ratings rows; otherwise the instance default (resolved at construction
+        from doc/project-config.json) is used. Enables a single invocation to record
+        forms spanning multiple projects with correct cross-project attribution.
         """
         required = ["form_id", "task_id", "feedback_type", "form_date"]
         for field in required:
             if field not in data:
                 raise ValueError(f"Missing required field: {field}")
+
+        project_name = data.get("project_name") or self.project_name
 
         conn = self._connect()
         try:
@@ -314,7 +340,7 @@ class FeedbackDB:
                     overall_effectiveness, process_conciseness)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
-                    self.project_name,
+                    project_name,
                     data["form_id"],
                     data["task_id"],
                     data.get("task_context"),
@@ -331,7 +357,7 @@ class FeedbackDB:
             # Delete existing tool ratings for this form (for idempotent re-record)
             conn.execute(
                 "DELETE FROM tool_ratings WHERE project_name = ? AND form_id = ?",
-                (self.project_name, data["form_id"]),
+                (project_name, data["form_id"]),
             )
 
             for tool in data.get("tools", []):
@@ -341,7 +367,7 @@ class FeedbackDB:
                         effectiveness, clarity, completeness, efficiency, conciseness)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        self.project_name,
+                        project_name,
                         data["form_id"],
                         tool["tool_name"],
                         tool.get("tool_doc_id"),
@@ -659,6 +685,54 @@ class FeedbackDB:
             if not dry_run:
                 conn.commit()
             return results
+        finally:
+            conn.close()
+
+    def backfill_tool_doc_ids(self, dry_run: bool = False) -> dict:
+        """Fill NULL tool_ratings.tool_doc_id by re-deriving from stored tool_name.
+
+        Re-derivation uses extract_ratings.derive_tool_doc_id (the same rules new
+        extraction applies: task ID for task defs, filename otherwise). Historical NULL
+        rows predate the filename-capture fix (PF-IMP-935); their tool_name still holds
+        the filename, so it can be recovered without re-reading form files.
+
+        NULL-only and project-scoped — never overwrites an existing tool_doc_id.
+        Idempotent: re-running recovers nothing once applied. Rows whose tool_name yields
+        no canonical id (prose names like "Test Registry") are left NULL.
+
+        Returns {"null_before", "recovered", "remaining_null", "by_value"}.
+        """
+        from extract_ratings import derive_tool_doc_id  # sibling script, co-located
+
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                "SELECT id, tool_name FROM tool_ratings "
+                "WHERE project_name = ? AND tool_doc_id IS NULL",
+                (self.project_name,),
+            ).fetchall()
+            null_before = len(rows)
+            recovered = 0
+            by_value: dict = {}
+            for r in rows:
+                tool_doc_id, _ = derive_tool_doc_id(r["tool_name"] or "")
+                if not tool_doc_id:
+                    continue
+                recovered += 1
+                by_value[tool_doc_id] = by_value.get(tool_doc_id, 0) + 1
+                if not dry_run:
+                    conn.execute(
+                        "UPDATE tool_ratings SET tool_doc_id = ? WHERE id = ?",
+                        (tool_doc_id, r["id"]),
+                    )
+            if not dry_run:
+                conn.commit()
+            return {
+                "null_before": null_before,
+                "recovered": recovered,
+                "remaining_null": null_before - recovered,
+                "by_value": by_value,
+            }
         finally:
             conn.close()
 
@@ -1005,13 +1079,42 @@ def cmd_init(args, db):
     db.init_db(force=args.force)
 
 
+def _load_json_input(source: str, *, hint_stdin_workaround: bool):
+    """Load JSON from a file path or '-' for stdin, with actionable error messages.
+
+    hint_stdin_workaround=True surfaces the bash-escape-corruption pattern (PF-IMP-833 (b))
+    on stdin parse failures and points to the --batch <path> / --json <path> file workaround.
+    """
+    if source == "-":
+        try:
+            return json.load(sys.stdin)
+        except json.JSONDecodeError as e:
+            msg = [f"ERROR: Failed to parse JSON from stdin: {e}"]
+            if hint_stdin_workaround:
+                msg.append(
+                    "  Hint: bash heredocs and double-quoted strings can corrupt JSON via "
+                    "escape-sequence interpretation\n"
+                    '  (backticks become command substitution; \\n / \\t / \\" may be reinterpreted).'
+                )
+                msg.append(
+                    "  Workaround: write the JSON to a file and pass --batch <path> "
+                    "(or --json <path>) instead of stdin."
+                )
+            print("\n".join(msg), file=sys.stderr)
+            sys.exit(1)
+    try:
+        return json.loads(Path(source).read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        print(f"ERROR: Failed to parse JSON from {source}: {e}", file=sys.stderr)
+        sys.exit(1)
+    except OSError as e:
+        print(f"ERROR: Could not read {source}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
 def cmd_record(args, db):
     """Handle the 'record' subcommand."""
-    if args.json == "-":
-        data = json.load(sys.stdin)
-    else:
-        with open(args.json, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    data = _load_json_input(args.json, hint_stdin_workaround=True)
 
     if isinstance(data, list):
         count = db.record_forms(data)
@@ -1022,11 +1125,23 @@ def cmd_record(args, db):
         print(f"Recorded form {form_id} with {tool_count} tool ratings.")
 
 
-def _block_unknown_tools(db, tool_ids, new_tool_flag):
-    """Block log-change with unknown tool_doc_ids unless --new-tool acknowledged."""
+def _block_unknown_tools(db, entries, new_tool_flag):
+    """Block log-change with unknown tool_doc_ids.
+
+    entries: list of {"tool": str, "new_tool": bool?} dicts.
+    new_tool_flag: global CLI override (--new-tool) — exempts every entry. Use for
+        bulk imports only; weakens typo detection across the whole batch.
+
+    An entry escapes the block when ANY of these holds:
+      - new_tool_flag is True (global override)
+      - entry has "new_tool": True (per-row opt-in for mixed batches, PF-IMP-833 (a))
+      - entry's tool is already known to this project
+    """
     if new_tool_flag:
         return
-    unknown = [t for t in tool_ids if not db.is_known_tool(t)]
+    unknown = [
+        e["tool"] for e in entries if not e.get("new_tool") and not db.is_known_tool(e["tool"])
+    ]
     if unknown:
         print("ERROR: Unknown tool_doc_id(s) for this project:", file=sys.stderr)
         for t in unknown:
@@ -1036,7 +1151,11 @@ def _block_unknown_tools(db, tool_ids, new_tool_flag):
             file=sys.stderr,
         )
         print(
-            "Pass --new-tool if this is a legitimately new tool registration.",
+            "Options to register a new tool:\n"
+            '  - Per-row: add "new_tool": true to the relevant entry in --batch JSON\n'
+            "    (preserves typo detection on the other entries; PF-IMP-833 (a))\n"
+            "  - Global: pass --new-tool to exempt the entire batch\n"
+            "    (use for bulk imports only; weakens typo detection)",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -1050,15 +1169,11 @@ def cmd_log_change(args, db):
         )
         sys.exit(1)
     if args.batch:
-        src = args.batch
-        if src == "-":
-            data = json.load(sys.stdin)
-        else:
-            data = json.loads(Path(src).read_text(encoding="utf-8"))
+        data = _load_json_input(args.batch, hint_stdin_workaround=True)
         if not isinstance(data, list):
             print("Error: --batch JSON must be an array of objects", file=sys.stderr)
             sys.exit(1)
-        _block_unknown_tools(db, [entry["tool"] for entry in data], args.new_tool)
+        _block_unknown_tools(db, data, args.new_tool)
         count = 0
         for entry in data:
             row_id = db.log_change(
@@ -1074,7 +1189,7 @@ def cmd_log_change(args, db):
             count += 1
         print(f"Batch complete: {count} changes logged.")
     else:
-        _block_unknown_tools(db, [args.tool], args.new_tool)
+        _block_unknown_tools(db, [{"tool": args.tool}], args.new_tool)
         row_id = db.log_change(
             tool_doc_id=args.tool,
             change_date=args.date,
@@ -1170,6 +1285,26 @@ def cmd_consolidate_tools(args, db):
         )
 
 
+def cmd_backfill_tool_doc_ids(args, db):
+    """Handle the 'backfill-tool-doc-ids' subcommand."""
+    result = db.backfill_tool_doc_ids(dry_run=args.dry_run)
+
+    if result["null_before"] == 0:
+        print("No NULL tool_doc_id rows — nothing to backfill.")
+        return
+
+    top = sorted(result["by_value"].items(), key=lambda kv: (-kv[1], kv[0]))[:15]
+    if top:
+        print(format_table([{"tool_doc_id": k, "rows": v} for k, v in top]))
+
+    verb = "Would recover" if args.dry_run else "Recovered"
+    suffix = "  Re-run without --dry-run to apply." if args.dry_run else ""
+    print(
+        f"\n{verb} {result['recovered']} of {result['null_before']} NULL tool_doc_id "
+        f"row(s); {result['remaining_null']} remain NULL (unidentifiable tool names).{suffix}"
+    )
+
+
 def cmd_alerts(args, db):
     """Handle the 'alerts' subcommand."""
     alerts = db.get_alerts(threshold=args.threshold, min_ratings=args.min_ratings)
@@ -1238,13 +1373,16 @@ def main():
     p_change.add_argument("--description", help="Description of the change")
     p_change.add_argument(
         "--batch",
-        help="Path to JSON file with array of "
-        '{tool, date, description, imp?} objects, or "-" for stdin',
+        help="Path to JSON file with array of {tool, date, description, imp?, new_tool?} "
+        'objects, or "-" for stdin. Per-entry "new_tool": true opts that row out of the '
+        "unknown-ID block (PF-IMP-833 (a)) — use for mixed batches containing both "
+        "known tools and first-time registrations.",
     )
     p_change.add_argument(
         "--new-tool",
         action="store_true",
-        help="Acknowledge a first-time tool_doc_id registration (bypasses unknown-ID block)",
+        help="Global override: bypass unknown-ID block for the entire batch. Use for bulk "
+        'imports only. For mixed batches prefer per-entry "new_tool": true in --batch JSON.',
     )
 
     # query
@@ -1286,6 +1424,20 @@ def main():
         help="Preview affected rows without applying UPDATEs",
     )
 
+    # backfill-tool-doc-ids
+    p_backfill = subparsers.add_parser(
+        "backfill-tool-doc-ids",
+        help=(
+            "Fill NULL tool_ratings.tool_doc_id by re-deriving from stored tool_name "
+            "(same rules as extract_ratings). NULL-only, idempotent (PF-IMP-965)."
+        ),
+    )
+    p_backfill.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview recovery counts without applying UPDATEs",
+    )
+
     # alerts
     p_alerts = subparsers.add_parser("alerts", help="Flag tools with ratings below threshold")
     p_alerts.add_argument(
@@ -1319,6 +1471,7 @@ def main():
         "report": cmd_report,
         "alerts": cmd_alerts,
         "consolidate-tools": cmd_consolidate_tools,
+        "backfill-tool-doc-ids": cmd_backfill_tool_doc_ids,
     }
     commands[args.command](args, db)
 

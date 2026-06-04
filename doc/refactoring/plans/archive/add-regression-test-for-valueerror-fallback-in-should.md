@@ -25,10 +25,10 @@ feature_id: 6.1.1
 
 ## Item 1: TD214 — Missing regression test for ValueError fallback in should_monitor_file()
 
-**Scope**: Dimension: **TST** (Test). Add a single regression test (`test_file_not_under_project_root_falls_back_to_full_path`) to [test_shouldmonitorfileancestorpath.py](/test/automated/unit/test_shouldmonitorfileancestorpath.py) covering the `except ValueError` branch at [utils.py:78-80](/src/linkwatcher/utils.py#L78-L80). This branch fires when `file_path` is not under `project_root` and falls back to checking the full path's parts against `ignored_dirs` — currently exercised by zero tests despite being a defensive branch on the file-watching hot path. Test verifies (a) the fallback still applies the ignored-dirs filter (file under an outside-but-ignored dir is rejected) and (b) the function does not crash on the `ValueError`. Discovered during test audit TE-TAR-065.
+**Scope**: Dimension: **TST** (Test). Add a single regression test (`test_file_not_under_project_root_falls_back_to_full_path`) to [test_shouldmonitorfileancestorpath.py](/test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_shouldmonitorfileancestorpath.py) covering the `except ValueError` branch at [utils.py:78-80](/src/linkwatcher/utils.py#L78-L80). This branch fires when `file_path` is not under `project_root` and falls back to checking the full path's parts against `ignored_dirs` — currently exercised by zero tests despite being a defensive branch on the file-watching hot path. Test verifies (a) the fallback still applies the ignored-dirs filter (file under an outside-but-ignored dir is rejected) and (b) the function does not crash on the `ValueError`. Discovered during test audit TE-TAR-065.
 
 **Changes Made**:
-- [x] Added `test_file_not_under_project_root_falls_back_to_full_path` to `TestShouldMonitorFileAncestorPath` class in [test_shouldmonitorfileancestorpath.py](/test/automated/unit/test_shouldmonitorfileancestorpath.py)
+- [x] Added `test_file_not_under_project_root_falls_back_to_full_path` to `TestShouldMonitorFileAncestorPath` class in [test_shouldmonitorfileancestorpath.py](/test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_shouldmonitorfileancestorpath.py)
 
 **Test Baseline**: 808 passed, 1 failed (pre-existing), 5 skipped, 5 deselected, 4 xfailed (49.16s, `pytest test/automated/ -m "not slow"`)
 - Pre-existing failure: `test/automated/integration/test_link_updates.py::TestBug094PythonImportDoubleApply::test_bug094_multi_rename_order_independent` (related to PD-BUG-094 / TD-tests for BUG-094)
@@ -55,4 +55,3 @@ feature_id: 6.1.1
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

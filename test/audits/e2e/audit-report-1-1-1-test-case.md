@@ -7,7 +7,7 @@ created: 2026-04-15
 updated: 2026-04-15
 feature_id: 1.1.1
 audit_date: 2026-04-15
-test_file_path: test/e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md
+test_file_path: test/e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-001-regex-preserved-on-file-move/test-case.md
 auditor: AI Agent
 ---
 
@@ -20,7 +20,7 @@ auditor: AI Agent
 | **Feature ID** | 1.1.1, 2.1.1, 2.2.1 |
 | **Test Case ID** | TE-E2E-001 |
 | **Test Group** | TE-E2G-001 |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-001-regex-preserved-on-file-move/` |
 | **Workflow** | WF-001: Single file move — links updated |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-15 |

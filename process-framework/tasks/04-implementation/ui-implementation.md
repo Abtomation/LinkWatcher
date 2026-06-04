@@ -2,9 +2,10 @@
 id: PF-TSK-052
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-12-13
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Build user interface components and layouts for feature"
 ---
 
 # UI Implementation
@@ -22,30 +23,22 @@ Build UI components and screen layouts for a feature. This task creates the user
 **Focus Areas**: Component hierarchy design, layout patterns, state consumption, navigation flow, theming and styling, accessibility
 **Communication Style**: Propose component composition patterns with trade-offs, highlight UI/UX implications, ask about layout preferences and responsive design requirements
 
-## When to Use
-
-- After state management layer is implemented via PF-TSK-056
-- Before integration testing via PF-TSK-053
-- When feature requires user-facing screens and interactive UI components
-- When UI needs to consume state from the state management layer
-- **Prerequisites**: State management layer completed, feature implementation plan approved, UI/UX requirements identified
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/ui-implementation-map.md)
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/doc/state-tracking/features/[feature-id]-implementation-state.md` containing implementation progress and context
   - **TDD (Technical Design Document)** - UI/UX design section describing screen layouts, component hierarchy, navigation flow, and technology-specific patterns
   - **Completed State Layer Code** - State management implementations from PF-TSK-056
 
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
-  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
+  - [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Existing UI Examples** - Similar UI implementations in codebase for pattern consistency
   - **Theme Configuration** - App-wide theme settings and style constants
   - **Framework Documentation** - Official documentation for the UI framework specified in the TDD
@@ -62,29 +55,30 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 ### Preparation
 
-1. **Review TDD UI/UX Design**: Read UI design section from TDD to understand screen layouts, component hierarchy, navigation flow, and technology-specific patterns
-2. **Analyze State Layer Output**: Review completed state management implementations from PF-TSK-056 to understand available state and actions
-3. **Identify Component Requirements**: Determine screens needed, UI components, and navigation patterns from TDD
+1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `ui-implementation`. If a matching skill is available in the session, activate it before starting implementation work.
+2. **Review TDD UI/UX Design**: Read UI design section from TDD to understand screen layouts, component hierarchy, navigation flow, and technology-specific patterns
+3. **Analyze State Layer Output**: Review completed state management implementations from PF-TSK-056 to understand available state and actions
+4. **Identify Component Requirements**: Determine screens needed, UI components, and navigation patterns from TDD
    - **Review AX and SE dimensions** from the feature's Dimension Profile — UI work is particularly sensitive to Accessibility/UX (semantic labels, keyboard navigation, contrast) and Security (input validation, XSS prevention). Note any Critical/Relevant considerations that apply to the UI layer
-4. **Plan Component Hierarchy**: Map out component tree structure, screen composition, and reusable component extraction
-5. **🚨 CHECKPOINT**: Present UI analysis, component hierarchy plan, and accessibility requirements to human partner for approval
+5. **Plan Component Hierarchy**: Map out component tree structure, screen composition, and reusable component extraction
+6. **🚨 CHECKPOINT**: Present UI analysis, component hierarchy plan, and accessibility requirements to human partner for approval
 
 ### Execution
 
-6. **Create UI Components**: Build reusable UI components following single responsibility principle
+7. **Create UI Components**: Build reusable UI components following single responsibility principle
    - Create presentational components for display-only elements
    - Create stateful components for elements that need state management access
    - Extract common UI elements into shared components
-7. **Implement Screens**: Build complete screen layouts with navigation
+8. **Implement Screens**: Build complete screen layouts with navigation
    - Design responsive layouts appropriate to the target platform
    - Integrate navigation following the patterns specified in the TDD
    - Apply theming and styling consistently
-8. **Connect to State Layer**: Wire UI components to state management using the patterns specified in the TDD
+9. **Connect to State Layer**: Wire UI components to state management using the patterns specified in the TDD
    - Subscribe to reactive state updates where needed
    - Dispatch actions or call state mutations for user interactions
    - Handle loading, error, and empty states appropriately
-9. **Implement Accessibility**: Add semantic labels, proper contrast, and keyboard navigation
-10. **Add UI Tests**: Create tracked tests for UI components and screens using `New-TestFile.ps1`
+10. **Implement Accessibility**: Add semantic labels, proper contrast, and keyboard navigation
+11. **Add UI Tests**: Create tracked tests for UI components and screens using `New-TestFile.ps1`
 
     ```powershell
     # Create test files using automation script (writes pytest markers)
@@ -102,16 +96,16 @@ Build UI components and screen layouts for a feature. This task creates the user
     - Test component rendering with different state scenarios
     - Test user interactions (clicks, scrolls, input)
     - Test navigation flows
-11. **🚨 CHECKPOINT**: Present implemented UI components, screen layouts, test results, and any TDD deviations to human partner for review and approval
+12. **🚨 CHECKPOINT**: Present implemented UI components, screen layouts, test results, and any TDD deviations to human partner for review and approval
 
 ### Finalization
 
-12. **Verify Component Hierarchy**: Ensure component composition follows framework best practices and avoids excessive nesting
-13. **Review Responsive Design**: Confirm layouts work across target screen sizes and orientations
-14. **Validate Accessibility**: Ensure all interactive elements have proper semantics and meet accessibility standards
-15. **Validate Test Coverage**: Ensure all screens and critical components have comprehensive UI test coverage
-16. **Update Code Inventory**: Document all created components and screens in Feature Implementation State File
-17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+13. **Verify Component Hierarchy**: Ensure component composition follows framework best practices and avoids excessive nesting
+14. **Review Responsive Design**: Confirm layouts work across target screen sizes and orientations
+15. **Validate Accessibility**: Ensure all interactive elements have proper semantics and meet accessibility standards
+16. **Validate Test Coverage**: Ensure all screens and critical components have comprehensive UI test coverage
+17. **Update Code Inventory**: Document all created components and screens in Feature Implementation State File
+18. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 

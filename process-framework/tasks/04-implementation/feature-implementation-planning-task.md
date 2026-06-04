@@ -2,9 +2,10 @@
 id: PF-TSK-044
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-10-30
-updated: 2026-04-04
+updated: 2026-05-16
+description: "Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping"
 ---
 
 # Feature Implementation Planning Task
@@ -72,16 +73,6 @@ When referencing design documents in implementation plans:
 - UI design specifications (owned by UI/UX Design Task)
 - Test case details (owned by Test Specification Task)
 
-## When to Use
-
-- After ALL design documentation is complete and approved (FDD, TDD, and applicable API/DB/UI design)
-- Before starting feature implementation using the decomposed implementation tasks
-- When feature complexity requires breaking implementation into multiple phases
-- When multiple implementation tasks need coordination and dependency management
-- When long-running features need session continuity and handover support
-- When risk assessment and mitigation strategies need explicit definition
-- **Prerequisites**: All design documents completed, architectural decisions finalized, dependencies identified
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/feature-implementation-planning-map.md)
@@ -105,7 +96,7 @@ When referencing design documents in implementation plans:
   - **Information Flow Guide** - [For understanding information flow between tasks](../../guides/framework/information-flow-guide.md)
 
 - **Reference Only (Access When Needed):**
-  - **Architecture Decision Records** - [ADRs](/doc/technical/adr) relevant to this feature
+  - **Architecture Decision Records** - [ADRs](../../../doc/technical/adr) relevant to this feature
   <!-- Test Strategy Documentation - directory /doc/technical/testing does not exist in this project -->
   - **Visual Notation Guide** - [For interpreting context map diagrams](../../guides/support/visual-notation-guide.md)
 
@@ -167,7 +158,7 @@ When referencing design documents in implementation plans:
 
    - **Existing files to modify**: Specific file paths in the source directory that need changes
    - **New files to create**: File paths and purposes for new components
-   - **Design documents to reference**: Which sections of [FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB Schema, or UI Design documents are relevant
+   - **Design documents to reference**: Which sections of [FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB Schema, or UI Design documents are relevant
    - **Existing patterns to follow**: Similar features in the codebase to reference
 
 9. **Sequence Implementation Phases**: Order phases based on:
@@ -236,7 +227,7 @@ When referencing design documents in implementation plans:
 
 17. **Complete Implementation Plan Sections**: Fill in all template sections:
 
-    - **Feature Overview**: Brief summary with links to design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI)
+    - **Feature Overview**: Brief summary with links to design documents ([FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB, UI)
     - **Implementation Objectives**: Clear goals and success criteria for implementation
     - **Implementation Phases**: Sequenced breakdown with descriptions and effort estimates
     - **File and Component Mapping**: Specific file paths and components for each phase
@@ -250,7 +241,7 @@ When referencing design documents in implementation plans:
     - **Feature Overview**: Complete description with business value and scope
     - **Implementation Progress**: Copy phase sequence from implementation plan
     - **Dimension Profile**: Record the dimension applicability evaluation from step 5 — applicable dimensions with importance level (Critical/Relevant) and key considerations, plus N/A dimensions with rationale. This is the **single source of truth** for dimension awareness during implementation
-    - **Documentation Inventory**: List all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI) with direct links and which sections are relevant for each phase. **Also populate the `### User Documentation` subsection** by applying the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md):
+    - **Documentation Inventory**: List all design documents ([FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB, UI) with direct links and which sections are relevant for each phase. **Also populate the `### User Documentation` subsection** by applying the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md):
       - Evaluate whether this feature has user-visible behavior (new CLI options, configuration, workflows, commands)
       - If **no user-visible behavior**: add a single row with Content Type `N/A` and Status `N/A` plus a brief rationale (e.g., "internal foundation feature")
       - If **user-visible behavior**: apply the guide's [decision matrix](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix) and [typical mappings](../../guides/07-deployment/diataxis-content-type-guide.md#typical-mappings) to identify which content types the feature will likely need. Create **one row per identified content type**, each with the appropriate Content Type set and Status `❌ Needed`
@@ -291,7 +282,7 @@ When referencing design documents in implementation plans:
 ## Outputs
 
 - **Implementation Plan Document** - Strategic roadmap at [`/doc/technical/implementation-plans/`](../../../doc/technical/implementation-plans)`[feature-id]-[feature-name]-implementation-plan.md` with assigned PD-IMP-XXX ID containing:
-  - **Feature Overview**: Brief summary with links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI)
+  - **Feature Overview**: Brief summary with links to all design documents ([FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB, UI)
   - **Implementation Objectives**: Clear goals and success criteria
   - **Implementation Phases**: Sequenced breakdown with descriptions and effort estimates
   - **File and Component Mapping**: Specific file paths in the source directory and the test directory for each phase
@@ -307,7 +298,7 @@ When referencing design documents in implementation plans:
   - **Current State Summary**: Initial state showing planning phase activities
   - **Implementation Progress**: Sequenced phase list from implementation plan (will be updated throughout implementation)
   - **Dimension Profile**: Applicability evaluation for all 10 development dimensions — importance level (Critical/Relevant/N/A) with key considerations per applicable dimension. Single source of truth for dimension awareness during implementation, review, and validation
-  - **Documentation Inventory**: Links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI) with:
+  - **Documentation Inventory**: Links to all design documents ([FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB, UI) with:
     - Direct links to specific document sections relevant to each implementation phase
     - Status of each design document
   - **File and Component Context**: **CRITICAL PREPARATION** - Detailed mapping of:
@@ -344,7 +335,7 @@ Before considering this task finished:
 
 - [ ] **Verify Outputs - Implementation Plan Document**: Confirm implementation plan is complete and comprehensive
   - [ ] Document created at [`/doc/technical/implementation-plans/`](../../../doc/technical/implementation-plans) with proper naming including Feature ID and assigned PD-IMP-XXX ID
-  - [ ] **Feature Overview**: Includes brief summary and links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI)
+  - [ ] **Feature Overview**: Includes brief summary and links to all design documents ([FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB, UI)
   - [ ] **Implementation Objectives**: Clear goals and success criteria defined
   - [ ] **Implementation Phases**: Sequenced breakdown with descriptions and effort estimates
   - [ ] **File and Component Mapping**: Specific file paths in the source directory documented for each phase
@@ -360,7 +351,7 @@ Before considering this task finished:
   - [ ] **Current State Summary**: Initial state documented showing planning activities
   - [ ] **Implementation Progress**: Phase list matches implementation plan
   - [ ] **Dimension Profile**: All 10 dimensions evaluated with importance level (Critical/Relevant/N/A); key considerations documented for applicable dimensions; N/A rationale provided for excluded dimensions
-  - [ ] **Documentation Inventory**: Links to all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI) with:
+  - [ ] **Documentation Inventory**: Links to all design documents ([FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB, UI) with:
     - Specific sections of each document relevant to each implementation phase
     - Current status of each design document
   - [ ] **File and Component Context**: **CRITICAL** - Detailed mapping documented:
@@ -371,7 +362,7 @@ Before considering this task finished:
   - [ ] **Dependencies**: Feature, system, and code dependencies documented
   - [ ] **Next Steps**: Reference to decomposed implementation tasks to use (e.g., [Data Layer Implementation (PF-TSK-051)](data-layer-implementation.md))
 - [ ] **Verify Cross-References**: Ensure proper linking between documents
-  - [ ] Implementation plan references all design documents ([FDD](/doc/functional-design/fdds), [TDD](/doc/technical/tdd), API, DB, UI)
+  - [ ] Implementation plan references all design documents ([FDD](../../../doc/functional-design/fdds), [TDD](../../../doc/technical/tdd), API, DB, UI)
   - [ ] Feature state file references implementation plan
   - [ ] Feature state file includes specific file paths in the source directory and the test directory
   - [ ] Both documents reference feature tracking entry
@@ -445,7 +436,7 @@ Implementation Planning (this task - PF-TSK-044) →
 
 ### Architecture and Standards
 
-- **[Architecture Decision Records](/doc/technical/adr)** - Architectural constraints and decisions
+- **[Architecture Decision Records](../../../doc/technical/adr)** - Architectural constraints and decisions
 
 ### Testing and Validation
 

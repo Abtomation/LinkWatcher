@@ -7,6 +7,7 @@ created: 2026-03-15
 updated: 2026-03-15
 workflow_phase: 03-testing
 related_task: PF-TSK-069
+description: "Components for creating concrete E2E acceptance test cases from test specifications"
 ---
 
 # E2E Acceptance Test Case Creation Context Map
@@ -86,11 +87,11 @@ graph TD
 
 ## Related Documentation
 
-- [E2E Acceptance Test Case Creation Task](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Full task definition with process steps
-- [E2E Acceptance Master Test Template](/process-framework/templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master tests
-- [E2E Acceptance Test Case Template](/process-framework/templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual test cases
-- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Test creation and execution status
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Feature development status with test coverage
-- [Test Specification Creation Task](/process-framework/tasks/03-testing/test-specification-creation-task.md) - Upstream task that identifies E2E acceptance test scenarios
+- [E2E Acceptance Test Case Creation Task](../../../tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Full task definition with process steps
+- [E2E Acceptance Master Test Template](../../../templates/03-testing/e2e-acceptance-master-test-template.md) - Template for group-level master tests
+- [E2E Acceptance Test Case Template](../../../templates/03-testing/e2e-acceptance-test-case-template.md) - Template for individual test cases
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test creation and execution status
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature development status with test coverage
+- [Test Specification Creation Task](../../../tasks/03-testing/test-specification-creation-task.md) - Upstream task that identifies E2E acceptance test scenarios
 
 ---

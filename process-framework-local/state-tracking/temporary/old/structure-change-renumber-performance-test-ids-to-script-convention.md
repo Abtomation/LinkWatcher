@@ -30,10 +30,10 @@ The performance test tracking file had three rows sharing `BM-002` (DB add/looku
 |------|--------|--------|
 | [test/state-tracking/permanent/performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md) | Split BM-002 (×3 rows) → BM-002/BM-007/BM-008; PH-MEM→PH-007, PH-CPU→PH-008 | DONE |
 | [test/state-tracking/audit/audit-tracking-performance-1.md](/test/state-tracking/audit/audit-tracking-performance-1.md) | Inventory rows + session planning text | DONE |
-| [test/audits/performance/audit-report-2-1-1-test-benchmark.md](/test/audits/performance/audit-report-2-1-1-test-benchmark.md) | Replace BM-002 Adds/Lookups/Updates with BM-002/BM-007/BM-008; update bare BM-002 umbrella references | DONE |
-| [test/audits/performance/audit-report-0-1-1-test-large-projects.md](/test/audits/performance/audit-report-0-1-1-test-large-projects.md) | Replace PH-MEM/PH-CPU references throughout (TE-TAR-070, active audit) | DONE |
-| [test/automated/performance/test_benchmark.py](/test/automated/performance/test_benchmark.py) | File-level + method-level docstrings | DONE |
-| [test/automated/performance/test_large_projects.py](/test/automated/performance/test_large_projects.py) | File-level docstring (added PH-006/PH-007/PH-008 entries) | DONE |
+| [test/audits/performance/audit-report-2-1-1-test-benchmark.md](/test/audits/performance/level2-operation/audit-report-2-1-1-test-benchmark.md) | Replace BM-002 Adds/Lookups/Updates with BM-002/BM-007/BM-008; update bare BM-002 umbrella references | DONE |
+| [test/audits/performance/audit-report-0-1-1-test-large-projects.md](/test/audits/performance/level3-scale/audit-report-0-1-1-test-large-projects.md) | Replace PH-MEM/PH-CPU references throughout (TE-TAR-070, active audit) | DONE |
+| [test/automated/performance/test_benchmark.py](/test/automated/performance/level2-operation/test_benchmark.py) | File-level + method-level docstrings | DONE |
+| [test/automated/performance/test_large_projects.py](/test/automated/performance/level3-scale/test_large_projects.py) | File-level docstring (added PH-006/PH-007/PH-008 entries) | DONE |
 | [test/TE-id-registry.json](/test/TE-id-registry.json) | `BM.nextAvailable: 7→9`, `PH.nextAvailable: 7→9` | DONE |
 | [doc/state-tracking/permanent/technical-debt-tracking.md](/doc/state-tracking/permanent/technical-debt-tracking.md) | TD215, TD216, TD236, TD237 description columns annotated with new IDs | DONE |
 
@@ -46,7 +46,7 @@ The performance test tracking file had three rows sharing `BM-002` (DB add/looku
 
 ## Frozen Historical Files (intentionally NOT updated)
 
-- `test/audits/performance/old/audit-report-2-1-1-test-benchmark-2026-04-20.md` — archived prior audit
+- `test/audits/performance/level2-operation/audit-report-2-1-1-test-benchmark-2026-04-20.md` — archived prior audit
 - `doc/refactoring/plans/archive/tighten-bm-002-bm-006-tolerances-add-warmups-switch-to-perf.md` — archived plan
 - `doc/refactoring/plans/archive/remove-pytest-mark-slow-from-bm-003-initial-scan-benchmark.md` — archived plan
 - `process-framework-local/feedback/feedback-forms/*` and `archive/*` — frozen session records

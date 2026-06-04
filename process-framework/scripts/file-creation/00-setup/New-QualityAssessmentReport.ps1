@@ -26,26 +26,34 @@
 .PARAMETER Tier
     Feature tier (1, 2, or 3)
 
-.PARAMETER AverageScore
-    Average quality score across all dimensions (0.0 - 3.0)
+.PARAMETER CodeMaturity
+    Code maturity score (0.0 - 3.0) — average of Structural clarity, Error handling, Data integrity, Maintainability.
+    Drives the Target-State classification (< 2.0 = Target-State).
+
+.PARAMETER TestMaturity
+    Test maturity score (0 - 3) — test coverage alone. Reported separately; does not affect classification.
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-QualityAssessmentReport.ps1 -FeatureName "Customer-Management" -FeatureId "1.1.0" -Tier 2 -AverageScore 1.4
+    .\New-QualityAssessmentReport.ps1 -FeatureName "Customer-Management" -FeatureId "1.1.0" -Tier 2 -CodeMaturity 1.4 -TestMaturity 1
 
 .EXAMPLE
-    .\New-QualityAssessmentReport.ps1 -FeatureName "Invoice-Generator" -FeatureId "1.3.0" -Tier 3 -AverageScore 0.8 -OpenInEditor
+    .\New-QualityAssessmentReport.ps1 -FeatureName "Invoice-Generator" -FeatureId "1.3.0" -Tier 3 -CodeMaturity 0.8 -TestMaturity 0 -OpenInEditor
 
 .NOTES
     - Output directory: doc/pre-framework/quality-assessments/
     - ID prefix: PD-QAR (from PD-id-registry.json)
-    - Only create for features classified as Target-State (average score < 2.0)
+    - Only create for features classified as Target-State (Code Maturity < 2.0)
+    - Dual-score model (PF-IMP-019/032, 2026-05-08): Code Maturity drives the
+      classification; Test Maturity is reported separately and does not affect
+      it.
 
     Script Metadata:
     - Script Type: Document Creation Script
     - Created: 2026-04-05
+    - Updated: 2026-05-08 (dual-score: -CodeMaturity / -TestMaturity replace -AverageScore)
     - For: Creating Quality Assessment Reports during onboarding (PF-TSK-066)
 #>
 
@@ -63,7 +71,11 @@ param(
 
     [Parameter(Mandatory = $true)]
     [ValidateRange(0.0, 3.0)]
-    [double]$AverageScore,
+    [double]$CodeMaturity,
+
+    [Parameter(Mandatory = $true)]
+    [ValidateRange(0, 3)]
+    [int]$TestMaturity,
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
@@ -90,35 +102,50 @@ Invoke-StandardScriptInitialization
 # Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Warn if score >= 2.0 (should be Target-State only)
-if ($AverageScore -ge 2.0) {
+# Warn if Code Maturity >= 2.0 (Target-State QARs are only for Code Maturity < 2.0; Test Maturity does not gate this)
+if ($CodeMaturity -ge 2.0) {
     Write-Host ""
-    Write-Host "⚠️  Average score ($AverageScore) is >= 2.0 — this feature would normally be classified As-Built." -ForegroundColor Yellow
-    Write-Host "    Quality Assessment Reports are typically only created for Target-State features (< 2.0)." -ForegroundColor Yellow
+    Write-Host "⚠️  Code Maturity ($CodeMaturity) is >= 2.0 — this feature would normally be classified As-Built." -ForegroundColor Yellow
+    Write-Host "    Quality Assessment Reports are only created for Target-State features (Code Maturity < 2.0)." -ForegroundColor Yellow
+    Write-Host "    A low Test Maturity score alone does not warrant a QAR — that's a test-plan concern handled separately." -ForegroundColor Yellow
     Write-Host ""
 }
 
 # Resolve paths
-$projectRoot = Get-ProjectRoot
-$templatePath = Join-Path $projectRoot "process-framework/templates/00-setup/quality-assessment-report-template.md"
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/00-setup/quality-assessment-report-template.md"
 
 # Validate template exists
 if (-not (Test-Path $templatePath)) {
     Write-ProjectError -Message "Quality Assessment Report template not found at: $templatePath" -ExitCode 1
 }
 
-# Sanitize feature name for filename (replace spaces with hyphens)
-$sanitizedName = $FeatureName -replace '\s+', '-'
+# Sanitize feature name via the canonical helper (PF-IMP-008). PreserveCase
+# keeps the Title-Case convention of existing 0.X-Feature-Name-quality-assessment.md
+# files; FeatureId is concatenated separately so its dots are preserved.
+$sanitizedName = ConvertTo-FeatureSlug -Name $FeatureName -Convention 'kebab-case' -PreserveCase
 $fileNamePattern = "$FeatureId-$sanitizedName-quality-assessment.md"
+
+# Build Tier 1 disclaimer paragraph (PF-IMP-831, PF-IMP-799).
+# Tier 1 features have no FDD/TDD/Test Spec/ADR — design intent lives in the
+# Feature Implementation State file (PD-FIS) §6 "Design Decisions". Pre-filling
+# this disclaimer avoids the manual paragraph that PF-TSK-066 sessions added to
+# every Tier 1 QAR.
+if ($Tier -eq "1") {
+    $tier1Disclaimer = "> **Tier 1 feature**: No FDD, TDD, Test Specification, or ADR exists for this feature. Design intent is documented in the Feature Implementation State file (PD-FIS) §6 ""Design Decisions"". Gap analysis below references the state file rather than external design documents."
+} else {
+    $tier1Disclaimer = ""
+}
 
 # Prepare custom replacements
 $today = Get-Date -Format "yyyy-MM-dd"
 $customReplacements = @{
-    "[Feature Name]"  = $FeatureName
-    "[Feature ID]"    = $FeatureId
+    "[Feature Name]"     = $FeatureName
+    "[Feature ID]"       = $FeatureId
     "[Tier 1 / Tier 2 / Tier 3]" = "Tier $Tier"
-    "[X.X]"           = $AverageScore.ToString("F1")
-    "[YYYY-MM-DD]"    = $today
+    "[CODE_MATURITY]"    = $CodeMaturity.ToString("F1")
+    "[TEST_MATURITY]"    = $TestMaturity.ToString()
+    "[TIER_1_DISCLAIMER]" = $tier1Disclaimer
+    "[YYYY-MM-DD]"       = $today
 }
 
 # Prepare additional metadata fields
@@ -126,7 +153,8 @@ $additionalMetadataFields = @{
     "feature_id"     = $FeatureId
     "feature_name"   = $FeatureName
     "tier"           = $Tier
-    "average_score"  = $AverageScore.ToString("F1")
+    "code_maturity"  = $CodeMaturity.ToString("F1")
+    "test_maturity"  = $TestMaturity.ToString()
     "classification" = "Target-State"
 }
 
@@ -146,7 +174,8 @@ try {
     $details = @(
         "Feature: $FeatureName ($FeatureId)",
         "Tier: $Tier",
-        "Average Score: $($AverageScore.ToString('F1')) / 3.0",
+        "Code Maturity: $($CodeMaturity.ToString('F1')) / 3.0",
+        "Test Maturity: $TestMaturity / 3.0",
         "Classification: Target-State",
         "",
         "📋 NEXT STEPS:",

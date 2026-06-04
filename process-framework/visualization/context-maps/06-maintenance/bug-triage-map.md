@@ -7,6 +7,7 @@ created: 2025-01-15
 updated: 2026-02-27
 task_id: PF-TSK-041
 related_task: PF-TSK-041
+description: "Components for systematically evaluating, prioritizing, and assigning reported bugs"
 ---
 
 # Bug Triage Context Map
@@ -72,12 +73,12 @@ Visual guide to the components, relationships, and information flow relevant to 
 
 ### Important Context (Load If Space)
 
-- **[Feature Implementation State Files](/doc/state-tracking/features)** - Affected feature's known issues, related bugs, and implementation progress
-- **[Project Architecture](/doc/technical/architecture)** - System understanding for impact assessment
+- **[Feature Implementation State Files](../../../../doc/state-tracking/features)** - Affected feature's known issues, related bugs, and implementation progress
+- **[Project Architecture](../../../../doc/technical/architecture)** - System understanding for impact assessment
 
 ### Reference Resources (Access When Needed)
 
-- **[Process Improvement Tracking](../../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md)** - For identifying process-related bug patterns
+- **[Process Improvement Tracking](../../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md)** - For identifying process-related bug patterns (Phase 7 central, post-2026-05-11)
 
 ## Information Flow
 

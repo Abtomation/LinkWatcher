@@ -131,15 +131,16 @@ if ([string]::IsNullOrWhiteSpace($sourceCodePath) -or $sourceCodePath -eq ".") {
 $sourceRootAbsolute = Join-Path $projectRoot $sourceCodePath
 
 # --- Load language config ---
+$fwDir = Get-ProcessFrameworkPath
 $language = $projectConfig.testing.language.ToLower()
-$langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$language/$language-config.json"
+$langConfigPath = Join-Path $fwDir "languages-config/$language/$language-config.json"
 if (-not (Test-Path $langConfigPath)) {
     # Try primary_language from project_metadata as fallback
     $language = $projectConfig.project_metadata.primary_language.ToLower()
-    $langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$language/$language-config.json"
+    $langConfigPath = Join-Path $fwDir "languages-config/$language/$language-config.json"
 }
 if (-not (Test-Path $langConfigPath)) {
-    Write-ProjectError -Message "Language config not found at process-framework/languages-config/$language/$language-config.json" -ExitCode 1
+    Write-ProjectError -Message "Language config not found at $langConfigPath" -ExitCode 1
 }
 $langConfig = Get-Content $langConfigPath -Raw | ConvertFrom-Json
 $dirStructure = $langConfig.directoryStructure
@@ -152,41 +153,9 @@ if (-not $dirStructure) {
 $layoutDocPath = Join-Path $projectRoot "doc/technical/architecture/source-code-layout.md"
 
 # --- Helper: Convert feature name to directory name using language naming convention ---
-function ConvertTo-DirectoryName {
-    param([string]$Name, [string]$Convention)
-    # Strip leading version number pattern (e.g., "0.1.1 " or "1.1.3 ")
-    $cleanName = $Name -replace '^\d+\.\d+\.\d+\s*[-–]?\s*', ''
-    $cleanName = $cleanName.Trim()
-
-    switch ($Convention) {
-        "snake_case" {
-            # Replace spaces, hyphens, special chars with underscore, lowercase
-            $result = $cleanName -replace '[^a-zA-Z0-9]', '_'
-            $result = $result -replace '_+', '_'
-            $result = $result.Trim('_').ToLower()
-            return $result
-        }
-        "kebab-case" {
-            $result = $cleanName -replace '[^a-zA-Z0-9]', '-'
-            $result = $result -replace '-+', '-'
-            $result = $result.Trim('-').ToLower()
-            return $result
-        }
-        "PascalCase" {
-            $words = $cleanName -split '[^a-zA-Z0-9]+'
-            $result = ($words | ForEach-Object {
-                if ($_.Length -gt 0) { $_.Substring(0,1).ToUpper() + $_.Substring(1).ToLower() }
-            }) -join ''
-            return $result
-        }
-        default {
-            # Default to snake_case
-            $result = $cleanName -replace '[^a-zA-Z0-9]', '_'
-            $result = $result -replace '_+', '_'
-            return $result.Trim('_').ToLower()
-        }
-    }
-}
+# Slug normalization is provided by Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
+# Use ConvertTo-FeatureSlug for any new dir/filename work — do not reintroduce
+# ad-hoc slug logic here.
 
 # --- Helper: Parse feature names from feature-tracking.md ---
 function Get-FeatureNames {
@@ -321,7 +290,7 @@ if ($Scaffold) {
         Write-Host "  Feature directories ($($featureNames.Count) features):" -ForegroundColor Cyan
 
         foreach ($name in $featureNames) {
-            $dirName = ConvertTo-DirectoryName -Name $name -Convention $dirStructure.directoryNaming
+            $dirName = ConvertTo-FeatureSlug -Name $name -Convention $dirStructure.directoryNaming
             $featureDirPath = Join-Path $sourceRootAbsolute $dirName
 
             if (-not (Test-Path $featureDirPath)) {
@@ -463,11 +432,35 @@ if ($Update) {
 
     # --- Step 1: Optionally create a single feature directory ---
     if ($FeatureName -ne "") {
-        $dirName = ConvertTo-DirectoryName -Name $FeatureName -Convention $dirStructure.directoryNaming
+        $dirName = ConvertTo-FeatureSlug -Name $FeatureName -Convention $dirStructure.directoryNaming
         $featureDirPath = Join-Path $sourceRootAbsolute $dirName
 
         if (Test-Path $sourceRootAbsolute) {
             if (-not (Test-Path $featureDirPath)) {
+                # Levenshtein collision pre-flight (PF-IMP-008): catch near-duplicate
+                # dirs from human input variation (e.g. "X & Y" producing
+                # 'x_y' on one invocation, "X and Y" producing 'x_and_y' on the next —
+                # distance 4 between those two forms).
+                $existingDirs = @(Get-ChildItem -Path $sourceRootAbsolute -Directory -ErrorAction SilentlyContinue |
+                    Where-Object { $_.Name -ne $dirStructure.sharedDirectory } |
+                    Select-Object -ExpandProperty Name)
+                $collisions = @(Test-FeatureSlugCollision -SlugCandidate $dirName -ExistingSlugs $existingDirs -Threshold 5)
+                if ($collisions.Count -gt 0) {
+                    Write-Host ""
+                    Write-Host "  ⚠️  Slug collision detected for '$FeatureName' -> '$dirName'" -ForegroundColor Yellow
+                    Write-Host "      Close existing dirs (Levenshtein distance < 5):" -ForegroundColor Yellow
+                    foreach ($c in $collisions) {
+                        Write-Host "        - $($c.ExistingSlug) (distance $($c.Distance))" -ForegroundColor Yellow
+                    }
+                    Write-Host "      Likely a human-input variation of an already-scaffolded feature." -ForegroundColor Yellow
+                    if ($PSCmdlet.ShouldContinue("Create new directory '$dirName' anyway?", "Slug collision")) {
+                        Write-Host "      Proceeding with new directory creation." -ForegroundColor DarkGray
+                    } else {
+                        Write-Host "      Skipped — reconcile feature names in feature-tracking.md or pass an existing slug." -ForegroundColor Yellow
+                        return
+                    }
+                }
+
                 if ($PSCmdlet.ShouldProcess($featureDirPath, "Create feature directory for '$FeatureName'")) {
                     New-Item -ItemType Directory -Path $featureDirPath -Force | Out-Null
                     Write-Host "  Created: $sourceCodePath/$dirName/ ($FeatureName)" -ForegroundColor Green

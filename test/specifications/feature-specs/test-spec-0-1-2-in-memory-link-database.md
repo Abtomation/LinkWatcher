@@ -81,7 +81,7 @@ The In-Memory Link Database provides a thread-safe, target-indexed `Dict[str, Li
 | LinkDatabase | Clear | `test_clear` — resets links, files_with_links, last_scan to empty/None | `link_database` |
 | LinkDatabase | Thread safety | `test_thread_safety` — 3 threads x 100 refs = 300 total without corruption | `link_database` |
 
-**Test File**: [`test/automated/unit/test_database.py`](../../../test/automated/unit/test_database.py)
+**Test File**: [`test/automated/unit/test_database.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py)
 **Status**: Implemented (11 test methods)
 
 ## Mock Requirements

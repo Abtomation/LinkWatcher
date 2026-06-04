@@ -64,7 +64,9 @@ Was the overall process appropriately streamlined without unnecessary steps or d
 ## Tool Evaluation
 *Complete one section per tool used. For single-tool feedback, complete only Tool 1.*
 
-### Tool 1: [Tool Name ([PREFIX]-XXX-XXX)]
+> **🔖 The `(...)` after each tool name is its `tool_doc_id`** — the database key that links your ratings to the tool's change history. Use the canonical form: the **task ID** (`PF-TSK-NNN`) for a task definition, or the **filename** (`New-Task.ps1`, `feature-validation-guide.md`, `code-refactoring-lightweight-path.md`) for a script, guide, template, or context map. Do **not** use the artifact's own `PF-GDE/PF-SCR/PF-TEM/PD-*` ID, and do **not** leave it blank. Examples — `### Tool 1: New-Task script (New-Task.ps1)`, `### Tool 2: New Task Creation (PF-TSK-001)`. Full rule: [TOOL_DOC_ID convention](../../guides/support/process-improvement-task-reference-guide.md#tool_doc_id-convention).
+
+### Tool 1: [Tool display name] ([tool_doc_id — see note above])
 **Purpose**: [How this tool was used in the task]
 
 ### Effectiveness
@@ -107,7 +109,7 @@ Was this tool appropriately concise, containing only task-essential information?
 **Comments**:
 [Detailed comments about overdocumentation, redundancy, or missing essential information]
 
-### Tool 2: [Tool Name ([PREFIX]-XXX-XXX)] *(Optional)*
+### Tool 2: [Tool display name] ([tool_doc_id]) *(Optional)*
 **Purpose**: [How this tool was used in the task]
 
 #### Effectiveness
@@ -130,7 +132,7 @@ Was this tool appropriately concise, containing only task-essential information?
 **Rating (1-5)**: [Rating]
 **Comments**: [Brief comments]
 
-### Tool 3: [Tool Name ([PREFIX]-XXX-XXX)] *(Optional)*
+### Tool 3: [Tool display name] ([tool_doc_id]) *(Optional)*
 **Purpose**: [How this tool was used in the task]
 
 #### Effectiveness

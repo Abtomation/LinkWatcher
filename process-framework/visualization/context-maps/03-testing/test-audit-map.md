@@ -6,6 +6,7 @@ version: 2.0
 created: 2025-08-07
 updated: 2026-04-13
 related_task: PF-TSK-030
+description: "Components for systematic test quality assessment workflow"
 ---
 
 # Test Audit Context Map
@@ -119,4 +120,4 @@ graph TD
 
 ---
 
-_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the tracking files listed above and the [Test Query Tool](/process-framework/scripts/test/test_query.py)._
+_Note: This context map highlights only the components relevant to the Test Audit task. For a comprehensive view of all test-related components and their relationships, refer to the tracking files listed above and the [Test Query Tool](../../../scripts/test/test_query.py)._

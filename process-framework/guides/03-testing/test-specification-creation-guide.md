@@ -8,6 +8,7 @@ updated: 2026-04-10
 related_script: New-TestSpecification.ps1
 related_task: PF-TSK-012
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098 (cross-reference guidance)"
+description: "Comprehensive guide for using the Test Specification Creation task effectively"
 ---
 
 # Test Specification Creation Guide
@@ -64,7 +65,7 @@ Test Specifications serve as the bridge between architectural design (TDDs) and 
 - **Quality Assurance**: Ensure test coverage aligns with design requirements
 - **Documentation**: Maintain traceability between design and testing
 
-> **Scope**: Test specifications cover automated tests only. E2E acceptance tests are identified through cross-cutting milestone triggers (see [ai-tasks.md workflows](/process-framework/ai-tasks.md#common-workflows)). Performance tests are identified after code review by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) using the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix).
+> **Scope**: Test specifications cover automated tests only. E2E acceptance tests are identified through cross-cutting milestone triggers (see [ai-tasks.md workflows](../../ai-tasks.md#common-workflows)). Performance tests are identified after code review by the [Performance & E2E Test Scoping task (PF-TSK-086)](../../tasks/03-testing/performance-and-e2e-test-scoping-task.md) using the [decision matrix](performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix).
 
 ### Tier-Based Test Specifications
 

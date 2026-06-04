@@ -3,16 +3,17 @@ id: PF-TSK-065
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.9
+version: 1.10
 created: 2026-02-17
-updated: 2026-04-05
+updated: 2026-05-16
+description: "Analyze implementation patterns, dependencies, and design decisions"
 ---
 
 # Codebase Feature Analysis
 
 ## Purpose & Context
 
-For each feature with an implementation state file, analyze implementation patterns, dependencies, and design decisions. This enriches the feature documentation created during Codebase Feature Discovery (PF-TSK-064) with the detailed analysis needed for subsequent documentation creation.
+For each feature with an implementation state file, analyze implementation patterns, dependencies, and design decisions. This enriches the feature documentation created during Codebase Feature Discovery (PF-TSK-064) with the detailed analysis needed for subsequent documentation creation. The immediate predecessor is now [Codebase Source Migration (PF-TSK-091)](codebase-source-migration-task.md): analysis operates on code already relocated into its final `src/<feature>/` locations, and each feature's File Inventory paths point at the new locations.
 
 This task produces enriched Feature Implementation State files that serve as the evidence base for tier assessment and design documentation in the next onboarding task.
 
@@ -23,22 +24,15 @@ This task produces enriched Feature Implementation State files that serve as the
 **Focus Areas**: Implementation patterns, data flow analysis, dependency mapping, test coverage assessment
 **Communication Style**: Report analysis findings, highlight cross-cutting patterns, ask about design rationale
 
-## When to Use
-
-- After [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) is complete
-- Master state file shows Phase 1 done (100% file coverage achieved)
-- All features have Feature Implementation State files with code inventories
-- Need to analyze patterns, dependencies, and design decisions before documentation creation
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/00-setup/codebase-feature-analysis-map.md)
 
 - **Critical (Must Read):**
 
-  - [Retrospective Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 1 complete
+  - [Retrospective Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 1 and Phase 1.5 (Source Migration) complete
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature list and current status
-  - [Feature Implementation State Files](/doc/state-tracking/features) — All files created during PF-TSK-064
+  - [Feature Implementation State Files](../../../doc/state-tracking/features) — All files created during PF-TSK-064
   - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
 
 - **Important (Load If Space):**
@@ -47,7 +41,7 @@ This task produces enriched Feature Implementation State files that serve as the
 - **Reference Only (Access When Needed):**
   - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [Feature Dependencies](../../../doc/technical/architecture/feature-dependencies.md) - Existing dependency documentation
-  - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
+  - [Test Query Tool](../../scripts/test/test_query.py) - Query test files by feature, priority, and markers
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 
 ## Process
@@ -64,7 +58,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ### Preparation
 
-1. **Read [Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)**:
+1. **Read [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)**:
    - Verify Phase 1 is complete
    - Identify which features still need analysis
    - Set status to "ANALYSIS" if not already
@@ -99,14 +93,20 @@ This task produces enriched Feature Implementation State files that serve as the
    > 1. **Analyze only your feature's code** — note the other feature's presence but do not analyze its logic
    > 2. **Record as a dependency** in Step 5 (Feature Dependencies), noting which feature owns the co-located code and how the features interact
    > 3. **Report as technical debt** — interleaved feature code in shared files indicates a separation-of-concerns issue. Log it via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) or note it for [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)
-   - Document in [Feature Implementation State file](/doc/state-tracking/features) → Design Decisions section
+   >
+   > **Trace-before-flag rule (missing-safeguard claims)**: When recording a finding that a safeguard is missing or insufficient — e.g., no input validator, no transaction, no error handler, no boundary check, no rate limit, no authentication check — do not record the finding based on the symptom site alone. Trace the actual call/data path from the symptom site to either:
+   > - **(a) the safeguard that DOES exist along this path** — record file:line references for the guard so the trace is reproducible, OR
+   > - **(b) confirm the safeguard is genuinely absent** — record an explicit "no safeguard on this path — traced from \<call site\> through \<intermediates\> to \<sink\>" note.
+   >
+   > A finding without one of these traces is not credible and must not be recorded as a defect or written into Section 9 (Known Issues & Technical Debt) of the feature state file. Applies whenever a missing-safeguard claim is being formed — most commonly during the **Data Flow** and **Error Handling** sub-bullets above and during Step 9 dimension scoring (Data Integrity, Error Handling). Failure mode this prevents: flagging "no validator" at a sink (e.g., dynamic-SQL interpolation) when the validator was applied at the function entry point and forgotten in the trace.
+   - Document in [Feature Implementation State file](../../../doc/state-tracking/features) → Design Decisions section
 
 5. **Document Dependencies** (for each feature):
    - **Feature Dependencies**: Cross-feature integrations, shared components
    - **System Dependencies**: External libraries and versions
    - **Code Dependencies**: Shared utilities, base classes, interfaces
    - **User-Facing Workflows**: Note which user workflows this feature participates in (e.g., "file move → links updated" requires detection + parsing + updating) in the feature state file's Dependencies section _(shared file update deferred to finalization)_
-   - Document in [Feature Implementation State file](/doc/state-tracking/features) → Dependencies section
+   - Document in [Feature Implementation State file](../../../doc/state-tracking/features) → Dependencies section
    - **Format for Feature Dependency references**: Use `[feature_id Feature Name](./feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](./0.1.2-data-models-implementation-state.md)**` (these are example paths within the feature state directory, not links to actual files). Do NOT use PF-FEA IDs in dependency entries.
 
 6. **🚨 CHECKPOINT**: Present analysis findings for the feature for review before continuing
@@ -117,7 +117,7 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Test Types**: Unit, integration, parser, performance, e2e?
    - **Test Gaps**: Critical paths without tests, edge cases not covered
    - **Cross-cutting Tests**: Identify test files that validate interactions across multiple features
-   - Document in [Feature Implementation State file](/doc/state-tracking/features) → Test Files section
+   - Document in [Feature Implementation State file](../../../doc/state-tracking/features) → Test Files section
    > **If no tests exist for this feature**: record "No tests" in the state file Test Files section, and flag as a test gap for future Test Specification Creation.
    > **Note**: Test tracking infrastructure updates are deferred to finalization _(see [Parallel Session Rules](#process))_.
 
@@ -144,14 +144,27 @@ This task produces enriched Feature Implementation State files that serve as the
    | **Test coverage** | Existing tests cover critical paths (from Step 7 test mapping) |
    | **Maintainability** | Readable code, reasonable complexity, no excessive coupling |
 
-   **Classification**:
-   - Calculate the average score across all 5 dimensions
-   - Average **>= 2.0** → **As-Built** (feature will be documented descriptively in PF-TSK-066)
-   - Average **< 2.0** → **Target-State** (feature will be documented prescriptively with gap analysis in PF-TSK-066)
+   > **Trace-before-flag applies here**: Lower scores on **Data Integrity** and **Error handling** must be backed by the trace evidence required by the [Trace-before-flag rule in Step 4](#process). A "1" on Data Integrity for "no injection vectors" requires either the missing-safeguard trace from sink to absent guard, or a recorded path showing the existing guard is bypassable — never just the symptom site.
 
-   **Record in Feature Implementation State file** → Section 8 "Quality Assessment":
-   - Enter each dimension score with brief evidence notes
-   - Enter the average score and classification (As-Built / Target-State)
+   **Classification model** (dual-score — PF-IMP-019/032 resolution, 2026-05-08):
+
+   The 5 dimensions split into two distinct signals because they drive distinct downstream decisions. Adopted projects start at 0/3 on Test Coverage across the board; rolling that into a single average conflates "code needs redesign" with "code needs a test plan" and forces every feature into the Target-State branch regardless of actual code quality.
+
+   - **Code Maturity** = average of **Structural clarity, Error handling, Data integrity, Maintainability** (4 dimensions). Drives the As-Built / Target-State documentation classification:
+     - Code Maturity **>= 2.0** → **As-Built** (feature documented descriptively in PF-TSK-066; no QAR; no auto-generated TDs)
+     - Code Maturity **< 2.0** → **Target-State** (feature documented prescriptively with gap analysis; QAR created; tech debt items auto-generated from gaps)
+   - **Test Maturity** = the **Test coverage** score alone. Does **not** drive As-Built / Target-State; it surfaces a per-feature test-plan urgency:
+     - 0 → register a Test Coverage tech debt item regardless of As-Built/Target-State classification
+     - 1 → register a tech debt item if no other test specs are queued for the feature
+     - 2 / 3 → no separate signal
+
+   **Record in Feature Implementation State file** → "Quality Assessment" section:
+   - Enter each dimension score (integer 0-3) and brief evidence notes in the Score / Notes columns
+   - **Do not compute Code Maturity, Test Maturity, or classification by hand** — run the script:
+     ```bash
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-QualityClassification.ps1 -StateFile "<path-to-feature-state-file>"
+     ```
+     The script reads the 5 dimension scores, computes Code Maturity (4-dim avg) and Test Maturity (TC alone) to 1 decimal, applies the canonical threshold (Code Maturity **>= 2.0 → As-Built**; **< 2.0 → Target-State**), and writes back the **Classification**, **Code Maturity**, and **Test Maturity** lines. Idempotent — safe to re-run after correcting a score.
 
 10. **🚨 CHECKPOINT**: Present quality scores and classifications for the feature to human partner for validation before committing
 
@@ -172,19 +185,19 @@ This task produces enriched Feature Implementation State files that serve as the
 > **⚠️ IMPORTANT**: Finalization must run as a **single session** after all parallel analysis sessions have completed (all features show ✅ in the "Analyzed" column). This session consolidates findings and batch-updates all shared files.
 
 13. **Consolidate Cross-Cutting Findings**:
-    - Read all enriched [Feature Implementation State files](/doc/state-tracking/features)
+    - Read all enriched [Feature Implementation State files](../../../doc/state-tracking/features)
     - Identify cross-cutting patterns that span multiple features (shared utilities, common error handling approaches, repeated architectural decisions)
     - Validate bidirectional dependencies: if Feature A lists Feature B as a dependency, verify Feature B's state file acknowledges the reverse relationship
     - Document cross-cutting patterns in the master state session log
     - **🔍 Framework Improvement Observations**: During pattern consolidation, note any implementation patterns, testing approaches, error handling strategies, or architectural conventions that could improve the process framework. Record in the master state "Framework Improvement Observations" section.
 
 14. **Batch-Update Shared Files**:
-    - **[User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)**: Create or update workflow definitions from workflow notes collected in feature state files during Step 5.  Verify every feature appears in at least one workflow (or is explicitly documented with `workflows: []`). Update Impl Status column based on feature-tracking.md statuses. Flag orphan workflows or missing coverage.
+    - **[User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)**: Create or update workflow definitions from workflow notes collected in feature state files during Step 5.  Verify every feature appears in at least one workflow (or is explicitly documented with `workflows: []`). Update Impl Status column based on feature-tracking.md statuses. Flag orphan workflows or missing coverage.
     - **[Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)**: Register test files discovered during Step 7. Ensure each test file has pytest markers (feature, priority, test_type, cross_cutting). Add entries organized by feature category. Use `New-TestFile.ps1` for individual files or batch-populate for large suites.
-    - **[Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**: Update Test Status column (✅ for features with tests, 🚫 for features without). Update Quality column with classification (As-Built / Target-State) from Step 9.
-    - **[Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)**: Extract technical debt items identified in feature state files (Section 9 "Known Issues & Technical Debt") and register them in the central registry using `Update-TechDebt.ps1 -Add`. Assign appropriate dimension tags, priority levels, and code locations. This ensures all discovered debt is centrally tracked for future Technical Debt Assessment cycles.
+    - **[Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**: Update Test Status column (✅ for features with tests, 🚫 for features without). Quality Assessment Classification (As-Built / Target-State) from Step 9 lives in each per-feature state file's Quality Assessment section (computed by `Update-QualityClassification.ps1`), not in feature-tracking.md.
+    - **[Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md)**: Extract technical debt items identified in feature state files (Section 9 "Known Issues & Technical Debt") and register them in the central registry. Use `Update-TechDebt.ps1 -Add` for 1-2 items, or `Update-TechDebt.ps1 -BatchFile <json>` (PF-IMP-012) when registering 3+ items in one session — the batch form validates all items upfront and adds them in a single invocation. Assign appropriate dimension tags, priority levels, and code locations. This ensures all discovered debt is centrally tracked for future Technical Debt Assessment cycles.
 
-15. **Update [Master State](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)**:
+15. **Update [Master State](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)**:
     - Verify all features show ✅ in the "Analyzed" column (use `Update-RetrospectiveMasterState.ps1` to fix any missed updates)
     - **Reconcile Progress Overview counters**: Compare the Progress Overview table counters against actual Feature Inventory status markers. If any counter is stale (e.g., shows "Not Started" for features already marked ✅), run `Update-RetrospectiveMasterState.ps1` on any feature to trigger a full recalculation, or manually correct the counters
     - Update "Existing Documentation Inventory": mark Confirmed column ✅ for docs whose feature-level entries have all been confirmed/flagged
@@ -196,7 +209,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ## Outputs
 
-- **Enriched [Feature Implementation State Files](/doc/state-tracking/features)** — updated with:
+- **Enriched [Feature Implementation State Files](../../../doc/state-tracking/features)** — updated with:
   - Design Decisions section populated
   - Dependencies section populated
   - Implementation Patterns documented
@@ -205,16 +218,16 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ## Tools and Scripts
 
-- **[Update-RetrospectiveMasterState.ps1](../../scripts/update/Update-RetrospectiveMasterState.ps1)** — Atomic updates to master state Feature Inventory (claim/complete features, recalculate Progress Overview counters). Used for parallel session coordination.
+- **[Update-RetrospectiveMasterState.ps1](../../scripts/update/Update-RetrospectiveMasterState.ps1)** — Atomic master state updates: FeatureInventory mode (claim/complete features, recalculate Progress Overview counters — used here for parallel session coordination); MarkProcessed mode (bulk-flip Unassigned Files Status, PF-TSK-064 Phase 2); RecalculateMetrics mode (repair Coverage Metrics drift).
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for session completion
 
 ## State Tracking
 
 ### Existing State Files Updated
 
-- [Retrospective Master State File](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) — Phase 2 progress, features marked as analyzed
-- [Feature Implementation State Files](/doc/state-tracking/features) — Enriched with analysis content (Design Decisions, Dependencies, Implementation Patterns)
-- [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) — Workflow definitions updated during finalization
+- [Retrospective Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) — Phase 2 progress, features marked as analyzed
+- [Feature Implementation State Files](../../../doc/state-tracking/features) — Enriched with analysis content (Design Decisions, Dependencies, Implementation Patterns)
+- [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) — Workflow definitions updated during finalization
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) — Test files registered during finalization
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Test Status column updated during finalization
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — Debt items from feature state files registered during finalization
@@ -235,10 +248,10 @@ This task produces enriched Feature Implementation State files that serve as the
   - [ ] Bidirectional dependencies validated
   - [ ] Test files have pytest markers and are listed in [test-tracking.md](../../../test/state-tracking/permanent/test-tracking.md)
   - [ ] Feature Tracking Test Status column updated for all features
-  - [ ] Feature Tracking Quality column updated for all features (As-Built / Target-State)
+  - [ ] Per-feature state files' Quality Assessment Classification (As-Built / Target-State) written by `Update-QualityClassification.ps1` for all features
   - [ ] Technical debt items from feature state files registered in [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md)
   - [ ] Workflow map validated — all features mapped to workflows, no orphan workflows, Impl Status column updated
-- [ ] All features show ✅ in "Analyzed" column of [master state file](../../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)
+- [ ] All features show ✅ in "Analyzed" column of [master state file](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)
 - [ ] Phase 2 marked complete in master state file
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-065" and context "Codebase Feature Analysis"
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Analysis task (PF-TSK-065) and its tools (feature implementation state files, analysis process), not the features you analyzed.
@@ -258,6 +271,6 @@ This task produces enriched Feature Implementation State files that serve as the
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) - Prerequisite task
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template structure reference
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
-- [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
+- [Test Query Tool](../../scripts/test/test_query.py) - Query test files by feature, priority, and markers
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
 - [Onboarding Edge Cases Guide](../../guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging

@@ -100,7 +100,7 @@ Extract path resolution logic from `LinkUpdater` into a standalone `PathResolver
 ### Testing Approach During Refactoring
 
 - **Regression Testing**: Full 386-test suite run after each phase
-- **Incremental Testing**: Run `pytest test/automated/unit/test_updater.py -q` after each change
+- **Incremental Testing**: Run `pytest test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py -q` after each change
 - **New Test Requirements**: None — existing tests cover all path resolution behavior through LinkUpdater's interface
 
 ## Success Criteria

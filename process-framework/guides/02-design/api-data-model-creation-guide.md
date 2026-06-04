@@ -8,6 +8,7 @@ updated: 2025-07-27
 related_script: New-APIDataModel.ps1
 related_task: PF-TSK-020
 guide_description: Guide for customizing API data model templates
+description: "Guide for customizing API data model templates"
 ---
 # API Data Model Creation Guide
 

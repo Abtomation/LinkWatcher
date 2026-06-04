@@ -1,0 +1,98 @@
+{
+  "$schema_comment": "Per-test reset path lists for framework-self-test E2E cases against PRJ-T01 sandbox. Each TE-E2E-NNN entry declares the files the test mutates (reverted via 'git checkout HEAD -- <path>') and creates (deleted via Remove-Item). Paths are relative to the sandbox root. See PF-TSK-070 §Sandbox Execution and PF-TSK-088 §Sandbox Baseline Maintenance. Authored Session 22 of Framework Self-Testing extension (PF-PRO-035 Phase 3.5).",
+  "tests": {
+    "TE-E2E-002": {
+      "description": "Update-TechDebt -Add against sandbox technical-debt-tracking.md (WF-002 state-tracking-update reference case)",
+      "mutates": [
+        "doc/state-tracking/permanent/technical-debt-tracking.md",
+        "doc/PD-id-registry.json"
+      ],
+      "creates": []
+    },
+    "TE-E2E-003": {
+      "description": "New-Task against sandbox process-framework/tasks/01-planning/ (WF-001 artifact-creation reference case)",
+      "mutates": [
+        "process-framework/PF-id-registry.json",
+        "process-framework/ai-tasks.md",
+        "process-framework/PF-documentation-map.md",
+        "process-framework/infrastructure/process-framework-task-registry.md",
+        "process-framework/tasks/README.md"
+      ],
+      "creates": [
+        "process-framework/tasks/01-planning/framework-self-test-sentinel-three-task.md"
+      ]
+    },
+    "TE-E2E-004": {
+      "description": "New-WorkflowEntry against sandbox user-workflow-tracking.md plus chained New-TestInfrastructure -Update scaffolding (WF-009 workflow-tracking reference case)",
+      "mutates": [
+        "doc/state-tracking/permanent/user-workflow-tracking.md",
+        "doc/PD-id-registry.json",
+        "test/TE-id-registry.json",
+        "test/audits/README.md"
+      ],
+      "creates": [
+        "test/e2e-acceptance-testing/self-test-sentinel-workflow-four",
+        "test/audits/e2e/self-test-sentinel-workflow-four"
+      ]
+    },
+    "TE-E2E-005": {
+      "description": "New-AuditTracking -TestType E2E against sandbox doc/state-tracking/PF-id-registry-local.json + auto-populated audit tracking file (WF-NEW-A test-audit reference case)",
+      "mutates": [
+        "doc/state-tracking/PF-id-registry-local.json"
+      ],
+      "creates": [
+        "test/state-tracking/audit/audit-tracking-e2e-1.md"
+      ]
+    },
+    "TE-E2E-006": {
+      "description": "Run-Tests.ps1 dispatcher → Run-Tests.powershell.ps1 → Pester end-to-end against a one-test sentinel seeded into a fresh category dir under sandbox test/automated/ (WF-009 test-execution reference case)",
+      "mutates": [],
+      "creates": [
+        "test/automated/test-execution-sentinel"
+      ]
+    },
+    "TE-E2E-007": {
+      "description": "New-FeatureRequest against sandbox PD-id-registry + feature-request-tracking.md asserting pre/post PD-FRQ counter delta + consumed-ID row presence (WF-005 id-management reference case)",
+      "mutates": [
+        "doc/PD-id-registry.json",
+        "doc/state-tracking/permanent/feature-request-tracking.md"
+      ],
+      "creates": []
+    },
+    "TE-E2E-008": {
+      "description": "Validate-IdRegistry flags an injected invalid directory path (PF-TEM main) in sandbox PF-id-registry.json via Check 3 — fixture-build-shaped case asserting non-zero exit + sentinel-path appears in stdout (WF-003 validation reference case)",
+      "mutates": [
+        "process-framework/PF-id-registry.json"
+      ],
+      "creates": []
+    },
+    "TE-E2E-009": {
+      "description": "start_linkwatcher_background.ps1 smoke test against sandbox — subprocess spawn + success-banner assertion + .linkwatcher-ignore provisioning assertion + spawned-PID Stop-Process cleanup (WF-010 linkwatcher-startup reference case)",
+      "mutates": [],
+      "creates": [
+        "logs/linkwatcher",
+        ".linkwatcher.lock"
+      ]
+    },
+    "TE-E2E-010": {
+      "description": "Hermetic-central IMP lifecycle (Intake -> Improvements -> Completed) via New-ProcessImprovement.ps1 + 2x Update-ProcessImprovement.ps1 against a per-test sandbox-central skeleton activated by $env:FRAMEWORK_CENTRAL_OVERRIDE (WF-007 imp-lifecycle reference case). All mutations land in <workspace>/sandbox-central/; the sandbox tree itself is read-only for this test.",
+      "mutates": [],
+      "creates": []
+    },
+    "TE-E2E-011": {
+      "description": "Hermetic-central soak verification (Register-SoakScript + 3x Confirm-SoakInvocation -Outcome success) drives a sentinel ScriptId through the counter cycle 3 -> 2 -> 1 -> 0 + Active Soak -> Soak Complete status flip, all against per-test sandbox-central seed activated by $env:FRAMEWORK_CENTRAL_OVERRIDE (WF-019 soak-verification reference case). All mutations land in <workspace>/sandbox-central/; the sandbox tree itself is read-only for this test.",
+      "mutates": [],
+      "creates": []
+    },
+    "TE-E2E-012": {
+      "description": "Synthetic-appdev Push-FrameworkUpdate.ps1 -Check against a per-test fixture (synthetic git-less appdev + 2 fake-project dests under <workspace>/synthetic-appdev/) invoked as a subprocess with cwd=synthetic-appdev. Asserts exit=0, DRY-RUN COMPLETE marker, per-project diff lines (PRJ-X01: added=1 modified=2 deleted=1; PRJ-X02: 0/0/0), PRJ-X00 freeze-filter, +1 DRY-RUN entry in synthetic rollout-log, real central rollout-log SHA256 unchanged, fake-project dest dirs unchanged (WF-006 framework-rollout reference case, first fixture-heavy Tier C case). All mutations land in <workspace>/synthetic-appdev/; the sandbox tree itself is read-only for this test.",
+      "mutates": [],
+      "creates": []
+    },
+    "TE-E2E-013": {
+      "description": "Synthetic-appdev Restore-FrameworkVersion.ps1 -Project PRJ-X01 full real-mode rollback against a per-test fixture with git init + 2 commits + 2 tags (rollout-2026-05-19-001 = v0, rollout-2026-05-19-002 = v1). Invoked as subprocess with cwd=<workspace>/synthetic-appdev/. Asserts exit=0, ROLLBACK (Mode D) banner, Mirrored marker w/ v0 tag, Central registry updated marker, project's .framework-version flipped to v0, .framework-version-previous swapped to v1, .framework-central-pointer points at synthetic appdev, file-v0.md added, file-v1.md removed, common-file.md content reverted to v0 bytes, synthetic registry's PRJ-X01.current_framework_version updated to v0, +1 ROLLBACK entry in synthetic rollout-log, no leftover .rollback-worktree-* dirs (cleanup proof), real central rollout-log SHA256 unchanged (WF-006 framework-rollback reference case, second synthetic-appdev test). All mutations land in <workspace>/synthetic-appdev/; the sandbox tree itself is read-only for this test. Restore has no -Check mode (verified Session 33 recon) so full real-mode coverage is required for meaningful contract validation.",
+      "mutates": [],
+      "creates": []
+    }
+  }
+}

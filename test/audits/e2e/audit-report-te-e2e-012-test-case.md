@@ -7,7 +7,7 @@ created: 2026-04-16
 updated: 2026-04-16
 auditor: AI Agent
 audit_date: 2026-04-16
-test_file_path: test/e2e-acceptance-testing/templates/startup-operations/TE-E2E-012-file-operations-during-startup/test-case.md
+test_file_path: test/e2e-acceptance-testing/startup-initial-project-scan/templates/TE-E2E-012-file-operations-during-startup/test-case.md
 feature_id: 0.1.1
 ---
 
@@ -20,7 +20,7 @@ feature_id: 0.1.1
 | **Feature ID** | 0.1.1, 0.1.2, 0.1.3, 1.1.1, 2.1.1, 2.2.1 |
 | **Test Case ID** | TE-E2E-012 |
 | **Test Group** | TE-E2G-006 (startup-operations) |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/startup-operations/TE-E2E-012-file-operations-during-startup/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/startup-initial-project-scan/templates/TE-E2E-012-file-operations-during-startup/` |
 | **Workflow** | WF-003: Startup — Initial Project Scan |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-16 |

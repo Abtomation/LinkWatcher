@@ -1,144 +1,116 @@
-# New-DesignDocument.ps1
-# This script creates appropriate design documentation based on feature complexity tier
-# All documents are created with the 'tdd' prefix and stored in the 'tdd' subdirectory
-# Uses the central ID registry system
+# New-TDD.ps1
+# Creates a Technical Design Document for a feature using the tier-appropriate template.
+#
+# Refactored 2026-05-08 (PF-PRO-002 Phase 2 / option B): orchestration delegated
+# to Invoke-DesignArtifactCreation in Common-ScriptHelpers/DesignArtifactCreation.psm1.
 
 <#
 .SYNOPSIS
-    Creates appropriate design documentation based on feature complexity tier.
+    Creates a Technical Design Document at the tier-appropriate complexity.
 
 .DESCRIPTION
-    This PowerShell script generates the appropriate design document template based on
-    the feature's complexity tier. It creates the file with the correct structure,
-    naming convention, and initial content based on the tier-specific requirements.
-    Additionally, it automatically updates feature tracking with TDD completion status
-    and links the TDD document in the feature tracking table.
+    Generates a TDD document file (PD-TDD-XXX) using the t1/t2/t3 template,
+    appends an entry to PD-documentation-map.md, updates master Status (no
+    per-feature artifact column writes per PF-PRO-002), and inserts/updates
+    the TDD row in the feature state file's §4 ▸ Design Documentation table.
 
 .PARAMETER FeatureId
-    The ID of the feature (e.g., "1.2.3")
+    Feature ID (e.g., "1.2.3").
 
 .PARAMETER FeatureName
-    The name of the feature
+    Feature human-readable name.
 
 .PARAMETER Tier
-    The complexity tier (1, 2, or 3)
+    Complexity tier: 1 (Planning), 2 (Lightweight TDD), or 3 (Full TDD).
+    Picks the matching template and appends `-tN` to the filename.
 
 .PARAMETER OpenInEditor
-    Switch to open the created document in the default editor
+    Open the created TDD in the default editor.
 
 .PARAMETER DryRun
-    If specified, shows what would be updated in feature tracking without making changes
+    Preview the entire pipeline without performing any writes.
+    Equivalent to -WhatIf (PF-IMP-785).
 
 .EXAMPLE
-    ./New-DesignDocument.ps1 -FeatureId "1.2.3" -FeatureName "User Authentication" -Tier 2
-    # Creates tdd-1.2.3-user-authentication-t2.md in the tdd subdirectory
-
-.EXAMPLE
-    ./New-DesignDocument.ps1 -FeatureId "1.2.3" -FeatureName "User Authentication" -Tier 3 -OpenInEditor
-    # Creates doc/technical/doc/technical/architecture/design-docs/tdd-1.2.3-user-authentication-t3.md and opens it in the editor
-
-.EXAMPLE
-    ./New-DesignDocument.ps1 -FeatureId "1.4.1" -FeatureName "Payment Processing" -Tier 2 -DryRun
-    # Shows what would be updated in feature tracking without making changes
-
-.NOTES
-    This script creates documents with the tier-appropriate template:
-    - Tier 1: Lightweight planning document (Feature Planning Document)
-    - Tier 2: Standard TDD with essential sections (Lightweight Technical Design Document)
-    - Tier 3: Comprehensive TDD with all sections (Comprehensive Technical Design Document)
-
-    The script processes templates with dual metadata structure:
-    - Template metadata (PD-TEM-007/008/009) for the template files themselves
-    - Document metadata (PD-TDD-XXX) for the created documents
-
-    It ensures the AI Agent Session Handoff Notes section is included in all templates.
-
-    All documents use the naming convention: tdd-[FeatureID]-[feature-name]-t[Tier].md
-    and are stored in the /tdd subdirectory.
+    .\New-TDD.ps1 -FeatureId "1.2.3" -FeatureName "User Authentication" -Tier 2
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
 param (
-    [Parameter(Mandatory=$true)]
-    [string]$FeatureId,
-
-    [Parameter(Mandatory=$true)]
-    [string]$FeatureName,
-
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("1", "2", "3")]
-    [string]$Tier,
-
+    [Parameter(Mandatory=$true)] [string]$FeatureId,
+    [Parameter(Mandatory=$true)] [string]$FeatureName,
+    [Parameter(Mandatory=$true)] [ValidateSet("1", "2", "3")] [string]$Tier,
     [switch]$OpenInEditor,
-
-    [Parameter(Mandatory=$false)]
-    [switch]$DryRun
+    [Parameter(Mandatory=$false)] [switch]$DryRun
 )
 
-# Import the common helpers
+# Walk-up Common-ScriptHelpers import
 $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
 Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Get project root and define template paths for each tier
-$projectRoot = Get-ProjectRoot
-$templatePaths = @{
-    "1" = Join-Path $projectRoot "process-framework/templates/02-design/tdd-t1-template.md"
-    "2" = Join-Path $projectRoot "process-framework/templates/02-design/tdd-t2-template.md"
-    "3" = Join-Path $projectRoot "process-framework/templates/02-design/tdd-t3-template.md"
+# ---- Per-type composition: tier-driven template + filename ----
+$tierNames = @{
+    "1" = "Tier 1 (Planning Document)"
+    "2" = "Tier 2 (Lightweight TDD)"
+    "3" = "Tier 3 (Full TDD)"
+}
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/tdd-t$Tier-template.md"
+if (-not (Test-Path $templatePath)) {
+    Write-ProjectError -Message "Template for Tier $Tier not found at $templatePath" -ExitCode 1
 }
 
-# Ensure template exists
-if (-not (Test-Path $templatePaths[$Tier])) {
-    Write-ProjectError -Message "Template for Tier $Tier not found at $($templatePaths[$Tier])" -ExitCode 1
-}
-
-# Prepare additional metadata fields
-$additionalMetadataFields = @{
-    "feature_id" = $FeatureId
-    "tier" = $Tier
-}
-
-# Prepare custom replacements
-$customReplacements = @{
-    '[Feature Name]' = $FeatureName
-    '[FEATURE_ID]' = $FeatureId
-}
-
-# Create custom filename pattern
 $safeFeatureName = ConvertTo-KebabCase -InputString $FeatureName
 $safeFeatureId = $FeatureId -replace '\.', '-'
 $customFileName = "tdd-$safeFeatureId-$safeFeatureName-t$Tier.md"
+$tddRelativePath = "doc/technical/architecture/design-docs/tdd/$customFileName"
 
+$customReplacements = @{
+    '[Feature Name]' = $FeatureName
+    '[FEATURE_ID]'   = $FeatureId
+}
+$additionalMetadataFields = @{
+    "feature_id" = $FeatureId
+    "tier"       = $Tier
+}
+
+# ---- Delegate orchestration ----
 try {
-    $tddId = New-StandardProjectDocument -TemplatePath $templatePaths[$Tier] -IdPrefix "PD-TDD" -IdDescription "TDD Tier $Tier for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/technical/architecture/design-docs/tdd" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
-
-    # Display success message
-    $tierNames = @{
-        "1" = "Tier 1 (Planning Document)"
-        "2" = "Tier 2 (Lightweight TDD)"
-        "3" = "Tier 3 (Full TDD)"
+    $invokeArgs = @{
+        ArtifactType               = "TDD"
+        IdPrefix                   = "PD-TDD"
+        IdDescription              = "TDD Tier $Tier for feature ${FeatureId}: ${FeatureName}"
+        TemplatePath               = $templatePath
+        FileNamePattern            = $customFileName
+        DocumentName               = $FeatureName
+        OutputDirectory            = "doc/technical/architecture/design-docs/tdd"
+        FeatureId                  = $FeatureId
+        FeatureName                = $FeatureName
+        Replacements               = $customReplacements
+        AdditionalMetadataFields   = $additionalMetadataFields
+        DocMapSectionHeader        = "### ``technical/tdd/`` — Technical Design Documents (TDDs)"
+        DocMapEntryFormatter       = { param($id) "- [TDD: $FeatureName ($id)](technical/tdd/$customFileName) - $FeatureId Tier $Tier — $($tierNames[$Tier])" }
+        NewMasterStatus            = "🧪 Needs Test Spec"
+        MasterStatusNotesFormatter = { param($id) "TDD created: $id ($(Get-ProjectTimestamp -Format 'Date'))" }
+        ArtifactRelativePath       = $tddRelativePath
+        OpenInEditor               = $OpenInEditor
+        DryRun                     = $DryRun
+        CallerCmdlet               = $PSCmdlet
     }
+    $result = Invoke-DesignArtifactCreation @invokeArgs
 
+    # ---- Display ----
     $details = @(
         "Feature: $FeatureId - $FeatureName",
         "Tier: $($tierNames[$Tier])",
         "",
         "The document includes an AI Agent Session Handoff Notes section for maintaining context between development sessions."
     )
-
-    # Add mandatory guide consultation if not opening in editor
     if (-not $OpenInEditor) {
         $details += @(
             "",
@@ -153,72 +125,13 @@ try {
             "   customization following the guide's instructions to become functional."
         )
     }
-
-    # Auto-append entry to PD-documentation-map.md under TDDs section
-    if ($tddId -or $WhatIfPreference) {
-        $projectRoot = Get-ProjectRoot
-        $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = "### ``technical/tdd/`` — Technical Design Documents (TDDs)"
-        $entryLine = "- [TDD: $FeatureName ($tddId)](technical/tdd/$customFileName) - $FeatureId Tier $Tier — $($tierNames[$Tier])"
-
-        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-        if ($updated) {
-            $details += "Documentation Map: Updated (PD-documentation-map.md)"
-        }
+    if ($result.DocMapUpdated)    { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
+    if ($result.StateFileResult)  {
+        $sf = $result.StateFileResult
+        $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"
     }
 
-    Write-ProjectSuccess -Message "Created $($tierNames[$Tier])" -Details $details
-
-    # 🚀 AUTOMATION ENHANCEMENT: Update feature tracking with TDD completion
-    Write-Host ""
-    Write-Host "🤖 Updating Feature Tracking..." -ForegroundColor Yellow
-
-    try {
-        # Validate dependencies for automation
-        $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
-            "Update-FeatureTrackingStatus"
-        )
-
-        if (-not $dependencyCheck.AllDependenciesMet) {
-            Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
-            Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Update Status: 📝 Needs TDD → 🧪 Needs Test Spec" -ForegroundColor Cyan
-            Write-Host "  - Add TDD link to Tech Design column" -ForegroundColor Cyan
-        } else {
-            # Prepare TDD document link
-            $tddLink = "[$tddId](/doc/technical/architecture/design-docs/tdd/$customFileName)"
-
-            # Prepare additional updates for feature tracking
-            $additionalUpdates = @{
-                "Tech Design" = $tddLink
-            }
-
-            $expectedPreviousStatus = "📝 Needs TDD"
-
-            if ($DryRun) {
-                Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                Write-Host "  Status: $expectedPreviousStatus → 🧪 Needs Test Spec" -ForegroundColor Cyan
-                Write-Host "  Tech Design Link: $tddLink" -ForegroundColor Cyan
-            } else {
-                # Validate prerequisites based on tier
-                Write-Host "  🔍 Validating prerequisites for Tier $Tier..." -ForegroundColor Cyan
-
-                # Update feature tracking with TDD completion (PF-IMP-413: no Notes append)
-                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status "🧪 Needs Test Spec" -AdditionalUpdates $additionalUpdates
-
-                Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                Write-Host "  🧪 Status: $expectedPreviousStatus → 🧪 Needs Test Spec" -ForegroundColor Green
-                Write-Host "  🔗 TDD linked in Tech Design column" -ForegroundColor Green
-            }
-        }
-    }
-    catch {
-        Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
-        Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Update feature $FeatureId status to '🧪 Needs Test Spec'" -ForegroundColor Cyan
-        Write-Host "  - Add TDD link: [$tddId](/doc/technical/architecture/design-docs/tdd/$customFileName)" -ForegroundColor Cyan
-        Write-Host "  - Add creation date to Notes: $(Get-ProjectTimestamp -Format 'Date')" -ForegroundColor Cyan
-    }
+    Write-ProjectSuccess -Message "Created $($tierNames[$Tier]) with ID: $($result.DocumentId)" -Details $details
 }
 catch {
     Write-ProjectError -Message "Failed to create TDD: $($_.Exception.Message)" -ExitCode 1

@@ -5,6 +5,7 @@ category: Proposal Template
 version: 1.1
 created: 2025-06-07
 updated: 2026-03-15
+description: "Template for structure change proposals"
 ---
 
 # Structure Change Proposal Template

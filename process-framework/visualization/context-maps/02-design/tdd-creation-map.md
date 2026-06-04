@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-06-11
 updated: 2025-06-11
 related_task: PF-TSK-015
+description: "Components for creating design documents"
 ---
 
 # TDD Creation Context Map
@@ -64,9 +65,9 @@ graph TD
 
 ## Related Documentation
 
-- [TDD Templates](/process-framework/templates/02-design) - Tier-specific templates (tdd-t1, tdd-t2, tdd-t3)
-- [Feature Assessment](/doc/documentation-tiers/assessments) - Complexity tier assessments
-- [Existing TDDs](/doc/technical/tdd) - Previously created design documents
+- [TDD Templates](../../../templates/02-design) - Tier-specific templates (tdd-t1, tdd-t2, tdd-t3)
+- [Feature Assessment](../../../../doc/documentation-tiers/assessments) - Complexity tier assessments
+- [Existing TDDs](../../../../doc/technical/tdd) - Previously created design documents
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---

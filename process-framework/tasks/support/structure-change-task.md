@@ -3,9 +3,10 @@ id: PF-TSK-014
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.2
+version: 2.5
 created: 2025-06-07
-updated: 2026-04-28
+updated: 2026-05-16
+description: "Manage structural changes to documentation"
 ---
 
 # Structure Change Task
@@ -23,14 +24,6 @@ This task **orchestrates** systematic changes to documentation structures, templ
 **Focus Areas**: Change impact analysis, delegation planning, progress tracking, handover coordination
 **Communication Style**: Analyze dependencies and change ripple effects, identify which specialized tasks/processes to delegate to, ask about migration preferences and rollback requirements
 
-## When to Use
-
-- When updating documentation templates that affect multiple files
-- When changing metadata structures across the documentation system
-- When reorganizing section layouts in standardized documents
-- When implementing new formatting or structural conventions
-- When evolving the information architecture of the documentation
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/support/structure-change-map.md)
@@ -39,10 +32,10 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
   - [Structure Change Proposal](../../templates/support/structure-change-proposal-template.md) - Detailed description of proposed changes
   - [Documentation Map](../../PF-documentation-map.md) - Map of all documentation
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
-  - [LinkWatcher Capabilities Reference](/doc/user/handbooks/linkwatcher-capabilities-reference.md) - What LinkWatcher updates automatically vs. what needs manual attention during moves (see [LinkWatcher and Structure Changes](#linkwatcher-and-structure-changes) below)
+  - [LinkWatcher Capabilities Reference](../../../doc/user/handbooks/linkwatcher-capabilities-reference.md) - What LinkWatcher updates automatically vs. what needs manual attention during moves (see [LinkWatcher and Structure Changes](#linkwatcher-and-structure-changes) below)
   - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
   - [Template Development Guide](../../guides/support/template-development-guide.md) - **REQUIRED** for creating or updating templates
   - [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md) - **REQUIRED** for creating automation scripts
@@ -91,12 +84,13 @@ This task **orchestrates** systematic changes to documentation structures, templ
 
 > For small, contained structure changes (≤ 5 files, single-type, no breaking changes).
 
-3. **Study LinkWatcher capabilities**: Read the [LinkWatcher Capabilities Reference](/doc/user/handbooks/linkwatcher-capabilities-reference.md) to understand what LinkWatcher updates automatically and what requires manual attention. Do not assume — the reference is authoritative.
+3. **Study LinkWatcher capabilities**: Read the [LinkWatcher Capabilities Reference](../../../doc/user/handbooks/linkwatcher-capabilities-reference.md) to understand what LinkWatcher updates automatically and what requires manual attention. Do not assume — the reference is authoritative.
 4. **Make Changes**: Implement the structure change directly:
    - Use established scripts when creating new documents ([New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1), [New-Guide.ps1](../../scripts/file-creation/support/New-Guide.ps1), etc.)
    - For markdown table changes, consider [Add-MarkdownTableColumn.ps1](../../scripts/Add-MarkdownTableColumn.ps1)
    - **For file/directory moves**: Follow the [File and Directory Move Procedure](#file-and-directory-move-procedure) below
    - **For file splits** (one file into two): Follow the [File Split Procedure](#file-split-procedure) below
+   - **For framework-script edits** (`.ps1` / `.psm1`): add or update the script's Pester unit test (`<ScriptName>.Tests.ps1` under `appdev/test/automated/unit/framework/<area>/`) inline with the edit. Run `pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category <area>` (or `-Quick`) — the test pass is the validation evidence. If the change affects a tracked user workflow ([user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md)) or a measured performance surface, route follow-up to [E2E Acceptance Test Case Creation (PF-TSK-069)](../03-testing/e2e-acceptance-test-case-creation-task.md) or [Performance Test Creation (PF-TSK-084)](../03-testing/performance-test-creation-task.md) respectively.
 
 5. **Grep sweep for replaced patterns**: Before the checkpoint, grep the entire project for old values/patterns being replaced (status labels, terminology, naming conventions). LinkWatcher updates path references automatically, but does **not** update text patterns — status labels in particular are typically scattered across task definitions, guides, scripts, context maps, and test specs. Update any active references found and bring sweep results to the checkpoint.
 
@@ -108,10 +102,12 @@ This task **orchestrates** systematic changes to documentation structures, templ
    - Cross-references valid (check LinkWatcher log if relevant)
    - No broken links or orphaned references
 
-8. **Update Documentation Map**: Update the appropriate map if document organization changed:
-   - Process-framework artifacts → [PF Documentation Map](../../PF-documentation-map.md)
-   - Product documents (FDDs, TDDs, ADRs, handbooks) → [PD Documentation Map](../../../doc/PD-documentation-map.md)
-   - Test artifacts (test specs, audit reports) → [TE Documentation Map](../../../test/TE-documentation-map.md)
+8. **Update Documentation Maps and verify**:
+   - Update the **hand-maintained** maps if document organization changed:
+     - Product documents (FDDs, TDDs, ADRs, handbooks) → [PD Documentation Map](../../../doc/PD-documentation-map.md)
+     - Test artifacts (test specs, audit reports) → [TE Documentation Map](../../../test/TE-documentation-map.md)
+   - **Regenerate the PF map** (process-framework artifacts): `pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Build-DocumentationMap.ps1` — the PF map is a generated, DO-NOT-EDIT projection (PF-PRO-037); moves/adds/removes are picked up automatically from each artifact's source description (`.SYNOPSIS` / `description:` frontmatter / `metadata.description`).
+   - **Run drift check** (process-framework only): `pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Build-DocumentationMap.ps1 -Check` — must exit 0 (in sync). On non-zero exit, the on-disk map differs from generator output; rerun the generator (preceding bullet) and re-check. `-ReportMissing` lists files still lacking a source description.
 
 9. **🚨 MANDATORY FINAL STEP**: Complete the [Lightweight Completion Checklist](#lightweight-completion-checklist) below
 
@@ -122,7 +118,7 @@ This task **orchestrates** systematic changes to documentation structures, templ
 When moving or renaming files/directories as part of a structure change, follow this procedure for each move:
 
 1. **Move one file or directory at a time** — do not batch multiple moves simultaneously
-2. **Wait for LinkWatcher to finish processing** — check the active log file (`ls -lt process-framework-local/tools/linkWatcher/logs/LinkWatcherLog*.txt | head -1`) for completion of the update cycle
+2. **Wait for LinkWatcher to finish processing** — check the active log file (`ls -lt logs/linkwatcher/LinkWatcherLog*.txt | head -1`) for completion of the update cycle. Phase 5 moved LinkWatcher's runtime artifacts from `process-framework-local/tools/linkWatcher/` to the project-root `logs/linkwatcher/` directory.
 3. **Verify all references were updated** — grep for the old path across the project; if no hits remain, the move is complete
 4. **If references were NOT updated**, diagnose the root cause before manual fixing:
 
@@ -131,7 +127,7 @@ When moving or renaming files/directories as part of a structure change, follow 
    | Path inside `[brackets]` not updated | Template placeholder (e.g., `[Feature Name]`) — not a real link | Manual update required — LinkWatcher correctly skips these |
    | Path inside fenced code block not updated | Illustrative example, not a navigable reference | Manual update required — LinkWatcher correctly skips these |
    | Path doesn't resolve to any file on disk | Hypothetical example or already-deleted target | Manual update or removal required |
-   | Path exists but LinkWatcher missed it | Possible phantom link target (see PD-BUG-075) or unsupported pattern | Investigate root cause — check if the file type is monitored and the pattern is in the [Capabilities Reference](/doc/user/handbooks/linkwatcher-capabilities-reference.md) |
+   | Path exists but LinkWatcher missed it | Possible phantom link target (see PD-BUG-075) or unsupported pattern | Investigate root cause — check if the file type is monitored and the pattern is in the [Capabilities Reference](../../../doc/user/handbooks/linkwatcher-capabilities-reference.md) |
    | External URL (`http://`, `https://`) | LinkWatcher does not update external URLs | Manual update required if URL changed |
 
 > **Key rule**: Always identify the root cause before manually fixing. If LinkWatcher should have updated a reference but didn't, that's a bug to investigate — not something to silently work around.
@@ -171,7 +167,7 @@ When splitting one file into two separate files (e.g., extracting a section into
 
 #### Preparation
 
-3. **Study LinkWatcher capabilities**: Read the [LinkWatcher Capabilities Reference](/doc/user/handbooks/linkwatcher-capabilities-reference.md) to understand what LinkWatcher updates automatically and what requires manual attention. Do not assume — the reference is authoritative. This knowledge is essential for accurate impact analysis (next step) and for distinguishing LinkWatcher-handled updates from manual work during execution.
+3. **Study LinkWatcher capabilities**: Read the [LinkWatcher Capabilities Reference](../../../doc/user/handbooks/linkwatcher-capabilities-reference.md) to understand what LinkWatcher updates automatically and what requires manual attention. Do not assume — the reference is authoritative. This knowledge is essential for accurate impact analysis (next step) and for distinguishing LinkWatcher-handled updates from manual work during execution.
 4. **🚨 MANDATORY Impact Analysis**: Before creating the proposal, systematically assess the full scope of the change. This step prevents incremental scope discovery during execution.
 
    a. **Reference grep**: For each affected file, grep the entire project to find all files that reference it (markdown links, imports, script paths, string literals). Record the count and list.
@@ -181,6 +177,10 @@ When splitting one file into two separate files (e.g., extracting a section into
    c. **Task definition audit**: Search task definitions (`process-framework/tasks/`) for manual update instructions referencing the affected file(s) (e.g., "update documentation-map.md").
    d. **Infrastructure doc consultation**: Read [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) (catalogs what each task creates/updates) and [Task Transition Registry](../../infrastructure/task-transition-registry.md) (documents handover interfaces between tasks) to identify additional downstream impacts.
    e. **Present impact matrix**: Compile findings into a matrix (affected files × change type: link update, content update, script change, task definition change) and present at the checkpoint below.
+   f. **Plan completeness checks** — for specific change shapes, additional verification before the matrix is final:
+      - *Directory moves*: grep `*.ps1`/`*.psm1` for hardcoded references to the moving path prefix; the plan must enumerate every affected script upfront, since sub-step (a)'s generic grep can miss in-script path construction *(PF-IMP-813)*.
+      - *Project-local state moves*: framework-management content (`temp-framework-extension-*`, `temp-task-creation-*`, PF-TSK-001/026 sessions, IMP triage outputs) routes to `appdev/process-framework-central/`, **not** any project's `doc/state-tracking/` *(PF-IMP-816)*.
+      - *Files separated from blueprint*: the plan must explicitly answer "what does a new project see in its place?" (filename, content, generator) — no TBDs *(PF-IMP-824)*.
 
    > **Why this step exists**: SC-009 demonstrated that without structured impact analysis, scope gaps are caught incrementally by the human partner across multiple checkpoints — wasting review cycles and risking missed items.
 
@@ -193,14 +193,16 @@ When splitting one file into two separate files (e.g., extracting a section into
 6. **Create Structure Change State Tracking File**: Use the [New-StructureChangeState.ps1](../../scripts/file-creation/support/New-StructureChangeState.ps1) script to create tracking file with implementation roadmap
    ```powershell
    # Navigate to the state-tracking directory and create structure change state tracking file
-   cd process-framework-local/state-tracking
+   # Phase 5/7 (post-2026-05-11): state-tracking lives at process-framework-central/state-tracking/ (appdev)
+   # or doc/state-tracking/ (projects) — resolved via Get-StateTrackingContext.
+   cd $(Get-StateTrackingContext).StateTrackingRoot
    ./New-StructureChangeState.ps1 -ChangeName "Change Name" -ChangeType "Template Update|Directory Reorganization|Metadata Structure|Documentation Architecture|Rename|Content Update|Framework Extension" -Description "Brief description"
    # Use -ChangeType "Rename" for lightweight rename/move operations (simplified template without pilot/rollback/metrics sections)
    # Use -ChangeType "Content Update" for content-only changes across files (simplified template without pilot/rollback/metrics sections)
    # Use -ChangeType "Framework Extension" for adding/modifying framework docs (artifact tracking, no pilot/rollback/metrics)
    # Use -FromProposal when a detailed proposal already exists — generates a lightweight state file (phase checklist + session log only, no redundant sections)
    ```
-7. Use the existing `/process-framework-local/state-tracking/temporary` directory for transition files
+7. Use the existing temporary state-tracking directory for transition files. Phase 5/7: resolved via `Get-StateTrackingContext` — appdev → `process-framework-central/state-tracking/temporary/`; projects → `doc/state-tracking/temporary/`.
 8. Create mapping documents and migration checklists in the temporary directory
 9. Establish clear metrics for measuring the success of the structure change
 10. **🚨 CHECKPOINT**: Present structure change proposal (including impact matrix from Step 4), migration plan, and impact analysis to human partner for approval
@@ -230,6 +232,7 @@ When splitting one file into two separate files (e.g., extracting a section into
     c. **🚨 CHECKPOINT**: Confirm each delegated deliverable meets expectations before proceeding to the next
 
 14. **Direct Execution — Migration and Updates**: Handle work that belongs to PF-TSK-014 directly:
+    - **Pre-execution sanity check**: Before applying changes, grep/inspect each file named in the plan to confirm its current state matches the plan's assumption — plans authored across sessions can stale *(PF-IMP-815)*.
     - Create migration plan for updating files affected by structure changes
     - Pilot changes on a small subset of files to validate the approach
     - **🚨 CHECKPOINT**: Present pilot results to human partner for approval before full rollout
@@ -237,16 +240,53 @@ When splitting one file into two separate files (e.g., extracting a section into
     - For markdown table changes, consider [Add-MarkdownTableColumn.ps1](../../scripts/Add-MarkdownTableColumn.ps1)
     - **For file/directory moves**: Follow the [File and Directory Move Procedure](#file-and-directory-move-procedure)
     - **For file splits** (one file into two): Follow the [File Split Procedure](#file-split-procedure)
+    - **For framework-script edits** (`.ps1` / `.psm1`): add or update the script's Pester unit test (`<ScriptName>.Tests.ps1` under `appdev/test/automated/unit/framework/<area>/`) inline with the edit. The test pass via `Run-Tests.ps1 -Category <area>` (or `-Quick`) is the validation evidence. For mass renames / column moves / path-prefix changes touching many scripts, the test suite is the cheapest way to catch silent breakage; for workflow-affecting or perf-affecting changes, file a follow-up via [PF-TSK-069](../03-testing/e2e-acceptance-test-case-creation-task.md) / [PF-TSK-084](../03-testing/performance-test-creation-task.md).
+
+14.5. **Per-project working-doc migrations** (Phase 7 capability, 2026-05-11) — when the structure change affects project working docs (anything inside `<project>/doc/`, `<project>/test/`, or `<project>/src/` that gets reorganized as part of the structure change), the change cannot be applied unilaterally from appdev; it must be deployed to each registered project's working tree by a subsequent Framework Rollout Mode C (PF-TSK-088) session.
+
+    Write one Pending Migration Entry per affected registered project to `appdev/process-framework-central/per-project-migrations/<PRJ-ID>/pending-migrations.md`.
+
+    **Scaffold via [New-PendingMigration.ps1](../../scripts/file-creation/support/New-PendingMigration.ps1)** (PF-IMP-931) — it allocates the next per-project `MIG-NNN` (highest in that ledger + 1), inserts the Summary-table row + entry skeleton, and fans the same entry across projects in one call:
+
+    ```bash
+    pwsh.exe -ExecutionPolicy Bypass -File blueprint/process-framework/scripts/file-creation/support/New-PendingMigration.ps1 \
+      -AllProjects -Title "Add 'priority' column to feature-tracking.md" -Source "PF-IMP-NNN" \
+      -TargetFiles "doc/state-tracking/permanent/feature-tracking.md — add 'priority' column" \
+      -BackwardCompatible yes -Confirm:\$false
+    ```
+
+    Target selection: `-Project PRJ-NNN[,PRJ-MMM]` for specific projects, `-AllProjects` for every eligible project (appdev / sandboxes / version-frozen are excluded and the skipped set is logged), or `-BatchFile <json>` for several distinct migrations at once. Use `-Variant Cleanup` ([PF-TEM-080](../../templates/support/pending-migration-entry-cleanup-template.md)) for no-data-motion migrations (empty-dir removal, placeholder relocation, single config/registry-key cleanup); the default is the full form ([PF-TEM-079](../../templates/support/pending-migration-entry-template.md)).
+
+    The script scaffolds **structure only** — after it runs, fill the `<!-- TODO -->` prose in each generated entry: **Description** (what changes and why), **Migration Steps** (ordered procedure Mode C executes), **Expected Outcome** (post-migration state), **Rollback Implications** (the load-bearing `yes`/`no` flag — when `no`, document the manual reversal steps; Mode D pre-flight scans `no` entries and surfaces them as operator-action-required), and **Validation** (how Mode C confirms success). Then commit the ledger updates with the structure change.
+
+    The Mode C session (PF-TSK-088) is run from inside each project's working tree and applies any unapplied entries from the project's ledger. PF-TSK-014 is responsible for *authoring* the entries; Mode C is responsible for *applying* them.
+
+    > **🚨 Scope boundary — when migration entries are NOT needed**: Pending migration entries cover **only** changes to project files **outside** the rolled-out subtree (`<project>/doc/`, `<project>/test/`, `<project>/src/`, `<project>/CLAUDE.md`, project-config.json schema bumps, etc.). They do **NOT** cover changes inside `blueprint/process-framework/` itself — those propagate automatically via Mode B Push (`Push-FrameworkUpdate.ps1`'s `robocopy /MIR` orphan-removal mirror). Concretely:
+    >
+    > | Change shape | Migration entry needed? | How it propagates |
+    > |---|---|---|
+    > | Move a file *within* `blueprint/process-framework/` (e.g. `state-tracking/X.md` → `state-tracking/Y.md`) | No | Mirror copies new path; deletes old |
+    > | Add a new file inside `blueprint/process-framework/` | No | Mirror copies it to every project |
+    > | Delete a file from `blueprint/process-framework/` | No | Mirror orphans it from every project |
+    > | Move a file *out of* `blueprint/process-framework/` (e.g. into `process-framework-central/`) | No | Mirror deletes the blueprint-side copy; central-side is per-appdev only |
+    > | Rename a column in `<project>/doc/state-tracking/permanent/feature-tracking.md` | **Yes** | Mode C session in each project edits the file |
+    > | Add a section to project `CLAUDE.md` template | **Yes** (if it modifies existing projects' `CLAUDE.md`) | Mode C session in each project edits the file |
+    >
+    > If the change is purely intra-blueprint, skip step 14.5 entirely — no ledger writes, no Mode C session.
+
+14.7. **Smoke-test affected scripts** (when scope >5 scripts per Step 4f): exercise each once with safe params or `-WhatIf` to catch silent breakage (projectRoot computation, template matching, path-prefix construction) before further work layers on top *(PF-IMP-814)*.
 
 #### Finalization
 
 15. Verify all files have been updated correctly
 16. Document any issues encountered and their resolutions
-17. Update the documentation map if structure changes affected document organization
+17. **Update Documentation Maps and verify**:
+    - Update the hand-maintained maps if document organization changed: [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
+    - **Regenerate + drift-check the PF map** (process-framework artifacts): `Build-DocumentationMap.ps1`, then `Build-DocumentationMap.ps1 -Check` — must exit 0 (in sync). The PF map is a generated, DO-NOT-EDIT projection (PF-PRO-037); rerun the generator on any non-zero `-Check`.
 
 #### 🚨 MANDATORY Cleanup Phase
 
-18. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to `/process-framework-local/state-tracking/temporary/old`
+18. **🚨 CRITICAL CLEANUP STEP**: Archive completed temporary state tracking files to the resolved `state-tracking/temporary/old/` directory (via `Get-StateTrackingContext`)
 19. **Archive completed proposal**: Move the structure change proposal to its `old/` subdirectory (e.g., `proposals/old`) — the proposal has served its purpose and should not remain alongside active proposals
 20. Remove excessive migration mapping documents if they don't provide ongoing value
 21. Clean up any redundant documentation created during the process
@@ -268,7 +308,7 @@ When splitting one file into two separate files (e.g., extracting a section into
 The following state files must be updated as part of this task:
 
 - **Structure Change State File** - Create using New-StructureChangeState.ps1 to track multi-session implementation progress
-- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Update to reflect the process improvement
+- [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) - Update to reflect the process improvement
 - [PF Documentation Map](../../PF-documentation-map.md) - Update if process-framework document organization changes
 - [PD Documentation Map](../../../doc/PD-documentation-map.md) - Update if product document organization changes
 - [TE Documentation Map](../../../test/TE-documentation-map.md) - Update if test artifact organization changes
@@ -286,9 +326,12 @@ The following state files must be updated as part of this task:
   - [ ] New documents created using established scripts (if applicable)
   - [ ] Cross-references valid (no broken links)
   - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
+  - [ ] Regenerate the PF map via [`Build-DocumentationMap.ps1`](../../scripts/validation/Build-DocumentationMap.ps1), then run [`Build-DocumentationMap.ps1 -Check`](../../scripts/validation/Build-DocumentationMap.ps1) — exit 0 (map in sync)
+  - [ ] **Framework script tests**: for each `.ps1`/`.psm1` edited or created in this session, the corresponding Pester unit test (`<ScriptName>.Tests.ps1`) exists, was added/updated alongside the edit, and runs green. N/A if the change touched no PowerShell scripts.
 - [ ] **Update State Files**:
-  - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
-  - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
+  - [ ] [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) updated (if this change addresses an IMP item)
+  - [ ] PF map regenerated via [`Build-DocumentationMap.ps1`](../../scripts/validation/Build-DocumentationMap.ps1) if process-framework organization changed; hand-maintained [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md) maps updated if their organization changed
+  - [ ] **Pending-migration entries filed (cwd=appdev only)**: If this change touched a `blueprint/` file outside `blueprint/process-framework/` (e.g. `blueprint/CLAUDE.md`, `blueprint/doc/`, `blueprint/test/`), a pending-migration entry has been filed under `process-framework-central/per-project-migrations/<PRJ-NNN>/pending-migrations.md` for every registered product project, using the [Pending Migration Entry Template](../../templates/support/pending-migration-entry-template.md). `Push-FrameworkUpdate.ps1` mirrors only `blueprint/process-framework/`; everything else in `blueprint/` reaches existing projects only via a migration entry. N/A if the change touched only `blueprint/process-framework/` (which Push mirrors automatically).
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Lightweight)"
 
 ---
@@ -304,13 +347,16 @@ The following state files must be updated as part of this task:
   - [ ] All affected content files migrated to new structure
   - [ ] Structure change tracking file properly maintained (delegation status recorded)
   - [ ] Run `Validate-StateTracking.ps1` — 0 errors across all surfaces
+  - [ ] Regenerate the PF map via [`Build-DocumentationMap.ps1`](../../scripts/validation/Build-DocumentationMap.ps1), then run [`Build-DocumentationMap.ps1 -Check`](../../scripts/validation/Build-DocumentationMap.ps1) — exit 0 (map in sync)
+  - [ ] **Framework script tests**: for each `.ps1`/`.psm1` edited or created in this session, the corresponding Pester unit test (`<ScriptName>.Tests.ps1`) exists, was added/updated alongside the edit, and runs green. N/A if the change touched no PowerShell scripts.
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Structure change state tracking file completed and properly maintained
-  - [ ] [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion
-  - [ ] Appropriate documentation map(s) updated if document organization changed: [PF](../../PF-documentation-map.md) / [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md)
+  - [ ] [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) updated with structure change completion
+  - [ ] PF map regenerated via [`Build-DocumentationMap.ps1`](../../scripts/validation/Build-DocumentationMap.ps1) if process-framework organization changed; hand-maintained [PD](../../../doc/PD-documentation-map.md) / [TE](../../../test/TE-documentation-map.md) maps updated if their organization changed
+  - [ ] **Pending-migration entries filed (cwd=appdev only)**: If this change touched a `blueprint/` file outside `blueprint/process-framework/` (e.g. `blueprint/CLAUDE.md`, `blueprint/doc/`, `blueprint/test/`), a pending-migration entry has been filed under `process-framework-central/per-project-migrations/<PRJ-NNN>/pending-migrations.md` for every registered product project, using the [Pending Migration Entry Template](../../templates/support/pending-migration-entry-template.md). `Push-FrameworkUpdate.ps1` mirrors only `blueprint/process-framework/`; everything else in `blueprint/` reaches existing projects only via a migration entry. N/A if the change touched only `blueprint/process-framework/` (which Push mirrors automatically).
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-014" and context "Structure Change (Full)"
 - [ ] **🚨 MANDATORY Cleanup Phase**: Remove temporary documentation artifacts created during the structure change:
-  - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to `/process-framework-local/state-tracking/temporary/old`
+  - [ ] **🚨 CRITICAL**: Archive completed temporary state tracking files to the resolved `state-tracking/temporary/old/` directory (via `Get-StateTrackingContext`)
   - [ ] **🚨 CRITICAL**: Archive completed structure change proposal to its `old/` subdirectory
   - [ ] Remove excessive migration mapping documents if they don't provide ongoing value
   - [ ] Clean up any redundant documentation created during the process

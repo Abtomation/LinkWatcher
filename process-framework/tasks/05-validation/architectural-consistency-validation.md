@@ -2,9 +2,10 @@
 id: PF-TSK-031
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-08-15
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency"
 ---
 
 # Architectural Consistency Validation
@@ -19,14 +20,6 @@ Systematically validates selected features for architectural pattern adherence, 
 **Mindset**: Systematic, pattern-focused, consistency-oriented
 **Focus Areas**: Architectural patterns, design principles, interface contracts, ADR compliance
 **Communication Style**: Identify architectural deviations and inconsistencies, recommend pattern improvements, ask about architectural trade-offs when multiple valid approaches exist
-
-## When to Use
-
-- When validating selected features for architectural consistency as part of the validation framework
-- Before major architectural changes to establish baseline consistency
-- When investigating architectural debt or pattern violations
-- As part of regular codebase health assessments
-- When onboarding new team members to demonstrate architectural standards
 
 ## Context Requirements
 
@@ -73,7 +66,7 @@ Systematically validates selected features for architectural pattern adherence, 
 
 5. **Analyze Architectural Patterns**: Examine each feature's implementation for adherence to established patterns (Repository, Service Layer, etc.)
 6. **Validate ADR Compliance**: Check that implementation follows architectural decisions documented in ADRs
-   > **When no ADR exists for a feature**: Assess whether the feature's architectural decisions are significant enough to warrant an ADR (e.g., non-obvious pattern choices, trade-offs with alternatives). If an ADR should exist, note it as a finding and recommend creating one using [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md). If not (feature follows established project patterns without notable decisions), skip this criterion.
+   > **When no ADR exists for a feature**: Assess whether the feature's architectural decisions are significant enough to warrant an ADR (e.g., non-obvious pattern choices, trade-offs with alternatives). If an ADR should exist, note it as a finding and recommend creating one using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md). If not (feature follows established project patterns without notable decisions), skip this criterion.
 7. **Assess Interface Consistency**: Verify that interfaces follow consistent patterns and contracts across features
    > **Justified divergence check**: Not every pattern difference is a defect. Before flagging an inconsistency, verify that different design constraints (stateless vs stateful, pure vs side-effecting, hot-path vs setup-only) don't justify the divergence. "No issues found" is a valid validation outcome — do not manufacture findings to fill a report.
 8. **Generate Validation Report**: Create detailed validation report using the automation script
@@ -91,7 +84,7 @@ Systematically validates selected features for architectural pattern adherence, 
 12. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 13. **Review Quality Gates**: Check if validation meets minimum quality thresholds (average score ≥ 2.0)
 14. **Plan Remediation**: For scores below threshold, create action items for architectural improvements
-15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+15. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "AC" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

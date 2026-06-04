@@ -260,8 +260,14 @@ function ConvertFrom-MarkdownTable {
             $sectionLevel = $matches[1].Length
         }
 
+        # Anchor heading match to start-of-line to avoid false-positive matches on
+        # rows whose cell content quotes the heading text (e.g., an Intake row
+        # describing a bug in the script that hardcodes '## Section 2 — Improvements'
+        # would otherwise be picked up as the section start before the real heading
+        # at column 0).
+        $sectionPattern = '^' + [regex]::Escape($Section) + '\s*$'
         for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match [regex]::Escape($Section)) {
+            if ($lines[$i] -match $sectionPattern) {
                 $startIdx = $i + 1
                 $sectionFound = $true
                 break
@@ -558,7 +564,7 @@ function Update-MarkdownTableWithAppend {
     Additional notes to append to the Notes column
 
     .EXAMPLE
-    $appendUpdates = @{ "API Design" = "[PD-MDL-001](path/to/model.md)" }
+    $appendUpdates = @{ "Notes" = "Additional context" }
     $updatedContent = Update-MarkdownTableWithAppend -Content $content -FeatureId "1.2.3" -StatusColumn "Status" -Status "🟢 Completed" -AppendUpdates $appendUpdates
     #>
 
@@ -786,15 +792,34 @@ function Move-MarkdownTableRow {
         [System.Collections.Specialized.OrderedDictionary]$AdditionalColumns,
 
         [Parameter(Mandatory=$false)]
-        [string]$SectionEndPattern = '^\s*</details>'
+        [string]$SectionEndPattern = '^\s*</details>',
+
+        # Two-file mode: when provided, the destination section is searched
+        # in $DestinationContent (a separate file's content) instead of in
+        # $Content. Source removal still operates on $Content; destination
+        # insert operates on $DestinationContent. Result hashtable adds a
+        # DestinationContent key carrying the modified destination string.
+        # Use this for archive-split layouts where the source section and
+        # destination section live in different files.
+        [Parameter(Mandatory=$false)]
+        [AllowNull()]
+        [string]$DestinationContent
     )
 
+    $twoFile = $PSBoundParameters.ContainsKey('DestinationContent')
     $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+    if ($twoFile) {
+        $destLines = [System.Collections.ArrayList]@($DestinationContent -split "\r?\n")
+    } else {
+        $destLines = $lines
+    }
 
     # --- Step 1: Find the source section and parse its table ---
+    # Anchor section match to start-of-line (see ConvertFrom-MarkdownTable rationale).
+    $sourceHeadingPattern = '^' + [regex]::Escape($SourceSection) + '\s*$'
     $sourceStartIdx = -1
     for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match [regex]::Escape($SourceSection)) {
+        if ($lines[$i] -match $sourceHeadingPattern) {
             $sourceStartIdx = $i
             break
         }
@@ -887,9 +912,14 @@ function Move-MarkdownTableRow {
     $destinationRow = ConvertTo-MarkdownTableRow -Cells $destColValues
 
     # --- Step 4: Insert into destination section ---
+    # When -DestinationContent was supplied, the destination section lives in
+    # a separate file's content ($destLines); otherwise $destLines aliases
+    # $lines and behavior matches the single-file case.
+    # Anchor section match to start-of-line (same rationale as source search).
+    $destHeadingPattern = '^' + [regex]::Escape($DestinationSection) + '\s*$'
     $destStartIdx = -1
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match [regex]::Escape($DestinationSection)) {
+    for ($i = 0; $i -lt $destLines.Count; $i++) {
+        if ($destLines[$i] -match $destHeadingPattern) {
             $destStartIdx = $i
             break
         }
@@ -897,26 +927,26 @@ function Move-MarkdownTableRow {
 
     if ($destStartIdx -eq -1) {
         Write-Warning "Move-MarkdownTableRow: Destination section '$DestinationSection' not found"
-        return @{ Content = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $destinationRow }
+        return @{ Content = $null; DestinationContent = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $destinationRow }
     }
 
     # Find insertion point: after the last data row in the destination table
     $insertAfterIdx = -1
-    for ($i = $destStartIdx + 1; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match '^## ' -and $i -ne $destStartIdx) { break }
-        if ($SectionEndPattern -and $lines[$i] -match $SectionEndPattern) { break }
+    for ($i = $destStartIdx + 1; $i -lt $destLines.Count; $i++) {
+        if ($destLines[$i] -match '^## ' -and $i -ne $destStartIdx) { break }
+        if ($SectionEndPattern -and $destLines[$i] -match $SectionEndPattern) { break }
         # Match data rows (not headers, not separators)
-        if ($lines[$i] -match '^\|[^-]' -and $lines[$i] -notmatch '^\|\s*(ID|Feature|Date|Status)\s*\|') {
+        if ($destLines[$i] -match '^\|[^-]' -and $destLines[$i] -notmatch '^\|\s*(ID|Feature|Date|Status)\s*\|') {
             $insertAfterIdx = $i
         }
     }
 
     # If no data rows, insert after the separator line
     if ($insertAfterIdx -eq -1) {
-        for ($i = $destStartIdx + 1; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match '^## ' -and $i -ne $destStartIdx) { break }
-            if ($SectionEndPattern -and $lines[$i] -match $SectionEndPattern) { break }
-            if ($lines[$i] -match '^\|[-\s:|]+$') {
+        for ($i = $destStartIdx + 1; $i -lt $destLines.Count; $i++) {
+            if ($destLines[$i] -match '^## ' -and $i -ne $destStartIdx) { break }
+            if ($SectionEndPattern -and $destLines[$i] -match $SectionEndPattern) { break }
+            if ($destLines[$i] -match '^\|[-\s:|]+$') {
                 $insertAfterIdx = $i
                 break
             }
@@ -925,16 +955,241 @@ function Move-MarkdownTableRow {
 
     if ($insertAfterIdx -eq -1) {
         Write-Warning "Move-MarkdownTableRow: Could not find insertion point in destination section '$DestinationSection'"
-        return @{ Content = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $destinationRow }
+        return @{ Content = $null; DestinationContent = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $destinationRow }
     }
 
-    $lines.Insert($insertAfterIdx + 1, $destinationRow)
+    $destLines.Insert($insertAfterIdx + 1, $destinationRow)
+
+    if ($twoFile) {
+        return @{
+            Content = ($lines -join "`r`n")
+            DestinationContent = ($destLines -join "`r`n")
+            SourceRow = $sourceRowText
+            SourceColumns = $sourceColumns
+            DestinationRow = $destinationRow
+        }
+    }
 
     return @{
         Content = ($lines -join "`r`n")
         SourceRow = $sourceRowText
         SourceColumns = $sourceColumns
         DestinationRow = $destinationRow
+    }
+}
+
+function Add-MarkdownTableRow {
+    <#
+    .SYNOPSIS
+    Idempotently inserts or updates a row in a markdown table scoped to a heading.
+
+    .DESCRIPTION
+    Anchors on a heading (e.g. "### Design Documentation"), finds the first table
+    inside that section, and either appends a new data row or updates the existing
+    row whose key column matches $KeyValue. The section ends at the next heading of
+    equal or higher level. Idempotency: re-invoking with the same inputs replaces
+    the matching row (or no-ops if every cell already matches), never duplicates it.
+
+    Pure markdown manipulation — no knowledge of state files or repo paths. State-
+    file-aware callers (e.g. Add-StateFileDocumentationInventoryRow) should wrap this.
+
+    .PARAMETER Content
+    The full file content as a single string. Line endings preserved on output.
+
+    .PARAMETER SectionHeading
+    Exact heading line that anchors the table (e.g. "### Design Documentation").
+    Compared trimmed-end against each line. The section's end is the next heading
+    line whose hash count is <= the anchor's hash count.
+
+    .PARAMETER KeyColumn
+    Header name of the column used to identify rows for the upsert (e.g. "Document").
+    Must be present in the table headers.
+
+    .PARAMETER KeyValue
+    Value to match against the KeyColumn cell. Compared after stripping markdown link
+    wrappers from the cell value (so "[PD-FDD-005](path)" matches "PD-FDD-005").
+    With -MatchKeyByPrefix, matches when the cell's link-stripped value STARTS WITH
+    "$KeyValue" followed by end-of-string or a non-word boundary — handles cells like
+    "PD-ASS-003 Tier Assessment" matching key "PD-ASS-003".
+
+    .PARAMETER Row
+    Hashtable of column name -> cell value. Keys must match table headers; unknown
+    keys are skipped with a warning. Missing columns default to empty string on
+    insert; on update, existing cell values are preserved for columns not in $Row.
+
+    .PARAMETER MatchKeyByPrefix
+    If set, key matching is prefix-based (with word-boundary anchoring). Without it,
+    matching is exact (after link-text extraction).
+
+    .OUTPUTS
+    Hashtable with keys:
+      Content    - updated file content (or original if Action was a no-op or failure)
+      Action     - 'Inserted' | 'Updated' | 'NoOp' | 'SectionNotFound' | 'TableNotFound' | 'KeyColumnNotFound'
+      LineNumber - 1-based line of the affected row (0 on failure)
+      Message    - human-readable detail
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [string]$SectionHeading,
+
+        [Parameter(Mandatory=$true)]
+        [string]$KeyColumn,
+
+        [Parameter(Mandatory=$true)]
+        [string]$KeyValue,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable]$Row,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$MatchKeyByPrefix
+    )
+
+    # Detect line ending so output preserves the file's existing convention
+    $newline = if ($Content -match "`r`n") { "`r`n" } else { "`n" }
+    $lines = $Content -split "`r?`n"
+
+    # Determine anchor heading level (number of leading #s)
+    $anchorLevel = 0
+    if ($SectionHeading -match '^(#{1,6})\s') { $anchorLevel = $matches[1].Length }
+    if ($anchorLevel -eq 0) {
+        Write-Warning "Add-MarkdownTableRow: SectionHeading '$SectionHeading' is not a markdown heading (must start with 1-6 # characters)."
+        return @{ Content = $Content; Action = 'SectionNotFound'; LineNumber = 0; Message = "Invalid SectionHeading" }
+    }
+
+    # Find anchor heading line (trimmed-end exact match)
+    $anchorTrim = $SectionHeading.TrimEnd()
+    $anchorIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i].TrimEnd() -eq $anchorTrim) { $anchorIdx = $i; break }
+    }
+    if ($anchorIdx -lt 0) {
+        Write-Warning "Add-MarkdownTableRow: Section heading '$SectionHeading' not found."
+        return @{ Content = $Content; Action = 'SectionNotFound'; LineNumber = 0; Message = "Heading '$SectionHeading' not found" }
+    }
+
+    # Compute section end (next heading of equal or higher level, or EOF)
+    $endIdx = $lines.Count - 1
+    $endPattern = "^#{1,$anchorLevel}\s"
+    for ($i = $anchorIdx + 1; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match $endPattern) { $endIdx = $i - 1; break }
+    }
+
+    # Find the table within (anchorIdx, endIdx]: first non-separator pipe row is header
+    $headerIdx = -1
+    $separatorIdx = -1
+    for ($i = $anchorIdx + 1; $i -le $endIdx; $i++) {
+        if ($lines[$i] -match '^\|[-\s:|]+\|\s*$') { continue }   # not header (it's a separator alone)
+        if ($lines[$i] -match '^\|.*\|\s*$') {
+            $headerIdx = $i
+            # Verify next non-blank line is a separator
+            for ($j = $i + 1; $j -le $endIdx; $j++) {
+                if ([string]::IsNullOrWhiteSpace($lines[$j])) { continue }
+                if ($lines[$j] -match '^\|[-\s:|]+\|\s*$') { $separatorIdx = $j }
+                break
+            }
+            break
+        }
+    }
+    if ($headerIdx -lt 0 -or $separatorIdx -lt 0) {
+        Write-Warning "Add-MarkdownTableRow: No table found under heading '$SectionHeading'."
+        return @{ Content = $Content; Action = 'TableNotFound'; LineNumber = 0; Message = "No table found in section" }
+    }
+
+    $headers = Split-MarkdownTableRow $lines[$headerIdx]
+    if (-not $headers -or $headers.Count -eq 0) {
+        Write-Warning "Add-MarkdownTableRow: Could not parse headers in table under '$SectionHeading'."
+        return @{ Content = $Content; Action = 'TableNotFound'; LineNumber = 0; Message = "Empty headers" }
+    }
+
+    # Verify KeyColumn exists
+    $keyColIdx = -1
+    for ($k = 0; $k -lt $headers.Count; $k++) {
+        if ($headers[$k] -eq $KeyColumn) { $keyColIdx = $k; break }
+    }
+    if ($keyColIdx -lt 0) {
+        Write-Warning "Add-MarkdownTableRow: KeyColumn '$KeyColumn' not found in table headers ($($headers -join ', '))."
+        return @{ Content = $Content; Action = 'KeyColumnNotFound'; LineNumber = 0; Message = "KeyColumn '$KeyColumn' missing" }
+    }
+
+    # Warn on unknown $Row keys (continue with known keys only)
+    foreach ($rowKey in @($Row.Keys)) {
+        if ($headers -notcontains $rowKey) {
+            Write-Warning "Add-MarkdownTableRow: Row key '$rowKey' not in table headers; ignored. Available: $($headers -join ', ')"
+        }
+    }
+
+    # Walk data rows (separatorIdx+1 to first non-pipe-or-end)
+    $dataStartIdx = $separatorIdx + 1
+    $lastDataIdx = $separatorIdx   # if table is empty, append after separator
+    $matchIdx = -1
+    for ($i = $dataStartIdx; $i -le $endIdx; $i++) {
+        if ([string]::IsNullOrWhiteSpace($lines[$i])) { break }
+        if ($lines[$i] -notmatch '^\|.*\|\s*$') { break }
+        if ($lines[$i] -match '^\|[-\s:|]+\|\s*$') { break }   # stray separator ends table
+        $lastDataIdx = $i
+
+        $cells = Split-MarkdownTableRow $lines[$i]
+        if ($null -eq $cells -or $cells.Count -le $keyColIdx) { continue }
+        $cellLinkText = Get-MarkdownLinkText $cells[$keyColIdx]
+        $isMatch = $false
+        if ($MatchKeyByPrefix) {
+            # Prefix match anchored at start, with word-boundary or end-of-string trailing
+            if ($cellLinkText -match ("^" + [regex]::Escape($KeyValue) + "(\b|$)")) { $isMatch = $true }
+        } else {
+            if ($cellLinkText -eq $KeyValue) { $isMatch = $true }
+        }
+        if ($isMatch) { $matchIdx = $i; break }
+    }
+
+    # Build a cells array from $Row (used for both insert and update)
+    $newCells = New-Object string[] $headers.Count
+    for ($h = 0; $h -lt $headers.Count; $h++) { $newCells[$h] = '' }
+
+    if ($matchIdx -ge 0) {
+        # UPDATE: start from existing cells, then override columns from $Row
+        $existing = Split-MarkdownTableRow $lines[$matchIdx]
+        for ($h = 0; $h -lt $headers.Count; $h++) {
+            $newCells[$h] = if ($h -lt $existing.Count) { $existing[$h] } else { '' }
+        }
+        for ($h = 0; $h -lt $headers.Count; $h++) {
+            if ($Row.ContainsKey($headers[$h])) { $newCells[$h] = [string]$Row[$headers[$h]] }
+        }
+        $newRow = ConvertTo-MarkdownTableRow -Cells $newCells
+        if ($newRow -eq $lines[$matchIdx].TrimEnd()) {
+            return @{ Content = $Content; Action = 'NoOp'; LineNumber = ($matchIdx + 1); Message = "Row already matches; no change" }
+        }
+        $lines[$matchIdx] = $newRow
+        return @{
+            Content    = ($lines -join $newline)
+            Action     = 'Updated'
+            LineNumber = ($matchIdx + 1)
+            Message    = "Row updated in section '$SectionHeading'"
+        }
+    }
+
+    # INSERT: build new row from $Row only
+    for ($h = 0; $h -lt $headers.Count; $h++) {
+        if ($Row.ContainsKey($headers[$h])) { $newCells[$h] = [string]$Row[$headers[$h]] }
+    }
+    $newRow = ConvertTo-MarkdownTableRow -Cells $newCells
+
+    # Insert immediately after the last data row (or after separator if table is empty)
+    $insertAt = $lastDataIdx + 1
+    $newLineList = New-Object System.Collections.ArrayList
+    [void]$newLineList.AddRange($lines)
+    [void]$newLineList.Insert($insertAt, $newRow)
+
+    return @{
+        Content    = ($newLineList -join $newline)
+        Action     = 'Inserted'
+        LineNumber = ($insertAt + 1)
+        Message    = "Row inserted into section '$SectionHeading'"
     }
 }
 
@@ -950,7 +1205,9 @@ Export-ModuleMember -Function @(
     # High-level operations (v1.0)
     'Update-MarkdownTable',
     'Update-MarkdownTableWithAppend',
-    'Move-MarkdownTableRow'
+    'Move-MarkdownTableRow',
+    # Section-scoped upsert (v2.1 — PF-IMP-028 / PF-PRO-002 Phase 1)
+    'Add-MarkdownTableRow'
 )
 
-Write-Verbose "TableOperations module loaded with 7 functions"
+Write-Verbose "TableOperations module loaded with 8 functions"

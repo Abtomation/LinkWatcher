@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh.exe -ExecutionPolicy Bypass -File process-framework/tools/linkWatcher/start_linkwatcher_hook_wrapper.ps1"
+          },
+          {
+            "type": "command",
+            "command": "pwsh.exe -Command \"Write-Output ('Session start: ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'))\""
+          },
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Before any tool call, select a task from process-framework/ai-tasks.md. For purely conversational questions (e.g. what time is it), name *no task — conversational* and proceed. Acknowledge the chosen task in your first reply, even for analytical or meta questions about the framework.\"}}'"
+          }
+        ]
+      }
+    ]
+  }
+}

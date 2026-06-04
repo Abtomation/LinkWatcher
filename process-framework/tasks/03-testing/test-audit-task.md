@@ -3,9 +3,10 @@ id: PF-TSK-030
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.2
+version: 2.3
 created: 2025-08-07
-updated: 2026-05-04
+updated: 2026-05-16
+description: "Systematic quality assessment of test implementations using six evaluation criteria"
 ---
 
 # Test Audit
@@ -27,23 +28,6 @@ Comprehensive quality assurance task that evaluates test suites against type-spe
 **Focus Areas**: Test effectiveness, coverage analysis, code quality, maintainability, performance assessment
 **Communication Style**: Provide constructive feedback with specific improvement recommendations, ask clarifying questions about test requirements and edge cases
 
-## When to Use
-
-- **Automated tests**: After test implementation is complete (status: "✅ Audit Approved") — before tests are considered production-ready
-- **Performance tests**: After performance test creation (status: "📋 Needs Baseline") — **mandatory** before baseline capture (PF-TSK-085)
-- **E2E acceptance tests**: After E2E test case creation (status: "📋 Needs Execution") — **mandatory** before execution (PF-TSK-070)
-- When test quality concerns are raised during code review
-- As part of quality gates for critical features
-- When comprehensive test validation is required (any test type)
-
-## When NOT to Use
-
-- For tests that are still in development (status: "🟡 Implementation In Progress" or "🔄 Needs Audit")
-- For features marked as "🚫 No Test Required"
-- For simple tests that don't warrant comprehensive audit (use discretion based on feature complexity)
-- For performance tests with status `⚠️ Needs Re-baseline` — these have already been audited; re-capture directly via PF-TSK-085
-- For E2E tests with status `🔄 Needs Re-execution` — these have already been audited; re-execute directly via PF-TSK-070
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/03-testing/test-audit-map.md)
@@ -56,20 +40,20 @@ Comprehensive quality assurance task that evaluates test suites against type-spe
     - *E2E*: `test-case.md` + `project/` + `expected/` fixtures in `test/e2e-acceptance-testing/`
   - **Tracking file for the test type**:
     - *Automated*: [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md)
-    - *Performance*: [Performance Test Tracking](/doc/state-tracking/permanent/performance-test-tracking.md)
-    - *E2E*: [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md)
+    - *Performance*: [Performance Test Tracking](../../../doc/state-tracking/permanent/performance-test-tracking.md)
+    - *E2E*: [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md)
   - **Test Specification Document** - The test specification for the feature (in `/test/specifications/`)
-  - [Technical Design Document](/doc/technical/tdd) - The TDD for the feature
+  - [Technical Design Document](../../../doc/technical/tdd) - The TDD for the feature
 
 - **Important (Load If Space):**
 
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature development status and context
-  - [Existing Test Structure](/test/) - Current test organization and patterns for consistency evaluation
-  - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-  - [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) - Performance test methodology (for performance audits)
+  - [Existing Test Structure](../../../test) - Current test organization and patterns for consistency evaluation
+  - [Development Guide](../../guides/04-implementation/development-guide.md) - Testing standards and practices
+  - [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) - Performance test methodology (for performance audits)
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -94,9 +78,8 @@ Before starting the audit, determine the test type. This determines which criter
 ### Preparation
 
 > **Re-Audit Workflow**: If a prior audit report exists for this test (check the relevant tracking file for linked reports):
-> 1. **Archive prior report** — move it to the `old/` subdirectory within its category folder (e.g., `test/audits/foundation/old/`)
-> 2. **Create fresh report** — use `New-TestAuditReport.ps1 -Force` to overwrite the existing report; evaluate all criteria from scratch
-> 3. **Use prior report as reference** — read the archived report for context on previously identified issues, but do not carry over scores or findings — re-evaluate everything independently
+> 1. **Overwrite the existing report** — use `New-TestAuditReport.ps1 -Force` to replace it; evaluate all criteria from scratch. Git history preserves the prior version (`git log -- <path>` to find prior audits, `git show <commit>:<path>` to read prior content).
+> 2. **Use prior report as reference** — consult the prior version via git for context on previously identified issues, but do not carry over scores or findings — re-evaluate everything independently
 >
 > Re-audits follow the same full process below. The prior report provides context, not a shortcut.
 
@@ -210,7 +193,7 @@ Before starting the audit, determine the test type. This determines which criter
    ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Lightweight
 
    # Performance tests
-   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/performance/test_benchmark.py" -AuditorName "AI Agent" -TestType Performance
+   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditorName "AI Agent" -TestType Performance
 
    # E2E tests
    ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditorName "AI Agent" -TestType E2E
@@ -337,7 +320,7 @@ Set-Location "process-framework/scripts"
 Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "test/audits/relative/path/to/audit-report.md"
 
 # Performance tests
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md"
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md"
 
 # Performance — false-compliance correction
 # Add -LifecycleCorrection when the audit reveals that a row reached ✅ Baselined without
@@ -346,7 +329,7 @@ Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automate
 # audit gate re-applies before re-baseline (PF-TSK-085). Rows not currently ✅ Baselined
 # are skipped with a warning. Run Update-PerformanceTracking.ps1 afterward to refresh the
 # Summary table.
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md" -LifecycleCorrection
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditStatus "Needs Update" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md" -LifecycleCorrection
 
 # E2E tests
 Update-TestFileAuditState.ps1 -TestType E2E -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/e2e/audit-report.md"
@@ -398,8 +381,8 @@ Performance and E2E tests:
 **🤖 FULLY AUTOMATED** - All state file updates are handled by the `Update-TestFileAuditState.ps1` script with `-TestType` parameter:
 
 - **Automated** (`-TestType Automated`, default): [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - **Automatically updated** with audit status, detailed results, and completion timestamp
-- **Performance** (`-TestType Performance`): [Performance Test Tracking](/doc/state-tracking/permanent/performance-test-tracking.md) - **Automatically updated** with audit status and report link
-- **E2E** (`-TestType E2E`): [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md) - **Automatically updated** with audit status and report link
+- **Performance** (`-TestType Performance`): [Performance Test Tracking](../../../doc/state-tracking/permanent/performance-test-tracking.md) - **Automatically updated** with audit status and report link
+- **E2E** (`-TestType E2E`): [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md) - **Automatically updated** with audit status and report link
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **Automatically updated** with intelligent aggregated test status based on all test files for the feature (all types)
 - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - **Manually updated** with any bugs discovered during audit, including test context and evidence
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - **Manually updated** (via `Update-TechDebt.ps1 -Add -Dims "TST"`) with significant test quality findings, routed to [Code Refactoring](../06-maintenance/code-refactoring-task.md) (PF-TSK-022)
@@ -411,8 +394,7 @@ Performance and E2E tests:
 - **Automatic Backups**: Creates backups of all state files before making changes
 - **Comprehensive Audit Trail**: Maintains detailed history of audit results, findings, and auditor information
 
-**Script Location**: `/process-framework/scripts/update/Update-TestFileAuditState.ps1`
-**Usage Guide**: See [Automation Usage Guide](../../scripts/AUTOMATION-USAGE-GUIDE.md) for detailed examples and parameters.
+**Script**: [Update-TestFileAuditState.ps1](../../scripts/update/Update-TestFileAuditState.ps1) — run `pwsh.exe -ExecutionPolicy Bypass -File <script-path> -?` for parameters and inline examples. See also [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) for cross-cutting invocation patterns.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -458,7 +440,7 @@ Before considering this task finished:
 - [E2E Acceptance Test Case Creation (PF-TSK-069)](e2e-acceptance-test-case-creation-task.md) - For creating E2E test cases before audit
 - [Test Specification Creation Task](test-specification-creation-task.md) - For creating test specifications that guide implementation
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Track automated test audit progress
-- [Performance Test Tracking](/doc/state-tracking/permanent/performance-test-tracking.md) - Track performance test audit progress
-- [E2E Test Tracking](/test/state-tracking/permanent/e2e-test-tracking.md) - Track E2E test audit progress
-- [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-- [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) - Performance test methodology
+- [Performance Test Tracking](../../../doc/state-tracking/permanent/performance-test-tracking.md) - Track performance test audit progress
+- [E2E Test Tracking](../../../test/state-tracking/permanent/e2e-test-tracking.md) - Track E2E test audit progress
+- [Development Guide](../../guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) - Performance test methodology

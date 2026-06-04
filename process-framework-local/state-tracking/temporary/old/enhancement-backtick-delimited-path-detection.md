@@ -29,7 +29,7 @@ target_feature: 2.1.1
 
 | Criterion | Assessment |
 |-----------|------------|
-| **Files Affected** | 2-3 source files (`parsers/markdown.py`, possibly `parsers/generic.py`), 1-2 test files (`test/automated/parsers/test_markdown.py`, possibly `test/automated/parsers/test_generic.py`) |
+| **Files Affected** | 2-3 source files (`parsers/markdown.py`, possibly `parsers/generic.py`), 1-2 test files (`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py`, possibly `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_generic.py`) |
 | **Design Docs to Amend** | TDD (PD-TDD-025) — parser patterns section; FDD (PD-FDD-026) — supported link syntax description |
 | **New Tests Required** | Yes — backtick-delimited file paths and directory paths in markdown content |
 | **Interface Impact** | Internal only — no public API change, same `LinkReference` output |
@@ -203,7 +203,7 @@ target_feature: 2.1.1
 - **Applicable**: Yes
 - **Referenced Task Doc**: [Integration & Testing (PF-TSK-053)](../../../../process-framework/tasks/04-implementation/integration-and-testing.md)
 - **Rationale**: New syntax needs test coverage to prevent regressions.
-- **Adaptation Notes**: Add test cases to `test/automated/parsers/test_markdown.py`: (1) backtick-delimited file path (`` `path/to/file.md` ``), (2) backtick-delimited directory path (`` `path/to/directory/` ``), (3) backtick path should not overlap with markdown links, (4) mixed backtick and quote paths in same line.
+- **Adaptation Notes**: Add test cases to `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py`: (1) backtick-delimited file path (`` `path/to/file.md` ``), (2) backtick-delimited directory path (`` `path/to/directory/` ``), (3) backtick path should not overlap with markdown links, (4) mixed backtick and quote paths in same line.
 - **Deliverable**: New test cases in test_markdown.py covering backtick-delimited paths
 - **Session**: 1
 

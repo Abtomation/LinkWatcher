@@ -10,7 +10,7 @@ Usage:
     python test_query.py --summary                 # Test count per feature
     python test_query.py --dump --format yaml      # Full dump for validation
     python test_query.py --dump --format json      # Full dump as JSON
-    python test_query.py --file test/automated/unit/test_service.py  # Single file
+    python test_query.py --file test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py  # Single file  # noqa: E501
 """
 
 import argparse

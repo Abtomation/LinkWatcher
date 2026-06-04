@@ -275,7 +275,7 @@ def reset_config_manager():
 
 #### LoggingConfigManager Production Status
 
-> **⚠️ Designed but not wired into production**: The `LoggingConfigManager` class above is implemented and unit-tested in `test/automated/unit/test_advanced_logging.py`, but no production caller instantiates it. Specifically:
+> **⚠️ Designed but not wired into production**: The `LoggingConfigManager` class above is implemented and unit-tested in `test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_advanced_logging.py`, but no production caller instantiates it. Specifically:
 >
 > - `main.py` and `src/linkwatcher/service.py` do not import or call `LoggingConfigManager` / `get_config_manager` — production LinkWatcher requires a restart for any logging config change.
 > - `tools/logging_dashboard.py` does not import or invoke `LoggingConfigManager`; the dashboard reads log files directly and does not activate hot-reload.
@@ -335,6 +335,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 #### Reliability Implementation
 
 - Console and file handlers are independent — file handler failure does not affect console output
+- `TimestampRotatingFileHandler` is resilient to a failed rotation (PD-BUG-099): when the rename of the oversized base file fails (e.g. another process holds it open — duplicate daemon, antivirus, backup), `shouldRollover()` suppresses further rollover for a cooldown (`_ROLLOVER_RETRY_COOLDOWN`, 60s) instead of retrying on every record, then self-heals once the lock clears. If failures persist past `_ROLLOVER_FAILURE_ALERT_THRESHOLD` (5) consecutive attempts, a single CRITICAL is emitted to the independent stderr fallback logger so the operator is alerted without flooding.
 - `LoggingConfigManager` is designed to catch all exceptions during config reload, log invalid configs as ERROR, and retain the previous config — this guarantee applies *if* the manager is wired into production, which it is not currently (see [Production Status](#loggingconfigmanager-production-status) in §4.1)
 #### Security Implementation
 
@@ -353,7 +354,7 @@ Terminal (ANSI colors)          .log file (10MB rotation, 5 backups)
 ### 5.2 Testing Reference
 
 > **📋 Primary Documentation**: Existing test suite
-> **🔗 Link**: [test/automated/unit/test_logging.py](../../../test/automated/unit/test_logging.py), [test/automated/unit/test_advanced_logging.py](../../../test/automated/unit/test_advanced_logging.py)
+> **🔗 Link**: [test/automated/unit/test_logging.py](../../../test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_logging.py), [test/automated/unit/test_advanced_logging.py](../../../test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_advanced_logging.py)
 
 **Brief Summary**: The logging framework is covered by two unit test files. `test_logging.py` covers `LinkWatcherLogger`, `LogContext`, `PerformanceLogger`, and the singleton API. `test_advanced_logging.py` covers `LoggingConfigManager` including config loading, debug snapshots, and hot-reload behavior.
 

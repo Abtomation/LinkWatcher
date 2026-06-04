@@ -7,6 +7,7 @@ created: 2025-08-17
 updated: 2026-04-02
 related_script: New-ValidationReport.ps1
 related_task: PF-TSK-031,PF-TSK-032,PF-TSK-033,PF-TSK-034,PF-TSK-035,PF-TSK-036,PF-TSK-072,PF-TSK-073,PF-TSK-074,PF-TSK-075,PF-TSK-076,PF-TSK-077
+description: "Comprehensive guide for conducting feature validation using the 6-type validation framework"
 ---
 
 # Feature Validation Guide
@@ -207,7 +208,7 @@ Each cell represents a validation report linking a specific feature to a dimensi
 
 **Session Planning**:
 
-Group the selected features into batches of 2–4 per session, considering dependencies and related functionality. When possible, **group features that co-participate in the same user workflow** (per [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)) — this enables the validator to spot cross-feature issues within a single session. Example:
+Group the selected features into batches of 2–4 per session, considering dependencies and related functionality. When possible, **group features that co-participate in the same user workflow** (per [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)) — this enables the validator to spot cross-feature issues within a single session. Example:
 
 - Session 1: Core architecture features (e.g., data models, service layer)
 - Session 2: WF-001 cohort — features 1.1.1, 2.1.1, 2.2.1 (single file move workflow)
@@ -225,6 +226,61 @@ Group the selected features into batches of 2–4 per session, considering depen
 - **Language Best Practices**: Component composition, state management, performance
 - **Language Idioms**: Proper use of language features, type safety, async patterns
 - **Performance**: Efficient algorithms, memory usage, unnecessary computations
+- **Layer-Boundary Adherence**: Source code respects declared layer dependency rules in `doc/project-config.json::layering_rules`. See [Layer-Boundary Validation](#layer-boundary-validation) below for the detection workflow. Empty `layers` array = no enforcement (default).
+
+### Layer-Boundary Validation
+
+**Purpose**: Detect source-code violations of declared layer dependency rules.
+
+**Source of truth**: `doc/project-config.json::layering_rules` (per-project, declarative, machine-readable). The narrative companion is [source-code-layout-guide.md § Layer Dependency Rules](../00-setup/source-code-layout-guide.md). JSON leads, prose follows.
+
+#### Detection at PF-TSK-032 Step 7
+
+If the project's `layering_rules.layers` array is non-empty, the Best Practices Review step extends to layer-boundary checks. For each declared layer:
+
+1. **Identify source files in the layer**: use the layer's `directory_glob` pattern to scope the search.
+2. **Construct an import-detection grep for the project's language** (read `testing.language` from `project-config.json`):
+   - **Python**: `^\s*from\s+(\S+)\s+import` and `^\s*import\s+(\S+)` patterns
+   - **Dart**: `^\s*import\s+'([^']+)'` patterns
+   - **PowerShell**: `Import-Module\s+\S+` / `using\s+module\s+\S+` / dot-source `\.\s+\S+\.ps1` patterns
+   - **JavaScript/TypeScript**: `import\s+.+\s+from\s+['"](\S+)['"]` and `require\s*\(\s*['"](\S+)['"]\s*\)` patterns
+3. **Resolve each import target to a layer**: match the resolved module path against each layer's `directory_glob`. The layer with the longest matching glob wins.
+4. **Check against `may_import_from`**: if the target's layer is the importing file's own layer, allow (intra-layer imports are fine). Otherwise, the target's layer must appear in the importing layer's `may_import_from`. If not, it's a finding.
+5. **Emit findings**: include file path, line number, the violating import, the layer it accessed, and the rule violated. Add to the validation report's Quality Issues section.
+
+If `cross_feature_isolation.enabled` is `true`, additionally flag any cross-feature imports that do not target a `services/` layer in the foreign feature (i.e., feature A's code may only call feature B's services, never B's data or ui).
+
+#### Worked Example — PRJ-002 (TimeTrackingV2)
+
+PRJ-002 onboarding (PF-TSK-065 Session 7) found 4 of 9 features exhibit a UI-to-repository bypass: UI files invoke `<service>.repository.<method>` directly instead of going through the service's public API. PRJ-002's populated `layering_rules` block would look like:
+
+```json
+"layering_rules": {
+  "layers": [
+    { "name": "ui",       "directory_glob": "src/*/ui/**",       "may_import_from": ["services", "shared"] },
+    { "name": "services", "directory_glob": "src/*/services/**", "may_import_from": ["data", "shared"] },
+    { "name": "data",     "directory_glob": "src/*/data/**",     "may_import_from": ["shared"] },
+    { "name": "shared",   "directory_glob": "src/shared/**",     "may_import_from": [] }
+  ],
+  "cross_feature_isolation": { "enabled": true }
+}
+```
+
+A PF-TSK-032 session targeting feature 1.1.3 (Invoice Generation) would:
+
+1. Scan files matching `src/1.1.3-invoice-generation/ui/**`.
+2. Grep for Python imports.
+3. Resolve each import target's layer via `directory_glob`.
+4. The expression `invoice_service.log_repository.get_all()` in `ui/invoice_screen.py` indicates a chained access to the `log_repository` module in the data layer. The UI layer's `may_import_from` is `["services", "shared"]` — `data` is not allowed.
+5. **Finding**: `src/1.1.3-invoice-generation/ui/invoice_screen.py:42 — UI layer accesses data layer (rule: ui may_import_from [services, shared]; data not listed). Route the call through invoice_service.get_all_logs() instead.`
+
+The agent records the finding in the validation report, recommends the fix, and adds a Tech Debt item via the existing PF-TSK-032 Step 15 process.
+
+#### Notes
+
+- **Backward compatibility**: Empty `layers` array (the default for new projects) = layer-boundary validation skipped, zero findings emitted, no behavior change.
+- **Language coverage**: If the project's `testing.language` has no defined import-detection pattern above, the agent falls back to generic substring matching against the layer's `directory_glob`. Reliability scales with the language's import-statement regularity.
+- **Future automation**: A dedicated `Validate-LayerBoundaries.ps1` script is planned as a follow-up IMP once empirical adoption supports it; agent-driven detection is the lightweight first step.
 
 ### Integration & Dependencies Validation
 

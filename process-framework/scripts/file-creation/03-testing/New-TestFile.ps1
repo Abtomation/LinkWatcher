@@ -132,7 +132,7 @@ if (Test-Path $projectConfigPath) {
 Register-SoakScript
 
 # --- Language configuration from process-framework/languages-config/{language}/{language}-config.json ---
-$langConfigPath = Join-Path $projectRoot "process-framework/languages-config/$($language.ToLower())/$($language.ToLower())-config.json"
+$langConfigPath = Join-Path (Get-ProcessFrameworkPath) "languages-config/$($language.ToLower())/$($language.ToLower())-config.json"
 if (-not (Test-Path $langConfigPath)) {
     Write-Error "Language config not found: $langConfigPath. Create it from process-framework/languages-config/ template."
     exit 1
@@ -218,7 +218,7 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     $templateName = "test-file-template$fileExtension.template"
-    $templatePath = Join-Path $projectRoot "process-framework/templates/03-testing/$templateName"
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/$templateName"
 
     if (-not (Test-Path $templatePath)) {
         Write-Error "Template not found: $templatePath. Please create the $templateName template first."

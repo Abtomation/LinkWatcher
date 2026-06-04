@@ -56,7 +56,7 @@ if (Test-Path $configPath) {
     $testDirectory = if ($config.testing -and $config.testing.testDirectory) { $config.testing.testDirectory } elseif ($config.paths.tests) { $config.paths.tests } else { $null }
 
     if ($config.testing -and $config.testing.language) {
-        $langConfigPath = Join-Path $ProjectRoot "process-framework/languages-config/$($config.testing.language)/$($config.testing.language)-config.json"
+        $langConfigPath = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "languages-config/$($config.testing.language)/$($config.testing.language)-config.json"
         if (Test-Path $langConfigPath) {
             $langConfig = Get-Content $langConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
         }
@@ -72,7 +72,7 @@ $testCountCommand = if ($langConfig -and $langConfig.testing.discoveryCommand) {
 # --- Load marker data from test_query.py ---
 Write-Host "Loading marker data from test_query.py..." -ForegroundColor Gray
 
-$testQueryPath = Join-Path $ProjectRoot "process-framework/scripts/test/test_query.py"
+$testQueryPath = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "scripts/test/test_query.py"
 if (-not (Test-Path $testQueryPath)) {
     Write-Host "FATAL: test_query.py not found at $testQueryPath" -ForegroundColor Red
     exit 1

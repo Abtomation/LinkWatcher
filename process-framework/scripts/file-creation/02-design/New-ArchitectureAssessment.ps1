@@ -80,8 +80,8 @@ Invoke-StandardScriptInitialization
 # Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Function to update feature tracking with architecture review completion
-function Update-FeatureTrackingWithArchReview {
+# Function to update per-feature state file §4 Documentation Inventory with architecture assessment
+function Update-FeatureStateWithArchReview {
     param(
         [string]$FeatureId,
         [string]$DocumentId,
@@ -90,39 +90,21 @@ function Update-FeatureTrackingWithArchReview {
 
     try {
         $projectRoot = Get-ProjectRoot
-        $featureTrackingPath = Join-Path -Path $projectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
+        $relativePath = "doc/technical/architecture/assessments/$(Split-Path -Leaf $DocumentPath)"
 
-        if (-not (Test-Path $featureTrackingPath)) {
-            Write-Host "⚠️ Feature tracking file not found at: $featureTrackingPath" -ForegroundColor Yellow
-            return
-        }
+        $invResult = Add-StateFileDocumentationInventoryRow `
+            -FeatureId $FeatureId `
+            -ArtifactId $DocumentId `
+            -ArtifactPath $relativePath `
+            -ArtifactType "Architecture Impact Assessment" `
+            -Status "✅ Created" `
+            -ProjectRoot $projectRoot
 
-        $content = Get-Content -Path $featureTrackingPath -Raw
-        $currentDate = Get-Date -Format "yyyy-MM-dd"
-
-        # Create relative path from doc/technical/architecture/assessments/doc/technical/architecture/assessments/feature-tracking.md to the assessment document
-        $relativePath = "doc/technical/architecture/assessments/assessments/$(Split-Path -Leaf $DocumentPath)"
-
-        # Pattern to match the feature row - look for the feature ID at the start of a table row
-        $pattern = "(\| $FeatureId \|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)([^|]*\|)"
-
-        if ($content -match $pattern) {
-            # Add arch review link to ADR column (do NOT change primary status — it's a parallel design task)
-            $updatedContent = $content -replace $pattern, "`$1 [$DocumentId]($relativePath) |"
-
-            # Add architecture review completion note to the Notes column (14th column)
-            $notesPattern = "(\| $FeatureId \|(?:[^|]*\|){12}[^|]*?)(\s*\|)"
-            $updatedContent = $updatedContent -replace $notesPattern, "`$1 - Architecture review completed ($currentDate)`$2"
-
-            Set-Content -Path $featureTrackingPath -Value $updatedContent -NoNewline
-            Write-Host "✅ Updated feature tracking for $FeatureId — ADR column populated (primary status unchanged)" -ForegroundColor Green
-        }
-        else {
-            Write-Host "⚠️ Could not find feature $FeatureId in feature tracking file for status update" -ForegroundColor Yellow
-        }
+        $verb = $invResult.Action.ToLower()
+        Write-Host ("✅ State file §4 Documentation Inventory: {0} (line {1})" -f $verb, $invResult.LineNumber) -ForegroundColor Green
     }
     catch {
-        Write-Host "⚠️ Failed to update feature tracking: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "⚠️ Failed to update feature state file: $($_.Exception.Message)" -ForegroundColor Yellow
     }
 }
 
@@ -147,8 +129,8 @@ function Update-ArchitectureTracking {
         $content = Get-Content -Path $archTrackingPath -Raw
         $currentDate = Get-Date -Format "yyyy-MM-dd"
 
-        # Create relative path from doc/technical/architecture/assessments/doc/technical/architecture/assessments/architecture-tracking.md to the assessment document
-        $relativePath = "doc/technical/architecture/assessments/assessments/$(Split-Path -Leaf $DocumentPath)"
+        # Repo-relative path to the assessment document (used as the markdown link target in architecture-tracking.md)
+        $relativePath = "doc/technical/architecture/assessments/$(Split-Path -Leaf $DocumentPath)"
 
         # Find the end of the table (look for the last table row)
         $tableEndPattern = "(\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|)\s*\n\s*\n"
@@ -187,15 +169,16 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/02-design/architecture-impact-assessment-template.md"
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-AIA" -IdDescription "Architecture Impact Assessment: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/technical/architecture/assessments/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/architecture-impact-assessment-template.md"
+    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-AIA" -IdDescription "Architecture Impact Assessment: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/technical/architecture/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
-    # Get the created document path for state updates (use the actual filename created by New-StandardProjectDocument)
-    $documentPath = Join-Path -Path $projectRoot -ChildPath "doc/technical/architecture/assessments/assessments/$(($FeatureName -replace '[^a-zA-Z0-9]', '-').ToLower()).md"
+    # Get the created document path for state updates (use the actual filename created by New-StandardProjectDocument).
+    # Slug via the canonical helper from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
+    $documentPath = Join-Path -Path $projectRoot -ChildPath "doc/technical/architecture/assessments/$(ConvertTo-FeatureSlug -Name $FeatureName -Convention 'kebab-case').md"
 
     # Update state tracking files
     Write-Host "🔄 Updating state tracking files..." -ForegroundColor Cyan
-    Update-FeatureTrackingWithArchReview -FeatureId $FeatureId -DocumentId $documentId -DocumentPath $documentPath
+    Update-FeatureStateWithArchReview -FeatureId $FeatureId -DocumentId $documentId -DocumentPath $documentPath
     Update-ArchitectureTracking -FeatureId $FeatureId -FeatureName $FeatureName -DocumentId $documentId -DocumentPath $documentPath
 
     # Provide success details
@@ -216,9 +199,8 @@ try {
             "Customization required — see process-framework/guides/02-design/architecture-assessment-creation-guide.md",
             "",
             "✅ AUTOMATED STATE UPDATES COMPLETED:",
-            "   • Feature tracking updated: $FeatureId ADR column populated (primary status unchanged)",
+            "   • Feature state file §4 Documentation Inventory updated with assessment row",
             "   • Architecture tracking updated with new assessment entry",
-            "   • Arch Review column populated with assessment link",
             "",
             "Next steps:",
             "1. Complete the architectural impact analysis in the created document",

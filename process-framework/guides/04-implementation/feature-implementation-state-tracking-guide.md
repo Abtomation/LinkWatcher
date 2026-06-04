@@ -7,6 +7,7 @@ created: 2025-10-30
 updated: 2026-04-05
 related_task: PF-TSK-044
 guide_status: Active
+description: "How to create and maintain feature implementation state tracking documents"
 ---
 
 # Feature Implementation State Tracking Guide
@@ -357,7 +358,7 @@ The state document's Code Inventory section provides high-level tracking, but co
    ---
    ```
 
-3. **Workflows**: List the WF-IDs this feature participates in, derived from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md). Use `workflows: []` if the feature does not participate in any user workflow. This field enables downstream tasks (bug triage, refactoring, validation) to quickly assess workflow blast radius without consulting the central tracking file.
+3. **Workflows**: List the WF-IDs this feature participates in, derived from [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md). Use `workflows: []` if the feature does not participate in any user workflow. This field enables downstream tasks (bug triage, refactoring, validation) to quickly assess workflow blast radius without consulting the central tracking file.
 
 4. **Status Values**: Use appropriate status for current stage
    - `PLANNING` - During Feature Implementation Planning task
@@ -429,8 +430,7 @@ During planning, set up sections that will be updated throughout implementation:
      - **Test coverage**: Existing tests cover critical paths
      - **Maintainability**: Readable code, reasonable complexity
    - Score legend: 0 = absent/broken, 1 = present but problematic, 2 = adequate, 3 = well-implemented
-   - Calculate the average across all 5 dimensions
-   - **Classification**: Average >= 2.0 → **As-Built** (documented descriptively); < 2.0 → **Target-State** (documented prescriptively with gap analysis)
+   - **Do not compute Code Maturity, Test Maturity, or classification by hand** — after entering the 5 dimension scores, run [`Update-QualityClassification.ps1`](../../scripts/update/Update-QualityClassification.ps1). The script computes **Code Maturity** (avg of Structural clarity / Error handling / Data integrity / Maintainability — drives the classification) and **Test Maturity** (Test coverage alone — separate test-plan-urgency signal, does not affect classification), applies the canonical threshold (**Code Maturity >= 2.0 → As-Built**; **< 2.0 → Target-State**) deterministically, and writes back the **Classification**, **Code Maturity**, and **Test Maturity** lines. Auto-migrates pre-PF-IMP-019/032 state files (single legacy "Average Score" line gets rewritten into the two new lines on first run).
    - For Target-State features: link to the Quality Assessment Report (PD-QAR-XXX) created in PF-TSK-066
    - For new features (not onboarding): leave this section empty — the quality gate applies only during framework adoption
 

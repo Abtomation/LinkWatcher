@@ -26,7 +26,7 @@ target_area: Logging System
 
 **Changes Made**:
 - [x] Save previous context snapshot before `set_context`, restore in `finally` (`linkwatcher/logging.py:575-592`)
-- [x] Add `test_nested_context_decorators` test to `test/automated/unit/test_logging.py`
+- [x] Add `test_nested_context_decorators` test to `test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_logging.py`
 
 **Test Baseline**: 760 passed, 1 failed (pre-existing: test_bug025_yaml_substring_path_not_corrupted), 5 skipped, 4 xfailed
 **Test Result**: 762 passed, 0 failed, 5 skipped, 4 xfailed — zero regressions (+1 new test, pre-existing failure resolved independently)

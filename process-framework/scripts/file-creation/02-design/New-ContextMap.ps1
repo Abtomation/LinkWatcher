@@ -18,7 +18,7 @@
 
 .PARAMETER WorkflowPhase
     The workflow phase directory where the context map belongs. Valid values:
-    - "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment"
+    - "00-setup", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment"
     - "cyclical" (for recurring tasks)
     - "support" (for supporting/infrastructure tasks)
 
@@ -59,7 +59,7 @@ param(
     [string]$TaskName,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "cyclical", "support")]
+    [ValidateSet("00-setup", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "cyclical", "support")]
     [string]$WorkflowPhase,
 
     [Parameter(Mandatory = $false)]
@@ -113,11 +113,12 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    # IMP-407: Auto-append "-map" suffix with double-suffix guard
-    $mapDocName = $TaskName.ToLower().Replace(' ', '-')
+    # IMP-407: Auto-append "-map" suffix with double-suffix guard.
+    # Slug via the canonical helper from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
+    $mapDocName = ConvertTo-FeatureSlug -Name $TaskName -Convention 'kebab-case'
     if ($mapDocName -notmatch '-map$') { $mapDocName = "$mapDocName-map" }
     # IMP-568: Use -DirectoryType with -Subdirectory instead of manually constructed -OutputDirectory
-    $mapId = New-StandardProjectDocument -TemplatePath "process-framework/templates/support/context-map-template.md" -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName $mapDocName -DirectoryType "context-maps" -Subdirectory $WorkflowPhase -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $mapId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/support/context-map-template.md") -IdPrefix "PF-VIS" -IdDescription "Context map for ${WorkflowPhase}: ${TaskName}" -DocumentName $mapDocName -DirectoryType "context-maps" -Subdirectory $WorkflowPhase -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -137,33 +138,8 @@ try {
         $details += "Customization required — see process-framework/guides/support/visualization-creation-guide.md (and visual-notation-guide.md)"
     }
 
-    # Auto-append entry to PF-documentation-map.md under the correct Context Maps section
-    if ($mapId -or $WhatIfPreference) {
-        $projectRoot = Get-ProjectRoot
-        $docMapPath = Join-Path -Path $projectRoot -ChildPath "process-framework/PF-documentation-map.md"
-
-        # Derive section header from WorkflowPhase
-        if ($WorkflowPhase -match '^(\d{2})-(.+)$') {
-            $num = $Matches[1]
-            $phaseName = (Get-Culture).TextInfo.ToTitleCase($Matches[2])
-            $sectionHeader = "#### $num - $phaseName Context Maps"
-        }
-        else {
-            $phaseName = (Get-Culture).TextInfo.ToTitleCase($WorkflowPhase)
-            $sectionHeader = "#### $phaseName Context Maps"
-        }
-
-        # IMP-407: Reuse guarded name from above
-        $mapFileName = "$mapDocName.md"
-        $relativePath = "visualization/context-maps/$WorkflowPhase/$mapFileName"
-        $description = if ($MapDescription -ne "") { $MapDescription } else { "Components for $TaskName task" }
-        $entryLine = "- [$TaskName Map]($relativePath) - $description"
-
-        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-        if ($updated) {
-            $details += "Documentation Map: Updated (section: $sectionHeader)"
-        }
-    }
+    # PF-documentation-map.md is generated from each artifact's `description:` frontmatter
+    # by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
 
     Write-ProjectSuccess -Message "Created context map with ID: $mapId" -Details $details
 }

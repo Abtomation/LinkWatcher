@@ -6,13 +6,16 @@ domain: agnostic
 version: 1.0
 created: 2026-04-06
 updated: 2026-04-06
+description: "How to fill in the source layout doc, layer definitions, sublayer thresholds, file placement guidance, scale transition criteria"
 ---
 
 # Source Code Layout Guide
 
 ## Overview
 
-This guide explains how to complete and maintain the [Source Code Layout](/doc/technical/architecture/source-code-layout.md) document. It covers the feature-first directory organization pattern, layer definitions, sublayer thresholds, file placement rules, and scale transition criteria.
+This guide explains how to complete and maintain the [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) document. It covers the feature-first directory organization pattern, layer definitions, sublayer thresholds, file placement rules, and scale transition criteria.
+
+> **Language note:** Examples throughout this guide use Python (`.py`) filenames for concreteness. The directory-organization, layering, and file-placement rules are language-agnostic — substitute your language's file conventions (`.dart`, `.ts`, `.cs`, …), and read `__init__.py` as whatever package/module marker your language uses (if any).
 
 ## When to Use
 
@@ -39,7 +42,7 @@ All projects use **feature-first** directory organization: top-level directories
 
 ### Why Feature-First from the Start
 
-Feature-first organization is the framework default for all projects regardless of size (see Design Decision D1 in [PF-PRO-002](/process-framework-local/proposals/source-code-layout-framework.md)). Rationale:
+Feature-first organization is the framework default for all projects regardless of size (see Design Decision D1 in [PF-PRO-002](/process-framework-central/proposals/source-code-layout-framework.md)). Rationale:
 
 - Feature state files already organize tracking by feature — the file system mirrors this
 - The hybrid pattern (feature-first, internal by-layer when needed) handles all project scales
@@ -63,7 +66,7 @@ Feature-first organization is the framework default for all projects regardless 
 
 ## Layer Definitions
 
-Layers are sublayer directories created **within** a feature directory when it grows beyond the sublayer threshold. Layer names and purposes are defined in the language config (`directoryStructure.layers`).
+Layers are sublayer directories created **within** a feature directory when it grows beyond the sublayer threshold. Default layer names and purposes are described below; **per-project layer dependency rules** are declared in [doc/project-config.json::layering_rules](../../../doc/project-config.json) (see [Layer Dependency Rules](#layer-dependency-rules) below).
 
 ### Standard Layers
 
@@ -75,6 +78,8 @@ Layers are sublayer directories created **within** a feature directory when it g
 
 ### Layer Dependency Rules
 
+> **🔑 Source of truth**: `doc/project-config.json::layering_rules` is the machine-readable, enforceable declaration of this project's layer dependency rules. This guide section is the narrative companion — **JSON leads, prose follows**. When updating layer rules, edit the JSON first; mirror the change here. [Code Quality Standards Validation (PF-TSK-032)](../../tasks/05-validation/code-quality-standards-validation.md) reads the JSON; see [feature-validation-guide.md § Layer-Boundary Validation](../05-validation/feature-validation-guide.md#layer-boundary-validation) for the detection workflow.
+
 Layers follow a strict dependency direction:
 
 ```
@@ -85,6 +90,8 @@ ui --> services --> data
 - **services** may import from **data** only
 - **data** should not import from **services** or **ui**
 - All layers may import from **shared/**
+
+> Projects with stricter architectures (clean architecture, hexagonal, ports-and-adapters, service-mediated UI) can tighten these defaults by declaring tighter `may_import_from` allowlists in their `doc/project-config.json::layering_rules` block. For example, a project that forbids UI→data declares `ui.may_import_from = ["services", "shared"]`, omitting `data`. The framework's prose default above remains permissive; enforcement is project-driven.
 
 ## Sublayer Threshold
 
@@ -215,6 +222,6 @@ The Directory Tree section of `source-code-layout.md` is **auto-generated** by `
 
 ## Related Resources
 
-- [Source Code Layout](/doc/technical/architecture/source-code-layout.md) — the project-specific layout document
-- [PF-PRO-002 Concept](/process-framework-local/proposals/source-code-layout-framework.md) — design decisions and rationale
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — confirmed feature list
+- [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) — the project-specific layout document
+- [PF-PRO-002 Concept](/process-framework-central/proposals/source-code-layout-framework.md) — design decisions and rationale
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — confirmed feature list

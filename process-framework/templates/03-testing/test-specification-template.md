@@ -10,6 +10,7 @@ feature_name: [FEATURE-NAME]
 tdd_path: [TDD-PATH]
 test_tier: [1|2|3]
 change_notes: "v3.0 - Replaced Routing Plan with Component-to-Test Mapping (PF-IMP-486/PF-EVR-012). E2E/performance routing removed — decided at cross-cutting milestone and implementation time respectively."
+description: "Template for feature-level test specifications"
 ---
 
 # Test Specification: [FEATURE-NAME]

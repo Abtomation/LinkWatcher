@@ -3,10 +3,11 @@ id: PF-TSK-053
 type: Process Framework
 category: Task Definition
 domain: development
-version: 2.2
+version: 2.3
 created: 2025-12-13
-updated: 2026-04-06
+updated: 2026-05-16
 change_notes: "v2.2 - Added Tier 1/tech-debt guidance box and conditional qualifiers for steps assuming TDD/Test Spec exist (IMP-022). Added (if applicable) to checklist items for unit-test-only sessions (IMP-023)"
+description: "Integrate components and establish comprehensive test coverage"
 ---
 
 # Integration and Testing
@@ -23,23 +24,6 @@ Verify unit test completeness, implement integration and cross-component tests, 
 **Focus Areas**: Integration test design, cross-component validation, e2e workflow testing, coverage gap analysis, mock/stub creation, error scenario testing, bug discovery
 **Communication Style**: Propose test scenarios with edge cases, highlight integration risks, ask about acceptable test coverage thresholds and testing priorities
 
-## When to Use
-
-- After feature implementation is complete (any workflow path)
-- After all implementation layers are complete in decomposed workflow (data, state, UI)
-- When comprehensive test coverage is required for a feature
-- When Test Specifications exist and tests need to be implemented against real code
-- When integration verification is needed between components
-- Before quality validation via PF-TSK-054 (decomposed workflow)
-- Before Test Audit via PF-TSK-030 (standard workflow)
-- **Prerequisites**: Feature implementation complete, TDD test requirements identified, testing framework configured
-
-## When NOT to Use
-
-- For features marked as "No Test Required" in feature tracking (assessment/documentation features)
-- For pure analysis or documentation tasks that don't produce testable code
-- For architectural assessment features that only establish baselines
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/integration-and-testing-map.md)
@@ -50,18 +34,18 @@ Verify unit test completeness, implement integration and cross-component tests, 
   - **TDD (Technical Design Document)** - Testing requirements section describing test scenarios, coverage expectations, and acceptance criteria
   - **Completed Implementation Code** - All implemented feature code to be tested
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
-  - [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test files by feature, priority, and markers
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Test Query Tool](../../scripts/test/test_query.py) - Query test files by feature, priority, and markers
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
   - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/state-tracking/features`
-  - [Existing Test Structure](/test/) - Current test organization and patterns
+  - [Existing Test Structure](../../../test) - Current test organization and patterns
 
 - **Reference Only (Access When Needed):**
   - **Existing Test Examples** - Similar test implementations in codebase for pattern consistency
-  - [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
+  - [Development Guide](../../guides/04-implementation/development-guide.md) - Testing standards and practices
 
 ## Process
 
@@ -81,7 +65,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 2. **Review TDD Test Requirements** (if exists): Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
 4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
-5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests. (Note: PE dimension is handled by the dedicated [Performance & E2E Test Scoping](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) → [Performance Test Creation](/process-framework/tasks/03-testing/performance-test-creation-task.md) workflow, not this task.)
+5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests. (Note: PE dimension is handled by the dedicated [Performance & E2E Test Scoping](../03-testing/performance-and-e2e-test-scoping-task.md) → [Performance Test Creation](../03-testing/performance-test-creation-task.md) workflow, not this task.)
 6. **🚨 CHECKPOINT**: Present test specification review (if applicable), implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
 
 ### Execution
@@ -267,4 +251,4 @@ Before considering this task finished:
 - [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
 - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
 - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for cross-feature test specs
-- [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Development Guide](../../guides/04-implementation/development-guide.md) - Testing standards and practices

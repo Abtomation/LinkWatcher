@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-06-12
 updated: 2025-06-12
 related_task: PF-TSK-008
+description: "Components for deployment"
 ---
 
 # Release & Deployment Context Map

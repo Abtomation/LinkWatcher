@@ -1,0 +1,771 @@
+"""
+Tests for the enhanced logging system.
+"""
+
+import json
+import logging
+import os
+import tempfile
+import threading
+import time
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+
+from linkwatcher.logging import (
+    ColoredFormatter,
+    JSONFormatter,
+    LinkWatcherLogger,
+    LogLevel,
+    LogTimer,
+    PerformanceLogger,
+    TimestampRotatingFileHandler,
+    get_logger,
+    log_context,
+    reset_logger,
+    setup_logging,
+    with_context,
+)
+
+pytestmark = [
+    pytest.mark.feature("3.1.1"),
+    pytest.mark.priority("Standard"),
+    pytest.mark.test_type("unit"),
+    pytest.mark.specification(
+        "test/specifications/feature-specs/test-spec-3-1-1-logging-system.md"
+    ),
+]
+
+
+class TestTimestampRotatingFileHandlerRotationFailure:
+    """Regression tests for PD-BUG-099: a failed log rotation must not turn a
+    transient file lock into an unbounded retry/warning storm.
+
+    Before the fix, ``doRollover()`` caught the rename ``OSError``, reopened the
+    same oversized base file, and returned — so ``shouldRollover()`` fired again
+    on the very next emit, retrying the rename (and emitting a warning) once per
+    log record. The fix gates retries behind a cooldown and escalates to a single
+    CRITICAL when failures persist.
+    """
+
+    def _make_handler(self, tmp_path, name):
+        log_file = tmp_path / name
+        handler = TimestampRotatingFileHandler(
+            str(log_file), maxBytes=100, backupCount=3, encoding="utf-8"
+        )
+        handler.setFormatter(logging.Formatter("%(message)s"))
+        return handler
+
+    def test_rename_failure_does_not_retry_on_every_emit(self, tmp_path, monkeypatch):
+        """A persistently failing rename must be attempted at most once within
+        the cooldown window — not once per emitted record (the storm)."""
+        handler = self._make_handler(tmp_path, "storm.log")
+
+        rename_calls = []
+
+        def failing_rename(src, dst):
+            rename_calls.append((src, dst))
+            raise OSError(32, "The process cannot access the file (locked)")
+
+        monkeypatch.setattr(os, "rename", failing_rename)
+
+        logger = logging.getLogger("pdbug099_storm")
+        logger.handlers.clear()
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+        logger.propagate = False
+
+        try:
+            # Each record (200 bytes) exceeds maxBytes (100), so under the buggy
+            # implementation every single emit would attempt a rollover.
+            for _ in range(50):
+                logger.warning("X" * 200)
+        finally:
+            logger.removeHandler(handler)
+            handler.close()
+
+        # Buggy behaviour: ~50 rename attempts (one per emit). Fixed behaviour:
+        # at most one attempt inside the cooldown window.
+        assert len(rename_calls) <= 1, (
+            f"Rollover retried {len(rename_calls)} times — a failed rename is "
+            f"re-triggering rollover on every emit (PD-BUG-099 storm)"
+        )
+
+    def test_persistent_rename_failure_escalates_once_to_critical(self, tmp_path, monkeypatch):
+        """When rotation keeps failing past the alert threshold, exactly one
+        loud CRITICAL is emitted — not a CRITICAL per failure, and not silence."""
+        from linkwatcher.logging import _fallback_logger
+
+        handler = self._make_handler(tmp_path, "escalate.log")
+        # Disable the cooldown so each emit re-attempts (reach the threshold fast)
+        # and lower the alert threshold for a quick, deterministic test.
+        handler._ROLLOVER_RETRY_COOLDOWN = 0.0
+        handler._ROLLOVER_FAILURE_ALERT_THRESHOLD = 3
+
+        def failing_rename(src, dst):
+            raise OSError(32, "The process cannot access the file (locked)")
+
+        monkeypatch.setattr(os, "rename", failing_rename)
+
+        captured = []
+
+        class _CaptureHandler(logging.Handler):
+            def emit(self, record):
+                captured.append(record)
+
+        cap = _CaptureHandler()
+        _fallback_logger.addHandler(cap)
+
+        logger = logging.getLogger("pdbug099_escalate")
+        logger.handlers.clear()
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+        logger.propagate = False
+
+        try:
+            for _ in range(10):
+                logger.warning("Y" * 200)
+        finally:
+            logger.removeHandler(handler)
+            handler.close()
+            _fallback_logger.removeHandler(cap)
+
+        criticals = [r for r in captured if r.levelno == logging.CRITICAL]
+        assert len(criticals) == 1, (
+            f"Expected exactly one CRITICAL escalation after persistent rotation "
+            f"failure, got {len(criticals)}"
+        )
+
+
+class TestLogContext:
+    """Test the thread-local logging context."""
+
+    def test_set_and_get_context(self):
+        """Test setting and getting context variables."""
+        log_context.clear_context()
+
+        log_context.set_context(operation="test", file_path="test.md")
+        context = log_context.get_context()
+
+        assert context["operation"] == "test"
+        assert context["file_path"] == "test.md"
+
+    def test_context_isolation_between_threads(self):
+        """Test that context is isolated between threads."""
+        results = {}
+
+        def thread_function(thread_id):
+            log_context.set_context(thread_id=thread_id, operation=f"op_{thread_id}")
+            time.sleep(0.1)  # Allow other threads to run
+            context = log_context.get_context()
+            results[thread_id] = context
+
+        # Start multiple threads
+        threads = []
+        for i in range(3):
+            thread = threading.Thread(target=thread_function, args=(i,))
+            threads.append(thread)
+            thread.start()
+
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+
+        # Verify each thread had its own context
+        assert len(results) == 3
+        for i in range(3):
+            assert results[i]["thread_id"] == i
+            assert results[i]["operation"] == f"op_{i}"
+
+    def test_clear_context(self):
+        """Test clearing context."""
+        log_context.set_context(test="value")
+        assert log_context.get_context()["test"] == "value"
+
+        log_context.clear_context()
+        assert log_context.get_context() == {}
+
+
+class TestColoredFormatter:
+    """Test the colored console formatter."""
+
+    def test_colored_formatting(self):
+        """Test colored output formatting."""
+        formatter = ColoredFormatter(colored=True, show_icons=True)
+
+        # Create a log record
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="test.py",
+            lineno=10,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+
+        formatted = formatter.format(record)
+
+        # Should contain color codes and icon
+        assert "ℹ️" in formatted
+        assert "Test message" in formatted
+        assert "INFO" in formatted
+
+    def test_non_colored_formatting(self):
+        """Test non-colored output formatting."""
+        formatter = ColoredFormatter(colored=False, show_icons=False)
+
+        record = logging.LogRecord(
+            name="test",
+            level=logging.WARNING,
+            pathname="test.py",
+            lineno=10,
+            msg="Warning message",
+            args=(),
+            exc_info=None,
+        )
+
+        formatted = formatter.format(record)
+
+        # Should not contain color codes or icons
+        assert "\033[" not in formatted  # No ANSI color codes
+        assert "⚠️" not in formatted
+        assert "Warning message" in formatted
+        assert "WARNING" in formatted
+
+    def test_context_inclusion(self):
+        """Test that context is included in formatted output."""
+        formatter = ColoredFormatter(colored=False, show_icons=False)
+
+        # Set context
+        log_context.set_context(operation="test_op", file_count=5)
+
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="test.py",
+            lineno=10,
+            msg="Test with context",
+            args=(),
+            exc_info=None,
+        )
+
+        formatted = formatter.format(record)
+
+        # Should contain context information
+        assert "operation=test_op" in formatted
+        assert "file_count=5" in formatted
+
+        log_context.clear_context()
+
+
+class TestJSONFormatter:
+    """Test the JSON formatter."""
+
+    def test_json_formatting(self):
+        """Test JSON output formatting."""
+        formatter = JSONFormatter()
+
+        record = logging.LogRecord(
+            name="test.logger",
+            level=logging.ERROR,
+            pathname="/path/test.py",
+            lineno=25,
+            msg="Error message",
+            args=(),
+            exc_info=None,
+        )
+        record.module = "test"
+        record.funcName = "test_function"
+        record.thread = 12345
+        record.threadName = "MainThread"
+
+        formatted = formatter.format(record)
+        data = json.loads(formatted)
+
+        assert data["level"] == "ERROR"
+        assert data["logger"] == "test.logger"
+        assert data["message"] == "Error message"
+        assert data["module"] == "test"
+        assert data["function"] == "test_function"
+        assert data["line"] == 25
+        assert data["thread"] == 12345
+        assert data["thread_name"] == "MainThread"
+        assert "timestamp" in data
+
+    def test_json_with_context(self):
+        """Test JSON formatting with context."""
+        formatter = JSONFormatter()
+
+        # Set context
+        log_context.set_context(operation="file_move", old_path="a.md", new_path="b.md")
+
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="test.py",
+            lineno=10,
+            msg="File moved",
+            args=(),
+            exc_info=None,
+        )
+        record.module = "test"
+        record.funcName = "test_function"
+        record.thread = 12345
+        record.threadName = "MainThread"
+
+        formatted = formatter.format(record)
+        data = json.loads(formatted)
+
+        assert "context" in data
+        assert data["context"]["operation"] == "file_move"
+        assert data["context"]["old_path"] == "a.md"
+        assert data["context"]["new_path"] == "b.md"
+
+        log_context.clear_context()
+
+
+class TestPerformanceLogger:
+    """Test the performance logging functionality."""
+
+    def test_timer_operations(self):
+        """Test starting and ending timers."""
+        perf_logger = PerformanceLogger("test.performance")
+
+        timer_id = perf_logger.start_timer("test_operation")
+        assert timer_id in perf_logger._timers
+
+        time.sleep(0.01)  # Small delay
+
+        with patch.object(perf_logger.logger, "info") as mock_info:
+            perf_logger.end_timer(timer_id, "test_operation", file_count=5)
+
+            # Verify the timer was removed and logged
+            assert timer_id not in perf_logger._timers
+            mock_info.assert_called_once()
+
+            # Check the logged data
+            call_args = mock_info.call_args
+            assert call_args[0][0] == "operation_completed"
+            assert call_args[1]["operation"] == "test_operation"
+            assert call_args[1]["file_count"] == 5
+            assert "duration_ms" in call_args[1]
+            assert call_args[1]["duration_ms"] > 0
+
+    def test_metric_logging(self):
+        """Test logging performance metrics."""
+        perf_logger = PerformanceLogger("test.performance")
+
+        with patch.object(perf_logger.logger, "info") as mock_info:
+            perf_logger.log_metric("files_processed", 150, "count", operation="scan")
+
+            mock_info.assert_called_once_with(
+                "metric", metric_name="files_processed", value=150, unit="count", operation="scan"
+            )
+
+    def test_invalid_timer_id(self):
+        """Test handling of invalid timer IDs."""
+        perf_logger = PerformanceLogger("test.performance")
+
+        with patch.object(perf_logger.logger, "warning") as mock_warning:
+            perf_logger.end_timer("invalid_id", "test_operation")
+
+            mock_warning.assert_called_once_with(
+                "timer_not_found", timer_id="invalid_id", operation="test_operation"
+            )
+
+    def test_timers_lock_exists(self):
+        """Verify PerformanceLogger has a _timers_lock for thread safety.
+
+        Regression test for PD-BUG-027.
+        """
+        perf_logger = PerformanceLogger("test.performance")
+        assert hasattr(
+            perf_logger, "_timers_lock"
+        ), "PerformanceLogger must have _timers_lock for thread-safe timer access"
+        assert isinstance(
+            perf_logger._timers_lock, type(threading.Lock())
+        ), "_timers_lock must be a threading.Lock"
+
+    def test_concurrent_start_end_timers(self):
+        """Verify concurrent start_timer/end_timer calls don't raise KeyError.
+
+        Multiple threads call start_timer and end_timer simultaneously.
+        Without lock protection, dict mutation can race causing KeyError
+        or lost timer entries.
+
+        Regression test for PD-BUG-027.
+        """
+        perf_logger = PerformanceLogger("test.performance")
+        errors = []
+        completed = []
+
+        def timer_worker(worker_id):
+            try:
+                for i in range(20):
+                    timer_id = perf_logger.start_timer(f"op_{worker_id}_{i}")
+                    # Small delay to increase race window
+                    time.sleep(0.001)
+                    with patch.object(perf_logger.logger, "info"):
+                        perf_logger.end_timer(timer_id, f"op_{worker_id}_{i}")
+                completed.append(worker_id)
+            except Exception as e:
+                errors.append((worker_id, e))
+
+        threads = []
+        for w in range(5):
+            t = threading.Thread(target=timer_worker, args=(w,))
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join(timeout=10)
+
+        assert not errors, f"Thread errors: {errors}"
+        assert len(completed) == 5, f"Only {len(completed)}/5 workers completed"
+        assert len(perf_logger._timers) == 0, (
+            f"Timers dict should be empty after all end_timer calls, "
+            f"but has {len(perf_logger._timers)} leftover entries"
+        )
+
+
+class TestLinkWatcherLogger:
+    """Test the main LinkWatcher logger class."""
+
+    def test_logger_initialization(self):
+        """Test logger initialization with default settings."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            log_file = Path(temp_dir) / "test.log"
+
+            logger = LinkWatcherLogger(
+                name="test.logger",
+                level=LogLevel.DEBUG,
+                log_file=str(log_file),
+                colored_output=True,
+                show_icons=True,
+            )
+
+            assert logger.name == "test.logger"
+            assert logger.level == LogLevel.DEBUG
+            assert logger.colored_output is True
+            assert logger.show_icons is True
+
+            # Test that log file was created
+            logger.info("Test message")
+            assert log_file.exists()
+
+            # Close handlers before TemporaryDirectory cleanup (Windows file locking)
+            for handler in logger.logger.handlers[:]:
+                handler.close()
+                logger.logger.removeHandler(handler)
+
+    def test_log_level_change(self):
+        """Test changing log level dynamically."""
+        logger = LinkWatcherLogger(level=LogLevel.INFO)
+
+        assert logger.level == LogLevel.INFO
+
+        logger.set_level(LogLevel.DEBUG)
+        assert logger.level == LogLevel.DEBUG
+
+    def test_convenience_methods(self):
+        """Test convenience methods for common events."""
+        logger = LinkWatcherLogger()
+
+        with patch.object(logger.struct_logger, "info") as mock_info:
+            logger.file_moved("old.md", "new.md", 3)
+
+            mock_info.assert_called_once_with(
+                "file_moved",
+                old_path="old.md",
+                new_path="new.md",
+                references_count=3,
+                event_type="file_move",
+            )
+
+        with patch.object(logger.struct_logger, "warning") as mock_warning:
+            logger.file_deleted("deleted.md", 2)
+
+            mock_warning.assert_called_once_with(
+                "file_deleted", file_path="deleted.md", references_count=2, event_type="file_delete"
+            )
+
+    def test_context_management(self):
+        """Test context setting and clearing."""
+        logger = LinkWatcherLogger()
+
+        logger.set_context(operation="test", thread_id=1)
+        context = log_context.get_context()
+        assert context["operation"] == "test"
+        assert context["thread_id"] == 1
+
+        logger.clear_context()
+        context = log_context.get_context()
+        assert context == {}
+
+
+class TestLogTimer:
+    """Test the LogTimer context manager."""
+
+    def test_successful_operation(self):
+        """Test timing a successful operation."""
+        logger = LinkWatcherLogger()
+
+        with patch.object(logger, "debug") as mock_debug:
+            with LogTimer("test_operation", logger, file_count=5):
+                time.sleep(0.01)
+
+            # Should have logged start and completion
+            assert mock_debug.call_count == 2
+
+            # Check start log
+            start_call = mock_debug.call_args_list[0]
+            assert start_call[0][0] == "started_test_operation"
+            assert start_call[1]["file_count"] == 5
+
+            # Check completion log
+            end_call = mock_debug.call_args_list[1]
+            assert end_call[0][0] == "completed_test_operation"
+            assert end_call[1]["file_count"] == 5
+
+    def test_failed_operation(self):
+        """Test timing a failed operation."""
+        logger = LinkWatcherLogger()
+
+        with patch.object(logger, "debug") as mock_debug, patch.object(
+            logger, "error"
+        ) as mock_error:
+            try:
+                with LogTimer("test_operation", logger, file_count=5):
+                    raise ValueError("Test error")
+            except ValueError:
+                pass
+
+            # Should have logged start and error
+            mock_debug.assert_called_once_with("started_test_operation", file_count=5)
+            mock_error.assert_called_once()
+
+            error_call = mock_error.call_args
+            assert error_call[0][0] == "failed_test_operation"
+            assert error_call[1]["error_type"] == "ValueError"
+            assert error_call[1]["error_message"] == "Test error"
+            assert error_call[1]["file_count"] == 5
+
+    def test_disabled_skips_logging(self):
+        """When enabled=False, LogTimer must not start a timer or emit start/completion logs.
+
+        TD231: gates LogTimer on the performance_logging config flag so users can
+        suppress per-file timing overhead in production.
+        """
+        logger = LinkWatcherLogger()
+
+        with patch.object(logger, "debug") as mock_debug, patch.object(
+            logger.performance, "start_timer"
+        ) as mock_start, patch.object(logger.performance, "end_timer") as mock_end:
+            with LogTimer("test_operation", logger, enabled=False, file_count=5):
+                pass
+
+            mock_debug.assert_not_called()
+            mock_start.assert_not_called()
+            mock_end.assert_not_called()
+
+    def test_disabled_swallows_exception_path(self):
+        """When enabled=False, the failure branch must also be skipped.
+
+        Errors raised inside the block still propagate naturally; LogTimer just
+        does not log them via the performance channel.
+        """
+        logger = LinkWatcherLogger()
+
+        with patch.object(logger, "debug") as mock_debug, patch.object(
+            logger, "error"
+        ) as mock_error:
+            try:
+                with LogTimer("test_operation", logger, enabled=False, file_count=5):
+                    raise ValueError("Test error")
+            except ValueError:
+                pass
+
+            mock_debug.assert_not_called()
+            mock_error.assert_not_called()
+
+
+class TestWithContextDecorator:
+    """Test the with_context decorator."""
+
+    def test_context_decorator(self):
+        """Test that context is properly set and cleared."""
+
+        @with_context(operation="test_function", component="test")
+        def test_function():
+            context = log_context.get_context()
+            return context
+
+        # Context should be empty before call
+        log_context.clear_context()
+        assert log_context.get_context() == {}
+
+        # Call function and check context
+        result = test_function()
+        assert result["operation"] == "test_function"
+        assert result["component"] == "test"
+
+        # Context should be cleared after call
+        assert log_context.get_context() == {}
+
+    def test_context_decorator_with_exception(self):
+        """Test that context is cleared even when function raises exception."""
+
+        @with_context(operation="failing_function")
+        def failing_function():
+            raise ValueError("Test error")
+
+        log_context.clear_context()
+
+        try:
+            failing_function()
+        except ValueError:
+            pass
+
+        # Context should still be cleared
+        assert log_context.get_context() == {}
+
+    def test_nested_context_decorators(self):
+        """Test that nested @with_context preserves outer context (TD183)."""
+
+        @with_context(component="outer", operation="outer_op")
+        def outer_function():
+            outer_ctx = log_context.get_context()
+
+            @with_context(component="inner", operation="inner_op")
+            def inner_function():
+                return log_context.get_context()
+
+            inner_ctx = inner_function()
+            after_inner_ctx = log_context.get_context()
+            return outer_ctx, inner_ctx, after_inner_ctx
+
+        log_context.clear_context()
+
+        outer_ctx, inner_ctx, after_inner_ctx = outer_function()
+
+        # Outer context should have outer values
+        assert outer_ctx["component"] == "outer"
+        assert outer_ctx["operation"] == "outer_op"
+
+        # Inner context should have inner values (overwriting outer)
+        assert inner_ctx["component"] == "inner"
+        assert inner_ctx["operation"] == "inner_op"
+
+        # After inner returns, outer context should be restored
+        assert after_inner_ctx["component"] == "outer"
+        assert after_inner_ctx["operation"] == "outer_op"
+
+        # After outer returns, context should be fully cleared
+        assert log_context.get_context() == {}
+
+
+class TestGlobalLoggerFunctions:
+    """Test global logger setup and access functions."""
+
+    def test_setup_logging(self):
+        """Test global logger setup."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            log_file = Path(temp_dir) / "global_test.log"
+
+            logger = setup_logging(
+                level=LogLevel.DEBUG, log_file=str(log_file), colored_output=False
+            )
+
+            assert isinstance(logger, LinkWatcherLogger)
+            assert logger.level == LogLevel.DEBUG
+            assert logger.colored_output is False
+
+            # Test that get_logger returns the same instance
+            same_logger = get_logger()
+            assert same_logger is logger
+
+            # Close handlers before TemporaryDirectory cleanup (Windows file locking)
+            for handler in logger.logger.handlers[:]:
+                handler.close()
+                logger.logger.removeHandler(handler)
+
+    def test_get_logger_default(self):
+        """Test getting logger with default settings."""
+        # Reset global logger
+        reset_logger()
+
+        logger = get_logger()
+        assert isinstance(logger, LinkWatcherLogger)
+        assert logger.level == LogLevel.INFO  # Default level
+
+
+class TestStructlogCacheIsolation:
+    """Regression tests for PD-BUG-015: structlog cached state bleeds between test instances."""
+
+    def test_structlog_reset_called_before_configure(self):
+        """Verify LinkWatcherLogger calls structlog.reset_defaults() before configure().
+
+        Without reset_defaults(), previously-cached BoundLogger instances retain
+        old processor chains when a new LinkWatcherLogger is created with different
+        settings (e.g., switching json_logs).
+
+        Regression test for PD-BUG-015.
+        """
+        with patch("linkwatcher.logging.structlog.reset_defaults") as mock_reset:
+            # Patch configure to avoid side effects but allow __init__ to proceed
+            with patch("linkwatcher.logging.structlog.configure"):
+                with patch("linkwatcher.logging.structlog.get_logger"):
+                    LinkWatcherLogger(name="bug015_reset_test")
+
+            mock_reset.assert_called_once()
+
+    def test_setup_logging_closes_old_handlers(self):
+        """Verify setup_logging() closes old logger's file handlers before replacing.
+
+        Without closing old handlers, RotatingFileHandler holds the file open on
+        Windows, preventing file deletion (PermissionError).
+
+        Regression test for PD-BUG-015.
+        """
+        temp_dir = tempfile.mkdtemp()
+        try:
+            log_file = Path(temp_dir) / "old_logger.log"
+
+            # Create a logger with a file handler
+            old_logger = setup_logging(level=LogLevel.DEBUG, log_file=str(log_file))
+            old_logger.info("message_to_file")
+            assert log_file.exists(), "Log file should exist"
+
+            # Grab a reference to the old file handler before it gets cleared
+            old_file_handlers = [
+                h
+                for h in old_logger.logger.handlers
+                if isinstance(h, logging.handlers.RotatingFileHandler)
+            ]
+            assert len(old_file_handlers) == 1, "Should have exactly one file handler"
+            old_handler = old_file_handlers[0]
+
+            # Replace with new logger — should close old handlers
+            setup_logging(level=LogLevel.INFO)
+
+            # The old file handler's stream should be closed
+            # (RotatingFileHandler.close() sets stream to None)
+            stream_closed = old_handler.stream is None or old_handler.stream.closed
+            assert stream_closed, (
+                "Old RotatingFileHandler stream still open — setup_logging() "
+                "did not close previous logger's file handlers"
+            )
+        finally:
+            # Clean up using public API
+            from linkwatcher.logging import reset_logger
+
+            reset_logger()
+            import shutil
+
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

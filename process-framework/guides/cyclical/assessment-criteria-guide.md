@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-24
 updated: 2025-07-24
 guide_description: Detailed criteria for identifying technical debt
+description: "Detailed criteria for identifying technical debt"
 ---
 # Assessment Criteria Guide
 

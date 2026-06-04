@@ -5,6 +5,7 @@ category: Guide
 version: 1.0
 created: 2025-08-02
 updated: 2025-08-02
+description: "Step-by-step guide for using the Architectural Integration Framework to manage cross-cutting architectural work"
 ---
 
 # Architectural Framework Usage Guide

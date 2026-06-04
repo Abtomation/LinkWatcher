@@ -4,14 +4,14 @@
 .SYNOPSIS
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
-    Checks consistency across 15 validation surfaces:
+    Checks consistency across 19 validation surfaces:
     1. ../feature-tracking.md — all document links (FDD, TDD, Test Spec, Assessment, State File)
-    2. Feature implementation state files — Section 4 (doc inventory), Section 5 (code inventory), Section 6 (dependencies)
+    2. Feature implementation state files — link checks in the Documentation Inventory, Code Inventory, and Dependencies sections (matched by title, so both the full and lightweight/Tier 1 templates' section numbering work)
     3. ../test-tracking.md — test file path references
     4. Cross-reference consistency — feature IDs in test-registry.yaml vs feature-tracking.md
     5. ID counter health — nextAvailable counters vs actual max IDs
     6. Feature Dependencies — regenerate feature-dependencies.md if stale
-    7. Dimension Consistency — dimension profile presence and valid abbreviations
+    7. Dimension Consistency — dimension profile presence and valid abbreviations (Tier 1 lightweight files skipped — they have no Dimension Profile by design)
     8. Workflow Tracking — workflow-feature mapping consistency and status accuracy
     9. Task Registry — all PF-TSK IDs present in process-framework-task-registry.md
     10. Metadata Schema — YAML frontmatter conformance against domain-config.json schemas
@@ -20,13 +20,17 @@
     13. Master State Consistency — phase checkboxes, progress counters, and doc summary vs Feature Inventory
     14. Source Layout — compare source-code-layout.md directory tree against actual source directories
     15. Test Status Aggregation — cross-check feature-tracking Test Status against aggregated test-tracking statuses (PF-IMP-573)
+    16. Audit Mirror Invariant — every test dir has a corresponding audit dir under the Phase 3a path-transform rule (PF-IMP-871 Phase 4a)
+    17. Category Alignment — feature-tracking.md categories/subgroups vs `test/automated/unit/<N>-<slug>/` dirs (PF-IMP-871 Phase 4a)
+    18. Workflow Alignment — user-workflow-tracking.md WF-NNN rows vs `test/e2e-acceptance-testing/<slug>/templates/` dirs (PF-IMP-871 Phase 4a)
+    19. Variant Pair Consistency — per-file frontmatter variant_group/variant_siblings symmetry and sibling existence (PF-IMP-837)
 
     Created as IMP-028 from Tools Review 2026-02-21.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection from script location.
 .PARAMETER Surface
     Which validation surfaces to run. Accepts one or more of:
-    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "MasterStateConsistency", "SourceLayout", "TestStatusAggregation", "All"
+    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "MasterStateConsistency", "SourceLayout", "TestStatusAggregation", "AuditMirror", "CategoryAlignment", "WorkflowAlignment", "VariantPairConsistency", "All"
     Default: "All"
 .PARAMETER Detailed
     Show every checked link, not just failures. Also reveals schema-detail-only warnings
@@ -53,13 +57,22 @@ param(
     [switch]$FixCounters
 )
 
-# --- Resolve project root ---
+# --- Locate + import Common-ScriptHelpers umbrella ---
+# Imported unconditionally because surfaces 16/17/18 (PF-IMP-871 Phase 4a) consume
+# Naming module functions (New-FeatureDirSlug, ConvertTo-FeatureSlug). Prior to
+# Phase 4a, the import was conditional on $ProjectRoot being blank — callers passing
+# -ProjectRoot explicitly silently skipped module load and got empty results from
+# the new surfaces (no error, just zero expected entries → spurious orphan warnings).
+$helperDir = $PSScriptRoot
+while ($helperDir -and !(Test-Path (Join-Path $helperDir "Common-ScriptHelpers.psm1"))) {
+    $helperDir = Split-Path -Parent $helperDir
+}
+if ($helperDir) {
+    Import-Module (Join-Path $helperDir "Common-ScriptHelpers.psm1") -Force -Verbose:$false
+}
+
+# --- Resolve project root (auto-detect when not supplied) ---
 if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    $dir = $PSScriptRoot
-    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
-        $dir = Split-Path -Parent $dir
-    }
-    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
     $ProjectRoot = Get-ProjectRoot
 }
 
@@ -70,6 +83,13 @@ $warningCount = 0
 $passCount = 0
 $detailOnlyHiddenCount = 0  # Warnings counted but display-suppressed unless -Detailed
 
+# Normalize -Surface: split any comma-joined elements into separate items, trim, drop empties.
+# Handles `pwsh.exe -File -Surface a,b,c` invocation where PowerShell passes the comma-joined
+# value as a single string rather than an array — without this, $Surface -contains "X" returns
+# false for every X, total checks = 0, and the script silently exits 0 with "All checks passed!"
+# (a CI false positive). The "no surfaces matched" guard below also catches typos / unknown names.
+$Surface = @($Surface | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+
 $runAll = $Surface -contains "All"
 
 # --- Load language config for test file extension ---
@@ -79,7 +99,7 @@ if (Test-Path $projectConfigPath) {
     try {
         $projCfg = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
         $lang = $projCfg.project_metadata.primary_language.ToLower()
-        $langCfgPath = Join-Path $ProjectRoot "process-framework/languages-config/$lang/$lang-config.json"
+        $langCfgPath = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "languages-config/$lang/$lang-config.json"
         if (Test-Path $langCfgPath) {
             $langCfg = Get-Content $langCfgPath -Raw | ConvertFrom-Json
             $ext = $langCfg.testing.testFileExtension
@@ -112,8 +132,15 @@ function Resolve-MarkdownLink {
     $cleanPath = ($LinkPath -split '#')[0]
     if ([string]::IsNullOrWhiteSpace($cleanPath)) { return $null }
 
-    # Resolve relative to source file directory
-    $combined = Join-Path $SourceFileDir $cleanPath
+    # Project-root-relative paths use a single leading '/' or '\' (not UNC '//' or '\\').
+    # Convention is used in feature-tracking.md, state files, README.md, CLAUDE.md, and
+    # is honored by LinkWatcher + VS Code. On Windows, Join-Path treats '/foo' as
+    # drive-rooted (C:\foo), so anchor to $script:ProjectRoot explicitly. (PF-IMP-764)
+    if ($cleanPath -match '^[/\\][^/\\]') {
+        $combined = Join-Path $script:ProjectRoot ($cleanPath.Substring(1))
+    } else {
+        $combined = Join-Path $SourceFileDir $cleanPath
+    }
     try {
         $resolved = [System.IO.Path]::GetFullPath($combined)
         return $resolved
@@ -283,15 +310,18 @@ if ($runAll -or $Surface -contains "StateFiles") {
             $inSection = ""
 
             foreach ($line in $sfContent) {
-                # Track which section we're in
-                if ($line -match '^## 4\. Documentation Inventory') { $inSection = "Section4" }
-                elseif ($line -match '^## 5\. Code Inventory') { $inSection = "Section5" }
-                elseif ($line -match '^## 6\. Dependencies') { $inSection = "Section6" }
-                elseif ($line -match '^## [789]') { $inSection = "" }
-                elseif ($line -match '^## 1[0-2]') { $inSection = "" }
+                # Track which section we're in. Match by section TITLE, not number, so the
+                # lightweight (Tier 1) template's shifted numbering — Documentation Inventory §3,
+                # Code Inventory §4, Dependencies §5 — is handled identically to the full
+                # template's §4/§5/§6. Keying on numbers made Tier 1 files match no section and
+                # emit a false "No links found" warning (PF-IMP-954).
+                if ($line -match '^## \d+\. Documentation Inventory') { $inSection = "DocInventory" }
+                elseif ($line -match '^## \d+\. Code Inventory') { $inSection = "CodeInventory" }
+                elseif ($line -match '^## \d+\. Dependencies') { $inSection = "Dependencies" }
+                elseif ($line -match '^## \d') { $inSection = "" }
 
-                # Only validate links in sections 4, 5, 6
-                if ($inSection -notin @("Section4", "Section5", "Section6")) { continue }
+                # Only validate links in the three link-bearing inventory sections
+                if ($inSection -notin @("DocInventory", "CodeInventory", "Dependencies")) { continue }
 
                 # Skip non-table rows
                 if ($line -notmatch '^\|') { continue }
@@ -322,7 +352,7 @@ if ($runAll -or $Surface -contains "StateFiles") {
             if ($total -gt 0 -and $brokenInFile -eq 0 -and -not $Detailed) {
                 Write-Host "    $([char]0x2705) $sfName : $validInFile/$total links valid" -ForegroundColor Green
             } elseif ($total -eq 0) {
-                Write-Host "    $([char]0x26A0)  $sfName : No links found in sections 4-6" -ForegroundColor Yellow
+                Write-Host "    $([char]0x26A0)  $sfName : No links found in the Documentation/Code/Dependencies inventory sections" -ForegroundColor Yellow
                 $script:warningCount++
                 $script:totalChecks++
             }
@@ -464,7 +494,7 @@ if ($runAll -or $Surface -contains "IdCounters") {
 
     # Load all three ID registries
     $registryMap = @{
-        'PF' = @{ Path = (Join-Path $ProjectRoot "process-framework/PF-id-registry.json"); Registry = $null; Fixed = 0 }
+        'PF' = @{ Path = (Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "PF-id-registry.json"); Registry = $null; Fixed = 0 }
         'PD' = @{ Path = (Join-Path $ProjectRoot "doc/PD-id-registry.json"); Registry = $null; Fixed = 0 }
         'TE' = @{ Path = (Join-Path $ProjectRoot "test/TE-id-registry.json"); Registry = $null; Fixed = 0 }
     }
@@ -485,7 +515,7 @@ if ($runAll -or $Surface -contains "IdCounters") {
             @{ Prefix = "PD-FIS";  Dir = "doc/state-tracking/features";                              Pattern = "*.md"; Domain = "PD" }
             @{ Prefix = "PD-FDD";  Dir = "doc/functional-design/fdds";                                Pattern = "*.md"; Domain = "PD" }
             @{ Prefix = "PD-TDD";  Dir = "doc/technical/architecture/design-docs/tdd";                Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-ADR";  Dir = "doc/technical/architecture/design-docs/adr/adr";            Pattern = "*.md"; Domain = "PD" }
+            @{ Prefix = "PD-ADR";  Dir = "doc/technical/adr";                                          Pattern = "*.md"; Domain = "PD" }
             @{ Prefix = "PD-ASS";  Dir = "doc/documentation-tiers/assessments";                       Pattern = "*.md"; Domain = "PD" }
             @{ Prefix = "TE-TSP";  Dir = "test/specifications/feature-specs";                                       Pattern = "*.md"; Domain = "TE" }
         )
@@ -557,7 +587,7 @@ if ($runAll -or $Surface -contains "FeatureDeps") {
     Write-Host "========================================" -ForegroundColor Cyan
 
     $depsFile = Join-Path $ProjectRoot "doc/technical/architecture/feature-dependencies.md"
-    $updateScript = Join-Path $ProjectRoot "process-framework/scripts/update/Update-FeatureDependencies.ps1"
+    $updateScript = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "scripts/update/Update-FeatureDependencies.ps1"
 
     if (-not (Test-Path $updateScript)) {
         Add-CheckResult "WARNING" "FeatureDeps" "Script" "Update-FeatureDependencies.ps1 not found"
@@ -602,12 +632,22 @@ if ($runAll -or $Surface -contains "DimensionConsistency") {
         $stateFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" -File
         $filesWithProfile = 0
         $filesWithoutProfile = 0
+        $filesSkippedLightweight = 0
 
         foreach ($file in $stateFiles) {
             $content = Get-Content $file.FullName -Raw
 
+            # Tier 1 (lightweight) state files have no Dimension Profile section by design —
+            # their §7 is Quality Assessment. Skip them; flagging would be a false positive
+            # (PF-IMP-954). The lightweight header marker is the discriminator, so a genuinely
+            # incomplete full file (missing its profile) is still caught below.
+            if ($content -match '\*\*Lightweight variant\*\*') {
+                $filesSkippedLightweight++
+                continue
+            }
+
             # Check if Dimension Profile section exists
-            if ($content -match "## 7\. Dimension Profile") {
+            if ($content -match "## \d+\. Dimension Profile") {
                 $filesWithProfile++
 
                 # Extract dimension abbreviations used and validate them
@@ -637,7 +677,7 @@ if ($runAll -or $Surface -contains "DimensionConsistency") {
             }
         }
 
-        Write-Host "  Feature state files: $($stateFiles.Count) total, $filesWithProfile with profiles, $filesWithoutProfile without" -ForegroundColor Gray
+        Write-Host "  Feature state files: $($stateFiles.Count) total, $filesWithProfile with profiles, $filesWithoutProfile without, $filesSkippedLightweight Tier 1 (skipped)" -ForegroundColor Gray
     } else {
         Add-CheckResult "WARNING" "DimensionConsistency" "Directory" "Feature state directory not found: $stateDir"
     }
@@ -766,8 +806,9 @@ if ($runAll -or $Surface -contains "TaskRegistry") {
     Write-Host "  Surface 9: Task Registry" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    $registryPath = Join-Path $ProjectRoot "process-framework/infrastructure/process-framework-task-registry.md"
-    $pfIdRegistryPath = Join-Path $ProjectRoot "process-framework/PF-id-registry.json"
+    $fwDir = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
+    $registryPath = Join-Path $fwDir "infrastructure/process-framework-task-registry.md"
+    $pfIdRegistryPath = Join-Path $fwDir "PF-id-registry.json"
 
     if (-not (Test-Path $registryPath)) {
         Add-CheckResult "WARNING" "TaskRegistry" "process-framework-task-registry.md" "File not found — task registry not set up"
@@ -785,7 +826,7 @@ if ($runAll -or $Surface -contains "TaskRegistry") {
         # Get all PF-TSK IDs mentioned in the task registry
         $registryContent = Get-Content $registryPath -Raw -Encoding UTF8
         $registryTaskIds = @()
-        $idMatches = [regex]::Matches($registryContent, 'PF-TSK-\d{3}')
+        $idMatches = [regex]::Matches($registryContent, 'PF-TSK-\d+')
         foreach ($m in $idMatches) {
             if ($registryTaskIds -notcontains $m.Value) {
                 $registryTaskIds += $m.Value
@@ -793,13 +834,13 @@ if ($runAll -or $Surface -contains "TaskRegistry") {
         }
 
         # Also get task IDs that actually have files on disk (to avoid flagging deleted tasks)
-        $taskDir = Join-Path $ProjectRoot "process-framework/tasks"
+        $taskDir = Join-Path $fwDir "tasks"
         $taskFiles = Get-ChildItem -Path $taskDir -Recurse -Filter "*.md" -File -ErrorAction SilentlyContinue
         $taskFileIds = @()
         foreach ($tf in $taskFiles) {
             $firstLines = Get-Content $tf.FullName -TotalCount 10 -Encoding UTF8 -ErrorAction SilentlyContinue
             foreach ($line in $firstLines) {
-                if ($line -match '^id:\s*(PF-TSK-\d{3})') {
+                if ($line -match '^id:\s*(PF-TSK-\d+)') {
                     $taskFileIds += $matches[1]
                     break
                 }
@@ -836,7 +877,7 @@ if ($runAll -or $Surface -contains "MetadataSchema") {
     Write-Host "  Surface 10: Metadata Schema" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    $domainCfgPath = Join-Path $ProjectRoot "process-framework/domain-config.json"
+    $domainCfgPath = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "domain-config.json"
     if (-not (Test-Path $domainCfgPath)) {
         Add-CheckResult "WARNING" "MetadataSchema" "domain-config.json" "File not found — metadata schema validation skipped"
     } else {
@@ -846,17 +887,18 @@ if ($runAll -or $Surface -contains "MetadataSchema") {
         if (-not $schemas) {
             Add-CheckResult "WARNING" "MetadataSchema" "domain-config.json" "No artifact_metadata_schemas section found"
         } else {
-            # Map artifact types to directory globs
+            # Map artifact types to directory globs (relative to the process-framework root)
             $artifactDirs = @{
-                "task"        = @{ dir = "process-framework/tasks"; recurse = $true }
-                "template"    = @{ dir = "process-framework/templates"; recurse = $true }
-                "guide"       = @{ dir = "process-framework/guides"; recurse = $true }
-                "context_map" = @{ dir = "process-framework/visualization/context-maps"; recurse = $true }
+                "task"        = @{ dir = "tasks"; recurse = $true }
+                "template"    = @{ dir = "templates"; recurse = $true }
+                "guide"       = @{ dir = "guides"; recurse = $true }
+                "context_map" = @{ dir = "visualization/context-maps"; recurse = $true }
             }
 
             $totalFiles = 0
             $conformingFiles = 0
             $violationFiles = 0
+            $fwDirMS = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
 
             foreach ($artifactType in $artifactDirs.Keys) {
                 $schema = $schemas.$artifactType
@@ -865,12 +907,16 @@ if ($runAll -or $Surface -contains "MetadataSchema") {
                     continue
                 }
 
-                $searchDir = Join-Path $ProjectRoot $artifactDirs[$artifactType].dir
+                $searchDir = Join-Path $fwDirMS $artifactDirs[$artifactType].dir
                 if (-not (Test-Path $searchDir)) { continue }
 
                 $mdFiles = Get-ChildItem -Path $searchDir -Filter "*.md" -Recurse -File | Where-Object {
-                    # Exclude README files — they are not artifacts with standard metadata
-                    $_.Name -ne "README.md"
+                    # Exclude README files — they are not artifacts with standard metadata.
+                    # Exclude *-path.md sub-path elaboration docs — they are subordinate to a
+                    # parent task (e.g., code-refactoring-{lightweight,standard}-path.md under
+                    # PF-TSK-022) and inherit its frontmatter; giving them their own id: would
+                    # falsely catalogue them as standalone tasks. See PF-IMP-005.
+                    $_.Name -ne "README.md" -and $_.Name -notlike "*-path.md"
                 }
 
                 foreach ($file in $mdFiles) {
@@ -975,12 +1021,13 @@ if ($runAll -or $Surface -contains "ContextMapOrphans") {
     Write-Host "  Surface 11: Context Map Orphans" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    $cmDir = Join-Path $ProjectRoot "process-framework/visualization/context-maps"
+    $fwDirCM = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
+    $cmDir = Join-Path $fwDirCM "visualization/context-maps"
     if (-not (Test-Path $cmDir)) {
         Add-CheckResult "WARNING" "ContextMapOrphans" "context-maps/" "Directory not found — skipped"
     } else {
         # Build a lookup of all task IDs from task files
-        $taskDir = Join-Path $ProjectRoot "process-framework/tasks"
+        $taskDir = Join-Path $fwDirCM "tasks"
         $taskIds = @{}
         if (Test-Path $taskDir) {
             $taskFiles = Get-ChildItem -Path $taskDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
@@ -1032,8 +1079,9 @@ if ($runAll -or $Surface -contains "AiTasksConsistency") {
     Write-Host "  Surface 12: AI Tasks Consistency" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
 
-    $aiTasksPath = Join-Path $ProjectRoot "process-framework/ai-tasks.md"
-    $taskDir = Join-Path $ProjectRoot "process-framework/tasks"
+    $fwDirAT = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
+    $aiTasksPath = Join-Path $fwDirAT "ai-tasks.md"
+    $taskDir = Join-Path $fwDirAT "tasks"
 
     if (-not (Test-Path $aiTasksPath)) {
         Add-CheckResult "WARNING" "AiTasksConsistency" "ai-tasks.md" "File not found — skipped"
@@ -1042,29 +1090,60 @@ if ($runAll -or $Surface -contains "AiTasksConsistency") {
     } else {
         $aiTasksContent = Get-Content $aiTasksPath -Raw -Encoding UTF8
 
-        # Collect all task IDs from task files on disk
+        # Collect all task IDs from task files on disk.
+        # For each file, scan the YAML frontmatter for `id:` AND `status:` so we can
+        # later distinguish active tasks from deprecated ones (`status: deprecated`).
+        # Deprecated task files are EXPECTED to be absent from ai-tasks.md selection
+        # trees — without this carve-out, every formally deprecated task would
+        # permanently surface as a Surface 12 error.
         $taskFiles = Get-ChildItem -Path $taskDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
         $diskTasks = @{}
         foreach ($tf in $taskFiles) {
-            $firstLines = Get-Content $tf.FullName -TotalCount 10 -Encoding UTF8 -ErrorAction SilentlyContinue
+            $firstLines = Get-Content $tf.FullName -TotalCount 20 -Encoding UTF8 -ErrorAction SilentlyContinue
+            $taskId = $null
+            $taskStatus = $null
             foreach ($line in $firstLines) {
-                if ($line -match '^id:\s*(PF-TSK-\d{3})') {
-                    $relPath = $tf.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
-                    $diskTasks[$matches[1]] = $relPath
+                if ($line -match '^id:\s*(PF-TSK-\d+)') {
+                    $taskId = $matches[1]
+                } elseif ($line -match '^status:\s*(\S+)') {
+                    $taskStatus = $matches[1].ToLower()
+                } elseif ($line -match '^---\s*$' -and $taskId) {
+                    # Closing frontmatter delimiter — id has been seen, stop scanning.
                     break
+                }
+            }
+            if ($taskId) {
+                $relPath = $tf.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
+                $diskTasks[$taskId] = [PSCustomObject]@{
+                    Path   = $relPath
+                    Status = $taskStatus
                 }
             }
         }
 
         # Check which task files are referenced in ai-tasks.md
         $missingCount = 0
+        $deprecatedCount = 0
         foreach ($entry in $diskTasks.GetEnumerator() | Sort-Object Key) {
             $taskId = $entry.Key
-            $taskFile = $entry.Value
+            $taskInfo = $entry.Value
+            $taskFile = $taskInfo.Path
+            $taskStatus = $taskInfo.Status
             # Extract just the filename to check for references (ai-tasks.md uses relative links to task files)
             $fileName = [System.IO.Path]::GetFileName($taskFile)
+            $isReferenced = ($aiTasksContent -match [regex]::Escape($fileName)) -or ($aiTasksContent -match [regex]::Escape($taskId))
 
-            if ($aiTasksContent -match [regex]::Escape($fileName) -or $aiTasksContent -match [regex]::Escape($taskId)) {
+            if ($taskStatus -eq 'deprecated') {
+                # Deprecated tasks should be absent from ai-tasks.md selection. Presence is
+                # allowed (with strikethrough/deprecation marker), but absence is the
+                # canonical state — record as OK either way.
+                if ($isReferenced) {
+                    Add-CheckResult "OK" "AiTasksConsistency" $taskId "Deprecated — still referenced in ai-tasks.md ($fileName); consider removing"
+                } else {
+                    Add-CheckResult "OK" "AiTasksConsistency" $taskId "Deprecated — correctly absent from ai-tasks.md ($fileName)"
+                }
+                $deprecatedCount++
+            } elseif ($isReferenced) {
                 Add-CheckResult "OK" "AiTasksConsistency" $taskId "Referenced in ai-tasks.md ($fileName)"
             } else {
                 Add-CheckResult "ERROR" "AiTasksConsistency" $taskId "Task file exists ($taskFile) but not referenced in ai-tasks.md"
@@ -1072,7 +1151,8 @@ if ($runAll -or $Surface -contains "AiTasksConsistency") {
             }
         }
 
-        Write-Host "  Task files on disk: $($diskTasks.Count), Missing from ai-tasks.md: $missingCount" -ForegroundColor Gray
+        $activeCount = $diskTasks.Count - $deprecatedCount
+        Write-Host "  Task files on disk: $($diskTasks.Count) ($activeCount active, $deprecatedCount deprecated), Missing from ai-tasks.md: $missingCount" -ForegroundColor Gray
         if ($missingCount -gt 0) {
             Write-Host "    $([char]0x2139) $missingCount task(s) on disk not referenced in ai-tasks.md — add entries or remove stale files" -ForegroundColor Yellow
         }
@@ -1469,7 +1549,7 @@ if ($runAll -or $Surface -contains "SourceLayout") {
                 if (Test-Path $projectConfigPath) {
                     try {
                         $lang = $pcfg.testing.language.ToLower()
-                        $lcPath = Join-Path $ProjectRoot "process-framework/languages-config/$lang/$lang-config.json"
+                        $lcPath = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "languages-config/$lang/$lang-config.json"
                         if (Test-Path $lcPath) {
                             $lc = Get-Content $lcPath -Raw | ConvertFrom-Json
                             $namingConvention = $lc.directoryStructure.directoryNaming
@@ -1507,11 +1587,11 @@ if ($runAll -or $Surface -contains "SourceLayout") {
 # states (e.g. 0.1.2 on 2026-04-17 had test-tracking ✅ Audit Approved but
 # feature-tracking 🔄 Tests Need Update for ~2 weeks).
 #
-# Mirrors aggregation logic from Update-TestFileAuditState.ps1 (~lines 595-612)
-# with one deliberate extension: 🔴 Needs Fix in test-tracking aggregates to
-# "🔴 Some Failing" (the writer only emits this when invoked explicitly with
-# -AuditStatus "Audit Failed"), so without the extension a feature with only
-# 🔴 Needs Fix rows would falsely aggregate to "in progress".
+# Mirrors aggregation logic from Update-TestFileAuditState.ps1 (~lines 595-612).
+# 🔴 Needs Fix rows in test-tracking (emitted by Run-Tests.python.ps1 when pytest
+# reports failures/errors — distinct from this aggregator's own "🔴 Audit Failed"
+# rows) also aggregate to "🔴 Some Failing"; PF-IMP-765 aligned the updater to
+# treat both as failing too.
 #
 # Post-SC-027: both writers and legend use the unified feature-tracking.md
 # legend vocabulary, so comparison is direct string equality (no canonical-
@@ -1550,6 +1630,34 @@ if ($runAll -or $Surface -contains "TestStatusAggregation") {
             return ($Status -replace '\s+', ' ').Trim()
         }
 
+        # Extract the leading symbol token (everything up to first whitespace).
+        # Cells often contain just the emoji (e.g. '⬜') rather than the full
+        # canonical form ('⬜ No Tests') because the legend table renders symbol
+        # and status name in separate columns. PF-IMP-038.
+        function Get-StatusSymbol {
+            param([string]$Status)
+            $norm = Get-NormalizedStatus $Status
+            if ($norm -match '^(\S+)') { return $Matches[1] }
+            return $norm
+        }
+
+        # Status equality that tolerates bare-symbol cells. Full-text on both
+        # sides → strict comparison (preserves PF-IMP-037-style detection of
+        # 🟡 In Progress vs 🟡 Tests Partially Approved). If either side is a
+        # bare symbol → compare on symbol only.
+        function Test-StatusMatch {
+            param([string]$Actual, [string]$Expected)
+            $a = Get-NormalizedStatus $Actual
+            $e = Get-NormalizedStatus $Expected
+            if ($a -eq $e) { return $true }
+            $aSym = Get-StatusSymbol $a
+            $eSym = Get-StatusSymbol $e
+            if ($a -eq $aSym -or $e -eq $eSym) { return $aSym -eq $eSym }
+            return $false
+        }
+
+        $validSymbols = @($validStatuses | ForEach-Object { Get-StatusSymbol $_ } | Select-Object -Unique)
+
         # Aggregate test-tracking statuses for one feature into a single
         # feature-tracking legend value (emits SC-027 vocabulary). Mirrors
         # Update-TestFileAuditState.ps1 with the 🔴 Needs Fix extension noted above.
@@ -1559,6 +1667,10 @@ if ($runAll -or $Surface -contains "TestStatusAggregation") {
             if (@($Statuses | Where-Object { $_ -match '🔴\s*(Audit\s*Failed|Needs\s*Fix)' }).Count -gt 0) { return "🔴 Some Failing" }
             if (@($Statuses | Where-Object { $_ -match '🔄\s*Needs\s*Update' }).Count -gt 0)               { return "🔄 Re-testing Needed" }
             if (@($Statuses | Where-Object { $_ -match '🔍\s*Audit\s*In\s*Progress' }).Count -gt 0)        { return "🔍 Audit In Progress" }
+            # All entries are 📝 Needs Implementation (specs created, no impl started) → 📋 Specs Created.
+            # PF-IMP-037: test-tracking 📝 Needs Implementation == feature-tracking 📋 Specs Created semantically.
+            $needsImpl = @($Statuses | Where-Object { $_ -match '📝\s*Needs\s*Implementation' })
+            if ($needsImpl.Count -eq $Statuses.Count) { return "📋 Specs Created" }
             $approved = @($Statuses | Where-Object { $_ -match '^✅\s*Audit\s*Approved' })
             if ($approved.Count -eq 0)                  { return "🟡 In Progress" }
             if ($approved.Count -eq $Statuses.Count)    { return "✅ All Passing" }
@@ -1584,23 +1696,42 @@ if ($runAll -or $Surface -contains "TestStatusAggregation") {
         }
 
         # --- Step 2: Walk feature-tracking.md feature rows and compare ---
+        # Test Status column index is resolved by HEADER NAME, not hardcoded
+        # position — schema-resilient against PF-PRO-002 column drops (the
+        # post-Phase-3 schema is 8 cols; pre-Phase-3 was 11). The most recent
+        # header row above each data row defines the column map for that row.
         $ftLines = Get-Content $ftPath -Encoding UTF8
         $checked = 0
+        $testStatusIdx = -1
         foreach ($line in $ftLines) {
-            # Feature rows: | [X.X.X](path) | Feature | Status | Priority | Doc Tier | FDD | TDD | Test Status | Test Spec | Dependencies | Notes |
+            # Update the Test Status column index whenever we hit a category-table
+            # header row. Header pattern: "| ID | Feature | Status | ... |"
+            if ($line -match '^\|\s*ID\s*\|') {
+                $headerCols = $line -split '\|' | ForEach-Object { $_.Trim() }
+                $testStatusIdx = -1
+                for ($k = 0; $k -lt $headerCols.Count; $k++) {
+                    if ($headerCols[$k] -eq 'Test Status') { $testStatusIdx = $k; break }
+                }
+                continue
+            }
+            # Feature rows: | [X.X.X](path) | Feature | Status | Priority | Doc Tier | Test Status | Dependencies | Notes |
+            # (post-Phase-3 schema; was 11 cols pre-Phase-3 with FDD/TDD/Test Spec inserted)
             if ($line -notmatch '^\|\s*\[\d+\.\d+\.\d+\]') { continue }
             $cols = $line -split '\|' | ForEach-Object { $_.Trim() }
-            if ($cols.Count -lt 9) { continue }
+            # Skip rows where we haven't yet seen a header (defensive)
+            if ($testStatusIdx -lt 0) { continue }
+            if ($cols.Count -le $testStatusIdx) { continue }
             if ($cols[1] -notmatch '\[(\d+\.\d+\.\d+)\]') { continue }
             $featureId = $Matches[1]
-            $actualStatus = $cols[8]
+            $actualStatus = $cols[$testStatusIdx]
             # Skip archived rows (empty Test Status)
             if ([string]::IsNullOrWhiteSpace($actualStatus) -or $actualStatus -eq '—') { continue }
 
             $actualNorm = Get-NormalizedStatus $actualStatus
+            $actualSymbol = Get-StatusSymbol $actualNorm
 
             # Skip manually-designated 🚫 No Test Required (exempt from aggregation check)
-            if ($actualNorm -eq '🚫 No Test Required') {
+            if (Test-StatusMatch $actualNorm '🚫 No Test Required') {
                 Add-CheckResult "OK" "TestStatusAggregation" $featureId "Manually marked 🚫 No Test Required (skipped)"
                 continue
             }
@@ -1611,25 +1742,27 @@ if ($runAll -or $Surface -contains "TestStatusAggregation") {
 
             $checked++
 
-            # Unknown actual status is a warning (hand-typed value not in legend)
-            if ($actualNorm -notin $validStatuses) {
+            # Unknown actual status is a warning (hand-typed value not in legend).
+            # Accept either the canonical full form ('⬜ No Tests') or the bare
+            # symbol ('⬜') since cells in feature-tracking.md commonly use either.
+            if ($actualNorm -notin $validStatuses -and $actualSymbol -notin $validSymbols) {
                 Add-CheckResult "WARNING" "TestStatusAggregation" $featureId "Test Status '$actualStatus' not in legend — review for typo or update SC-027 legend"
                 continue
             }
 
             # 🔧 Automated Only actual is consistent with ✅ All Passing expected (manual flag intent)
-            if ($actualNorm -eq '🔧 Automated Only' -and $expectedNorm -eq '✅ All Passing') {
+            if ((Test-StatusMatch $actualNorm '🔧 Automated Only') -and (Test-StatusMatch $expectedNorm '✅ All Passing')) {
                 Add-CheckResult "OK" "TestStatusAggregation" $featureId "🔧 Automated Only consistent with all-passing aggregate"
                 continue
             }
 
             # Orphan claim: feature claims ✅ All Passing but no test-tracking rows exist
-            if ($actualNorm -eq '✅ All Passing' -and $featureStatuses.Count -eq 0) {
+            if ((Test-StatusMatch $actualNorm '✅ All Passing') -and $featureStatuses.Count -eq 0) {
                 Add-CheckResult "ERROR" "TestStatusAggregation" $featureId "Feature claims '$actualStatus' but test-tracking.md has no entries for this feature"
                 continue
             }
 
-            if ($actualNorm -ne $expectedNorm) {
+            if (-not (Test-StatusMatch $actualNorm $expectedNorm)) {
                 $statusSummary = if ($featureStatuses.Count -gt 0) {
                     ($featureStatuses | Group-Object | ForEach-Object { "$($_.Name) (x$($_.Count))" }) -join ", "
                 } else { "no test entries" }
@@ -1645,6 +1778,504 @@ if ($runAll -or $Surface -contains "TestStatusAggregation") {
 }
 
 # =========================================================================
+# Surfaces 16/17/18 — Test & Audit Infrastructure Invariants (PF-IMP-871 Phase 4a)
+# =========================================================================
+# Three related surfaces that enforce the test/audit tree's structural contract:
+#
+#   - Surface 16 (AuditMirror)       : every test dir has a corresponding audit dir
+#                                      (and vice versa) under the path-transform rule
+#                                      established in PF-IMP-871 Phase 3a.
+#   - Surface 17 (CategoryAlignment) : every level-1 category and level-2 subgroup in
+#                                      feature-tracking.md has a matching unit-test
+#                                      dir under `test/automated/unit/`.
+#   - Surface 18 (WorkflowAlignment) : every WF-NNN row in user-workflow-tracking.md
+#                                      has a matching e2e dir under
+#                                      `test/e2e-acceptance-testing/`.
+#
+# All three share the same project_id-aware test-root resolution (PRJ-000 → blueprint/
+# test/; otherwise → test/) and the same feature-tracking / workflow-tracking parsers
+# (defined inline below; logic adapted from New-TestInfrastructure.ps1 Phase 3a/3c1).
+# =========================================================================
+
+# --- Shared helper: resolve test_root and tracking-file paths from project-config.json ---
+function Get-TestAuditContext {
+    param([string]$ProjectRoot)
+
+    $projectConfigPath = Join-Path $ProjectRoot "doc/project-config.json"
+    $projectId = ""
+    $testsRel  = "test"
+    $docRel    = "doc"
+    if (Test-Path $projectConfigPath) {
+        try {
+            $cfg = Get-Content $projectConfigPath -Raw -ErrorAction Stop | ConvertFrom-Json
+            if ($cfg.PSObject.Properties.Name -contains 'project_id') {
+                $projectId = $cfg.project_id
+            }
+            if ($cfg.paths) {
+                if ($cfg.paths.tests)              { $testsRel = $cfg.paths.tests }
+                if ($cfg.paths.documentation_root) { $docRel   = $cfg.paths.documentation_root }
+            }
+        } catch {
+            Write-Verbose "Could not parse project-config.json: $($_.Exception.Message)"
+        }
+    }
+
+    # Refactored 2026-05-17 (Framework Self-Testing PF-PRO-035, Phase 3a-continuation) — replaced
+    # PRJ-000 → blueprint/* hardcoding with config-driven lookup (paths.tests + paths.documentation_root).
+    # See Resolve-DocPath in Common-ScriptHelpers/Core.psm1 for the parallel refactor.
+    $testRoot = Join-Path $ProjectRoot $testsRel
+    $ftPath   = Join-Path $ProjectRoot (Join-Path $docRel "state-tracking/permanent/feature-tracking.md")
+    $wfPath   = Join-Path $ProjectRoot (Join-Path $docRel "state-tracking/permanent/user-workflow-tracking.md")
+
+    return [PSCustomObject]@{
+        ProjectId            = $projectId
+        TestRoot             = $testRoot
+        FeatureTrackingPath  = $ftPath
+        WorkflowTrackingPath = $wfPath
+    }
+}
+
+# --- Shared parser: feature-tracking.md categories (adapted from New-TestInfrastructure.ps1 Phase 3a) ---
+function Get-ParsedFeatureCategories {
+    param([string]$Path)
+    if ([string]::IsNullOrEmpty($Path) -or -not (Test-Path $Path)) { return @() }
+    $content = Get-Content -Path $Path -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrEmpty($content)) { return @() }
+    $lines = $content -split "`r?`n"
+
+    $startIdx = -1; $endIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^## Feature Categories\s*$') { $startIdx = $i }
+        elseif ($lines[$i] -match '^## Archived Features\s*$' -and $startIdx -ge 0) { $endIdx = $i; break }
+    }
+    if ($startIdx -lt 0) { return @() }
+    if ($endIdx -lt 0) { $endIdx = $lines.Count }
+
+    $results = @(); $inCategory = $false; $currentCatId = $null
+    for ($i = $startIdx; $i -lt $endIdx; $i++) {
+        $line = $lines[$i]
+        if (-not $inCategory) {
+            if ($line -match '^<details>\s*$') {
+                $nextLine = if ($i + 1 -lt $lines.Count) { $lines[$i + 1] } else { '' }
+                if ($nextLine -match '^<summary><strong>(\d+)\.\s+(.+?)</strong></summary>\s*$') {
+                    $currentCatId = $matches[1]
+                    $results += [PSCustomObject]@{ Id = $currentCatId; Name = $matches[2]; Level = 1; ParentId = "" }
+                    $inCategory = $true
+                }
+            }
+        } else {
+            if ($line -match '^</details>\s*$') {
+                $inCategory = $false; $currentCatId = $null
+            } elseif ($line -match '^### (\d+)\.(\d+)\s+(.+?)\s*$') {
+                if ($matches[1] -eq $currentCatId) {
+                    $results += [PSCustomObject]@{
+                        Id = "$($matches[1]).$($matches[2])"; Name = $matches[3]; Level = 2; ParentId = $currentCatId
+                    }
+                }
+            }
+        }
+    }
+    return $results
+}
+
+# --- Shared parser: user-workflow-tracking.md WF-NNN rows (adapted from New-TestInfrastructure.ps1 Phase 3c1) ---
+function Get-ParsedWorkflows {
+    param([string]$Path)
+    if ([string]::IsNullOrEmpty($Path) -or -not (Test-Path $Path)) { return @() }
+    $content = Get-Content -Path $Path -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrEmpty($content)) { return @() }
+    $lines = $content -split "`r?`n"
+
+    $startIdx = -1; $endIdx = $lines.Count
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^## Workflows\s*$') { $startIdx = $i }
+        elseif ($startIdx -ge 0 -and $lines[$i] -match '^## ' -and $lines[$i] -notmatch '^## Workflows\s*$') {
+            $endIdx = $i; break
+        }
+    }
+    if ($startIdx -lt 0) { return @() }
+
+    $results = @()
+    for ($i = $startIdx; $i -lt $endIdx; $i++) {
+        if ($lines[$i] -match '^\|\s*(WF-\d+)\s*\|\s*(.+?)\s*\|') {
+            $results += [PSCustomObject]@{ Id = $matches[1]; Name = $matches[2] }
+        }
+    }
+    return $results
+}
+
+# =========================================================================
+# Surface 16: Audit Mirror Invariant
+# =========================================================================
+# Enforces the path-transform rule from PF-IMP-871 Phase 3a:
+#   - test/automated/<path>/                            ↔ test/audits/<path>/
+#   - test/e2e-acceptance-testing/<workflow>/templates/ ↔ test/audits/e2e/<workflow>/
+# `bug-validation/` is explicitly exempt (no audit mirror by design — manual
+# reproduction harnesses, not part of the auditable test suite).
+# =========================================================================
+if ($runAll -or $Surface -contains "AuditMirror") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 16: Audit Mirror Invariant" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $ctx = Get-TestAuditContext -ProjectRoot $ProjectRoot
+    $testRoot = $ctx.TestRoot
+    $automatedRoot = Join-Path $testRoot "automated"
+    $auditsRoot    = Join-Path $testRoot "audits"
+    $e2eRoot       = Join-Path $testRoot "e2e-acceptance-testing"
+
+    if (-not (Test-Path $testRoot)) {
+        Add-CheckResult "WARNING" "AuditMirror" "TestRoot" "Test root not found at $testRoot — skipping"
+    } else {
+        $checked = 0; $issues = 0
+
+        # Runtime/cache artifact dirs (pytest __pycache__, VCS/dependency/venv dirs) are not
+        # part of the auditable test tree — skip them in the recursive walks below so they
+        # don't read as "missing audit mirror" (16a) or orphan/unknown-subtree dirs (16c).
+        # Mirrors the Surface 14 source-dir filter (PF-IMP-956).
+        $runtimeCacheDirs = @('__pycache__', '.git', 'node_modules', '.venv', 'venv')
+
+        # --- 16a: automated/ ↔ audits/ subtree (every automated dir has an audit mirror) ---
+        if (Test-Path $automatedRoot) {
+            $autoSubdirs = Get-ChildItem -Path $automatedRoot -Directory -Recurse -ErrorAction SilentlyContinue
+            foreach ($d in $autoSubdirs) {
+                $rel = $d.FullName.Substring($automatedRoot.Length).TrimStart('\','/')
+                # Skip runtime/cache artifact dirs anywhere in the path (PF-IMP-956)
+                if (($rel -split '[\\/]').Where({ $runtimeCacheDirs -contains $_ }).Count -gt 0) { continue }
+                # Skip bug-validation tree if it accidentally still exists under automated/
+                # (Phase 3d moved it to test/ top-level; presence here would be stale)
+                if ($rel -match '^bug-validation([\\/]|$)') { continue }
+                $expectedAuditDir = Join-Path (Join-Path $auditsRoot "") $rel
+                $checked++
+                if (-not (Test-Path $expectedAuditDir)) {
+                    $issues++
+                    Add-CheckResult "ERROR" "AuditMirror" "automated/$rel" "Missing audit mirror at audits/$rel"
+                } else {
+                    Add-CheckResult "OK" "AuditMirror" "automated/$rel" "Audit mirror present"
+                }
+            }
+        }
+
+        # --- 16b: e2e-acceptance-testing/<wf>/templates/ ↔ audits/e2e/<wf>/ ---
+        if (Test-Path $e2eRoot) {
+            $wfDirs = Get-ChildItem -Path $e2eRoot -Directory -ErrorAction SilentlyContinue
+            foreach ($wf in $wfDirs) {
+                $tmpl = Join-Path $wf.FullName "templates"
+                if (-not (Test-Path $tmpl)) { continue }
+                $expectedAuditDir = Join-Path (Join-Path $auditsRoot "e2e") $wf.Name
+                $checked++
+                if (-not (Test-Path $expectedAuditDir)) {
+                    $issues++
+                    Add-CheckResult "ERROR" "AuditMirror" "e2e-acceptance-testing/$($wf.Name)" "Missing audit mirror at audits/e2e/$($wf.Name)"
+                } else {
+                    Add-CheckResult "OK" "AuditMirror" "e2e-acceptance-testing/$($wf.Name)" "Audit mirror present"
+                }
+            }
+        }
+
+        # --- 16c: reverse — every audits/ subtree dir traces back to a source dir ---
+        # Catches orphan audit dirs left behind after a feature/workflow is renamed/removed.
+        if (Test-Path $auditsRoot) {
+            $auditSubdirs = Get-ChildItem -Path $auditsRoot -Directory -Recurse -ErrorAction SilentlyContinue
+            foreach ($d in $auditSubdirs) {
+                $rel = $d.FullName.Substring($auditsRoot.Length).TrimStart('\','/')
+                # Skip runtime/cache artifact dirs anywhere in the path (PF-IMP-956)
+                if (($rel -split '[\\/]').Where({ $runtimeCacheDirs -contains $_ }).Count -gt 0) { continue }
+
+                # Determine expected source location based on top-level audit subtree
+                $topSegment = ($rel -split '[\\/]', 2)[0]
+                $rest = if ($rel -match '[\\/]') { ($rel -split '[\\/]', 2)[1] } else { "" }
+
+                $expectedSource = $null
+                switch ($topSegment) {
+                    'unit'        { $expectedSource = Join-Path (Join-Path $automatedRoot "unit") $rest }
+                    'performance' { $expectedSource = Join-Path (Join-Path $automatedRoot "performance") $rest }
+                    'e2e' {
+                        # audits/e2e/<wf>/ traces back to e2e-acceptance-testing/<wf>/templates/
+                        # Only check at depth 1; deeper levels (audit reports per test case) are fine.
+                        if ($rest -and -not ($rest -match '[\\/]')) {
+                            $expectedSource = Join-Path (Join-Path $e2eRoot $rest) "templates"
+                        }
+                    }
+                    default {
+                        # Unknown top-level audit subtree (e.g., legacy foundation/authentication/core-features)
+                        # → warn, don't error: useful early-warning for stale leftovers.
+                        $checked++
+                        Add-CheckResult "WARNING" "AuditMirror" "audits/$rel" "Audit dir under unknown top-level subtree '$topSegment' (expected: unit/performance/e2e)"
+                        continue
+                    }
+                }
+
+                if ($null -ne $expectedSource) {
+                    $checked++
+                    if (-not (Test-Path $expectedSource)) {
+                        $issues++
+                        $expectedRel = $expectedSource.Substring($testRoot.Length).TrimStart('\','/')
+                        Add-CheckResult "ERROR" "AuditMirror" "audits/$rel" "Orphan audit dir — no source at $expectedRel"
+                    } else {
+                        Add-CheckResult "OK" "AuditMirror" "audits/$rel" "Source dir present"
+                    }
+                }
+            }
+        }
+
+        Write-Host "  Checked $checked mirror pair(s), $issues issue(s)" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 17: Category Alignment
+# =========================================================================
+# Enforces alignment between feature-tracking.md feature-category structure
+# and the on-disk `test/automated/unit/<N>-<slug>/[<N.X>-<slug>/]` layout
+# scaffolded by New-TestInfrastructure.ps1 -Update Section A (Phase 3a).
+# =========================================================================
+if ($runAll -or $Surface -contains "CategoryAlignment") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 17: Category Alignment" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $ctx = Get-TestAuditContext -ProjectRoot $ProjectRoot
+    $unitRoot = Join-Path $ctx.TestRoot "automated/unit"
+
+    if (-not (Test-Path $ctx.FeatureTrackingPath)) {
+        Add-CheckResult "WARNING" "CategoryAlignment" "FeatureTracking" "feature-tracking.md not found at $($ctx.FeatureTrackingPath) — skipping"
+    } elseif (-not (Test-Path $unitRoot)) {
+        Add-CheckResult "WARNING" "CategoryAlignment" "UnitRoot" "Unit test root not found at $unitRoot — skipping"
+    } else {
+        $cats = Get-ParsedFeatureCategories -Path $ctx.FeatureTrackingPath
+
+        # Build expected dir name per category/subgroup using New-FeatureDirSlug from Naming module
+        $expectedTopByName = @{}    # "<N>-<slug>" → category Id
+        $expectedSubByParent = @{}  # parentId → @("<N.X>-<slug>", ...)
+
+        foreach ($c in $cats) {
+            $slug = $null
+            try { $slug = New-FeatureDirSlug -Id $c.Id -Name $c.Name } catch { $slug = $null }
+            if ([string]::IsNullOrEmpty($slug)) { continue }
+
+            if ($c.Level -eq 1) {
+                $expectedTopByName[$slug] = $c.Id
+            } elseif ($c.Level -eq 2) {
+                if (-not $expectedSubByParent.ContainsKey($c.ParentId)) {
+                    $expectedSubByParent[$c.ParentId] = @()
+                }
+                $expectedSubByParent[$c.ParentId] += $slug
+            }
+        }
+
+        # 17a: each expected level-1 dir exists
+        foreach ($slug in $expectedTopByName.Keys) {
+            $expectedPath = Join-Path $unitRoot $slug
+            if (-not (Test-Path $expectedPath)) {
+                Add-CheckResult "ERROR" "CategoryAlignment" "unit/$slug" "Expected category dir missing (category $($expectedTopByName[$slug]))"
+            } else {
+                Add-CheckResult "OK" "CategoryAlignment" "unit/$slug" "Category dir present"
+            }
+        }
+
+        # 17b: each expected level-2 subgroup dir exists under its parent
+        # Need to re-map parent Id → parent slug to build the expected path
+        $parentIdToSlug = @{}
+        foreach ($slug in $expectedTopByName.Keys) { $parentIdToSlug[$expectedTopByName[$slug]] = $slug }
+
+        foreach ($parentId in $expectedSubByParent.Keys) {
+            if (-not $parentIdToSlug.ContainsKey($parentId)) { continue }
+            $parentSlug = $parentIdToSlug[$parentId]
+            foreach ($subSlug in $expectedSubByParent[$parentId]) {
+                $expectedPath = Join-Path (Join-Path $unitRoot $parentSlug) $subSlug
+                if (-not (Test-Path $expectedPath)) {
+                    Add-CheckResult "ERROR" "CategoryAlignment" "unit/$parentSlug/$subSlug" "Expected subgroup dir missing"
+                } else {
+                    Add-CheckResult "OK" "CategoryAlignment" "unit/$parentSlug/$subSlug" "Subgroup dir present"
+                }
+            }
+        }
+
+        # 17c: reverse — every dir under unit/ traces back to a category/subgroup
+        $topDirs = Get-ChildItem -Path $unitRoot -Directory -ErrorAction SilentlyContinue
+        foreach ($t in $topDirs) {
+            if (-not $expectedTopByName.ContainsKey($t.Name)) {
+                Add-CheckResult "WARNING" "CategoryAlignment" "unit/$($t.Name)" "Orphan unit dir — no matching category in feature-tracking.md (rename/remove?)"
+            } else {
+                $parentSlug = $t.Name
+                $parentId = $expectedTopByName[$parentSlug]
+                $subDirs = Get-ChildItem -Path $t.FullName -Directory -ErrorAction SilentlyContinue
+                $expectedSubs = if ($expectedSubByParent.ContainsKey($parentId)) { $expectedSubByParent[$parentId] } else { @() }
+                foreach ($s in $subDirs) {
+                    if ($s.Name -notin $expectedSubs) {
+                        Add-CheckResult "WARNING" "CategoryAlignment" "unit/$parentSlug/$($s.Name)" "Orphan subgroup dir — no matching subgroup under category $parentId"
+                    }
+                }
+            }
+        }
+
+        Write-Host "  Checked $($cats.Count) tracked category/subgroup entries" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 18: Workflow Alignment
+# =========================================================================
+# Enforces alignment between user-workflow-tracking.md WF-NNN rows and the
+# on-disk `test/e2e-acceptance-testing/<workflow-slug>/templates/` layout
+# scaffolded by New-TestInfrastructure.ps1 -Update Section C (Phase 3c1).
+# =========================================================================
+if ($runAll -or $Surface -contains "WorkflowAlignment") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 18: Workflow Alignment" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $ctx = Get-TestAuditContext -ProjectRoot $ProjectRoot
+    $e2eRoot = Join-Path $ctx.TestRoot "e2e-acceptance-testing"
+
+    if (-not (Test-Path $ctx.WorkflowTrackingPath)) {
+        Add-CheckResult "WARNING" "WorkflowAlignment" "WorkflowTracking" "user-workflow-tracking.md not found at $($ctx.WorkflowTrackingPath) — skipping"
+    } elseif (-not (Test-Path $e2eRoot)) {
+        Add-CheckResult "WARNING" "WorkflowAlignment" "E2ERoot" "E2E root not found at $e2eRoot — skipping"
+    } else {
+        $workflows = Get-ParsedWorkflows -Path $ctx.WorkflowTrackingPath
+
+        # Build expected slug set
+        $expectedSlugs = @{}
+        foreach ($w in $workflows) {
+            $slug = $null
+            try { $slug = ConvertTo-FeatureSlug -Name $w.Name -Convention 'kebab-case' } catch { $slug = $null }
+            if (-not [string]::IsNullOrEmpty($slug)) { $expectedSlugs[$slug] = $w.Id }
+        }
+
+        # 18a: each expected workflow dir exists with a templates/ subdir
+        foreach ($slug in $expectedSlugs.Keys) {
+            $expectedPath = Join-Path (Join-Path $e2eRoot $slug) "templates"
+            if (-not (Test-Path $expectedPath)) {
+                Add-CheckResult "ERROR" "WorkflowAlignment" "e2e-acceptance-testing/$slug" "Expected workflow dir missing templates/ (workflow $($expectedSlugs[$slug]))"
+            } else {
+                Add-CheckResult "OK" "WorkflowAlignment" "e2e-acceptance-testing/$slug" "Workflow dir present"
+            }
+        }
+
+        # 18b: reverse — every top-level dir under e2e-acceptance-testing/ traces to a WF entry.
+        # Skip files (e.g., .gitignore) and dirs without a templates/ subdir (likely stale leftovers).
+        $topDirs = Get-ChildItem -Path $e2eRoot -Directory -ErrorAction SilentlyContinue
+        foreach ($t in $topDirs) {
+            $hasTemplates = Test-Path (Join-Path $t.FullName "templates")
+            if (-not $hasTemplates) { continue }  # Not a workflow dir; skip
+            if (-not $expectedSlugs.ContainsKey($t.Name)) {
+                Add-CheckResult "WARNING" "WorkflowAlignment" "e2e-acceptance-testing/$($t.Name)" "Orphan workflow dir — no matching WF-NNN in user-workflow-tracking.md"
+            }
+        }
+
+        Write-Host "  Checked $($workflows.Count) tracked workflow(s)" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 19: Variant Pair Consistency
+# =========================================================================
+# Scans process-framework .md files for variant_group / variant_siblings
+# frontmatter and enforces sibling existence + symmetry (PF-IMP-837).
+# =========================================================================
+if ($runAll -or $Surface -contains "VariantPairConsistency") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 19: Variant Pair Consistency" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    $pfDir = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
+
+    # Phase 1: scan all .md files under process-framework/ for variant frontmatter
+    $variantFiles = @{}  # relPath → @{ Group; Siblings (list of filenames); FullPath; Dir }
+    $mdFiles = Get-ChildItem -Path $pfDir -Filter "*.md" -File -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -notmatch '[\\/](scripts|tools|visualization|infrastructure)[\\/]' }
+
+    foreach ($f in $mdFiles) {
+        $raw = Get-Content $f.FullName -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+        if (-not $raw) { continue }
+        if ($raw -notmatch '^---\s*\r?\n([\s\S]*?)\r?\n---') { continue }
+        $fm = $Matches[1]
+        if ($fm -notmatch 'variant_group:') { continue }
+
+        $group = $null
+        $siblings = @()
+        $inSiblings = $false
+        foreach ($line in ($fm -split '\r?\n')) {
+            if ($line -match '^\s*variant_group:\s*(.+)$') {
+                $group = $Matches[1].Trim().Trim('"').Trim("'")
+                $inSiblings = $false
+            } elseif ($line -match '^\s*variant_siblings:\s*$') {
+                $inSiblings = $true
+            } elseif ($line -match '^\s*variant_siblings:\s*\[(.+)\]') {
+                $siblings = $Matches[1] -split '\s*,\s*' | ForEach-Object { $_.Trim().Trim('"').Trim("'") }
+                $inSiblings = $false
+            } elseif ($inSiblings -and $line -match '^\s+-\s+(.+)$') {
+                $siblings += $Matches[1].Trim().Trim('"').Trim("'")
+            } elseif ($inSiblings -and $line -notmatch '^\s+-') {
+                $inSiblings = $false
+            }
+        }
+
+        if ($group) {
+            $relPath = $f.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
+            $variantFiles[$relPath] = @{
+                Group    = $group
+                Siblings = $siblings
+                FullPath = $f.FullName
+                Dir      = $f.DirectoryName
+            }
+        }
+    }
+
+    if ($variantFiles.Count -eq 0) {
+        Add-CheckResult "WARNING" "VariantPairConsistency" "scan" "No files with variant_group frontmatter found under $(Split-Path $pfDir -Leaf)/"
+    } else {
+        # Build reverse lookup: fullPath → relPath for symmetry checks
+        $fullToRel = @{}
+        foreach ($rp in $variantFiles.Keys) { $fullToRel[$variantFiles[$rp].FullPath] = $rp }
+
+        foreach ($relPath in $variantFiles.Keys) {
+            $entry = $variantFiles[$relPath]
+
+            # 19a: each declared sibling exists
+            foreach ($sib in $entry.Siblings) {
+                $sibFull = Join-Path $entry.Dir $sib
+                if (-not (Test-Path $sibFull)) {
+                    Add-CheckResult "ERROR" "VariantPairConsistency" $relPath "Sibling not found: $sib"
+                    continue
+                }
+
+                # 19b: sibling lists this file back (symmetry)
+                $sibFullResolved = (Resolve-Path $sibFull -ErrorAction SilentlyContinue).Path
+                $sibRel = if ($sibFullResolved) { $fullToRel[$sibFullResolved] } else { $null }
+                if (-not $sibRel -or -not $variantFiles.ContainsKey($sibRel)) {
+                    Add-CheckResult "ERROR" "VariantPairConsistency" $relPath "Sibling $sib exists but has no variant_group frontmatter"
+                    continue
+                }
+
+                $sibEntry = $variantFiles[$sibRel]
+                $myFilename = Split-Path $relPath -Leaf
+                if ($sibEntry.Siblings -notcontains $myFilename) {
+                    Add-CheckResult "ERROR" "VariantPairConsistency" $relPath "Asymmetric: lists $sib as sibling but $sib does not list $myFilename back"
+                } else {
+                    Add-CheckResult "OK" "VariantPairConsistency" $relPath "Sibling ${sib}: exists + symmetric"
+                }
+
+                # 19c: sibling agrees on variant_group
+                if ($sibEntry.Group -ne $entry.Group) {
+                    Add-CheckResult "ERROR" "VariantPairConsistency" $relPath "Group mismatch: this=$($entry.Group), $sib=$($sibEntry.Group)"
+                }
+            }
+        }
+
+        # Count distinct groups
+        $groups = $variantFiles.Values | ForEach-Object { $_.Group } | Select-Object -Unique
+        Write-Host "  Checked $($variantFiles.Count) variant files across $($groups.Count) group(s)" -ForegroundColor Gray
+    }
+    Write-Host ""
+}
+
+# =========================================================================
 # Summary
 # =========================================================================
 Write-Host "========================================" -ForegroundColor Cyan
@@ -1655,6 +2286,15 @@ Write-Host "  Passed:       $passCount" -ForegroundColor $(if ($passCount -gt 0)
 Write-Host "  Errors:       $errorCount" -ForegroundColor $(if ($errorCount -eq 0) { "Green" } else { "Red" })
 $warningsLabel = if ($detailOnlyHiddenCount -gt 0) { "$warningCount ($detailOnlyHiddenCount hidden — use -Detailed to view)" } else { "$warningCount" }
 Write-Host "  Warnings:     $warningsLabel" -ForegroundColor $(if ($warningCount -eq 0) { "Green" } else { "Yellow" })
+
+# Guard: -Surface was set but matched no surface (typo / unknown name / comma-quoting issue).
+# Without this, totalChecks=0 falls through to "All checks passed!" → CI false positive.
+if ($totalChecks -eq 0 -and -not $runAll) {
+    Write-Host ""
+    Write-Host "  No surfaces matched -Surface argument(s): $($Surface -join ', ')" -ForegroundColor Red
+    Write-Host "  Check spelling, or use -Surface All. Valid surface names are listed in the script's .DESCRIPTION." -ForegroundColor Red
+    exit 1
+}
 
 if ($errorCount -eq 0 -and $warningCount -eq 0) {
     Write-Host ""

@@ -6,13 +6,14 @@ version: 1.0
 created: 2026-04-13
 updated: 2026-04-13
 change_notes: "v1.0 - Extracted from Task Transition Guide (PF-GDE-018) to separate information flow concerns from transition procedures"
+description: "Information flow patterns, task ownership boundaries, cross-reference standards, and separation of concerns between tasks"
 ---
 
 # Information Flow and Separation of Concerns
 
 This guide establishes clear boundaries between tasks to prevent documentation duplication while ensuring comprehensive coverage. It defines what information flows between tasks, who owns each type, how to reference other tasks' outputs, and when to duplicate vs. reference.
 
-> **📋 Origin**: This content was extracted from the Task Transition Guide (now [Task Transition Registry](/process-framework/infrastructure/task-transition-registry.md)) as part of a structure change to separate information flow guidance from transition procedures. The two documents serve different audiences: this guide serves design/planning tasks; the registry serves implementation/maintenance tasks.
+> **📋 Origin**: This content was extracted from the Task Transition Guide (now [Task Transition Registry](../../infrastructure/task-transition-registry.md)) as part of a structure change to separate information flow guidance from transition procedures. The two documents serve different audiences: this guide serves design/planning tasks; the registry serves implementation/maintenance tasks.
 
 ## Information Flow Model
 
@@ -321,7 +322,7 @@ This section clarifies what each task **owns** vs. what it **references**:
 - Individual feature technical design → TDD (PF-TSK-015)
 - Individual feature functional design → FDD (PF-TSK-027)
 - Test plans for cross-feature workflows → Test Specification (PF-TSK-012)
-- Architectural decisions → Create ADR inline using [New-ArchitectureDecision.ps1](/process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md)
+- Architectural decisions → Create ADR inline using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](../02-design/architecture-decision-creation-guide.md)
 
 ### Test Specification Creation Task (PF-TSK-012)
 

@@ -2,9 +2,10 @@
 id: PF-TSK-035
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-08-16
-updated: 2026-04-10
+updated: 2026-05-16
+description: "Validate selected features for extension points, configuration flexibility, and testing support"
 ---
 
 # Extensibility Maintainability Validation
@@ -20,14 +21,6 @@ Systematically validates selected features for extensibility and maintainability
 **Focus Areas**: Extension points, configuration patterns, testing infrastructure, code maintainability, architectural flexibility
 **Communication Style**: Identify maintainability risks and extension limitations, recommend architectural improvements, ask about long-term development plans when evaluating extensibility needs
 
-## When to Use
-
-- When validating selected features for extensibility and maintainability as part of the validation framework
-- Before implementing major architectural changes to assess current extensibility
-- When planning feature roadmaps that require extensible foundations
-- As part of technical debt assessment focusing on maintainability concerns
-- When evaluating the codebase's readiness for team scaling or distributed development
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/05-validation/extensibility-maintainability-validation-map.md)
@@ -35,7 +28,7 @@ Systematically validates selected features for extensibility and maintainability
 - **Critical (Must Read):**
 
   - **Feature Validation Guide** - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) - Comprehensive guide for conducting feature validation
-  - **Feature Tracking** - [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
+  - **Feature Tracking** - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features to be validated
   - **Validation Tracking** - Link to the active validation tracking state file for the current validation round — see [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) for setup
   - **Validation Report Template** - [Validation Report Template](../../templates/05-validation/validation-report-template.md) - Template for creating validation reports
   - **Codebase Architecture** - Source code directory - Source code structure for extensibility analysis
@@ -97,7 +90,7 @@ Systematically validates selected features for extensibility and maintainability
 14. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 15. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 16. **Plan Improvements**: For scores below threshold, create action items for extensibility and maintainability enhancements
-17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+17. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "EM" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

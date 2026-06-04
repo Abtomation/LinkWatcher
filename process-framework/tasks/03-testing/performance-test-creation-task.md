@@ -3,9 +3,10 @@ id: PF-TSK-084
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-04-09
-updated: 2026-04-13
+updated: 2026-05-16
+description: "Implement performance tests from specifications, register in tracking, capture initial measurements"
 ---
 
 # Performance Test Creation
@@ -14,7 +15,9 @@ updated: 2026-04-13
 
 Implement performance tests from a performance test specification. This task covers measurement design, threshold-setting against baselines, test registration in performance-test-tracking.md, and lifecycle transition from ⬜ Needs Creation to 📋 Needs Baseline.
 
-Implement performance tests identified by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md). Performance test needs appear as `⬜ Needs Creation` entries in performance-test-tracking.md after the scoping task applies the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) against a feature's code changes.
+Implement performance tests identified by the [Performance & E2E Test Scoping task (PF-TSK-086)](performance-and-e2e-test-scoping-task.md). Performance test needs appear as `⬜ Needs Creation` entries in performance-test-tracking.md after the scoping task applies the [decision matrix](../../guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix) against a feature's code changes.
+
+> **Scope — framework self-testing**: This task also applies to **framework script workflows** when invoked from a framework-change task ([Process Improvement (PF-TSK-009)](../support/process-improvement-task.md), [Structure Change (PF-TSK-014)](../support/structure-change-task.md), [Framework Extension (PF-TSK-026)](../support/framework-extension-task.md)). The 4-level performance taxonomy (component / operation / scale / resource) and tracking lifecycle are identical. When invoked from appdev (PRJ-000), this task silently no-ops for missing `feature-tracking.md` entries and operates against framework-script targets registered in `performance-test-tracking.md`.
 
 ## AI Agent Role
 
@@ -23,28 +26,22 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 **Focus Areas**: Reliable measurement methodology, appropriate tolerance bands, proper test isolation, tracking registration
 **Communication Style**: Present each test's measurement approach and threshold rationale at checkpoints; ask about acceptable performance ranges when thresholds are ambiguous
 
-## When to Use
-
-- When performance-test-tracking.md has `⬜ Needs Creation` entries created by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md)
-- When expanding performance coverage after discovering gaps during Baseline Capture
-- Standalone when adding performance coverage for untested areas
-
 ## Context Requirements
 
 - **Critical (Must Read):**
 
-  - [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) — Test levels, measurement methodology, threshold-setting, avoiding flaky benchmarks
-  - [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) — Decision matrix that produced the `⬜ Needs Creation` entries
-  - [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Current test inventory and baselines
+  - [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) — Test levels, measurement methodology, threshold-setting, avoiding flaky benchmarks
+  - [Performance & E2E Test Scoping Guide](../../guides/03-testing/performance-and-e2e-test-scoping-guide.md) — Decision matrix that produced the `⬜ Needs Creation` entries
+  - [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Current test inventory and baselines
 
 - **Important (Load If Space):**
 
-  - [Test File Creation Guide](/process-framework/guides/03-testing/test-file-creation-guide.md) — pytest markers, file organization
+  - [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) — pytest markers, file organization
   - Existing performance test files in `test/automated/performance/` — for pattern consistency
 
 - **Reference Only (Access When Needed):**
-  - [Performance Results Database](/process-framework/scripts/test/performance_db.py) — For recording initial measurements
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+  - [Performance Results Database](../../scripts/test/performance_db.py) — For recording initial measurements
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 ## Process
 
@@ -54,7 +51,7 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 ### Preparation
 
-1. **Read performance-test-tracking.md** and identify all `⬜ Needs Creation` entries. These were created by the [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) using the [decision matrix](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix). Each entry includes the test level, target subsystem, and rationale.
+1. **Read performance-test-tracking.md** and identify all `⬜ Needs Creation` entries. These were created by the [Performance & E2E Test Scoping task (PF-TSK-086)](performance-and-e2e-test-scoping-task.md) using the [decision matrix](../../guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix). Each entry includes the test level, target subsystem, and rationale.
 
 2. **Review existing tests** to understand coverage and patterns. Check if any existing tests partially cover the specified entries.
 
@@ -92,8 +89,8 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 ## Tools and Scripts
 
-- **[Update-PerformanceTracking.ps1](/process-framework/scripts/update/Update-PerformanceTracking.ps1)** — Automate status transitions and column updates in performance-test-tracking.md (⬜ → 📋 with `-TestFile`)
-- **[New-FeedbackForm.ps1](/process-framework/scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
+- **[Update-PerformanceTracking.ps1](../../scripts/update/Update-PerformanceTracking.ps1)** — Automate status transitions and column updates in performance-test-tracking.md (⬜ → 📋 with `-TestFile`)
+- **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
 
 ## Outputs
 
@@ -105,8 +102,8 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 The following state files must be updated as part of this task:
 
-- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Add rows, update statuses ⬜ → 📋, update summary
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) — Update if test coverage changes affect feature status
+- [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Add rows, update statuses ⬜ → 📋, update summary
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Update if test coverage changes affect feature status
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -120,19 +117,19 @@ Before considering this task finished:
   - [ ] Each new test prints measured values in output
   - [ ] All new tests pass when run
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) rows updated (⬜ → 📋)
+  - [ ] [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) rows updated (⬜ → 📋)
   - [ ] Summary table recalculated
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-084" and context "Performance Test Creation"
 
 ## Next Tasks
 
-- **[Test Audit](/process-framework/tasks/03-testing/test-audit-task.md)** (with `-TestType Performance`) — Audit newly created performance tests before baseline capture. Tests must reach `✅ Audit Approved` status before proceeding to Baseline Capture
-- **[Performance Baseline Capture](/process-framework/tasks/03-testing/performance-baseline-capture-task.md)** — Run the newly created tests and capture initial baselines (📋 → ✅). Requires `✅ Audit Approved` audit status
-- **[Code Review](/process-framework/tasks/06-maintenance/code-review-task.md)** — Review new test code for quality
+- **[Test Audit](test-audit-task.md)** (with `-TestType Performance`) — Audit newly created performance tests before baseline capture. Tests must reach `✅ Audit Approved` status before proceeding to Baseline Capture
+- **[Performance Baseline Capture](performance-baseline-capture-task.md)** — Run the newly created tests and capture initial baselines (📋 → ✅). Requires `✅ Audit Approved` audit status
+- **[Code Review](../06-maintenance/code-review-task.md)** — Review new test code for quality
 
 ## Related Resources
 
-- [Performance Testing Guide](/process-framework/guides/03-testing/performance-testing-guide.md) — Measurement methodology and best practices
-- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
-- [Test Specification Creation](/process-framework/tasks/03-testing/test-specification-creation-task.md) — Automated test specification task (does not route performance tests)
-- [Performance Baseline Capture](/process-framework/tasks/03-testing/performance-baseline-capture-task.md) — Downstream task that records baselines
+- [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) — Measurement methodology and best practices
+- [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
+- [Test Specification Creation](test-specification-creation-task.md) — Automated test specification task (does not route performance tests)
+- [Performance Baseline Capture](performance-baseline-capture-task.md) — Downstream task that records baselines

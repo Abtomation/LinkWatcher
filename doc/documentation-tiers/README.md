@@ -98,11 +98,11 @@ For a detailed guide on how to assess features and assign documentation tiers, s
 
 Each feature has its own assessment file in the `assessments` subfolder, named according to its assessment ID and feature ID:
 
-- `assessments/ART-ASS-001-1.1.1-email-password-registration.md`
-- `assessments/ART-ASS-002-1.1.2-social-login-integration.md`
+- `assessments/PD-ASS-001-1.1.1-email-password-registration.md`
+- `assessments/PD-ASS-002-1.1.2-social-login-integration.md`
 - etc.
 
-Each assessment is an artifact with a unique ID (ART-ASS-XXX) that is automatically assigned when the assessment is created.
+Each assessment is an artifact with a unique ID (PD-ASS-XXX) that is automatically assigned when the assessment is created.
 
 ## Creating New Assessments
 
@@ -113,7 +113,7 @@ To create a new assessment, use the provided PowerShell script:
 ```
 
 This will:
-1. Create a new assessment file with a unique artifact ID (ART-ASS-XXX)
+1. Create a new assessment file with a unique artifact ID (PD-ASS-XXX)
 2. Pre-populate the assessment template with the feature information
 3. Open the file in your editor if the -OpenInEditor switch is used
 

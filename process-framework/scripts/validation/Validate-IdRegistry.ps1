@@ -32,7 +32,7 @@ if ([string]::IsNullOrWhiteSpace($RootPath)) {
 
 # Load all three registries and merge prefixes for validation
 $registryFiles = @(
-    (Join-Path -Path $ProjectRoot -ChildPath "process-framework/PF-id-registry.json"),
+    (Join-Path -Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) -ChildPath "PF-id-registry.json"),
     (Join-Path -Path $ProjectRoot -ChildPath "doc/PD-id-registry.json"),
     (Join-Path -Path $ProjectRoot -ChildPath "test/TE-id-registry.json")
 )
@@ -56,6 +56,33 @@ foreach ($regFile in $registryFiles) {
 }
 $registry = [PSCustomObject]@{ prefixes = $mergedPrefixes }
 
+# Compute the relative framework path under $ProjectRoot for PF-* prefix path rewriting
+# (Phase 5.5 + Framework Self-Testing Phase 4 OP-NEW-A fix, 2026-05-20).
+# In appdev: paths.process_framework = "blueprint/process-framework" → PF-* prefix
+# directories like "process-framework/tasks/..." need to resolve under blueprint/.
+# In rolled-out projects: paths.process_framework = "process-framework" (no rewrite needed,
+# but the rewrite is idempotent so it's safe to apply).
+$frameworkAbsolute = (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot).Replace('\', '/')
+$projectRootForward = ((Resolve-Path $ProjectRoot).Path).Replace('\', '/')
+$frameworkRelative = $frameworkAbsolute.Substring($projectRootForward.Length).TrimStart('/')
+
+function Resolve-PrefixDirectoryPath {
+    param([string]$PrefixName, [string]$RawPath)
+    # PF-* prefix registries are rolled out alongside the framework, so their
+    # `directories.*` fields are written as "process-framework/..." (the canonical
+    # rolled-out layout). In appdev that prefix needs to be rewritten to the
+    # configured framework path (e.g. "blueprint/process-framework/...").
+    if ($PrefixName -like 'PF-*') {
+        if ($RawPath -match '^process-framework[/\\]') {
+            return ($RawPath -replace '^process-framework[/\\]', "$frameworkRelative/")
+        }
+        if ($RawPath -eq 'process-framework') {
+            return $frameworkRelative
+        }
+    }
+    return $RawPath
+}
+
 Write-Host "🔍 Validating ID Registry..." -ForegroundColor Cyan
 Write-Host ""
 
@@ -72,7 +99,8 @@ foreach ($prefixName in $registry.prefixes.PSObject.Properties.Name) {
         $dirs = @()
         foreach ($dirProp in $prefix.directories.PSObject.Properties) {
             if ($dirProp.Name -eq "default") { continue }
-            $absDir = (Join-Path -Path $ProjectRoot -ChildPath $dirProp.Value).Replace('\', '/')
+            $resolvedRel = Resolve-PrefixDirectoryPath -PrefixName $prefixName -RawPath $dirProp.Value
+            $absDir = (Join-Path -Path $ProjectRoot -ChildPath $resolvedRel).Replace('\', '/')
             $dirs += $absDir
         }
         $prefixDirectories[$prefixName] = $dirs
@@ -104,6 +132,21 @@ foreach ($scanRoot in $scanRoots) {
     $files = Get-ChildItem -Path $scanRoot -Recurse -Filter "*.md" -ErrorAction SilentlyContinue
 
     foreach ($file in $files) {
+        # Exclude E2E fixture directories: workspace/, sandbox-central-seed/, sandbox-central/,
+        # synthetic-appdev/, synthetic-appdev-seed/, .rollback-worktree-*/. These are runtime
+        # artifacts or deliberate copies of real central files for test consumption — their
+        # frontmatter IDs (e.g. PF-SST-001 in script-soak-tracking.md) mirror the real artifact's
+        # ID but live at the test-case path, which would otherwise be flagged as wrong-prefix.
+        $pathSegments = $file.FullName.Replace('\', '/').Split('/')
+        $isFixtureDir = $false
+        foreach ($seg in $pathSegments) {
+            if ($seg -in @('workspace', 'sandbox-central-seed', 'sandbox-central', 'synthetic-appdev', 'synthetic-appdev-seed') -or $seg -like '.rollback-worktree-*') {
+                $isFixtureDir = $true
+                break
+            }
+        }
+        if ($isFixtureDir) { continue }
+
         $content = Get-Content $file.FullName -Raw -ErrorAction SilentlyContinue
         if (-not $content -or $content -notmatch "(?m)^---\s*\nid:\s*([A-Z]+-[A-Z]+-\d+)") { continue }
 
@@ -190,7 +233,8 @@ foreach ($prefixName in $registry.prefixes.PSObject.Properties.Name) {
     if ($prefix.directories) {
         foreach ($dirProp in $prefix.directories.PSObject.Properties) {
             if ($dirProp.Name -eq "default") { continue }
-            $dirPath = Join-Path -Path $ProjectRoot -ChildPath $dirProp.Value
+            $resolvedRel = Resolve-PrefixDirectoryPath -PrefixName $prefixName -RawPath $dirProp.Value
+            $dirPath = Join-Path -Path $ProjectRoot -ChildPath $resolvedRel
             if (-not (Test-Path $dirPath)) {
                 $invalidDirectories += [PSCustomObject]@{
                     Prefix = $prefixName

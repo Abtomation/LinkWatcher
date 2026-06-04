@@ -156,7 +156,7 @@ try {
     # Build absolute template path using project root
     $projectRoot = Get-ProjectRoot
     $templateFileName = if ($Lightweight) { "feature-implementation-state-lightweight-template.md" } else { "feature-implementation-state-template.md" }
-    $templatePath = Join-Path $projectRoot "process-framework/templates/04-implementation/$templateFileName"
+    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/04-implementation/$templateFileName"
 
     if (-not (Test-Path $templatePath)) {
         Write-ProjectError -Message "Feature implementation state template not found at: $templatePath - Template file required: $templateFileName" -ExitCode 1
@@ -166,9 +166,12 @@ try {
         Write-Host "  Using lightweight template (Tier 1 / retrospective)" -ForegroundColor Cyan
     }
 
-    # Build document name — include FeatureId prefix when provided
-    # Replace spaces with hyphens to prevent broken markdown links in VS Code and other renderers
-    $sanitizedName = $FeatureName -replace '\s+', '-'
+    # Build document name — include FeatureId prefix when provided.
+    # Slug the FeatureName (preserving case to maintain Title-Case convention of
+    # existing 0.X-Feature-Name-implementation-state.md files) via the canonical
+    # helper from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008). The FeatureId
+    # is concatenated separately so its dots are preserved.
+    $sanitizedName = ConvertTo-FeatureSlug -Name $FeatureName -Convention 'kebab-case' -PreserveCase
     $docName = if ($FeatureId -ne "") { "$FeatureId-$sanitizedName-implementation-state" } else { "$sanitizedName-implementation-state" }
 
     # Use FileNamePattern to preserve dots in feature ID (ConvertTo-KebabCase would replace dots with hyphens)
@@ -282,7 +285,7 @@ try {
     # --- Post-action: Update source structure if source-code-layout.md exists ---
     $layoutDocPath = Join-Path $projectRoot "doc/technical/architecture/source-code-layout.md"
     if ((Test-Path $layoutDocPath) -and $FeatureName -ne "") {
-        $sourceStructureScript = Join-Path $projectRoot "process-framework/scripts/file-creation/00-setup/New-SourceStructure.ps1"
+        $sourceStructureScript = Join-Path (Get-ProcessFrameworkPath) "scripts/file-creation/00-setup/New-SourceStructure.ps1"
         if (Test-Path $sourceStructureScript) {
             try {
                 Write-Host "  Updating source structure for feature '$FeatureName'..." -ForegroundColor Cyan
@@ -291,6 +294,20 @@ try {
                 Write-Host "  Warning: Source structure update failed: $($_.Exception.Message)" -ForegroundColor Yellow
                 Write-Host "  Run manually: New-SourceStructure.ps1 -Update -FeatureName `"$FeatureName`"" -ForegroundColor Yellow
             }
+        }
+    }
+
+    # --- Post-action: Update test infrastructure (PF-IMP-871 / PF-PRO-034 Phase 3a wiring) ---
+    # Parallel to source-structure update. Scaffolds nested test/audit dirs for any
+    # feature-tracking categories/subgroups that don't yet have their unit dirs.
+    $testInfraScript = Join-Path (Get-ProcessFrameworkPath) "scripts/file-creation/00-setup/New-TestInfrastructure.ps1"
+    if (Test-Path $testInfraScript) {
+        try {
+            Write-Host "  Updating test infrastructure (feature-tracking-driven dirs)..." -ForegroundColor Cyan
+            & $testInfraScript -Update -Confirm:$false
+        } catch {
+            Write-Host "  Warning: Test infrastructure update failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "  Run manually: New-TestInfrastructure.ps1 -Update" -ForegroundColor Yellow
         }
     }
 

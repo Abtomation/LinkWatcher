@@ -101,7 +101,7 @@ $additionalMetadataFields = @{
 
 try {
     $documentId = New-StandardProjectDocument `
-        -TemplatePath "process-framework/templates/02-design/api-documentation-template.md" `
+        -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/02-design/api-documentation-template.md") `
         -IdPrefix "PD-API" `
         -IdDescription "API Documentation: $APIName" `
         -DocumentName $APIName `

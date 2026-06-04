@@ -28,6 +28,7 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [Codebase Source Migration](00-setup/codebase-source-migration-task.md) | Relocate legacy source into the scaffolded per-feature src/ directories during onboarding, file-by-file, with behavior-preserving per-item verification | When working on Codebase Source Migration |
 | [Codebase Feature Discovery](00-setup/codebase-feature-discovery.md) | Systematically discover all features in an existing codebase and assign every source file to at least one feature | When adopting the framework into an existing project |
 | [Codebase Feature Analysis](00-setup/codebase-feature-analysis.md) | Analyze implementation patterns, dependencies, and design decisions for each discovered feature | After feature discovery |
 | [Retrospective Documentation Creation](00-setup/retrospective-documentation-creation.md) | Create tier assessments and required design documentation for all analyzed features | After feature analysis |
@@ -46,6 +47,7 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [UI Design](02-design/ui-design-task.md) | Systematic UI/UX design planning before implementation: translate functional requirements into wireframes, visual specifications, component definitions, accessibility requirements, and platform adaptations as a PD-UIX design document. | When working on UI Design |
 | [Integration Narrative Creation](02-design/integration-narrative-creation.md) | Create Integration Narratives for cross-feature workflows | When all workflow features reach Implemented status, or reactively during bug fixes requiring cross-feature understanding |
 | [FDD Creation](02-design/fdd-creation-task.md) | Create Functional Design Documents for features requiring functional specification | When Tier 2+ features need functional design |
 | [TDD Creation](02-design/tdd-creation-task.md) | Create Technical Design Documents | When assessed features need technical design |
@@ -122,6 +124,8 @@ The task-based approach helps to:
 
 | Task | Description | When to Use |
 | ---- | ----------- | ----------- |
+| [IMP Triage](support/imp-triage-task.md) | Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected. Detect duplicate-topic clusters across open sections and consolidate them into new Extension IMPs. | When working on IMP Triage |
+| [Framework Rollout](support/framework-rollout-task.md) | Deploy framework code from canonical appdev to registered projects. Phase 1 (cwd=appdev): commit + tag appdev, push to GitHub remote, mirror process-framework to projects. Phase 2 (cwd=Project): apply per-project working-doc migrations from the central pending-migrations ledger. | When working on Framework Rollout |
 | [framework-blueprint-sync](support/framework-blueprint-sync-task.md) | Propagate framework improvements made within real working projects back to the corresponding FrameworkBuilder blueprint, ensuring blueprints stay current with battle-tested evolutions. Covers all top-level framework directories (process-framework, doc, test, src, root files) — not limited to any one subdir. User specifies the target framework variant; sync flows project to blueprint only. | When working on framework-blueprint-sync |
 | [New Task Creation Process](support/new-task-creation-process.md) | Complete process for creating new tasks | When the framework needs a new task definition |
 | [Process Improvement](support/process-improvement-task.md) | Implement specific process improvements | When a process needs enhancement |
@@ -158,7 +162,7 @@ At the end of each task, feedback should be collected on the tools used during t
 1. **Create Feedback Form**: Use the [feedback form template](../templates/support/feedback-form-template.md)
 2. **Evaluate Tools**: Rate and provide comments on each tool's effectiveness, clarity, completeness, and efficiency
 3. **Suggest Improvements**: Document what worked well and what could be improved
-4. **Save Feedback**: Store the feedback form (artifact) in the `/process-framework-local/feedback/feedback-forms` directory with the naming convention `YYYYMMDD-HHMMSS-document-id-feedback.md`
+4. **Save Feedback**: Store the feedback form (artifact) in the `appdev/process-framework-central/feedback/feedback-forms/` directory with the naming convention `YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-XXX_feedback.md`
 
 > **Important**: Feedback forms are artifacts (using PF-FEE-XXX IDs), not documents. They evaluate documents (with [PREFIX]-XXX-XXX IDs).
 
@@ -177,7 +181,7 @@ Tasks in this system are designed to be self-documenting through their outputs:
 
 State tracking is a core component of the task-based approach:
 
-1. **State Files**: Located in `/process-framework-local/state-tracking` directory
+1. **State Files**: Located in `doc/state-tracking` (project-local) and `appdev/process-framework-central/state-tracking/` (cross-project)
 2. **Consistent Updates**: Each task must update relevant state files
 3. **Project Status**: State files reflect the current project status
 4. **Task Transitions**: State files guide transitions between tasks

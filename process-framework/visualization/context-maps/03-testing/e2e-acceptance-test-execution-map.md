@@ -7,6 +7,7 @@ created: 2026-03-15
 updated: 2026-03-15
 workflow_phase: 03-testing
 related_task: PF-TSK-070
+description: "Components for executing E2E acceptance test cases and recording results"
 ---
 
 # E2E Acceptance Test Execution Context Map
@@ -77,9 +78,9 @@ graph TD
 
 ## Related Documentation
 
-- [E2E Acceptance Test Execution Task](/process-framework/tasks/03-testing/e2e-acceptance-test-execution-task.md) - Full task definition
-- [E2E Acceptance Test Case Creation Task](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Upstream task creating test cases
-- [Test Tracking](/test/state-tracking/permanent/test-tracking.md) - Test status tracking
-- [Feature Tracking](/doc/state-tracking/permanent/feature-tracking.md) - Feature-level status
+- [E2E Acceptance Test Execution Task](../../../tasks/03-testing/e2e-acceptance-test-execution-task.md) - Full task definition
+- [E2E Acceptance Test Case Creation Task](../../../tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - Upstream task creating test cases
+- [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test status tracking
+- [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature-level status
 
 ---

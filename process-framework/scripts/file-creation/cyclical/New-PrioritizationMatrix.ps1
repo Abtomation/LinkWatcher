@@ -89,7 +89,7 @@ $additionalMetadataFields = @{
 
 try {
     $documentId = New-StandardProjectDocument `
-        -TemplatePath "process-framework/templates/cyclical/prioritization-matrix-template.md" `
+        -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/prioritization-matrix-template.md") `
         -IdPrefix "PD-TDA" `
         -IdDescription "Prioritization Matrix: $MatrixName" `
         -DocumentName $MatrixName `

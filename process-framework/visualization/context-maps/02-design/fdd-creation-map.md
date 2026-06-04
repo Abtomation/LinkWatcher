@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-08-01
 updated: 2025-08-01
 related_task: PF-TSK-027
+description: "Components for creating Functional Design Documents"
 ---
 
 # FDD Creation Context Map

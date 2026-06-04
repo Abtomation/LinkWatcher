@@ -7,7 +7,7 @@
 Creates a new task definition document with an automatically assigned PF-TSK ID.
 
 .DESCRIPTION
-Generates a new task definition file from the task template under process-framework/tasks/<workflow-phase>/. Updates the PF-id-registry, ai-tasks.md task registry, and PF-documentation-map.md.
+Generates a new task definition file from the task template under process-framework/tasks/<workflow-phase>/. Updates the PF-id-registry and ai-tasks.md task registry. (PF-documentation-map.md is generated separately by Build-DocumentationMap.ps1.)
 
 .PARAMETER TaskName
 Human-readable name for the task. Used as the document title and converted to kebab-case for the filename.
@@ -113,9 +113,8 @@ $customReplacements = @{
 }
 
 # Create the document using standardized process
-# Build absolute template path
-$projectRoot = Get-ProjectRoot
-$processFrameworkDir = Join-Path $projectRoot "process-framework"
+# Build absolute template path (config-driven; honors paths.process_framework in project-config.json)
+$processFrameworkDir = Get-ProcessFrameworkPath
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\task-template.md"
 
 try {
@@ -131,44 +130,8 @@ try {
 
     Write-Verbose "Created task with ID: $taskId"
 
-    # Update the documentation map
-    $docMapPath = Join-Path -Path $processFrameworkDir -ChildPath "PF-documentation-map.md"
-    if (Test-Path $docMapPath) {
-        if ($PSCmdlet.ShouldProcess("Update documentation map with new task")) {
-            $docMap = Get-Content -Path $docMapPath
-            # Map workflow phase to PF-documentation-map.md section header
-            $phaseToDocMapSection = @{
-                "00-setup"          = "#### 00 - Setup Tasks"
-                "01-planning"       = "#### 01 - Planning Tasks"
-                "02-design"         = "#### 02 - Design Tasks"
-                "03-testing"        = "#### 03 - Testing Tasks"
-                "04-implementation" = "#### 04 - Implementation Tasks"
-                "05-validation"     = "#### 05 - Validation Tasks"
-                "06-maintenance"    = "#### 06 - Maintenance Tasks"
-                "07-deployment"     = "#### 07 - Deployment Tasks"
-                "support"           = "#### Support Tasks"
-                "cyclical"          = "#### Cyclical Tasks"
-            }
-            $sectionHeader = $phaseToDocMapSection[$WorkflowPhase]
-            if (-not $sectionHeader) {
-                Write-Warning "Unknown workflow phase '$WorkflowPhase' for documentation map. Manual update required."
-                return
-            }
-            $sectionIndex = $docMap.IndexOf($sectionHeader)
-
-            if ($sectionIndex -ge 0) {
-                # IMP-437: Use list format matching existing doc-map entries
-                $descriptionText = if ($Description -ne "") { $Description } else { "Task for $TaskName" }
-                $newEntry = "- [Task: $TaskName](tasks/$WorkflowPhase/$kebabFileName.md) - $descriptionText"
-                $docMap = $docMap[0..$sectionIndex] + $newEntry + $docMap[($sectionIndex + 1)..($docMap.Length - 1)]
-                $docMap | Set-Content -Path $docMapPath
-                Write-Verbose "Updated documentation map with new task"
-            }
-            else {
-                Write-Warning "Could not find section '$sectionHeader' in documentation map. Manual update required."
-            }
-        }
-    }
+    # PF-documentation-map.md is generated from each task's `description:` frontmatter
+    # by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
 
     # Update the tasks README
     $tasksReadmePath = Join-Path -Path $processFrameworkDir -ChildPath "tasks\README.md"
@@ -228,7 +191,7 @@ try {
     }
 
     # Update the AI Tasks main entry point
-    $aiTasksPath = Join-Path -Path $projectRoot -ChildPath "process-framework/ai-tasks.md"
+    $aiTasksPath = Join-Path -Path (Get-ProcessFrameworkPath) -ChildPath "ai-tasks.md"
     if (Test-Path $aiTasksPath) {
         if ($PSCmdlet.ShouldProcess("Update AI Tasks main entry point with new task")) {
             $aiTasks = Get-Content -Path $aiTasksPath
@@ -273,7 +236,10 @@ try {
             Write-Verbose "✓ ai-tasks.md structure validation passed"
 
             # Determine the section header based on category
-            $relativePath = "/process-framework/tasks/$WorkflowPhase/$kebabFileName.md"
+            # PF-IMP-886: relative path from ai-tasks.md (which lives at <process-framework-root>/ai-tasks.md)
+            # to the task file. Previously emitted "/process-framework/tasks/..." (absolute-from-host)
+            # which breaks post-Phase-5.5 in appdev cwd (framework lives under blueprint/process-framework/).
+            $relativePath = "tasks/$WorkflowPhase/$kebabFileName.md"
 
             # Map workflow phase to section header (process-framework/ai-tasks.md uses phase-based sections)
             $phaseToSection = @{
@@ -438,7 +404,6 @@ try {
 
     if (-not $OpenInEditor) {
         Write-Verbose "Task created successfully with automatic updates to:"
-        Write-Verbose "  - Documentation map"
         Write-Verbose "  - Tasks README"
         Write-Verbose "  - AI Tasks main entry point"
         Write-Verbose "  - Process Framework Task Registry"

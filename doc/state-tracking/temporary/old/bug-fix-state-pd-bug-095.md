@@ -70,7 +70,7 @@ bug_id: PD-BUG-095
 |------------------|----------------|--------|---------|
 | `src/linkwatcher/utils.py` | Add `looks_like_regex_or_glob()`; gate `looks_like_file_path` and `looks_like_directory_path` on it | Not Started | 1 |
 | `src/linkwatcher/path_resolver.py` | Add existence guard in `_calculate_new_target_relative` (mirror PD-BUG-033) | Not Started | 1 |
-| `test/automated/integration/test_link_updates.py` | Add regression tests for directory-move scenario (Bug 095) | Not Started | 1 |
+| `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py` | Add regression tests for directory-move scenario (Bug 095) | Not Started | 1 |
 | `test/automated/parsers/test_*.py` (or `test/automated/unit/test_utils.py`) | Add unit tests for `looks_like_regex_or_glob` and gating behavior | Not Started | 1 |
 | `process-framework/scripts/validation/Validate-StateTracking.ps1:265-267` | Restore corrupted regex (`'../^## 4/. ...'` → `'^## 4\. ...'`) | Not Started | 1 |
 | `process-framework/scripts/update/Update-ScriptReferences.ps1:63` | Restore corrupted glob (`'../*.md'` → `'*.md'`) | Not Started | 1 |

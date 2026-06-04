@@ -2,9 +2,10 @@
 id: PF-GDE-060
 type: Process Framework
 category: Guide
-version: 1.1
+version: 1.2
 created: 2026-04-09
-updated: 2026-04-10
+updated: 2026-05-14
+description: "4-level performance testing methodology with baselines, trend tracking, and decision matrix"
 ---
 
 # Performance Testing Guide
@@ -20,7 +21,7 @@ Performance testing is a **cross-cutting concern** — tests are not owned by in
 Consult this guide when:
 
 - **Creating new performance tests** — use the test level definitions and measurement methodology
-- **Deciding whether a feature needs performance tests** — see the [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) (decision matrix lives there)
+- **Deciding whether a feature needs performance tests** — see the [Performance & E2E Test Scoping Guide](performance-and-e2e-test-scoping-guide.md) (decision matrix lives there)
 - **Setting or updating baselines** — follow the baseline management process
 - **Interpreting trend data** — use the trend analysis section to understand regressions vs. noise
 
@@ -136,13 +137,13 @@ def test_bm_001_parsing_throughput(self, tmp_path):
 
 ## Decision Matrix
 
-> **Migrated**: The performance test decision matrix has moved to the [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix), which is the authoritative reference for "when to create performance tests." This guide focuses on "how to test" — levels, baselines, and trends.
+> **Migrated**: The performance test decision matrix has moved to the [Performance & E2E Test Scoping Guide](performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix), which is the authoritative reference for "when to create performance tests." This guide focuses on "how to test" — levels, baselines, and trends.
 
 ### Trigger Points in the Workflow
 
 Performance testing is triggered at these points:
 
-1. **After code review** — The [Performance & E2E Test Scoping task (PF-TSK-086)](/process-framework/tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the decision matrix and adds entries to performance-test-tracking.md
+1. **After code review** — The [Performance & E2E Test Scoping task (PF-TSK-086)](../../tasks/03-testing/performance-and-e2e-test-scoping-task.md) applies the decision matrix and adds entries to performance-test-tracking.md
 2. **Definition of Done** — "No regression in Operation benchmarks (verified via Baseline Capture)"
 3. **Pre-release verification** — Run Baseline Capture, verify no regressions
 4. **Post-refactoring** — If performance-affecting code changed, trigger Baseline Capture
@@ -151,13 +152,18 @@ Performance testing is triggered at these points:
 
 ### File Organization
 
-All performance tests live in `test/automated/performance/`. Use these conventions:
+Performance tests live under `test/automated/performance/`, organized into four level subdirectories that mirror the [Performance Test Levels](#performance-test-levels) above. The 4-level taxonomy is framework-fixed (set by methodology, not per project) — the directory names are the canonical placement target for each test:
 
-| File | Contents |
-|------|----------|
-| `test_benchmark.py` | Component and Operation benchmarks (BM-xxx) |
-| `test_large_projects.py` | Scale tests (PH-xxx) and Resource bounds |
-| Additional files | Named by subsystem if benchmarks grow large |
+| Level | Directory | Test ID Pattern | Typical Contents |
+|-------|-----------|-----------------|------------------|
+| 1 — Component | `test/automated/performance/level1-component/` | BM-xxx | Single-subsystem throughput / latency benchmarks |
+| 2 — Operation | `test/automated/performance/level2-operation/` | BM-xxx | Cross-cutting end-to-end operation benchmarks |
+| 3 — Scale | `test/automated/performance/level3-scale/` | PH-xxx | Extreme-condition completion-time tests |
+| 4 — Resource | `test/automated/performance/level4-resource/` | PH-xxx | Memory / CPU ceiling tests |
+
+The blueprint provides these four directories with `.gitkeep` markers; `New-TestInfrastructure.ps1 -Update` recreates them if deleted. Within each level dir, name the test file by the subsystem or scenario being measured (e.g., `level1-component/test_parser_throughput.py`, `level3-scale/test_large_projects.py`).
+
+**Audit mirror**: Audit reports for performance tests are routed by path transformation — a test at `test/automated/performance/level{N}-{name}/test_foo.py` audits to `test/audits/performance/level{N}-{name}/`. The four audit-side level directories are blueprint-provided and maintained by the same recovery path in `New-TestInfrastructure.ps1 -Update`.
 
 ### Test ID Conventions
 
@@ -372,18 +378,18 @@ python process-framework/scripts/test/performance_db.py export --format csv
 
 ### Tracking File
 
-**Location**: [performance-test-tracking.md](/test/state-tracking/permanent/performance-test-tracking.md)
+**Location**: [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md)
 
 Combined registry + baselines + lifecycle status. Single source of truth for all performance tests.
 
 **Lifecycle**: ⬜ Needs Creation → 📋 Needs Baseline → ✅ Audit Approved → ✅ Baselined → ⚠️ Needs Re-baseline
 
-> **Audit gate**: Newly created tests (`📋 Needs Baseline`) must pass [Test Audit (PF-TSK-030)](/process-framework/tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture. The `⚠️ Needs Re-baseline` → `✅ Baselined` path is exempt (tests were already audited when first created).
+> **Audit gate**: Newly created tests (`📋 Needs Baseline`) must pass [Test Audit (PF-TSK-030)](../../tasks/03-testing/test-audit-task.md) with `-TestType Performance` before baseline capture. The `⚠️ Needs Re-baseline` → `✅ Baselined` path is exempt (tests were already audited when first created).
 
 ### Results Database
 
 **Location**: `test/state-tracking/permanent/performance-results.db` (SQLite)
-**Script**: [performance_db.py](/process-framework/scripts/test/performance_db.py)
+**Script**: [performance_db.py](../../scripts/test/performance_db.py)
 
 Stores historical measurements for trend analysis. Each record includes test ID, value, unit, timestamp, and git commit.
 
@@ -423,9 +429,9 @@ Stores historical measurements for trend analysis. Each record includes test ID,
 
 ## Related Resources
 
-- [Performance & E2E Test Scoping Guide](/process-framework/guides/03-testing/performance-and-e2e-test-scoping-guide.md) — Decision matrix for "when to test" (companion to this guide's "how to test")
-- [Performance Test Tracking](/test/state-tracking/permanent/performance-test-tracking.md) — Registry of all performance tests with baselines
-- [Performance Results Database](/process-framework/scripts/test/performance_db.py) — Trend storage and query tool
-- [Test Infrastructure Guide](/process-framework/guides/03-testing/test-infrastructure-guide.md) — How test/ connects to the framework
-- [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) — Performance section (Section 8)
-- [Development Dimensions Guide](/process-framework/guides/framework/development-dimensions-guide.md) — PE dimension definition
+- [Performance & E2E Test Scoping Guide](performance-and-e2e-test-scoping-guide.md) — Decision matrix for "when to test" (companion to this guide's "how to test")
+- [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Registry of all performance tests with baselines
+- [Performance Results Database](../../scripts/test/performance_db.py) — Trend storage and query tool
+- [Test Infrastructure Guide](test-infrastructure-guide.md) — How test/ connects to the framework
+- [Definition of Done](../04-implementation/definition-of-done.md) — Performance section (Section 8)
+- [Development Dimensions Guide](../framework/development-dimensions-guide.md) — PE dimension definition

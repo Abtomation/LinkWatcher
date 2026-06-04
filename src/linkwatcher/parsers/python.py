@@ -31,7 +31,7 @@ AI Context
     prefix list and ``_STDLIB_TOP_LEVEL_MODULES`` filtering.
   - Debugging missed docstring paths: verify triple-quote state
     tracking toggles correctly for the input.
-  - Testing: ``test/automated/parsers/test_python.py``.
+  - Testing: ``test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py``.
 """
 
 import os

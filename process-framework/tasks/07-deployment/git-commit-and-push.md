@@ -3,9 +3,10 @@ id: PF-TSK-082
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.2
+version: 1.3
 created: 2026-04-07
-updated: 2026-05-01
+updated: 2026-05-16
+description: "Commit current working directory changes and push to remote repository"
 ---
 
 # Git Commit and Push
@@ -20,12 +21,6 @@ Commit all changes in the current working directory and push them to the remote 
 **Mindset**: Precise, safety-conscious, scope-aware
 **Focus Areas**: Correct staging scope, meaningful commit messages, preventing accidental inclusion of sensitive or unrelated files
 **Communication Style**: Confirm scope before acting, report what was committed and pushed
-
-## When to Use
-
-- When the human partner asks to commit and/or push changes to GitHub
-- When a task has been completed and the results should be persisted to the remote repository
-- After any session where code or documentation changes should be saved
 
 ## Context Requirements
 
@@ -67,7 +62,7 @@ git add .
 Review staged files for items that should typically be gitignored. Present any matches to the human partner before proceeding:
 
 ```bash
-git diff --cached --name-only | grep -iE '(__pycache__|\.pyc$|\.pyo$|\.db$|\.sqlite3?$|node_modules|\.coverage$|\.egg-info|dist/|build/|\.o$|\.so$|\.dll$|\.exe$|\.class$|\.jar$|\.log$|\.lock$|\.tmp$|\.swp$|\.DS_Store|Thumbs\.db)'
+git diff --cached --name-only | grep -iE '(__pycache__|\.pyc$|\.pyo$|\.db$|\.sqlite3?$|\.sqbpro$|node_modules|\.coverage$|\.egg-info|dist/|build/|\.o$|\.so$|\.dll$|\.exe$|\.class$|\.jar$|\.log$|\.lock$|\.tmp$|\.swp$|\.bak$|\.pdf$|\.DS_Store|Thumbs\.db)'
 ```
 
 If matches are found:
@@ -135,7 +130,7 @@ Report the commit hash and summary to the human partner.
 
 ## Tools and Scripts
 
-- **[start_linkwatcher_background.ps1](/process-framework/tools/linkWatcher/start_linkwatcher_background.ps1)** — Start LinkWatcher in background (Step 8: restart after push)
+- **[start_linkwatcher_background.ps1](../../tools/linkWatcher/start_linkwatcher_background.ps1)** — Start LinkWatcher in background (Step 8: restart after push)
 - **[New-FeedbackForm.ps1](../../scripts/file-creation/support/New-FeedbackForm.ps1)** — Create feedback forms for task completion
 
 ## Outputs
@@ -168,6 +163,6 @@ This task does not update any process framework state files. It operates on the 
 
 ## Related Resources
 
-- [Release & Deployment Task](/process-framework/tasks/07-deployment/release-deployment-task.md) — For formal release preparation (broader scope than a simple push)
-- [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) — For interpreting context map diagrams
+- [Release & Deployment Task](release-deployment-task.md) — For formal release preparation (broader scope than a simple push)
+- [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) — Guide for creating and improving tasks

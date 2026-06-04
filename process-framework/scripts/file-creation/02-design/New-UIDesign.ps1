@@ -1,107 +1,51 @@
 # New-UIDesign.ps1
-# Creates a new UI/UX Design Document with an automatically assigned ID
-# Uses the central ID registry system and standardized document creation
+# Creates a new UI/UX Design Document with an automatically assigned ID.
+#
+# Refactored 2026-05-08 (PF-PRO-002 Phase 2 / option B): orchestration delegated
+# to Invoke-DesignArtifactCreation in Common-ScriptHelpers/DesignArtifactCreation.psm1.
 
 <#
 .SYNOPSIS
-    Creates a new UI/UX Design Document with an automatically assigned ID.
+    Creates a new UI/UX Design Document (PD-UIX-XXX).
 
 .DESCRIPTION
-    This PowerShell script generates UI/UX Design Documents by:
-    - Generating a unique document ID (PD-UIX-XXX)
-    - Creating a properly formatted UI Design document file
-    - Updating the ID tracker in the central ID registry
-    - Providing a complete template for UI/UX specifications
-    - Automatically updating feature tracking with UI Design completion status
-    - Linking the UI Design document in the feature tracking table
+    Generates a UI Design document, appends to PD-documentation-map.md, updates
+    master Status, and inserts a row into the feature state file's §4
+    Documentation Inventory.
 
 .PARAMETER FeatureId
-    The Feature ID from feature tracking (e.g., "1.1.1", "2.3.4")
-
 .PARAMETER FeatureName
-    The name of the feature for which the UI Design is being created
-
 .PARAMETER Description
-    Optional description of the UI design's purpose and scope
-
 .PARAMETER OpenInEditor
-    If specified, opens the created file in the default editor
-
 .PARAMETER DryRun
-    If specified, shows what would be updated in feature tracking without making changes
-
-.EXAMPLE
-    .\New-UIDesign.ps1 -FeatureId "1.1.1" -FeatureName "User Registration"
-    # Creates: ui-design-1-1-1-user-registration.md
-
-.EXAMPLE
-    .\New-UIDesign.ps1 -FeatureId "2.3.4" -FeatureName "Room Filtering" -Description "UI for advanced filtering system" -OpenInEditor
-    # Creates: ui-design-2-3-4-room-filtering.md
-
-.EXAMPLE
-    .\New-UIDesign.ps1 -FeatureId "1.2.3" -FeatureName "Payment Processing" -Description "Stripe payment UI flow" -DryRun
-    # Shows what would be updated in feature tracking without making changes
-
-.NOTES
-    - Requires PowerShell execution policy to allow script execution
-    - Automatically updates the central ID registry with new ID assignments
-    - Creates the output directory if it doesn't exist
-    - Uses standardized document creation process
-    - MUST consult design-guidelines.md (PD-UIX-001) during UI Design creation
-
-    Template Metadata:
-    - Template ID: PF-TEM-TBD
-    - Template Type: Document Creation Script
-    - Created: 2025-01-18
-    - For: Creating UI/UX Design Documents from templates
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$FeatureId,
-
-    [Parameter(Mandatory = $true)]
-    [string]$FeatureName,
-
-    [Parameter(Mandatory = $false)]
-    [string]$Description = "",
-
-    [Parameter(Mandatory = $false)]
-    [switch]$OpenInEditor,
-
-    [Parameter(Mandatory = $false)]
-    [switch]$DryRun
+    [Parameter(Mandatory = $true)]  [string]$FeatureId,
+    [Parameter(Mandatory = $true)]  [string]$FeatureName,
+    [Parameter(Mandatory = $false)] [string]$Description = "",
+    [Parameter(Mandatory = $false)] [switch]$OpenInEditor,
+    [Parameter(Mandatory = $false)] [switch]$DryRun
 )
 
-# Import the common helpers with walk-up path resolution
+# Walk-up Common-ScriptHelpers import
 $dir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
-try {
-    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
-} catch {
-    Write-Error "Failed to import Common-ScriptHelpers module. Searched up from: $PSScriptRoot"
-    exit 1
-}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
 Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
 Register-SoakScript
 
-# Prepare additional metadata fields
-$additionalMetadataFields = @{
-    "feature_id"   = $FeatureId
-    "feature_name" = $FeatureName
-}
+# ---- Per-type composition ----
+$featureIdForFilename = $FeatureId.Replace('.', '-')
+$featureNameForFilename = ConvertTo-FeatureSlug -Name $FeatureName -Convention 'kebab-case'
+$customFileName = "ui-design-$featureIdForFilename-$featureNameForFilename.md"
+$uiRelativePath = "doc/technical/design/ui-ux/features/$customFileName"
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/ui-design-template.md"
 
-# Prepare custom replacements for the template
 $customReplacements = @{
     "[Feature ID]"          = $FeatureId
     "[Feature Name]"        = $FeatureName
@@ -109,21 +53,37 @@ $customReplacements = @{
     "[Date]"                = Get-Date -Format "yyyy-MM-dd"
     "[Author]"              = "AI Agent & Human Partner"
 }
+$additionalMetadataFields = @{
+    "feature_id"   = $FeatureId
+    "feature_name" = $FeatureName
+}
 
-# Create the document using standardized process
+# ---- Delegate orchestration ----
 try {
-    # Use DirectoryType for ID registry-based directory resolution
-    # Get the absolute path to the template using project root for reliability
-    $templatePath = Join-Path (Get-ProjectRoot) "process-framework/templates/02-design/ui-design-template.md"
+    $invokeArgs = @{
+        ArtifactType               = "UI Design"
+        IdPrefix                   = "PD-UIX"
+        IdDescription              = "ui-design-$featureIdForFilename-$featureNameForFilename"
+        TemplatePath               = $templatePath
+        FileNamePattern            = $customFileName
+        DocumentName               = $FeatureName
+        DirectoryType              = "features"
+        FeatureId                  = $FeatureId
+        FeatureName                = $FeatureName
+        Replacements               = $customReplacements
+        AdditionalMetadataFields   = $additionalMetadataFields
+        DocMapSectionHeader        = "### ``technical/design/ui-ux/features/``"
+        DocMapEntryFormatter       = { param($id) "- [UI Design: $FeatureName ($id)](technical/design/ui-ux/features/$customFileName) - $FeatureId UI/UX Design Document" }
+        NewMasterStatus            = "🎨 UI Design Created"
+        MasterStatusNotesFormatter = { param($id) "UI Design created: $id ($(Get-ProjectTimestamp -Format 'Date'))" }
+        ArtifactRelativePath       = $uiRelativePath
+        OpenInEditor               = $OpenInEditor
+        DryRun                     = $DryRun
+        CallerCmdlet               = $PSCmdlet
+    }
+    $result = Invoke-DesignArtifactCreation @invokeArgs
 
-    # Generate filename with feature ID prefix for better organization and traceability
-    $featureIdForFilename = $FeatureId.Replace('.', '-')
-    $featureNameForFilename = $FeatureName.ToLower().Replace(' ', '-').Replace('_', '-')
-    $customFileName = "ui-design-$featureIdForFilename-$featureNameForFilename.md"
-
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-UIX" -IdDescription "ui-design-$featureIdForFilename-$featureNameForFilename" -DocumentName $FeatureName -DirectoryType "features" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
-
-    # Provide success details
+    # ---- Display ----
     $details = @(
         "Feature ID: $FeatureId",
         "Feature Name: $FeatureName",
@@ -133,94 +93,16 @@ try {
         "   ⚠️  All UI Design work MUST follow the established design system patterns",
         ""
     )
-
-    # Add conditional details
-    if ($Description -ne "") {
-        $details += "Description: $Description"
+    if ($Description -ne "") { $details += "Description: $Description" }
+    if (-not $OpenInEditor)  { $details += "Customization required — see process-framework/guides/02-design/ui-design-customization-guide.md" }
+    if ($result.DocMapUpdated)   { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
+    if ($result.StateFileResult) {
+        $sf = $result.StateFileResult
+        $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"
     }
 
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/02-design/ui-design-customization-guide.md"
-    }
-
-    Write-ProjectSuccess -Message "Created UI/UX Design Document with ID: $documentId" -Details $details
-
-    # 🚀 AUTOMATION ENHANCEMENT: Update feature tracking with UI Design completion
-    Write-Host ""
-    Write-Host "🤖 Updating Feature Tracking..." -ForegroundColor Yellow
-
-    try {
-        # Validate dependencies for automation
-        $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
-            "Update-FeatureTrackingStatus"
-        )
-
-        if (-not $dependencyCheck.AllDependenciesMet) {
-            Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
-            Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Add UI Design link to feature tracking" -ForegroundColor Cyan
-        }
-        else {
-            # Prepare UI Design document link
-            $uiDesignLink = "[$documentId](/doc/technical/design/ui-ux/features/$customFileName)"
-
-            # Prepare additional updates for feature tracking
-            $additionalUpdates = @{
-                "UI Design" = $uiDesignLink
-            }
-
-            # Add notes about UI Design creation
-            $automationNotes = "UI Design created: $documentId ($(Get-ProjectTimestamp -Format 'Date'))"
-
-            if ($DryRun) {
-                Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                Write-Host "  UI Design Link: $uiDesignLink" -ForegroundColor Cyan
-                Write-Host "  Notes: $automationNotes" -ForegroundColor Cyan
-            }
-            else {
-                # Validate prerequisites - ensure FDD exists (UI Design typically follows FDD)
-                Write-Host "  🔍 Validating prerequisites..." -ForegroundColor Cyan
-
-                # Update feature tracking with UI Design completion
-                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status "🎨 UI Design Created" -AdditionalUpdates $additionalUpdates -Notes $automationNotes
-
-                Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                Write-Host "  🔗 UI Design linked in feature tracking" -ForegroundColor Green
-            }
-        }
-    }
-    catch {
-        Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
-        Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Add UI Design link for feature ${FeatureId}: [${documentId}](/doc/technical/design/ui-ux/features/${customFileName})" -ForegroundColor Cyan
-    }
+    Write-ProjectSuccess -Message "Created UI/UX Design Document with ID: $($result.DocumentId)" -Details $details
 }
 catch {
     Write-ProjectError -Message "Failed to create UI/UX Design Document: $($_.Exception.Message)" -ExitCode 1
 }
-
-<#
-.NOTES
-TESTING CHECKLIST:
-Before considering this script complete, test the following:
-
-1. ✅ Script creates UI Design document with proper ID assignment
-2. ✅ Template replacements work correctly
-3. ✅ Directory structure is created if missing
-4. ✅ ID registry is updated properly
-5. ✅ Error handling works for invalid inputs
-6. ✅ OpenInEditor parameter functions correctly
-7. ✅ Success messages provide helpful information
-8. ✅ Feature ID and Name are properly integrated into filename and content
-9. ✅ Generated filename includes feature ID (format: ui-design-[feature-id]-[feature-name].md)
-10. ✅ Feature tracking is automatically updated with UI Design link
-
-CUSTOMIZATION REQUIREMENTS:
-- Ensure ui-design-template.md exists in the templates directory
-- Verify process-framework/guides/02-design/ui-design-customization-guide.md exists for user guidance
-- Verify design-guidelines.md (PD-UIX-001) exists for design system reference
-- Test with various Feature ID formats (e.g., "1.1.1", "2.3.4")
-- Validate filename generation includes feature ID (format: ui-design-[feature-id]-[feature-name].md)
-- Verify filename generation handles special characters in feature names correctly
-#>

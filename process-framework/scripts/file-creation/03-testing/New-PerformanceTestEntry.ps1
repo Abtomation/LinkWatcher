@@ -99,8 +99,7 @@ $soakInSoak = Test-ScriptInSoak
 try {
 
 # Configuration
-$ProjectRoot = Get-ProjectRoot
-$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "test/state-tracking/permanent/performance-test-tracking.md"
+$TrackingFile = Resolve-TrackingFilePath -File "performance-test-tracking.md"
 
 if (-not (Test-Path $TrackingFile)) {
     Write-ProjectError -Message "Tracking file not found: $TrackingFile" -ExitCode 1
@@ -150,7 +149,7 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     }
     if ($inTargetSection) {
         # Match data rows (start with | and contain a test ID or other data)
-        if ($lines[$i] -match "^\|\s*(BM|PH)-\d{3}\b") {
+        if ($lines[$i] -match "^\|\s*(BM|PH)-\d+\b") {
             $insertAfterIndex = $i
         }
         # Stop at next section heading

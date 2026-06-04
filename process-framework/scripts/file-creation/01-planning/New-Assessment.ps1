@@ -8,7 +8,7 @@
 
 .DESCRIPTION
     This script automates the creation of documentation tier assessment files by:
-    - Generating a unique assessment ID (ART-ASS-XXX)
+    - Generating a unique assessment ID (PD-ASS-XXX)
     - Creating a properly formatted assessment file
     - Updating the ID tracker in the central ID registry
     - Providing a complete template for complexity assessment
@@ -92,7 +92,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $assessmentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/01-planning/assessment-template.md" -IdPrefix "PD-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $assessmentId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/01-planning/assessment-template.md") -IdPrefix "PD-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
 
     # Rename the file to include the ID and feature ID in the filename
     $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/documentation-tiers/assessments"
@@ -113,7 +113,7 @@ try {
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/03-testing/assessment-guide.md"
+        $details += "Customization required — see process-framework/guides/01-planning/assessment-guide.md"
     }
 
     Write-ProjectSuccess -Message "Created assessment with ID: $assessmentId" -Details $details

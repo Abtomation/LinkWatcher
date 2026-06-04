@@ -48,7 +48,7 @@ change_name: relocate-linkwatcher-run-with-agnostic-startup-script
 - `main.py`: `--validate` output_dir now resolves from `config.validation_output_dir` (relative to project_root) before falling back to log-file parent or project_root
 - `deployment/install_global.py`: docstring updated; `update_startup_scripts()` removed; `main()` no longer calls it; final usage hint points at the agnostic script
 - `test/automated/bug-validation/test_pd-bug-077_startup_venv_validation.py`: startup-script path
-- `test/automated/unit/test_validator.py`: renamed `test_linkwatcher_run_dir_ignored` → `test_linkwatcher_local_dir_ignored`; assertion path updated
+- `test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py`: renamed `test_linkwatcher_run_dir_ignored` → `test_linkwatcher_local_dir_ignored`; assertion path updated
 - `src/linkwatcher/validator.py`: comment about default ignored dirs updated
 - `.gitignore`: removed stale `LinkWatcher_run/` globs; added `process-framework-local/tools/linkWatcher/{logs/,LinkWatcherBrokenLinks.txt}`
 - `.claude/settings.local.json`: two permission allow-list entries

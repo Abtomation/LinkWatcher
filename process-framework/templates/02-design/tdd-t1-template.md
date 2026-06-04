@@ -24,6 +24,10 @@ documentation_mode: as-built
 additional_fields:
   tier: 1
   feature_id: "[FEATURE_ID]"
+variant_group: tdd-templates
+variant_siblings:
+  - tdd-t2-template.md
+  - tdd-t3-template.md
 ---
 
 # Feature Planning Document: [Feature Name]
@@ -34,7 +38,7 @@ additional_fields:
 
 ## Workflow Context
 
-**Workflows**: [List WF-IDs from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md), or "None" if this feature does not participate in any user workflow]
+**Workflows**: [List WF-IDs from [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md), or "None" if this feature does not participate in any user workflow]
 
 ## User Story
 

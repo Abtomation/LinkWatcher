@@ -29,7 +29,7 @@ AI Context
     ``parse_content()`` with appropriate ordering.
   - Debugging missed imports: check that the path doesn't start
     with ``package:`` or ``dart:`` in ``_extract_imports()``.
-  - Testing: ``test/automated/parsers/test_dart.py``.
+  - Testing: ``test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_dart.py``.
 """
 
 import re

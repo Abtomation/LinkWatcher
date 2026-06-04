@@ -178,14 +178,16 @@ function Test-Prerequisites {
 #     # return ($lines -join "`r`n")
 # }
 #
-# Example — update frontmatter date:
+# Frontmatter date updates: call the shared `Update-FrontmatterDate` helper from
+# Common-ScriptHelpers/DocumentManagement.psm1 (auto-imported via the umbrella). Do NOT
+# redefine inline — earlier copy-paste of an inline regex used `^` without `(?m)`, which
+# silently no-op'd because `updated:` is virtually never the first line of a document.
+# The shared helper has the multiline anchor and is unit-tested.
 #
-# function Update-FrontmatterDate {
-#     param([string]$Content)
-#     $result = $Content -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
-#     Write-Log "Updated frontmatter date to $CurrentDate" -Level "SUCCESS"
-#     return $result
-# }
+# Usage:
+#     $content = Update-FrontmatterDate -Content $content
+#     # or with explicit date:
+#     $content = Update-FrontmatterDate -Content $content -CurrentDate '2026-05-28'
 
 # --- Main ---
 

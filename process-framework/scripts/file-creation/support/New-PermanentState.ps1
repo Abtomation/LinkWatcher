@@ -42,9 +42,12 @@ if ($Description -ne "") {
 }
 
 try {
-    $projectRoot = Get-ProjectRoot
-    $templatePath = Join-Path $projectRoot "process-framework/templates/support/state-file-template.md"
-    $permanentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Permanent state tracking: ${StateName}" -DocumentName $StateName -OutputDirectory "process-framework-local/state-tracking/permanent" -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    # Phase 5.5: configurable framework subtree via paths.process_framework
+    $processFrameworkDir = Get-ProcessFrameworkPath
+    $templatePath = Join-Path $processFrameworkDir "templates/support/state-file-template.md"
+    $stContext = Get-StateTrackingContext
+    $outputDir = "$($stContext.StateTrackingRelative)/permanent"
+    $permanentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Permanent state tracking: ${StateName}" -DocumentName $StateName -OutputDirectory $outputDir -Replacements $customReplacements -OpenInEditor:$OpenInEditor
 
     $details = @(
         "",

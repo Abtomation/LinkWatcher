@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-08-01
 updated: 2025-08-01
 guide_status: Active
+description: "Comprehensive guide for using the Foundation Feature Implementation task effectively"
 ---
 # Foundation Feature Implementation Usage Guide
 

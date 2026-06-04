@@ -256,7 +256,7 @@ $customFileName = "validation-tracking-$RoundNumber.md"
 
 try {
     $documentId = New-StandardProjectDocument `
-        -TemplatePath "process-framework/templates/05-validation/validation-tracking-template.md" `
+        -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/05-validation/validation-tracking-template.md") `
         -IdPrefix "PF-STA" `
         -IdDescription "Validation tracking state for Round $RoundNumber" `
         -DocumentName "Validation Tracking Round $RoundNumber" `

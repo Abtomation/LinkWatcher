@@ -7,7 +7,7 @@ created: 2026-04-16
 updated: 2026-04-16
 auditor: AI Agent
 audit_date: 2026-04-16
-test_file_path: test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-010-file-create-and-rename/test-case.md
+test_file_path: test/e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-010-file-create-and-rename/test-case.md
 feature_id: 1.1.1
 ---
 
@@ -20,7 +20,7 @@ feature_id: 1.1.1
 | **Feature ID** | 1.1.1, 2.1.1, 2.2.1 |
 | **Test Case ID** | TE-E2E-010 |
 | **Test Group** | TE-E2G-005 (runtime-dynamic-operations) |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/runtime-dynamic-operations/TE-E2E-010-file-create-and-rename/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/single-file-move-links-updated/templates/TE-E2E-010-file-create-and-rename/` |
 | **Workflow** | WF-001: Single File Move — Links Updated |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-16 |

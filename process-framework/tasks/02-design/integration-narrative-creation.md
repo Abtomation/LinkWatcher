@@ -3,9 +3,10 @@ id: PF-TSK-083
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.0
+version: 1.1
 created: 2026-04-08
-updated: 2026-04-08
+updated: 2026-05-16
+description: "Create Integration Narratives explaining how 2+ features collaborate in cross-cutting workflows"
 ---
 
 # Integration Narrative Creation
@@ -21,25 +22,13 @@ This task creates Integration Narratives — focused documents that explain how 
 **Focus Areas**: Component interaction patterns, data flow across feature boundaries, callback/event chains, error propagation paths
 **Communication Style**: Present verified findings with source code evidence, flag TDD/code divergence explicitly, ask about workflow scope when boundaries are ambiguous
 
-## When to Use
-
-- When all features in a cross-cutting workflow have reached "Implemented" status in [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md)
-- When a bug fix or maintenance task reveals that cross-feature understanding is required and no Integration Narrative exists
-- When onboarding to a workflow area where individual feature docs don't convey the full picture
-- When 2+ features collaborate in a pipeline where Feature A's output feeds Feature B's input and understanding requires reading 3+ separate documents
-
-**Prerequisites:**
-- All participating features must have TDDs (or at minimum, implemented source code)
-- The workflow must be identified in [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md)
-- `New-IntegrationNarrative.ps1` script must be available
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/02-design/integration-narrative-creation-map.md)
 
 - **Critical (Must Read):**
 
-  - [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) - Identifies which workflow to document and its participating features
+  - [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) - Identifies which workflow to document and its participating features
   - Feature TDDs for participating features (paths in feature state files) - Source of per-feature architecture details
   - **Actual source code** for participating features - Must verify documented interactions match implementation
 
@@ -47,12 +36,12 @@ This task creates Integration Narratives — focused documents that explain how 
 
   - Feature ADRs for participating features - Architectural decisions affecting cross-feature interactions
   - Feature state files for participating features - Implementation status and artifact links
-  - [Integration Narrative Customization Guide](/process-framework/guides/02-design/integration-narrative-customization-guide.md) - How to fill in each template section
-  - [Script Development Quick Reference](/process-framework/guides/support/script-development-quick-reference.md) - PowerShell execution patterns
+  - [Integration Narrative Customization Guide](../../guides/02-design/integration-narrative-customization-guide.md) - How to fill in each template section
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns
 
 - **Reference Only (Access When Needed):**
-  - [PD Documentation Map](/doc/PD-documentation-map.md) - For verifying narrative is indexed after creation
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [PD Documentation Map](../../../doc/PD-documentation-map.md) - For verifying narrative is indexed after creation
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -64,7 +53,7 @@ This task creates Integration Narratives — focused documents that explain how 
 
 ### Preparation
 
-1. **Identify the target workflow** — Check [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) for the workflow to document. Confirm all participating features have reached "Implemented" status. Note the Workflow ID (e.g., WF-002).
+1. **Identify the target workflow** — Check [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) for the workflow to document. Confirm all participating features have reached "Implemented" status. Note the Workflow ID (e.g., WF-002).
 
 2. **Determine workflow boundaries** — Identify:
    - Which features participate in this workflow
@@ -72,7 +61,7 @@ This task creates Integration Narratives — focused documents that explain how 
    - What is the final output (e.g., updated file, state change, response)
    - What is the scope boundary (where does this workflow end and another begin)
 
-3. **Gather input documentation** — For each participating feature, locate and read from the [feature state files directory](/doc/state-tracking/temporary/):
+3. **Gather input documentation** — For each participating feature, locate and read from the [feature state files directory](../../../doc/state-tracking/temporary):
    - The feature's TDD (from feature state file → Documentation Inventory)
    - Any relevant ADRs affecting cross-feature interactions
    - The feature state file for implementation status and known issues
@@ -107,7 +96,7 @@ This task creates Integration Narratives — focused documents that explain how 
    ```
    The script automatically: assigns PD-INT ID, creates the file, updates PD-id-registry.json, appends to PD-documentation-map.md, and sets the "Integration Doc" column in user-workflow-tracking.md for the specified workflow.
 
-9. **Customize the narrative** — Fill in all template sections following the [Integration Narrative Customization Guide](/process-framework/guides/02-design/integration-narrative-customization-guide.md):
+9. **Customize the narrative** — Fill in all template sections following the [Integration Narrative Customization Guide](../../guides/02-design/integration-narrative-customization-guide.md):
    - **Workflow Overview**: Entry point, exit point, high-level flow
    - **Participating Features**: Table of features with their roles in this workflow
    - **Component Interaction Diagram**: Mermaid diagram showing how components connect
@@ -121,13 +110,13 @@ This task creates Integration Narratives — focused documents that explain how 
 ### Finalization
 
 11. **Verify auto-updates** — Confirm the script correctly updated:
-    - [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) — "Integration Doc" column set to the assigned PD-INT ID for the specified workflow
-    - [PD-documentation-map.md](/doc/PD-documentation-map.md) — narrative entry appended to "Integration Narratives" section
+    - [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) — "Integration Doc" column set to the assigned PD-INT ID for the specified workflow
+    - [PD-documentation-map.md](../../../doc/PD-documentation-map.md) — narrative entry appended to "Integration Narratives" section
 
     **Recovery from script warnings**: If the script emitted a warning in its stdout (e.g., "Documentation Map: Section ... not found — add entry manually", "Workflow Tracking: 'Integration Doc' column not found", "Workflow Tracking: WF-XXX not found"), the auto-update silently failed:
 
     1. **Manually patch** the affected file with the entry the script could not write.
-    2. **Check for existing tech debt** — grep [technical-debt-tracking.md](/doc/state-tracking/permanent/technical-debt-tracking.md) for `New-IntegrationNarrative.ps1` and the failing behavior. The same script defect has been filed redundantly across sessions (e.g., TD221/TD222/TD225/TD230 are 4 entries for one regex bug). Only file a new entry if no open match exists.
+    2. **Check for existing tech debt** — grep [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for `New-IntegrationNarrative.ps1` and the failing behavior. The same script defect has been filed redundantly across sessions (e.g., TD221/TD222/TD225/TD230 are 4 entries for one regex bug). Only file a new entry if no open match exists.
     3. **File new tech debt** (if not duplicate) via:
        ```bash
        pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "New-IntegrationNarrative.ps1: [behavior]" -Dims "CQ" -Location "process-framework/scripts/file-creation/02-design/New-IntegrationNarrative.ps1" -Priority "Low" -EstimatedEffort "S" -Confirm:\$false
@@ -145,9 +134,9 @@ This task creates Integration Narratives — focused documents that explain how 
 
 The following state files are updated automatically by `New-IntegrationNarrative.ps1`:
 
-- [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) - "Integration Doc" column auto-set to assigned PD-INT ID for the specified workflow
-- [PD Documentation Map](/doc/PD-documentation-map.md) - Narrative entry auto-appended to "Integration Narratives" section
-- [PD ID Registry](/doc/PD-id-registry.json) - PD-INT counter auto-incremented
+- [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) - "Integration Doc" column auto-set to assigned PD-INT ID for the specified workflow
+- [PD Documentation Map](../../../doc/PD-documentation-map.md) - Narrative entry auto-appended to "Integration Narratives" section
+- [PD ID Registry](../../../doc/PD-id-registry.json) - PD-INT counter auto-incremented
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -162,19 +151,19 @@ Before considering this task finished:
   - [ ] TDD/code divergence reported as tech debt items if found
   - [ ] Human partner reviewed and approved the narrative content
 - [ ] **Verify Auto-Updated State Files**: Confirm script correctly updated all tracking files
-  - [ ] [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) "Integration Doc" column set to correct PD-INT ID
-  - [ ] [PD Documentation Map](/doc/PD-documentation-map.md) contains entry for the new narrative
+  - [ ] [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) "Integration Doc" column set to correct PD-INT ID
+  - [ ] [PD Documentation Map](../../../doc/PD-documentation-map.md) contains entry for the new narrative
 - [ ] **Technical Debt Reported**: All TDD/code discrepancies reported via `Update-TechDebt.ps1`
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-083" and context "Integration Narrative Creation"
 
 ## Next Tasks
 
-- [**E2E Acceptance Test Case Creation**](/process-framework/tasks/03-testing/e2e-acceptance-test-case-creation-task.md) - The Integration Narrative provides verified cross-feature understanding that improves E2E test case design for the same workflow
-- [**Documentation Alignment Validation**](/process-framework/tasks/05-validation/documentation-alignment-validation.md) - Validates Integration Narratives against source code as part of documentation validation rounds
+- [**E2E Acceptance Test Case Creation**](../03-testing/e2e-acceptance-test-case-creation-task.md) - The Integration Narrative provides verified cross-feature understanding that improves E2E test case design for the same workflow
+- [**Documentation Alignment Validation**](../05-validation/documentation-alignment-validation.md) - Validates Integration Narratives against source code as part of documentation validation rounds
 
 ## Related Resources
 
-- [Integration Narrative Customization Guide](/process-framework/guides/02-design/integration-narrative-customization-guide.md) - Step-by-step instructions for filling in the template
-- [Integration Narrative Template](/process-framework/templates/02-design/integration-narrative-template.md) - Standardized structure for integration narratives
-- [Cross-Feature Integration Documentation Concept](/process-framework-local/proposals/old/cross-feature-integration-documentation.md) - Original concept document for this extension
-- [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) - Workflow status and trigger tracking
+- [Integration Narrative Customization Guide](../../guides/02-design/integration-narrative-customization-guide.md) - Step-by-step instructions for filling in the template
+- [Integration Narrative Template](../../templates/02-design/integration-narrative-template.md) - Standardized structure for integration narratives
+- [Cross-Feature Integration Documentation Concept](/process-framework-central/proposals/old/cross-feature-integration-documentation.md) - Original concept document for this extension
+- [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) - Workflow status and trigger tracking

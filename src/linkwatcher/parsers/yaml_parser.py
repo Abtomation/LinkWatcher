@@ -30,7 +30,7 @@ AI Context
     ``base.py`` — it determines file vs directory classification.
   - Debugging embedded paths: check ``_extract_embedded_paths()``
     and the ``_path_pattern`` regex in ``base.py``.
-  - Testing: ``test/automated/parsers/test_yaml.py``.
+  - Testing: ``test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py``.
 """
 
 from typing import List

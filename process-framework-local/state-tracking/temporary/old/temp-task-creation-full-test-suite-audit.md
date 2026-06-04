@@ -31,8 +31,8 @@ These files exist on disk but have no tracking entry — must be registered befo
 
 | File | Feature | Tests | Action Needed |
 |------|---------|-------|---------------|
-| test/automated/test_directory_move_detection.py | 1.1.1 | 32 | Add to test-tracking.md |
-| test/automated/unit/test_validator.py | 6.1.1 | 75 | Add to test-tracking.md |
+| test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_directory_move_detection.py | 1.1.1 | 32 | Add to test-tracking.md |
+| test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py | 6.1.1 | 75 | Add to test-tracking.md |
 
 ## Audit Inventory by Feature
 
@@ -40,72 +40,72 @@ These files exist on disk but have no tracking entry — must be registered befo
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
-| 1 | test/automated/unit/test_service.py | 26 | TE-TAR-013 | 2 | TE-TAR-013 v2.0 | ✅ Tests Approved |
-| 2 | test/automated/integration/test_service_integration.py | 17 | TE-TAR-014 | 2 | TE-TAR-014 v2.0 | 🔄 Needs Update |
-| 3 | test/automated/integration/test_complex_scenarios.py | 11 | TE-TAR-015 | 2 | TE-TAR-015 v2.0 | ✅ Tests Approved |
-| 4 | test/automated/integration/test_error_handling.py | 19 | TE-TAR-016 | 2 | TE-TAR-016 v2.0 | 🔄 Needs Update |
-| 5 | test/automated/integration/test_windows_platform.py | 16 | TE-TAR-017 | 2 | TE-TAR-017 v2.0 | ✅ Tests Approved |
-| 6 | test/automated/unit/test_lock_file.py | 10 | TE-TAR-018 | 2 | TE-TAR-018 v2.0 | ✅ Tests Approved |
+| 1 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py | 26 | TE-TAR-013 | 2 | TE-TAR-013 v2.0 | ✅ Tests Approved |
+| 2 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service_integration.py | 17 | TE-TAR-014 | 2 | TE-TAR-014 v2.0 | 🔄 Needs Update |
+| 3 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_complex_scenarios.py | 11 | TE-TAR-015 | 2 | TE-TAR-015 v2.0 | ✅ Tests Approved |
+| 4 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_error_handling.py | 19 | TE-TAR-016 | 2 | TE-TAR-016 v2.0 | 🔄 Needs Update |
+| 5 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_windows_platform.py | 16 | TE-TAR-017 | 2 | TE-TAR-017 v2.0 | ✅ Tests Approved |
+| 6 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_lock_file.py | 10 | TE-TAR-018 | 2 | TE-TAR-018 v2.0 | ✅ Tests Approved |
 
 ### Feature 0.1.2 — In-Memory Database (1 file, 43 tests)
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
-| 7 | test/automated/unit/test_database.py | 43 | TE-TAR-019 | 2 | TE-TAR-019 v2.0 | 🔄 Needs Update |
+| 7 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_database.py | 43 | TE-TAR-019 | 2 | TE-TAR-019 v2.0 | 🔄 Needs Update |
 
 ### Feature 0.1.3 — Configuration System (2 files, 53 tests)
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
 | 8 | test/automated/test_config.py | 0 (utility module) | N/A | 3 | N/A | ✅ DONE (not a test file) |
-| 9 | test/automated/unit/test_config.py | 53 | TE-TAR-020 | 3 | TE-TAR-020 v2.0 | ✅ DONE |
+| 9 | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py | 53 | TE-TAR-020 | 3 | TE-TAR-020 v2.0 | ✅ DONE |
 
 ### Feature 1.1.1 — File System Monitoring (8 files, 120 tests)
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
-| 10 | test/automated/test_move_detection.py | 20 | TE-TAR-025 | 4 | TE-TAR-025 v2.0 | ✅ DONE |
-| 11 | test/automated/integration/test_file_movement.py | 7 | TE-TAR-026 | 4 | TE-TAR-026 v2.0 | ✅ DONE |
-| 12 | test/automated/integration/test_sequential_moves.py | 4 | TE-TAR-027 | 4 | TE-TAR-027 v2.0 | ✅ DONE |
-| 13 | test/automated/unit/test_comprehensive_file_monitoring.py | 7 | TE-TAR-028 | 4 | TE-TAR-028 v2.0 | ✅ DONE |
-| 14 | test/automated/integration/test_image_file_monitoring.py | 6 | TE-TAR-029 | — | — | PENDING |
-| 15 | test/automated/integration/test_powershell_script_monitoring.py | 5 | TE-TAR-030 | — | — | PENDING |
-| 16 | test/automated/unit/test_reference_lookup.py | 39 | None | — | — | PENDING |
-| 17 | test/automated/test_directory_move_detection.py | 32 | None (NOT IN TRACKING) | — | — | PENDING |
+| 10 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_move_detection.py | 20 | TE-TAR-025 | 4 | TE-TAR-025 v2.0 | ✅ DONE |
+| 11 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_file_movement.py | 7 | TE-TAR-026 | 4 | TE-TAR-026 v2.0 | ✅ DONE |
+| 12 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_sequential_moves.py | 4 | TE-TAR-027 | 4 | TE-TAR-027 v2.0 | ✅ DONE |
+| 13 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_comprehensive_file_monitoring.py | 7 | TE-TAR-028 | 4 | TE-TAR-028 v2.0 | ✅ DONE |
+| 14 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_image_file_monitoring.py | 6 | TE-TAR-029 | — | — | PENDING |
+| 15 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_powershell_script_monitoring.py | 5 | TE-TAR-030 | — | — | PENDING |
+| 16 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py | 39 | None | — | — | PENDING |
+| 17 | test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_directory_move_detection.py | 32 | None (NOT IN TRACKING) | — | — | PENDING |
 
 ### Feature 2.1.1 — Link Parsing (9 files, 142 tests)
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
-| 18 | test/automated/unit/test_parser.py | 12 | None | S6 | TE-TAR-031 | ✅ DONE |
-| 19 | test/automated/parsers/test_markdown.py | 28 | None | S6 | TE-TAR-033 | ✅ DONE |
-| 20 | test/automated/parsers/test_yaml.py | 14 | None | S6 | TE-TAR-034 | ✅ DONE |
-| 21 | test/automated/parsers/test_json.py | 19 | None | S6 | TE-TAR-035 | ✅ DONE |
-| 22 | test/automated/parsers/test_python.py | 17 | None | S6 | TE-TAR-036 | ✅ DONE |
-| 23 | test/automated/parsers/test_dart.py | 11 | None | — | — | PENDING |
-| 24 | test/automated/parsers/test_generic.py | 21 | None | — | — | PENDING |
-| 25 | test/automated/parsers/test_image_files.py | 6 | None | — | — | PENDING |
-| 26 | test/automated/parsers/test_powershell.py | 32 | None | — | — | PENDING |
+| 18 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py | 12 | None | S6 | TE-TAR-031 | ✅ DONE |
+| 19 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py | 28 | None | S6 | TE-TAR-033 | ✅ DONE |
+| 20 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py | 14 | None | S6 | TE-TAR-034 | ✅ DONE |
+| 21 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py | 19 | None | S6 | TE-TAR-035 | ✅ DONE |
+| 22 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py | 17 | None | S6 | TE-TAR-036 | ✅ DONE |
+| 23 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_dart.py | 11 | None | — | — | PENDING |
+| 24 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_generic.py | 21 | None | — | — | PENDING |
+| 25 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_image_files.py | 6 | None | — | — | PENDING |
+| 26 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_powershell.py | 32 | None | — | — | PENDING |
 
 ### Feature 2.2.1 — Link Updating (2 files, 54 tests)
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
-| 27 | test/automated/unit/test_updater.py | 28 | TE-TAR-021 | S11 | TE-TAR-021 v2.0 | ✅ DONE |
-| 28 | test/automated/integration/test_link_updates.py | 26 | TE-TAR-022 | S11 | TE-TAR-022 v2.0 | ✅ DONE |
+| 27 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py | 28 | TE-TAR-021 | S11 | TE-TAR-021 v2.0 | ✅ DONE |
+| 28 | test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py | 26 | TE-TAR-022 | S11 | TE-TAR-022 v2.0 | ✅ DONE |
 
 ### Feature 3.1.1 — Logging System (2 files, 31 tests)
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
-| 29 | test/automated/unit/test_logging.py | 25 | TE-TAR-023 | S2 | TE-TAR-023 v2.0 | ✅ DONE |
-| 30 | test/automated/unit/test_advanced_logging.py | 6 | TE-TAR-024 | S2 | TE-TAR-024 v2.0 | 🔄 NEEDS UPDATE |
+| 29 | test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_logging.py | 25 | TE-TAR-023 | S2 | TE-TAR-023 v2.0 | ✅ DONE |
+| 30 | test/automated/unit/3-logging-monitoring/3-0-logging-monitoring/test_advanced_logging.py | 6 | TE-TAR-024 | S2 | TE-TAR-024 v2.0 | 🔄 NEEDS UPDATE |
 
 ### Feature 6.1.1 — Link Validation (1 file, 75 tests)
 
 | # | Test File | Tests | Prior Audit | Session | New Audit | Status |
 |---|-----------|-------|-------------|---------|-----------|--------|
-| 31 | test/automated/unit/test_validator.py | 75 | None (NOT IN TRACKING) | 9 | TE-TAR-032 | ✅ DONE |
+| 31 | test/automated/unit/6-link-validation-reporting/6-0-link-validation-reporting/test_validator.py | 75 | None (NOT IN TRACKING) | 9 | TE-TAR-032 | ✅ DONE |
 
 ### Bug Validation Scripts (13 files, ~62 checks)
 
@@ -229,7 +229,7 @@ These files exist on disk but have no tracking entry — must be registered befo
 **Focus**: Re-audit feature 0.1.3 Configuration System (2 files, 53 tests)
 **Completed**:
 - Confirmed test/automated/test_config.py is a utility module (0 tests, not 10) — updated tracking
-- Re-audited test/automated/unit/test_config.py: 53 tests (up from 42), all pass in 0.9s
+- Re-audited test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py: 53 tests (up from 42), all pass in 0.9s
 - Coverage: 94% on settings.py (down from 100% — new untested error-handling code)
 - 11 new tests since prior audit: TD069 (unknown key warnings), TD076 (dunder key rejection), atomic write, move detection validation (3), PD-BUG-058 regression (4)
 - Prior action item resolved: unused ConfigClass import removed

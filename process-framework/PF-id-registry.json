@@ -27,7 +27,7 @@
         "cyclical": "process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 88
+      "nextAvailable": 92
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -37,7 +37,7 @@
         "main": "process-framework/guides",
         "default": "main"
       },
-      "nextAvailable": 66
+      "nextAvailable": 71
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -47,7 +47,7 @@
         "main": "process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 76
+      "nextAvailable": 82
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -78,7 +78,7 @@
         "process-flows": "process-framework/visualization/process-flows",
         "default": "context-maps"
       },
-      "nextAvailable": 67
+      "nextAvailable": 70
     },
     "PF-INF": {
       "description": "Process Framework - Infrastructure",
@@ -97,16 +97,6 @@
       "directories": {
         "guides": "process-framework/guides",
         "default": "guides"
-      },
-      "nextAvailable": 2
-    },
-    "PF-SST": {
-      "description": "Process Framework - Shareable State Tracking (travels with the framework across projects)",
-      "category": "Process Framework",
-      "type": "Shareable State",
-      "directories": {
-        "permanent": "process-framework/state-tracking/permanent",
-        "default": "permanent"
       },
       "nextAvailable": 2
     }

@@ -32,7 +32,7 @@ target_area: src/linkwatcher (config + scan + handler)
 - [x] Added `is_file_size_within_limit(file_path, max_size_mb)` helper to [src/linkwatcher/utils.py](src/linkwatcher/utils.py): returns True if file is within limit; treats `max_size_mb <= 0` as disabled; treats stat failures as "let downstream handle it" (return True).
 - [x] In [src/linkwatcher/parser.py](src/linkwatcher/parser.py) `LinkParser.__init__`: captured `self.max_file_size_mb = config.max_file_size_mb if config else DEFAULT_CONFIG.max_file_size_mb`. Imported `DEFAULT_CONFIG` and `is_file_size_within_limit`.
 - [x] In `LinkParser.parse_file`: added size check at top after computing `file_ext`; oversized files log `file_skipped_oversize` warning with `file_path`/`size_mb`/`limit_mb` and return `[]`.
-- [x] Added 4 unit tests in [test/automated/unit/test_parser.py](test/automated/unit/test_parser.py) `TestLinkParserMaxFileSize` class: under-limit parses normally, oversized returns `[]`, `max_file_size_mb=0` disables check, missing file still graceful-empty.
+- [x] Added 4 unit tests in [test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py](test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_parser.py) `TestLinkParserMaxFileSize` class: under-limit parses normally, oversized returns `[]`, `max_file_size_mb=0` disables check, missing file still graceful-empty.
 
 **Test Baseline** (captured 2026-04-28 before any code changes, full suite minus `slow`):
 - 804 passed, 6 failed, 5 skipped, 4 xfailed (218.39s)
@@ -75,4 +75,3 @@ target_area: src/linkwatcher (config + scan + handler)
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

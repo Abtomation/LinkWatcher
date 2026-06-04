@@ -7,6 +7,7 @@ created: 2025-06-30
 updated: 2026-04-03
 creates_document_type: Process Framework
 creates_document_category: Context Map
+description: "Template for creating new context maps"
 ---
 
 # [Task Name] Context Map

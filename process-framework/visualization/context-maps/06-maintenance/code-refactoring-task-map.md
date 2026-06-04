@@ -6,6 +6,7 @@ version: 1.1
 created: 2025-07-21
 updated: 2026-03-03
 related_task: PF-TSK-022
+description: "Components for systematic code improvement and technical debt reduction"
 ---
 
 # Code Refactoring Task Context Map

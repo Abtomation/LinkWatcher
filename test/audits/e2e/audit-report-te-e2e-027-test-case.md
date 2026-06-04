@@ -7,7 +7,7 @@ created: 2026-04-16
 updated: 2026-04-16
 audit_date: 2026-04-16
 feature_id: te-e2e-027
-test_file_path: test/e2e-acceptance-testing/templates/link-validation-audit/TE-E2E-027-validate-broken-links-detected/test-case.md
+test_file_path: test/e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-027-validate-broken-links-detected/test-case.md
 auditor: AI Agent
 ---
 
@@ -20,7 +20,7 @@ auditor: AI Agent
 | **Feature ID** | 0.1.1, 2.1.1, 6.1.1 |
 | **Test Case ID** | TE-E2E-027 |
 | **Test Group** | TE-E2G-013 (Link Validation Audit) |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/link-validation-audit/TE-E2E-027-validate-broken-links-detected/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-027-validate-broken-links-detected/` |
 | **Workflow** | WF-009: Link health audit → broken link report |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-16 |

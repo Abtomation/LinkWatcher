@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-21
 updated: 2025-07-21
 related_task: PF-TSK-021
+description: "Components for designing database schemas"
 ---
 # Database Schema Design Task Context Map
 
@@ -69,10 +70,10 @@ graph TD
 
 ## Related Documentation
 
-- [Database Schema Design Task](/process-framework/tasks/02-design/database-schema-design-task.md) - Complete task definition and process
-- [Schema Design Creation Guide](/process-framework/guides/02-design/schema-design-creation-guide.md) - Comprehensive usage instructions
-- [Schema Design Template](/process-framework/templates/02-design/schema-design-template.md) - Template for creating schema design documents
-- [API Design Task](/process-framework/tasks/02-design/api-design-task.md) - For coordinating API changes
-- [System Architecture Review](/process-framework/tasks/01-planning/system-architecture-review.md) - For architectural evaluation
+- [Database Schema Design Task](../../../tasks/02-design/database-schema-design-task.md) - Complete task definition and process
+- [Schema Design Creation Guide](../../../guides/02-design/schema-design-creation-guide.md) - Comprehensive usage instructions
+- [Schema Design Template](../../../templates/02-design/schema-design-template.md) - Template for creating schema design documents
+- [API Design Task](../../../tasks/02-design/api-design-task.md) - For coordinating API changes
+- [System Architecture Review](../../../tasks/01-planning/system-architecture-review.md) - For architectural evaluation
 
 ---

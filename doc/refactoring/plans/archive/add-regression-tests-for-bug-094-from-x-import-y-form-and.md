@@ -14,7 +14,7 @@ mode: lightweight
 
 # Lightweight Refactoring Plan: Add regression tests for BUG-094 'from X import Y' form and multi-rename order-independence
 
-- **Target Area**: test/automated/integration/test_link_updates.py::TestBug094PythonImportDoubleApply
+- **Target Area**: test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py::TestBug094PythonImportDoubleApply
 - **Priority**: Low
 - **Created**: 2026-04-28
 - **Author**: AI Agent & Human Partner
@@ -70,4 +70,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-06-12
 updated: 2025-06-12
 related_task: PF-TSK-014
+description: "Components for structural changes"
 ---
 
 # Structure Change Context Map
@@ -72,8 +73,8 @@ graph TD
 
 ## Related Documentation
 
-- [Structure Change Proposal Template](/process-framework/templates/support/structure-change-proposal-template.md) - Template for change proposals
-- [Architecture Documentation](/doc/technical/architecture) - Current architecture documentation
+- [Structure Change Proposal Template](../../../templates/support/structure-change-proposal-template.md) - Template for change proposals
+- [Architecture Documentation](../../../../doc/technical/architecture) - Current architecture documentation
 - [Technical Debt Tracking](../../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt status
 
 ---

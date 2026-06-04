@@ -7,6 +7,7 @@ created: 2025-07-27
 updated: 2025-07-27
 related_task: PF-TSK-023
 related_script: New-DebtItem.ps1
+description: "Guide for customizing technical debt item templates"
 ---
 
 # Debt Item Creation Guide

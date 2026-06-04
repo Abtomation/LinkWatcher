@@ -31,7 +31,7 @@ target_area: src/linkwatcher/service.py
 
 **Changes Made**:
 - [x] Added early-return guard in `_print_final_stats()` at [service.py:236-238](/src/linkwatcher/service.py#L236-L238): `config = self.config if self.config else DEFAULT_CONFIG; if not config.show_statistics: return`. Used the same `self.config or DEFAULT_CONFIG` fallback pattern already used in `_initial_scan()` to handle the `config=None` constructor case.
-- [x] Added 2 unit tests in [test/automated/unit/test_service.py](/test/automated/unit/test_service.py) (`test_print_final_stats_skipped_when_show_statistics_false`, `test_print_final_stats_logs_when_show_statistics_true`) verifying that `logger.operation_stats` is/isn't called per the flag.
+- [x] Added 2 unit tests in [test/automated/unit/test_service.py](/test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py) (`test_print_final_stats_skipped_when_show_statistics_false`, `test_print_final_stats_logs_when_show_statistics_true`) verifying that `logger.operation_stats` is/isn't called per the flag.
 - [x] Updated PD-INT-009 ([configuration-change-integration-narrative.md](/doc/technical/integration/configuration-change-integration-narrative.md)) — moved `show_statistics` from "Orphan configuration fields" to "Consumed fields" table; updated resolved-fields note.
 - [x] Updated PD-INT-008 ([graceful-shutdown-integration-narrative.md](/doc/technical/integration/graceful-shutdown-integration-narrative.md)) — `_print_final_stats()` description now mentions the `show_statistics` gating.
 

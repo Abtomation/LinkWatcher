@@ -7,6 +7,7 @@ created: 2026-03-23
 updated: 2026-03-23
 workflow_phase: 05-validation
 related_task: PF-TSK-077
+description: "Components for planning validation rounds and creating tracking state files"
 ---
 
 # Validation Preparation Context Map

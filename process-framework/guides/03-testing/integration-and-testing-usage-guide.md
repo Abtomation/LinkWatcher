@@ -6,6 +6,7 @@ version: 2.0
 created: 2025-08-03
 updated: 2026-02-20
 change_notes: "v2.0 - Reworked for PF-TSK-053 (absorbed PF-TSK-029), made tech-agnostic"
+description: "Comprehensive guide for using the Integration & Testing task (PF-TSK-053) effectively"
 ---
 
 # Integration & Testing Usage Guide
@@ -253,4 +254,4 @@ class TestParserRegistryIntegration:
 - [Test File Creation Guide](test-file-creation-guide.md) - Guide for customizing test file templates
 - [Bug Reporting Guide](../06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
 - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for cross-feature test specs
-- [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Development Guide](../04-implementation/development-guide.md) - Testing standards and practices

@@ -103,10 +103,11 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     # Select template based on tier
+    $fwDir = Get-ProcessFrameworkPath
     if ($Tier -eq 1) {
-        $templatePath = "process-framework/templates/04-implementation/implementation-plan-tier1-template.md"
+        $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-tier1-template.md"
     } else {
-        $templatePath = "process-framework/templates/04-implementation/implementation-plan-template.md"
+        $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-template.md"
     }
 
     if (-not (Test-Path $templatePath)) {

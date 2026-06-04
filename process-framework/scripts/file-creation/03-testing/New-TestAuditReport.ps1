@@ -24,7 +24,7 @@
     The feature ID being audited (e.g., "0.2.3", "1.1.2")
 
 .PARAMETER TestFilePath
-    Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
+    Relative path to the test file being audited (e.g., "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py")
 
 .PARAMETER AuditorName
     Name of the auditor conducting the assessment (default: "AI Agent")
@@ -48,19 +48,19 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "AI Agent"
+    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditorName "AI Agent"
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -TestType Performance -FeatureId "2.1.1" -TestFilePath "test/automated/performance/test_benchmark.py" -AuditorName "AI Agent"
+    New-TestAuditReport.ps1 -TestType Performance -FeatureId "2.1.1" -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditorName "AI Agent"
 
 .EXAMPLE
     New-TestAuditReport.ps1 -TestType E2E -FeatureId "1.1.1" -TestFilePath "test/e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md"
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/test_service.py" -Lightweight
+    New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -Lightweight
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -Force
+    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -Force
     # Re-audit: overwrites the existing report for this feature/test file combination
 
 .NOTES
@@ -113,6 +113,13 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Perform standard initialization
 Invoke-StandardScriptInitialization
 
+# MSYS path-mangling guard for user-provided -TestFilePath (PF-IMP-767). On Windows + bash,
+# leading-slash paths are silently rewritten to "C:/Program Files/Git/..." before PowerShell
+# sees them — landing mangled values in audit metadata. -TestFilePath is mandatory so the
+# helper's empty-input no-op is defensive belt-and-suspenders here.
+if (Test-MSYSPathMangled -Path $TestFilePath -ParameterName 'TestFilePath') {
+    exit 1
+}
 
 # Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
 # Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
@@ -124,17 +131,49 @@ if ($Lightweight -and $TestType -ne "Automated") {
     Write-ProjectError -Message "-Lightweight is only supported for Automated test type (not $TestType)" -ExitCode 1
 }
 
-# Determine output directory and feature category based on TestType
+# Determine output directory and feature category based on TestType.
+# PF-IMP-871 / PF-PRO-034 Phase 3a (2026-05-14): for Automated, replaced hardcoded
+# feature-ID prefix switch ('^0\.' → foundation, '^1\.' → authentication, etc.) with
+# pure path transformation (audit location = subject location). The audit report lives
+# in the audit-side mirror of the test file's containing dir. Failure to resolve the
+# transformed path falls through to a `default` audit subdir for safety.
+#
+# Performance and E2E continue to use the legacy registry-resolved -DirectoryType
+# routing until Phases 3b and 3c1 wire the path-transform for those test types.
+$useAuditPathTransform = $false
+$auditPathTransformDir = ""
 $featureCategory = switch ($TestType) {
     "Performance" { "performance" }
     "E2E" { "e2e" }
     default {
-        # Automated: route by feature ID prefix
-        switch -Regex ($FeatureId) {
-            '^0\.' { "foundation" }
-            '^1\.' { "authentication" }
-            '^[2-9]\.' { "core-features" }
-            default { "foundation" }
+        # Automated: pure path transformation from test file location to audit dir.
+        # test/automated/unit/<N>-<slug>/[<N.X>-<slug>/]<file>.py
+        # → test/audits/unit/<N>-<slug>/[<N.X>-<slug>/]
+        try {
+            $absTestFile = if ([System.IO.Path]::IsPathRooted($TestFilePath)) {
+                $TestFilePath
+            } else {
+                Join-Path (Get-ProjectRoot) $TestFilePath
+            }
+            $absTestFileDir = Split-Path -Parent $absTestFile
+
+            # Replace `/automated/` (or `\automated\`) with `/audits/` (or `\audits\`) — only the
+            # first occurrence of that exact directory boundary, to avoid false matches on
+            # files whose names contain "automated".
+            $normalizedDir = $absTestFileDir -replace '(?i)([\\/])automated([\\/])', '$1audits$2'
+
+            if ($normalizedDir -ne $absTestFileDir) {
+                $useAuditPathTransform = $true
+                $auditPathTransformDir = $normalizedDir
+                "main"  # registry value unused when $useAuditPathTransform is true
+            } else {
+                # Path transform produced no change — test file is not under automated/ →
+                # fall through to `default` registry-resolved dir for safety.
+                "default"
+            }
+        } catch {
+            Write-Host "  Warning: audit path transform failed ($($_.Exception.Message)) — using default audit dir" -ForegroundColor Yellow
+            "default"
         }
     }
 }
@@ -191,7 +230,13 @@ try {
         default { if ($Lightweight) { "test-audit-report-lightweight-template.md" } else { "test-audit-report-template.md" } }
     }
     $conflictAction = if ($Force) { "Overwrite" } else { "Error" }
-    $documentId = New-StandardProjectDocument -TemplatePath "process-framework/templates/03-testing/$templateFile" -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName $docName -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -ConflictAction $conflictAction -OpenInEditor:$OpenInEditor
+    if ($useAuditPathTransform) {
+        # PF-IMP-871 Phase 3a: route Automated audit reports via path transformation
+        # rather than registry-resolved -DirectoryType.
+        $documentId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/$templateFile") -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName $docName -OutputDirectory $auditPathTransformDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -ConflictAction $conflictAction -OpenInEditor:$OpenInEditor
+    } else {
+        $documentId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/$templateFile") -IdPrefix "TE-TAR" -IdDescription "Test Audit Report for Feature $FeatureId" -DocumentName $docName -DirectoryType $featureCategory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -ConflictAction $conflictAction -OpenInEditor:$OpenInEditor
+    }
 
     # --- State file updates ---
     $projectRoot = Get-ProjectRoot
@@ -203,8 +248,17 @@ try {
     # Route state file updates based on TestType
     if ($TestType -eq "Automated") {
         # --- Automated: Update test-tracking.md Notes column (SC-007: match by file path, not ID) ---
-        $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
-        $auditRelativePath = "../../audits/$featureCategory/$auditFileName"
+        $testTrackingPath = Resolve-TrackingFilePath -File "test-tracking.md"
+        if ($useAuditPathTransform) {
+            # PF-IMP-871 Phase 3a: relative link from test-tracking.md to audit report uses the
+            # transformed audit dir (e.g. ../../audits/unit/<N>-<slug>/[<N.X>-<slug>/]<file>.md)
+            # rather than the legacy hardcoded ../../audits/$featureCategory/<file>.md.
+            $testRoot = Join-Path $projectRoot "test"
+            $auditDirRelToTest = $auditPathTransformDir.Substring($testRoot.Length).TrimStart('\','/') -replace '\\', '/'
+            $auditRelativePath = "../../$auditDirRelToTest/$auditFileName"
+        } else {
+            $auditRelativePath = "../../audits/$featureCategory/$auditFileName"
+        }
         $auditLink = "[$documentId]($auditRelativePath)"
 
         if (Test-Path $testTrackingPath) {
@@ -272,11 +326,10 @@ try {
     }
     else {
         # --- Performance / E2E: Update Audit Status and Audit Report columns in dedicated tracking file ---
-        $trackingRelPath = switch ($TestType) {
-            "Performance" { "test/state-tracking/permanent/performance-test-tracking.md" }
-            "E2E" { "test/state-tracking/permanent/e2e-test-tracking.md" }
+        $trackingFilePath = switch ($TestType) {
+            "Performance" { Resolve-TrackingFilePath -File "performance-test-tracking.md" }
+            "E2E"         { Resolve-TrackingFilePath -File "e2e-test-tracking.md" }
         }
-        $trackingFilePath = Join-Path $projectRoot $trackingRelPath
         $auditRelativePath = "../../audits/$featureCategory/$auditFileName"
         $auditLink = "[$documentId]($auditRelativePath)"
 
@@ -384,12 +437,27 @@ try {
         "E2E" { "E2E (5 criteria)" }
         default { if ($Lightweight) { "Automated Lightweight" } else { "Automated Standard (6 criteria)" } }
     }
+    # F-1 (PF-IMP-871 follow-up, 2026-05-15): derive docs-map category from the path-transform
+    # output dir (`$auditPathTransformDir`) rather than the legacy `$featureCategory` fallback
+    # to `main`. The category is the first path segment after `test/audits/`.
+    $docMapCategory = if ($useAuditPathTransform) {
+        $segs = $auditPathTransformDir -split '[\\/]'
+        $auditsIdx = [Array]::IndexOf($segs, 'audits')
+        if ($auditsIdx -ge 0 -and $segs.Length -gt $auditsIdx + 1) {
+            $segs[$auditsIdx + 1]
+        } else {
+            $featureCategory
+        }
+    } else {
+        $featureCategory
+    }
+
     $details = @(
         "Test Type: $TestType",
         "Feature ID: $FeatureId",
         "Test File: $TestFilePath",
         "Auditor: $AuditorName",
-        "Category: $featureCategory",
+        "Category: $docMapCategory",
         "Template: $variantLabel"
     )
     if ($stateUpdates.Count -gt 0) {
@@ -405,15 +473,31 @@ try {
         $details += "Customization required — see process-framework/tasks/03-testing/test-audit-task.md (six evaluation criteria + audit decision)"
     }
 
-    # Auto-append entry to TE-documentation-map.md under the correct audits section
+    # Auto-append entry to TE-documentation-map.md under the correct audits section.
+    # F-1 (PF-IMP-871 follow-up, 2026-05-15): target the section by its stable prefix
+    # `### `audits/<category>/` (via -SectionHeaderPrefix) — the blueprint map's section
+    # headings are templates like `### `audits/unit/<N>-<slug>/<N.X>-<slug>/` ...` so exact
+    # match never succeeded post-Phase-3a. The relative path computed here is the full
+    # nested mirror of the test file's containing dir, matching the actual audit-file location.
     if ($documentId -or $WhatIfPreference) {
         $teDocMapPath = Join-Path -Path (Get-ProjectRoot) -ChildPath "test/TE-documentation-map.md"
-        $sectionHeader = "### ``audits/$featureCategory/``"
-        $auditFileName = "$docName.md"
-        $relativePath = "audits/$featureCategory/$auditFileName"
+        $sectionHeaderPrefix = "### ``audits/$docMapCategory/"
+        # Apply the same kebab-case normalization that New-StandardProjectDocument uses
+        # when writing the audit-report file (OutputFormatting.psm1::ConvertTo-KebabCase).
+        # Pre-this-fix the docs-map entry's link used the un-slugified `$docName.md` which
+        # contained underscores from $testFileBaseName, while the file on disk had hyphens
+        # — links 404'd. Aligning here keeps script and helper on the same source of truth.
+        $auditFileName = "$(ConvertTo-KebabCase -InputString $docName).md"
+        $relativePath = if ($useAuditPathTransform) {
+            $projectTestDir = Join-Path (Get-ProjectRoot) "test"
+            $absAuditFile = Join-Path $auditPathTransformDir $auditFileName
+            ([System.IO.Path]::GetRelativePath($projectTestDir, $absAuditFile)) -replace '\\', '/'
+        } else {
+            "audits/$featureCategory/$auditFileName"
+        }
         $entryLine = "- [Audit: $FeatureId ($documentId)]($relativePath) - Test quality assessment"
 
-        $updated = Add-DocumentationMapEntry -DocMapPath $teDocMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
+        $updated = Add-DocumentationMapEntry -DocMapPath $teDocMapPath -SectionHeaderPrefix $sectionHeaderPrefix -EntryLine $entryLine -CallerCmdlet $PSCmdlet
         if ($updated) {
             $details += "Documentation Map: Updated (TE-documentation-map.md)"
         }
@@ -463,7 +547,7 @@ Before considering this script complete, test the following:
 
 EXAMPLE TEST COMMANDS:
 # Basic test (SC-007: uses file path)
-New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "Test Auditor"
+New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditorName "Test Auditor"
 
 # Cleanup
 Remove-Item "../../audits/foundation/audit-report-0-2-3-test_service.md" -Force

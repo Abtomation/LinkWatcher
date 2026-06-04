@@ -7,7 +7,7 @@ created: 2026-04-15
 updated: 2026-04-15
 auditor: AI Agent
 audit_date: 2026-04-15
-test_file_path: test/e2e-acceptance-testing/templates/dry-run-mode/TE-E2E-019-move-file-dry-run-no-changes/test-case.md
+test_file_path: test/e2e-acceptance-testing/dry-run-mode-preview-without-changes/templates/TE-E2E-019-move-file-dry-run-no-changes/test-case.md
 feature_id: TE-E2E-019
 ---
 
@@ -20,7 +20,7 @@ feature_id: TE-E2E-019
 | **Feature ID** | TE-E2E-019 |
 | **Test Case ID** | TE-E2E-019 |
 | **Test Group** | TE-E2G-009 |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/dry-run-mode/TE-E2E-019-move-file-dry-run-no-changes/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/dry-run-mode-preview-without-changes/templates/TE-E2E-019-move-file-dry-run-no-changes/` |
 | **Workflow** | WF-007: Dry-Run Mode — Preview Without Changes |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-15 |

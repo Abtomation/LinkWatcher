@@ -134,7 +134,13 @@ if (Test-Path $e2eTrackingPath) {
     }
 }
 
-Write-Host "Parsed $($workflowE2eStatus.Count) workflow E2E statuses from e2e-test-tracking.md" -ForegroundColor Gray
+if ($workflowE2eStatus.Count -eq 0) {
+    # F-5a: empty Workflow Milestone Tracking table means workflow-level E2E Status stays 'Not Tested'
+    # regardless of how many per-case E2E tests pass. Milestone rows are created by PF-TSK-086.
+    Write-Host "Parsed 0 workflow E2E statuses from e2e-test-tracking.md (Workflow Milestone Tracking table empty — run PF-TSK-086 to create milestone rows; workflow E2E Status stays 'Not Tested' until then)" -ForegroundColor Gray
+} else {
+    Write-Host "Parsed $($workflowE2eStatus.Count) workflow E2E statuses from e2e-test-tracking.md" -ForegroundColor Gray
+}
 
 # --- Step 3: Parse and update user-workflow-tracking.md ---
 $wfContent = Get-Content $workflowPath -Raw -Encoding UTF8

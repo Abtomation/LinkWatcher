@@ -26,7 +26,7 @@ target_area: pyproject.toml
 
 **Dimension**: TST (Testing)
 
-**Scope**: PH-007 (memory) and PH-008 (CPU) in `test/automated/performance/test_large_projects.py` use `pytest.importorskip("psutil")` at lines 501 and 560. When psutil is not installed in the test environment, both tests silently skip — this caused false-compliance baselines on 2026-04-09 (PH-007/PH-008 marked Baselined with Last Result=skipped, identified in audit TE-TAR-070 Criterion 3). Fix: declare `psutil>=5.9.0` in `[project.optional-dependencies].test` so the standard `pip install -e ".[test]"` workflow guarantees the dep is present and `importorskip` actually exercises the tests.
+**Scope**: PH-007 (memory) and PH-008 (CPU) in `test/automated/performance/level3-scale/test_large_projects.py` use `pytest.importorskip("psutil")` at lines 501 and 560. When psutil is not installed in the test environment, both tests silently skip — this caused false-compliance baselines on 2026-04-09 (PH-007/PH-008 marked Baselined with Last Result=skipped, identified in audit TE-TAR-070 Criterion 3). Fix: declare `psutil>=5.9.0` in `[project.optional-dependencies].test` so the standard `pip install -e ".[test]"` workflow guarantees the dep is present and `importorskip` actually exercises the tests.
 
 **Changes Made**:
 - [x] Added `"psutil>=5.9.0"` to `[project.optional-dependencies].test` in `pyproject.toml` (after `responses>=0.23.0`).

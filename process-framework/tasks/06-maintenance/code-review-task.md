@@ -2,9 +2,10 @@
 id: PF-TSK-005
 type: Process Framework
 category: Task Definition
-version: 2.3
+version: 2.4
 created: 2023-06-15
-updated: 2026-05-05
+updated: 2026-05-16
+description: "Review code for quality and correctness"
 ---
 
 # Code Review
@@ -20,24 +21,15 @@ Review implemented code to ensure it meets quality standards, follows project co
 **Focus Areas**: Coding best practices, performance, state management, external integrations, accessibility, security, maintainability
 **Communication Style**: Provide specific improvement suggestions with rationale, ask about design decisions, focus on long-term maintainability and user experience
 
-## When to Use
-
-- After feature implementation is complete but before deployment
-- When a bug fix has been implemented and needs verification
-- When code needs to be evaluated against established project standards
-- When significant changes have been made to critical components
-- Before merging code into main branches
-- When external service integration or state management changes are made
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/06-maintenance/code-review-map.md)
 
 - **Critical (Must Read):**
 
-  - [Technical Design Document](/doc/technical/tdd) - The technical design document for the feature
+  - [Technical Design Document](../../../doc/technical/tdd) - The technical design document for the feature
   - Source code files that were created or modified during implementation
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - Project dependency configuration file - To verify dependency changes and versions
 
 - **Important (Load If Space):**
@@ -48,7 +40,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features with "👀 Needs Review" status
-  - [Architecture Decision Records](/doc/technical/adr) - For architectural context
+  - [Architecture Decision Records](../../../doc/technical/adr) - For architectural context
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - For test coverage context
 
 ## Process
@@ -65,7 +57,7 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 ### Preparation
 
-> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code review only**. If the changes to be reviewed live in `process-framework/`, `process-framework-local/`, or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Framework changes are reviewed inline at [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) Step 13 (Decision review checkpoint). **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#step-1-what-are-you-working-on).
+> **🚨 SCOPE GUARD — Framework path target**: This task is for **product code review only**. If the changes to be reviewed live in `process-framework/` or a root-level routing file (`CLAUDE.md`, `MEMORY.md`, `ai-tasks.md`), this task does **NOT** apply. Framework changes are reviewed inline at [Process Improvement](../support/process-improvement-task.md) (PF-TSK-009) Step 13 (Decision review checkpoint). **Stop now and switch tasks.** See [ai-tasks.md framework-vs-product policy](../../ai-tasks.md#framework-path-vs-product-path-disambiguation).
 
 1. Review the [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) document to identify features with "👀 Needs Review" status
 2. Select the next feature for code review
@@ -170,7 +162,7 @@ Review implemented code to ensure it meets quality standards, follows project co
     |---|---|---|---|
     | **Bug** | Wrong behavior on a released/completed feature | [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) via [New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) | [Bug Triage](bug-triage-task.md) → [Bug Fixing](bug-fixing-task.md) |
     | **Tech Debt** | Code works but has quality/design problems (any feature) | [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) via [Update-TechDebt.ps1 -Add](../../scripts/update/Update-TechDebt.ps1) | [Technical Debt Assessment](../cyclical/technical-debt-assessment-task.md) → [Code Refactoring](code-refactoring-task.md) |
-    | **Implementation Gap** | Wrong behavior on an in-progress/unreleased feature | Feature's [implementation state file](/doc/state-tracking/features) section 8 (Issues & Resolutions Log) with status OPEN | Current implementation or [Feature Enhancement](../04-implementation/feature-enhancement.md) task |
+    | **Implementation Gap** | Wrong behavior on an in-progress/unreleased feature | Feature's [implementation state file](../../../doc/state-tracking/features) section 8 (Issues & Resolutions Log) with status OPEN | Current implementation or [Feature Enhancement](../04-implementation/feature-enhancement.md) task |
 
     For all finding types:
     - Document in the code review findings with severity levels
@@ -218,14 +210,12 @@ Review implemented code to ensure it meets quality standards, follows project co
 
 The following state files must be updated as part of this task:
 
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **Feature reviews only** (N/A for bug-fix reviews on Implemented features). Update with:
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **Feature reviews only** (N/A for bug-fix reviews on Implemented features). Update via [`Update-CodeReviewState.ps1`](../../scripts/update/Update-CodeReviewState.ps1) — never edit the file directly (see [Feature Tracking Mutation Guide](../../guides/support/feature-tracking-mutation-guide.md)). The script sets:
   - Code review status (🔎 Needs Test Scoping/🔄 Needs Enhancement)
   - Test Summary status (recalculated based on test case implementation tracking updates)
   - Review date and time
   - Link to review document
   - Reviewer information (AI Agent + human partner collaboration)
-  - List of major findings or concerns
-  - Performance and accessibility notes
 - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - **Conditional** (only for bug fix reviews): Transition bug from 👀 Needs Review → 🔒 Closed on approval, or back to 🟡 In Progress on rejection
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Update test status based on review:
   - Confirm "✅ Audit Approved" if tests are passing and well-implemented
@@ -233,7 +223,7 @@ The following state files must be updated as part of this task:
   - Change to "🔄 Needs Update" if tests need updates due to code changes
   - Update test coverage percentages
 
-**Automation Available**: Use `Update-CodeReviewState.ps1` to automate state file updates. See [Automation Usage Guide](../../scripts/AUTOMATION-USAGE-GUIDE.md) for examples.
+**Script usage**: Run `pwsh.exe -ExecutionPolicy Bypass -File <script-path> -?` for `Update-CodeReviewState.ps1` parameters and inline examples. See also [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) for cross-cutting invocation patterns.
 
 **Additional Automation**: Consider creating additional automation for:
 
@@ -310,7 +300,7 @@ Before considering this task finished:
 
 ### Project-Specific Resources
 
-- [Architecture Decision Records](/doc/technical/adr) - Architectural context and decisions
+- [Architecture Decision Records](../../../doc/technical/adr) - Architectural context and decisions
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status and dependencies
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test coverage and status
 
@@ -322,14 +312,14 @@ Before considering this task finished:
 
 ### Automation & Scripts
 
-- [Automation Usage Guide](../../scripts/AUTOMATION-USAGE-GUIDE.md) - Available automation scripts
-- `Update-CodeReviewState.ps1` - Automated state file updates
+- [Update-CodeReviewState.ps1](../../scripts/update/Update-CodeReviewState.ps1) — automated state file updates (run with `-?` for parameter details)
+- [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) — cross-cutting PowerShell invocation patterns
 - CLI commands for analysis and testing
 
 ### Fallback Guidance
 
 If referenced files are missing or incomplete:
 
-1. Refer to the [Definition of Done](/process-framework/guides/04-implementation/definition-of-done.md) as the primary quality reference
+1. Refer to the [Definition of Done](../../guides/04-implementation/definition-of-done.md) as the primary quality reference
 2. Focus on the review areas outlined in this task
 3. Consult with your human partner for project-specific standards and requirements

@@ -7,6 +7,7 @@ created: 2025-11-03
 updated: 2025-11-03
 workflow_phase: 04-implementation
 related_task: PF-TSK-044
+description: "Components for analyzing design documentation and planning implementation sequencing"
 ---
 
 # Feature Implementation Planning Context Map

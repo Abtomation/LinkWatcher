@@ -2,9 +2,10 @@
 id: PF-TSK-056
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-12-13
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Implement state management layer connecting data layer to UI layer"
 ---
 
 # State Management Implementation
@@ -22,30 +23,22 @@ Implement the state management layer for a feature. This task creates the reacti
 **Focus Areas**: State management patterns, state container implementation, dependency injection, side effect handling, state mutation strategies
 **Communication Style**: Propose state architecture patterns with trade-offs, highlight state flow implications, ask about state granularity preferences and caching strategies
 
-## When to Use
-
-- After data layer (models, repositories) is implemented via PF-TSK-051
-- Before UI implementation (components, screens) via PF-TSK-052
-- When feature requires reactive state management connecting data to UI
-- When state needs to be shared across multiple UI components
-- **Prerequisites**: Data models and repositories completed, feature implementation plan approved, state requirements identified
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/state-management-implementation-map.md)
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/doc/state-tracking/features/[feature-id]-implementation-state.md` containing implementation progress and context
   - **TDD (Technical Design Document)** - State management design section describing state container architecture, state flow patterns, and technology-specific conventions
   - **Completed Data Layer Code** - Repository implementations and data models from PF-TSK-051
 
 - **Important (Load If Space):**
 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
-  - [Source Code Layout](/doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
+  - [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Existing State Management Examples** - Similar state management implementations in codebase for pattern consistency
   - **Framework Documentation** - Official documentation for the state management framework specified in the TDD
 

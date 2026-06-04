@@ -12,7 +12,7 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 ---
 
 <!-- TEMPLATE STARTS BELOW THIS LINE -->
-<!-- Copy everything below into test/e2e-acceptance-testing/templates/<group>/TE-E2E-NNN-<name>/test-case.md -->
+<!-- Copy everything below into test/e2e-acceptance-testing/<workflow-slug>/templates/TE-E2E-NNN-<name>/test-case.md (PF-IMP-871 Phase 3c2 per-workflow layout) -->
 <!-- Replace all [PLACEHOLDERS] with actual values -->
 <!-- Remove all instructional comments when creating the actual file -->
 
@@ -26,7 +26,6 @@ priority: [P0 / P1 / P2 / P3]
 execution_mode: [manual / scripted]
 estimated_duration: [X minutes]
 source: [Test Spec / Bug Report / Refactoring Plan] — [SOURCE-ID]
-lw_flags: ""
 expected_exit_code: 0
 created: [YYYY-MM-DD]
 updated: [YYYY-MM-DD]

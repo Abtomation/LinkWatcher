@@ -6,6 +6,7 @@ version: 1.1
 created: 2025-07-12
 updated: 2025-08-04
 related_task: PF-TSK-012
+description: "Components for creating test specifications from TDDs"
 ---
 # Test Specification Creation Context Map
 
@@ -79,12 +80,12 @@ graph TD
 
 ## Related Documentation
 
-- [Technical Design Documents](/doc/technical/tdd) - Repository of TDDs for features
+- [Technical Design Documents](../../../../doc/technical/tdd) - Repository of TDDs for features
 - [Feature Tier Assessment Guide](../../../../doc/documentation-tiers/README.md) - Understanding complexity tiers
-- [Development Guide](/process-framework/guides/04-implementation/development-guide.md) - Testing standards and practices
-- [Test Structure Documentation](/test/) - Current test organization patterns
+- [Development Guide](../../../guides/04-implementation/development-guide.md) - Testing standards and practices
+- [Test Structure Documentation](../../../../test) - Current test organization patterns
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature development status tracking
 - [Test Tracking](../../../../test/state-tracking/permanent/test-tracking.md) - Test specification and implementation tracking
-- [Test Query Tool](/process-framework/scripts/test/test_query.py) - Query test file metadata via pytest markers
+- [Test Query Tool](../../../scripts/test/test_query.py) - Query test file metadata via pytest markers
 
 ---

@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-13
 updated: 2026-04-13
 change_notes: "v1.0 - Moved from guides/framework/task-transition-guide.md to infrastructure/. Information Flow section extracted to PF-GDE-062. Reclassified as infrastructure registry (was PF-GDE-018)."
+description: "Per-task transition procedures: prerequisites, handover artifacts, and next-task routing (moved from guides/framework/task-transition-guide.md; Information Flow content extracted to PF-GDE-062)"
 ---
 
 # Task Transition Registry
@@ -29,7 +30,7 @@ The process framework includes multiple interconnected tasks. This document help
 
 **Prerequisites for Transition:**
 
-- [ ] [Retrospective Master State File](../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) created with project name and DISCOVERY status
+- [ ] [Retrospective Master State File](../../doc/state-tracking/temporary/old/retrospective-master-state.md) created with project name and DISCOVERY status
 - [ ] ALL source files listed and assigned to features (100% codebase file coverage)
 - [ ] ALL features added to [Feature Tracking](../../doc/state-tracking/permanent/feature-tracking.md) with IDs and descriptions
 - [ ] [Feature Implementation State file](../../doc/state-tracking/features) created for every feature with complete code inventory
@@ -37,14 +38,34 @@ The process framework includes multiple interconnected tasks. This document help
 
 **Next Task Selection:**
 
+- **Always**: → [Codebase Source Migration (PF-TSK-091)](../tasks/00-setup/codebase-source-migration-task.md)
+
+**Preparation for Next Task:**
+
+1. Verify master state shows Phase 1 complete with 100% file coverage and `Validate-OnboardingCompleteness.ps1` reports PASS
+2. Confirm the `src/<feature>/` directories are scaffolded (empty) and every file has an owning feature in its File Inventory — the migration queue is built from those inventories
+3. Set master state status to "SOURCE_MIGRATION" (runtime value; the migration task flips it to "ANALYSIS" at its exit gate)
+
+### Transitioning FROM Codebase Source Migration (PF-TSK-091)
+
+**Prerequisites for Transition:**
+
+- [ ] Source Migration Queue is 100% ✅ Verified (Split rows: all target pieces placed + all callers updated)
+- [ ] No application source remains at legacy/repository-root locations (exit-gate conformance check, relocated from Discovery Step 7.i)
+- [ ] Exit-gate cross-cutting check passed — no unowned new failures (a full suite run if the project has one; otherwise the per-file checks are the primary gate)
+- [ ] Feature Implementation State files' File Inventory paths updated to the new `src/<feature>/` locations
+- [ ] `source-code-layout.md` directory tree refreshed via `New-SourceStructure.ps1 -Update`
+- [ ] `Phase 1.5: Source Migration` marked complete in master state
+
+**Next Task Selection:**
+
 - **Always**: → [Codebase Feature Analysis (PF-TSK-065)](../tasks/00-setup/codebase-feature-analysis.md)
 
 **Preparation for Next Task:**
 
-1. Verify master state shows Phase 1 complete with 100% file coverage
+1. Verify master state shows `Phase 1.5` complete and Status set to "ANALYSIS"
 2. Review Feature Tracking for the full feature list to analyze
 3. Identify feature categories for batching analysis sessions
-4. Set master state status to "ANALYSIS"
 
 ### Transitioning FROM Codebase Feature Analysis (PF-TSK-065)
 
@@ -54,7 +75,7 @@ The process framework includes multiple interconnected tasks. This document help
 - [ ] Dependencies identified and documented for every feature
 - [ ] Test coverage mapped for every feature
 - [ ] Complexity factors noted for features without tier assessments
-- [ ] Phase 2 marked complete in [master state file](../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md)
+- [ ] Phase 2 marked complete in [master state file](../../doc/state-tracking/temporary/old/retrospective-master-state.md)
 
 **Next Task Selection:**
 
@@ -74,11 +95,11 @@ The process framework includes multiple interconnected tasks. This document help
 - [ ] Every feature has a tier assessment (created or validated)
 - [ ] All Tier 2+ features have FDD and TDD, marked "Retrospective"
 - [ ] All Tier 3 features have Test Specifications, marked "Retrospective"
-- [ ] All Foundation 0.x.x features have ADRs where architectural decisions exist
+- [ ] All features with discrete architectural decisions have ADRs (foundation features and non-foundation features alike)
 - [ ] All document links added to [Feature Tracking](../../doc/state-tracking/permanent/feature-tracking.md)
 - [ ] [Documentation Map](../PF-documentation-map.md) updated with all new documents
 - [ ] Final metrics recorded in master state Completion Summary
-- [ ] [Master State File](../../process-framework-local/state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
+- [ ] [Master State File](../../doc/state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
 **Next Task Selection:**
 
@@ -204,17 +225,17 @@ What is needed next?
 What tier was assigned?
 ├─ Tier 1 (🔵) → Check Design Requirements → Feature Implementation
 │   └─ Reason: Simple features can be developed with lightweight design
-├─ Tier 2 (🟠) → Check Design Requirements → [API Design if "Yes"] → [Database Schema Design if "Yes"] → TDD Creation
+├─ Tier 2 (🟠) → Check Design Requirements → [API Design if required] → [Database Schema Design if required] → TDD Creation
 │   └─ Reason: Moderate features need targeted design work based on requirements evaluation
-└─ Tier 3 (🔴) → System Architecture Review (recommended) → [API Design if "Yes"] → [Database Schema Design if "Yes"] → TDD Creation
+└─ Tier 3 (🔴) → System Architecture Review (recommended) → [API Design if required] → [Database Schema Design if required] → TDD Creation
     └─ Reason: Complex features benefit from comprehensive architectural planning plus targeted design work
 ```
 
 **Design Requirements Check:**
 
-- **API Design = "Yes"** → Complete API Design Task before proceeding
-- **DB Design = "Yes"** → Complete Database Schema Design Task before proceeding
-- Both requirements determined during Feature Tier Assessment's Design Requirements Evaluation
+- **API design required** (per the assessment document's Design Requirements Evaluation section) → Complete API Design Task before proceeding
+- **DB design required** (per the assessment document's Design Requirements Evaluation section) → Complete Database Schema Design Task before proceeding
+- Both flags determined during Feature Tier Assessment; they live in the assessment document, not in master feature-tracking.md columns (per PF-PRO-002 / PF-IMP-760)
 
 **Optional Task Guidelines:**
 
@@ -377,7 +398,7 @@ What was the original tier assessment?
 - [ ] Architecture impact assessment completed
 - [ ] Architectural decisions documented
 - [ ] System constraints and patterns identified
-- [ ] Architecture Impact Assessment document linked in Arch Review column
+- [ ] Architecture Impact Assessment document linked in the per-feature state file §4 Documentation Inventory (per PF-PRO-002 / PF-IMP-760; not in feature-tracking.md)
 
 **Next Task Selection:**
 
@@ -499,6 +520,40 @@ Does the feature require database schema changes?
 2. Ensure schema changes align with feature requirements
 3. Verify migration plan is feasible and safe
 4. Prepare database context for technical design decisions
+
+### Transitioning FROM UI Design (PF-TSK-090)
+
+**Prerequisites for Transition:**
+
+- [ ] UI Design document created via [New-UIDesign.ps1](../scripts/file-creation/02-design/New-UIDesign.ps1) (PD-UIX-NNN)
+- [ ] All 11 template sections customized (no placeholder text remaining)
+- [ ] Wireframes, visual specs, component specs, and accessibility plan complete
+- [ ] Design Guidelines (PD-UIX-001) compliance verified; any deviations documented in Design Decisions Log
+- [ ] Feature Tracking row Status set to `🎨 UI Design Created` (automated by script)
+- [ ] UI Design row inserted into per-feature state file's §4 Documentation Inventory (automated by script)
+- [ ] Human partner approved customized UI Design at the Execution checkpoint
+
+**Next Task Selection:**
+
+```
+Is a TDD required for this feature (Tier 2+)?
+├─ Yes → TDD Creation
+│   └─ Reason: TDD translates UI component specs and accessibility requirements into implementation guidance
+└─ No (Tier 1) → UI Implementation
+    └─ Reason: Tier 1 features skip TDD; UI Design hands off directly to implementation
+```
+
+If the UI Design surfaces API or Schema needs that were not anticipated upstream:
+
+- → **API Design** (PF-TSK-020) — when UI data-binding patterns imply API contracts not yet specified
+- → **Database Schema Design** (PF-TSK-021) — when UI input/display patterns imply data shape not yet modeled
+
+**Preparation for Next Task:**
+
+1. Confirm Design Handoff Checklist (Section 11 of the UI Design document) is fully checked
+2. Confirm cross-references to FDD, API Design, TDD are populated
+3. Verify the UI Design row in the per-feature state file §4 Documentation Inventory points at the created PD-UIX document
+4. Communicate any newly discovered API/Schema needs to the downstream design task
 
 ### Transitioning FROM Integration Narrative Creation (PF-TSK-083)
 
@@ -624,9 +679,9 @@ What test type was audited?
 
 **Prerequisites for Transition:**
 
-- [ ] Test case directories created in `test/e2e-acceptance-testing/templates/<group>/E2E-NNN-<name>/`
+- [ ] Test case directories created in `test/e2e-acceptance-testing/<workflow-slug>/templates/TE-E2E-NNN-<name>/` (PF-IMP-871 Phase 3c2 per-workflow layout — group layer collapsed)
 - [ ] Each test case contains: `test-case.md`, `project/`, `expected/`, and `run.ps1` (for scripted tests)
-- [ ] Master test file updated at `test/e2e-acceptance-testing/templates/<group>/master-test-<group-name>.md`
+- [ ] Master test file at `test/e2e-acceptance-testing/<workflow-slug>/templates/master-test-<workflow>.md`
 - [ ] E2E test tracking (`e2e-test-tracking.md`) updated with new test cases
 - [ ] Feature tracking updated with E2E test references
 
@@ -995,6 +1050,7 @@ What was the assessment result?
 - [ ] Improvement recommendations documented
 - [ ] Process changes implemented or planned
 - [ ] Impact assessment completed
+- [ ] **Framework script tests pass**: if the improvement touched any `.ps1`/`.psm1` files, their Pester unit tests (`<ScriptName>.Tests.ps1`) were added/updated alongside the edit and the targeted Pester run is green (`Run-Tests.ps1 -Category <area>` or `-Quick`). N/A if no PowerShell scripts were touched. Introduced by the Framework Self-Testing extension (PF-PRO-035).
 
 **Next Task Selection:**
 
@@ -1013,6 +1069,7 @@ What type of improvement was made?
 - [ ] Files moved/reorganized as planned
 - [ ] All links and references updated
 - [ ] Structure change documented
+- [ ] **Framework script tests pass**: if the structure change touched any `.ps1`/`.psm1` files (path-prefix changes, helper-module signature changes, script renames), their Pester unit tests were added/updated alongside the edit and the targeted Pester run is green. The test suite is the cheapest catch for silent breakage in mass renames / column moves / path-prefix changes. N/A if no PowerShell scripts were touched. Introduced by the Framework Self-Testing extension (PF-PRO-035).
 
 **Next Task Selection:**
 
@@ -1071,7 +1128,8 @@ What type of improvement was made?
 - [ ] Supporting infrastructure created (templates, guides, scripts, directories)
 - [ ] Core framework files updated (`ai-tasks.md`, `PF-documentation-map.md`, PF ID Registry)
 - [ ] Temporary state tracking file completed (all phases done)
-- [ ] **If pilot was chosen**: pilot row exists in [Active Pilots](../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md#active-pilots) with status `Active`; concept doc remains in `proposals/` (archive deferred until pilot resolves)
+- [ ] **Framework script tests pass**: every new or modified `.ps1`/`.psm1` produced by this extension has a co-located Pester unit test (`<ScriptName>.Tests.ps1`) and the full Pester suite is green at extension close. N/A if the extension created no PowerShell scripts. Introduced by the Framework Self-Testing extension (PF-PRO-035).
+- [ ] **If pilot was chosen**: pilot row exists in central [Section 5 — Active Pilots](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md#section-5--active-pilots) with status `Active`; concept doc remains in `appdev/process-framework-central/proposals/` (archive deferred until pilot resolves)
 
 **Next Task Selection:**
 

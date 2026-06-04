@@ -7,7 +7,7 @@ created: 2026-04-29
 updated: 2026-04-29
 mode: lightweight
 priority: Medium
-target_area: test/automated/performance/test_large_projects.py
+target_area: test/automated/performance/level3-scale/test_large_projects.py
 feature_id: 4.1.1
 debt_item: TD246
 refactoring_scope: Add warmup cycles to all 8 PH tests in test_large_projects.py
@@ -15,7 +15,7 @@ refactoring_scope: Add warmup cycles to all 8 PH tests in test_large_projects.py
 
 # Lightweight Refactoring Plan: Add warmup cycles to all 8 PH tests in test_large_projects.py
 
-- **Target Area**: test/automated/performance/test_large_projects.py
+- **Target Area**: test/automated/performance/level3-scale/test_large_projects.py
 - **Priority**: Medium
 - **Created**: 2026-04-29
 - **Author**: AI Agent & Human Partner
@@ -25,7 +25,7 @@ refactoring_scope: Add warmup cycles to all 8 PH tests in test_large_projects.py
 
 ## Shared Context
 
-All 8 PH tests in [test/automated/performance/test_large_projects.py](/test/automated/performance/test_large_projects.py) lack warmup cycles before their timed measurements. Each test's first call to `service._initial_scan()` (or first move/sampling event for PH-005/006/007/008) is exposed to cold-start effects: import init, module loading, filesystem cache priming, JIT, and thread pool startup. Audit [TE-TAR-070](/test/audits/performance/audit-report-4-1-1-test-large-projects.md) Criterion 1 documented this as the dominant cause of first-iteration inflation (PH-001 Run 1 16.01s vs Run 2 9.58s = 67% inflation).
+All 8 PH tests in [test/automated/performance/test_large_projects.py](/test/automated/performance/level3-scale/test_large_projects.py) lack warmup cycles before their timed measurements. Each test's first call to `service._initial_scan()` (or first move/sampling event for PH-005/006/007/008) is exposed to cold-start effects: import init, module loading, filesystem cache priming, JIT, and thread pool startup. Audit [TE-TAR-070](/test/audits/performance/audit-report-4-1-1-test-large-projects.md) Criterion 1 documented this as the dominant cause of first-iteration inflation (PH-001 Run 1 16.01s vs Run 2 9.58s = 67% inflation).
 
 This refactoring mirrors the warmup work done for BM tests in [PD-REF-196](tighten-bm-002-bm-006-tolerances-add-warmups-switch-to-perf.md) (Item 2, TD216) — same problem class, same fix pattern (external `tempfile.TemporaryDirectory()` warmup, then discard, then run the actual timed window).
 
@@ -97,7 +97,7 @@ The +4.81s delta is consistent with ~600ms warmup overhead × 8 PH tests. No reg
 
 ## Audit Loop Status
 
-Audit [TE-TAR-070](/test/audits/performance/audit-report-0-1-1-test-large-projects.md) is **NOT closed as Audit Approved**. TD247 (PH-008 process CPU), TD248 (PH-005 sleep inside loop), TD249 (tighten tolerances), and TD250 (psutil dependency) are still open from this audit, plus TD244 follow-up. Audit Status remains `🔄 Needs Update` per [Code Refactoring Lightweight Path L10](/process-framework/tasks/06-maintenance/code-refactoring-lightweight-path.md): "If findings are only partially addressed — do NOT mark as Audit Approved."
+Audit [TE-TAR-070](/test/audits/performance/level3-scale/audit-report-0-1-1-test-large-projects.md) is **NOT closed as Audit Approved**. TD247 (PH-008 process CPU), TD248 (PH-005 sleep inside loop), TD249 (tighten tolerances), and TD250 (psutil dependency) are still open from this audit, plus TD244 follow-up. Audit Status remains `🔄 Needs Update` per [Code Refactoring Lightweight Path L10](/process-framework/tasks/06-maintenance/code-refactoring-lightweight-path.md): "If findings are only partially addressed — do NOT mark as Audit Approved."
 
 ## Side-Effect: PH rows already flagged Needs Re-baseline
 
@@ -105,5 +105,5 @@ All 8 PH rows in [performance-test-tracking.md](/test/state-tracking/permanent/p
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-- [TE-TAR-070 audit report](/test/audits/performance/audit-report-0-1-1-test-large-projects.md)
+- [TE-TAR-070 audit report](/test/audits/performance/level3-scale/audit-report-0-1-1-test-large-projects.md)
 - [PD-REF-196 — BM warmup precedent](tighten-bm-002-bm-006-tolerances-add-warmups-switch-to-perf.md)

@@ -29,10 +29,11 @@ The Process Framework documentation is organized into the following directories:
 
   - **[cyclical/](../process-framework/tasks/cyclical)**: Recurring tasks that follow a defined cycle
 
-- **[state-tracking/](../process-framework-local/state-tracking)**: Persistent project state management
+- **state-tracking**: Persistent project state management
 
-  - **[permanent/](../process-framework-local/state-tracking/permanent)**: Long-term state files including architecture tracking
-  - **[temporary/](../process-framework-local/state-tracking/temporary)**: Short-term implementation tracking
+  - **[doc/state-tracking/permanent](../doc/state-tracking/permanent)**: Project-local long-term state files (feature-tracking, bug-tracking, technical-debt-tracking, etc.)
+  - **[doc/state-tracking/temporary](../doc/state-tracking/temporary)**: Project-local short-term implementation tracking
+  - **appdev/process-framework-central/state-tracking/**: Cross-project tracking (e.g., process-improvement-tracking.md) — resolved via the project's `.framework-central-pointer`
 
 - **[templates/](../process-framework/templates)**: Templates for creating consistent process documents
 

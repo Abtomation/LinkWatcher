@@ -109,7 +109,7 @@ python process-framework/scripts/test/test_query.py --summary
 python process-framework/scripts/test/test_query.py --dump --format yaml
 
 # Single file metadata
-python process-framework/scripts/test/test_query.py --file test/automated/unit/test_service.py
+python process-framework/scripts/test/test_query.py --file test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py
 ```
 
 Implementation: Pure AST parsing — reads `pytestmark` assignments + counts test functions/classes. No imports, no test environment needed.

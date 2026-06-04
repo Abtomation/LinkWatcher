@@ -5,6 +5,7 @@ category: Assessment
 version: 1.0
 created: [Matrix Date]
 updated: [Matrix Date]
+description: "Template for debt prioritization matrices"
 ---
 # Technical Debt Prioritization Matrix: [Matrix Name]
 

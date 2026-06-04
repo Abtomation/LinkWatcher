@@ -28,9 +28,14 @@ creates_document_type: Product Documentation
 - **Feature Name**: [Feature Name]
 - **Tier**: [Tier 1 / Tier 2 / Tier 3]
 - **Classification**: Target-State
-- **Average Score**: [X.X] / 3.0
+- **Code Maturity**: [CODE_MATURITY] / 3.0  *(avg of Structural clarity, Error handling, Data integrity, Maintainability — drives the Target-State classification)*
+- **Test Maturity**: [TEST_MATURITY] / 3.0  *(Test coverage alone — separate test-plan-urgency signal)*
 - **Assessed During**: PF-TSK-065 (Codebase Feature Analysis)
 - **Assessment Date**: [YYYY-MM-DD]
+
+> **Why this is a Target-State QAR**: The Code Maturity score is below 2.0, meaning the feature has structural / error-handling / data-integrity / maintainability gaps that warrant prescriptive documentation and gap analysis. The Test Maturity score is reported separately because test gaps drive a different remediation (write tests) than design gaps (redesign).
+
+[TIER_1_DISCLAIMER]
 
 ---
 

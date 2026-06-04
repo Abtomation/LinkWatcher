@@ -7,6 +7,7 @@ created: 2025-08-01
 updated: 2025-01-27
 related_script: New-FDD.ps1
 change_notes: "v1.1 - Added Separation of Concerns section for IMP-097/IMP-098"
+description: "Guide for customizing Functional Design Document templates"
 ---
 
 # FDD Customization Guide
@@ -338,7 +339,7 @@ Use this decision tree when deciding what to include in FDDs:
 
 ### 4. Document Workflow Participation
 
-1. **Look up workflows**: Consult [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) to find which workflows this feature participates in
+1. **Look up workflows**: Consult [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to find which workflows this feature participates in
 2. **Describe feature's role**: For each workflow, briefly explain what this feature contributes (e.g., "Provides file path resolution for move detection")
 3. **Identify new workflows**: If this feature enables a new user-visible workflow, note it for addition to the workflow tracking file
    ```markdown

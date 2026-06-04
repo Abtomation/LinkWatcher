@@ -259,6 +259,6 @@ change_notes: "v1.1 - Updated for IMP-097/IMP-098: Refocused on database concern
 
 ## Related Resources
 
-- [Database Schema Design Task](/process-framework/tasks/02-design/database-schema-design-task.md)
-- [API Design Task](/process-framework/tasks/02-design/api-design-task.md)
-- [System Architecture Review](/process-framework/tasks/01-planning/system-architecture-review.md)
+- [Database Schema Design Task](../../tasks/02-design/database-schema-design-task.md)
+- [API Design Task](../../tasks/02-design/api-design-task.md)
+- [System Architecture Review](../../tasks/01-planning/system-architecture-review.md)

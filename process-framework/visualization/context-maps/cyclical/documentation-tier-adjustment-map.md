@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-06-12
 updated: 2025-06-12
 related_task: PF-TSK-011
+description: "Components for adjusting tiers"
 ---
 
 # Documentation Tier Adjustment Context Map
@@ -68,10 +69,10 @@ graph TD
 
 ## Related Documentation
 
-- [Original Tier Assessments](/doc/documentation-tiers/assessments) - Repository of initial assessments
-- [Documentation Tiers README](/doc/documentation-tiers/README.md) - Tier definitions and adjustment guidelines
-- [Assessment Guide](/process-framework/guides/01-planning/assessment-guide.md) - Detailed guide for tier determination
-- [TDD Templates](/process-framework/templates/02-design) - Tier-specific TDD templates (tdd-t1, tdd-t2, tdd-t3)
+- [Original Tier Assessments](../../../../doc/documentation-tiers/assessments) - Repository of initial assessments
+- [Documentation Tiers README](../../../../doc/documentation-tiers/README.md) - Tier definitions and adjustment guidelines
+- [Assessment Guide](../../../guides/01-planning/assessment-guide.md) - Detailed guide for tier determination
+- [TDD Templates](../../../templates/02-design) - Tier-specific TDD templates (tdd-t1, tdd-t2, tdd-t3)
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status tracking
 
 ---

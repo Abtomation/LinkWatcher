@@ -3,9 +3,10 @@ id: PF-TSK-077
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.2
 created: 2026-03-23
-updated: 2026-04-02
+updated: 2026-05-16
+description: "Plan validation rounds by selecting features and applicable dimensions, create tracking state file"
 ---
 
 # Validation Preparation
@@ -21,14 +22,6 @@ Plans a validation round by selecting features to validate, evaluating which val
 **Focus Areas**: Feature maturity assessment, dimension applicability evaluation, session planning, validation coverage
 **Communication Style**: Present dimension selection rationale per feature, ask about project-specific quality priorities, recommend validation sequence based on dependencies between dimensions
 
-## When to Use
-
-- Before starting a new validation round for any set of features
-- When new features reach implementation-complete status and need quality validation
-- When establishing validation baselines for a new project adopting the framework
-- When periodic validation is triggered (milestone review, quarterly assessment, pre-release)
-- When a specific quality concern (security incident, performance regression) warrants targeted validation
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/05-validation/validation-preparation-map.md)
@@ -41,10 +34,10 @@ Plans a validation round by selecting features to validate, evaluating which val
 
 - **Important (Load If Space):**
 
-  - **Feature Implementation State Files** - [Feature States Directory](/doc/state-tracking/features) - Implementation status details per feature, including **Dimension Profiles** (primary source for dimension applicability)
+  - **Feature Implementation State Files** - [Feature States Directory](../../../doc/state-tracking/features) - Implementation status details per feature, including **Dimension Profiles** (primary source for dimension applicability)
   - **Development Dimensions Guide** - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - Dimension definitions and applicability criteria
-  - **Technical Design Documents** - [TDD Directory](/doc/technical/tdd) - Feature specifications for understanding what each feature does
-  - **Previous Validation Reports** - [Validation Reports](/doc/validation/reports) - Prior validation results for context
+  - **Technical Design Documents** - [TDD Directory](../../../doc/technical/tdd) - Feature specifications for understanding what each feature does
+  - **Previous Validation Reports** - [Validation Reports](../../../doc/validation/reports) - Prior validation results for context
 
 - **Reference Only (Access When Needed):**
   - **Dimension Task Definitions** - [05-validation tasks](../05-validation/) - Individual dimension task definitions for understanding validation criteria
@@ -75,7 +68,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 5. **Review Dimension Catalog**: Consult the Dimension Catalog in the [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) to understand all available validation dimensions and their applicability criteria
 6. **Evaluate Dimension Applicability**: For each selected feature, determine which dimensions apply:
 
-   **Primary source**: Read the feature's **Dimension Profile** from its [implementation state file](/doc/state-tracking/features). If a profile exists, use it as the starting point — the profile was evaluated during Feature Implementation Planning (PF-TSK-044) with full design context. Verify and update if implementation has changed the picture.
+   **Primary source**: Read the feature's **Dimension Profile** from its [implementation state file](../../../doc/state-tracking/features). If a profile exists, use it as the starting point — the profile was evaluated during Feature Implementation Planning (PF-TSK-044) with full design context. Verify and update if implementation has changed the picture.
 
    **Fallback** (legacy features without profiles): Evaluate from scratch using the criteria below.
 
@@ -120,7 +113,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 8. **Plan Session Sequence**: Determine the order of dimension validation sessions:
    - Consider dimension dependencies (e.g., Architectural Consistency before Integration Dependencies)
    - Group features into batches of 2-3 per dimension session
-   - **Workflow cohort grouping**: When possible, batch features that co-participate in the same user workflow (per [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md)). This enables the validator to assess cross-feature workflow effects within a single session rather than discovering them across separate sessions. Annotate cohorts in the validation tracking file's Feature Scope table (e.g., "Cohort: WF-001").
+   - **Workflow cohort grouping**: When possible, batch features that co-participate in the same user workflow (per [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)). This enables the validator to assess cross-feature workflow effects within a single session rather than discovering them across separate sessions. Annotate cohorts in the validation tracking file's Feature Scope table (e.g., "Cohort: WF-001").
    - Estimate total sessions needed
    - **One batch per session** — see [AI Agent Session Management](../../ai-tasks.md#-ai-agent-session-management) for the rationale
 9. **🚨 CHECKPOINT**: Present the complete validation plan to human partner for approval:

@@ -8,7 +8,7 @@ updated: 2026-04-16
 audit_date: 2026-04-16
 feature_id: te-e2e-024
 auditor: AI Agent
-test_file_path: test/e2e-acceptance-testing/templates/configuration-behavior-adaptation/TE-E2E-024-custom-ignored-directories/test-case.md
+test_file_path: test/e2e-acceptance-testing/configuration-change-behavior-adapts/templates/TE-E2E-024-custom-ignored-directories/test-case.md
 ---
 
 # E2E Test Audit Report — TE-E2E-024 Custom Ignored Directories
@@ -20,7 +20,7 @@ test_file_path: test/e2e-acceptance-testing/templates/configuration-behavior-ada
 | **Feature ID** | 0.1.3, 1.1.1, 3.1.1 |
 | **Test Case ID** | TE-E2E-024 |
 | **Test Group** | TE-E2G-012 (Configuration Behavior Adaptation) |
-| **Test Case Location** | `test/e2e-acceptance-testing/templates/configuration-behavior-adaptation/TE-E2E-024-custom-ignored-directories/` |
+| **Test Case Location** | `test/e2e-acceptance-testing/configuration-change-behavior-adapts/templates/TE-E2E-024-custom-ignored-directories/` |
 | **Workflow** | WF-006: Configuration change → behavior adapts |
 | **Auditor** | AI Agent |
 | **Audit Date** | 2026-04-16 |

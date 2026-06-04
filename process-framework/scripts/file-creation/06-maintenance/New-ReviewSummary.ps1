@@ -89,14 +89,20 @@ $dateForFilename = $ReviewDate -replace '-', ''
 $timestamp = Get-Date -Format 'HHmmss'
 $fileNamePattern = "tools-review-$dateForFilename-$timestamp.md"
 
+# Phase 7 (2026-05-11): template path resolved via Get-ProcessFrameworkPath; review summary
+# writes to appdev/process-framework-central/feedback/reviews/ regardless of cwd.
+$processFrameworkDir = Get-ProcessFrameworkPath
+$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates/support/tools-review-summary-template.md"
+$outputDir = Join-Path -Path (Get-CentralFrameworkPath) -ChildPath "feedback/reviews"
+
 # Create the document using standardized process
 try {
     $documentId = New-StandardProjectDocument `
-        -TemplatePath "process-framework/templates/support/tools-review-summary-template.md" `
+        -TemplatePath $templatePath `
         -IdPrefix "PF-REV" `
         -IdDescription "Tools Review Summary $ReviewDate" `
         -DocumentName "tools-review-$dateForFilename-$timestamp" `
-        -OutputDirectory "process-framework-local/feedback/reviews" `
+        -OutputDirectory $outputDir `
         -FileNamePattern $fileNamePattern `
         -Replacements $customReplacements `
         -OpenInEditor:$OpenInEditor

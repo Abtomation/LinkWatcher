@@ -5,6 +5,7 @@ category: Guide
 version: 1.1
 created: 2025-04-27
 updated: 2025-01-27
+description: "Guide for feature tier assessment"
 ---
 
 # Documentation Tier Assessment Guide
@@ -49,7 +50,7 @@ This guide provides a structured approach for assessing the appropriate document
 
    The script will:
 
-   - Create a file with a unique artifact ID (ART-ASS-XXX)
+   - Create a file with a unique artifact ID (PD-ASS-XXX)
    - Use the naming convention: `[assessment-id]-[feature-id]-[feature-name-kebab-case].md`
    - Pre-fill the template with the feature details
    - Set up the complexity assessment table
@@ -401,7 +402,7 @@ feature_id: 1.1.1
 
 # Documentation Tier Assessment: Email + Password Registration
 
-**Assessment ID**: ART-ASS-001
+**Assessment ID**: PD-ASS-001
 **Feature ID**: 1.1.1
 **Assessment Date**: 2025-05-23
 **Assessed By**: AI Assistant
@@ -475,7 +476,7 @@ feature_id: 1.1.1
 
 # Documentation Tier Assessment: Email + Password Registration
 
-**Assessment ID**: ART-ASS-001
+**Assessment ID**: PD-ASS-001
 **Feature ID**: 1.1.1
 **Initial Assessment Date**: 2025-05-23
 **Initial Assessed By**: AI Assistant

@@ -7,6 +7,7 @@ created: 2026-04-08
 updated: 2026-04-08
 related_task: PF-TSK-083
 related_script: New-IntegrationNarrative.ps1
+description: "Step-by-step instructions for customizing Integration Narrative template sections with emphasis on source code verification"
 ---
 
 # Integration Narrative Customization Guide
@@ -17,7 +18,7 @@ This guide provides step-by-step instructions for customizing Integration Narrat
 
 ## When to Use
 
-Use this guide when customizing an Integration Narrative created by the [Integration Narrative Creation task](/process-framework/tasks/02-design/integration-narrative-creation.md) (PF-TSK-083). The script creates the document structure; this guide helps you fill it with verified, accurate content.
+Use this guide when customizing an Integration Narrative created by the [Integration Narrative Creation task](../../tasks/02-design/integration-narrative-creation.md) (PF-TSK-083). The script creates the document structure; this guide helps you fill it with verified, accurate content.
 
 > **🚨 CRITICAL**: All cross-feature interactions documented in the narrative MUST be verified against actual source code. TDDs may be outdated. The narrative documents what the code *actually does*, not what design docs claim.
 
@@ -26,7 +27,7 @@ Use this guide when customizing an Integration Narrative created by the [Integra
 Before you begin, ensure you have:
 
 - The Integration Narrative file created by `New-IntegrationNarrative.ps1` (PD-INT-XXX)
-- Access to [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) to identify participating features
+- Access to [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to identify participating features
 - Feature TDDs and ADRs for the participating features (paths in feature state files)
 - The ability to read source code for all participating features
 
@@ -77,7 +78,7 @@ Complete sections in template order — later sections build on earlier ones:
 - If a workflow has clearly independent sub-pipelines, consider separate narratives
 - If two workflows share significant components, they may warrant a combined narrative
 
-**Guideline**: Match the scope to what appears in [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md). Each row = one narrative.
+**Guideline**: Match the scope to what appears in [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md). Each row = one narrative.
 
 ### Diagram Detail Level Decision
 
@@ -93,7 +94,7 @@ Complete sections in template order — later sections build on earlier ones:
 
 ### 1. Fill in Workflow Overview
 
-Read the workflow entry in [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) and the feature state files for participating features.
+Read the workflow entry in [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) and the feature state files for participating features.
 
 1. Identify the **entry point** — the event or action that starts the workflow. Be specific (e.g., "A `FileSystemEvent` is emitted by the watchdog observer", not "A file is moved").
 2. Identify the **exit point** — the observable outcome when the workflow completes.
@@ -103,7 +104,7 @@ Read the workflow entry in [user-workflow-tracking.md](/doc/state-tracking/perma
 
 ### 2. Fill in Participating Features Table
 
-1. Check [user-workflow-tracking.md](/doc/state-tracking/permanent/user-workflow-tracking.md) for the list of features in this workflow.
+1. Check [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) for the list of features in this workflow.
 2. For each feature, describe its **role in this specific workflow** — not its general purpose. Example: "Correlates delete+create events within a time window to detect moves" (good) vs. "Handles move detection" (too vague).
 3. Include only features that actively participate in the cross-feature data flow. Supporting features (e.g., logging, config loading) should only appear if they have workflow-specific behavior.
 
@@ -113,7 +114,7 @@ Read the workflow entry in [user-workflow-tracking.md](/doc/state-tracking/perma
 
 1. For each participating feature, identify the **source files** that implement the cross-feature interaction points. Read the actual source code.
 2. List the components (classes, functions, modules) that sit at feature boundaries — where data crosses from one feature to another.
-3. Draw the Mermaid diagram using the [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md):
+3. Draw the Mermaid diagram using the [Visual Notation Guide](../support/visual-notation-guide.md):
    - Use `([Component])` for logic, `[(Database)]` for storage, `[/File/]` for file I/O
    - Label edges with what is passed: data types, event names, or callback signatures
    - Apply priority classes: `critical` (entry/exit), `important` (core pipeline), `reference` (supporting)
@@ -239,8 +240,8 @@ When a workflow uses direct function calls with no callbacks:
 
 ## Related Resources
 
-- [Integration Narrative Template](/process-framework/templates/02-design/integration-narrative-template.md) (PF-TEM-070) - The template this guide customizes
-- [Integration Narrative Creation Task](/process-framework/tasks/02-design/integration-narrative-creation.md) (PF-TSK-083) - The task that uses this guide
-- [New-IntegrationNarrative.ps1](/process-framework/scripts/file-creation/02-design/New-IntegrationNarrative.ps1) - Script that creates narrative documents
-- [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - Diagram notation standards
-- [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) - Workflow definitions and feature mapping
+- [Integration Narrative Template](../../templates/02-design/integration-narrative-template.md) (PF-TEM-070) - The template this guide customizes
+- [Integration Narrative Creation Task](../../tasks/02-design/integration-narrative-creation.md) (PF-TSK-083) - The task that uses this guide
+- [New-IntegrationNarrative.ps1](../../scripts/file-creation/02-design/New-IntegrationNarrative.ps1) - Script that creates narrative documents
+- [Visual Notation Guide](../support/visual-notation-guide.md) - Diagram notation standards
+- [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) - Workflow definitions and feature mapping

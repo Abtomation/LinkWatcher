@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-08-15
 updated: 2025-08-15
 related_task: PF-TSK-031
+description: "Components for validating architectural pattern adherence and ADR compliance"
 ---
 
 # Architectural Consistency Validation Context Map
@@ -76,6 +77,6 @@ graph TD
 - [Architectural Consistency Validation Task](../../../tasks/05-validation/architectural-consistency-validation.md) - Complete task definition and process
 - [Feature Tracking](../../../../doc/state-tracking/permanent/feature-tracking.md) - Current status of features
 - Validation Tracking State File - Active validation tracking matrix (file location depends on validation round)
-- [Architecture Decision Records](/doc/technical/adr) - Architectural standards and decisions
+- [Architecture Decision Records](../../../../doc/technical/adr) - Architectural standards and decisions
 
 ---

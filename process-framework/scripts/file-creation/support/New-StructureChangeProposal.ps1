@@ -40,6 +40,15 @@ if ($TargetDate -eq "") {
 
 $currentDate = (Get-Date).ToString("yyyy-MM-dd")
 
+# Phase 7 (2026-05-11): write to central proposals/; stamp project_id in frontmatter.
+$projectId = $null
+try {
+    $cfg = Get-ProjectConfig
+    if ($cfg.project_id) { $projectId = $cfg.project_id }
+} catch {
+    Write-Verbose "New-StructureChangeProposal: could not read doc/project-config.json; project_id will be null."
+}
+
 # Prepare custom replacements
 $customReplacements = @{
     "SC-XXX"    = "SC-PENDING"
@@ -56,24 +65,37 @@ if ($Description -ne "") {
     $customReplacements["<!-- Provide a brief overview of the proposed structure change -->"] = $Description
 }
 
+# Phase 7: template path resolved via configurable paths.process_framework
+$processFrameworkDir = Get-ProcessFrameworkPath
+$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates/support/structure-change-proposal-template.md"
+
+# Phase 7: write to appdev/process-framework-central/proposals/ regardless of cwd.
+$outputDir = Join-Path -Path (Get-CentralFrameworkPath) -ChildPath "proposals"
+
 # Create the document using standardized process
 $kebabName = ConvertTo-KebabCase -InputString $ChangeName
-$customFileName = "structure-change-$kebabName-proposal.md"
+# Filename includes PRJ-ID prefix per the Phase 7.5 Open-content convention (project-tagged).
+$prjPrefix = if ($projectId) { "${projectId}_" } else { "" }
+$customFileName = "${prjPrefix}structure-change-$kebabName-proposal.md"
+
+$additionalMetadataFields = @{
+    "project_id" = $(if ($projectId) { $projectId } else { "null" })
+}
 
 try {
     $proposalId = New-StandardProjectDocument `
-        -TemplatePath "process-framework/templates/support/structure-change-proposal-template.md" `
+        -TemplatePath $templatePath `
         -IdPrefix "PF-PRO" `
         -IdDescription "Structure change proposal for: ${ChangeName}" `
         -DocumentName $ChangeName `
-        -OutputDirectory "process-framework-local/proposals" `
+        -OutputDirectory $outputDir `
         -Replacements $customReplacements `
+        -AdditionalMetadataFields $additionalMetadataFields `
         -FileNamePattern $customFileName `
         -OpenInEditor:$OpenInEditor
 
     # Post-process: replace Target Implementation Date (the remaining YYYY-MM-DD after first replacement)
-    $projectRoot = Get-ProjectRoot
-    $outputPath = Join-Path $projectRoot "process-framework-local/proposals/$customFileName"
+    $outputPath = Join-Path -Path $outputDir -ChildPath $customFileName
     if (Test-Path $outputPath) {
         $content = Get-Content $outputPath -Raw
         # Replace the remaining YYYY-MM-DD (Target Implementation Date) with the target date

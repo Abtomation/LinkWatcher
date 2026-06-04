@@ -3,9 +3,10 @@ id: PF-TSK-010
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.6
+version: 1.8
 created: 2023-06-15
-updated: 2026-05-04
+updated: 2026-05-16
+description: "Review and improve project tools and templates"
 ---
 
 # Tools Review Task
@@ -21,23 +22,15 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 **Focus Areas**: Tool effectiveness, automation opportunities, user experience, process optimization
 **Communication Style**: Focus on tool usability and efficiency gains, ask about pain points and improvement priorities
 
-## When to Use
-
-- After completing 5 development tasks
-- Monthly, if fewer than 5 tasks have been completed
-- Quarterly for comprehensive reviews
-- When multiple feedback items suggest a common improvement opportunity
-- When new tools or templates have been recently introduced
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/support/tools-review-map.md)
 
 - **Critical (Must Read):**
 
-  - [Feedback Forms](../../feedback) - Collected feedback on tools used in previous tasks
-  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Current improvement initiatives
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - **Central feedback forms** at `appdev/process-framework-central/feedback/feedback-forms/` — incoming forms from all registered projects, named `YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-XXX_feedback.md` (Phase 7 cutover, 2026-05-11). All sessions read from this location regardless of cwd.
+  - **Central process-improvement-tracking.md** at `appdev/process-framework-central/state-tracking/permanent/process-improvement-tracking.md` — Tools Review writes new IMPs to its **Section 1 — Intake** subsection only; downstream routing is owned by IMP Triage (PF-TSK-089).
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -46,6 +39,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 - **Reference Only (Access When Needed):**
   - [Documentation Map](../../PF-documentation-map.md) - Overview of all project documentation
+  - [IMP Triage Task (PF-TSK-089)](imp-triage-task.md) - The downstream task that drains the Intake section
 
 ## Process
 
@@ -61,7 +55,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 ### Preparation
 
-1. Review [feedback forms](../../feedback/feedback-forms/) collected at the end of each task
+1. Review feedback forms collected at the end of each task. Source location: `appdev/process-framework-central/feedback/feedback-forms/` (Phase 7 cutover, 2026-05-11). Form filenames follow `YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-XXX_feedback.md` — the `<PRJ-ID>` segment identifies which project produced the form. Pre-cutover forms with the legacy `YYYYMMDD-HHMMSS-PF-TSK-XXX-feedback.md` naming have been migrated by Phase 7.5 and live at the same central path; treat them as project-of-origin = unknown unless their frontmatter declares otherwise.
 2. **Group feedback forms by task type** (e.g., all PF-TSK-002 forms together)
    - **🚨 BATCH SIZE LIMIT**: Evaluate a maximum of **40 feedback forms per session** to prevent context window exhaustion before analysis is complete
    - **Analysis quality over speed**: Analyze each form individually and thoroughly before moving to the next. Do not parallelize form analysis — sequential, careful reading catches improvement patterns that batch scanning misses.
@@ -85,50 +79,56 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
     ```powershell
     New-ReviewSummary.ps1 -FormsAnalyzed <N> -DateRangeStart 'YYYY-MM-DD' -DateRangeEnd 'YYYY-MM-DD'
     ```
-    > Content sections will be filled during Finalization (Step 17).
-12. **Routing Decision**: For each identified improvement, determine its target and use the appropriate script:
+    > Content sections will be filled during Finalization (Step 17). Skeleton-only at this stage.
+12. **Classify and register each improvement** — Phase 7 collect-only model (2026-05-11). Tools Review does **not** triage; it only routes by domain (framework vs. product) and lets the downstream task handle priority/section/owner assignment.
 
     | If the item is... | Route to... | Script |
     |---|---|---|
-    | Process framework improvement (task, template, guide, script, workflow) | [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) | [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1) |
-    | Product feature request (new capability or enhancement to existing feature) | [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) | [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1) |
-    | Bug (something broken that needs fixing) | [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) |
-    | Technical debt (code quality issue, not broken but should be improved) | [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) |
+    | Process framework improvement (task, template, guide, script, workflow) | **Central Intake section** of `appdev/process-framework-central/state-tracking/permanent/process-improvement-tracking.md` (Section 1 — Intake) | [`New-ProcessImprovement.ps1`](../../scripts/file-creation/support/New-ProcessImprovement.ps1) |
+    | Product feature request (new capability or enhancement to existing feature) | Project-local [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) (per project, not central) | [`New-FeatureRequest.ps1`](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1) |
+    | Bug (something broken that needs fixing) | Project-local [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) (per project) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) |
+    | Technical debt (code quality issue, not broken but should be improved) | Project-local [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) (per project) | [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) |
+
+    > **🎯 NEW IN PHASE 7**: Framework IMPs land in the central **Intake** section with a 7-column row (no Priority/Status/Resp Task cells). The [IMP Triage Task (PF-TSK-089)](imp-triage-task.md) then sorts Intake rows into Improvements / Extensions / Structural Changes / Active Pilots / Rejected based on classification. Tools Review's job is observation + intake, not classification.
 
     ```powershell
-    # Process framework improvement — single item
-    New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What needs improving" -Priority "MEDIUM" -Notes "Context"
+    # Framework improvement — single item (lands in Intake)
+    # Phase 7: -Priority / -Status / -RespTask params no longer accepted; routing happens during Triage.
+    New-ProcessImprovement.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "appdev/process-framework-central/feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What needs improving" -Notes "Context"
 
-    # Process framework improvements — batch mode (preferred when registering multiple IMPs)
+    # Framework improvements — batch mode (preferred when registering multiple IMPs)
     # Create a JSON file with an array of improvement objects, then:
     New-ProcessImprovement.ps1 -BatchFile "improvements.json"
-    # Each object supports: Source, SourceLink, Description (required), Priority (required), Notes, Status
+    # Each object supports: Source, SourceLink, Description (required), Notes. Phase 7: Priority/Status/RespTask are
+    # silently ignored on intake (warning emitted) — pass them to Update-ProcessImprovement.ps1 -MoveToSection after Triage.
 
     # Product feature request — use the actual filename from Step 11
-    .\New-FeatureRequest.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "../../feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What is being requested" -Priority "MEDIUM" -Notes "Context"
+    .\New-FeatureRequest.ps1 -Source "Tools Review YYYY-MM-DD" -SourceLink "appdev/process-framework-central/feedback/reviews/tools-review-YYYYMMDD-HHMMSS.md" -Description "What is being requested" -Priority "MEDIUM" -Notes "Context"
     ```
+    - **📥 SUBSECTIONS TO DRAIN**: Each feedback form has two IMP-yielding subsections — `## Improvement Suggestions` (especially `### What could be improved` and `### Specific suggestions`) AND `### Documentation Streamlining Opportunities` (under `## Follow-up Actions Required`). The checkbox-todo formatting of Streamlining Opportunities does NOT mean human-only work; each checkbox item is an IMP candidate. Drain both.
     - **🏷️ BUG vs IMP CLASSIFICATION**: The distinction is **domain-based**, not severity-based. Use the file location as the primary heuristic:
-      - `process-framework/`, `doc/` → **IMP** (process framework tooling, even if the script crashes)
-      - `src/linkwatcher` → **BUG** (product code)
+      - `process-framework/`, `doc/` (in projects) or `blueprint/process-framework/`, `blueprint/doc/` (in appdev) → **IMP** (framework tooling, even if the script crashes)
+      - `src/...` → **BUG** (product code)
       - `test/` → either: test infrastructure issues (runner scripts, tracking) = **IMP**; product test defects = **BUG**
-    - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability
-    - **🔍 DEDUPLICATION**: Before registering a new IMP, search both the "Current Improvement Opportunities" and "Completed Improvements" sections of [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for existing entries covering the same tool or issue. Also search [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — script/automation defects often land there first when discovered mid-task. Skip registration if already tracked in either.
+    - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability. The review summary itself lives at `appdev/process-framework-central/feedback/reviews/` post-Phase-7.
+    - **🎯 ROUTING HINT (optional, goes in Notes)**: When the analysis you've already done makes the destination section obvious — multi-component scope (new task + template + script + guide) → suggests Extension; pure file/directory reorganization → suggests Structural Change; new task creation → suggests Extension via PF-TSK-001 — note that observation in `-Notes` as a hint to Triage (e.g., `-Notes "Triage hint: extension scope (new task + template + guide)"`). **Do not pass `-RespTask`** — that parameter no longer exists in Phase 7's New-ProcessImprovement intake path. Triage decides routing.
+    - **🔍 DEDUPLICATION**: Before registering a new IMP, search **all open and closed sections** of the central process-improvement-tracking.md (Intake / Improvements / Extensions / Structural Changes / Active Pilots / Completed / Rejected) for existing entries covering the same tool or issue. Also search the project's own [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — script/automation defects sometimes land there first when discovered mid-task. Skip registration if already tracked in either.
     - **🎯 GRANULARITY**: Each IMP must describe exactly one actionable change. If a theme or feedback item contains multiple independent changes (e.g., "add X to task A, add Y to task B, add Z to task C"), register each as a separate IMP. Conversely, do not split a single cohesive change across multiple IMPs.
-13. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. For implementation, create [Process Improvement Task](process-improvement-task.md) entries or use [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) for feature requests
-14. **Archive processed feedback forms** (paths feed Step 15):
+13. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. Triage is the **next** task, not part of this one. Hand off to [IMP Triage (PF-TSK-089)](imp-triage-task.md) — it drains the Intake section and routes rows to Improvements / Extensions / Structural Changes / Active Pilots / Rejected. For product items, the appropriate downstream is [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) (feature requests) or [Bug Triage](../06-maintenance/bug-triage-task.md) (bugs).
+14. **Archive processed feedback forms** (paths feed Step 15). Phase 7 cutover: archives live under `appdev/process-framework-central/feedback/archive/` regardless of which project's forms are being processed (cross-project shared archive).
     1. **Create the archive folder using the same HHMMSS as the review summary filename from Step 11** so concurrent same-date sessions stay isolated:
-       `process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/`
+       `appdev/process-framework-central/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/`
     2. **Build an explicit move list** — enumerate the exact filenames of the forms you analyzed this session (the same list that goes into the review summary's Archived Forms section). Do **not** use a `*.md` glob: concurrent sessions may have created additional forms in the active folder since you started reading.
-    3. **Move by explicit filename list** (e.g., `Move-Item -Path 'feedback-forms/<form1>.md','feedback-forms/<form2>.md',… -Destination '<archive>/'`), not by glob.
-    4. **Verify after move**: count of files in the new archive folder equals length of your move list, AND none of the listed filenames remain in `process-framework-local/feedback/feedback-forms/`. Stop and reconcile before Step 15 if either check fails.
+    3. **Move by explicit filename list** (e.g., `Move-Item -Path 'appdev/process-framework-central/feedback/feedback-forms/<form1>.md','...<form2>.md',… -Destination '<archive>/'`), not by glob.
+    4. **Verify after move**: count of files in the new archive folder equals length of your move list, AND none of the listed filenames remain in `appdev/process-framework-central/feedback/feedback-forms/`. Stop and reconcile before Step 15 if either check fails.
 15. **Record ratings in feedback database**: After archiving, extract ratings from the archived forms and record them:
     ```bash
     # Extract ratings from archived forms into JSON
     # Use the same YYYYMMDD-HHMMSS as the archive folder created in Step 14
     python process-framework/scripts/extract_ratings.py \
         --review-cycle-id "tools-review-YYYYMMDD-HHMMSS" \
-        --archived-prefix "process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms" \
-        process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/*feedback*.md \
+        --archived-prefix "appdev/process-framework-central/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms" \
+        appdev/process-framework-central/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/*feedback*.md \
         -o ratings-input.json
 
     # Record in database
@@ -146,21 +146,21 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
 
 ## Outputs
 
-- **Improvement Opportunities** - Documented in appropriate tracking files: [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for framework improvements, [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for product feature requests, [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) for bugs, [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for tech debt
-- **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/support/tools-review-summary-template.md). Create via [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1)
-- **Ratings Database Update** - Quantified ratings recorded in `process-framework-local/feedback/ratings.db` for trend analysis via `python process-framework/scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference)
-- **Process Improvement Tasks** - Created [Process Improvement Task](process-improvement-task.md) entries for implementation
-- **Archive of Processed Forms** - Organized archive of processed feedback forms
+- **Framework IMP rows in central Intake** — written to Section 1 — Intake of `appdev/process-framework-central/state-tracking/permanent/process-improvement-tracking.md` (Phase 7). Triage (PF-TSK-089) is the consumer.
+- **Product-side opportunities** (per project, not central): [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) for product feature requests, [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) for bugs, [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) for tech debt
+- **Review Summary** - Documentation of findings and identified improvements, using the [Tools Review Summary Template](../../templates/support/tools-review-summary-template.md). Created via [`New-ReviewSummary.ps1`](../../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) — writes to `appdev/process-framework-central/feedback/reviews/` (Phase 7).
+- **Ratings Database Update** - Quantified ratings recorded in `appdev/process-framework-central/feedback/ratings.db` for trend analysis via `python process-framework/scripts/feedback_db.py record` (use [feedback-db-input-template.json](../../templates/support/feedback-db-input-template.json) as reference)
+- **Archive of Processed Forms** - Organized archive at `appdev/process-framework-central/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS/processed-forms/`
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) - Framework improvements identified from feedback analysis
-- [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) - Product feature requests identified from feedback analysis
-- [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Bugs identified from feedback analysis
-- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Technical debt items identified from feedback analysis
-- **🔗 MANDATORY**: All entries must include links to the tools review analysis file for full traceability
+- **Central `process-improvement-tracking.md`** (Section 1 — Intake) at `appdev/process-framework-central/state-tracking/permanent/` — framework improvements from feedback analysis. Phase 7: rows always land in Intake; downstream Triage moves them to destination sections.
+- Project-local [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) — product feature requests identified from feedback analysis (per project)
+- Project-local [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) — bugs identified from feedback analysis (per project)
+- Project-local [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — technical debt items identified from feedback analysis (per project)
+- **🔗 MANDATORY**: All entries must include links to the tools review analysis file for full traceability. The review summary lives in `appdev/process-framework-central/feedback/reviews/` post-Phase-7.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -169,16 +169,16 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Improvement opportunities documented in appropriate tracking files (process improvements, feature requests, bugs, tech debt)
-  - [ ] Review summary documenting findings and identified improvements
-  - [ ] [Process Improvement Task](process-improvement-task.md) entries created for implementation
-  - [ ] Archive of processed feedback forms
+  - [ ] Framework IMP rows landed in central **Section 1 — Intake** with the 7-col schema (ID, Source, Description, Project, Framework Version, Last Updated, Notes)
+  - [ ] Product-side opportunities documented in the appropriate project-local tracking files (feature-request-tracking, bug-tracking, technical-debt-tracking)
+  - [ ] Review summary created at `appdev/process-framework-central/feedback/reviews/`
+  - [ ] Archive of processed feedback forms at `appdev/process-framework-central/feedback/archive/YYYY-MM/...`
 - [ ] **Verify Feedback Grouping**: Ensure that only feedback forms for the same task type were analyzed together
 - [ ] **Update State Files**: Confirm all state tracking files have been updated
-  - [ ] Appropriate tracking files updated (process-improvement-tracking, feature-request-tracking, bug-tracking, technical-debt-tracking)
-  - [ ] [Process Improvement Task](process-improvement-task.md) entries created for implementation
-- [ ] **Archive Processed Forms**: Move analyzed feedback forms to archive (must happen before recording ratings):
-  - [ ] Create archive folder with session HHMMSS suffix matching the review summary filename from Step 11: `/process-framework-local/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS`
+  - [ ] Central process-improvement-tracking.md Intake section has the new rows
+  - [ ] Project-local trackers updated for product items (per project, where applicable)
+- [ ] **Archive Processed Forms**: Move analyzed feedback forms to central archive (must happen before recording ratings):
+  - [ ] Create archive folder with session HHMMSS suffix matching the review summary filename from Step 11: `appdev/process-framework-central/feedback/archive/YYYY-MM/tools-review-YYYYMMDD-HHMMSS`
   - [ ] Create subfolder: `processed-forms/` within the archive folder
   - [ ] **⚠️ CRITICAL DISTINCTION**: Only move feedback forms that were **analyzed during this session**
     - ✅ **Archive These**: Feedback forms that you reviewed, analyzed, and extracted improvements from
@@ -194,9 +194,11 @@ Before considering this task finished:
 
 ## Next Tasks
 
-- [**Process Improvement**](process-improvement-task.md) - For implementing larger process changes
+- [**IMP Triage (PF-TSK-089)**](imp-triage-task.md) — primary downstream task. Drains Intake into the appropriate destination sections (Improvements / Extensions / Structural Changes / Active Pilots / Rejected). Run this next so the freshly-intaken framework IMPs get properly classified before they sit too long.
+- [**Process Improvement (PF-TSK-009)**](process-improvement-task.md) — for implementing IMPs that Triage routes to the Improvements section (downstream of Triage, not directly from Tools Review).
 
 ## Related Resources
 
-- [Feedback Process Guide](../../../process-framework-local/feedback/archive/README.md) - Guide for collecting and processing feedback
+- [IMP Triage Task (PF-TSK-089)](imp-triage-task.md) - The task that drains the Intake section into destination sections
+- [IMP Triage Usage Guide (PF-GDE-067)](../../guides/support/imp-triage-usage-guide.md) - Decision criteria for the downstream Triage
 - [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

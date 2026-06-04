@@ -6,6 +6,13 @@ version: 1.0
 created: [CREATED-DATE]
 updated: [UPDATED-DATE]
 change_name: [CHANGE-NAME]
+variant_group: structure-change-state-templates
+variant_siblings:
+  - structure-change-state-template.md
+  - structure-change-state-content-update-template.md
+  - structure-change-state-framework-extension-template.md
+  - structure-change-state-rename-template.md
+description: "Lightweight execution-tracking template for proposal-backed structure changes (phase checklist + session log only)"
 ---
 
 # Structure Change State: [Change Name]
@@ -23,29 +30,14 @@ change_name: [CHANGE-NAME]
 
 > **Cross-check reminder**: Verify every file in the proposal's affected files table appears in at least one phase checklist below.
 
-### Phase 1: Preparation (Session 1)
-- [ ] **Review proposal**: Confirm proposal is approved and up-to-date
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **Cross-check affected files**: Verify all proposal-listed files are covered in phase checklists
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **Checkpoint**: Present execution plan to human partner for approval
-  - **Status**: [NOT_STARTED/COMPLETED]
-
-### Phase 2: Execute Changes (Session 1-2)
-- [ ] **[Describe change batch 1]**
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **[Describe change batch 2]**
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **Validate**: Grep for old patterns, confirm no stale content remains
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-
-### Phase 3: Finalization (Session 2-3)
-- [ ] **Update documentation**: Documentation Map, affected guides, README files
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **Update cross-references**: Verify all internal links are correct
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **Cleanup**: Archive temporary files, remove migration artifacts
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+> **Copy the proposal's phases here.** Each phase becomes a `### Phase N: <Name>` subsection containing checklist items in this shape:
+>
+> ```
+> - [ ] **<Step description>**
+>   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
+> ```
+>
+> The proposal owns phase shape, count, and names — this file just tracks execution against them.
 
 ## Session Tracking
 

@@ -7,6 +7,7 @@ created: 2026-03-30
 updated: 2026-03-30
 related_task: PF-TSK-014
 guide_title: Development Dimensions Guide
+description: "Single authoritative reference for 10 development dimensions across all task phases (planning, implementation, review, validation)"
 ---
 
 # Development Dimensions Guide
@@ -15,7 +16,7 @@ guide_title: Development Dimensions Guide
 
 This guide defines the **10 development dimensions** — quality aspects that should be considered throughout the development lifecycle, from planning through validation. Each dimension includes phase-specific guidance so that quality concerns are **designed for** during development rather than only **discovered** during post-implementation validation.
 
-**Relationship to validation**: The [Feature Validation Guide](/process-framework/guides/05-validation/feature-validation-guide.md) references this guide for dimension definitions and applicability criteria but retains its own scoring methodology, thresholds, and reporting templates. The AI Agent Continuity validation task (PF-TSK-036) is a standalone validation task not backed by a dimension.
+**Relationship to validation**: The [Feature Validation Guide](../05-validation/feature-validation-guide.md) references this guide for dimension definitions and applicability criteria but retains its own scoring methodology, thresholds, and reporting templates. The AI Agent Continuity validation task (PF-TSK-036) is a standalone validation task not backed by a dimension.
 
 ## When to Use
 
@@ -359,6 +360,6 @@ This guide defines the **10 development dimensions** — quality aspects that sh
 
 ## Related Resources
 
-- [Feature Validation Guide](/process-framework/guides/05-validation/feature-validation-guide.md) — Scoring methodology and thresholds for validation rounds
-- [Proposal: Dimension-Aware Development Integration (PF-PRO-013)](/process-framework-local/proposals/old/dimension-aware-development-integration-proposal.md) — Design rationale and decision log
-- [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md) — Uses dimension abbreviations as Primary Dimension (+ TST)
+- [Feature Validation Guide](../05-validation/feature-validation-guide.md) — Scoring methodology and thresholds for validation rounds
+- [Proposal: Dimension-Aware Development Integration (PF-PRO-013)](/process-framework-central/proposals/old/dimension-aware-development-integration-proposal.md) — Design rationale and decision log
+- [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — Uses dimension abbreviations as Primary Dimension (+ TST)

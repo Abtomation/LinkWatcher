@@ -55,7 +55,7 @@ YamlParser and JsonParser share duplicated structural logic for recursive tree w
 
 ### Dependencies and Impact
 
-- **Internal Dependencies**: `src/linkwatcher/parsers/__init__.py` imports both parsers; `src/linkwatcher/parser.py` dispatches to them via extension mapping. Tests in `test/automated/parsers/test_yaml.py` (18 tests) and `test/automated/parsers/test_json.py` (17 tests, 1 xfail).
+- **Internal Dependencies**: `src/linkwatcher/parsers/__init__.py` imports both parsers; `src/linkwatcher/parser.py` dispatches to them via extension mapping. Tests in `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py` (18 tests) and `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py` (17 tests, 1 xfail).
 - **External Dependencies**: None
 - **Risk Assessment**: Low — structural-only refactoring, no public API changes, comprehensive test coverage
 
@@ -104,7 +104,7 @@ Add shared helper methods to `BaseParser` that encapsulate the duplicated tree-w
 
 ### Testing Approach During Refactoring
 
-- **Regression Testing**: Run `pytest test/automated/parsers/test_yaml.py test/automated/parsers/test_json.py` after each phase
+- **Regression Testing**: Run `pytest test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py test/automated/parsers/test_json.py` after each phase
 - **Full Suite**: Run `Run-Tests.ps1 -All` after all changes to verify no cross-parser regressions
 - **New Test Requirements**: None expected — structural-only refactoring
 

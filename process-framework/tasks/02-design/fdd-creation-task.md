@@ -2,10 +2,11 @@
 id: PF-TSK-027
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.4
 created: 2025-08-01
-updated: 2026-03-02
+updated: 2026-05-16
 change_notes: "v1.2 - Added Information Flow and Separation of Concerns sections for IMP-097/IMP-098"
+description: "Create Functional Design Documents for Tier 2+ features"
 ---
 
 # FDD Creation
@@ -20,15 +21,6 @@ Create comprehensive Functional Design Documents (FDD) that capture functional r
 **Mindset**: User-focused, detail-oriented, requirement-driven
 **Focus Areas**: User experience flows, business logic, acceptance criteria, edge case identification
 **Communication Style**: Ask clarifying questions about user needs and business rules, validate understanding with examples
-
-## When to Use
-
-- After Feature Tier Assessment for Tier 2 (Moderate) or Tier 3 (Complex) features
-- Before TDD Creation when functional requirements need clarification
-- When features have complex user interactions or business rules
-- When features require stakeholder alignment on functional behavior
-- When features involve multiple user personas or workflows
-- When acceptance criteria need detailed specification before technical design
 
 ## Information Flow
 
@@ -137,7 +129,7 @@ When referencing other tasks' outputs in FDDs:
    - User interaction flows ([Feature-ID]-UI-1, [Feature-ID]-UI-2, etc.)
    - Business rules and validation logic ([Feature-ID]-BR-1, [Feature-ID]-BR-2, etc.)
 8. **Create Detailed User Experience Flow**: Expand human-provided workflow into complete user journey with decision points and alternative paths
-9. **Document Workflow Participation**: Look up the feature in [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md) and populate the "Workflow Participation" section with the workflows this feature participates in and its role in each. If the feature introduces a new user workflow, note it for addition to the tracking file.
+9. **Document Workflow Participation**: Look up the feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) and populate the "Workflow Participation" section with the workflows this feature participates in and its role in each. If the feature introduces a new user workflow, note it for addition to the tracking file.
 10. **Define Comprehensive Acceptance Criteria**: Create testable, measurable acceptance criteria based on functional requirements
 11. **Identify Edge Cases and Error Handling**: Document edge cases and error handling scenarios with expected behaviors
 12. **Map Dependencies**: Identify functional and technical dependencies from other features or systems
@@ -152,10 +144,11 @@ When referencing other tasks' outputs in FDDs:
 ## Outputs
 
 - **Functional Design Document (FDD)** - Complete FDD document in `/doc/functional-design/fdds/fdd-[feature-id]-[feature-name].md` with assigned FDD ID
-- **Updated Feature Tracking** - Feature status updated based on design columns in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md):
-  - DB Design = `Yes` → status set to `🗄️ Needs DB Design`
-  - DB Design = `No`, API Design = `Yes` → status set to `🔌 Needs API Design`
-  - Both = `No` → status set to `📝 Needs TDD`
+- **Updated Feature Tracking** - Feature Status in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) updated based on assessment-time design-required flags (recorded in the assessment document's Design Requirements Evaluation section, per PF-PRO-002 / PF-IMP-760):
+  - DB design required → status set to `🗄️ Needs DB Design`
+  - DB design not required, API design required → status set to `🔌 Needs API Design`
+  - Neither required → status set to `📝 Needs TDD`
+- **State File Documentation Inventory** - FDD link inserted into the per-feature state file's §4 Documentation Inventory by `Add-StateFileDocumentationInventoryRow`
 
 ## Example Output
 
@@ -188,7 +181,7 @@ display name, avatar, and notification preferences.
 
 The following state files are automatically updated by the ../../scripts/file-creation/02-design/New-FDD.ps1 script:
 
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with FDD document link in the FDD column and next design status (`🗄️ Needs DB Design` / `🔌 Needs API Design` / `📝 Needs TDD` based on DB/API Design columns)
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with next design Status (`🗄️ Needs DB Design` / `🔌 Needs API Design` / `📝 Needs TDD`, gated by the tier-assessment DB/API design-required flags). The FDD document link itself is inserted into the per-feature state file's §4 Documentation Inventory by `Add-StateFileDocumentationInventoryRow` (PF-PRO-002 / PF-IMP-760).
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -203,7 +196,7 @@ Before considering this task finished:
   - [ ] Acceptance criteria are testable and measurable
   - [ ] Edge cases and error handling scenarios identified
 - [ ] **Verify Automated Updates**: Ensure the ../../scripts/file-creation/02-design/New-FDD.ps1 script successfully updated state tracking files
-  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) automatically updated with FDD link and next design status
+  - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Status automatically updated to next design status; FDD link inserted into the per-feature state file's §4 Documentation Inventory
 - [ ] **Human Consultation Completed**: Confirmed that human partner was consulted about feature behavior and requirements
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-027" and context "FDD Creation"
 

@@ -7,6 +7,7 @@ created: 2026-03-23
 updated: 2026-03-23
 workflow_phase: 05-validation
 related_task: PF-TSK-072
+description: "Components for validating security best practices, data protection, and secrets management"
 ---
 
 # Security & Data Protection Validation Context Map

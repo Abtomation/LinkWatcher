@@ -30,7 +30,7 @@ AI Context
     ``base.py`` — it determines file vs directory classification.
   - Debugging duplicate matches: check the ``claimed`` set logic
     in ``_process_string_value()`` and ``_find_unclaimed_line()``.
-  - Testing: ``test/automated/parsers/test_json.py``.
+  - Testing: ``test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py``.
 """
 
 import json

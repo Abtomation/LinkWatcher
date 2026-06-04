@@ -4,9 +4,10 @@
   "language": "[language-name]",
   "version": "1.0",
   "testing": {
-    "_comment_baseCommand": "REQUIRED. The command to run tests. Placeholders: {testDir} = test directory from project-config.json, {module} = project name from project-config.json.",
+    "_comment_invocation_note": "Runner invocation style. CLI runners (e.g. pytest, 'dart test', 'go test') execute the command/flag strings below directly. Programmatically-invoked runners (e.g. Pester via Invoke-Pester) construct the real invocation in code, so the command-string fields — baseCommand, coverageArgs, coverageFullArgs, discoveryCommand, stopOnFirstFailure, verboseFlag — are documentary-only: fill them in for reference/parity, but the per-language runner builds the actual call. See powershell-config.json for a worked programmatic example (each documentary field is annotated in its _comment_).",
+    "_comment_baseCommand": "REQUIRED. The command to run tests. Placeholders: {testDir} = test directory from project-config.json, {module} = project name from project-config.json. (Documentary-only for programmatically-invoked runners — see _comment_invocation_note.)",
     "baseCommand": "[test-runner-command, e.g. 'python -m pytest' or 'dart test' or 'go test']",
-    "_comment_coverageArgs": "REQUIRED. Arguments appended to baseCommand for coverage reporting. Use {module} and {testDir} placeholders.",
+    "_comment_coverageArgs": "REQUIRED. Arguments appended to baseCommand for coverage reporting. Use {module} and {testDir} placeholders. (Documentary-only for programmatically-invoked runners — see _comment_invocation_note.)",
     "coverageArgs": "[coverage flags, e.g. '--cov={module} --cov-report=html --cov-report=term']",
     "_comment_coverageFullArgs": "OPTIONAL. Extended coverage arguments for standalone coverage generation (XML output, term-missing, etc.). Falls back to coverageArgs if omitted.",
     "coverageFullArgs": "[extended coverage flags, e.g. '--cov={module} --cov-report=html --cov-report=term-missing --cov-report=xml']",
@@ -79,8 +80,12 @@
     },
     "_comment_sublayerThreshold": "REQUIRED. Number of files in a feature directory before sublayers should be introduced.",
     "sublayerThreshold": 8,
-    "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files"
+    "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files",
+    "_comment_importRewriteTool": "OPTIONAL. AST/codemod tool the agent reads (never a script it runs) to rewrite import nodes during Codebase Source Migration (PF-TSK-091): e.g. libcst for Python, or manual to edit imports by hand and grep for path strings.",
+    "importRewriteTool": "[import-rewrite tool for source migration, e.g. libcst; or manual]"
   },
+  "_comment_recommended_skills": "OPTIONAL. Claude Code skills recommended for specific tasks when working in this language. Each entry maps a skill name to the task slugs (task definition filenames without .md) where it adds value. Populated during Project Initiation (PF-TSK-059 Step 10). Tasks with a Recommended Skills reference in their process steps check this field at session start.",
+  "recommended_skills": [],
   "_comment_headerComment": "REQUIRED for code-file generation. Comment syntax used by New-ProjectCodeMetadata when prepending document metadata blocks to generated code files. 'open' and 'close' are the block delimiters; 'linePrefix' is prepended to each metadata line. Examples — Python docstring: open '\"\"\"', close '\"\"\"', linePrefix ''. C-family (Dart/JS/TS/Java): open '/*', close ' */', linePrefix ' * '. PowerShell: open '<#', close '#>', linePrefix ''.",
   "headerComment": {
     "open": "[block-comment opener, e.g. '\"\"\"' for Python or '/*' for C-family]",

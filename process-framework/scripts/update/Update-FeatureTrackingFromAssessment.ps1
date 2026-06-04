@@ -15,7 +15,7 @@
     - Providing automation for the post-assessment workflow
 
 .PARAMETER AssessmentId
-    The assessment ID in format ART-ASS-XXX (e.g., ART-ASS-001)
+    The assessment ID in format PD-ASS-XXX (e.g., PD-ASS-001)
 
 .PARAMETER FeatureId
     The feature ID in format X.X.X (e.g., 1.2.3) - can be auto-detected from assessment file
@@ -33,13 +33,13 @@
     If specified, bypasses confirmation prompts
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "ART-ASS-001"
+    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-001"
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "ART-ASS-002" -FeatureId "2.1.5" -DryRun
+    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-002" -FeatureId "2.1.5" -DryRun
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "doc/documentation-tiers/assessments/ART-ASS-003-1.4.1-payment-processing.md" -Force
+    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "doc/documentation-tiers/assessments/PD-ASS-003-1.4.1-payment-processing.md" -Force
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -60,7 +60,7 @@ param(
     [string]$AssessmentFile,
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
+    [ValidateSet("⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔎 Needs Test Scoping", "📖 Needs User Docs", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
     [string]$Status,
 
     [Parameter(Mandatory=$false)]
@@ -125,7 +125,7 @@ try {
         } else {
             # Try to extract from filename
             $fileName = Split-Path $AssessmentFile -Leaf
-            if ($fileName -match 'ART-ASS-\d+-([0-9]+\.[0-9]+\.[0-9]+)-') {
+            if ($fileName -match 'PD-ASS-\d+-([0-9]+\.[0-9]+\.[0-9]+)-') {
                 $FeatureId = $matches[1]
                 Write-Verbose "Extracted Feature ID from filename: $FeatureId"
             } else {
@@ -136,81 +136,43 @@ try {
 
     # Extract assessment ID from content or filename if not provided
     if (-not $AssessmentId) {
-        if ($assessmentContent -match 'id:\s*(ART-ASS-\d+)') {
+        if ($assessmentContent -match 'id:\s*(PD-ASS-\d+)') {
             $AssessmentId = $matches[1]
         } else {
             $fileName = Split-Path $AssessmentFile -Leaf
-            if ($fileName -match '(ART-ASS-\d+)-') {
+            if ($fileName -match '(PD-ASS-\d+)-') {
                 $AssessmentId = $matches[1]
             }
         }
     }
 
-    # Parse assessment results
+    # Parse assessment results via the shared helper (PF-IMP-766).
+    # Get-FeatureDesignRequirements returns Tier (int) + UI/API/DB Design Required flags
+    # in one call, replacing the inline regex block that previously lived here.
     Write-Host "🔍 Analyzing assessment results..." -ForegroundColor Yellow
 
-    # Extract recommended tier
-    $recommendedTier = "Unknown"
-    # Check for checked tier checkbox pattern: [x] Tier X (...)
-    if ($assessmentContent -match '\[x\]\s+Tier\s+(\d+)') {
-        $recommendedTier = "Tier $($matches[1])"
-    }
-    # Fallback to text-based patterns
-    elseif ($assessmentContent -match '(?i)recommended\s+(?:documentation\s+)?tier[:\s]*(\d+)') {
-        $recommendedTier = "Tier $($matches[1])"
-    } elseif ($assessmentContent -match '(?i)tier\s+(\d+)\s+(?:is\s+)?recommended') {
-        $recommendedTier = "Tier $($matches[1])"
-    }
+    $requirements = Get-FeatureDesignRequirements -AssessmentFilePath $AssessmentFile
 
-    # Extract complexity assessment
-    $complexityLevel = "Unknown"
-    if ($assessmentContent -match '(?i)complexity[:\s]*([a-zA-Z]+)') {
-        $complexityLevel = $matches[1]
-    }
+    $uiDesignRequired  = $requirements.UIDesignRequired
+    $apiDesignRequired = $requirements.APIDesignRequired
+    $dbDesignRequired  = $requirements.DBDesignRequired
 
-    # Extract UI design requirement (check for [x] Yes checkbox or text patterns)
-    $uiDesignRequired = $false
-    if ($assessmentContent -match '###\s+UI\s+Design\s+Required[\s\S]{0,100}\[\s*[xX]\s*\]\s+Yes') {
-        $uiDesignRequired = $true
-    } elseif ($assessmentContent -match '(?i)ui\s+design[:\s]+(?:yes|true)') {
-        # Only match if followed by a separator and then yes/true to avoid header matching
-        $uiDesignRequired = $true
-    }
-
-    # Extract API design requirement (check for [x] Yes checkbox or text patterns)
-    $apiDesignRequired = $false
-    if ($assessmentContent -match '###\s+API\s+Design\s+Required[\s\S]{0,100}\[\s*[xX]\s*\]\s+Yes') {
-        $apiDesignRequired = $true
-    } elseif ($assessmentContent -match '(?i)api\s+design[:\s]+(?:yes|true)') {
-        # Only match if followed by a separator and then yes/true to avoid header matching
-        $apiDesignRequired = $true
-    }
-
-    # Extract database design requirement (check for [x] Yes checkbox or text patterns)
-    $dbDesignRequired = $false
-    if ($assessmentContent -match '###\s+Database\s+Design\s+Required[\s\S]{0,100}\[\s*[xX]\s*\]\s+Yes') {
-        $dbDesignRequired = $true
-    } elseif ($assessmentContent -match '(?i)database\s+(?:schema\s+)?design[:\s]+(?:yes|true)') {
-        # Only match if followed by a separator and then yes/true to avoid header matching
-        $dbDesignRequired = $true
-    }
-
-    # Add tier emoji to recommended tier
+    # Map tier integer to the display string with emoji.
     $tierEmojis = @{
-        "Tier 1" = "🔵 Tier 1"
-        "Tier 2" = "🟡 Tier 2"
-        "Tier 3" = "🔴 Tier 3"
+        1 = "🔵 Tier 1"
+        2 = "🟡 Tier 2"
+        3 = "🔴 Tier 3"
     }
-    if ($tierEmojis.ContainsKey($recommendedTier)) {
-        $recommendedTier = $tierEmojis[$recommendedTier]
-    }
+    $recommendedTier = if ($tierEmojis.ContainsKey($requirements.Tier)) { $tierEmojis[$requirements.Tier] } else { "Tier $($requirements.Tier)" }
 
     # Determine appropriate next-action status if not provided
     # Tier 2+ features need FDD next
-    # Tier 1 features skip FDD — next status depends on DB/API Design columns:
+    # Tier 1 features skip FDD/TDD/Test Spec — next status depends on DB/API Design columns:
     #   DB Design needed → 🗄️ Needs DB Design
     #   API Design needed (no DB) → 🔌 Needs API Design
-    #   Neither → 📝 Needs TDD
+    #   Neither → 🔧 Needs Impl Plan (Tier 1 has no TDD; Impl Plan is the next workflow step)
+    # Retrospective onboarding: pass -Status "🔎 Needs Test Scoping" to override
+    # (code already exists, so Impl Plan is irrelevant)
     if (-not $Status) {
         if ($recommendedTier -match 'Tier 1|🔵') {
             if ($dbDesignRequired) {
@@ -218,7 +180,7 @@ try {
             } elseif ($apiDesignRequired) {
                 $Status = "🔌 Needs API Design"
             } else {
-                $Status = "📝 Needs TDD"
+                $Status = "🔧 Needs Impl Plan"
             }
         } else {
             $Status = "📋 Needs FDD"
@@ -228,9 +190,13 @@ try {
     # Prepare additional updates
     $additionalUpdates = @{}
 
-    # Get relative path to assessment from feature-tracking.md location
+    # Get relative path to assessment from feature-tracking.md location.
+    # feature-tracking.md lives at doc/state-tracking/permanent/, so the link
+    # target is two levels up + documentation-tiers/. PF-IMP-017 fixed the
+    # previously-broken rooted form ("doc/documentation-tiers/...") which
+    # resolved as doc/state-tracking/permanent/doc/documentation-tiers/...
     $assessmentFileName = Split-Path $AssessmentFile -Leaf
-    $assessmentRelativePath = "doc/documentation-tiers/assessments/$assessmentFileName"
+    $assessmentRelativePath = "../../documentation-tiers/assessments/$assessmentFileName"
 
     # Put the assessment link in the Doc Tier column
     $additionalUpdates["Doc Tier"] = "[$recommendedTier]($assessmentRelativePath)"
@@ -243,32 +209,16 @@ try {
         # $additionalUpdates["ADR"] = "TBD"
     }
 
-    # Add UI design status
-    if ($uiDesignRequired) {
-        $additionalUpdates["UI Design"] = "Required"
-    } else {
-        $additionalUpdates["UI Design"] = "No"
-    }
+    # Design requirements ($uiDesignRequired / $apiDesignRequired / $dbDesignRequired)
+    # drive the next-action Status above (Tier 1 branches to "🗄️ Needs DB Design" or
+    # "🔌 Needs API Design") and are recorded in the assessment Notes below for
+    # human visibility. The design-creator wrappers consume the same flags via
+    # Get-FeatureDesignRequirements when computing their post-creation next-status.
 
-    # Add API design status
-    if ($apiDesignRequired) {
-        $additionalUpdates["API Design"] = "Required"
-    } else {
-        $additionalUpdates["API Design"] = "No"
-    }
-
-    # Add database design status
-    if ($dbDesignRequired) {
-        $additionalUpdates["DB Design"] = "Required"
-    } else {
-        $additionalUpdates["DB Design"] = "No"
-    }
-
-    # Prepare notes
+    # Prepare notes. Recommended tier is already in the Doc Tier column, so
+    # only the assessment-link line + design-required flags are appended below.
     $assessmentNotes = @(
-        "Assessment completed: $AssessmentId ($(Get-ProjectTimestamp -Format 'Date'))",
-        "Recommended: $recommendedTier",
-        "Complexity: $complexityLevel"
+        "Assessment completed: $AssessmentId ($(Get-ProjectTimestamp -Format 'Date'))"
     )
 
     if ($uiDesignRequired) { $assessmentNotes += "UI Design: Required" }
@@ -299,7 +249,6 @@ try {
     Write-Host "  Feature ID: $FeatureId" -ForegroundColor White
     Write-Host "  Assessment ID: $AssessmentId" -ForegroundColor White
     Write-Host "  Recommended Tier: $recommendedTier" -ForegroundColor White
-    Write-Host "  Complexity: $complexityLevel" -ForegroundColor White
     Write-Host "  UI Design Required: $uiDesignRequired" -ForegroundColor White
     Write-Host "  API Design Required: $apiDesignRequired" -ForegroundColor White
     Write-Host "  Database Design Required: $dbDesignRequired" -ForegroundColor White
@@ -310,13 +259,12 @@ try {
         Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
         Write-Host "  Status: → $Status" -ForegroundColor Cyan
         Write-Host "  Tier: → $recommendedTier" -ForegroundColor Cyan
-        Write-Host "  Complexity: → $complexityLevel" -ForegroundColor Cyan
         Write-Host "  Notes: $notesString" -ForegroundColor Cyan
 
         if ($additionalUpdates.Count -gt 3) {
             Write-Host "  Additional Updates:" -ForegroundColor Cyan
             foreach ($key in $additionalUpdates.Keys) {
-                if ($key -notin @("Tier", "Complexity")) {
+                if ($key -ne "Tier") {
                     Write-Host "    $key`: $($additionalUpdates[$key])" -ForegroundColor Cyan
                 }
             }
@@ -346,7 +294,6 @@ try {
         Write-Host "  - Feature ID: $FeatureId" -ForegroundColor Cyan
         Write-Host "  - Status: $Status" -ForegroundColor Cyan
         Write-Host "  - Tier: $recommendedTier" -ForegroundColor Cyan
-        Write-Host "  - Complexity: $complexityLevel" -ForegroundColor Cyan
         Write-Host "  - Notes: $notesString" -ForegroundColor Cyan
         return
     }
@@ -364,8 +311,13 @@ try {
     # Provide next steps based on tier (verbose-only — restore with -Verbose)
     switch ($recommendedTier) {
         "Tier 1" {
-            Write-Verbose "Next Steps: Create Technical Design Document (TDD)"
-            Write-Verbose "Next Steps: Begin implementation planning"
+            Write-Verbose "Next Steps: Begin implementation planning (Tier 1 skips FDD/TDD/Test Spec)"
+            if ($apiDesignRequired) {
+                Write-Verbose "Next Steps: Complete API Design Task before implementation planning"
+            }
+            if ($dbDesignRequired) {
+                Write-Verbose "Next Steps: Complete Database Schema Design Task before implementation planning"
+            }
         }
         "Tier 2" {
             Write-Verbose "Next Steps: Create Functional Design Document (FDD)"

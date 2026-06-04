@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-07-24
 updated: 2025-07-24
 related_task: PF-TSK-023
+description: "Context map for Technical Debt Assessment task"
 ---
 
 # Technical Debt Assessment Task Context Map

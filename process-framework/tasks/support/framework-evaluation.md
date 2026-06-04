@@ -3,9 +3,10 @@ id: PF-TSK-079
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.5
+version: 1.8
 created: 2026-03-24
-updated: 2026-04-14
+updated: 2026-06-03
+description: "Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability"
 ---
 
 # Framework Evaluation
@@ -22,15 +23,6 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 **Mindset**: Critical, systematic, evidence-based — assess against concrete criteria, not opinion
 **Focus Areas**: Structural integrity, cross-reference accuracy, convention adherence, gap identification, scalability assessment
 **Communication Style**: Present findings with evidence (file paths, specific examples), propose severity levels, ask about evaluation scope priorities
-
-## When to Use
-
-- When periodically reviewing the framework's health (e.g., quarterly, after a batch of new tasks)
-- When onboarding a new project and wanting to assess framework readiness
-- When a specific framework area feels problematic (e.g., "test scripts seem inconsistent")
-- After a significant structural change (SC-* task completion) to verify integrity
-- When evaluating whether the framework scales to a different project size or type
-- Before a major framework extension to identify gaps that should be addressed first
 
 ## Context Requirements
 
@@ -50,7 +42,7 @@ This task is analogous to the code validation tasks (05-validation) but targets 
   - [Task Creation Guide](../../guides/support/task-creation-guide.md) — Defines expected task structure and quality standards
 
 - **Reference Only (Access When Needed):**
-  - [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) — For registering new IMP entries
+  - [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) — For registering new IMP entries
   - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
   - Individual task definitions, templates, guides, scripts — loaded as needed during evaluation
 
@@ -69,9 +61,9 @@ An evaluation may span multiple sessions depending on the scope and the depth of
 - **Large evaluation scopes** (full framework, multi-phase) will naturally require multiple sessions for artifact inventory and dimension analysis alone
 - **Data-driven validation** (Step 8) may require its own dedicated session(s) to collect and analyze historical data before conclusions can be drawn
 - **Each session** must complete its planned work fully — including all checkpoint presentations and state file updates — before closing. Do not start a new analysis phase if the current one cannot be finished with proper finalization
-- **Use a temporary state file** for multi-session evaluations to track which artifacts have been assessed, which dimensions are complete, and what remains:
+- **Use a temporary state file** for multi-session evaluations to track which artifacts have been assessed, which dimensions are complete, and what remains. The `FrameworkEvaluation` variant scaffolds an evaluation-shaped state file (Artifacts in Scope inventory, per-dimension progress, findings log, session plan):
   ```bash
-  pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "<Evaluation Scope>" -Description "<scope description>" -Confirm:\$false
+  pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "<Evaluation Scope>" -Variant FrameworkEvaluation -Description "<scope description>" -Confirm:\$false
   ```
 
 The quality of an evaluation depends on thoroughness, not speed. A multi-session evaluation that properly validates every finding is more valuable than a single-session evaluation that relies on assumptions.
@@ -115,7 +107,7 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    - For each workflow in ai-tasks.md: Can every step be executed with existing artifacts?
 
    **Dimension 2 — Consistency**:
-   - Do all tasks follow the unified task structure (Purpose, AI Agent Role, When to Use, Context Requirements, Process, Outputs, State Tracking, Checklist, Next Tasks)?
+   - Do all tasks follow the unified task structure (Purpose, AI Agent Role, Context Requirements, Process, Outputs, State Tracking, Checklist, Next Tasks)?
    - Do all templates use the same metadata format and placeholder conventions?
    - Do all scripts follow the same import pattern, parameter naming, and error handling approach?
    - Are naming conventions consistent (e.g., `-task` suffix, kebab-case filenames)?
@@ -175,6 +167,8 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    - Suggested priority (Low / Medium / High)
    - Route to (see routing guidance below)
 
+   **Verify each finding against the live artifact before it becomes an IMP**: a finding is a hypothesis until checked against the current files. For each, confirm the problem is still real and not already handled by an existing script, validator surface, blueprint-provided file, or config field, then open the target file to confirm the suggested fix fits what is actually there (the field, section, or behavior it assumes exists). Re-check findings carried over from another project's working tree against the framework source — project state drifts. Drop or rewrite any finding that fails either check rather than filing it.
+
    > **Routing guidance**: Not all findings belong as standalone IMPs. Before listing improvements, group related findings that share a root cause or solution, then decide per finding/group:
    > - **IMP** (default) — isolated, self-contained improvement executable via [Process Improvement](process-improvement-task.md) (PF-TSK-009)
    > - **PF-TSK-026** — interconnected findings that together require a new framework capability (new task + template + script + guide). Register as IMP but mark for delegation to [Framework Extension](framework-extension-task.md)
@@ -205,6 +199,7 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    - Top findings (most impactful issues)
    - Proposed improvement entries with routing decisions (IMP vs delegated task)
    - Get approval before generating the report
+   - If the human reframes scope at this checkpoint, choose: re-checkpoint after rescoring, or proceed and record the adjustment in the report's Scope Description (deliberate exclusions belong here, not as Rejected IMPs)
 
 ### Finalization
 
@@ -214,10 +209,12 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    ```
    Then customize the generated report with the evaluation findings, dimension scores, and improvement recommendations.
 
-11. **Register Improvement Entries**: For each approved improvement, add an IMP entry to [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) using the automation script:
+11. **Register Improvement Entries**: For each approved improvement, add an IMP entry to [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) using the automation script:
     ```bash
     # Single item
-    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -Description "Improvement description" -Priority "MEDIUM" -Source "Framework Evaluation PF-EVR-XXX" -SourceLink "../../evaluation-reports/FILENAME.md" -Confirm:\$false
+    # Phase 7 (2026-05-11): -Priority dropped from Single param set — all IMPs land in Section 1 — Intake;
+    # Triage routes from there. Use Update-ProcessImprovement.ps1 -MoveToSection after Triage if needed.
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -Description "Improvement description" -Source "Framework Evaluation PF-EVR-XXX" -SourceLink "appdev/process-framework-central/evaluation-reports/FILENAME.md" -Confirm:\$false
 
     # Batch mode (preferred for multiple improvements) — pass a JSON array file:
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -BatchFile "improvements.json" -Confirm:\$false
@@ -228,14 +225,14 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
 
 ## Outputs
 
-- **Framework Evaluation Report** — Structured report in `process-framework-local/evaluation-reports`, created via `New-FrameworkEvaluationReport.ps1`. Contains: evaluation scope, dimension scores, detailed findings per dimension, cross-cutting findings (issues spanning 2+ dimensions listed once), improvement recommendations, and overall assessment.
-- **Improvement Entries** — IMP entries registered in [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for each actionable finding, with source linking back to the evaluation report.
+- **Framework Evaluation Report** — Structured report in `appdev/process-framework-central/evaluation-reports`, created via `New-FrameworkEvaluationReport.ps1`. Contains: evaluation scope, dimension scores, detailed findings per dimension, cross-cutting findings (issues spanning 2+ dimensions listed once), improvement recommendations, and overall assessment.
+- **Improvement Entries** — IMP entries registered in [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) for each actionable finding, with source linking back to the evaluation report.
 
 ## State Tracking
 
 The following state files must be updated as part of this task:
 
-- [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) — Add IMP entries for each improvement identified during evaluation
+- [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) — Add IMP entries for each improvement identified during evaluation
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -244,11 +241,11 @@ The following state files must be updated as part of this task:
 Before considering this task finished:
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
-  - [ ] Framework Evaluation Report created in `process-framework-local/evaluation-reports` via script
+  - [ ] Framework Evaluation Report created in `appdev/process-framework-central/evaluation-reports` via script
   - [ ] Report customized with all evaluation findings, dimension scores, and recommendations
   - [ ] All dimension scores include supporting evidence (file paths, specific examples)
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
-  - [ ] IMP entries added to [Process Improvement Tracking](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md) for each approved improvement
+  - [ ] IMP entries added to [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) for each approved improvement
   - [ ] Each IMP entry links back to the evaluation report as source
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-079" and context "Framework Evaluation"
 

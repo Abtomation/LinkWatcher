@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.0
 created: 2026-04-28
 updated: 2026-04-28
-target_area: test/automated/performance/test_benchmark.py
+target_area: test/automated/performance/level2-operation/test_benchmark.py
 refactoring_scope: Tighten BM-002/BM-006 tolerances, add warmups, switch to perf_counter, rework BM-002 iteration count, reconcile BM-001 assertion (TE-TAR-066 follow-up)
 feature_id: 2.1.1
 mode: lightweight
@@ -15,7 +15,7 @@ priority: Medium
 
 # Lightweight Refactoring Plan: Tighten BM-002/BM-006 tolerances, add warmups, switch to perf_counter, rework BM-002 iteration count, reconcile BM-001 assertion (TE-TAR-066 follow-up)
 
-- **Target Area**: test/automated/performance/test_benchmark.py
+- **Target Area**: test/automated/performance/level2-operation/test_benchmark.py
 - **Priority**: Medium
 - **Created**: 2026-04-28
 - **Author**: AI Agent & Human Partner
@@ -25,7 +25,7 @@ priority: Medium
 
 ## Shared Context
 
-All 5 items target the same file ([test/automated/performance/test_benchmark.py](/test/automated/performance/test_benchmark.py)) and address findings from audit [TE-TAR-066](/test/audits/performance/audit-report-2-1-1-test-benchmark.md). Items are ordered for safe incremental application: methodology improvements first (perf_counter, warmups), then iteration-count rework, then tolerance tightening (which depends on post-rework measurements).
+All 5 items target the same file ([test/automated/performance/test_benchmark.py](/test/automated/performance/level2-operation/test_benchmark.py)) and address findings from audit [TE-TAR-066](/test/audits/performance/level2-operation/audit-report-2-1-1-test-benchmark.md). Items are ordered for safe incremental application: methodology improvements first (perf_counter, warmups), then iteration-count rework, then tolerance tightening (which depends on post-rework measurements).
 
 **Test Baseline (L3, 2026-04-28)**: `807 passed, 5 skipped, 4 xfailed, 3 failed (pre-existing)`
 
@@ -203,4 +203,3 @@ Handoff to [Performance Baseline Capture (PF-TSK-085)](/process-framework/tasks/
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

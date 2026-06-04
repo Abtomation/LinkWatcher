@@ -76,7 +76,7 @@ $primaryLang = $projCfg.project_metadata.primary_language.ToLower()
 
 # Determine source file extension from language config
 $sourceExtension = ".py"  # fallback
-$langCfgPath = Join-Path $ProjectRoot "process-framework/languages-config/$primaryLang/$primaryLang-config.json"
+$langCfgPath = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "languages-config/$primaryLang/$primaryLang-config.json"
 if (Test-Path $langCfgPath) {
     $langCfg = Get-Content $langCfgPath -Raw | ConvertFrom-Json
     $ext = $langCfg.testing.testFileExtension
@@ -164,6 +164,12 @@ if (Test-Path $featuresDir) {
                 $cells = $line -split '\|' | Where-Object { $_.Trim() -ne '' }
                 if ($cells.Count -ge 1) {
                     $filePath = $cells[0].Trim()
+
+                    # If cell is a markdown link (e.g. [`name.py`](/path.py)), extract the link target
+                    if ($filePath -match '\[[^\]]*\]\(([^)]+)\)') {
+                        $filePath = $matches[1].Trim()
+                    }
+
                     # Normalize: remove leading slashes or ./ prefixes
                     $filePath = $filePath -replace '^\./', '' -replace '^/', ''
 

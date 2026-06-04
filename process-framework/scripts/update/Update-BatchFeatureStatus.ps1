@@ -186,11 +186,11 @@ if ($DryRun) {
     Write-Host "   🔍 DRY RUN MODE - No files will be modified" -ForegroundColor Yellow
 }
 
-# Get project root and define file paths
-$projectRoot = Get-ProjectRoot
+# Get state-tracking context and define file paths
+$stContext = Get-StateTrackingContext
 $trackingFiles = @(
-    (Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"),
-    (Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md")
+    (Resolve-DocPath -Subpath "state-tracking/permanent/feature-tracking.md"),
+    (Resolve-TrackingFilePath -File "test-tracking.md")
 )
 
 # Confirmation prompt for bulk operations (unless Force is specified)
@@ -338,7 +338,7 @@ try {
 
     # Save batch results and clean up prior successful results
     if (-not $DryRun) {
-        $resultsDir = Join-Path $projectRoot "process-framework-local/state-tracking/temporary"
+        $resultsDir = Join-Path $stContext.StateTrackingRoot "temporary"
         $resultsPath = Join-Path $resultsDir "batch-update-results-$batchId.json"
         $batchResults | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
         Write-Host "📊 Batch results saved: $resultsPath" -ForegroundColor Blue
@@ -405,7 +405,7 @@ try {
         $batchResults.Duration = $batchResults.EndTime - $batchResults.StartTime
         $batchResults.Status = "FAILED"
 
-        $resultsPath = Join-Path $projectRoot "process-framework-local/state-tracking/temporary/batch-update-results-$batchId-FAILED.json"
+        $resultsPath = Join-Path $stContext.StateTrackingRoot "temporary/batch-update-results-$batchId-FAILED.json"
         $batchResults | ConvertTo-Json -Depth 10 | Set-Content -Path $resultsPath -Encoding UTF8
         Write-Host "📊 Partial batch results saved: $resultsPath" -ForegroundColor Yellow
     }

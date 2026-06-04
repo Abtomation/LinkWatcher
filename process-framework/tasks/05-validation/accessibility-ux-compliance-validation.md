@@ -2,9 +2,10 @@
 id: PF-TSK-075
 type: Process Framework
 category: Task Definition
-version: 1.0
+version: 1.1
 created: 2026-03-23
-updated: 2026-04-03
+updated: 2026-05-16
+description: "Validate selected features for accessibility standards, UX compliance, keyboard navigation, and inclusive design patterns"
 ---
 
 # Accessibility / UX Compliance Validation
@@ -19,14 +20,6 @@ Systematically validates selected features for accessibility standards complianc
 **Mindset**: Inclusive-design-focused, standards-compliant, user-empathy-driven
 **Focus Areas**: WCAG compliance, keyboard navigation, screen reader compatibility, color contrast, focus management, semantic markup, touch target sizing
 **Communication Style**: Identify accessibility barriers with specific WCAG criteria references, recommend inclusive alternatives, ask about target accessibility level (A, AA, AAA) and platform-specific requirements
-
-## When to Use
-
-- When validating selected features for accessibility compliance as part of the validation framework
-- Before releasing UI-facing features to production
-- When investigating accessibility complaints or audit findings
-- As part of regulatory compliance reviews (ADA, Section 508, EN 301 549)
-- When features involve user interaction, form inputs, navigation, or visual content presentation
 
 ## Context Requirements
 
@@ -93,7 +86,7 @@ Systematically validates selected features for accessibility standards complianc
 15. **Update Validation Tracking**: Update the validation tracking matrix with report creation date and link
 16. **Review Quality Gates**: Ensure validation meets minimum quality thresholds (average score ≥ 2.0)
 17. **Plan Remediation**: For scores below threshold, create action items for accessibility improvements — prioritize by impact on users with disabilities
-18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](/process-framework/guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
+18. **🤖 AUTOMATED: Update Technical Debt Tracking**: Add any new open issues identified during validation — **apply the [Tech Debt Quality Gate](../../guides/05-validation/feature-validation-guide.md#tech-debt-item-quality-gate) filters before creating each item** — to [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) using the automation script:
 
     ```powershell
     process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Description" -Dims "UX" -Location "Location" -Priority "Priority" -EstimatedEffort "Effort" -AssessmentId "PF-VAL-XXX" -Notes "Notes"

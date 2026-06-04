@@ -29,7 +29,7 @@ AI Context
     for unquoted paths, or ``_looks_like_file_path()`` /
     ``_looks_like_directory_path()`` (from ``BaseParser``) for
     quoted paths.
-  - Testing: ``test/automated/parsers/test_generic.py``.
+  - Testing: ``test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_generic.py``.
 """
 
 import os.path

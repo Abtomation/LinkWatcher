@@ -2,11 +2,12 @@
 id: PF-GDE-035
 type: Process Framework
 category: Guide
-version: 1.3
+version: 1.4
 created: 2025-07-28
-updated: 2026-05-04
+updated: 2026-06-02
 related_task: PF-TSK-026
 related_script: New-FrameworkExtensionConcept.ps1
+description: "Essential guide for customizing Framework Extension Concept documents"
 ---
 # Framework Extension Concept Customization Guide
 
@@ -16,7 +17,7 @@ This guide provides comprehensive instructions for customizing Framework Extensi
 
 > **🚨 CRITICAL**: The New-FrameworkExtensionConcept.ps1 script creates only a TEMPLATE requiring extensive customization. This guide is essential for creating functional concept documents.
 
-> **Extension Type**: The script requires a `-Type` parameter (`Creation`, `Modification`, or `Hybrid`) which selects a type-specific template. Creation-type extensions use a template focused on new artifacts and multi-session plans. Modification-type extensions use a template focused on state tracking audits, guide update inventories, and automation integration. Hybrid uses the full template with all sections.
+> **Extension Type**: The script accepts a `-Type` parameter (`Creation`, `Modification`, or `Hybrid`) which selects a type-specific template. Creation-type extensions use a template focused on new artifacts and multi-session plans. Modification-type extensions use a template focused on state tracking audits, guide update inventories, and automation integration. Hybrid uses the full template with all sections. For small-scope creation extensions (single artifact), use `-Minimal` instead of `-Type` — this selects a slim template with just Purpose, Precedents, Artifact Definition, Open Questions, and Approval.
 
 ## When to Use This Guide
 
@@ -51,7 +52,8 @@ Framework Extension Concept: [Extension Name]
 3. [Section-by-Section Guide](#section-by-section-guide)
 4. [Examples](#examples)
 5. [Validation Checklist](#validation-checklist)
-6. [Related Resources](#related-resources)
+6. [Troubleshooting](#troubleshooting)
+7. [Related Resources](#related-resources)
 
 ## Prerequisites
 
@@ -246,6 +248,51 @@ Timeline: 4 sessions over 2 weeks
 - Session 4: Integration and testing
 ```
 
+### Example 3: Risk-Class Annotation Extension (Modification type)
+
+The two examples above are **Creation**-type. This worked example shows a **Modification**-type extension — one that changes existing artifacts rather than adding new ones — so you can see the Modification-Focused tables populated with realistic content. It uses the dedicated [Modification template](../../templates/support/framework-extension-concept-modification-template.md) (`New-FrameworkExtensionConcept.ps1 -Type Modification`).
+
+**Scenario:** Every IMP is risk-classified during execution (Low / Medium / High), but the classification is never persisted — it lives only in the session transcript. This extension adds a `Risk Class` column to the Process Improvement tracking table so the classification survives the session.
+
+**Selected Type:** Modification
+
+**Modification Plan** *(order and grouping — schema first so the script can be tested against the new column):*
+
+| Order | Modification | Target Artifact | Type |
+|-------|-------------|-----------------|------|
+| 1 | Add a `Risk Class` column after `Status` | process-improvement-tracking.md | Schema |
+| 2 | Add a `-RiskClass` parameter that writes the new column | Update-ProcessImprovement.ps1 | Logic |
+| 3 | Document the persisted field at Steps 10 and 14 | process-improvement-task.md | Doc |
+
+**Estimated session count:** 1
+
+**State Tracking Audit** *(every state file the extension modifies):*
+
+| State File | Current Purpose | Modification Needed | Change Type |
+|-----------|-----------------|---------------------|-------------|
+| process-improvement-tracking.md | Tracks all IMP lifecycle status | Add a `Risk Class` column (Low / Medium / High) after the `Status` column | Add field |
+
+**Cross-reference impact:** `Update-ProcessImprovement.ps1` locates columns by header name when rewriting rows; the new header must be added to its column map in the same change or row writes will misalign.
+
+**Guide Update Inventory** *(every doc that references the modified artifacts):*
+
+| File to Update | References To | Update Needed |
+|---------------|---------------|---------------|
+| process-improvement-task.md | The tracking-table columns at Steps 10 / 14 | Add `Risk Class` to the documented column list and note it is written at completion |
+| process-improvement-task-reference-guide.md | The Risk classification table | Add a sentence: the applied class is now persisted in the tracking row |
+
+**Discovery method:** `grep` for `process-improvement-tracking.md` and for the table's header row across `blueprint/process-framework/`.
+
+**Automation Integration Strategy** *(every script that reads or writes the modified artifacts):*
+
+| Existing Script | Current Behavior | Required Change | Backward Compatible? |
+|----------------|-----------------|-----------------|---------------------|
+| Update-ProcessImprovement.ps1 | Writes Status / Date / Notes columns | Add optional `-RiskClass`; write the new column when supplied | No — pre-existing rows lack the column; the same run backfills them with `—` |
+
+**New automation needed:** None — the one-time backfill rides on the existing row-rewrite path.
+
+**Why these tables matter:** for a Modification extension, the State Tracking Audit, Guide Update Inventory, and Automation Integration Strategy together form the completeness contract — every file that *reads* a modified artifact must be found before implementation, or references silently rot. The `Discovery method` and `Cross-reference impact` rows are where reviewers verify you actually swept for those readers rather than guessing.
+
 ## Validation Checklist
 
 Before submitting your customized Framework Extension Concept document, verify:
@@ -267,48 +314,6 @@ Before submitting your customized Framework Extension Concept document, verify:
 - [ ] Naming conventions follow framework standards
 - [ ] Integration approach respects existing architecture
 - [ ] Success criteria are measurable and relevant
-
-## Related Resources
-
-### Framework Documentation
-- [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md) - Complete task definition and process
-- [Framework Extension Concept Template](../../templates/support/framework-extension-concept-template.md) - Template structure and sections
-- [New-FrameworkExtensionConcept.ps1](../../scripts/file-creation/support/New-FrameworkExtensionConcept.ps1) - Script for generating concept templates
-
-### Supporting Guides
-- [Template Development Guide](template-development-guide.md) - Best practices for creating templates
-- [Guide Creation Best Practices Guide](guide-creation-best-practices-guide.md) - Standards for creating guides
-- [Task Definition Guide](task-definition-guide.md) - Guidelines for defining new tasks
-
-### Framework Infrastructure
-- [Documentation Map](../../PF-documentation-map.md) - Complete framework documentation index
-- [AI Tasks Registry](../../ai-tasks.md) - Main task registry and entry point
-- [PF ID Registry](../../PF-id-registry.json) - Document ID assignment and tracking
-
----
-
-*This guide focuses specifically on customizing Framework Extension Concept documents. For guidance on using the Framework Extension Task itself, see the [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md).*
-   - Session 2: Templates for performance specifications and reports
-   - Session 3: Guides for performance monitoring usage
-   - Session 4: Integration with existing development tasks
-
-**Result:** Complete performance monitoring capability integrated into the framework
-
-### Example 2: Adding Security Assessment Workflows
-
-**Scenario:** Need to add comprehensive security assessment capabilities that integrate with existing development and testing workflows.
-
-**Extension Concept:**
-- **Extension Name**: Security Assessment Framework Extension
-- **Extension Description**: Comprehensive security assessment workflows with threat modeling, vulnerability scanning, and security review processes
-- **Extension Scope**: New security-focused task category with automated assessment tools and reporting
-
-**Key Integration Points:**
-- Links with existing testing tasks for security test integration
-- Connects with code review processes for security-focused reviews
-- Integrates with documentation tasks for security documentation requirements
-
-**Result:** Systematic security assessment capability that enhances existing development workflows
 
 ## Troubleshooting
 
@@ -363,21 +368,28 @@ Before submitting your customized Framework Extension Concept document, verify:
 ## Related Resources
 
 ### Framework Documentation
-- [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md) - Complete task definition and specifications
-- [Framework Extension Concept Template](../../templates/support/framework-extension-concept-template.md) - Template for creating concept documents
+- [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md) - Complete task definition and process
+- [Framework Extension Concept Template](../../templates/support/framework-extension-concept-template.md) - Hybrid base template structure and sections
+- [Framework Extension Concept Modification Template](../../templates/support/framework-extension-concept-modification-template.md) - Slimmer template for modification-only extensions (used in Example 3)
+- [New-FrameworkExtensionConcept.ps1](../../scripts/file-creation/support/New-FrameworkExtensionConcept.ps1) - Script for generating concept templates (`-Type Creation/Modification/Hybrid`, `-Minimal`)
+
+### Supporting Guides
+- [Template Development Guide](template-development-guide.md) - Best practices for creating templates
+- [Guide Creation Best Practices Guide](guide-creation-best-practices-guide.md) - Standards for creating guides
 - [Task Creation Guide](task-creation-guide.md) - Guide for creating individual tasks
 - [Documentation Structure Guide](../framework/documentation-structure-guide.md) - Framework documentation standards
+- [Script Development Quick Reference](script-development-quick-reference.md) - Quick reference for script development
 
 ### State Tracking Resources
 - [Temp State Tracking Customization Guide](temp-state-tracking-customization-guide.md) - Guide for customizing temporary state tracking
 - [State File Creation Guide](state-file-creation-guide.md) - Guide for creating permanent state files
 
-### Script and Template Resources
-- [Template Development Guide](template-development-guide.md) - Guide for creating templates
-- [Script Development Quick Reference](script-development-quick-reference.md) - Quick reference for script development
-- [Guide Creation Best Practices Guide](guide-creation-best-practices-guide.md) - Best practices for creating guides
-
-### Process Framework Core
-- [AI Tasks Registry](../../ai-tasks.md) - Complete list of available tasks
-- [Documentation Map](../../PF-documentation-map.md) - Map of all framework documentation
+### Framework Infrastructure
+- [Documentation Map](../../PF-documentation-map.md) - Complete framework documentation index
+- [AI Tasks Registry](../../ai-tasks.md) - Main task registry and entry point
+- [PF ID Registry](../../PF-id-registry.json) - Document ID assignment and tracking
 - [Process Framework Overview](../../README.md) - Overview of the entire process framework
+
+---
+
+*This guide focuses specifically on customizing Framework Extension Concept documents. For guidance on using the Framework Extension Task itself, see the [Framework Extension Task Definition](../../tasks/support/framework-extension-task.md).*

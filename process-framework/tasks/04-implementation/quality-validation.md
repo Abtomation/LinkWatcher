@@ -2,9 +2,10 @@
 id: PF-TSK-054
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2025-12-13
-updated: 2026-03-02
+updated: 2026-05-16
+description: "Validate implementation against quality standards and business requirements"
 ---
 
 # Quality Validation
@@ -22,21 +23,13 @@ Validate feature implementation against quality standards, business requirements
 **Focus Areas**: Code quality metrics, performance benchmarking, security auditing, accessibility compliance, business requirement validation
 **Communication Style**: Report quality findings objectively with severity levels, propose remediation strategies, ask for clarification on acceptance thresholds and priority trade-offs
 
-## When to Use
-
-- After integration testing is complete via PF-TSK-053
-- Before implementation finalization via PF-TSK-055
-- When feature is ready for quality gate validation
-- When business stakeholders need sign-off on acceptance criteria
-- **Prerequisites**: All implementation and testing complete, acceptance criteria defined in TDD, quality standards documented
-
 ## Context Requirements
 
 [View Context Map for this task](../../visualization/context-maps/04-implementation/quality-validation-map.md)
 
 - **Critical (Must Read):**
 
-  - **Feature Implementation State File** - The permanent state tracking document at `/process-framework-local/state-tracking/permanent/feature-implementation-state-[feature-id].md` containing implementation progress and context
+  - **Feature Implementation State File** - The permanent state tracking document at `/doc/state-tracking/features/[feature-id]-implementation-state.md` containing implementation progress and context
   - **TDD (Technical Design Document)** - Acceptance criteria section describing quality requirements, performance targets, and business validation rules
   - **Completed Implementation and Tests** - All code from PF-TSK-051/056/052 and test results from PF-TSK-053
   - **Quality Standards Documentation** - Project-specific code quality standards, performance benchmarks, and security requirements
@@ -47,7 +40,7 @@ Validate feature implementation against quality standards, business requirements
   - **Accessibility Guidelines** - [WCAG 2.1 Standards](https://www.w3.org/WAI/WCAG21/quickref/) for accessibility compliance
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Security Best Practices** - [OWASP Security Guidelines](https://owasp.org/) for application security
   - **Performance Benchmarks** - Historical performance data for comparison
 

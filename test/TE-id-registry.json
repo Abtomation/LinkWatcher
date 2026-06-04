@@ -3,18 +3,28 @@
     "name": "TE-id-registry",
     "version": "1.0",
     "created": "2026-03-24",
-    "updated": "2026-03-26",
+    "updated": "2026-06-04",
     "description": "Test Artifacts ID Registry - test specifications, audit reports, E2E tests, and state tracking",
     "format": "semantic",
     "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
   },
   "prefixes": {
+    "TE-MAI": {
+      "description": "Test - Main/Index (singleton: TE-documentation-map.md). Parallel to PF-MAI / PD-MAI for the test documentation map.",
+      "category": "Testing",
+      "type": "Main",
+      "directories": {
+        "main": "test",
+        "default": "main"
+      },
+      "nextAvailable": 2
+    },
     "TE-E2G": {
       "description": "E2E Acceptance Testing - Test Groups",
       "category": "Testing",
       "type": "E2E Acceptance Test Group",
       "directories": {
-        "templates": "test/e2e-acceptance-testing/templates",
+        "templates": "test/e2e-acceptance-testing",
         "default": "templates"
       },
       "nextAvailable": 14
@@ -24,7 +34,7 @@
       "category": "Testing",
       "type": "E2E Acceptance Test Case",
       "directories": {
-        "templates": "test/e2e-acceptance-testing/templates",
+        "templates": "test/e2e-acceptance-testing",
         "default": "templates"
       },
       "nextAvailable": 29
@@ -45,15 +55,13 @@
       "category": "Testing",
       "type": "Test Audit Report",
       "directories": {
-        "foundation": "test/audits/foundation",
-        "authentication": "test/audits/authentication",
-        "core-features": "test/audits/core-features",
         "e2e": "test/audits/e2e",
         "performance": "test/audits/performance",
+        "unit": "test/audits/unit",
         "main": "test/audits",
-        "default": "foundation"
+        "default": "unit"
       },
-      "nextAvailable": 72
+      "nextAvailable": 75
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -70,10 +78,9 @@
       "category": "Testing",
       "type": "Test File",
       "directories": {
-        "unit": "test/automated/unit",
-        "integration": "test/automated/integration",
-        "parsers": "test/automated/parsers",
+        "fixtures": "test/automated/fixtures",
         "performance": "test/automated/performance",
+        "unit": "test/automated/unit",
         "default": "unit"
       },
       "nextAvailable": 134

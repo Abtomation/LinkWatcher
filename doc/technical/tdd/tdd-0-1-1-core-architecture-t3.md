@@ -293,27 +293,27 @@ class FileOperation:
 
 ### 4.3 Duplicate Instance Prevention
 
-The service uses a PID-based lock file to prevent multiple instances from running on the same project simultaneously.
+The service uses a PID lock file to prevent multiple instances from running on the same project simultaneously. Acquisition is **atomic** (`O_CREAT | O_EXCL`), so two near-simultaneous starts cannot both succeed — this closed the former check-then-write race (PD-BUG-099) where the gap between an `exists()` check and a `write_text()` let two racers overwrite each other and run concurrently.
 
 **Lock File Location**: `<project_root>/.linkwatcher.lock`
 
-**Lock File Format**: Plain text file containing the PID of the running process (e.g., `12345`).
+**Lock File Format**: Plain text file containing the PID of the running process (e.g., `12345`). The PID is for diagnostics/staleness detection only; mutual exclusion is enforced by the atomic create, not by the PID content.
 
 **Lifecycle**:
 
 1. **Acquisition** (in `main.py`, before `LinkWatcherService` instantiation):
-   - Check if `.linkwatcher.lock` exists in the project root
-   - If exists, read the PID and check if the process is still alive (`os.kill(pid, 0)` on Unix, `psutil`-free approach via `ctypes` or `os.kill` on Windows)
-   - If PID is alive → exit with error message: "LinkWatcher is already running (PID: {pid})"
-   - If PID is stale (process not running) → log warning "Overriding stale lock file", delete and recreate
-   - If lock file does not exist → create it with current PID
+   - Atomically create the lock via `os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)` and write the current PID. This single atomic create is the point of mutual exclusion.
+   - If the create fails with `FileExistsError`, read the existing PID — *settle-reading* a momentarily-empty body across a few short retries (`_read_lock_owner_pid`) so a rival's create-then-write window is not mistaken for a stale lock (TD255) — and check whether that process is alive (`ctypes`/`OpenProcess` on Windows, `os.kill(pid, 0)` on Unix):
+     - If the PID is alive → exit with error message: "LinkWatcher is already running (PID: {pid})"
+     - If the PID is stale or unreadable → log warning "Overriding stale lock file", delete it, and retry the atomic create (bounded to 5 attempts to prevent an unbounded loop if a rival keeps recreating the lock)
 2. **Release** (in `main.py` `finally` block, after `service.start()` returns):
    - Delete the lock file
    - Handles both clean shutdown (Ctrl+C) and exception paths via `try/finally`
 
 **Error Handling**:
 - If lock file cannot be created (permissions) → log warning and proceed without lock protection
-- If lock file cannot be read (corrupt content) → treat as stale, override with warning
+- If lock file holds non-numeric (corrupt) content → treat as stale and override with warning; a momentarily-empty lock (owner mid-write) is settle-read first, so only a persistently-empty orphan is overridden (TD255)
+- **Residual limitation**: staleness is determined by PID liveness, so a dead PID reused by an unrelated live process during a crash→restart window can produce a false "already running". Rare; the atomic create still prevents the simultaneous-start race that PD-BUG-099 addressed.
 
 **PowerShell Startup Script**: `start_linkwatcher_background.ps1` also checks for existing python processes associated with LinkWatcher before launching a new instance, providing a secondary guard at the script level.
 
@@ -476,9 +476,9 @@ No database schema — link storage uses an in-memory `Dict[str, List[LinkRefere
 - No global state — each `LinkWatcherService` instance is independent
 
 **Existing Test Coverage**:
-- `test/automated/unit/test_service.py`: Unit tests for service lifecycle
-- `test/automated/integration/test_service_integration.py`: End-to-end service tests
-- `test/automated/unit/test_comprehensive_file_monitoring.py`: File monitoring integration
+- `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py`: Unit tests for service lifecycle
+- `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service_integration.py`: End-to-end service tests
+- `test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_comprehensive_file_monitoring.py`: File monitoring integration
 - Multiple integration tests exercise the full service pipeline
 
 ## 11. Implementation Plan

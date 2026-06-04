@@ -752,18 +752,13 @@ function New-StandardProjectDocument {
         [hashtable]$HeaderComment
     )
 
-    # Propagate WhatIf preference across module boundaries
+    # Propagate WhatIf preference across module boundaries (PF-IMP-939: shared helper).
     # Module functions have their own session state and don't inherit the caller's
-    # $WhatIfPreference. Check the call stack to detect if any caller used -WhatIf.
-    if (-not $WhatIfPreference -and -not $PSBoundParameters.ContainsKey('WhatIf')) {
-        foreach ($frame in Get-PSCallStack) {
-            if ($frame.InvocationInfo.BoundParameters.ContainsKey('WhatIf') -and
-                $frame.InvocationInfo.BoundParameters['WhatIf'] -eq $true) {
-                $WhatIfPreference = $true
-                break
-            }
-        }
-    }
+    # $WhatIfPreference, so Get-EffectiveWhatIf walks the call stack for an explicit
+    # -WhatIf in any caller. -WhatIfBound preserves an explicit -WhatIf:$false bound on
+    # this call (e.g. from Invoke-DesignArtifactCreation) against an ancestor's -WhatIf:$true.
+    $WhatIfPreference = Get-EffectiveWhatIf -WhatIfPreference $WhatIfPreference `
+        -WhatIfBound:$PSBoundParameters.ContainsKey('WhatIf')
 
     try {
         # Resolve output directory (does not require document ID)
@@ -934,13 +929,20 @@ function Add-DocumentationMapEntry {
         -CallerCmdlet $PSCmdlet
     #>
 
-    [CmdletBinding(SupportsShouldProcess=$true)]
+    [CmdletBinding(SupportsShouldProcess=$true, DefaultParameterSetName='Exact')]
     param(
         [Parameter(Mandatory=$true)]
         [string]$DocMapPath,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Exact')]
         [string]$SectionHeader,
+
+        # F-1 (PF-IMP-871 follow-up, 2026-05-15): startsWith matcher for callers that need
+        # to target a template-headed section like `### `audits/unit/<N>-<slug>/<N.X>-<slug>/``
+        # by passing just the stable prefix `### `audits/unit/`. Existing callers continue to
+        # use exact-match -SectionHeader; this is additive.
+        [Parameter(Mandatory=$true, ParameterSetName='Prefix')]
+        [string]$SectionHeaderPrefix,
 
         [Parameter(Mandatory=$true)]
         [string]$EntryLine,
@@ -955,24 +957,30 @@ function Add-DocumentationMapEntry {
     }
 
     $docMapName = [System.IO.Path]::GetFileName($DocMapPath)
-    if (-not $CallerCmdlet.ShouldProcess($docMapName, "Append entry under '$SectionHeader'")) {
+    $sectionLabel = if ($SectionHeaderPrefix) { "$SectionHeaderPrefix... (prefix)" } else { $SectionHeader }
+    if (-not $CallerCmdlet.ShouldProcess($docMapName, "Append entry under '$sectionLabel'")) {
         return $false
     }
 
     try {
         $docMap = Get-Content -Path $DocMapPath
 
-        # Find the section header
+        # Find the section header (exact match or startsWith depending on parameter set)
         $sectionIndex = -1
         for ($i = 0; $i -lt $docMap.Length; $i++) {
-            if ($docMap[$i] -eq $SectionHeader) {
+            $matched = if ($SectionHeaderPrefix) {
+                $docMap[$i].StartsWith($SectionHeaderPrefix)
+            } else {
+                $docMap[$i] -eq $SectionHeader
+            }
+            if ($matched) {
                 $sectionIndex = $i
                 break
             }
         }
 
         if ($sectionIndex -lt 0) {
-            Write-Warning "Could not find section '$SectionHeader' in $docMapName. Manual update required."
+            Write-Warning "Could not find section '$sectionLabel' in $docMapName. Manual update required."
             return $false
         }
 
@@ -1018,7 +1026,7 @@ function Add-DocumentationMapEntry {
 
         # Read-after-write: verify the entry actually landed. This is the historical
         # silent-success failure point (TD221/222/225/230 — PF-IMP-586 root cause).
-        Assert-LineInFile -Path $DocMapPath -Pattern ([regex]::Escape($EntryLine)) -Context "Add-DocumentationMapEntry($docMapName, '$SectionHeader')"
+        Assert-LineInFile -Path $DocMapPath -Pattern ([regex]::Escape($EntryLine)) -Context "Add-DocumentationMapEntry($docMapName, '$sectionLabel')"
 
         # Soak: success outcome (caller-aware — no-op if caller not registered).
         try { Confirm-SoakInvocation -Outcome success } catch { Write-Verbose "Confirm-SoakInvocation success soft-fail: $($_.Exception.Message)" }
@@ -1036,6 +1044,42 @@ function Add-DocumentationMapEntry {
     }
 }
 
+function Update-FrontmatterDate {
+    <#
+    .SYNOPSIS
+    Replaces the `updated:` YYYY-MM-DD value in a document's YAML frontmatter.
+
+    .DESCRIPTION
+    Replaces the date value on the `updated:` line at any position in the content's frontmatter.
+    Uses the `(?m)` multiline modifier so `^` matches start-of-line rather than start-of-string —
+    `updated:` is virtually never the first line of a document. If no matching `updated:` line is
+    present, returns the content unchanged.
+
+    .PARAMETER Content
+    The full document content as a single string.
+
+    .PARAMETER CurrentDate
+    The new date in YYYY-MM-DD format. Defaults to today's date.
+
+    .EXAMPLE
+    $content = Get-Content $file -Raw
+    $content = Update-FrontmatterDate -Content $content
+    Set-Content -Path $file -Value $content
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Content,
+
+        [Parameter(Mandatory=$false)]
+        [ValidatePattern('^\d{4}-\d{2}-\d{2}$')]
+        [string]$CurrentDate = (Get-Date -Format 'yyyy-MM-dd')
+    )
+
+    return $Content -replace '(?m)(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
+}
+
 # Export functions
 Export-ModuleMember -Function @(
     'New-ProjectDocumentMetadata',
@@ -1046,5 +1090,6 @@ Export-ModuleMember -Function @(
     'New-ProjectDocumentWithCodeMetadata',
     'New-ProjectCodeMetadata',
     'New-StandardProjectDocument',
-    'Add-DocumentationMapEntry'
+    'Add-DocumentationMapEntry',
+    'Update-FrontmatterDate'
 )

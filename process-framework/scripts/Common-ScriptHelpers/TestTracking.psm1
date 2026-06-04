@@ -78,14 +78,13 @@ function Update-TestImplementationStatus {
     )
 
     try {
-        $projectRoot = Get-ProjectRoot
         $timestamp = Get-ProjectTimestamp -Format "Date"
         $results = @()
 
         Write-Verbose "Updating test implementation status for feature: $FeatureId"
 
         # Update test-tracking.md
-        $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+        $testTrackingPath = Resolve-TrackingFilePath -File "test-tracking.md"
         if (Test-Path $testTrackingPath) {
             try {
                 if ($DryRun) {
@@ -309,8 +308,7 @@ function Get-TestTrackingSectionTitle {
 
     # Try to read the actual section header from test-tracking.md
     try {
-        $projectRoot = Get-ProjectRoot
-        $trackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+        $trackingPath = Resolve-TrackingFilePath -File "test-tracking.md"
         if (Test-Path $trackingPath) {
             $content = Get-Content $trackingPath -Raw -Encoding UTF8
             $header = Get-TestTrackingSectionHeader -Content $content -FeatureId $FeatureId
@@ -634,13 +632,12 @@ function Update-TestImplementationStatusEnhanced {
     )
 
     try {
-        $projectRoot = Get-ProjectRoot
         $timestamp = Get-ProjectTimestamp -Format "Date"
 
         Write-Verbose "Updating test implementation status (enhanced) for feature: $FeatureId"
 
         # Update test-tracking.md
-        $testTrackingPath = Join-Path $projectRoot "test/state-tracking/permanent/test-tracking.md"
+        $testTrackingPath = Resolve-TrackingFilePath -File "test-tracking.md"
         if (Test-Path $testTrackingPath) {
             try {
                 if ($DryRun) {

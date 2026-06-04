@@ -5,6 +5,7 @@ category: Guide
 version: 1.1
 created: 2025-06-05
 updated: 2026-04-14
+description: "Comprehensive guide for completing feedback forms effectively (referenced by all tasks)"
 ---
 
 # Feedback Form Guide
@@ -22,7 +23,7 @@ This guide provides comprehensive instructions for completing feedback forms eff
 
 2. **Manual creation**: Copy the template and follow the naming convention: `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
-3. **File placement**: Save in `/process-framework-local/feedback/feedback-forms`
+3. **File placement**: Save in `appdev/process-framework-central/feedback/feedback-forms/`
 
 ## Time Tracking Requirements
 
@@ -102,6 +103,8 @@ Complete this when evaluating the overall process or multiple tools together.
 
 ### Tool Evaluation
 Complete one section per tool used.
+
+**Tool heading — `tool_doc_id`**: The `(...)` after the tool name in each `### Tool N:` heading is the `tool_doc_id` the analytics DB uses to link your ratings to that tool's change history. Use the **task ID** (`PF-TSK-NNN`) for a task definition, or the **filename** (`New-Task.ps1`, `feature-validation-guide.md`) for a script, guide, template, or context map — never the artifact's own `PF-GDE/PF-SCR/PF-TEM/PD-*` ID, and never blank. Matches the [TOOL_DOC_ID convention](../support/process-improvement-task-reference-guide.md#tool_doc_id-convention).
 
 **Purpose**: Briefly explain how the tool was used in this specific task.
 

@@ -24,6 +24,10 @@ documentation_mode: as-built
 additional_fields:
   tier: 3
   feature_id: "[FEATURE_ID]"
+variant_group: tdd-templates
+variant_siblings:
+  - tdd-t1-template.md
+  - tdd-t2-template.md
 ---
 
 # Technical Design Document: [Feature Name]
@@ -44,7 +48,7 @@ additional_fields:
 
 ### 1.4 Workflow Context
 
-**Workflows**: [List WF-IDs from [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md), or "None" if this feature does not participate in any user workflow]
+**Workflows**: [List WF-IDs from [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md), or "None" if this feature does not participate in any user workflow]
 
 ## 2. Requirements
 

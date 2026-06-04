@@ -22,6 +22,7 @@ If you want to store the logs as well
 import argparse
 import os
 import sys
+import time
 from pathlib import Path
 
 # Add the current directory to Python path for imports
@@ -214,40 +215,100 @@ def _is_pid_running(pid: int) -> bool:
             return False
 
 
+def _read_lock_owner_pid(lock_file: Path, settle_attempts: int = 5, settle_delay: float = 0.02):
+    """Read the owner PID from an existing lock file, tolerating the brief
+    create-then-write window in which the lock exists but its PID has not been
+    written yet (TD255).
+
+    A rival that just won the atomic ``O_EXCL`` create writes its PID a moment
+    later. Reading an *empty* body during that window and treating it as a stale
+    lock would let us delete a legitimate fresh lock and double-acquire. So on an
+    empty body we re-read a few times before giving up: a live owner's PID appears
+    within microseconds, whereas a genuine orphan (creator died before writing)
+    stays empty and is correctly reported as None (reclaimable). Non-numeric
+    content is genuine corruption — reported as None immediately, no waiting.
+
+    Returns the parsed PID, or None if the body is corrupt or stays empty.
+    """
+    for _ in range(settle_attempts):
+        try:
+            body = lock_file.read_text().strip()
+        except OSError:
+            return None
+        if body == "":
+            time.sleep(settle_delay)  # create-then-write window — let the owner write its PID
+            continue
+        try:
+            return int(body)
+        except ValueError:
+            return None  # non-numeric = corruption, reclaim now
+    return None  # stayed empty across all attempts = orphan, reclaim
+
+
 def acquire_lock(project_root: Path) -> Path:
     """Acquire a lock file to prevent duplicate instances.
 
-    Returns the lock file path on success.
-    Raises SystemExit if another instance is already running.
+    Uses an atomic ``O_CREAT | O_EXCL`` create so two near-simultaneous starts
+    cannot both win (PD-BUG-099). Exactly one process creates the lock; any
+    rival that lost the race observes the existing lock and either exits (if the
+    owner is still alive) or reclaims it (if the owner is gone). This replaces
+    the former check-then-write sequence, whose gap between ``exists()`` and
+    ``write_text()`` let two racers each overwrite the other's lock and run
+    concurrently — the condition behind the multi-instance log-rotation storm.
+
+    Returns the lock file path on success, or None if lock creation is
+    impossible (protection disabled). Raises SystemExit if another live instance
+    already holds the lock.
     """
     lock_file = project_root / LOCK_FILE_NAME
 
-    if lock_file.exists():
+    # Bounded retries: losing to a *stale* lock triggers one reclaim attempt.
+    # The bound stops an unbounded loop if a rival keeps recreating the lock.
+    for _attempt in range(5):
         try:
-            content = lock_file.read_text().strip()
-            existing_pid = int(content)
-            if existing_pid != os.getpid() and _is_pid_running(existing_pid):
+            # Atomic create — fails with FileExistsError if the lock exists.
+            fd = os.open(lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            # Lost the race (or a prior instance's lock survived). Decide
+            # whether the current owner is still alive. Settle-read tolerates the
+            # rival's create-then-write window so we don't reclaim a lock whose
+            # PID is a few microseconds from being written (TD255).
+            existing_pid = _read_lock_owner_pid(lock_file)
+
+            if (
+                existing_pid is not None
+                and existing_pid != os.getpid()
+                and _is_pid_running(existing_pid)
+            ):
                 print(f"{Fore.RED}✗ LinkWatcher is already running (PID: {existing_pid})")
                 print(f"{Fore.YELLOW}  Lock file: {lock_file}")
                 sys.exit(1)
-            else:
-                print(
-                    f"{Fore.YELLOW}⚠️ Overriding stale lock file "
-                    f"(PID {existing_pid} is no longer running)"
-                )
-        except (ValueError, OSError):
-            print(f"{Fore.YELLOW}⚠️ Overriding invalid lock file")
 
-    try:
-        lock_file.write_text(str(os.getpid()))
-    except OSError as e:
-        print(
-            f"{Fore.YELLOW}⚠️ Could not create lock file ({e}). "
-            f"Duplicate instance protection disabled."
-        )
-        return None
+            # Stale or unreadable lock — remove it and retry the atomic create.
+            print(f"{Fore.YELLOW}⚠️ Overriding stale lock file")
+            try:
+                lock_file.unlink()
+            except OSError:
+                pass
+            continue
+        except OSError as e:
+            print(
+                f"{Fore.YELLOW}⚠️ Could not create lock file ({e}). "
+                f"Duplicate instance protection disabled."
+            )
+            return None
+        else:
+            # We atomically created the lock — record our PID for diagnostics.
+            try:
+                os.write(fd, str(os.getpid()).encode("ascii"))
+            finally:
+                os.close(fd)
+            return lock_file
 
-    return lock_file
+    # Exhausted retries — a rival kept recreating the lock; treat as running.
+    print(f"{Fore.RED}✗ LinkWatcher lock is contended; another instance is starting.")
+    print(f"{Fore.YELLOW}  Lock file: {lock_file}")
+    sys.exit(1)
 
 
 def release_lock(lock_file: Path):

@@ -7,6 +7,7 @@ created: 2025-07-27
 updated: 2025-07-27
 related_script: New-ArchitectureAssessment.ps1
 related_task: PF-TSK-019
+description: "Guide for customizing architecture assessment templates"
 ---
 
 # Architecture Assessment Creation Guide

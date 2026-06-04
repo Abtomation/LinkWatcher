@@ -36,7 +36,7 @@ The new lifecycle status for the test. Valid values:
 .PARAMETER TestFile
 Path to the test file (relative to project root, with markdown link format).
 Required when transitioning to Created.
-Example: "[test_benchmark.py](/test/automated/performance/test_benchmark.py)"
+Example: "[test_benchmark.py](/test/automated/performance/level2-operation/test_benchmark.py)"
 
 .PARAMETER Baseline
 Baseline measurement value with units.
@@ -100,7 +100,7 @@ Pass -Verbose to restore the full play-by-play log for debugging.
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidatePattern('^(BM|PH)-(\d{3}|[A-Z]+)$')]
+    [ValidatePattern('^(BM|PH)-(\d+|[A-Z]+)$')]
     [string]$TestId,
 
     [Parameter(Mandatory = $false)]
@@ -147,8 +147,7 @@ Register-SoakScript
 $soakInSoak = Test-ScriptInSoak
 
 # Configuration
-$ProjectRoot = Get-ProjectRoot
-$TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "test/state-tracking/permanent/performance-test-tracking.md"
+$TrackingFile = Resolve-TrackingFilePath -File "performance-test-tracking.md"
 $ScriptName = "Update-PerformanceTracking.ps1"
 
 # Status emoji mapping
@@ -371,7 +370,7 @@ function Update-SummaryTableContent {
         if ($line -match "^## Summary") { break }
 
         # Count data rows (deduplicated by Test ID within each level)
-        if ($currentLevel -and $line -match "^\|\s*((BM|PH)-(\d{3}|[A-Z]+))\s*\|") {
+        if ($currentLevel -and $line -match "^\|\s*((BM|PH)-(\d+|[A-Z]+))\s*\|") {
             $rowTestId = $matches[1]
             $key = "$currentLevel/$rowTestId"
             if ($seen.ContainsKey($key)) { continue }

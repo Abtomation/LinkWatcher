@@ -30,8 +30,8 @@ evaluation_scope: Performance Testing Support — targeted evaluation of perform
 
 | # | Artifact | Type | Path |
 |---|----------|------|------|
-| 1 | test_benchmark.py | Test file | test/automated/performance/test_benchmark.py |
-| 2 | test_large_projects.py | Test file | test/automated/performance/test_large_projects.py |
+| 1 | test_benchmark.py | Test file | test/automated/performance/level2-operation/test_benchmark.py |
+| 2 | test_large_projects.py | Test file | test/automated/performance/level3-scale/test_large_projects.py |
 | 3 | Performance & Scalability Validation | Task | process-framework/tasks/05-validation/performance-scalability-validation.md |
 | 4 | Performance Refactoring Plan template | Template | process-framework/templates/06-maintenance/performance-refactoring-plan-template.md |
 | 5 | Run-Tests.ps1 (`-Performance` flag) | Script | process-framework/scripts/test/Run-Tests.ps1 |
@@ -72,7 +72,7 @@ evaluation_scope: Performance Testing Support — targeted evaluation of perform
 | # | Finding | Severity | Affected Artifact(s) |
 |---|---------|----------|---------------------|
 | C-1 | No dedicated performance test specification exists. The archived test-spec-4-1-1 covered performance as part of "Test Suite" but was archived when testing became a framework concern. No replacement was created. | High | test/specifications/feature-specs/ (missing artifact) |
-| C-2 | No performance baseline/budget document. Acceptable thresholds are hardcoded in test assertions (e.g., `assert elapsed < 10.0`) rather than tracked in a version-controlled baselines file. | High | test/automated/performance/test_benchmark.py, test_large_projects.py |
+| C-2 | No performance baseline/budget document. Acceptable thresholds are hardcoded in test assertions (e.g., `assert elapsed < 10.0`) rather than tracked in a version-controlled baselines file. | High | test/automated/performance/level2-operation/test_benchmark.py, test_large_projects.py |
 | C-3 | Missing performance test coverage: file update throughput (link rewriting), delete+create correlation timing, directory batch detection timing, validation mode (`--validate`) performance, config loading time. Only parsing, DB ops, initial scan, large projects, deep dirs, large files, many-refs, rapid moves, memory, and CPU are covered. | Medium | test/automated/performance/ |
 | C-4 | No performance regression tracking mechanism — no baseline files, no trend tracking, no CI comparison. | High | (missing infrastructure) |
 | C-5 | Performance tests tracked as "Testing Infrastructure" in test-tracking.md with no Feature ID, orphaning them from the feature-based tracking system. | Low | test/state-tracking/permanent/test-tracking.md |
@@ -107,7 +107,7 @@ Cross-reference accuracy was not in scope for this targeted evaluation.
 
 | # | Finding | Severity | Affected Artifact(s) |
 |---|---------|----------|---------------------|
-| E-1 | Performance tests use generous thresholds that serve as "don't crash" bounds, not meaningful benchmarks. Example: `test_bm_001` allows 10s for parsing 100 files (actual performance is likely <0.5s). | Medium | test/automated/performance/test_benchmark.py:104 |
+| E-1 | Performance tests use generous thresholds that serve as "don't crash" bounds, not meaningful benchmarks. Example: `test_bm_001` allows 10s for parsing 100 files (actual performance is likely <0.5s). | Medium | test/automated/performance/level2-operation/test_benchmark.py:104 |
 | E-2 | Performance & Scalability Validation task (PF-TSK-073) validates existing code for performance patterns but does not guide writing new performance tests or defining benchmarks. | Medium | process-framework/tasks/05-validation/performance-scalability-validation.md |
 | E-3 | Integration & Testing task mentions "Critical PE → include performance regression tests" (Step 5) but gives no concrete guidance on how to define baselines, what to measure, or what thresholds to set. | Medium | process-framework/tasks/04-implementation/integration-and-testing.md:84 |
 | E-4 | Definition of Done has generic UI-centric performance criteria ("does not cause noticeable UI lag or jank", "battery drain", "network usage") that are irrelevant for a CLI file-processing tool. | Low | process-framework/guides/04-implementation/definition-of-done.md:75-83 |

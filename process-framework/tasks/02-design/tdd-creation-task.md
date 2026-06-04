@@ -2,10 +2,11 @@
 id: PF-TSK-015
 type: Process Framework
 category: Task Definition
-version: 1.6
+version: 1.7
 created: 2023-06-15
-updated: 2026-03-02
+updated: 2026-05-16
 change_notes: "v1.5 - Added Information Flow and Separation of Concerns sections for IMP-097/IMP-098"
+description: "Create Technical Design Documents"
 ---
 
 # Technical Design Document (TDD) Creation
@@ -21,16 +22,6 @@ Create a detailed technical design document for a feature that provides a compre
 **Focus Areas**: Technical specifications, risk mitigation, team coordination, design validation
 **Communication Style**: Present design options with pros/cons and risk assessment, ask about technical constraints and requirements
 
-## When to Use
-
-- After FDD Creation for Tier 2+ features (functional requirements are defined)
-- After Feature Tier Assessment for Tier 1 features (simple features without FDD requirement)
-- Before beginning implementation of a feature
-- When a feature requires architectural decisions
-- When multiple developers will be working on the same feature
-- When integration with existing systems needs planning
-- When preparing to hand off work to a new AI agent session
-
 ## Information Flow
 
 > **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md)
@@ -41,7 +32,7 @@ Create a detailed technical design document for a feature that provides a compre
 - **Feature Tier Assessment**: Complexity tier, documentation requirements, quality attribute priorities
 - **API Design Task**: API contracts, endpoint specifications, data access patterns
 - **Database Schema Design Task**: Data model, relationships, constraints, security policies
-- **UI/UX Design Task** (when applicable): Visual specifications, component details, accessibility requirements, platform adaptations
+- **[UI Design Task](ui-design-task.md)** (PF-TSK-090, when applicable): Visual specifications, component details, accessibility requirements, platform adaptations
 
 ### Outputs to Other Tasks
 
@@ -88,18 +79,18 @@ When referencing other tasks' outputs in TDDs:
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD created in the previous step containing functional requirements and user flows
   - **TDD Templates** - Tier-specific templates for technical design documents:
-  - [T1 Template](/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
-  - [T2 Template](/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
-  - [T3 Template](/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
+  - [T1 Template](../../templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
+  - [T2 Template](../../templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
+  - [T3 Template](../../templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
   - **Feature Tier Assessment** - The tier assessment for the selected feature (locate via [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md))
 
 - **Important (Load If Space):**
 
-  - [Technical Design Documents](/doc/technical/tdd) - Existing design documents for reference
+  - [Technical Design Documents](../../../doc/technical/tdd) - Existing design documents for reference
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features that have been assessed but need TDDs
-  - [Visual Notation Guide](/process-framework/guides/support/visual-notation-guide.md) - For interpreting context map diagrams
+  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
@@ -170,7 +161,7 @@ When referencing other tasks' outputs in TDDs:
    - Store the file in the /tdd subdirectory
    - Ensure the AI Agent Session Handoff Notes section is included
 
-12. **Populate Workflow Context**: Fill in the "Workflow Context" section by referencing the FDD's Workflow Participation section (if available) or looking up the feature in [User Workflow Tracking](/doc/state-tracking/permanent/user-workflow-tracking.md). List the WF-IDs the feature participates in.
+12. **Populate Workflow Context**: Fill in the "Workflow Context" section by referencing the FDD's Workflow Participation section (if available) or looking up the feature in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md). List the WF-IDs the feature participates in.
 13. Complete the document with appropriate detail for the tier, **including quality attribute requirements and implementation** (apply dimension-informed depth from step 9):
 
 - **Tier 1 🔵**: Key implementation approach, affected components, technical constraints, and relevant quality attribute considerations
@@ -252,9 +243,8 @@ class UserProfile:
 
 The following state files are automatically updated by the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script:
 
-- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with:
-  - Status changed from "📝 Needs TDD" to "🧪 Needs Test Spec"
-  - Link to TDD document added in the "Tech Design" column
+- [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Automatically updated with Status changed from "📝 Needs TDD" to "🧪 Needs Test Spec"
+- Per-feature state file (`doc/state-tracking/features/<id>-implementation-state.md`) - TDD document link inserted into §4 Documentation Inventory by `Add-StateFileDocumentationInventoryRow` (PF-PRO-002 / PF-IMP-760)
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -275,9 +265,9 @@ Before considering this task finished:
   - [ ] Diagrams and visual aids are included as appropriate for the tier
   - [ ] Human partner feedback has been incorporated
 - [ ] **Verify Automated Updates**: Ensure the [../../scripts/file-creation/02-design/New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) script successfully updated state tracking files
-  - [ ] Feature Tracking document status automatically updated from "📝 Needs TDD" to "🧪 Needs Test Spec"
-  - [ ] Feature Tracking document automatically includes link to TDD in the "Tech Design" column
-  - [ ] Feature Tracking document automatically updated with TDD creation date in the "Notes" column
+  - [ ] Feature Tracking Status automatically updated from "📝 Needs TDD" to "🧪 Needs Test Spec"
+  - [ ] Feature Tracking Notes column automatically updated with TDD creation date
+  - [ ] TDD document link automatically inserted into the per-feature state file's §4 Documentation Inventory
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-015" and context "TDD Creation"
 
 ## Next Tasks
@@ -289,8 +279,8 @@ Before considering this task finished:
 ## Related Resources
 
 - **TDD Templates** - Tier-specific templates for technical design documents:
-  - [T1 Template](/process-framework/templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
-  - [T2 Template](/process-framework/templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
-  - [T3 Template](/process-framework/templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
-- [TDD Generation Script](/process-framework/scripts/file-creation/02-design/New-TDD.ps1) - Script for generating TDD documents
-- [Architecture Decision Records](/doc/technical/adr) - Repository of past architectural decisions
+  - [T1 Template](../../templates/02-design/tdd-t1-template.md) - For Tier 1 (simple) features
+  - [T2 Template](../../templates/02-design/tdd-t2-template.md) - For Tier 2 (moderate) features
+  - [T3 Template](../../templates/02-design/tdd-t3-template.md) - For Tier 3 (complex) features
+- [TDD Generation Script](../../scripts/file-creation/02-design/New-TDD.ps1) - Script for generating TDD documents
+- [Architecture Decision Records](../../../doc/technical/adr) - Repository of past architectural decisions

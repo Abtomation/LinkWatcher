@@ -115,7 +115,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | LinkWatcherService | Link checking (broken) | `test_check_links_with_broken_links` — detects missing targets | `temp_project_dir`, `file_helper` |
 | LinkWatcherService | Component integration | `test_service_components_integration` — all subsystems work together | `temp_project_dir`, `sample_files` |
 
-**Test File**: [`test/automated/unit/test_service.py`](../../../test/automated/unit/test_service.py)
+**Test File**: [`test/automated/unit/test_service.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py)
 **Status**: Implemented (10 test methods)
 
 #### Duplicate Instance Prevention (Lock File)
@@ -129,7 +129,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Lock file content | Valid PID stored | `test_lock_file_contains_valid_pid` — file content matches `os.getpid()` | `temp_project_dir` |
 | Corrupt lock file | Handle invalid content | `test_corrupt_lock_file_handled` — non-numeric content treated as stale | `temp_project_dir` |
 
-**Test File**: `test/automated/unit/test_lock_file.py` (new)
+**Test File**: `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_lock_file.py` (new)
 **Status**: Pending implementation
 
 ### Integration Tests
@@ -144,7 +144,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Directory rename | Service → Handler → Updater → Database | `test_fm_004_directory_rename` | All files in directory updated |
 | Nested directory | Service → Handler → Updater → Database | `test_fm_005_nested_directory_movement` | Deep path chains updated |
 
-**Test File**: [`test/automated/integration/test_file_movement.py`](../../../test/automated/integration/test_file_movement.py) (7 methods including edge cases)
+**Test File**: [`test/automated/integration/test_file_movement.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_file_movement.py) (7 methods including edge cases)
 
 #### Data Flow Testing — Link Updates
 
@@ -158,7 +158,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Python imports | Parser → Database → Updater | `test_lr_006_python_imports` | Import paths updated |
 | Dart imports | Parser → Database → Updater | `test_lr_007_dart_imports` | Dart import paths updated |
 
-**Test File**: [`test/automated/integration/test_link_updates.py`](../../../test/automated/integration/test_link_updates.py) (7 methods)
+**Test File**: [`test/automated/integration/test_link_updates.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py) (7 methods)
 
 #### Data Flow Testing — Sequential Operations
 
@@ -169,7 +169,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Database state debug | `test_sm_003_debug_database_state_during_moves` | State verified at each step |
 | Multi-file moves | `test_multiple_files_sequential_moves` | All files tracked independently |
 
-**Test File**: [`test/automated/integration/test_sequential_moves.py`](../../../test/automated/integration/test_sequential_moves.py) (4 methods)
+**Test File**: [`test/automated/integration/test_sequential_moves.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_sequential_moves.py) (4 methods)
 
 #### Platform Testing — Windows
 
@@ -190,7 +190,7 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Hidden files | `test_cp_008_hidden_file_handling` | Windows hidden attribute respected |
 | Hidden dirs | `test_cp_008_hidden_directory_handling` | Hidden directories handled |
 
-**Test File**: [`test/automated/integration/test_windows_platform.py`](../../../test/automated/integration/test_windows_platform.py) (14 methods)
+**Test File**: [`test/automated/integration/test_windows_platform.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_windows_platform.py) (14 methods)
 
 ### End-to-End Tests (Tier 3)
 
@@ -202,8 +202,8 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Image file monitoring | 1. Create project with image refs → 2. Scan → 3. Move image → 4. Verify refs updated | PNG/SVG references updated | Binary file confusion |
 
 **Test Files**:
-- [`test/automated/unit/test_comprehensive_file_monitoring.py`](../../automated/unit/test_comprehensive_file_monitoring.py) — File monitoring config verification
-- [`test/automated/integration/test_image_file_monitoring.py`](../../../test/automated/integration/test_image_file_monitoring.py) (6 methods) — Image file handling
+- [`test/automated/unit/test_comprehensive_file_monitoring.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_comprehensive_file_monitoring.py) — File monitoring config verification
+- [`test/automated/integration/test_image_file_monitoring.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_image_file_monitoring.py) (6 methods) — Image file handling
 
 ## Mock Requirements
 
