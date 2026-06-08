@@ -32,7 +32,7 @@ try:
     from colorama import Fore, init
     from git import InvalidGitRepositoryError, Repo
 
-    from linkwatcher import LinkWatcherService
+    from linkwatcher import LinkWatcherService, __version__
     from linkwatcher.config import DEFAULT_CONFIG, LinkWatcherConfig
     from linkwatcher.logging import LogLevel, get_logger, setup_logging
     from linkwatcher.validator import LinkValidator
@@ -358,7 +358,7 @@ Examples:
         action="store_true",
         help="Scan workspace for broken links and exit (does not start watcher)",
     )
-    parser.add_argument("--version", action="version", version="LinkWatcher 2.0.0")
+    parser.add_argument("--version", action="version", version=f"LinkWatcher {__version__}")
 
     args = parser.parse_args()
 
@@ -442,7 +442,7 @@ Examples:
         # Log startup information
         logger.info(
             "linkwatcher_starting",
-            version="2.0.0",
+            version=__version__,
             project_root=str(project_root),
             config_file=args.config,
             dry_run=config.dry_run_mode,
