@@ -1,0 +1,35 @@
+# LinkWatcher Project Configuration
+#
+# Per-project LinkWatcher configuration. Copy this file (or point `--config` at
+# it) and add the keys your project needs. Only the keys you set are overridden;
+# everything else uses LinkWatcher's built-in defaults.
+#
+# Full list of available keys, their defaults, and the ignore system:
+#   doc/user/handbooks/configuration-guide.md
+#
+# Precedence (highest to lowest):
+#   CLI args > LINKWATCHER_* env vars > this config file > built-in defaults
+
+# --- Validation: per-folder path-resolution overrides ----------------------
+#
+# Changes where `--validate` resolves absolute-from-host links (those starting
+# with "/", e.g. /process-framework/guide.md) for files inside a designated
+# folder. Use case: a blueprint/template folder that ships to other projects,
+# where it becomes the project root — its "/..." links are authored from the
+# rollout target's perspective and would otherwise be reported broken.
+#
+#   - Key   = folder relative to the project root (forward slashes).
+#   - Value = effective resolution base (relative to the project root). Map a
+#             folder to itself for the common "this folder is a shippable root"
+#             case; the two may differ.
+#   - Longest-prefix match wins when folders nest.
+#   - Files outside every configured folder are unaffected — their "/..." links
+#     still resolve against the project root.
+#   - Default {} (empty) = no-op. Validation-only; does not affect link updating.
+path_resolution_overrides:
+  appdev/blueprint: appdev/blueprint
+
+# --- Add further configuration below as needed -----------------------------
+# e.g. monitored_extensions, ignored_directories, validation_ignored_patterns,
+# create_backups, log_file, move_detect_delay, ... — see the configuration
+# guide linked above for the full set of keys and their defaults.

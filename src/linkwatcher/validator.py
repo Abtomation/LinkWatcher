@@ -251,6 +251,9 @@ class LinkValidator:
         self._validation_extensions = self.config.validation_extensions
         self._extra_ignored_dirs = self.config.validation_extra_ignored_dirs
         self._ignore_rules = self._load_ignore_file()
+        self._resolution_overrides = self._build_resolution_overrides(
+            self.config.path_resolution_overrides
+        )
         self._exists_cache: Dict[str, bool] = {}
 
     def validate(self) -> ValidationResult:
@@ -371,6 +374,11 @@ class LinkValidator:
         rel_path = os.path.relpath(file_path, self.project_root).replace("\\", "/")
         is_template_file = "/templates/" in rel_path
 
+        # Resolution base for absolute-from-host (/...) links in this file.
+        # Project root unless the file lives under a configured
+        # path_resolution_overrides folder (computed once per file).
+        resolution_base = self._resolution_base_for(file_path)
+
         # Build the set of ignored patterns from config
         ignored_patterns = self.config.validation_ignored_patterns
 
@@ -393,7 +401,7 @@ class LinkValidator:
 
             result.links_checked += 1
 
-            if not self._target_exists(file_path, target):
+            if not self._target_exists(file_path, target, resolution_base):
                 # Data-value link types (standalone prose mentions, YAML/JSON
                 # config entries) are often written as project-root-relative
                 # even inside deeply nested files.  Try root-relative
@@ -401,7 +409,7 @@ class LinkValidator:
                 if (
                     ref.link_type in _DATA_VALUE_LINK_TYPES
                     and not target.startswith(("/", "./", "../../..", "\\"))
-                    and self._target_exists_at_root(target)
+                    and self._target_exists_at_root(target, resolution_base)
                 ):
                     continue
 
@@ -632,20 +640,85 @@ class LinkValidator:
                 return True
         return False
 
-    def _target_exists_at_root(self, target: str) -> bool:
-        """Check whether *target* exists when resolved against project root."""
+    @staticmethod
+    def _build_resolution_overrides(raw: Optional[Dict[str, str]]) -> List[Tuple[str, str]]:
+        """Normalise the configured folder→base path-resolution overrides.
+
+        Keys (folders) and values (bases) are normalised to forward slashes
+        with leading/trailing slashes stripped.  The result is sorted by
+        descending folder length so the **first** prefix match in
+        ``_resolution_base_for`` is the longest (most specific) one.  Folders
+        that normalise to empty are dropped.
+        """
+        items: List[Tuple[str, str]] = []
+        for folder, base in (raw or {}).items():
+            norm_folder = folder.replace("\\", "/").strip("/")
+            norm_base = base.replace("\\", "/").strip("/")
+            if not norm_folder:
+                continue
+            items.append((norm_folder, norm_base))
+        items.sort(key=lambda fb: len(fb[0]), reverse=True)
+        return items
+
+    def _resolution_base_for(self, source_file: str) -> str:
+        """Return the resolution base for absolute-from-host links in *source_file*.
+
+        Files under a folder configured in ``path_resolution_overrides`` resolve
+        their ``/...`` links against ``<project_root>/<base>/`` — longest-prefix
+        match wins when folders nest.  Files outside every configured folder
+        return ``self.project_root``, so their ``/...`` links resolve against the
+        project root exactly as before (backward-compatible no-op).
+        """
+        if not self._resolution_overrides:
+            return self.project_root
+        rel = os.path.relpath(source_file, self.project_root).replace("\\", "/")
+        for folder, base in self._resolution_overrides:  # longest folder first
+            if rel == folder or rel.startswith(folder + "/"):
+                resolved_base = (
+                    os.path.normpath(os.path.join(self.project_root, base))
+                    if base
+                    else self.project_root
+                )
+                self.logger.debug(
+                    "validation_resolution_override_applied",
+                    source_file=rel,
+                    override_folder=folder,
+                    resolution_base=base or ".",
+                )
+                return resolved_base
+        return self.project_root
+
+    def _target_exists_at_root(self, target: str, resolution_base: Optional[str] = None) -> bool:
+        """Check whether *target* exists when resolved against the resolution base.
+
+        *resolution_base* is the per-file base from ``_resolution_base_for``;
+        when *None* the project root is used (backward-compatible default).
+        """
+        base = resolution_base if resolution_base is not None else self.project_root
         # Strip anchor
         if "#" in target:
             target = target.split("#", 1)[0]
             if not target:
                 return True
-        resolved = os.path.normpath(os.path.join(self.project_root, target))
+        resolved = os.path.normpath(os.path.join(base, target))
         if resolved not in self._exists_cache:
             self._exists_cache[resolved] = os.path.exists(resolved)
         return self._exists_cache[resolved]
 
-    def _target_exists(self, source_file: str, target: str) -> bool:
-        """Resolve *target* relative to *source_file* and check existence."""
+    def _target_exists(
+        self, source_file: str, target: str, resolution_base: Optional[str] = None
+    ) -> bool:
+        """Resolve *target* relative to *source_file* and check existence.
+
+        Absolute-from-host targets (starting with ``/``) resolve against
+        *resolution_base* — the per-file base from ``_resolution_base_for``,
+        which is the project root unless the source file lives under a
+        configured ``path_resolution_overrides`` folder.  When *resolution_base*
+        is *None* the project root is used (backward-compatible default).
+        Relative targets are unaffected by overrides — they always resolve
+        against the source file's own directory.
+        """
+        base = resolution_base if resolution_base is not None else self.project_root
         # Strip anchor (e.g. file.md#section → file.md)
         if "#" in target:
             target = target.split("#", 1)[0]
@@ -653,11 +726,11 @@ class LinkValidator:
                 # Pure anchor link (#section) — always valid within the file
                 return True
 
-        # Root-relative paths (starting with /) resolve against project root.
-        # This is the convention used by markdown links in this project:
-        # [text](/process-framework/...) means <project_root>/doc/...
+        # Root-relative paths (starting with /) resolve against the resolution
+        # base.  This is the convention used by markdown links in this project:
+        # [text](/process-framework/...) means <base>/process-framework/...
         if target.startswith("/"):
-            resolved = os.path.normpath(os.path.join(self.project_root, target.lstrip("/")))
+            resolved = os.path.normpath(os.path.join(base, target.lstrip("/")))
         else:
             # Resolve relative to the directory containing the source file
             source_dir = os.path.dirname(source_file)

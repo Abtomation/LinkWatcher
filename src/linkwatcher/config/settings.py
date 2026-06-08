@@ -60,7 +60,8 @@ class LinkWatcherConfig:
           ``json_logs``, etc.
         - **Validation**: ``validation_extensions``,
           ``validation_extra_ignored_dirs``,
-          ``validation_ignored_patterns``, ``validation_ignore_file``
+          ``validation_ignored_patterns``, ``validation_ignore_file``,
+          ``validation_output_dir``, ``path_resolution_overrides``
         - **Move detection timing**: ``move_detect_delay``,
           ``dir_move_max_timeout``, ``dir_move_settle_delay``
     """
@@ -175,6 +176,24 @@ class LinkWatcherConfig:
             "dart": ".dart",
         }
     )
+
+    # Per-folder path-resolution overrides for --validate.  Maps a folder
+    # (relative to project_root, forward slashes) to an effective resolution
+    # base for absolute-from-host links — those starting with "/" — authored in
+    # files under that folder.  A blueprint/template folder that ships to other
+    # projects (where it becomes the root) writes its "/..." links from the
+    # rollout target's perspective; without an override they resolve against
+    # <project_root>/ and are reported broken.  With
+    #   path_resolution_overrides: {"appdev/blueprint": "appdev/blueprint"}
+    # a "/process-framework/x.md" link in appdev/blueprint/foo.md resolves
+    # against <project_root>/appdev/blueprint/ instead.  Longest-prefix match
+    # wins when folders nest.  Files outside every configured folder are
+    # unaffected — their "/..." links still resolve against <project_root>/.
+    # Default {} = no-op (validation behavior unchanged when the key is
+    # absent).  Validation-only — does not affect the live link-updating
+    # pipeline.  NOTE: like parser_type_extensions, env-var loading does not
+    # special-case Dict fields, so set this via a config file, not LINKWATCHER_*.
+    path_resolution_overrides: Dict[str, str] = field(default_factory=dict)
 
     # Python source root — when set, strip this prefix from file paths
     # before comparing with Python import targets.  For src/ layout projects,

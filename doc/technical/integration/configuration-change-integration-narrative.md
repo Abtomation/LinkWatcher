@@ -170,6 +170,7 @@ Every field on `LinkWatcherConfig` that is actually read by the running service 
 | `validation_extra_ignored_dirs` | 6.1.1 | `LinkValidator.__init__` at [validator.py:252](src/linkwatcher/validator.py#L252); merged with `ignored_directories` at [validator.py:267](src/linkwatcher/validator.py#L267) | Adds validator-only ignore directories (e.g., `fixtures`, `archive`) |
 | `validation_ignored_patterns` | 6.1.1 | `LinkValidator` at [validator.py:375](src/linkwatcher/validator.py#L375) | Substring-match suppression of broken-link reports |
 | `validation_ignore_file` | 6.1.1 | `LinkValidator` at [validator.py:609](src/linkwatcher/validator.py#L609) | Path to the `.linkwatcher-ignore` source/target glob rules file |
+| `path_resolution_overrides` | 6.1.1 | `LinkValidator.__init__` builds `self._resolution_overrides` via `_build_resolution_overrides()`; applied per file by `_resolution_base_for()` ([validator.py](src/linkwatcher/validator.py)) | Per-folder resolution base for absolute-from-host (`/...`) links during `--validate`; default `{}` = no-op |
 
 ### Orphan configuration fields
 

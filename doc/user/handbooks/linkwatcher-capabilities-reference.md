@@ -168,6 +168,7 @@ Three detection strategies:
 | `move_detect_delay` | 10s | Window for delete+create correlation |
 | `enable_*_parser` | all true | Toggle individual parsers |
 | `validation_extensions` | `.md`, `.yaml`, `.yml`, `.json` | Extensions for `--validate` |
+| `path_resolution_overrides` | `{}` (empty) | Per-folder resolution base for `/...` links during `--validate` (e.g. blueprint folders) |
 | `python_source_root` | none | Strip prefix for `src/` layout projects |
 
 Config precedence: CLI args > Environment variables (`LINKWATCHER_*`) > Config file (YAML/JSON) > Defaults.

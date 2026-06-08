@@ -169,7 +169,7 @@ inherited_dimensions: PE,EM,SE,OB
 
 ### Step 9: Data Layer Implementation
 
-- **Status**: [ ] Not started
+- **Status**: [x] Complete (2026-06-05)
 - **Applicable**: Yes
 - **Referenced Task Doc**: [Data Layer Implementation (PF-TSK-051)](../../tasks/04-implementation/data-layer-implementation.md)
 - **Rationale**: The enhancement adds a configuration field (`path_resolution_overrides`) to the config model — the "data layer" for this CLI tool.
@@ -241,7 +241,7 @@ inherited_dimensions: PE,EM,SE,OB
 
 ### Step 15: Update Tests
 
-- **Status**: [ ] Not started
+- **Status**: [x] Complete (2026-06-05)
 - **Applicable**: Yes
 - **Referenced Task Doc**: [Integration & Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)
 - **Rationale**: The new resolution behavior needs unit coverage.
@@ -253,7 +253,7 @@ inherited_dimensions: PE,EM,SE,OB
 
 ### Step 16: Code Review
 
-- **Status**: [ ] Not started
+- **Status**: [x] Complete (2026-06-05) — flake8 clean; validator.py 100% coverage maintained; full regression 847 passed/3 skipped/4 xfailed; backward-compat, SE (no new traversal surface), PE (per-file lookup + no-config fast path), longest-prefix correctness, and OB (single per-file debug log) all verified. No bugs/tech-debt/implementation-gaps found.
 - **Applicable**: Yes
 - **Referenced Task Doc**: [Code Review (PF-TSK-005)](../../tasks/06-maintenance/code-review-task.md)
 - **Rationale**: Modifies core validator path-resolution logic — non-trivial.
@@ -265,7 +265,7 @@ inherited_dimensions: PE,EM,SE,OB
 
 ### Step 17: User Documentation
 
-- **Status**: [ ] Not started
+- **Status**: [x] Complete (2026-06-05) — documented `path_resolution_overrides` in configuration-guide.md (new subsection + example-config entry), linkwatcher-capabilities-reference.md (Key Configuration Options row), quick-reference.md (cross-ref note), and link-validation.md (new subsection; intro count 2→3). All edits to existing handbooks (no new PD-UGD doc).
 - **Applicable**: Yes
 - **Referenced Task Doc**: [User Documentation Creation (PF-TSK-081)](../../tasks/07-deployment/user-documentation-creation.md)
 - **Rationale**: Adds a user-visible config key (`path_resolution_overrides`).
@@ -277,7 +277,7 @@ inherited_dimensions: PE,EM,SE,OB
 
 ### Step 18: Update Feature State
 
-- **Status**: [ ] Not started
+- **Status**: [x] Complete (2026-06-05) — 6.1.1 state file (PD-FIS-055): added enhancement to "What's Working", recorded `validator.py` (new helpers) + `config/settings.py` + `config-examples/linkwatcher-config.yaml` in Code Inventory, bumped test count to 124, updated dates.
 - **Applicable**: Yes
 - **Referenced Task Doc**: N/A — direct state file update
 - **Rationale**: Feature state must always be updated to reflect the enhancement.
@@ -291,13 +291,18 @@ inherited_dimensions: PE,EM,SE,OB
 
 ## Session Log
 
-### Session 1: _Pending — to be executed via Feature Enhancement (PF-TSK-068)_
+### Session 1 (2026-06-05): Executed via Feature Enhancement (PF-TSK-068)
 
 **Completed**:
-- _To be filled during execution._
+- Step 9 — Added `path_resolution_overrides: Dict[str, str]` (default `{}`) to `config/settings.py` (modelled on `parser_type_extensions`); added `config-examples/linkwatcher-config.yaml` (created as `validation-overrides-config.yaml`, renamed via PF-TSK-014 same day). Validator: `_build_resolution_overrides` (normalise + longest-first sort) and `_resolution_base_for` (per-file base lookup) added; `_target_exists` and `_target_exists_at_root` honor an optional `resolution_base`; `_check_file` computes the base once per file and threads it. Verified end-to-end against a temp workspace (override applied / outside-folder still root / no-config no-op).
+- Step 15 — Added 13 unit tests to `test_validator.py` (TestBuildResolutionOverrides, TestResolutionBaseFor, TestPathResolutionOverrides covering cases a–e). Validator suite 124 passed; full regression 847 passed / 3 skipped / 4 xfailed. Updated test-tracking.md count 111→124. `Validate-TestTracking.ps1` — 0 errors.
+- Step 16 — Code review: flake8 clean, validator.py 100% coverage, backward-compat/SE/PE/longest-prefix/OB all verified. No findings to route.
+- Step 17 — Documented the key in configuration-guide.md, linkwatcher-capabilities-reference.md, quick-reference.md, link-validation.md (existing-handbook edits).
+- Step 18 — Updated 6.1.1 state file (PD-FIS-055).
+- Finalization doc-accuracy (PF-TSK-068 Phase 4 Step 9) — caught drift beyond the scoped handbooks: updated `link-health-audit-integration-narrative.md` ("four"→"five" validation fields, 6.1.1 resolution role, diagram) and `configuration-change-integration-narrative.md` (added `path_resolution_overrides` row to the exhaustive config-field→consumer table). No FDD/TDD/test-spec exist (Tier 1).
 
 **Issues**:
-- _To be filled during execution._
+- None. (Pre-existing, unrelated: `Validate-TestTracking.ps1` reports 7 other rows with count drift and a marker-vs-collection discrepancy on the parametrized class — both pre-existing, left untouched.)
 
 **Next Session**:
 - N/A (single session)
@@ -306,8 +311,8 @@ inherited_dimensions: PE,EM,SE,OB
 
 > **Instructions**: Complete when all applicable execution steps are done. This checklist is part of the Feature Enhancement task (PF-TSK-068) completion process.
 
-- [ ] All applicable execution steps marked complete
-- [ ] All non-applicable steps confirmed as "Not applicable" with rationale
-- [ ] Target feature's implementation state file updated to reflect enhancement
-- [ ] Feature tracking status restored (removed "🔄 Needs Enhancement", set appropriate status, removed state file link)
-- [ ] This file archived to `state-tracking/temporary/old/`
+- [x] All applicable execution steps marked complete (9, 15, 16, 17, 18)
+- [x] All non-applicable steps confirmed as "Not applicable" with rationale (1–8, 10–14)
+- [x] Target feature's implementation state file updated to reflect enhancement (PD-FIS-055)
+- [x] Feature tracking status restored (removed "🔄 Needs Enhancement", set "🔎 Needs Test Scoping", removed state file link from Notes)
+- [x] This file archived to `state-tracking/temporary/old/`

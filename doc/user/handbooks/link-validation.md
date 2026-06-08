@@ -85,7 +85,7 @@ python main.py --validate --quiet || echo "Broken links detected!"
 
 ## Configuration
 
-Two configuration keys control validation behavior:
+Three configuration keys control validation behavior:
 
 ### `validation_ignored_patterns`
 
@@ -134,6 +134,26 @@ doc/state-tracking/**/*.md -> old-module.py
 **How it works**: A broken link is suppressed when the source file matches the glob pattern AND the link target contains the substring.
 
 **Best practice**: Prefer fixing the actual broken link over adding an ignore rule. Every rule is a potential blind spot.
+
+### `path_resolution_overrides`
+
+By default, absolute-from-host links (those starting with `/`, e.g. `/process-framework/guide.md`) resolve against the **project root**. This key changes the resolution base for `/...` links in files **under** a designated folder.
+
+The motivating case: a blueprint or template folder that ships to other projects, where it *becomes* the project root. Its `/...` links are authored from the rollout target's perspective, so when you run `--validate` from your dev-workspace root they would otherwise be reported broken.
+
+```yaml
+# linkwatcher-config.yaml
+path_resolution_overrides:
+  appdev/blueprint: appdev/blueprint   # "/foo.md" in appdev/blueprint/** → appdev/blueprint/foo.md
+```
+
+- **Key** = folder relative to the project root; **value** = resolution base (relative to the project root). Map a folder to itself for the common "this folder is a shippable root" case; the two may differ.
+- **Longest-prefix match wins** when folders nest.
+- **Files outside every configured folder are unaffected** — their `/...` links still resolve against the project root.
+- **Default**: `{}` (empty) — validation behavior is unchanged when the key is absent.
+- Set this via a config file; like `parser_type_extensions`, it is **not** configurable via a `LINKWATCHER_*` environment variable.
+
+See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-config.yaml) for a complete example.
 
 ## Combining with Other Options
 

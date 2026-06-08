@@ -142,6 +142,8 @@ validation_ignored_patterns:    # Suppress broken-link reports when target conta
 
 validation_ignore_file: ".linkwatcher-ignore"  # Path to per-file ignore rules
 
+path_resolution_overrides: {}   # Per-folder resolution base for "/..." links during --validate (see below)
+
 # === Python Import Resolution ===
 python_source_root: ""       # Strip this prefix for import resolution (e.g., "src")
 ```
@@ -296,6 +298,25 @@ validation_ignored_patterns:
   - "path/to/"        # Skip all placeholder paths
   - "example.com"     # Skip example URLs
 ```
+
+## Per-Folder Path Resolution Override (`path_resolution_overrides`)
+
+By default, `--validate` resolves absolute-from-host links (those starting with `/`, e.g. `/process-framework/guide.md`) against the project root. A blueprint or template folder that ships to other projects — where it *becomes* the project root — authors its `/...` links from the rollout target's perspective, so those links look broken when you validate from your dev-workspace root.
+
+`path_resolution_overrides` maps a folder (relative to the project root) to an effective resolution base for the `/...` links in files **under** that folder:
+
+```yaml
+path_resolution_overrides:
+  appdev/blueprint: appdev/blueprint   # "/foo.md" in appdev/blueprint/** resolves to appdev/blueprint/foo.md
+```
+
+- **Key** = folder relative to the project root. **Value** = resolution base (relative to the project root). Map a folder to itself for the common "this folder is a shippable root" case; the two may differ.
+- **Longest-prefix match wins** when folders nest.
+- **Files outside every configured folder are unaffected** — their `/...` links still resolve against the project root.
+- **Default is empty (`{}`)** — validation behavior is unchanged when the key is absent. This is **validation-only**; it does not affect live link updating.
+- Set this via a config file (like `parser_type_extensions`, it is not configurable via `LINKWATCHER_*` environment variables).
+
+See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-config.yaml) for a complete example.
 
 ## Tips and Best Practices
 

@@ -1272,3 +1272,157 @@ class TestLinkwatcherIgnoreFile:
         # The valid rule should still work despite the malformed line
         targets = {bl.target_path for bl in result.broken_links}
         assert "missing/doc.md" not in targets
+
+
+# ---------------------------------------------------------------------------
+# Per-folder path-resolution overrides (path_resolution_overrides — 6.1.1 enh)
+# ---------------------------------------------------------------------------
+
+
+class TestBuildResolutionOverrides:
+    """Unit tests for the _build_resolution_overrides normaliser."""
+
+    def test_empty_input_returns_empty_list(self):
+        assert LinkValidator._build_resolution_overrides(None) == []
+        assert LinkValidator._build_resolution_overrides({}) == []
+
+    def test_normalizes_slashes_and_drops_empty_keys(self):
+        """Keys/values are slash-normalised, stripped; empty keys dropped."""
+        raw = {"/a/": "/base_a/", "a\\b": "base_b", "": "ignored"}
+        result = dict(LinkValidator._build_resolution_overrides(raw))
+        assert result == {"a": "base_a", "a/b": "base_b"}
+
+    def test_sorted_longest_folder_first(self):
+        """Result is ordered by descending folder length (longest-prefix wins)."""
+        raw = {"a": "a", "a/b/c": "a/b/c", "a/b": "a/b"}
+        folders = [folder for folder, _ in LinkValidator._build_resolution_overrides(raw)]
+        assert folders == sorted(folders, key=len, reverse=True)
+
+
+class TestResolutionBaseFor:
+    """Unit tests for the per-file _resolution_base_for lookup."""
+
+    def test_no_overrides_returns_project_root(self, tmp_path):
+        v = LinkValidator(str(tmp_path), _make_config())
+        src = os.path.join(str(tmp_path), "anything", "foo.md")
+        assert v._resolution_base_for(src) == v.project_root
+
+    def test_file_outside_every_folder_returns_project_root(self, tmp_path):
+        """Critical: files outside configured folders still resolve to root."""
+        cfg = _make_config(path_resolution_overrides={"appdev/blueprint": "appdev/blueprint"})
+        v = LinkValidator(str(tmp_path), cfg)
+        src = os.path.join(str(tmp_path), "other", "foo.md")
+        assert v._resolution_base_for(src) == v.project_root
+
+    def test_file_under_folder_returns_override_base(self, tmp_path):
+        cfg = _make_config(path_resolution_overrides={"appdev/blueprint": "shared/root"})
+        v = LinkValidator(str(tmp_path), cfg)
+        src = os.path.join(str(tmp_path), "appdev", "blueprint", "deep", "foo.md")
+        expected = os.path.normpath(os.path.join(v.project_root, "shared/root"))
+        assert v._resolution_base_for(src) == expected
+
+    def test_longest_prefix_wins(self, tmp_path):
+        """A file under nested folders uses the most specific (longest) base."""
+        cfg = _make_config(path_resolution_overrides={"a": "base_a", "a/b": "base_b"})
+        v = LinkValidator(str(tmp_path), cfg)
+        deep = os.path.join(str(tmp_path), "a", "b", "foo.md")
+        assert v._resolution_base_for(deep) == os.path.normpath(
+            os.path.join(v.project_root, "base_b")
+        )
+        shallow = os.path.join(str(tmp_path), "a", "foo.md")
+        assert v._resolution_base_for(shallow) == os.path.normpath(
+            os.path.join(v.project_root, "base_a")
+        )
+
+
+class TestPathResolutionOverrides:
+    """End-to-end validation behaviour for path_resolution_overrides."""
+
+    def test_override_folder_absolute_link_resolved(self, tmp_path):
+        """(a) A /... link in a file UNDER the folder resolves against the base."""
+        _create_file(str(tmp_path), "appdev/blueprint/process-framework/x.md", "# x")
+        _create_file(str(tmp_path), "appdev/blueprint/foo.md", "[x](/process-framework/x.md)\n")
+
+        cfg = _make_config(path_resolution_overrides={"appdev/blueprint": "appdev/blueprint"})
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "/process-framework/x.md" not in targets
+
+    def test_outside_override_folder_absolute_link_still_broken(self, tmp_path):
+        """(b) The same /... link OUTSIDE the folder still resolves against root.
+
+        The target exists only under the blueprint base, so a link from a file
+        outside the configured folder must still be reported broken.
+        """
+        _create_file(str(tmp_path), "appdev/blueprint/process-framework/x.md", "# x")
+        _create_file(str(tmp_path), "other/bar.md", "[x](/process-framework/x.md)\n")
+
+        cfg = _make_config(path_resolution_overrides={"appdev/blueprint": "appdev/blueprint"})
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        sources = {bl.source_file for bl in result.broken_links}
+        assert "other/bar.md" in sources, "link outside the override folder must resolve to root"
+
+    def test_no_override_config_absolute_link_still_broken(self, tmp_path):
+        """(c) With no path_resolution_overrides set, behaviour is unchanged."""
+        _create_file(str(tmp_path), "appdev/blueprint/process-framework/x.md", "# x")
+        _create_file(str(tmp_path), "appdev/blueprint/foo.md", "[x](/process-framework/x.md)\n")
+
+        v = LinkValidator(str(tmp_path), _make_config())  # default empty overrides
+        result = v.validate()
+
+        sources = {bl.source_file for bl in result.broken_links}
+        assert "appdev/blueprint/foo.md" in sources
+
+    def test_override_applies_to_data_value_fallback(self, tmp_path):
+        """(d) The data-value root fallback (_target_exists_at_root) honors the base.
+
+        A YAML data value written project-root-relative in a deeply nested file
+        fails source-relative resolution, then the root fallback resolves it
+        against the override base.
+        """
+        _create_file(str(tmp_path), "appdev/blueprint/process-framework/x.md", "# x")
+        _create_file(
+            str(tmp_path),
+            "appdev/blueprint/deep/nested/registry.yaml",
+            "- filePath: process-framework/x.md\n",
+        )
+
+        cfg = _make_config(path_resolution_overrides={"appdev/blueprint": "appdev/blueprint"})
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "process-framework/x.md" not in targets
+
+        # Control: without the override, the same data value is broken
+        v2 = LinkValidator(str(tmp_path), _make_config())
+        targets2 = {bl.target_path for bl in v2.validate().broken_links}
+        assert "process-framework/x.md" in targets2
+
+    def test_longest_prefix_end_to_end(self, tmp_path):
+        """(e) Nested override folders: the deeper file uses the more specific base."""
+        # Target exists only under the a/b base, not under the a base.
+        _create_file(str(tmp_path), "a/b/inner/x.md", "# x")
+        _create_file(str(tmp_path), "a/b/foo.md", "[x](/inner/x.md)\n")
+
+        cfg = _make_config(path_resolution_overrides={"a": "a", "a/b": "a/b"})
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "/inner/x.md" not in targets
+
+    def test_folder_and_base_can_differ(self, tmp_path):
+        """A folder may map to a different resolution base than itself."""
+        _create_file(str(tmp_path), "shared/root/process-framework/x.md", "# x")
+        _create_file(str(tmp_path), "blueprint-src/foo.md", "[x](/process-framework/x.md)\n")
+
+        cfg = _make_config(path_resolution_overrides={"blueprint-src": "shared/root"})
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path for bl in result.broken_links}
+        assert "/process-framework/x.md" not in targets

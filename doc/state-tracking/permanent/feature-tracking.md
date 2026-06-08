@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 2.1
 created: 2023-06-15
-updated: 2026-06-04
+updated: 2026-06-05
 ---
 
 # LinkWatcher - Feature Tracking Document
@@ -174,7 +174,7 @@ On-demand link health auditing and broken link reporting.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  Test Status  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  -----------  |  ------------  |  -----  |
-| [6.1.1](<../features/6.1.1-Link Validation-implementation-state.md>) | Link Validation | 🟢 Completed | P2 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-200-6.1.1-link-validation.md) | ✅ All Passing | 0.1.1, 2.1.1 | On-demand broken link scanning with context-aware filtering. PD-BUG-051 open (remaining false positives). PD-BUG-088: bare-filename markdown links skipped in validation |
+| [6.1.1](<../features/6.1.1-Link Validation-implementation-state.md>) | Link Validation | 🟢 Completed | P2 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-200-6.1.1-link-validation.md) | ✅ All Passing | 0.1.1, 2.1.1 | On-demand broken link scanning with context-aware filtering; per-folder path-resolution override for designated folders. |
 
 </details>
 
@@ -217,8 +217,6 @@ Features that have been generalized into the process framework or otherwise reti
 | **Total Active**    | **8**  | **100%**   |
 
 </details>
-
-> **Documentation Coverage**: Cross-feature design-artifact coverage is computed on demand by `process-framework/scripts/Get-FeatureDesignArtifacts.ps1` against per-feature state files' `§4 Documentation Inventory` (PF-PRO-002 / PF-IMP-760). No static counters tracked in this file.
 
 ## Tasks That Update This File
 

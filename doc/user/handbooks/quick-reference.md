@@ -62,6 +62,8 @@ colored_output: true
 show_statistics: true
 ```
 
+> **Validating blueprint/template folders?** Use `path_resolution_overrides` so `--validate` resolves `/...` links inside a folder against that folder as its own root. See the [Configuration Guide](configuration-guide.md#per-folder-path-resolution-override-path_resolution_overrides) and the [Link Validation](link-validation.md) handbook.
+
 ## Environment Variables
 
 ```cmd
