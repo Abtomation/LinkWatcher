@@ -16,7 +16,7 @@ This document outlines the release process for LinkWatcher. LinkWatcher is deplo
 > Read by the Release & Deployment freshness gate (PF-TSK-008). Re-set **both** fields
 > whenever the mechanics in this guide change or are re-verified against a real release.
 
-- **Verified against release:** `2.1.0`
+- **Verified against release:** `2.1.1`
 - **Verified on:** 2026-06-10
 
 ## Architecture
@@ -90,7 +90,7 @@ Get-Process python* | Where-Object {
 }
 
 # Check recent log output (flat logs/linkwatcher/ layout)
-Get-Content logs/linkwatcher/LinkWatcherLog_20260610-215218.txt -Tail 20
+Get-Content logs/linkwatcher/LinkWatcherLog.txt -Tail 20
 ```
 
 ## Config-Schema Propagation
@@ -132,13 +132,20 @@ It is non-fatal: on a standalone clone (no `.framework-central-pointer`) it skip
 
 ## Version Management
 
-The version is defined in `pyproject.toml` under `[project].version` (currently `2.1.0`); `main.py` reads `__version__` from the installed package. For significant releases:
+The version is defined in **two places that must be bumped together** (currently `2.1.1`):
 
-1. Update `version` in `pyproject.toml`
+- `pyproject.toml` under `[project].version` — package metadata
+- `src/linkwatcher/__init__.py` `__version__` — the value `main.py --version` actually reports (the deployed venv installs from `requirements.txt`, so there is no package metadata to read at runtime; the hardcode is authoritative in the install)
+
+Discovered in the v2.1.1 release: bumping only `pyproject.toml` ships a binary that reports the old version.
+
+For significant releases:
+
+1. Update `version` in `pyproject.toml` **and** `__version__` in `src/linkwatcher/__init__.py`
 2. Optionally create a git tag:
    ```bash
-   git tag v2.1.0
-   git push origin v2.1.0
+   git tag v2.1.1
+   git push origin v2.1.1
    ```
 
 ## Related Documentation
