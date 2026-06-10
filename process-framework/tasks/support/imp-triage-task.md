@@ -2,9 +2,9 @@
 id: PF-TSK-089
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.4
 created: 2026-05-10
-updated: 2026-05-16
+updated: 2026-06-09
 description: "Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected."
 ---
 
@@ -52,8 +52,8 @@ The single judgment Triage owns: **which destination section?**
 | If the IMP describes… | Route to | Reasoning |
 |---|---|---|
 | A bug-fix-shaped problem in framework code; a content update to a guide/template/task; a behavior-preserving script edit; a stale doc-reference fix | **Improvements** (PF-TSK-009) | PF-TSK-009 owns content edits and behavior-preserving framework code changes |
-| A new framework capability requiring multiple interconnected new artifacts (new task + new template + new script + new guide); a new workflow that doesn't exist yet | **Extensions** (PF-TSK-026) | New capability addition is PF-TSK-026's scope |
-| Reorganization of directories, files, or document sections; rename of an established artifact; framework-shape change that ripples to projects' working docs | **Structural Changes** (PF-TSK-014) | Structural reorganization, including any change writing per-project `pending-migrations.md` entries |
+| A new framework capability requiring multiple interconnected new artifacts (new task + new template + new script + new guide); a new workflow that doesn't exist yet; a standalone new **task definition** | **Extensions** (PF-TSK-026) | New capability addition is PF-TSK-026's scope. A new task routes here too — PF-TSK-026 authors it via [New Task Creation (PF-TSK-001)](new-task-creation-process.md) as a sub-task; Resp Task is the section owner **PF-TSK-026**, not the section-less PF-TSK-001 *(PF-IMP-990)* |
+| Reorganization of directories, files, or document sections; rename of an established artifact; framework-shape change that ripples to projects' working docs | **Structural Changes** (PF-TSK-014) | Structural reorganization. The "writes per-project `pending-migrations.md` entries" signal points here **only for moves/renames/reshapes of existing artifacts** — an Extension that introduces a *new* project-level artifact also needs migration entries but routes to Extensions, not here *(PF-IMP-990)* |
 | A pilot of an existing Extension Concept (PF-PRO-NNN) — concept already exists, IMP proposes piloting it; OR a pilot of an existing Completed Process Improvement (PF-IMP-NNN, PF-IMP-883) where the IMP is the seed of a pattern potentially worth broadening to other ecosystems | **Active Pilots** (PF-PRO-030 lifecycle) | Both origins use the same PF-IMP-NNN ID pool; row goes directly into Active Pilots. Filed by the originating task (PF-TSK-026 or PF-TSK-009) via `New-ProcessImprovement.ps1 -AsPilot`, not by Triage |
 | Already-resolved (cannot reproduce, fix already shipped); duplicates an existing IMP already in flight (consolidate via cluster — see below); out-of-scope; not valuable enough to do | **Rejected** | Triage rejects with one-line `Rejection Reason` |
 
@@ -154,8 +154,9 @@ No cwd switching required. The path is resolved once at session start and reused
 ### Execution
 
 5. **Per-IMP classification**: For each Intake row, decide:
+   - **Reconciliation check (already-covered → Rejected)** *(PF-IMP-1004)*: before assigning a destination, quick-check whether the IMP is already resolved or covered — by a recently-completed IMP (Section 6 / the archive file), a pending-migration entry, or a change already shipped in `blueprint/` touching the same artifact. If so, route to **Rejected** (`Rejection Reason = "Already resolved/covered by <ref>"`) instead of giving it a slot. This is the already-resolved judgment Triage already owns (Classification Rubric, Rejected row) — **not** merit evaluation; the point is to stop stale IMPs before they consume a downstream claim/verify cycle.
    - **Destination section** per the [Classification Rubric](#classification-rubric).
-   - **Resp Task hint** (PF-TSK-009 / PF-TSK-014 / PF-TSK-026 — the task ID matching the destination section).
+   - **Resp Task hint** (PF-TSK-009 / PF-TSK-014 / PF-TSK-026 — the task ID matching the destination section). For a new-task IMP the section is **Extensions** and the Resp Task is its owner **PF-TSK-026** (which delegates to PF-TSK-001) — never set Resp Task to a section-less task ID.
    - **Initial Status**: default `Needs Prioritization` for triaged sections (the receiving task moves to `Needs Implementation` after its own Step 3 evaluation). For routes to Active Pilots, set `Active`. For routes to Rejected, no Status (rejected rows have a Rejection Reason instead).
    - **Initial Priority**: default `Low`/`Medium`/`High` per Triage's preliminary read; the receiving task can adjust during its evaluation. Triage is not the final priority arbiter.
 
@@ -218,6 +219,8 @@ No cwd switching required. The path is resolved once at session start and reused
    - Pilots and already-rejected source IMPs produce warnings and are skipped; the new consolidating IMP in Intake is still created.
    - Idempotent on re-run with the same `-Supersedes` values: subprocess calls against already-superseded rows fail at the subprocess's source-section gate, emit warnings, and continue (no state corruption).
 
+   **Surface the constituents in the umbrella's Notes** *(PF-IMP-1028)*: the umbrella Description summarizes the cluster theme but flattens per-item detail. Record `Constituents: <ID> (<one-line scope>), …` in the new IMP's Notes — either via `-Notes` on the `New-ProcessImprovement.ps1` call above, or a follow-up `Update-ProcessImprovement.ps1 -AppendNotes` — so the implementing session reads per-item scope/priority directly instead of digging through the superseded rows in the archive.
+
    **Step 9b — Classify and route the new consolidating IMP** to its destination section (decided at Step 7) via the standard move helper:
 
    ```bash
@@ -235,10 +238,12 @@ No cwd switching required. The path is resolved once at session start and reused
 
 ### Finalization
 
-11. **Validate**: Run `Validate-StateTracking.ps1` (or equivalent against the central tracking file) to confirm:
-    - No malformed table rows after the moves.
-    - No PF-IMP IDs duplicated across sections.
-    - All consolidated source rows are in Section 7 — Rejected with `Status = "Superseded"` and `Rejection Reason = "Superseded by <new-IMP-ID>"`.
+11. **Integrity check**: `Validate-StateTracking.ps1` does **not** cover `process-improvement-tracking.md` (its surfaces target project state files, several of which are absent in appdev), so verify the central file directly *(PF-IMP-989)*:
+    - **Intake drained** — Section 1 holds only deliberate deferrals (Step 10), if any.
+    - **No PF-IMP ID appears in two open sections** (Intake / Improvements / Extensions / Structural Changes / Active Pilots).
+    - **No malformed table rows** after the moves — column counts intact in every touched section.
+    - **All consolidated source rows** are in Section 7 — Rejected with `Status = "Superseded"` and `Rejection Reason = "Superseded by <new-IMP-ID>"`.
+    - **No orphaned subsumed rows** *(PF-IMP-1032)* — no open-section row is annotated as deferred/rolled-into/subsumed by an umbrella IMP that is now Completed or Rejected. If one is found, close it via `Update-ProcessImprovement.ps1` (Section 3/4/5 status transitions are supported per PF-IMP-864) referencing the umbrella, rather than leaving it parked. (Normal consolidation closes sources by section-move at creation time — Step 9a — so this only catches legacy or hand-annotated rows.)
 
 12. **🚨 CHECKPOINT — Session close**: Present a one-line summary of triage outcomes (e.g., "12 Intake rows triaged: 6 → Improvements, 3 → Extensions, 1 → Structural Changes, 2 → Rejected. 1 cluster consolidated into PF-IMP-NNN."). Confirm session close with human partner.
 
@@ -256,7 +261,7 @@ The following state file is updated by this task:
 
 - `appdev/process-framework-central/state-tracking/permanent/process-improvement-tracking.md` — Intake drains; destination sections grow; consolidated rows annotated.
 
-> **No temp state file required.** Triage is single-session by design. A typical session drains the current Intake batch in one sitting. If Intake is unusually large (20+ rows), close the session at a natural boundary and resume in a fresh session — durable state lives in the tracking file itself.
+> **No temp state file required.** Triage is single-session by design. A typical session drains the current Intake batch in one sitting. If Intake is unusually large (20+ rows), run **global cluster detection across the whole Intake in one pass first** *(PF-IMP-1065)* — clusters frequently span source-batches, so splitting Intake by batch can fragment them (a 61-row Intake's strongest clusters spanned two batches). Only after the global cluster pass, if the session is still too large, close at a natural boundary and resume in a fresh session. Durable state lives in the tracking file itself.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -267,7 +272,7 @@ The following state file is updated by this task:
 - [ ] **Approved moves applied**: All approved Intake rows moved via `Update-ProcessImprovement.ps1 -MoveToSection`
 - [ ] **Approved consolidations applied**: New consolidating IMPs created in Intake via `New-ProcessImprovement.ps1 -Supersedes` (Step 9a, which also moves source IMPs to Section 7 — Rejected with `Status = "Superseded"`), then routed to their classified destination section via `Update-ProcessImprovement.ps1 -MoveToSection` (Step 9b)
 - [ ] **Intake drained or remainders surfaced**: Re-read Intake section; any remaining rows have a deliberate deferral reason raised at Step 12
-- [ ] **Validation passes**: `Validate-StateTracking.ps1` (or equivalent) reports no malformed rows, no duplicated IDs, all consolidated source rows in Section 7 — Rejected with `Status = "Superseded"`
+- [ ] **Integrity check passes** (Step 11): Intake drained; no PF-IMP ID in two open sections; no malformed rows; all consolidated source rows in Section 7 — Rejected with `Status = "Superseded"`; no orphaned subsumed rows pointing at a closed umbrella
 - [ ] **Session-close checkpoint with human partner** completed (Step 12)
 - [ ] **Complete Feedback Form**: [Feedback Form Guide](../../guides/framework/feedback-form-guide.md), task ID `PF-TSK-089`, context "IMP Triage"
 

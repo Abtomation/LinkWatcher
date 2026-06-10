@@ -279,6 +279,13 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 21. **🚨 CHECKPOINT**: Present completeness verification results and reconciliation plan to human partner for approval
 
+21a. **Capture the Project's Release Process into the Release Process Guide** (project-level, once per onboarding — runs before the Step 22 archival so the claimed source is archived there):
+    > **Goal**: Promote the project's existing release knowledge into the structured Release Process Guide so [Release & Deployment (PF-TSK-008)](../07-deployment/release-deployment-task.md)'s Critical Must-Read reference is real and its freshness gate has a baseline. Runs **once per onboarding regardless of tier mix**; because the [Tier-1 path](retrospective-documentation-tier-1-path.md) delegates Phase 4 back to this parent task, all-Tier-1 onboards inherit this step with no Tier-1-path edit.
+    - Identify any pre-existing release knowledge: a `RELEASING.md`, a `docs/release*.md`, release steps embedded in the README, or undocumented tribal knowledge of how the project ships.
+    - Capture it into the structured guide at [`doc/ci-cd/release-process.md`](../../../doc/ci-cd/release-process.md) (the `PD-CIC` instance, structured from the [Release Process Guide template](../../templates/07-deployment/release-process-guide-template.md)): fill in the **Distribution Model**, **Version Management**, and **Deploy / Distribute Steps** sections from the existing knowledge, and set the **Freshness Stamp** (`Verified against release` / `Verified on`) to the release the captured content was last accurate for.
+    - **Hand the original's archival to Step 22**: register the claimed release doc in the master-state "Existing Documentation Inventory" as consumed-by `release-process.md`, so the next step (Step 22) archives the original to `doc/archive-pre-framework/manuals` and rewrites README references. Do **not** archive it separately here.
+    - If the project has no pre-existing release knowledge, leave the shipped stub as-is (`Freshness Stamp` = `unverified`) and note "no pre-existing release process to capture" in the master-state session log.
+
 22. **Pre-existing Documentation Gap Analysis**:
     > **Goal**: Verify that all valuable content from pre-existing documentation has been consumed by framework docs created during Phase 3. After onboarding, no pre-existing docs should remain as active references outside the framework tree.
     - Review the master state "Existing Documentation Inventory" table
@@ -340,6 +347,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **User Documentation Audit** — Per-feature Diátaxis content-type rows populated in `### User Documentation` of each [Feature Implementation State file](../../../doc/state-tracking/features); features with `❌ Needed` rows flagged `📖 Needs User Docs` to enter the [PF-TSK-081](../07-deployment/user-documentation-creation.md) queue
 
 ### Phase 4 Outputs: Finalization
+- **Release Process Guide captured or confirmed** (`PD-CIC`, `doc/ci-cd/release-process.md`) — The project's release process captured into the structured guide with its **Freshness Stamp** set (or the shipped stub left `unverified` with a "no pre-existing release process to capture" note); any claimed pre-existing release doc handed to the Step 22 archival (Step 21a)
 - **Updated [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)** — Status / Test Status reflect documentation completion; design-document links live in per-feature state file §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
 - **Updated Documentation Maps** — All new documents registered in the appropriate map: product docs (FDDs/TDDs/ADRs) → [PD Documentation Map](../../../doc/PD-documentation-map.md); test specs → [TE Documentation Map](../../../test/TE-documentation-map.md); process artifacts → [PF Documentation Map](../../PF-documentation-map.md)
 - **Pre-existing documentation gap analysis** — All pre-existing docs verified as consumed by framework docs or gaps identified and addressed; originals archived to `doc/archive-pre-framework/manuals`; root README.md rewritten to reference framework docs
@@ -378,6 +386,7 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [ ] All document links added to the per-feature state file's §4 Documentation Inventory (canonical home per PF-PRO-002 / PF-IMP-760)
 
 - [ ] **Phase 4 Complete: Finalization**
+  - [ ] Release Process Guide capture complete (Step 21a) — project release process captured into `doc/ci-cd/release-process.md` with the Freshness Stamp set, or the shipped stub left `unverified` with a "none to capture" note in the session log; any claimed pre-existing release doc registered in the master-state inventory for Step 22 archival
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) verified complete (Status, Test Status, tier assignments); design-document links verified in per-feature state file §4 Documentation Inventory
   - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
   - [ ] Pre-existing documentation gap analysis complete — each doc in master state inventory marked with consumption status (Fully Consumed / Partially Consumed / Not Consumed) and target framework doc(s); gaps addressed or flagged as follow-up; originals archived to `doc/archive-pre-framework/manuals`; root README.md rewritten to reference framework docs

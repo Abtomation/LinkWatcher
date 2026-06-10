@@ -4,7 +4,7 @@ type: Process Framework
 category: State File
 version: 4.0
 created: 2025-07-13
-updated: 2026-06-08
+updated: 2026-06-10
 tracking_scope: Test Tracking (Automated + Manual)
 state_type: Implementation Status
 ---
@@ -63,6 +63,8 @@ This file tracks the implementation status of all **automated** tests derived fr
 | 0.1.1 | Automated | [test_windows_platform.py](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_windows_platform.py) | ✅ Audit Approved | 16 | Run 2026-03-22: 14 passed, 2 skipped | 2026-03-22 | Windows path handling integration tests; Audit: [TE-TAR-017](../../audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-1-test-windows-platform.md) |
 | 0.1.1 | Automated | [test_lock_file.py](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_lock_file.py) | ✅ Audit Approved | 14 | Run 2026-06-08: 14 passed | 2026-06-08 | Duplicate instance prevention lock file mechanism (PD-BUG-099: +1 atomic-lock TOCTOU race regression test; TD255: +2 settle-read window regression tests; PD-BUG-100: +1 release_lock ownership regression test); Audit: [TE-TAR-018](../../audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-1-test-lock-file.md) |
 | 0.1.1 | Automated | [test_pd_bug_100_launcher_lock_cleanup.py](../../automated/unit/test_pd_bug_100_launcher_lock_cleanup.py) | 🔄 Needs Audit | 5 | Run 2026-06-08: 5 passed | 2026-06-08 | PD-BUG-100 regression: launcher Get-DaemonExitDisposition must preserve a live foreign owner's lock (5 cases: foreign-live, own-crashed, foreign-dead, empty, no-lock) |
+| 0.1.3 | Automated | [test_configschemadrift.py](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py) | ✅ Audit Approved | 5 | Run 2026-06-10: 5 passed | 2026-06-10 | Config schema drift guard (TE-TST-136, enhancement PF-STA-108): LinkWatcherConfig fields vs. configuration-guide Full Reference (keys + scalar defaults) and WIP template (keys ⊆ fields); spec scenario added to TE-TSP-037; Audit: [TE-TAR-075](../../audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-3-test-configschemadrift.md); Audit Results: Passed: 5, Failed: 0; Test Cases Audited: 5; Audit Status: Audit Approved; Audit Date: 2026-06-10; Auditor: AI Agent; Major Findings: Coverage PARTIAL: set/dict defaults compared by key presence only; masks live ignored_directories doc drift (TD261); 5 of 6 criteria PASS; non-vacuous drift guard with self-check; Audit Report: test/audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-3-test-configschemadrift.md |
+| 0.1.1 | Automated | [test_pd_bug_104_handbook_deployment.py](../../automated/unit/test_pd_bug_104_handbook_deployment.py) | 🔄 Needs Audit | 4 | Run 2026-06-10: 4 passed | 2026-06-10 | PD-BUG-104 regression (TE-TST-137): install_global CORE_DIRS must deploy doc/user/handbooks/ structure-preserving (3 manifest guards incl. anti-flattening negative + 1 tmp-dir install_linkwatcher copy test) |
 
 ## 1. File Watching & Detection
 

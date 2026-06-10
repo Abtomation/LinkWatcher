@@ -47,7 +47,7 @@
         "main": "process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 82
+      "nextAvailable": 83
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",

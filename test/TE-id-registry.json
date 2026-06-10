@@ -61,7 +61,7 @@
         "main": "test/audits",
         "default": "unit"
       },
-      "nextAvailable": 75
+      "nextAvailable": 76
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -83,7 +83,7 @@
         "unit": "test/automated/unit",
         "default": "unit"
       },
-      "nextAvailable": 136
+      "nextAvailable": 138
     },
     "BM": {
       "description": "Performance - Benchmark Tests (Component Level 1, Operation Level 2)",

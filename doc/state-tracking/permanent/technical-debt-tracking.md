@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 1.2
 created: 2025-06-15
-updated: 2026-06-08
+updated: 2026-06-10
 ---
 
 # Technical Debt Tracker
@@ -35,6 +35,7 @@ Technical debt items are tagged with **Primary Dimension** using the standard ab
 | ID    | Description                                                | Dims        | Location                                                                     | Created Date | Priority | Estimated Effort | Status      | Resolution Date | Assessment ID | Workflows | Notes                                                                                                |
 | ----- | ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------- | ------------ | -------- | ---------------- | ----------- | --------------- | ------------- | --------- | ---------------------------------------------------------------------------------------------------- |
 | TD260 | No automated end-to-end regression that two near-simultaneous daemon starts yield exactly one daemon per project root. PD-BUG-100's tests pin the launcher cleanup decision (TE-TST-135) and the release_lock/launcher lock-preservation decision in isolation, not the real concurrent-start to single-daemon outcome (the bug's literal symptom). | TST DI | process-framework/tools/linkWatcher/start_linkwatcher_background.ps1 + main.py acquire_lock (concurrent-start path) | 2026-06-08 | Low | M (~3-5h; concurrency harness is flaky-prone) | Open | - | - | - | Surfaced in PD-BUG-100 code review (PF-TSK-005) 2026-06-08; author pinned the precise defective decision instead of building the harness. Cross-ref PD-BUG-100 (Closed). |
+| TD261 | Config schema drift guard (test_configschemadrift.py, TE-TST-136) compares set/dict-valued defaults by key presence only, not value — missing a fully-inlined-list value check. Currently masks live drift in configuration-guide.md ignored_directories vs LinkWatcherConfig default. Extend guard to value-compare set/dict defaults for guide fields listed without an abbreviation marker. | TST | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py | 2026-06-10 | Low | Small | Open | - | - | - | Surfaced by Test Audit TE-TAR-075 (feature 0.1.3). Routed to PF-TSK-022 (test-only Lightweight path). |
 
 ## Recently Resolved Technical Debt
 

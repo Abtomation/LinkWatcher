@@ -78,6 +78,20 @@ The Configuration System provides multi-source configuration loading (YAML, JSON
 
 **Test File**: [`test/automated/unit/test_config.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py) — 4 test methods in `TestDefaultConfigurations`
 
+#### Config Schema Drift Guard (TE-TST-136, enhancement PF-STA-108)
+
+Guards the config schema's documentation surfaces against drift. `LinkWatcherConfig` fields are the source of truth; the configuration guide's Full Reference block claims completeness (keys + defaults), while the WIP template `config-examples/linkwatcher-config.yaml` carries only the curated project-configurable subset (one-way check). Motivated by 4 drift instances found manually on 2026-06-10; runs in the release-gating `Run-Tests.ps1 -All` sweep. Legitimate doc-only keys go in the test's explicit `GUIDE_KEY_ALLOWLIST` constant, never silent relaxation.
+
+| Component | Test Focus | Key Test Cases | Fixtures |
+|-----------|-----------|----------------|----------|
+| Guide Full Reference | Completeness | `test_guide_full_reference_contains_every_config_field` — every dataclass field documented | None (reads real guide) |
+| Guide Full Reference | Staleness | `test_guide_full_reference_has_no_stale_keys` — no renamed/removed fields linger | None (reads real guide) |
+| Guide Full Reference | Default accuracy | `test_guide_full_reference_scalar_defaults_match` — shown bool/int/float/str defaults equal code defaults | None (reads real guide) |
+| WIP template | Key validity | `test_wip_template_keys_are_valid_config_fields` — template keys ⊆ config fields | None (reads real template) |
+| Detection mechanism | Self-check | `test_drift_detection_catches_a_removed_key` — doctored copy with removed key is flagged | None (doctored in-memory copy) |
+
+**Test File**: [`test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py) — 5 test methods in `TestConfigSchemaDrift`
+
 ### Integration Tests
 
 | Flow | Test Scenario | Expected Outcome | Fixtures |

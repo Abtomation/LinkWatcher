@@ -2,9 +2,9 @@
 id: PF-VIS-046
 type: Process Framework
 category: Context Map
-version: 1.2
+version: 1.3
 created: 2026-02-17
-updated: 2026-04-05
+updated: 2026-06-09
 workflow_phase: support
 related_task: PF-TSK-066
 description: "Components for creating retrospective design documentation"
@@ -40,10 +40,12 @@ graph TD
     DocMap[Documentation Map] -.-> FeatureTracking
     APITask[API Design Task] -.-> FDD_AB
     DBTask[DB Schema Design Task] -.-> TDD_AB
+    MasterState --> ReleaseCapture{{Release Process Guide Capture}}
+    ReleaseCapture --> ReleaseGuide[/Release Process Guide/]
 
     class MasterState,EnrichedStates,FeatureTracking,TierTask critical
-    class DocTiers,QualityGate,FDD_AB,FDD_TS,TDD_AB,TDD_TS,TestSpec,TestMigration,ADR important
-    class DocMap,APITask,DBTask,TechDebt,QAR reference
+    class DocTiers,QualityGate,FDD_AB,FDD_TS,TDD_AB,TDD_TS,TestSpec,TestMigration,ADR,ReleaseCapture important
+    class DocMap,APITask,DBTask,TechDebt,QAR,ReleaseGuide reference
 ```
 
 ## Essential Components
@@ -55,6 +57,7 @@ graph TD
 - **[Feature Tier Assessment Task](../../../tasks/01-planning/feature-tier-assessment-task.md)**: Task for creating or validating tier assessments based on actual code analysis
 
 ### Important Components (Should Understand)
+- **Release Process Guide Capture** (Phase 4, Step 21a): Once-per-onboarding step that captures the project's existing release process into the structured [Release Process Guide](../../../../doc/ci-cd/release-process.md) (`PD-CIC`) and sets its Freshness Stamp; the claimed source doc is handed to Step 22 archival. Inherited by all-Tier-1 onboards via the Tier-1 path's Phase-4 delegation.
 - **[Documentation Tiers README](../../../../doc/documentation-tiers/README.md)**: Defines tier documentation requirements (Tier 2+: FDD+TDD+TestSpec+Test Migration). ADRs are not tier-gated — create for any feature with discrete architectural decisions worth recording.
 - **[FDD Creation Task](../../../tasks/02-design/fdd-creation-task.md)**: Task for creating Functional Design Documents (Tier 2+) from implemented features
 - **[TDD Creation Task](../../../tasks/02-design/tdd-creation-task.md)**: Task for creating Technical Design Documents (Tier 2+) reverse-engineered from code
@@ -101,6 +104,7 @@ graph TD
 3. **Every Session End**: Update [Retrospective Master State](../../../../doc/state-tracking/temporary/old/retrospective-master-state.md) with completed assessments and documents, log session notes
 4. **Finalization Phase**:
    - Verify all codebase coverage (100%), all features have assessments, all Tier 2+ have FDD+TDD+Test Specs (+ tests migrated if pre-existing), features with discrete architectural decisions have ADRs (foundation and non-foundation alike), all Target-State features have Quality Assessment Reports with linked tech debt items
+   - **Capture the project's release process** into the [Release Process Guide](../../../../doc/ci-cd/release-process.md) and set its Freshness Stamp (Step 21a; once per onboarding, before the Step 22 pre-existing-doc archival) — or leave the shipped stub `unverified` if there is none to capture
    - Update [Documentation Map](../../../PF-documentation-map.md) with all new documents
    - Calculate final metrics, archive master state file
 

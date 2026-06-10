@@ -3,9 +3,9 @@ id: PF-TSK-010
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.8
+version: 1.9
 created: 2023-06-15
-updated: 2026-05-16
+updated: 2026-06-09
 description: "Review and improve project tools and templates"
 ---
 
@@ -112,7 +112,7 @@ Systematically evaluate and enhance the templates, guides, and other tools by co
       - `test/` → either: test infrastructure issues (runner scripts, tracking) = **IMP**; product test defects = **BUG**
     - **🔗 TRACEABILITY REQUIREMENT**: Use `-SourceLink` with the actual review summary filename from Step 11 for full traceability. The review summary itself lives at `appdev/process-framework-central/feedback/reviews/` post-Phase-7.
     - **🎯 ROUTING HINT (optional, goes in Notes)**: When the analysis you've already done makes the destination section obvious — multi-component scope (new task + template + script + guide) → suggests Extension; pure file/directory reorganization → suggests Structural Change; new task creation → suggests Extension via PF-TSK-001 — note that observation in `-Notes` as a hint to Triage (e.g., `-Notes "Triage hint: extension scope (new task + template + guide)"`). **Do not pass `-RespTask`** — that parameter no longer exists in Phase 7's New-ProcessImprovement intake path. Triage decides routing.
-    - **🔍 DEDUPLICATION**: Before registering a new IMP, search **all open and closed sections** of the central process-improvement-tracking.md (Intake / Improvements / Extensions / Structural Changes / Active Pilots / Completed / Rejected) for existing entries covering the same tool or issue. Also search the project's own [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — script/automation defects sometimes land there first when discovered mid-task. Skip registration if already tracked in either.
+    - **🔍 DEDUPLICATION & RECONCILIATION**: Before registering a new IMP, search **all open and closed sections** of the central process-improvement-tracking.md (Intake / Improvements / Extensions / Structural Changes / Active Pilots / Completed / Rejected) for existing entries covering the same tool or issue. Also search the project's own [technical-debt-tracking.md](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — script/automation defects sometimes land there first when discovered mid-task. Skip registration if already tracked in either. **Also reconcile against non-IMP coverage** *(PF-IMP-1004)* — a pending-migration entry (`per-project-migrations/<PRJ-ID>/pending-migrations.md`) or a change already shipped in `blueprint/` touching the same artifact may have already resolved it. Skip when the issue is already covered there, not only when an IMP already exists. (IMP Triage applies the same reconciliation downstream; catching it at intake avoids the row entirely.)
     - **🎯 GRANULARITY**: Each IMP must describe exactly one actionable change. If a theme or feedback item contains multiple independent changes (e.g., "add X to task A, add Y to task B, add Z to task C"), register each as a separate IMP. Conversely, do not split a single cohesive change across multiple IMPs.
 13. **🚨 SCOPE BOUNDARY**: Tools Review identifies and documents improvements only. Triage is the **next** task, not part of this one. Hand off to [IMP Triage (PF-TSK-089)](imp-triage-task.md) — it drains the Intake section and routes rows to Improvements / Extensions / Structural Changes / Active Pilots / Rejected. For product items, the appropriate downstream is [Feature Request Evaluation](../01-planning/feature-request-evaluation.md) (feature requests) or [Bug Triage](../06-maintenance/bug-triage-task.md) (bugs).
 14. **Archive processed feedback forms** (paths feed Step 15). Phase 7 cutover: archives live under `appdev/process-framework-central/feedback/archive/` regardless of which project's forms are being processed (cross-project shared archive).

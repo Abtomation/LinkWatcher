@@ -51,30 +51,33 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 1. Review [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to identify what's included in the release
 2. **Verify user documentation completeness**: For each feature in the release scope with user-visible behavior, check the feature implementation state file's User Documentation section. If any show `❌ Needed`, trigger [User Documentation Creation](user-documentation-creation.md) before proceeding with the release.
-3. Update version numbers according to semantic versioning
-4. Generate release notes from completed features and fixed bugs
-5. Create a release branch if needed
-6. Update any configuration files for the target environment(s)
-7. **🚨 CHECKPOINT**: Present release scope, version numbers, and release notes to human partner for review
+3. **Verify Release Process Guide freshness** (inline gate, mirrors Step 2): Open your project's [Release Process Guide](../../../doc/ci-cd/release-process.md) and read its **Freshness Stamp** (`Verified against release` / `Verified on`). Treat the guide as **stale or missing** if **any** of the following hold:
+   - the guide does not exist, or either Freshness-Stamp field reads `unverified`;
+   - `Verified against release` predates the version you are about to release **and** the guide's deploy / version / distribute mechanics no longer match reality;
+   - a path, script, or command the guide references no longer exists.
+
+   If stale or missing, **stop and bring the guide current** — re-author its mechanics and re-set **both** Freshness-Stamp fields — before proceeding. This task **detects** staleness but **never authors** the guide; updating per-project release mechanics is a product-side responsibility. A fresh, accurate guide is a release gate, exactly like the user-documentation gate above.
+4. Update version numbers according to semantic versioning
+5. Generate release notes from completed features and fixed bugs
+6. Create a release branch if needed
+7. Update any configuration files for the target environment(s)
+8. **🚨 CHECKPOINT**: Present release scope, version numbers, and release notes to human partner for review
 
 ### Execution
 
-8. Run the full test suite on the release candidate
-9. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests (query via `test_query.py --summary` or `pytest -m 'priority("Critical")'`) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
-10. **Run performance baseline capture**: Execute [Performance Baseline Capture](../03-testing/performance-baseline-capture-task.md) (PF-TSK-085) to record current performance measurements and check for regressions against stored baselines. Use `python process-framework/scripts/test/performance_db.py regressions` to flag any degradations. Performance regressions are a release risk — investigate and document any flagged items before proceeding.
-11. **Verify E2E acceptance test status**: Check [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
-11. Verify all deployment prerequisites are met
-12. Complete the pre-deployment checklist
-13. Obtain necessary approvals
-14. **🚨 CHECKPOINT**: Present pre-deployment checklist results (including full test sweep results) and obtain explicit approval before deploying
-15. Deploy to the target environment(s)
-16. Monitor deployment logs for issues
-17. Verify application health post-deployment
-18. Run smoke tests to confirm basic functionality
+9. Run the full test suite on the release candidate
+10. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests (query via `test_query.py --summary` or `pytest -m 'priority("Critical")'`) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
+11. **Run performance baseline capture**: Execute [Performance Baseline Capture](../03-testing/performance-baseline-capture-task.md) (PF-TSK-085) to record current performance measurements and check for regressions against stored baselines. Use `python process-framework/scripts/test/performance_db.py regressions` to flag any degradations. Performance regressions are a release risk — investigate and document any flagged items before proceeding.
+12. **Verify E2E acceptance test status**: Check [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
+13. Verify all deployment prerequisites are met
+14. Complete the pre-deployment checklist
+15. Obtain necessary approvals
+16. **🚨 CHECKPOINT**: Present pre-deployment checklist results (including full test sweep results) and obtain explicit approval before deploying
+17. **Execute your project's Release Process Guide deploy steps** (delegation): Hand off to the per-project [Release Process Guide](../../../doc/ci-cd/release-process.md) (verified fresh in Step 3) and run its **Deploy / Distribute Steps**, its post-deploy verification, and any **Downstream-Impact / Announcement** actions it specifies. These mechanics are project-specific — global CLI install, packaged app, web service, library publish — and are **owned by the guide, not this task**: deployment, log/health monitoring, smoke tests, stakeholder notification, and post-deploy performance/error monitoring all live in the guide's deploy steps for your distribution model. This task orchestrates and gates the release; the guide supplies the concrete deploy / verify / notify / monitor actions. Carry the guide's verification results into the bug-discovery step below.
 
 ### Finalization
 
-19. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered during deployment:
+18. **Bug Discovery During Deployment**: Systematically identify and document any bugs discovered while executing the guide's deploy steps:
 
     - **Deployment Failures**: Issues that prevent successful deployment
     - **Configuration Problems**: Environment-specific configuration issues
@@ -83,7 +86,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     - **User Experience Issues**: UI/UX problems that only appear in production
     - **Data Migration Issues**: Problems with database migrations or data integrity
 
-20. **Report Discovered Bugs**: If bugs are identified during deployment:
+19. **Report Discovered Bugs**: If bugs are identified during deployment:
 
     - Use [../../scripts/file-creation/06-maintenance/New-BugReport.ps1](../../scripts/file-creation/06-maintenance/New-BugReport.ps1) script to create standardized bug reports
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
@@ -102,11 +105,9 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Development" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
     ```
 
-21. Update release status documentation
-22. Notify stakeholders of successful deployment
-23. Monitor application performance and error rates
-24. Document any issues encountered during deployment
-25. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+20. Update release status documentation
+21. Document any issues encountered during deployment
+22. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 

@@ -157,19 +157,17 @@ Three detection strategies:
 
 ## Key Configuration Options
 
+Keys referenced by the capability sections above (full schema with all settings and defaults: [Configuration Guide](/doc/user/handbooks/configuration-guide.md)):
+
 | Setting | Default | Purpose |
 |---------|---------|---------|
 | `monitored_extensions` | 24 extensions | Which file types to watch |
-| `ignored_directories` | `.git`, `node_modules`, etc. | Dirs to skip |
+| `enable_*_parser` | all true | Toggle individual parsers |
+| `move_detect_delay` | 10s | Window for delete+create correlation |
 | `create_backups` | false | Create `.bak` before updates |
 | `dry_run_mode` | false | Preview without modifying |
-| `atomic_updates` | true | Use temp files for safe writes |
-| `max_file_size_mb` | 10 | Skip files larger than this |
-| `move_detect_delay` | 10s | Window for delete+create correlation |
-| `enable_*_parser` | all true | Toggle individual parsers |
 | `validation_extensions` | `.md`, `.yaml`, `.yml`, `.json` | Extensions for `--validate` |
 | `path_resolution_overrides` | `{}` (empty) | Per-folder resolution base for `/...` links during `--validate` (e.g. blueprint folders) |
-| `python_source_root` | none | Strip prefix for `src/` layout projects |
 
 Config precedence: CLI args > Environment variables (`LINKWATCHER_*`) > Config file (YAML/JSON) > Defaults.
 

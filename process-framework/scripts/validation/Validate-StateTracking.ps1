@@ -1246,9 +1246,9 @@ if ($runAll -or $Surface -contains "MasterStateConsistency") {
                     $val = $row[$ColumnName]
                     if ($null -eq $val -or $val -eq '') { $notStarted++; continue }
                     if ($val -match 'N/A') { $na++; continue }
-                    if ($val -match ([char]0x2705) -or $val -match '✅') { $complete++ }
-                    elseif ($val -match ([char]0x1F7E1) -or $val -match '🟡') { $inProgress++ }
-                    elseif ($val -match ([char]0x2B1C) -or $val -match '⬜') { $notStarted++ }
+                    if ($val -match '✅') { $complete++ }
+                    elseif ($val -match '🟡') { $inProgress++ }
+                    elseif ($val -match '⬜') { $notStarted++ }
                     else { $complete++ }  # Assume non-emoji non-NA content means done (e.g. tier text)
                 }
                 return @{ Complete = $complete; InProgress = $inProgress; NotStarted = $notStarted; NA = $na }

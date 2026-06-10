@@ -141,7 +141,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: No)
 - **Trigger:** _(user request)_
-- **Output:** Creates `project-config.json`, test infra _(no tracking status)_
+- **Output:** Creates `project-config.json`, test infra; notes the blueprint-shipped **Release Process Guide stub** (`doc/ci-cd/release-process.md`, `PD-CIC` — Step 13a passive reference) for later fill-in _(no tracking status)_
 
 #### **S2. Codebase Feature Discovery** ([PF-TSK-064](../tasks/00-setup/codebase-feature-discovery.md))
 
@@ -225,6 +225,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [`TE-documentation-map.md`](../../test/TE-documentation-map.md) | Manual | Test specs and audit reports registered |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Migrated test files registered |
 | **Updates** | [`process-improvement-tracking.md`](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | `New-ProcessImprovement.ps1` | Improvement entries from observations |
+| **Captures** | [`release-process.md`](../../doc/ci-cd/release-process.md) (`PD-CIC`) | Manual (Step 21a) | Captures the project's existing release process into the structured Release Process Guide and sets its Freshness Stamp (once per onboarding; inherited by all-Tier-1 onboards via the Tier-1 path's Phase-4 delegation). Claimed source doc handed to Step 22 archival. If no release knowledge exists, the shipped stub is left `unverified`. |
 | **Updates** | Retrospective Master State File | Manual | Archive upon completion |
 
 **🎯 KEY IMPACTS**
@@ -234,7 +235,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Yes)
 - **Trigger:** `retrospective-master-state.md` → Phase 2 = `100%`
-- **Output:** Per-feature state files' §4 Documentation Inventory rows for FDD / TDD / ADR / Test Spec inserted (PF-PRO-002 / PF-IMP-760); `test-tracking.md` → test files registered (TE-TST-XXX). `feature-tracking.md` Status / Test Status columns updated.
+- **Output:** Per-feature state files' §4 Documentation Inventory rows for FDD / TDD / ADR / Test Spec inserted (PF-PRO-002 / PF-IMP-760); `test-tracking.md` → test files registered (TE-TST-XXX). `feature-tracking.md` Status / Test Status columns updated. **Release Process Guide captured or confirmed** (`doc/ci-cd/release-process.md`) with its Freshness Stamp set, Step 21a.
 
 
 #### **S5. Codebase Source Migration** ([PF-TSK-091](../tasks/00-setup/codebase-source-migration-task.md))
@@ -852,8 +853,8 @@ This document serves as the **comprehensive registry** of all process framework 
 - **⚠️ Automation Gap:** Medium-priority candidate for deployment status automation
 
 **🔗 TRIGGER & OUTPUT** (Self-Doc: Partial)
-- **Trigger:** _(user request)_ — checks `e2e-test-tracking.md`, feature impl state files
-- **Output:** `feature-tracking.md` → feature statuses updated for release; `bug-tracking.md` → included fixes updated
+- **Trigger:** _(user request)_ — checks `e2e-test-tracking.md`, feature impl state files; reads the project's **Release Process Guide** (`doc/ci-cd/release-process.md`, `PD-CIC`) **Freshness Stamp** at the Step 3 freshness gate (blocks the release if the guide is stale/missing — detects but never authors)
+- **Output:** `feature-tracking.md` → feature statuses updated for release; `bug-tracking.md` → included fixes updated; **deploy / version / distribute mechanics delegated to the Release Process Guide** (Step 17) rather than authored inline
 
 #### **18. User Documentation Creation** ([PF-TSK-081](../tasks/07-deployment/user-documentation-creation.md))
 

@@ -145,7 +145,7 @@ When referencing other tasks' outputs in Test Specifications:
 12. **Define Mock Requirements**: Specify what mocks are needed and their expected behaviors
 
 13. **Add Clickable Links**: Ensure all file path references in the specification are clickable markdown links:
-    - **Test File** references (e.g., `test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
+    - **Test File** references (e.g., `test/automated/unit/test_service.py`) must use markdown link format: `[path](relative/path/to/file)` with correct relative prefix
     - **Files to Reference** section paths (TDD, source code, fixtures) must be linked
     - **Source Code** references (e.g., `src/linkwatcher/database.py`) must be linked
     - Relative prefix from `test/specifications/feature-specs` to project root is `../../../doc`

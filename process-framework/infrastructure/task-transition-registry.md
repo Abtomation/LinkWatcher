@@ -99,6 +99,7 @@ The process framework includes multiple interconnected tasks. This document help
 - [ ] All document links added to [Feature Tracking](../../doc/state-tracking/permanent/feature-tracking.md)
 - [ ] [Documentation Map](../PF-documentation-map.md) updated with all new documents
 - [ ] Final metrics recorded in master state Completion Summary
+- [ ] Release Process Guide captured or confirmed (`doc/ci-cd/release-process.md`) with its Freshness Stamp set — or the shipped stub left `unverified` with a "none to capture" note (Step 21a)
 - [ ] [Master State File](../../doc/state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
 
 **Next Task Selection:**
@@ -126,6 +127,7 @@ What work follows the completed onboarding?
 - [ ] Language config file created in `process-framework/languages-config/{language}/`
 - [ ] Test infrastructure scaffolded (directory structure, tracker, registry, fixtures)
 - [ ] CI/CD infrastructure set up (if applicable: pre-commit hooks, dev script, pipeline)
+- [ ] Release Process Guide stub (`doc/ci-cd/release-process.md`) noted for later fill-in (Step 13a passive reference; blueprint-shipped, left `unverified`)
 - [ ] User Workflow Tracking file created at `doc/state-tracking/permanent/user-workflow-tracking.md`
 
 **Next Task Selection:**
@@ -906,6 +908,7 @@ Documentation complete?
 **Prerequisites for Transition:**
 
 - [ ] Release notes created (version, features, bug fixes, known issues)
+- [ ] Release Process Guide freshness gate passed (guide present and accurate) and its deploy / version / distribute steps executed via delegation (PF-TSK-008 Steps 3 and 17)
 - [ ] All E2E test groups passed (verified in `e2e-test-tracking.md`)
 - [ ] Feature tracking updated with release version for included features
 - [ ] Bug reports created for any issues discovered during deployment validation

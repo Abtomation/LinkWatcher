@@ -172,7 +172,7 @@ _Release preparation and deployment activities_
 | Task                     | Use When                         | Complexity | Link                                                                                  |
 | ------------------------ | -------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
 | **Git Commit and Push**  | Commit current working directory changes and push to remote repository | 🟢 Simple  | [→ Definition](tasks/07-deployment/git-commit-and-push.md)         |
-| **Release & Deployment** | Preparing and deploying releases | 🔴 Complex | [→ Definition](tasks/07-deployment/release-deployment-task.md) |
+| **Release & Deployment** | Preparing and deploying releases. Runs the agnostic release gates, then **delegates project-specific deploy/version/distribute mechanics to the project's Release Process Guide** (`doc/ci-cd/release-process.md`) and gates on that guide's freshness. | 🔴 Complex | [→ Definition](tasks/07-deployment/release-deployment-task.md) |
 | **User Documentation Creation** | Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates | 🟡 Medium | [→ Definition](tasks/07-deployment/user-documentation-creation.md) |
 
 ### 🔁 Cyclical Tasks

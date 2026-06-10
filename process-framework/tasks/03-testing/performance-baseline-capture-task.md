@@ -64,7 +64,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    python -m pytest test/automated/performance/ -v -s -m performance
 
    # Or run specific tests by file
-   python -m pytest test/automated/performance/level2-operation/test_benchmark.py -v -s
+   python -m pytest test/automated/performance/test_benchmark.py -v -s
 
    # Or run by Related Features (if filtering)
    python -m pytest test/automated/performance/ -v -s -k "bm_001 or bm_003"

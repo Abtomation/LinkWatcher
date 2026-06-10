@@ -19,7 +19,7 @@ Updates the following files (based on -TestType):
 - E2E: e2e-test-tracking.md (Audit Status + Audit Report columns)
 
 .PARAMETER TestFilePath
-Relative path to the test file being audited (e.g., "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py")
+Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
 
 .PARAMETER AuditStatus
 The audit status (e.g., "Audit Approved", "Needs Update", "Audit In Progress")
@@ -57,17 +57,17 @@ invalidate the captured baseline. Rows whose current Lifecycle Status is not
 If specified, shows what would be updated without making changes
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditStatus "Audit Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Needs Update" -AuditorName "John Doe" -MajorFindings @("Missing edge case tests", "Incomplete mock coverage") -DryRun
 
 .EXAMPLE
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditStatus "Audit Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
+Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -TestCasesAudited 15 -PassedTests 13 -FailedTests 2
 
 .EXAMPLE
 # Performance: false-compliance correction — audit fails and the row(s) need to roll back to 📋 Needs Baseline
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditStatus "Needs Update" -AuditReportPath "test/audits/performance/level2-operation/audit-report-2-1-1-test-benchmark.md" -LifecycleCorrection
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditReportPath "test/audits/performance/audit-report-2-1-1-test-benchmark.md" -LifecycleCorrection
 
 .NOTES
 This script addresses Process Improvement items:
@@ -202,7 +202,7 @@ function Get-FeatureIdFromTestFile {
     }
 
     # Multiple matches — disambiguate using directory from TestFilePath
-    # Build a suffix from input path: e.g., "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py" → "unit/test_config.py"
+    # Build a suffix from input path: e.g., "test/automated/unit/test_config.py" → "unit/test_config.py"
     $normalizedInput = $TestFilePath -replace '\\', '/'
     $inputParts = $normalizedInput -split '/'
     # Use parent-dir/filename as the disambiguation suffix (at minimum)

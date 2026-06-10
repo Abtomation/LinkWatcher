@@ -2,9 +2,9 @@
 id: PD-UGD-005
 type: Product Documentation
 category: User Guide
-version: 1.0
+version: 1.1
 created: 2026-04-16
-updated: 2026-04-16
+updated: 2026-06-10
 handbook_category: usage
 handbook_name: Configuration Guide
 ---
@@ -140,9 +140,16 @@ validation_ignored_patterns:    # Suppress broken-link reports when target conta
   - "xxx"
   - "LinkWatcher/"
 
-validation_ignore_file: ".linkwatcher-ignore"  # Path to per-file ignore rules
+validation_ignore_file: "tools/linkwatcher/.linkwatcher-ignore"  # Path to per-file ignore rules
+
+validation_output_dir: "logs/linkwatcher"  # Where validation reports are written; null falls back to the --log-file directory, else project root
 
 path_resolution_overrides: {}   # Per-folder resolution base for "/..." links during --validate (see below)
+
+# === Parser Matching ===
+parser_type_extensions:      # Extension considered valid when matching extensionless refs (e.g. Python imports); set via config file, not LINKWATCHER_*
+  python: ".py"
+  dart: ".dart"
 
 # === Python Import Resolution ===
 python_source_root: ""       # Strip this prefix for import resolution (e.g., "src")
@@ -285,7 +292,7 @@ doc/archive/**/*.md -> old-docs/
 
 ### Configuration
 
-The ignore file location defaults to `.linkwatcher-ignore` in the project root. Override it in your config:
+The ignore file location defaults to `tools/linkwatcher/.linkwatcher-ignore` (relative to the project root). Override it in your config:
 
 ```yaml
 validation_ignore_file: "my-project/.linkwatcher-ignore"

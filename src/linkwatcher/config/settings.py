@@ -93,9 +93,8 @@ class LinkWatcherConfig:
             "dist",
             "__pycache__",
             "tests",
-            # Matched as a basename — covers both
-            # process-framework/tools/linkWatcher (shareable framework asset, intentionally static)
-            # and process-framework-local/tools/linkWatcher (project runtime artifacts)
+            # Matched as a basename — covers process-framework/tools/linkWatcher
+            # (shareable framework asset, intentionally static)
             "linkWatcher",
         }
     )

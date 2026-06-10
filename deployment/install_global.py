@@ -21,6 +21,19 @@ from pathlib import Path
 # Default install location
 DEFAULT_INSTALL_DIR = Path.home() / "bin"
 
+# Core directories to copy (full replacement)
+# (source_path, dest_path) — source relative to project_root, dest relative to
+# install_dir (may be nested; copytree creates intermediate directories).
+# doc/user/handbooks must keep its repo-relative structure (PD-BUG-104): the
+# per-project config template points at
+# <install>/doc/user/handbooks/configuration-guide.md, and the handbooks
+# cross-link each other with absolute-from-root paths.
+CORE_DIRS = [
+    ("src/linkwatcher", "linkwatcher"),
+    ("config-examples", "config-examples"),
+    ("doc/user/handbooks", "doc/user/handbooks"),
+]
+
 
 def stop_running_linkwatcher(project_root):
     """Stop any running LinkWatcher instance before installation.
@@ -128,13 +141,6 @@ def install_linkwatcher(project_root, install_dir):
         "pyproject.toml",
     ]
 
-    # Core directories to copy (full replacement)
-    # (source_path, dest_name) — source relative to project_root, dest is flat name in install_dir
-    core_dirs = [
-        ("src/linkwatcher", "linkwatcher"),
-        ("config-examples", "config-examples"),
-    ]
-
     # Optional files (copy if they exist, skip silently if not)
     optional_files = []
 
@@ -164,7 +170,7 @@ def install_linkwatcher(project_root, install_dir):
             print(f"   Skipped (not found): {file_name}")
 
     # Copy directories (full replacement to avoid stale .pyc etc.)
-    for source_name, dest_name in core_dirs:
+    for source_name, dest_name in CORE_DIRS:
         source_dir_path = project_root / source_name
         dest_dir_path = install_dir / dest_name
 

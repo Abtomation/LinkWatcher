@@ -28,15 +28,10 @@
 $ErrorActionPreference = 'Continue'
 
 $Allowlist = @(
-    'process-framework-local/state-tracking/permanent/process-improvement-tracking.md',
     'doc/state-tracking/permanent/bug-tracking.md',
-    # PD-BUG-068's closed entry was archived out of bug-tracking.md into bug-tracking-archive.md
-    # during the framework reorganization; the intentionally-preserved evidence literal moved with it.
+    # PD-BUG-068 forensic record relocated here by the resolved-bug archive split
+    # (PF-IMP-873, 2026-05-26); same preserved evidence, new path.
     'doc/state-tracking/permanent/archive/bug-tracking-archive.md',
-    # Phase 5: project-local temporary/old/ moves from process-framework-local/ → doc/state-tracking/.
-    # Both paths listed so the hook works pre- and post-migration window. Old path can be
-    # removed in Phase 10 cleanup once project-side moves are confirmed complete.
-    'process-framework-local/state-tracking/temporary/old/structure-change-test-directory-consolidation.md',
     'doc/state-tracking/temporary/old/structure-change-test-directory-consolidation.md'
 )
 

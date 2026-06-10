@@ -24,7 +24,7 @@
     The feature ID being audited (e.g., "0.2.3", "1.1.2")
 
 .PARAMETER TestFilePath
-    Relative path to the test file being audited (e.g., "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py")
+    Relative path to the test file being audited (e.g., "test/automated/unit/test_service.py")
 
 .PARAMETER AuditorName
     Name of the auditor conducting the assessment (default: "AI Agent")
@@ -48,19 +48,19 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditorName "AI Agent"
+    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "AI Agent"
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -TestType Performance -FeatureId "2.1.1" -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditorName "AI Agent"
+    New-TestAuditReport.ps1 -TestType Performance -FeatureId "2.1.1" -TestFilePath "test/automated/performance/test_benchmark.py" -AuditorName "AI Agent"
 
 .EXAMPLE
     New-TestAuditReport.ps1 -TestType E2E -FeatureId "1.1.1" -TestFilePath "test/e2e-acceptance-testing/templates/powershell-regex-preservation/TE-E2E-001-regex-preserved-on-file-move/test-case.md"
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -Lightweight
+    New-TestAuditReport.ps1 -FeatureId "0.1.1" -TestFilePath "test/automated/unit/test_service.py" -Lightweight
 
 .EXAMPLE
-    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -Force
+    New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -Force
     # Re-audit: overwrites the existing report for this feature/test file combination
 
 .NOTES
@@ -547,7 +547,7 @@ Before considering this script complete, test the following:
 
 EXAMPLE TEST COMMANDS:
 # Basic test (SC-007: uses file path)
-New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_service.py" -AuditorName "Test Auditor"
+New-TestAuditReport.ps1 -FeatureId "0.2.3" -TestFilePath "test/automated/unit/test_service.py" -AuditorName "Test Auditor"
 
 # Cleanup
 Remove-Item "../../audits/foundation/audit-report-0-2-3-test_service.md" -Force

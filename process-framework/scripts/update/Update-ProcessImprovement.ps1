@@ -38,9 +38,15 @@ Supports two parameter sets:
    - On re-routes (source != Intake), auto-prepends [REROUTED YYYY-MM-DD by PF-TSK-NNN: <reason>]
      to the Notes column for an audit trail. Initial sort from Intake produces no prefix.
 
+   Batch mode (PF-IMP-982): pass -AlsoMoveIds to move several IMPs to the SAME section
+   with the SAME options in one call. Each ID's source section is resolved independently;
+   a not-found/failed ID is reported and skipped without aborting the rest of the batch.
+
    Smart defaults — typical invocations only need -ImprovementId, -MoveToSection, -Priority
    (and -RejectionReason when target is Rejected, plus -Reason on re-routes for the audit trail):
-   - -Status defaults to "Needs Prioritization" on triaged-section moves.
+   - -Status defaults to "Needs Prioritization" on triaged-section moves; accepts either the
+     display spelling ("In Progress") or the -NewStatus token spelling ("InProgress") (PF-IMP-1006).
+   - -RejectionReason also seeds the re-route audit-trail -Reason when moving to Rejected (PF-IMP-1005).
    - -RespTask defaults to the destination section's conventional owner
      (PF-TSK-009 / PF-TSK-026 / PF-TSK-014 for Improvements / Extensions / StructuralChanges).
    - -Retriage (PF-IMP-857) is sugar for "IMP Triage is re-evaluating a triaged-section
@@ -84,8 +90,8 @@ PARAMETER REQUIREMENTS BY STATUS:
                         Rejection Reason column value). Moves the row to Section 7 — Rejected.
                         -Impact is ignored (Section 7 schema has no Impact column); a WARN is
                         emitted if -Impact is supplied.
-  Superseded            (PF-IMP-832 (c)) -SupersededBy <IMP-NNN|PF-IMP-NNN> (required —
-                        the IMP that subsumes this one); -ValidationNotes optional (folded
+  Superseded            (PF-IMP-832 (c)) -SupersededBy <IMP-NNN|PF-IMP-NNN|PF-PRO-NNN> (required —
+                        the artifact that subsumes this one); -ValidationNotes optional (folded
                         into destination Notes ahead of existing content). Moves the row
                         to Section 7 — Rejected with Rejection Reason = "Superseded by
                         <SupersededBy>".
@@ -100,6 +106,11 @@ or alone (annotation-only mode):
                             anything — caller controls wording).
   -SetRespTask <PF-TSK-NNN> Replace the Resp Task column value (validated against
                             ^PF-TSK-\d+$). Skipped if already equal.
+  -EditDescription <text>   PF-IMP-1007. Replace the Description column value. Idempotent —
+                            skipped if already equal.
+  -EditNotes <text>         PF-IMP-1007. Replace the Notes column value (vs -AppendNotes,
+                            which appends). Mutually exclusive with -AppendNotes. Idempotent —
+                            skipped if already equal.
   -AnnotateAsRolledInto <IMP-NNN|PF-IMP-NNN>
                             PF-IMP-863. Thin specialization of -AppendNotes for the
                             duplicate-of-open-IMP cluster-consolidation case. Operates on
@@ -146,10 +157,11 @@ Example: `-LogToolChanges '[{"tool":"Existing.ps1","date":"2026-05-23","imp":"PF
 {"tool":"BrandNew.ps1","date":"2026-05-23","imp":"PF-IMP-XXX","description":"...","new_tool":true}]'`.
 
 .PARAMETER SupersededBy
-PF-IMP-832 (c). The IMP that subsumes / replaces this one (validated against
-^(IMP|PF-IMP)-\d+$ — existence is not checked). Required with -NewStatus Superseded.
-The Superseded transition moves the row to Section 7 — Rejected with
-Rejection Reason = "Superseded by <SupersededBy>".
+PF-IMP-832 (c). The artifact that subsumes / replaces this one (validated against
+^(IMP|PF-IMP|PF-PRO)-\d+$ — existence is not checked). Required with -NewStatus Superseded.
+PF-IMP-1019: PF-PRO IDs are accepted so a cluster of IMPs subsumed by a proposal /
+extension concept can be recorded. The Superseded transition moves the row to
+Section 7 — Rejected with Rejection Reason = "Superseded by <SupersededBy>".
 
 .PARAMETER Impact
 Impact level. Valid values: HIGH, MEDIUM, LOW, "—" (em-dash placeholder).
@@ -242,6 +254,12 @@ Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-801" -MoveToSection "Reject
 # (auto-prepends [REROUTED 2026-MM-DD by PF-TSK-009: <reason>] to Notes; -RoutedBy defaults from source section)
 Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-802" -MoveToSection "StructuralChanges" -Priority "High" -Reason "Requires directory reorganization" -TrackingFile "<central path>"
 
+.EXAMPLE
+# Batch sort (PF-IMP-982): move several Intake rows to Improvements in one call.
+# Each ID's source section is detected independently; a not-found/failed ID is reported
+# and skipped without aborting the rest of the batch.
+Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-810" -AlsoMoveIds "PF-IMP-811","PF-IMP-812" -MoveToSection "Improvements" -Priority "Medium" -TrackingFile "<central path>"
+
 .NOTES
 This script is part of the Process Improvement automation system and integrates with:
 - Process Improvement Task (PF-TSK-009)
@@ -297,13 +315,15 @@ param(
     [string]$LogToolChanges,
 
     # PF-IMP-832 (c): the IMP that subsumes / replaces this one. Required when
-    # -NewStatus is "Superseded". Pattern-validated against ^(IMP|PF-IMP)-\d+$;
-    # existence is not checked (the subsuming IMP may live in any section).
+    # -NewStatus is "Superseded". Pattern-validated against ^(IMP|PF-IMP|PF-PRO)-\d+$;
+    # existence is not checked (the subsuming artifact may live in any section).
+    # PF-IMP-1019: PF-PRO accepted because a cluster of IMPs is sometimes subsumed by
+    # a proposal / extension concept (PF-PRO-NNN) rather than by another IMP.
     # The Superseded transition moves the row to Section 7 — Rejected with
     # Rejection Reason = "Superseded by <SupersededBy>" so trend analysis can
     # distinguish supersession from implementation (per PF-IMP-803 rationale).
     [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
-    [ValidatePattern('^(IMP|PF-IMP)-\d+$')]
+    [ValidatePattern('^(IMP|PF-IMP|PF-PRO)-\d+$')]
     [string]$SupersededBy,
 
     # --- Annotate parameter set (PF-IMP-832 (a)) ---
@@ -325,12 +345,27 @@ param(
     [ValidateSet("Intake", "Improvements", "Extensions", "StructuralChanges", "Rejected")]
     [string]$MoveToSection,
 
+    # PF-IMP-982: batch mode. Additional IMP IDs to move to the SAME -MoveToSection
+    # with the SAME options (-Priority / -Status / -RespTask / -Reason / -RejectionReason)
+    # as -ImprovementId. Lets IMP Triage sort several rows in one call. Each ID's source
+    # section is detected independently (so -RoutedBy / re-route prefix resolve per-ID);
+    # a not-found or failed ID is reported and skipped without aborting the rest of the
+    # batch. The accumulated result is written once at the end.
+    [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
+    [ValidatePattern('^(IMP|PF-IMP)-\d+$')]
+    [string[]]$AlsoMoveIds,
+
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
     [ValidateSet("High", "Medium", "Low")]
     [string]$Priority,
 
+    # PF-IMP-1006: accept BOTH the display spelling ("In Progress") and the token
+    # spelling ("InProgress") that -NewStatus (StatusUpdate set) uses, so callers do
+    # not have to remember two different spellings across the two parameter sets.
+    # Token forms are normalized to the display form in Main before the column write.
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
-    [ValidateSet("Needs Prioritization", "Needs Implementation", "In Progress")]
+    [ValidateSet("Needs Prioritization", "Needs Implementation", "In Progress",
+                 "NeedsPrioritization", "NeedsImplementation", "InProgress")]
     [string]$Status,
 
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
@@ -368,6 +403,19 @@ param(
     [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
     [ValidatePattern('^PF-TSK-\d+$')]
     [string]$SetRespTask,
+
+    # PF-IMP-1007: replace (not append) the Description / Notes column on a row in
+    # one of the 10-col triaged sections (Improvements / Extensions / Structural
+    # Changes). Sibling of -AppendNotes (append) and -SetRespTask (replace Resp Task);
+    # available alone (pure edit, no status change) or alongside -NewStatus.
+    # Idempotent — skipped if the column already equals the supplied value.
+    # -EditNotes and -AppendNotes are mutually exclusive (one replaces, the other
+    # appends — combining them on the same Notes cell is ambiguous).
+    [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
+    [string]$EditDescription,
+
+    [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
+    [string]$EditNotes,
 
     # PF-IMP-863: thin specialization of -AppendNotes for the duplicate-of-open-IMP
     # cluster-consolidation case. Operates on the SURVIVING IMP — the cluster owner
@@ -514,7 +562,7 @@ function Test-Prerequisites {
 
     # PF-IMP-832 (c): -NewStatus Superseded requires -SupersededBy
     if ($NewStatus -eq "Superseded" -and -not $SupersededBy) {
-        Write-Log "-SupersededBy is required when transitioning to Superseded (pattern: IMP-NNN or PF-IMP-NNN)" -Level "ERROR"
+        Write-Log "-SupersededBy is required when transitioning to Superseded (pattern: IMP-NNN, PF-IMP-NNN, or PF-PRO-NNN)" -Level "ERROR"
         return $false
     }
     # And -SupersededBy is only meaningful with -NewStatus Superseded
@@ -860,6 +908,8 @@ function Update-StatusInPlace {
 function Update-AnnotationInPlace {
     # PF-IMP-832 (a): edits Notes column (idempotent append) and/or Resp Task column on a row
     # in one of the 10-col triaged sections (Improvements / Extensions / Structural Changes).
+    # PF-IMP-1007 extends this with -EditDescription / -EditNotes (idempotent REPLACE of the
+    # Description / Notes columns).
     # Returns the modified $Content (or original $Content unchanged if every requested edit
     # was a no-op per idempotency, or $null on failure). Last Updated is bumped only when
     # at least one column actually changed.
@@ -868,7 +918,9 @@ function Update-AnnotationInPlace {
         [string]$ArchiveContent,
         [string]$ImprovementId,
         [string]$AppendNotes,
-        [string]$SetRespTask
+        [string]$SetRespTask,
+        [string]$EditDescription,
+        [string]$EditNotes
     )
 
     $sectionShortName = Get-IMPCurrentSection -Content $Content -ArchiveContent $ArchiveContent -ImprovementId $ImprovementId
@@ -917,6 +969,28 @@ function Update-AnnotationInPlace {
             $columns[7] = $SetRespTask
             $changed = $true
             Write-Log "Set Resp Task to $SetRespTask for $ImprovementId (was: $currentRespTask)" -Level "SUCCESS"
+        }
+    }
+
+    # PF-IMP-1007 -EditDescription: replace Description (idx 2). Skip if already equal.
+    if ($EditDescription) {
+        if ($columns[2].Trim() -eq $EditDescription) {
+            Write-Log "EditDescription: Description already equals the supplied value for $ImprovementId — skipping (idempotent)" -Level "INFO"
+        } else {
+            $columns[2] = $EditDescription
+            $changed = $true
+            Write-Log "Replaced Description for $ImprovementId" -Level "SUCCESS"
+        }
+    }
+
+    # PF-IMP-1007 -EditNotes: replace Notes (idx 9). Skip if already equal.
+    if ($EditNotes) {
+        if ($columns[9].Trim() -eq $EditNotes) {
+            Write-Log "EditNotes: Notes already equals the supplied value for $ImprovementId — skipping (idempotent)" -Level "INFO"
+        } else {
+            $columns[9] = $EditNotes
+            $changed = $true
+            Write-Log "Replaced Notes for $ImprovementId" -Level "SUCCESS"
         }
     }
 
@@ -1459,6 +1533,15 @@ function Test-PrerequisitesForMove {
         return $false
     }
 
+    # PF-IMP-1005: on a re-route into Rejected (source != Intake), default the
+    # audit-trail -Reason to -RejectionReason so the [REROUTED ...] Notes prefix
+    # carries the real rejection reason instead of the "<no reason supplied>"
+    # marker. No-op for Intake-source rejections (initial sort gets no prefix).
+    if ($MoveToSection -eq "Rejected" -and -not $Reason -and $RejectionReason) {
+        $script:Reason = $RejectionReason
+        Write-Log "Defaulted -Reason to -RejectionReason for the re-route audit trail (PF-IMP-1005)" -Level "INFO"
+    }
+
     if ($MoveToSection -in @("Improvements", "Extensions", "StructuralChanges")) {
         if (-not $Status) {
             $script:Status = "Needs Prioritization"  # default for triaged-section moves
@@ -1491,7 +1574,11 @@ function Move-IMPBetweenSections {
         [string]$ArchiveContent,
         [string]$ImprovementId,
         [string]$SourceShortName,
-        [string]$DestShortName
+        [string]$DestShortName,
+        # PF-IMP-982: passed explicitly (per-ID resolved value) rather than read from the
+        # script-scope $RoutedBy, whose [ValidatePattern] rejects the $null/empty default
+        # that a non-triaged source section legitimately produces.
+        [string]$RoutedBy
     )
 
     # Refuse no-op moves (source == destination).
@@ -1614,100 +1701,161 @@ function Main {
             exit 1
         }
 
-        $sourceShortName = Get-IMPCurrentSection -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId
-        Write-Log "Located $ImprovementId in section: $sourceShortName"
+        # PF-IMP-1006: normalize a token-spelled -Status (e.g. "InProgress") to the display
+        # form ("In Progress") that is written verbatim into the Status column, so callers may
+        # use either the -NewStatus token spelling or the display spelling interchangeably.
+        if ($Status -and $StatusDisplayNames.ContainsKey($Status)) {
+            $script:Status = $StatusDisplayNames[$Status]
+            Write-Log "Normalized -Status token to display form '$Status' (PF-IMP-1006)" -Level "INFO"
+        }
 
-        if ($sourceShortName -eq "NotFound") {
-            Write-Log "$ImprovementId not found in any section of $TrackingFile / $ArchiveFile" -Level "ERROR"
+        # PF-IMP-982: batch mode. Build the full ID list (-ImprovementId + -AlsoMoveIds),
+        # normalize short IMP-NNN → PF-IMP-NNN, and de-dup. ($ImprovementId is already
+        # normalized at the top of Main; $AlsoMoveIds are normalized here.)
+        $batchIds = @($ImprovementId)
+        if ($AlsoMoveIds) {
+            foreach ($extra in $AlsoMoveIds) {
+                $batchIds += if ($extra -match '^IMP-\d+$') { "PF-$extra" } else { $extra }
+            }
+        }
+        $batchIds = $batchIds | Select-Object -Unique
+
+        # -Retriage / explicit -RoutedBy conflict is a global param error (check once).
+        if ($Retriage -and $RoutedBy -and $RoutedBy -ne "PF-TSK-089") {
+            Write-Log "-Retriage implies -RoutedBy 'PF-TSK-089' but you supplied '$RoutedBy'. Choose one." -Level "ERROR"
             exit 1
         }
+        # Capture the explicitly-supplied -RoutedBy before the loop mutates $script:RoutedBy
+        # per-ID (each ID's source section determines its own default).
+        $explicitRoutedBy = $RoutedBy
 
-        # PF-IMP-857: -Retriage is the explicit form of "IMP Triage is re-evaluating
-        # a triaged-section row." Invalid for Intake-source moves (initial triage
-        # is already the default for Intake → triaged sections). For triaged-source
-        # moves, it flips the -RoutedBy default from the source section's owner
-        # (the standard re-route case) to PF-TSK-089 (Triage redoing the work).
-        if ($Retriage) {
-            if ($sourceShortName -eq "Intake") {
-                Write-Log "-Retriage is invalid for Intake-source moves. The default Intake → triaged-section flow is already attributed to PF-TSK-089. Drop the switch and re-invoke." -Level "ERROR"
+        $origContent        = $content
+        $origArchiveContent = $archiveContent
+        $moved  = @()   # [pscustomobject]@{ Id; Src }
+        $noop   = @()   # IDs already in the destination section
+        $failed = @()   # [pscustomobject]@{ Id; Reason }
+
+        foreach ($id in $batchIds) {
+            $sourceShortName = Get-IMPCurrentSection -Content $content -ArchiveContent $archiveContent -ImprovementId $id
+            Write-Log "Located $id in section: $sourceShortName"
+
+            if ($sourceShortName -eq "NotFound") {
+                Write-Log "$id not found in any section of $TrackingFile / $ArchiveFile" -Level "ERROR"
+                $failed += [pscustomobject]@{ Id = $id; Reason = "not found in any section" }
+                continue
+            }
+
+            # PF-IMP-857: -Retriage is invalid for Intake-source moves (initial triage is
+            # already attributed to PF-TSK-089). In a mixed batch this is a per-ID skip.
+            if ($Retriage -and $sourceShortName -eq "Intake") {
+                Write-Log "-Retriage is invalid for Intake-source moves ($id). The default Intake → triaged-section flow is already attributed to PF-TSK-089." -Level "ERROR"
+                $failed += [pscustomobject]@{ Id = $id; Reason = "-Retriage invalid for Intake-source" }
+                continue
+            }
+
+            # Resolve -RoutedBy for this ID: explicit override > -Retriage (PF-TSK-089) >
+            # source-section conventional owner. Held in a LOCAL (not $script:RoutedBy):
+            # the script param's [ValidatePattern] would reject the $null a non-triaged
+            # source (e.g. Rejected) legitimately yields. Passed to Move-IMPBetweenSections.
+            $effRoutedBy =
+                if ($explicitRoutedBy) { $explicitRoutedBy }
+                elseif ($Retriage)     { "PF-TSK-089" }
+                else {
+                    switch ($sourceShortName) {
+                        "Intake"            { "PF-TSK-089" }
+                        "Improvements"      { "PF-TSK-009" }
+                        "Extensions"        { "PF-TSK-026" }
+                        "StructuralChanges" { "PF-TSK-014" }
+                        default             { $null }
+                    }
+                }
+            if ($effRoutedBy) {
+                Write-Log "Resolved -RoutedBy to '$effRoutedBy' for $id (source '$sourceShortName')" -Level "INFO"
+            }
+
+            if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Move $id from $sourceShortName to $MoveToSection")) {
+                continue
+            }
+
+            $moveResult = Move-IMPBetweenSections `
+                -Content $content `
+                -ArchiveContent $archiveContent `
+                -ImprovementId $id `
+                -SourceShortName $sourceShortName `
+                -DestShortName $MoveToSection `
+                -RoutedBy $effRoutedBy
+
+            if ($null -eq $moveResult) {
+                $failed += [pscustomobject]@{ Id = $id; Reason = "move failed (see errors above)" }
+                continue
+            }
+
+            # No-op (source == dest): Move-IMPBetweenSections returns content unchanged.
+            if ($moveResult.Content -eq $content -and $moveResult.ArchiveContent -eq $archiveContent) {
+                $noop += $id
+                continue
+            }
+
+            $content        = $moveResult.Content
+            $archiveContent = $moveResult.ArchiveContent
+            $moved += [pscustomobject]@{ Id = $id; Src = $sourceShortName }
+        }
+
+        # Nothing actually moved: report no-ops / failures (also the -WhatIf path lands here,
+        # since ShouldProcess returned false for every ID and no content changed).
+        if ($moved.Count -eq 0) {
+            if ($noop.Count -gt 0) {
+                Write-SummaryLine "$($noop -join ', ') already in '$MoveToSection' — no change" -Level "WARN"
+            }
+            if ($failed.Count -gt 0) {
+                Write-SummaryLine "Batch move failed: $($failed.Count) ID(s) not moved ($(($failed | ForEach-Object { $_.Id }) -join ', '))" -Level "ERROR"
                 exit 1
             }
-            if ($RoutedBy -and $RoutedBy -ne "PF-TSK-089") {
-                Write-Log "-Retriage implies -RoutedBy 'PF-TSK-089' but you supplied '$RoutedBy'. Choose one." -Level "ERROR"
-                exit 1
-            }
-            $script:RoutedBy = "PF-TSK-089"
-            Write-Log "-Retriage set: -RoutedBy = 'PF-TSK-089' (Triage re-evaluating a triaged-section row)" -Level "INFO"
-        }
-        # Auto-default -RoutedBy from source section. Each open section has exactly
-        # one conventional routing-task, so this covers the typical case (Triage
-        # drains Intake; PF-TSK-009/014/026 do re-routes from their owned sections).
-        # The operator can still override -RoutedBy explicitly (or pass -Retriage)
-        # for the rare case where Triage re-evaluates a triaged-section row in a
-        # follow-up session.
-        if (-not $RoutedBy) {
-            $script:RoutedBy = switch ($sourceShortName) {
-                "Intake"            { "PF-TSK-089" }
-                "Improvements"      { "PF-TSK-009" }
-                "Extensions"        { "PF-TSK-026" }
-                "StructuralChanges" { "PF-TSK-014" }
-                default             { $null }
-            }
-            if ($RoutedBy) {
-                Write-Log "Defaulted -RoutedBy to '$RoutedBy' (conventional routing-task for source section '$sourceShortName')" -Level "INFO"
-            }
-        }
-
-        if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Move $ImprovementId from $sourceShortName to $MoveToSection")) {
-            return
-        }
-
-        $moveResult = Move-IMPBetweenSections `
-            -Content $content `
-            -ArchiveContent $archiveContent `
-            -ImprovementId $ImprovementId `
-            -SourceShortName $sourceShortName `
-            -DestShortName $MoveToSection
-
-        if ($null -eq $moveResult) { exit 1 }
-        $newContent        = $moveResult.Content
-        $newArchiveContent = $moveResult.ArchiveContent
-
-        # No-op (source == dest): both contents unchanged. Skip write.
-        if ($newContent -eq $content -and $newArchiveContent -eq $archiveContent) {
-            Write-SummaryLine "$ImprovementId already in '$MoveToSection' — no change" -Level "WARN"
             return
         }
 
         # Update frontmatter date on whichever file(s) changed (the central file
         # frontmatter uses the `updated:` field convention; archive file mirrors it).
-        if ($newContent -ne $content) {
-            $newContent = Update-FrontmatterDate -Content $newContent
+        if ($content -ne $origContent) {
+            $content = Update-FrontmatterDate -Content $content
         }
-        if ($newArchiveContent -ne $archiveContent) {
-            $newArchiveContent = Update-FrontmatterDate -Content $newArchiveContent
+        if ($archiveContent -ne $origArchiveContent) {
+            $archiveContent = Update-FrontmatterDate -Content $archiveContent
         }
 
-        if ($newContent -ne $content) {
+        if ($content -ne $origContent) {
             Invoke-FileWriteWithRetry -Context (Split-Path $TrackingFile -Leaf) -ScriptBlock {
-                Set-Content -Path $TrackingFile -Value $newContent -NoNewline
+                Set-Content -Path $TrackingFile -Value $content -NoNewline
             }
         }
-        if ($newArchiveContent -ne $archiveContent) {
+        if ($archiveContent -ne $origArchiveContent) {
             Invoke-FileWriteWithRetry -Context (Split-Path $ArchiveFile -Leaf) -ScriptBlock {
-                Set-Content -Path $ArchiveFile -Value $newArchiveContent -NoNewline
+                Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
             }
         }
 
         if (-not $WhatIfPreference) {
-            # Verify the row landed where it should: main file for §1-§4, archive
+            # Verify each moved row landed where it should: main file for §1-§4, archive
             # for Rejected. Use whichever target the destination corresponds to.
             $verifyFile = if ($MoveToSection -eq "Rejected") { $ArchiveFile } else { $TrackingFile }
-            $rowPattern = "\|\s*" + [regex]::Escape($ImprovementId) + "\s*\|"
-            Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "row for $ImprovementId in $verifyFile"
+            foreach ($m in $moved) {
+                $rowPattern = "\|\s*" + [regex]::Escape($m.Id) + "\s*\|"
+                Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "row for $($m.Id) in $verifyFile"
+            }
         }
 
-        Write-SummaryLine "$ImprovementId moved: $sourceShortName → $MoveToSection"
+        if ($moved.Count -eq 1 -and $noop.Count -eq 0 -and $failed.Count -eq 0) {
+            # Preserve the single-ID summary form.
+            Write-SummaryLine "$($moved[0].Id) moved: $($moved[0].Src) → $MoveToSection"
+        } else {
+            $summary = "$(($moved | ForEach-Object { $_.Id }) -join ', ') moved → $MoveToSection ($($moved.Count) moved"
+            if ($noop.Count -gt 0)   { $summary += "; $($noop.Count) no-op" }
+            if ($failed.Count -gt 0) { $summary += "; $($failed.Count) failed" }
+            $summary += ")"
+            Write-SummaryLine $summary -Level $(if ($failed.Count -gt 0) { "WARN" } else { "SUCCESS" })
+        }
+
+        if ($failed.Count -gt 0) { exit 1 }
         return
     }
 
@@ -1735,15 +1883,23 @@ function Main {
         }
     }
 
+    # PF-IMP-1007: -AppendNotes and -EditNotes both target the Notes cell with opposite
+    # semantics (append vs replace) — combining them is ambiguous. Reject up front.
+    if ($AppendNotes -and $EditNotes) {
+        Write-Log "-AppendNotes and -EditNotes are mutually exclusive (one appends to Notes, the other replaces it). Supply only one." -Level "ERROR"
+        exit 1
+    }
+
     # PF-IMP-832 (a): annotation-only mode. When -NewStatus is omitted but at least one of
-    # -AppendNotes / -SetRespTask / -AnnotateAsRolledInto is bound, run the annotation as a
-    # standalone edit (no status transition, no completion move). At least one must be supplied.
+    # -AppendNotes / -SetRespTask / -EditDescription / -EditNotes / -AnnotateAsRolledInto is
+    # bound, run the annotation as a standalone edit (no status transition, no completion
+    # move). At least one must be supplied.
     if (-not $NewStatus) {
-        if (-not $AppendNotes -and -not $SetRespTask) {
+        if (-not $AppendNotes -and -not $SetRespTask -and -not $EditDescription -and -not $EditNotes) {
             # -AnnotateAsRolledInto already folded into $AppendNotes above; if that fold
             # populated nothing (it can't, given the ValidatePattern), the user-visible
             # error still reads naturally.
-            Write-Log "Must supply at least one of -NewStatus, -AppendNotes, -SetRespTask, or -AnnotateAsRolledInto" -Level "ERROR"
+            Write-Log "Must supply at least one of -NewStatus, -AppendNotes, -SetRespTask, -EditDescription, -EditNotes, or -AnnotateAsRolledInto" -Level "ERROR"
             exit 1
         }
 
@@ -1774,7 +1930,7 @@ function Main {
         # Annotation operates on §2-§4 rows only — never touches the archive.
         # We pass $archiveContent so Get-IMPCurrentSection can produce a precise
         # error message when the IMP turns out to be in the archive.
-        $newContent = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask
+        $newContent = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask -EditDescription $EditDescription -EditNotes $EditNotes
         if ($null -eq $newContent) { exit 1 }
 
         if ($newContent -eq $content) {
@@ -1794,8 +1950,10 @@ function Main {
         }
 
         $annotations = @()
-        if ($AppendNotes)  { $annotations += "Notes" }
-        if ($SetRespTask)  { $annotations += "Resp Task=$SetRespTask" }
+        if ($AppendNotes)     { $annotations += "Notes(append)" }
+        if ($EditNotes)       { $annotations += "Notes(replace)" }
+        if ($EditDescription) { $annotations += "Description(replace)" }
+        if ($SetRespTask)     { $annotations += "Resp Task=$SetRespTask" }
         Write-SummaryLine "$ImprovementId annotated: $($annotations -join ', ')"
         return
     }
@@ -1866,12 +2024,12 @@ function Main {
     # the new Notes/Resp Task in the same write cycle, and (b) Completed-transition moves fold
     # the new Notes into the synthesized destination row and use the new Resp Task as the
     # default Implementing Task. Pilots (7-col schema, no Resp Task column) are not supported.
-    if ($AppendNotes -or $SetRespTask) {
+    if ($AppendNotes -or $SetRespTask -or $EditDescription -or $EditNotes) {
         if ($isPilotStatus) {
-            Write-Log "-AppendNotes / -SetRespTask / -AnnotateAsRolledInto are not supported for pilot statuses (Active Pilots rows have no Resp Task column and use a different schema)" -Level "ERROR"
+            Write-Log "-AppendNotes / -SetRespTask / -EditDescription / -EditNotes / -AnnotateAsRolledInto are not supported for pilot statuses (Active Pilots rows have no Resp Task column and use a different schema)" -Level "ERROR"
             exit 1
         }
-        $content = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask
+        $content = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask -EditDescription $EditDescription -EditNotes $EditNotes
         if ($null -eq $content) { exit 1 }
     }
 

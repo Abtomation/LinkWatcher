@@ -398,7 +398,7 @@ if ($UpdateTracking -and $script:capturedTestOutput.Count -gt 0) {
     Write-Host "Updating test-tracking.md with execution results..."
     Write-Host ("=" * 60)
 
-    # Parse verbose pytest output: lines like "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_config.py::TestClass::test_method PASSED"
+    # Parse verbose pytest output: lines like "test/automated/unit/test_config.py::TestClass::test_method PASSED"
     $fileResults = @{}
     foreach ($line in $script:capturedTestOutput) {
         if ($line -match '^(test/.+?\.py)::.+\s+(PASSED|FAILED|SKIPPED|ERROR)') {

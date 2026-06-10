@@ -2,9 +2,9 @@
 id: PD-UGD-007
 type: Product Documentation
 category: User Guide
-version: 1.0
+version: 1.1
 created: 2025-12-01
-updated: 2026-04-16
+updated: 2026-06-10
 ---
 
 # LinkWatcher 2.0 - Quick Reference Guide
@@ -39,43 +39,29 @@ python main.py --dry-run
 ## Configuration File Example
 
 ```yaml
-# linkwatcher-config.yaml
+# linkwatcher-config.yaml — include only what you change; defaults cover the rest
 monitored_extensions:
   - ".md"
   - ".yaml"
   - ".py"
-  - ".dart"
-  - ".json"
 
-ignored_directories:
-  - ".git"
-  - "node_modules"
-  - "__pycache__"
-  - ".dart_tool"
-
-create_backups: false
-dry_run_mode: false
-initial_scan_enabled: true
-max_file_size_mb: 10
-log_level: "INFO"
-colored_output: true
-show_statistics: true
+dry_run_mode: true
 ```
+
+Full list of settings and defaults: [Configuration Guide § Full Reference](configuration-guide.md#full-reference).
 
 > **Validating blueprint/template folders?** Use `path_resolution_overrides` so `--validate` resolves `/...` links inside a folder against that folder as its own root. See the [Configuration Guide](configuration-guide.md#per-folder-path-resolution-override-path_resolution_overrides) and the [Link Validation](link-validation.md) handbook.
 
 ## Environment Variables
 
 ```cmd
-REM Configuration via environment
-set LINKWATCHER_DRY_RUN=true
-set LINKWATCHER_CREATE_BACKUPS=true
+REM Pattern: LINKWATCHER_{FIELD_NAME_UPPER}
+set LINKWATCHER_DRY_RUN_MODE=true
 set LINKWATCHER_LOG_LEVEL=DEBUG
 set LINKWATCHER_MONITORED_EXTENSIONS=.md,.yaml,.py
-set LINKWATCHER_IGNORED_DIRECTORIES=.git,node_modules
-set LINKWATCHER_MAX_FILE_SIZE_MB=25
-set LINKWATCHER_COLORED_OUTPUT=1
 ```
+
+Naming pattern and type-conversion rules for every field: [Configuration Guide § Environment Variables](configuration-guide.md#environment-variables).
 
 ## Supported File Types
 

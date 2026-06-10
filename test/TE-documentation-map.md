@@ -31,6 +31,7 @@ _Created during test audit sessions (PF-TSK-030)._
 - [Audit: Link Updating 2.2.1](audits/unit/2-link-parsing-update/2-0-link-parsing-update/audit-report-2-2-1-pd-tst-105.md) - Updater test quality assessment
 - [Audit: Logging System 3.1.1](audits/unit/3-logging-monitoring/3-0-logging-monitoring/audit-report-3-1-1-pd-tst-107.md) - Logging test quality assessment
 - [Audit: Link Validation 6.1.1 (TE-TAR-065)](audits/unit/6-link-validation-reporting/6-0-link-validation-reporting/audit-report-6-1-1-test-shouldmonitorfileancestorpath.md) - Test quality assessment
+- [Audit: 0.1.3 (TE-TAR-075)](audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-3-test-configschemadrift.md) - Test quality assessment
 
 ### `audits/performance/level{1-4}-*/` — Performance Test Audit Reports
 

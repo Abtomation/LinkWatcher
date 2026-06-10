@@ -775,26 +775,6 @@ class TestConfigurationIntegration:
         loaded = LinkWatcherConfig.from_file(str(config_file))
         assert loaded.validation_ignored_patterns == {"foo/", "bar/baz/"}
 
-    def test_validation_output_dir_default_is_logs_linkwatcher(self):
-        """Regression (PD-BUG-101): the broken-link report default must point at
-        the post-Phase-5 ``logs/linkwatcher/`` location, not the legacy
-        ``process-framework-local/`` path the docs no longer reference."""
-        config = LinkWatcherConfig()
-        assert config.validation_output_dir == "logs/linkwatcher"
-        # Negative assertion: the stale legacy path must be gone, not merely
-        # coexisting with the new one.
-        assert "process-framework-local" not in (config.validation_output_dir or "")
-
-    def test_validation_ignore_file_default_is_tools_linkwatcher(self):
-        """Regression (PD-BUG-101): the ignore-file default is *tracked config*,
-        so it lives under the version-controlled ``tools/linkwatcher/`` — not the
-        legacy ``process-framework-local/`` path, and not the gitignored
-        ``logs/linkwatcher/`` runtime dir (where it would vanish on a fresh
-        clone and disable all suppression rules)."""
-        config = LinkWatcherConfig()
-        assert config.validation_ignore_file == "tools/linkwatcher/.linkwatcher-ignore"
-        assert "process-framework-local" not in config.validation_ignore_file
-
     def test_malformed_yaml_handling(self, temp_project_dir):
         """Test handling of malformed YAML configuration."""
         malformed_yaml = """

@@ -2,14 +2,22 @@
 id: PD-CIC-003
 type: Documentation
 category: CI-CD
-version: 2.1
+version: 2.2
 created: 2023-06-15
-updated: 2026-06-09
+updated: 2026-06-10
 ---
 
 # Release Process Guide
 
 This document outlines the release process for LinkWatcher. LinkWatcher is deployed locally as a global tool installed to `C:\Users\ronny\bin\`.
+
+## Freshness Stamp
+
+> Read by the Release & Deployment freshness gate (PF-TSK-008). Re-set **both** fields
+> whenever the mechanics in this guide change or are re-verified against a real release.
+
+- **Verified against release:** `2.1.0`
+- **Verified on:** 2026-06-10
 
 ## Architecture
 
@@ -45,7 +53,7 @@ This script:
 - Checks the Python version (3.8+ required)
 - Installs/updates dependencies from `pyproject.toml` (`pip install -e .`)
 - Removes stale files from previous installs (e.g., old `link_watcher.py`)
-- Copies `main.py`, `pyproject.toml`, the `src/linkwatcher` package, and `config-examples/` (excluding `__pycache__`/`*.pyc`)
+- Copies `main.py`, `pyproject.toml`, the `src/linkwatcher` package, `config-examples/`, and the `doc/user/handbooks/` user handbooks (excluding `__pycache__`/`*.pyc`)
 - Creates a dedicated LinkWatcher virtual environment (`.linkwatcher-venv`) with the pinned dependencies (PD-BUG-077)
 - Creates wrapper scripts (`linkwatcher.bat`, `linkwatcher.ps1`, and `checklinks.bat` if `scripts/check_links.py` is present)
 - Runs a smoke test (`main.py --help`) to verify the install works
@@ -82,7 +90,7 @@ Get-Process python* | Where-Object {
 }
 
 # Check recent log output (flat logs/linkwatcher/ layout)
-Get-Content logs/linkwatcher/LinkWatcherLog.txt -Tail 20
+Get-Content logs/linkwatcher/LinkWatcherLog_20260610-215218.txt -Tail 20
 ```
 
 ## Config-Schema Propagation
@@ -107,6 +115,7 @@ It is non-fatal: on a standalone clone (no `.framework-central-pointer`) it skip
 | `pyproject.toml` | `~/bin/pyproject.toml` | Package metadata + dependencies |
 | `src/linkwatcher` | `~/bin/linkwatcher/` | Core package (all modules) |
 | `config-examples/` | `~/bin/config-examples/` | Example configurations |
+| `doc/user/handbooks/` | `~/bin/doc/user/handbooks/` | User handbooks (structure-preserving so the per-project config template's pointer `<install>/doc/user/handbooks/configuration-guide.md` and the handbooks' absolute-from-root cross-links resolve; PD-BUG-104) |
 
 (The install also creates `~/bin/.linkwatcher-venv/` and the `linkwatcher.*` wrapper scripts in `~/bin/`.)
 
@@ -116,8 +125,10 @@ It is non-fatal: on a standalone clone (no `.framework-central-pointer`) it skip
 - [ ] Version bumped in `pyproject.toml` (see Version Management) if a significant release
 - [ ] Run `python deployment/install_global.py` - completes without errors
 - [ ] Config-schema propagation step ran cleanly (no-op, or filed an IMP + synced the template if a project-configurable field changed)
+- [ ] User-visible behavior changed? Update the affected handbooks (configuration-guide / quick-reference / capabilities-reference). Config-key drift in the configuration guide's Full Reference is caught automatically by the test sweep (`test_configschemadrift.py`); semantic, CLI, or behavior changes need this manual check.
 - [ ] Restart LinkWatcher background process
 - [ ] Verify LinkWatcher is running and detecting file changes
+- [ ] **Freshness Stamp** above updated to this release's version and date
 
 ## Version Management
 

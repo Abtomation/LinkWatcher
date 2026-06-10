@@ -36,7 +36,7 @@ The new lifecycle status for the test. Valid values:
 .PARAMETER TestFile
 Path to the test file (relative to project root, with markdown link format).
 Required when transitioning to Created.
-Example: "[test_benchmark.py](/test/automated/performance/level2-operation/test_benchmark.py)"
+Example: "[test_benchmark.py](/test/automated/performance/test_benchmark.py)"
 
 .PARAMETER Baseline
 Baseline measurement value with units.

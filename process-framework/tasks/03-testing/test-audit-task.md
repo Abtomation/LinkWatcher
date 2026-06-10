@@ -193,7 +193,7 @@ Before starting the audit, determine the test type. This determines which criter
    ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Lightweight
 
    # Performance tests
-   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditorName "AI Agent" -TestType Performance
+   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/performance/test_benchmark.py" -AuditorName "AI Agent" -TestType Performance
 
    # E2E tests
    ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditorName "AI Agent" -TestType E2E
@@ -320,7 +320,7 @@ Set-Location "process-framework/scripts"
 Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "test/audits/relative/path/to/audit-report.md"
 
 # Performance tests
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md"
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md"
 
 # Performance — false-compliance correction
 # Add -LifecycleCorrection when the audit reveals that a row reached ✅ Baselined without
@@ -329,7 +329,7 @@ Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automate
 # audit gate re-applies before re-baseline (PF-TSK-085). Rows not currently ✅ Baselined
 # are skipped with a warning. Run Update-PerformanceTracking.ps1 afterward to refresh the
 # Summary table.
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level2-operation/test_benchmark.py" -AuditStatus "Needs Update" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md" -LifecycleCorrection
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md" -LifecycleCorrection
 
 # E2E tests
 Update-TestFileAuditState.ps1 -TestType E2E -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/e2e/audit-report.md"

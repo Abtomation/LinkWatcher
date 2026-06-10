@@ -2,9 +2,9 @@
 id: PF-VIS-043
 type: Process Framework
 category: Context Map
-version: 1.0
+version: 1.1
 created: 2026-02-16
-updated: 2026-02-16
+updated: 2026-06-09
 workflow_phase: support
 related_task: PF-TSK-059
 description: "Components for initial project setup and framework adoption"
@@ -29,10 +29,11 @@ graph TD
     DirStructure --> ConfigFile
     IDRegistry[(ID Registry)] -.-> ConfigFile
     DocGuide[/Documentation Guide/] -.-> DirStructure
+    DirStructure -.-> ReleaseGuideStub[/Release Process Guide stub/]
 
     class ProjectInfo,ExampleConfig critical
     class FrameworkREADME,DirStructure important
-    class IDRegistry,DocGuide reference
+    class IDRegistry,DocGuide,ReleaseGuideStub reference
 ```
 
 ## Essential Components
@@ -48,6 +49,7 @@ graph TD
 ### Reference Components (Access When Needed)
 - **ID Registry**: Document ID prefixes and directory mappings - useful for understanding path conventions
 - **Documentation Structure Guide**: Recommended directory organization patterns for more complex project setups
+- **Release Process Guide stub** (`doc/ci-cd/release-process.md`): Blueprint-shipped `PD-CIC` stub noted in Step 13a (passive reference) — left `unverified` to be filled in when the project's release mechanics are known
 
 ## Key Relationships
 
@@ -74,6 +76,7 @@ graph TD
 - [TE ID Registry](../../../../test/TE-id-registry.json) - Test artifact ID prefixes
 - [Documentation Structure Guide](../../../guides/framework/documentation-structure-guide.md) - Directory organization patterns
 - [Framework Domain Adaptation](../../../tasks/support/framework-domain-adaptation.md) - Comprehensive framework customization
+- [Release Process Guide stub](../../../../doc/ci-cd/release-process.md) - Blueprint-shipped `PD-CIC` stub noted in Step 13a (filled in later when release mechanics are known)
 
 ---
 

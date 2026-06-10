@@ -1,0 +1,37 @@
+# LinkWatcher per-project validation config — TEMPLATE (canonical empty default)
+#
+# This is the framework-distributed template (rolled out with process-framework/).
+# Each project's ACTIVE config is a copy of this at
+#   <project-root>/tools/linkwatcher/linkwatcher-config.yaml
+# created and configured during Project Initiation (new projects) or via a
+# per-project migration (existing projects). Edit the active copy, not this template.
+#
+# Only LinkWatcher's broken-link scan (`--validate`, via run_linkwatcher_validate.ps1)
+# reads this file; the live daemon ignores it. An empty path_resolution_overrides ({})
+# means no overrides — the scan behaves exactly as it would with no config at all
+# (backward-compatible).
+#
+# Full key list, defaults, and semantics:
+#   <LinkWatcher install>/doc/user/handbooks/configuration-guide.md
+#
+# Precedence (highest to lowest):
+#   CLI args > LINKWATCHER_* env vars > this config > built-in defaults
+
+# --- Validation: per-folder path-resolution overrides ----------------------
+#
+# Rebases where `--validate` resolves absolute-from-host links (those starting
+# with "/", e.g. /process-framework/guide.md) for files inside a designated folder.
+# Use when a blueprint/template folder ships to other projects and becomes the
+# project root there — its "/..." links are authored from the rollout target's
+# perspective and would otherwise be reported broken in the source workspace.
+#
+#   - Key   = folder relative to the project root (forward slashes).
+#   - Value = effective resolution base relative to the project root.
+#             Map a folder to itself for the "this folder is a shippable root" case.
+#   - Longest-prefix match wins when folders nest.
+#   - Files outside every configured folder are unaffected.
+#
+# Example (appdev, whose blueprint/ ships as a root to other projects):
+#   path_resolution_overrides:
+#     blueprint: blueprint
+path_resolution_overrides: {}

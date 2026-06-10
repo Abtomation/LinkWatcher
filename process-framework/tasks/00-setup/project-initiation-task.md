@@ -237,6 +237,8 @@ Establishes foundational project configuration and metadata when initializing a 
     - Create dev script (`dev.bat` / `dev.sh`)
     - Create CI pipeline (if using a Git hosting platform)
 
+13a. **Note the Release Process Guide stub** (passive reference — no action now): The blueprint ships a structured Release Process Guide stub at [`doc/ci-cd/release-process.md`](../../../doc/ci-cd/release-process.md) (the project's `PD-CIC` instance, generated from the [Release Process Guide template](../../templates/07-deployment/release-process-guide-template.md)). It is intentionally **unfilled** — its **Freshness Stamp** reads `unverified` — so that [Release & Deployment (PF-TSK-008)](../07-deployment/release-deployment-task.md)'s Critical Must-Read reference resolves from day one. Fill in its deploy / version / distribute mechanics and re-set the Freshness Stamp when the project's first release approaches; an onboarded project instead captures its existing release process into this stub during [Retrospective Documentation Creation](retrospective-documentation-creation.md) Phase 4. This mirrors the `source-code-layout.md` treatment in Step 8 — a blueprint-shipped stub plus a passive reference, populated later when the information is known.
+
 14. **Set Up SessionStart Hooks**: Add a `SessionStart` hook block to `.claude/settings.json` that automates startup-procedure steps as deterministic side effects rather than agent-honored CLAUDE.md instructions. Anthropic's Opus 4.7 (April 2026) regressed on CLAUDE.md instruction adherence; agents began silently skipping startup steps that the doc instructed but the harness did not enforce ([PF-IMP-854](#)). Moving startup mechanics into hooks sidesteps the regression — the side effects happen whether the agent obeys text instructions or not.
 
     Three hooks are included by default:
@@ -279,6 +281,15 @@ Establishes foundational project configuration and metadata when initializing a 
     - **Take effect**: only at the *next* session start (the hook config is loaded at session-start time). After saving the file, run `/hooks` in Claude Code or start a new session to activate.
     - **Verify**: at the next session start, initial context should contain (a) a LinkWatcher startup line, (b) the timestamp line, and (c) the task-selection reminder being applied (the agent acknowledges a task in its first reply).
     - **If LinkWatcher is not installed for this project**: omit Hook 1. Hooks 2 and 3 still apply.
+
+    **Per-project broken-link validation config**: If LinkWatcher is installed, create the project's validation config so the broken-link scan ([run_linkwatcher_validate.ps1](../../tools/linkWatcher/run_linkwatcher_validate.ps1)) honors any per-folder path overrides. Copy the framework template into the project:
+
+    ```bash
+    New-Item -ItemType Directory -Force tools/linkwatcher | Out-Null
+    Copy-Item process-framework/tools/linkWatcher/linkwatcher-config.template.yaml tools/linkwatcher/linkwatcher-config.yaml
+    ```
+
+    Then make a conscious per-project decision: leave `path_resolution_overrides: {}` empty (the default — a no-op) **unless** this project has a folder that ships to other projects as a root (e.g. a `blueprint/` or `example/` template tree whose `/...` links are authored from the rollout target's perspective), in which case map that folder to itself (e.g. `blueprint: blueprint`). The launcher auto-passes this config to `--validate`.
 
 15. **🚨 CHECKPOINT**: Present completed project-config.json, language config, test infrastructure, documentation taxonomy, and CI/CD setup to human partner for review before finalization
 
@@ -327,6 +338,8 @@ Establishes foundational project configuration and metadata when initializing a 
 - **Test infrastructure** - Test directory structure, test runner config, shared fixtures, empty `test-tracking.md`
 - **CI/CD infrastructure** (optional) - Pre-commit hooks, dev script, CI pipeline
 - **SessionStart hooks** - `.claude/settings.json` `SessionStart` hook block with three commands: LinkWatcher background startup (via wrapper), session start timestamp, and task-selection reminder (PF-IMP-854)
+- **LinkWatcher validation config** (if LinkWatcher installed) - `tools/linkwatcher/linkwatcher-config.yaml`, copied from the framework template and configured (empty `{}` by default; per-folder `path_resolution_overrides` only if the project has a shippable-root folder)
+- **Release Process Guide stub** (noted, not created) - The blueprint-shipped Release Process Guide stub at `doc/ci-cd/release-process.md` (`PD-CIC`) is present and acknowledged via the passive reference (Step 13a); filled in later when the project's release mechanics are known
 - **Project registration** - `PRJ-NNN` ID assigned in appdev's `project-registry.json`; `project_id` field written into the project's `doc/project-config.json`; per-project migration ledger created at `<appdev>/process-framework-central/per-project-migrations/PRJ-NNN/`
 
 ## State Tracking
@@ -377,6 +390,8 @@ Before considering this task finished:
   - [ ] `Run-Tests.ps1 -ListCategories` discovers test categories
   - [ ] Test runner config exists (e.g., `pytest.ini`)
   - [ ] Shared fixtures/setup file exists (e.g., `conftest.py`)
+  - [ ] LinkWatcher validation config exists at `tools/linkwatcher/linkwatcher-config.yaml` and was consciously configured (N/A if LinkWatcher is not installed)
+  - [ ] Release Process Guide stub at `doc/ci-cd/release-process.md` is present (blueprint-shipped) and was noted for later fill-in (Step 13a — no action required now)
   - [ ] Pre-commit hooks work (if configured): `pre-commit run --all-files`
 
 - [ ] **Project Registration**: Confirm the project is registered in appdev's central registry

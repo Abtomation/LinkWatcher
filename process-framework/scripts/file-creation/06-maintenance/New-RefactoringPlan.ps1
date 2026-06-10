@@ -101,7 +101,7 @@
     New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "src/linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
 
 .EXAMPLE
-    New-RefactoringPlan.ps1 -RefactoringScope "Tighten parser test (TD230)" -TargetArea "test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_dart.py" -Lightweight -DebtItemId "TD230"
+    New-RefactoringPlan.ps1 -RefactoringScope "Tighten parser test (TD230)" -TargetArea "test/automated/parsers/test_dart.py" -Lightweight -DebtItemId "TD230"
     # FeatureId auto-detected from pytest.mark.feature("2.1.1") marker — no -FeatureId arg needed for test files in languages with featureMarkerPattern configured.
 
 .EXAMPLE

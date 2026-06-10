@@ -459,6 +459,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 ## templates/07-deployment
 
 - [handbook-template.md](templates/07-deployment/handbook-template.md) — Template for creating user-facing handbook documents. Sections are optional — AI agent removes unused sections during customization.
+- [release-process-guide-template.md](templates/07-deployment/release-process-guide-template.md) — Template for a project's per-project Release Process Guide (PD-CIC): deploy/version/distribute mechanics, freshness stamp, release checklist, optional downstream-impact announcement. Instantiated at Project Initiation (greenfield stub) or Retrospective Documentation Creation (onboarding capture); executed by Release & Deployment (PF-TSK-008).
 
 ## templates/cyclical
 
@@ -504,6 +505,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 
 ## tools/linkWatcher
 
+- [run_linkwatcher_validate.ps1](tools/linkWatcher/run_linkwatcher_validate.ps1) — Runs LinkWatcher's broken-link scan (--validate) for the current project with the
 - [start_linkwatcher_background.ps1](tools/linkWatcher/start_linkwatcher_background.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 - [start_linkwatcher_hook_wrapper.ps1](tools/linkWatcher/start_linkwatcher_hook_wrapper.ps1) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 

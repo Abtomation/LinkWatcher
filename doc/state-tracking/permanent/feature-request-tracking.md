@@ -4,14 +4,14 @@ type: Product Documentation
 category: State Tracking
 version: 1.0
 created: 2026-03-27
-updated: 2026-06-09
+updated: 2026-06-10
 ---
 
 # Feature Request Tracking
 
 This file tracks incoming product feature requests and enhancements. It serves as an intake queue for the [Feature Request Evaluation](../../../process-framework/tasks/01-planning/feature-request-evaluation.md) task (PF-TSK-067), which classifies each request and routes it to the correct workflow.
 
-> **Scope**: This file tracks **product** feature requests only. Process framework improvements belong in [process-improvement-tracking.md](../../../process-framework-local/state-tracking/permanent/process-improvement-tracking.md).
+> **Scope**: This file tracks **product** feature requests only. Process framework improvements belong in [process-improvement-tracking.md](appdev/process-framework-central/state-tracking/permanent/process-improvement-tracking.md).
 
 ## Status Legend
 
@@ -33,10 +33,11 @@ This file tracks incoming product feature requests and enhancements. It serves a
 
 | ID | Source | Description | Feature | Classification | Status | Last Updated | Notes |
 |----|--------|-------------|---------|----------------|--------|--------------|-------|
-| PD-FRQ-001 | [Tools Review 2026-03-26](../../../process-framework-local/feedback/reviews/tools-review-20260326.md) | Add HTML comment filtering to link validator (--skip-comments) to exclude links inside <\!-- --> blocks from broken link counts | — | — | 📥 Submitted | 2026-03-27 | ~180 false positives from commented-out links inflate triage effort. Migrated from PF-IMP-216. |
-| PD-FRQ-002 | [Tools Review 2026-03-26](../../../process-framework-local/feedback/reviews/tools-review-20260326.md) | Add --summary flag to link validator for quick type-breakdown output without individual broken links | — | — | 📥 Submitted | 2026-03-27 | Requested in 2 bug-fixing forms. Would enable fast progress checks during bulk link fix sessions. Migrated from PF-IMP-217. |
-| PD-FRQ-003 | [Tools Review 2026-03-31](../../../process-framework-local/feedback/reviews/tools-review-20260331-103941.md) | Create run.ps1 scripts for TE-E2E-001, TE-E2E-002, TE-E2E-003, TE-E2E-004 to convert manual E2E tests to fully automated scripted execution | — | — | ❌ Rejected | 2026-06-08 | Currently these 4 test cases require manual execution. All other tests are fully scripted.. Not a product feature request — test-execution infrastructure (tech debt), no feature assignment. Already satisfied: run.ps1 scripts exist for TE-E2E-001 through 004, scripted execution passed 2026-05-04 via Run-E2EAcceptanceTest.ps1. |
+| PD-FRQ-001 | [Tools Review 2026-03-26](appdev/process-framework-central/feedback/reviews/tools-review-20260326.md) | Add HTML comment filtering to link validator (--skip-comments) to exclude links inside <\!-- --> blocks from broken link counts | — | — | 📥 Submitted | 2026-03-27 | ~180 false positives from commented-out links inflate triage effort. Migrated from PF-IMP-216. |
+| PD-FRQ-002 | [Tools Review 2026-03-26](appdev/process-framework-central/feedback/reviews/tools-review-20260326.md) | Add --summary flag to link validator for quick type-breakdown output without individual broken links | — | — | 📥 Submitted | 2026-03-27 | Requested in 2 bug-fixing forms. Would enable fast progress checks during bulk link fix sessions. Migrated from PF-IMP-217. |
+| PD-FRQ-003 | [Tools Review 2026-03-31](appdev/process-framework-central/feedback/reviews/tools-review-20260331-103941.md) | Create run.ps1 scripts for TE-E2E-001, TE-E2E-002, TE-E2E-003, TE-E2E-004 to convert manual E2E tests to fully automated scripted execution | — | — | ❌ Rejected | 2026-06-08 | Currently these 4 test cases require manual execution. All other tests are fully scripted.. Not a product feature request — test-execution infrastructure (tech debt), no feature assignment. Already satisfied: run.ps1 scripts exist for TE-E2E-001 through 004, scripted execution passed 2026-05-04 via Run-E2EAcceptanceTest.ps1. |
 | PD-FRQ-004 | [Bug fix PD-BUG-090](doc/state-tracking/permanent/bug-tracking.md) | Session-scoped backup file management: restore, clean up, and preserve backups using a per-session ID to avoid conflicts with non-LinkWatcher .bak files | — | — | 📥 Submitted | 2026-04-14 | Discovered during PD-BUG-090 fix. **Core design**: Each LinkWatcher run generates a session ID (e.g., timestamp-based `lw-20260414-122316`). Backups use session-scoped suffix: `file.md.lw-20260414-122316.bak`. This ensures LinkWatcher backups are distinguishable from unrelated `.bak` files created by editors/IDEs/other tools. **Three capabilities**: (1) `--restore-backups [session-id]` — restore files from LinkWatcher backups for the current or specified session only, (2) `--clean-backups [session-id\|all]` — delete only LinkWatcher-created backups (identifiable by `lw-` prefix pattern), leaving unrelated `.bak` files untouched, (3) skip-if-exists per session — when the same file is updated multiple times in one session, preserve the initial backup so it reflects the true pre-session state. Multiple sessions' backups coexist without overwriting each other. |
+| PD-FRQ-007 | [Framework Evaluation PF-EVR-025](appdev/process-framework-central/evaluation-reports/20260610-framework-evaluation-release-and-rollout-end-to-end.md) | Deploy user handbooks with the global install: add doc/user/handbooks/ to install_global.py core_dirs (-> ~/bin/docs/), update release-process.md 'What Gets Deployed' table + release checklist. Gives the 8 handbooks a release channel and makes the per-project config template's pointer (<install>/doc/user/handbooks/configuration-guide.md) resolve on every machine - it is currently dead everywhere outside the source repo. | — | — | ❌ Rejected | 2026-06-10 | X-3 in PF-EVR-025. Several handbooks are primarily downstream-facing (multi-project-setup, capabilities-reference, file-type troubleshooting). Framework-side follow-up PF-IMP-1093 (blueprint pointer + CLAUDE.md references + snapshot migrations) is Deferred until this ships.. Evaluated via PF-TSK-067 (2026-06-10): not classified as feature/enhancement - no active feature owns deployment/ (5.1.1/5.1.6 archived). Routed as bug PD-BUG-104 (dead handbook pointer on deployed machines = user-visible defect); fix deploys doc/user/handbooks/ via install_global.py core_dirs + release-process.md updates. Framework follow-up PF-IMP-1093 remains deferred until fix ships in a release. |
 ## Completed Requests
 
 <details>
@@ -51,7 +52,7 @@ This file tracks incoming product feature requests and enhancements. It serves a
 ## Update History
 
 <details>
-<summary>Show update history (10 entries)</summary>
+<summary>Show update history (13 entries)</summary>
 
 | Date | Action | Updated By |
 |------|--------|------------|
@@ -66,5 +67,7 @@ This file tracks incoming product feature requests and enhancements. It serves a
 | 2026-06-08 | Rejected PD-FRQ-003: Not a product feature request — test-execution infrastructure (tech debt), no feature assignment. Already satisfied: run.ps1 scripts exist for TE-E2E-001 through 004, scripted execution passed 2026-05-04 via Run-E2EAcceptanceTest.ps1. | AI Agent (PF-TSK-067) |
 | 2026-06-08 | Added PD-FRQ-006: Add a release-process step that detects new/changed config-schema fields (settings.py / config-examples/linkwatcher-config.yaml) at release and emits a downstream-propagation signal so projects update their per-project tools/linkwatcher/linkwatcher-config.yaml. | AI Agent (PF-TSK-010) |
 | 2026-06-09 | Removed PD-FRQ-006: implemented as PF-PRO-039 "Fork 1" in LinkWatcher's release process — config-schema propagation added to `install_global.py` (via `deployment/propagate_config_schema.py`): on a project-configurable schema change it files a high-priority IMP into central intake and syncs the appdev per-project config template. Not a product feature request; removed per request. | AI Agent |
+| 2026-06-10 | Added PD-FRQ-007: Deploy user handbooks with the global install: add doc/user/handbooks/ to install_global.py core_dirs (-> ~/bin/docs/), update release-process.md 'What Gets Deployed' table + release checklist. Gives the 8 handbooks a release channel and makes the per-project config template's pointer (<install>/doc/user/handbooks/configuration-guide.md) resolve on every machine - it is currently dead everywhere outside the source repo. | AI Agent (PF-TSK-010) |
+| 2026-06-10 | Rejected PD-FRQ-007: Evaluated via PF-TSK-067 (2026-06-10): not classified as feature/enhancement - no active feature owns deployment/ (5.1.1/5.1.6 archived). Routed as bug PD-BUG-104 (dead handbook pointer on deployed machines = user-visible defect); fix deploys doc/user/handbooks/ via install_global.py core_dirs + release-process.md updates. Framework follow-up PF-IMP-1093 remains deferred until fix ships in a release. | AI Agent (PF-TSK-067) |
 
 </details>

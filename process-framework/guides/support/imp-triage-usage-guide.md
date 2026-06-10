@@ -2,9 +2,9 @@
 id: PF-GDE-067
 type: Process Framework
 category: Guide
-version: 1.2
+version: 1.3
 created: 2026-05-10
-updated: 2026-05-12
+updated: 2026-06-09
 related_tasks: PF-TSK-089, PF-TSK-009, PF-TSK-014, PF-TSK-026
 description: "Decision criteria, cluster-detection patterns, and consolidation worked examples for the PF-TSK-089 IMP Triage Task"
 ---
@@ -84,13 +84,23 @@ Use this top-down. The first rule that fires wins.
    → Improvements (PF-TSK-009)
 ```
 
+**Reconciliation before Rule 1 (already-covered → Rejected, PF-IMP-1004):** Rule 1's "already resolved" is the single most common way stale IMPs slip through to a downstream session and burn a full claim/verify cycle before being rejected. Before routing, quick-check the IMP against four reconciliation sources for coverage that is **not** an open IMP:
+
+- **Recently-completed IMPs** — Section 6 (Completed) in the archive file.
+- **Pending-migration entries** — `per-project-migrations/<PRJ-ID>/pending-migrations.md` (the fix may already be queued/applied as a migration).
+- **Shipped `blueprint/` changes** — a file already corrected in `blueprint/` touching the same artifact.
+- **Validate-StateTracking surfaces** — a check that already covers the reported condition.
+
+If any source already covers it, route to **Rejected** (`Already resolved/covered by <ref>`). This is still the already-resolved judgment Triage owns — not merit evaluation. (Tools Review applies the same reconciliation at intake; see its Step 12 deduplication bullet.)
+
 **Edge cases:**
 
 | If the IMP says… | Likely route | Why |
 |---|---|---|
-| "Add a new column to feature-tracking.md" | Structural Changes | Schema change to project working docs → `pending-migrations.md` entries needed |
+| "Add a new column to feature-tracking.md" | Structural Changes | Schema **reshape of an existing** project working doc → `pending-migrations.md` entries needed |
+| "Add a *new* per-project config file that ships migration entries" | Extensions | A new project-level artifact also needs migration entries, but it's a capability addition, not a reorganization — the migration signal does **not** override that (PF-IMP-990) |
 | "Fix the regex in `Validate-StateTracking.ps1` Surface 6" | Improvements | Behavior-preserving framework script edit (PF-TSK-009 medium-risk path) |
-| "Create a new task for Y workflow" | Extensions | Brand-new task definition + likely new template + script |
+| "Create a new task for Y workflow" | Extensions | Brand-new task definition. Resp Task = section owner **PF-TSK-026**, which authors it via PF-TSK-001 as a sub-task — not the section-less PF-TSK-001 (PF-IMP-990) |
 | "Improve the wording of PF-TSK-009 Step 3" | Improvements | Content edit to an existing task |
 | "Move PF-TSK-XXX from `support/` to `cyclical/`" | Structural Changes | File move with cross-references to update |
 | "Pilot the `feature-tracking.md` lightweight-index proposal" | (do NOT route here) | Pilots are created via `New-ProcessImprovement.ps1 -AsPilot` directly into Active Pilots; they don't enter through Intake |
@@ -142,6 +152,8 @@ The key disqualifier under the new rule is the **linked-decisions** signal: same
 The destination section for the consolidating IMP is an **independent decision** from the consolidation itself — apply the Classification Decision Tree to the *combined* work scope, not to the cluster shape.
 
 ## Consolidation Worked Examples
+
+> **Always surface the constituents in the umbrella's Notes** *(PF-IMP-1028)*: in every example below, after creating the umbrella record `Constituents: <ID> (<one-line scope>), …` in its Notes (via `-Notes` at creation or a follow-up `-AppendNotes`). The Description summarizes the theme; the Notes preserve per-item scope/priority/frequency so the implementing session doesn't have to reconstruct them from the superseded archive rows.
 
 ### Example 1: Three IMPs proposing a shared audit-trail helper → Extensions
 
