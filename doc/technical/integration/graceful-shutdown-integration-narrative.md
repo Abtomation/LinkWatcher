@@ -99,7 +99,7 @@ graph TD
 
 8. **`main.py` outer `try/finally`** ([main.py:372-391](main.py#L372-L391))
    - The `service.start()` call returns (normally, via `KeyboardInterrupt`, or via propagated exception).
-   - `finally: release_lock(lock_file)` runs unconditionally and calls `lock_file.unlink()` ([main.py:226-232](main.py#L226-L232)) — swallowing any `OSError`.
+   - `finally: release_lock(lock_file)` runs unconditionally; `release_lock` removes `.linkwatcher.lock` only when it still holds this process's PID (PD-BUG-100 — a lock reclaimed by a successor instance is left intact), swallowing any `OSError`.
    - An outer `except KeyboardInterrupt` ([main.py:393-396](main.py#L393-L396)) logs `linkwatcher_stopped_by_user` and exits with code 0.
 
 ## Callback/Event Chains
@@ -122,7 +122,7 @@ graph TD
 
 - **Registration**: `lock_file = acquire_lock(project_root)` before `service = LinkWatcherService(...)` ([main.py:318](main.py#L318)); paired with `finally: release_lock(lock_file)` ([main.py:390-391](main.py#L390-L391)).
 - **Trigger**: Any exit from `service.start()` — normal completion, `KeyboardInterrupt`, or an exception propagated from deep inside the observer/handler.
-- **Handler**: `release_lock` calls `lock_file.unlink()`, swallowing `OSError` so a missing or already-removed lock never masks the original exit cause.
+- **Handler**: `release_lock` removes the lock only when it still holds this process's PID (PD-BUG-100 — a successor that reclaimed a stale lock keeps it), swallowing `OSError` so a missing or already-removed lock never masks the original exit cause.
 - **Cross-feature boundary**: 0.1.1 Core Architecture (CLI entry) → OS filesystem.
 
 ## Configuration Propagation

@@ -111,6 +111,26 @@ class TestLockFile:
         # Should not raise
         release_lock(lock_file)
 
+    def test_release_lock_preserves_foreign_owners_lock(self, tmp_path):
+        """Regression for PD-BUG-100: release_lock must NOT delete a lock that no
+        longer belongs to this process.
+
+        If a successor legitimately reclaimed the lock (the on-disk PID is now a
+        different instance's), this process shutting down and blindly unlinking
+        .linkwatcher.lock would strip the singleton guarantee from the running
+        successor — re-opening the multi-instance window. release_lock must only
+        delete the lock when it still holds our own PID.
+        """
+        lock_file_path = tmp_path / LOCK_FILE_NAME
+        foreign_pid = os.getpid() + 1
+        lock_file_path.write_text(str(foreign_pid))
+
+        release_lock(lock_file_path)
+
+        # Strong negative assertion: the successor's lock survives, unchanged.
+        assert lock_file_path.exists(), "release_lock deleted a lock it does not own"
+        assert lock_file_path.read_text().strip() == str(foreign_pid)
+
     def test_is_pid_running_current_process(self):
         """Test that _is_pid_running returns True for current process."""
         assert _is_pid_running(os.getpid()) is True

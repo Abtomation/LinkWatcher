@@ -159,12 +159,12 @@ class LinkWatcherConfig:
             "LinkWatcher/",
         }
     )
-    validation_ignore_file: str = "process-framework-local/tools/linkWatcher/.linkwatcher-ignore"
+    validation_ignore_file: str = "tools/linkwatcher/.linkwatcher-ignore"
 
     # Directory (relative to project root) where validation reports are written.
     # When None, falls back to the parent directory of `--log-file` if set,
     # else the project root (legacy behavior).
-    validation_output_dir: Optional[str] = "process-framework-local/tools/linkWatcher"
+    validation_output_dir: Optional[str] = "logs/linkwatcher"
 
     # Parser type-to-extension mapping for extension-aware suffix matching.
     # When the database matches extensionless references (e.g., Python imports)

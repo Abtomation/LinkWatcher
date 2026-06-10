@@ -99,6 +99,56 @@ function Test-LinkWatcherAlreadyRunning {
     }
 }
 
+function Get-DaemonExitDisposition {
+    # PD-BUG-100: decide how to react when the daemon we just spawned has already
+    # exited by the post-start check. The naive "it exited, so clean up its lock"
+    # rule is wrong: a daemon also exits(1) when it *correctly* declined to start
+    # because another live instance already holds the lock. Removing the lock in
+    # that case strips the singleton guarantee from the running owner, so the next
+    # start spawns a duplicate — the multi-instance bug.
+    #
+    # Returns a disposition object:
+    #   Disposition = 'AlreadyRunning' — a DIFFERENT, live PID owns the lock; our
+    #                  spawned process correctly declined. Idempotent success;
+    #                  the foreign lock MUST be preserved.
+    #   Disposition = 'Crashed'        — genuine failure (or no/dead/empty lock).
+    #                  RemoveLock is true ONLY when the lock is our own spawned
+    #                  PID's lock; foreign/dead/empty locks are left for main.py's
+    #                  stale-reclaim to handle on the next start.
+    #
+    # $IsPidAlive is injectable so the decision is unit-testable without real
+    # processes; it defaults to a Get-Process liveness probe.
+    param(
+        [Parameter(Mandatory)][int]$SpawnedPid,
+        [Parameter(Mandatory)][string]$LockFile,
+        [scriptblock]$IsPidAlive = { param($p) [bool](Get-Process -Id $p -ErrorAction SilentlyContinue) }
+    )
+
+    $owner = $null
+    if (Test-Path $LockFile) {
+        try { $owner = [int]((Get-Content $LockFile -Raw).Trim()) } catch { $owner = $null }
+    }
+
+    if ($null -ne $owner -and $owner -ne $SpawnedPid -and (& $IsPidAlive $owner)) {
+        # A different, live instance owns the lock — our spawned process correctly
+        # declined. Idempotent success; the foreign lock MUST be preserved.
+        return [pscustomobject]@{
+            Disposition = 'AlreadyRunning'
+            OwnerPid    = $owner
+            RemoveLock  = $false
+        }
+    }
+
+    # Genuine crash (or no/dead/empty lock). Remove the lock ONLY when it is our
+    # own spawned PID's lock; foreign/dead/empty locks are left for main.py's
+    # stale-reclaim to handle on the next start.
+    return [pscustomobject]@{
+        Disposition = 'Crashed'
+        OwnerPid    = $owner
+        RemoveLock  = ($null -ne $owner -and $owner -eq $SpawnedPid)
+    }
+}
+
 # PF-IMP-967: when dot-sourced (e.g. by Pester), define functions only and skip the
 # startup body so tests can exercise the helpers without spawning a daemon.
 if ($MyInvocation.InvocationName -eq '.') { return }
@@ -236,6 +286,18 @@ if ($process) {
     $process.Refresh()
     if ($process.HasExited) {
         $exitCode = $process.ExitCode
+        $crashLockFile = Join-Path $projectRoot ".linkwatcher.lock"
+
+        # PD-BUG-100: distinguish a correctly-declined duplicate from a genuine
+        # crash so we never delete a running owner's lock.
+        $disposition = Get-DaemonExitDisposition -SpawnedPid $process.Id -LockFile $crashLockFile
+
+        if ($disposition.Disposition -eq 'AlreadyRunning') {
+            Write-Host "LinkWatcher already running for $projectRoot (PID: $($disposition.OwnerPid)); duplicate start declined." -ForegroundColor Yellow
+            Write-Host "Not starting a duplicate instance." -ForegroundColor Yellow
+            exit 0
+        }
+
         Write-Host "Error: LinkWatcher process exited immediately (exit code: $exitCode)" -ForegroundColor Red
         if (Test-Path $stderrLog) {
             $stderr = Get-Content $stderrLog -Raw
@@ -244,9 +306,8 @@ if ($process) {
                 Write-Host $stderr -ForegroundColor DarkRed
             }
         }
-        # Clean up lock file if main.py wrote one before crashing
-        $crashLockFile = Join-Path $projectRoot ".linkwatcher.lock"
-        if (Test-Path $crashLockFile) { Remove-Item $crashLockFile -Force }
+        # Clean up the lock ONLY if it is our own crashed process's lock.
+        if ($disposition.RemoveLock -and (Test-Path $crashLockFile)) { Remove-Item $crashLockFile -Force }
         exit 1
     }
 

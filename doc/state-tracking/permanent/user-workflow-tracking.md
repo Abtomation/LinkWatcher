@@ -4,7 +4,7 @@ type: Product Documentation
 category: State Tracking
 version: 2.0
 created: 2026-03-18
-updated: 2026-05-04
+updated: 2026-06-10
 previous_id: PD-DES-002
 previous_location: doc/technical/design/user-workflow-map.md
 ---
@@ -37,7 +37,7 @@ This document maps user-facing workflows to the features that enable them and tr
 | WF-006 | Configuration change → behavior adapts | Edit config file or pass CLI arguments | 0.1.3, 1.1.1, 3.1.1 | P3 | All Implemented | ✅ Covered | [PD-INT-009](/doc/technical/integration/configuration-change-integration-narrative.md) |
 | WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | All Implemented | ✅ Covered | [PD-INT-003](/doc/technical/integration/dry-run-mode-integration-narrative.md) |
 | WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | All Implemented | ✅ Covered | [PD-INT-008](/doc/technical/integration/graceful-shutdown-integration-narrative.md) |
-| WF-009 | Link health audit → broken link report | Run python main.py --validate | 0.1.1, 2.1.1, 6.1.1 | P2 | All Implemented | ✅ Covered | [PD-INT-005](/doc/technical/integration/link-health-audit-integration-narrative.md) |
+| WF-009 | Link health audit → broken link report | Run python main.py --validate | 0.1.1, 2.1.1, 6.1.1 | P2 | All Implemented | 🔄 Re-execution Needed | [PD-INT-005](/doc/technical/integration/link-health-audit-integration-narrative.md) |
 
 ## Workflow Details
 
@@ -92,5 +92,5 @@ User stops LinkWatcher while file moves may be in progress. No files should be l
 <details>
 <summary><strong>WF-009: Link health audit</strong></summary>
 
-User runs validation mode to scan all workspace files for broken file references. The system walks all monitored files, extracts links using format-specific parsers, resolves paths (source-relative then root-relative), checks targets on disk, and writes a report of broken links with source file, line number, and target path to process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt.
+User runs validation mode to scan all workspace files for broken file references. The system walks all monitored files, extracts links using format-specific parsers, resolves paths (source-relative then root-relative), checks targets on disk, and writes a report of broken links with source file, line number, and target path to logs/linkwatcher/LinkWatcherBrokenLinks.txt.
 </details>

@@ -18,7 +18,7 @@
         "temporary": "doc/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 107
+      "nextAvailable": 108
     },
     "PF-TMP": {
       "description": "Process Framework - Temporary State Tracking",

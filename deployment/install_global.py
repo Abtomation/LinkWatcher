@@ -341,6 +341,24 @@ def test_installation(install_dir):
         return False
 
 
+def propagate_config_schema_signal(project_root):
+    """Best-effort: detect a per-project config-schema change and signal it downstream.
+
+    LinkWatcher is the upstream source of the project-configurable validation
+    config schema; at release it diffs that schema against the framework template
+    and, on a change, files a high-priority IMP + syncs the framework template.
+    Non-fatal — never blocks the install. See deployment/propagate_config_schema.py
+    (PD-FRQ-006 / PF-PRO-039 Fork 1).
+    """
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        import propagate_config_schema
+
+        propagate_config_schema.propagate(project_root)
+    except Exception as e:  # noqa: BLE001 — propagation must never fail the release
+        print(f"   WARNING: config-schema propagation step errored (non-fatal): {e}")
+
+
 def main():
     """Main installation function."""
     parser = argparse.ArgumentParser(description="Install LinkWatcher globally")
@@ -382,6 +400,8 @@ def main():
     if not test_installation(install_dir):
         print("\nERROR: Installation completed but tests failed")
         sys.exit(1)
+
+    propagate_config_schema_signal(project_root)
 
     print("\n" + "=" * 50)
     print("LinkWatcher installed successfully!")

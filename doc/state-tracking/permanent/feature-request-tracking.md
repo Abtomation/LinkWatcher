@@ -4,7 +4,7 @@ type: Product Documentation
 category: State Tracking
 version: 1.0
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-06-09
 ---
 
 # Feature Request Tracking
@@ -35,24 +35,23 @@ This file tracks incoming product feature requests and enhancements. It serves a
 |----|--------|-------------|---------|----------------|--------|--------------|-------|
 | PD-FRQ-001 | [Tools Review 2026-03-26](../../../process-framework-local/feedback/reviews/tools-review-20260326.md) | Add HTML comment filtering to link validator (--skip-comments) to exclude links inside <\!-- --> blocks from broken link counts | — | — | 📥 Submitted | 2026-03-27 | ~180 false positives from commented-out links inflate triage effort. Migrated from PF-IMP-216. |
 | PD-FRQ-002 | [Tools Review 2026-03-26](../../../process-framework-local/feedback/reviews/tools-review-20260326.md) | Add --summary flag to link validator for quick type-breakdown output without individual broken links | — | — | 📥 Submitted | 2026-03-27 | Requested in 2 bug-fixing forms. Would enable fast progress checks during bulk link fix sessions. Migrated from PF-IMP-217. |
-| PD-FRQ-003 | [Tools Review 2026-03-31](../../../process-framework-local/feedback/reviews/tools-review-20260331-103941.md) | Create run.ps1 scripts for TE-E2E-001, TE-E2E-002, TE-E2E-003, TE-E2E-004 to convert manual E2E tests to fully automated scripted execution | — | — | 📥 Submitted | 2026-03-31 | Currently these 4 test cases require manual execution. All other tests are fully scripted. |
+| PD-FRQ-003 | [Tools Review 2026-03-31](../../../process-framework-local/feedback/reviews/tools-review-20260331-103941.md) | Create run.ps1 scripts for TE-E2E-001, TE-E2E-002, TE-E2E-003, TE-E2E-004 to convert manual E2E tests to fully automated scripted execution | — | — | ❌ Rejected | 2026-06-08 | Currently these 4 test cases require manual execution. All other tests are fully scripted.. Not a product feature request — test-execution infrastructure (tech debt), no feature assignment. Already satisfied: run.ps1 scripts exist for TE-E2E-001 through 004, scripted execution passed 2026-05-04 via Run-E2EAcceptanceTest.ps1. |
 | PD-FRQ-004 | [Bug fix PD-BUG-090](doc/state-tracking/permanent/bug-tracking.md) | Session-scoped backup file management: restore, clean up, and preserve backups using a per-session ID to avoid conflicts with non-LinkWatcher .bak files | — | — | 📥 Submitted | 2026-04-14 | Discovered during PD-BUG-090 fix. **Core design**: Each LinkWatcher run generates a session ID (e.g., timestamp-based `lw-20260414-122316`). Backups use session-scoped suffix: `file.md.lw-20260414-122316.bak`. This ensures LinkWatcher backups are distinguishable from unrelated `.bak` files created by editors/IDEs/other tools. **Three capabilities**: (1) `--restore-backups [session-id]` — restore files from LinkWatcher backups for the current or specified session only, (2) `--clean-backups [session-id\|all]` — delete only LinkWatcher-created backups (identifiable by `lw-` prefix pattern), leaving unrelated `.bak` files untouched, (3) skip-if-exists per session — when the same file is updated multiple times in one session, preserve the initial backup so it reflects the true pre-session state. Multiple sessions' backups coexist without overwriting each other. |
-| PD-FRQ-005 | PRJ-000 appdev — link-validation feedback | Per-folder project-root override for path resolution (template/blueprint folder support) | — | — | 📥 Submitted | 2026-05-16 | Today LinkWatcher uses a single --project-root for both file scanning and path resolution. Template folders (e.g., appdev/blueprint/, which ships to projects where it becomes their root) contain files whose absolute-from-host links (/process-framework/foo.md) are written from the rollout target's perspective and break when validated from the dev workspace's project-root. Proposed: a config key like 'path_resolution_overrides' that maps a folder (relative to project_root) to an effective base for path resolution. When validating files inside such a folder, absolute-from-host (and optionally at-prefix/standalone) targets resolve against <project_root>/<folder>/ instead of <project_root>/. Relative-from-source-dir resolution unchanged. Backward-compatible: no behavior change when the config key is absent. Implementation surface: validator.py _target_exists / _target_exists_at_root, plus settings.py LinkWatcherConfig. Use case in appdev (framework-builder): currently worked around via scripts/Convert-BlueprintLinks.py, which is a one-way rewrite that defeats the original link shape; this config would let blueprint files retain their target-layout link form without false-positive validation noise from appdev. |
-
 ## Completed Requests
 
 <details>
-<summary>Show completed requests (0 items)</summary>
+<summary>Show completed requests (1 items)</summary>
 
 | ID | Source | Description | Feature | Classification | Completed Date | Notes |
 |----|--------|-------------|---------|----------------|----------------|-------|
+| PD-FRQ-005 | PRJ-000 appdev — link-validation feedback | Per-folder project-root override for path resolution (template/blueprint folder support) | 6.1.1 | Enhancement | 2026-06-04 | Today LinkWatcher uses a single --project-root for both file scanning and path resolution. Template folders (e.g., appdev/blueprint/, which ships to projects where it becomes their root) contain files whose absolute-from-host links (/process-framework/foo.md) are written from the rollout target's perspective and break when validated from the dev workspace's project-root. Proposed: a config key like 'path_resolution_overrides' that maps a folder (relative to project_root) to an effective base for path resolution. When validating files inside such a folder, absolute-from-host (and optionally at-prefix/standalone) targets resolve against <project_root>/<folder>/ instead of <project_root>/. Relative-from-source-dir resolution unchanged. Backward-compatible: no behavior change when the config key is absent. Implementation surface: validator.py _target_exists / _target_exists_at_root, plus settings.py LinkWatcherConfig. Use case in appdev (framework-builder): currently worked around via scripts/Convert-BlueprintLinks.py, which is a one-way rewrite that defeats the original link shape; this config would let blueprint files retain their target-layout link form without false-positive validation noise from appdev.. Enhancement to Link Validation (validation-only): path_resolution_overrides config field + validator resolution. Framework config-loading wiring + consumer config tracked separately (see state file Dependent work row). |
 
 </details>
 
 ## Update History
 
 <details>
-<summary>Show update history (4 entries)</summary>
+<summary>Show update history (10 entries)</summary>
 
 | Date | Action | Updated By |
 |------|--------|------------|
@@ -63,5 +62,9 @@ This file tracks incoming product feature requests and enhancements. It serves a
 | 2026-03-31 | Added PD-FRQ-003: Create run.ps1 scripts for TE-E2E-001, TE-E2E-002, TE-E2E-003, TE-E2E-004 to convert manual E2E tests to fully automated scripted execution | AI Agent (PF-TSK-010) |
 | 2026-04-14 | Added PD-FRQ-004: Session-scoped backup management with restore/cleanup/preserve-initial capabilities. Updated with session-ID design to avoid conflicts with non-LinkWatcher .bak files | AI Agent (PF-TSK-007) |
 | 2026-05-16 | Added PD-FRQ-005: Per-folder project-root override for path resolution (template/blueprint folder support) | AI Agent (PF-TSK-010) |
+| 2026-06-04 | Classified PD-FRQ-005 as Enhancement (feature 6.1.1) — ✅ Completed | AI Agent (PF-TSK-067) |
+| 2026-06-08 | Rejected PD-FRQ-003: Not a product feature request — test-execution infrastructure (tech debt), no feature assignment. Already satisfied: run.ps1 scripts exist for TE-E2E-001 through 004, scripted execution passed 2026-05-04 via Run-E2EAcceptanceTest.ps1. | AI Agent (PF-TSK-067) |
+| 2026-06-08 | Added PD-FRQ-006: Add a release-process step that detects new/changed config-schema fields (settings.py / config-examples/linkwatcher-config.yaml) at release and emits a downstream-propagation signal so projects update their per-project tools/linkwatcher/linkwatcher-config.yaml. | AI Agent (PF-TSK-010) |
+| 2026-06-09 | Removed PD-FRQ-006: implemented as PF-PRO-039 "Fork 1" in LinkWatcher's release process — config-schema propagation added to `install_global.py` (via `deployment/propagate_config_schema.py`): on a project-configurable schema change it files a high-priority IMP into central intake and syncs the appdev per-project config template. Not a product feature request; removed per request. | AI Agent |
 
 </details>

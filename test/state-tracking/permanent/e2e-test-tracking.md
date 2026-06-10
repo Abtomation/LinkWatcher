@@ -4,7 +4,7 @@ type: Process Framework
 category: State File
 version: 1.0
 created: 2026-03-25
-updated: 2026-05-04
+updated: 2026-06-10
 tracking_scope: E2E Acceptance Test Tracking
 state_type: Implementation Status
 ---
@@ -52,7 +52,7 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 | WF-007 | Dry-run mode → preview | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | 4/4 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-009 | ✅ Covered |
 | WF-008 | Graceful shutdown → no corruption | 0.1.1, 2.2.1, 0.1.2 | 3/3 | [PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md) | TE-E2G-010 | ✅ Covered |
 | WF-006 | Configuration change → behavior adapts | 0.1.3, 1.1.1, 3.1.1 | 3/3 | — | TE-E2G-012 | ✅ Covered |
-| WF-009 | Link health audit → broken link report | 0.1.1, 2.1.1, 6.1.1 | 3/3 | — | TE-E2G-013 | ✅ Covered |
+| WF-009 | Link health audit → broken link report | 0.1.1, 2.1.1, 6.1.1 | 3/3 | — | TE-E2G-013 | 🔄 Re-execution Needed |
 
 ## E2E Test Cases
 
@@ -98,10 +98,10 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 | TE-E2E-023 | WF-006 | 0.1.3, 1.1.1, 3.1.1 | E2E Case | [TE-E2E-023-custom-monitored-extensions](../../e2e-acceptance-testing/configuration-change-behavior-adapts/templates/TE-E2E-023-custom-monitored-extensions/test-case.md) | ✅ Passed | 2026-04-15 | 2026-04-16 | ✅ Audit Approved | [TE-TAR-051](../../audits/e2e/audit-report-te-e2e-023-test-case.md) |  |
 | TE-E2E-024 | WF-006 | 0.1.3, 1.1.1, 3.1.1 | E2E Case | [TE-E2E-024-custom-ignored-directories](../../e2e-acceptance-testing/configuration-change-behavior-adapts/templates/TE-E2E-024-custom-ignored-directories/test-case.md) | ✅ Passed | 2026-04-15 | 2026-04-16 | ✅ Audit Approved | [TE-TAR-052](../../audits/e2e/audit-report-te-e2e-024-test-case.md) |  |
 | TE-E2E-025 | WF-006 | 0.1.3, 1.1.1, 3.1.1 | E2E Case | [TE-E2E-025-backup-creation-enabled](../../e2e-acceptance-testing/configuration-change-behavior-adapts/templates/TE-E2E-025-backup-creation-enabled/test-case.md) | ✅ Passed | 2026-04-15 | 2026-04-16 | ✅ Audit Approved | [TE-TAR-053](../../audits/e2e/audit-report-te-e2e-025-test-case.md) |  |
-| TE-E2G-013 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Group | [master-test-link-validation-audit.md](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/master-test-link-validation-audit.md) | ✅ Passed | 2026-04-14 | 2026-04-14 | — | — | All 3 cases passing after PD-BUG-088 fix |
-| TE-E2E-026 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Case | [TE-E2E-026-validate-clean-workspace](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-026-validate-clean-workspace/test-case.md) | ✅ Passed | 2026-04-14 | 2026-04-16 | ✅ Audit Approved | [TE-TAR-054](../../audits/e2e/audit-report-te-e2e-026-test-case.md) | Workspace with all valid links — validate reports clean, exit code 0 |
-| TE-E2E-027 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Case | [TE-E2E-027-validate-broken-links-detected](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-027-validate-broken-links-detected/test-case.md) | ✅ Passed | 2026-04-14 | 2026-04-16 | ✅ Audit Approved | [TE-TAR-055](../../audits/e2e/audit-report-te-e2e-027-test-case.md) | All 3 broken links detected including bare-filename — PD-BUG-088 fix confirmed |
-| TE-E2E-028 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Case | [TE-E2E-028-validate-ignore-rules-suppress](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-028-validate-ignore-rules-suppress/test-case.md) | ✅ Passed | 2026-04-14 | 2026-04-16 | ✅ Audit Approved | [TE-TAR-056](../../audits/e2e/audit-report-te-e2e-028-test-case.md) | Broken links matching .linkwatcher-ignore rules are suppressed from report |
+| TE-E2G-013 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Group | [master-test-link-validation-audit.md](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/master-test-link-validation-audit.md) | 🔄 Needs Re-execution | 2026-06-10 | 2026-06-10 | — | — | All 3 cases passing after PD-BUG-088 fix |
+| TE-E2E-026 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Case | [TE-E2E-026-validate-clean-workspace](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-026-validate-clean-workspace/test-case.md) | 🔄 Needs Re-execution | 2026-06-10 | 2026-06-10 | ✅ Audit Approved | [TE-TAR-054](../../audits/e2e/audit-report-te-e2e-026-test-case.md) | Workspace with all valid links — validate reports clean, exit code 0 |
+| TE-E2E-027 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Case | [TE-E2E-027-validate-broken-links-detected](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-027-validate-broken-links-detected/test-case.md) | 🔄 Needs Re-execution | 2026-06-10 | 2026-06-10 | ✅ Audit Approved | [TE-TAR-055](../../audits/e2e/audit-report-te-e2e-027-test-case.md) | All 3 broken links detected including bare-filename — PD-BUG-088 fix confirmed |
+| TE-E2E-028 | WF-009 | 0.1.1, 2.1.1, 6.1.1 | E2E Case | [TE-E2E-028-validate-ignore-rules-suppress](../../e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-028-validate-ignore-rules-suppress/test-case.md) | 🔄 Needs Re-execution | 2026-06-10 | 2026-06-10 | ✅ Audit Approved | [TE-TAR-056](../../audits/e2e/audit-report-te-e2e-028-test-case.md) | Broken links matching .linkwatcher-ignore rules are suppressed from report |
 
 ---
 

@@ -1,18 +1,23 @@
-# LinkWatcher Project Configuration
+# LinkWatcher Per-Project Validation Config — Canonical Template
 #
-# Per-project LinkWatcher configuration. Copy this file (or point `--config` at
-# it) and add the keys your project needs. Only the keys you set are overridden;
-# everything else uses LinkWatcher's built-in defaults.
+# The per-project config that LinkWatcher's broken-link scan (`--validate`) reads.
+# Set only the keys your project needs; everything else uses LinkWatcher's built-in
+# defaults. An empty `path_resolution_overrides: {}` means no overrides — the scan
+# behaves exactly as with no config at all (backward-compatible).
 #
-# Full list of available keys, their defaults, and the ignore system:
-#   doc/user/handbooks/configuration-guide.md
+#   Full key list, defaults, and the ignore system:
+#     doc/user/handbooks/configuration-guide.md
 #
-# Precedence (highest to lowest):
-#   CLI args > LINKWATCHER_* env vars > this config file > built-in defaults
+#   Precedence (highest to lowest):
+#     CLI args > LINKWATCHER_* env vars > this config > built-in defaults
+#
+# This file is the upstream source of truth for the project-configurable config
+# *structure*; LinkWatcher's release process keeps the framework-distributed copy
+# in sync (see doc/ci-cd/release-process.md → Config-Schema Propagation).
 
 # --- Validation: per-folder path-resolution overrides ----------------------
 #
-# Changes where `--validate` resolves absolute-from-host links (those starting
+# Rebases where `--validate` resolves absolute-from-host links (those starting
 # with "/", e.g. /process-framework/guide.md) for files inside a designated
 # folder. Use case: a blueprint/template folder that ships to other projects,
 # where it becomes the project root — its "/..." links are authored from the
@@ -26,8 +31,11 @@
 #   - Files outside every configured folder are unaffected — their "/..." links
 #     still resolve against the project root.
 #   - Default {} (empty) = no-op. Validation-only; does not affect link updating.
-path_resolution_overrides:
-  appdev/blueprint: appdev/blueprint
+#
+# Example (a project whose blueprint/ ships as a root to other projects):
+#   path_resolution_overrides:
+#     blueprint: blueprint
+path_resolution_overrides: {}
 
 # --- Add further configuration below as needed -----------------------------
 # e.g. monitored_extensions, ignored_directories, validation_ignored_patterns,

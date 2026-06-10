@@ -34,7 +34,7 @@ change_name: relocate-linkwatcher-run-with-agnostic-startup-script
 | `LinkWatcher_run/setup_project.py` | (deleted; obsolete) |
 | `deployment/setup_project.py` | (deleted; obsolete) |
 | `deployment/install_global.py::update_startup_scripts()` (lines 317-432) + call site | (deleted; obsolete) |
-| Project-root `.linkwatcher-ignore` (active) | `process-framework-local/tools/linkWatcher/.linkwatcher-ignore` |
+| Project-root `.linkwatcher-ignore` (active) | `tools/linkwatcher/.linkwatcher-ignore` |
 | Project-root `LinkWatcherBrokenLinks.txt` (active) | `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` |
 | Project-root `logs/` (active) | `process-framework-local/tools/linkWatcher/logs/` |
 

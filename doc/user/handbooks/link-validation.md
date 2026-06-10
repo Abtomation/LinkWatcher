@@ -38,11 +38,11 @@ python main.py --validate --project-root c:\path\to\project
 python main.py --validate --debug
 ```
 
-The command prints a summary to the console and writes a detailed report to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt`.
+The command prints a summary to the console and writes a detailed report to `logs/linkwatcher/LinkWatcherBrokenLinks.txt`.
 
 ## Reading the Report
 
-The report is written to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` in the same directory as your log file (or the project root if no log file is configured).
+The report is written to `logs/linkwatcher/LinkWatcherBrokenLinks.txt` under your project root by default (configurable via the `validation_output_dir` setting).
 
 ```
 ============================================================
@@ -162,7 +162,7 @@ See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-confi
 | `--validate --debug` | Show detailed debug output during scan |
 | `--validate --quiet` | Suppress console output, only write report file |
 | `--validate --config settings.yaml` | Use custom config for ignored patterns/directories |
-| `--validate --log-file run/log.txt` | Write report to `run/LinkWatcherBrokenLinks.txt` |
+| `--validate --log-file run/log.txt` | Log to `run/log.txt`; report still written to `logs/linkwatcher/` (set `validation_output_dir` to relocate) |
 | `--validate --project-root /other/dir` | Scan a different project directory |
 
 **Note**: `--validate` exits immediately after scanning — it does not start the file watcher. No lock file is created.
@@ -193,9 +193,9 @@ See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-confi
 
 ### Report file location is unexpected
 
-**Problem:** You can't find `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt`.
+**Problem:** You can't find `logs/linkwatcher/LinkWatcherBrokenLinks.txt`.
 
-**Solution:** The report is written to:
+**Solution:** By default the report is written to `logs/linkwatcher/LinkWatcherBrokenLinks.txt` under your project root — the `validation_output_dir` setting. Only if you set `validation_output_dir: null` does it fall back to:
 1. The parent directory of `--log-file` (if specified)
 2. The parent directory of `config.log_file` (if set in config)
 3. The project root directory (fallback)

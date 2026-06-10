@@ -88,7 +88,7 @@ LinkWatcher/                                  # project root
 |---|---|---|
 | Refactor + move | `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1` → `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1` | Add env-var-or-auto-detect resolver replacing hardcoded `C:\Users\ronny\bin`; adjust `..\doc\project-config.json` walk for new depth |
 | Delete | `(deleted: replaced by agnostic startup script)` | Responsibilities collapse; VS Code task generation dropped |
-| Move | `process-framework-local/tools/linkWatcher/.linkwatcher-ignore` → `process-framework-local/tools/linkWatcher/.linkwatcher-ignore` | Project-specific suppression rules |
+| Move | `tools/linkwatcher/.linkwatcher-ignore` → `tools/linkwatcher/.linkwatcher-ignore` | Project-specific suppression rules |
 | Move | `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` → `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` | Generated output |
 | Move | `process-framework-local/tools/linkWatcher/logs/LinkWatcherError.txt` → `process-framework-local/tools/linkWatcher/LinkWatcherError.txt` | Log |
 | Move | `process-framework-local/tools/linkWatcher/logs/` → `process-framework-local/tools/linkWatcher/logs/` | Log directory |

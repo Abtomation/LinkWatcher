@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 1.2
 created: 2025-06-15
-updated: 2026-06-04
+updated: 2026-06-08
 ---
 
 # Technical Debt Tracker
@@ -34,6 +34,7 @@ Technical debt items are tagged with **Primary Dimension** using the standard ab
 
 | ID    | Description                                                | Dims        | Location                                                                     | Created Date | Priority | Estimated Effort | Status      | Resolution Date | Assessment ID | Workflows | Notes                                                                                                |
 | ----- | ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------- | ------------ | -------- | ---------------- | ----------- | --------------- | ------------- | --------- | ---------------------------------------------------------------------------------------------------- |
+| TD260 | No automated end-to-end regression that two near-simultaneous daemon starts yield exactly one daemon per project root. PD-BUG-100's tests pin the launcher cleanup decision (TE-TST-135) and the release_lock/launcher lock-preservation decision in isolation, not the real concurrent-start to single-daemon outcome (the bug's literal symptom). | TST DI | process-framework/tools/linkWatcher/start_linkwatcher_background.ps1 + main.py acquire_lock (concurrent-start path) | 2026-06-08 | Low | M (~3-5h; concurrency harness is flaky-prone) | Open | - | - | - | Surfaced in PD-BUG-100 code review (PF-TSK-005) 2026-06-08; author pinned the precise defective decision instead of building the harness. Cross-ref PD-BUG-100 (Closed). |
 
 ## Recently Resolved Technical Debt
 

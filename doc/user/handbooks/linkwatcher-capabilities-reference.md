@@ -137,7 +137,7 @@ Three detection strategies:
 
 - **Read-only** — no file modifications
 - Scans workspace for broken file references
-- Writes report to `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt`
+- Writes report to `logs/linkwatcher/LinkWatcherBrokenLinks.txt`
 - Exits with code 0 (clean) or 1 (broken links found)
 - Default validated extensions: `.md`, `.yaml`, `.yml`, `.json` (configurable via `validation_extensions`)
 - Smart resolution: tries source-file-relative first, falls back to project-root-relative

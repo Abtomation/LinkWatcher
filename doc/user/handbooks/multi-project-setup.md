@@ -29,9 +29,9 @@ Use LinkWatcher from any project directory while keeping the tool files in one c
 │       └── start_linkwatcher_background.ps1  # Agnostic background starter
 ├── 📁 ProjectA/                       # Any project that adopts the framework
 │   ├── doc/project-config.json       # Identifies the project root
-│   └── process-framework-local/tools/linkWatcher/
-│       ├── .linkwatcher-ignore       # Per-project suppression rules
-│       └── logs/                     # Runtime logs
+│   ├── tools/linkwatcher/
+│   │   └── .linkwatcher-ignore       # Per-project suppression rules (tracked)
+│   └── logs/linkwatcher/             # Runtime logs + broken-link report (gitignored)
 └── 📁 ProjectB/
     └── ...
 ```
@@ -113,7 +113,7 @@ python %USERPROFILE%\bin\main.py --project-root c:\Users\ronny\VS_Code\YourProje
 
 ### Example 3: Background Mode with Logging
 ```cmd
-python %USERPROFILE%\bin\main.py --log-file process-framework-local/tools/linkWatcher/logs/LinkWatcherLog_20260324-091626_20260325-224338_20260326-141107_20260327-131638.txt --debug
+python %USERPROFILE%\bin\main.py --log-file logs/linkwatcher/LinkWatcherLog.txt --debug
 ```
 
 ## Key Benefits

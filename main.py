@@ -16,7 +16,7 @@ Options:
     --quiet             Suppress non-error output
 
 If you want to store the logs as well
-    python main.py --log-file process-framework-local/tools/linkWatcher/logs/linkwatcher.txt --debug
+    python main.py --log-file logs/linkwatcher/linkwatcher.txt --debug
 """
 
 import argparse
@@ -312,12 +312,26 @@ def acquire_lock(project_root: Path) -> Path:
 
 
 def release_lock(lock_file: Path):
-    """Release the lock file."""
-    if lock_file is not None and lock_file.exists():
-        try:
-            lock_file.unlink()
-        except OSError:
-            pass
+    """Release the lock file — but only if we still own it.
+
+    A successor that found this process's lock stale could legitimately reclaim
+    it (PD-BUG-100): the on-disk PID then belongs to a *different*, live instance.
+    Blindly unlinking on shutdown would strip the running successor's lock and
+    re-open the multi-instance window, so only delete the lock when it still
+    holds our own PID. A foreign or unreadable lock is left untouched.
+    """
+    if lock_file is None or not lock_file.exists():
+        return
+    try:
+        owner = lock_file.read_text().strip()
+    except OSError:
+        return
+    if owner != str(os.getpid()):
+        return  # reclaimed by a successor — not ours to delete
+    try:
+        lock_file.unlink()
+    except OSError:
+        pass
 
 
 def main():

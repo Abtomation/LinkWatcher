@@ -52,7 +52,7 @@ Three intentional broken links:
    - **Tool**: Command Line
    - **Check**: `echo $LASTEXITCODE` (PowerShell) or `echo $?` (bash)
 
-4. **Check report file**: Open `<workspace>/LinkWatcherBrokenLinks.txt` and inspect contents
+4. **Check report file**: Open `<workspace>/logs/linkwatcher/LinkWatcherBrokenLinks.txt` and inspect contents
    - **Tool**: Text editor
    - **Target**: Report file in workspace directory
 
@@ -78,7 +78,7 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ### Behavioral Outcomes
 
 - Process exits with code **1**
-- Report file `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` is created in workspace directory
+- Report file `logs/linkwatcher/LinkWatcherBrokenLinks.txt` is created in workspace directory
 - Report shows `Broken links  : 3`
 - Report contains entry for `docs/readme.md` → `missing-guide.md` (markdown link type)
 - Report contains entry for `config/refs.json` → `docs/nonexistent.md` (JSON link type)
@@ -88,13 +88,13 @@ See `expected/` directory for complete post-test file state (mirrors `project/` 
 ## Verification Method
 
 - [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-027` — confirms project files are unmodified
-- [ ] **Report inspection**: Open `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` and verify all three broken links are listed
+- [ ] **Report inspection**: Open `logs/linkwatcher/LinkWatcherBrokenLinks.txt` and verify all three broken links are listed
 - [ ] **Exit code check**: Confirm process exited with code 1
 
 ## Pass Criteria
 
 - [ ] Exit code is 1
-- [ ] `process-framework-local/tools/linkWatcher/LinkWatcherBrokenLinks.txt` exists in workspace directory
+- [ ] `logs/linkwatcher/LinkWatcherBrokenLinks.txt` exists in workspace directory
 - [ ] Report contains `Broken links  : 3`
 - [ ] Report lists `docs/readme.md` with target `missing-guide.md`
 - [ ] Report lists `config/refs.json` with target `docs/nonexistent.md`
