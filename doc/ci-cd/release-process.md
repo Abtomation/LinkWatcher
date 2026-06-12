@@ -2,9 +2,9 @@
 id: PD-CIC-003
 type: Documentation
 category: CI-CD
-version: 2.2
+version: 2.3
 created: 2023-06-15
-updated: 2026-06-10
+updated: 2026-06-11
 ---
 
 # Release Process Guide
@@ -17,7 +17,7 @@ This document outlines the release process for LinkWatcher. LinkWatcher is deplo
 > whenever the mechanics in this guide change or are re-verified against a real release.
 
 - **Verified against release:** `2.1.1`
-- **Verified on:** 2026-06-10
+- **Verified on:** 2026-06-11
 
 ## Architecture
 
@@ -50,6 +50,8 @@ python deployment/install_global.py
 
 This script:
 - Stops any running LinkWatcher instance (via `.linkwatcher.lock`) so files can be overwritten
+- Stops **all** daemons running from the install-dir venv — other projects' daemons lock `.linkwatcher-venv\Scripts\python.exe` and would fail the venv rebuild (PD-BUG-106); stopped daemons restart at each project's next session start
+- Aborts cleanly (before any files are copied) if the venv `python.exe` is still locked after the daemon stop
 - Checks the Python version (3.8+ required)
 - Installs/updates dependencies from `pyproject.toml` (`pip install -e .`)
 - Removes stale files from previous installs (e.g., old `link_watcher.py`)
@@ -142,11 +144,12 @@ Discovered in the v2.1.1 release: bumping only `pyproject.toml` ships a binary t
 For significant releases:
 
 1. Update `version` in `pyproject.toml` **and** `__version__` in `src/linkwatcher/__init__.py`
-2. Optionally create a git tag:
+2. Tag the release commit and push the tag:
    ```bash
    git tag v2.1.1
    git push origin v2.1.1
    ```
+   `install_global.py` prints a warning at deploy time when the version being installed has no matching `v<version>` tag, so create the tag before running the install step (or right after, then re-run). The check is a nudge, not a hard gate — it never blocks a dev install of an as-yet-unreleased version.
 
 ## Related Documentation
 

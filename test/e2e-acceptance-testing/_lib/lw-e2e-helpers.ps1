@@ -17,10 +17,14 @@
       - Scope is <workspace>/project (not the whole workspace) so the expected/ reference tree is
         never scanned.
 
-    ⚠️  REPO DAEMON: These helpers do NOT touch the repository's global LinkWatcher daemon. When the
-    suite is run on a machine where a repo-scoped LinkWatcher is watching test/e2e-acceptance-testing/,
-    stop that daemon for the duration of the run (controlled stop via .linkwatcher.lock) — otherwise a
-    second watcher races on the workspace and corrupts fixtures.
+    ⚠️  REPO DAEMON: These helpers do NOT touch the repository's global LinkWatcher daemon. In this
+    repo the project daemon no longer watches test/e2e-acceptance-testing/ — excluded via
+    ignored_directories in tools/linkwatcher/linkwatcher-config.yaml, which the daemon loads since
+    PF-IMP-1115 (fix for PD-BUG-105: concurrent default-config updates overrode dry-run/ignore/
+    backup expectations in 6 cases). Drift guard: test/automated/unit/test_e2eworkspaceexclusion.py.
+    On a machine whose project config lacks that exclusion, stop the repo daemon for the duration
+    of the run (controlled stop via .linkwatcher.lock) — otherwise a second watcher races on the
+    workspace and corrupts fixtures.
 
     Source: MIG-018 (PF-IMP-878) Mode C migration for PRJ-001.
 #>

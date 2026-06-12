@@ -123,6 +123,30 @@ class TestConfigSchemaDrift:
             mismatches
         )
 
+    def test_guide_ignored_directories_values_match_code_default(self):
+        """Regression guard for PD-BUG-103: the guide's ignored_directories list
+        drifted from the code default; key-presence checks alone missed it.
+        Set equality flags both stale extras and omitted entries."""
+        guide_value = set(load_full_reference()["ignored_directories"])
+        code_value = LinkWatcherConfig().ignored_directories
+        assert guide_value == code_value, (
+            "configuration-guide.md Full Reference ignored_directories drifted from "
+            f"LinkWatcherConfig default — only in guide: {sorted(guide_value - code_value)}, "
+            f"only in code: {sorted(code_value - guide_value)}"
+        )
+
+    def test_guide_monitored_extensions_values_match_code_default(self):
+        """Companion to the ignored_directories guard (PD-BUG-103): the guide's
+        Full Reference lists the complete monitored_extensions default, so its
+        values must match the code default exactly."""
+        guide_value = set(load_full_reference()["monitored_extensions"])
+        code_value = LinkWatcherConfig().monitored_extensions
+        assert guide_value == code_value, (
+            "configuration-guide.md Full Reference monitored_extensions drifted from "
+            f"LinkWatcherConfig default — only in guide: {sorted(guide_value - code_value)}, "
+            f"only in code: {sorted(code_value - guide_value)}"
+        )
+
     def test_wip_template_keys_are_valid_config_fields(self):
         stale = set(load_template()) - set(code_fields())
         assert not stale, (

@@ -1,15 +1,13 @@
-# LinkWatcher per-project validation config — TEMPLATE (canonical empty default)
+# LinkWatcher per-project config — ACTIVE copy for PRJ-001 (LinkWatcher)
 #
-# This is the framework-distributed template (rolled out with process-framework/).
-# Each project's ACTIVE config is a copy of this at
-#   <project-root>/tools/linkwatcher/linkwatcher-config.yaml
-# created and configured during Project Initiation (new projects) or via a
-# per-project migration (existing projects). Edit the active copy, not this template.
+# Read by LinkWatcher's broken-link scan (`--validate`, via run_linkwatcher_validate.ps1)
+# AND by the live daemon (started with --config by start_linkwatcher_background.ps1
+# since PF-IMP-1115, 2026-06-11). An empty/absent config means built-in defaults —
+# behavior is exactly as with no config at all (backward-compatible).
 #
-# Only LinkWatcher's broken-link scan (`--validate`, via run_linkwatcher_validate.ps1)
-# reads this file; the live daemon ignores it. An empty path_resolution_overrides ({})
-# means no overrides — the scan behaves exactly as it would with no config at all
-# (backward-compatible).
+# NOTE: set-typed keys (e.g. ignored_directories, monitored_extensions) REPLACE
+# the built-in default set wholesale — to extend a default, enumerate the full
+# desired set including the defaults you want to keep.
 #
 # Full key list, defaults, and semantics:
 #   <LinkWatcher install>/doc/user/handbooks/configuration-guide.md
@@ -34,4 +32,39 @@
 # Example (appdev, whose blueprint/ ships as a root to other projects):
 #   path_resolution_overrides:
 #     blueprint: blueprint
+# Note (PRJ-001, 2026-06-11): an override "doc/user/handbooks: src" was tried
+# and reverted — handbooks ship into the global install root (PD-BUG-104), but
+# that root's layout maps non-uniformly to the repo (/linkwatcher -> src/linkwatcher,
+# /config-examples and /doc/user/handbooks -> repo root), which a single rebase
+# base cannot express. Dual-validity is achieved instead via relative intra-handbook
+# links + .linkwatcher-ignore rules for deployed-shape package paths.
 path_resolution_overrides: {}
+
+# --- Live daemon: directory exclusions (PD-BUG-105) -------------------------
+#
+# The project daemon must not watch test/e2e-acceptance-testing/ — during E2E
+# execution the scoped per-test daemons are the only legitimate writers inside
+# their workspaces, and the project daemon's default-config live updates were
+# overriding dry-run/ignore/backup/extension expectations (6 cases failed).
+#
+# REPLACES the built-in default set wholesale (see header note), so the
+# defaults are re-enumerated here in full. Source of truth for the defaults:
+# LinkWatcherConfig.ignored_directories in src/linkwatcher/config/settings.py.
+# Drift guard: test/automated/unit/test_e2eworkspaceexclusion.py (TE-TST-138)
+# fails if a built-in default is missing from this list.
+ignored_directories:
+  - .git
+  - .dart_tool
+  - node_modules
+  - .vscode
+  - build
+  - dist
+  - __pycache__
+  - .pytest_cache
+  - coverage
+  - target
+  - bin
+  - obj
+  - tests
+  - linkWatcher
+  - e2e-acceptance-testing

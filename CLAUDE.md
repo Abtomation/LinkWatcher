@@ -174,7 +174,7 @@ LinkWatcher runs in background and automatically maintains all cross-references.
 - **Dart** (.dart): import/part statements, quoted paths, standalone paths
 - **All other monitored types**: generic quoted/unquoted path detection
 
-**24 monitored extensions** by default including `.md`, `.yaml`, `.yml`, `.json`, `.py`, `.ps1`, `.psm1`, `.dart`, `.html`, `.js`, `.ts`, `.tsx`, `.bat`, `.toml`, `.xml`, `.csv`, `.txt`, and more.
+**33 monitored extensions** by default including `.md`, `.yaml`, `.yml`, `.json`, `.py`, `.ps1`, `.psm1`, `.dart`, `.html`, `.js`, `.ts`, `.tsx`, `.bat`, `.toml`, `.xml`, `.csv`, `.txt`, and more.
 
 ### What LinkWatcher Does NOT Do
 

@@ -36,6 +36,11 @@ The three entry points are called by the watchdog observer thread:
               2. Try MoveDetector match → _handle_detected_move.
               3. Otherwise treat as new file: scan for links.
 
+  on_modified(event)
+    └─ file (monitored, exists, not in ignored dir)
+         → rescan_file_links — re-index links written into an
+           existing file by external tools (PD-BUG-102).
+
 Move Detection Strategies
 -------------------------
 1. **Native OS move**: Watchdog fires a single FileMovedEvent with
@@ -98,7 +103,13 @@ from .move_detector import MoveDetector
 from .parser import LinkParser
 from .reference_lookup import ReferenceLookup
 from .updater import LinkUpdater
-from .utils import get_relative_path, normalize_path, should_monitor_file
+from .utils import (
+    compute_own_output_exclusions,
+    get_relative_path,
+    is_own_output,
+    normalize_path,
+    should_monitor_file,
+)
 
 
 class _SyntheticMoveEvent:
@@ -155,6 +166,21 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             if ignored_directories is not None
             else DEFAULT_CONFIG.ignored_directories.copy()
         )
+
+        # Own-output exclusion zone (PD-BUG-107): the daemon must never
+        # index or react to files it writes itself (log + colocated
+        # outputs), or every log write feeds the on_modified rescan loop.
+        self._own_output_exclusions = compute_own_output_exclusions(
+            config.log_file if config else None, str(self.project_root)
+        )
+        if self._own_output_exclusions["dirs"] or self._own_output_exclusions["file_stems"]:
+            self.logger.info(
+                "own_output_excluded",
+                dirs=sorted(self._own_output_exclusions["dirs"]),
+                file_stems=sorted(
+                    f"{base}*{ext}" for _, base, ext in self._own_output_exclusions["file_stems"]
+                ),
+            )
 
         # Move detection timing from config or defaults
         move_delay = config.move_detect_delay if config else DEFAULT_CONFIG.move_detect_delay
@@ -251,6 +277,23 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             self._defer_event("on_moved", event)
             return
         try:
+            # PD-BUG-105: events originating inside ignored directories are
+            # dropped before the PD-BUG-046/PD-BUG-071 bypasses can re-admit
+            # them. A rename TO an ignored name (PD-BUG-071) has a
+            # non-ignored source and still processes. PD-BUG-108: a move
+            # OUT of an ignored tree surfaces content the DB has never seen
+            # (ignored events are dropped, so no references exist to
+            # update) — index the destination like a creation instead of
+            # dropping the event entirely.
+            if self._is_in_ignored_directory(event.src_path):
+                self._index_move_out_of_ignored(event)
+                return
+            # PD-BUG-107: log rotation renames the daemon's own log — it
+            # must not be treated as a move of a referenced target (docs
+            # reference the stable log path). Both sides checked: a move
+            # into the output zone must not index the dest either.
+            if self._is_own_output(event.src_path) or self._is_own_output(event.dest_path):
+                return
             if event.is_directory:
                 self._handle_directory_moved(event)
             elif self._should_monitor_file(event.dest_path) or self._is_known_reference_target(
@@ -274,6 +317,14 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             self._defer_event("on_deleted", event)
             return
         try:
+            # PD-BUG-105: drop deletes inside ignored directories — they must
+            # not buffer for move correlation even as known reference targets.
+            if self._is_in_ignored_directory(event.src_path):
+                return
+            # PD-BUG-107: rotation cleanup deletes old log backups — they
+            # must not buffer for move correlation.
+            if self._is_own_output(event.src_path):
+                return
             if event.is_directory:
                 self._handle_directory_deleted(event)
             else:
@@ -305,6 +356,14 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             self._defer_event("on_created", event)
             return
         try:
+            # PD-BUG-105: drop creates inside ignored directories — they must
+            # not be parsed/indexed or matched against pending deletes.
+            if self._is_in_ignored_directory(event.src_path):
+                return
+            # PD-BUG-107: rotated log backups and fresh reports appear in
+            # the daemon's own output zone — never parse or index them.
+            if self._is_own_output(event.src_path):
+                return
             if not event.is_directory and (
                 self._should_monitor_file(event.src_path)
                 # PD-BUG-046: Also process creates for non-monitored files when
@@ -317,6 +376,46 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         except Exception as e:
             self.logger.error(
                 "on_created_unhandled_error",
+                error=str(e),
+                error_type=type(e).__name__,
+                src_path=getattr(event, "src_path", "unknown"),
+            )
+            self._update_stat("errors")
+
+    def on_modified(self, event):
+        """Handle file modification events (PD-BUG-102).
+
+        External tools write new links into existing monitored files;
+        without a rescan those links never enter the database, so a later
+        move of their target runs with references_count=0 and leaves the
+        fresh link pointing at the old path. Watchdog dispatches events
+        serially, so rescanning here guarantees a modify is fully indexed
+        before any subsequent move event is processed.
+        """
+        if not self._scan_complete.is_set():
+            self._defer_event("on_modified", event)
+            return
+        try:
+            if event.is_directory:
+                return
+            # PD-BUG-105: ignored_directories is a hard boundary for live
+            # events — edits inside ignored trees must not be indexed.
+            if self._is_in_ignored_directory(event.src_path):
+                return
+            # PD-BUG-107: the daemon's own log writes arrive here as modify
+            # events — rescanning them logs another line, which fires the
+            # next modify event: a self-sustaining loop.
+            if self._is_own_output(event.src_path):
+                return
+            if not self._should_monitor_file(event.src_path):
+                return
+            # Modify events can trail deletes/moves; skip vanished files.
+            if not os.path.exists(event.src_path):
+                return
+            self._ref_lookup.rescan_file_links(event.src_path)
+        except Exception as e:
+            self.logger.error(
+                "on_modified_unhandled_error",
                 error=str(e),
                 error_type=type(e).__name__,
                 src_path=getattr(event, "src_path", "unknown"),
@@ -706,6 +805,45 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 )
                 self._update_stat("errors")
 
+    def _index_move_out_of_ignored(self, event):
+        """Index the destination of a move whose source is ignored (PD-BUG-108).
+
+        A native move OUT of an ignored tree surfaces content the database
+        has never seen. There are no references to update (events inside
+        ignored trees are dropped, and outside references into the tree
+        stay untouched per the PD-BUG-105 boundary), so the destination is
+        indexed like a creation. The move detectors are bypassed: a native
+        move is self-contained and must not be correlated against
+        unrelated pending deletes.
+        """
+        if self._is_in_ignored_directory(event.dest_path) or self._is_own_output(event.dest_path):
+            return
+        if event.is_directory:
+            indexed_count = 0
+            for root, _dirs, files in os.walk(event.dest_path):
+                for file_name in files:
+                    file_path = os.path.join(root, file_name)
+                    if self._should_monitor_file(file_path):
+                        self._ref_lookup.rescan_file_links(file_path)
+                        self._update_stat("files_created")
+                        indexed_count += 1
+            if indexed_count:
+                self.logger.info(
+                    "moved_out_of_ignored_indexed",
+                    src_path=self._get_relative_path(event.src_path),
+                    dest_path=self._get_relative_path(event.dest_path),
+                    indexed_files=indexed_count,
+                )
+        elif self._should_monitor_file(event.dest_path):
+            self._ref_lookup.rescan_file_links(event.dest_path)
+            self._update_stat("files_created")
+            self.logger.info(
+                "moved_out_of_ignored_indexed",
+                src_path=self._get_relative_path(event.src_path),
+                dest_path=self._get_relative_path(event.dest_path),
+                indexed_files=1,
+            )
+
     def _handle_detected_move(self, old_path: str, new_path: str):
         """Handle a detected move operation."""
         try:
@@ -839,6 +977,35 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         """
         filename = os.path.basename(abs_path)
         return self.link_db.has_target_with_basename(filename)
+
+    def _is_own_output(self, abs_path: str) -> bool:
+        """Check if a path is daemon-own output (PD-BUG-107).
+
+        Hard boundary like _is_in_ignored_directory: applied at every
+        event entry point so the known-reference-target bypass
+        (PD-BUG-046) cannot re-admit the daemon's own files.
+        """
+        return is_own_output(abs_path, self._own_output_exclusions)
+
+    def _is_in_ignored_directory(self, abs_path: str) -> bool:
+        """Check if a path lies inside an ignored directory.
+
+        PD-BUG-105: ignored_directories is a hard boundary for live events.
+        The known-reference-target bypass (PD-BUG-046) and the directory-move
+        paths (PD-BUG-071) intentionally skip _should_monitor_file(), which is
+        the only place ignored_directories is enforced for events. Without
+        this guard, a monitored file OUTSIDE an ignored tree referencing a
+        path INSIDE it re-admits the whole tree into the event pipeline, and
+        the daemon parses and writes inside the ignored tree.
+
+        Like should_monitor_file(), only path components below the project
+        root are checked (PD-BUG-087).
+        """
+        try:
+            rel_parts = Path(abs_path).relative_to(self.project_root).parts
+        except ValueError:
+            rel_parts = Path(abs_path).parts
+        return any(part in self.ignored_dirs for part in rel_parts)
 
     def _get_relative_path(self, abs_path: str) -> str:
         """Convert absolute path to relative path from project root."""

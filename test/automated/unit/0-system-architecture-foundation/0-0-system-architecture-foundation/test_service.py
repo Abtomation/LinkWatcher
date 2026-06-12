@@ -680,3 +680,36 @@ class TestEventDeferralDuringStartup:
         handler.on_created(create_event)
 
         assert len(handler._deferred_events) == 3
+
+
+class TestOwnOutputScanExclusion:
+    """Regression test for PD-BUG-107 (startup half): the initial scan
+    walked logs/linkwatcher/ because no ignored_directories entry covers
+    it (the linkWatcher entry matches case-sensitively), parsing the
+    daemon's own log into the link database — 315 spurious references
+    from the real log — so later moves rewrote historical log lines.
+    The scan must skip the own-output zone derived from the effective
+    log file."""
+
+    def test_initial_scan_skips_own_log_directory(self, tmp_path):
+        log_dir = tmp_path / "logs" / "linkwatcher"
+        log_dir.mkdir(parents=True)
+        log_file = log_dir / "LinkWatcherLog.txt"
+        log_file.write_text('2026-06-12 09:00:00 [info] file_created path="notes/a.md"\n')
+
+        notes = tmp_path / "notes"
+        notes.mkdir()
+        (notes / "a.md").write_text("# A\n")
+        (tmp_path / "readme.md").write_text("# Readme\n\nSee [a](notes/a.md).\n")
+
+        config = LinkWatcherConfig(log_file=str(log_file))
+        service = LinkWatcherService(str(tmp_path), config=config)
+        service._initial_scan()
+
+        sources = service.link_db.get_source_files()
+        assert "logs/linkwatcher/LinkWatcherLog.txt" not in sources, (
+            "PD-BUG-107: the initial scan indexed the daemon's own log file "
+            "— its content enters the link database and moves will rewrite "
+            "log history"
+        )
+        assert "readme.md" in sources, "sanity: normal project files must still be scanned"

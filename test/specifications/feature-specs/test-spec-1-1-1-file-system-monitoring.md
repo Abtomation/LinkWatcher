@@ -67,6 +67,9 @@ File System Monitoring uses the `LinkMaintenanceHandler` class to process watchd
 | Component | Test Focus | Key Test Cases | Fixtures |
 |-----------|-----------|----------------|----------|
 | Move detection | Delete+create pairing | `test_move_detection_logic` — simulates pending delete + file creation, verifies handler detects move and updates references | Manual setup |
+| Modify-event rescan (PD-BUG-102) | External edits re-index the modified file's links | `TestModifyEventRescan` — externally written link is indexed on modify; modify-then-move rewrites the fresh link (old path absent); rescan replaces stale entries; ignored-dir edits not indexed; modify events deferred during initial scan | Manual setup |
+| Own-output exclusion (PD-BUG-107) | Daemon never indexes or reacts to its own log outputs | `TestOwnOutputExclusion` — modify on own log / colocated output not indexed (breaks the rescan loop); rotation rename does not rewrite docs referencing the stable log path; creates/deletes in the output zone not indexed/buffered. `TestOwnOutputPredicate` — exclusion registry unit tests (log-dir zone, project-root fallback to rotation family, no-file-logging inert). `TestOwnOutputScanExclusion` (in test_service.py, feature 0.1.1) — initial scan skips the own-output zone | Manual setup |
+| Move out of ignored tree (PD-BUG-108) | Native move from ignored tree into monitored space indexes the destination like a creation | `TestIgnoredDirectoryEventBoundary` (PD-BUG-108 additions) — file move-out indexed into DB without rewriting outside references; non-monitored extension not indexed; ignored→ignored move still fully dropped; directory move-out indexes contained monitored files | Manual setup |
 
 **Test File**: [`test/automated/test_move_detection.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_move_detection.py)
 **Status**: Implemented (1 test method)

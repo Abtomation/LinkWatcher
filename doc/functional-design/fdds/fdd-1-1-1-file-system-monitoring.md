@@ -79,7 +79,8 @@ retrospective: true
 - **1.1.1-BR-3**: After a file move, the moved file itself is rescanned to rebuild its own link entries in the database, ensuring the database reflects the file's new location
 - **1.1.1-BR-4**: Duplicate events for the same file operation are detected and deduplicated to prevent processing the same move multiple times
 - **1.1.1-BR-5**: Directory moves process every file within the moved directory individually — each file's references are updated based on the calculated old→new path mapping. Additionally, references to the directory path itself in the link database are updated to the new path. References to parent/ancestor directory paths (paths that are prefixes of the moved directory) are also updated via prefix replacement.
-- **1.1.1-BR-6**: File content changes (on_modified events) do not trigger link maintenance — LinkWatcher only responds to structural file path changes
+- **1.1.1-BR-6**: File content changes (on_modified events) trigger a re-index of the modified file's links in the in-memory database, but never rewrite any file — only structural file path changes (moves, renames) trigger link maintenance writes. Without the re-index, links written into an existing file by an external tool were invisible until restart, so a later move of their target found no references (PD-BUG-102)
+- **1.1.1-BR-7**: The daemon's own output files are excluded from monitoring, indexing, and the initial scan entirely (PD-BUG-107). The exclusion zone is derived from the effective log file (its parent directory; if the log sits in the project root, only the log and its rotation siblings) and is announced at startup. This keeps the daemon's own log writes from feeding the BR-6 re-index (self-sustaining loop), keeps log history out of the link database (moves no longer rewrite historical log lines), and keeps log rotation from being treated as a file move
 
 ## User Experience Flow
 
@@ -140,9 +141,10 @@ retrospective: true
 - **1.1.1-EC-4**: If two delete+create pairs arrive simultaneously for different files, each is tracked independently in the pending buffer — no cross-contamination
 - **1.1.1-EC-5**: If the same file is moved twice in rapid succession, event deduplication prevents processing the first (now-stale) move after the second has already been processed
 - **1.1.1-EC-6**: Files in monitored directories but with unmonitored extensions are ignored — their moves do not trigger link maintenance
-- **1.1.1-EC-7**: Events for files within ignored directories (`.git/`, `__pycache__/`, etc.) are silently filtered before any processing occurs
+- **1.1.1-EC-7**: Events for files within ignored directories (`.git/`, `__pycache__/`, etc.) are silently filtered before any processing occurs (see EC-10 for the move-out exception)
 - **1.1.1-EC-8**: If a file is moved during the startup initial scan window, the move is still detected because the watchdog observer starts before the scan begins — there is no gap between scan completion and observer activation (resolved by PD-BUG-053)
 - **1.1.1-EC-9**: If a directory is renamed to a name matching an ignored directory entry (e.g., `DirA/` → `process-framework-local/tools/linkWatcher/`), references in non-ignored files are still updated — directory move processing uses extension-only filtering rather than the full `should_monitor_file()` check, so the destination directory name does not suppress updates (resolved by PD-BUG-071)
+- **1.1.1-EC-10**: A native move event whose source is inside an ignored tree but whose destination is in a monitored location indexes the destination like a newly created file (directory moves index each monitored file in the moved subtree). No references are rewritten — outside references into the ignored tree stay untouched, and the move detectors are bypassed (resolved by PD-BUG-108)
 
 ## Dependencies
 

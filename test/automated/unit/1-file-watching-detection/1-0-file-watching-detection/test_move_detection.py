@@ -9,8 +9,15 @@ detected from paired delete+create events and that references are updated.
 import threading
 
 import pytest
-from watchdog.events import FileCreatedEvent, FileDeletedEvent
+from watchdog.events import (
+    DirMovedEvent,
+    FileCreatedEvent,
+    FileDeletedEvent,
+    FileModifiedEvent,
+    FileMovedEvent,
+)
 
+from linkwatcher.config.settings import LinkWatcherConfig
 from linkwatcher.database import LinkDatabase
 from linkwatcher.handler import LinkMaintenanceHandler
 from linkwatcher.parser import LinkParser
@@ -613,3 +620,616 @@ class TestNonMonitoredExtensionMoveDetection:
             f"PD-BUG-046: Old reference 'data/settings.conf' should no longer "
             f"be present after the move, but content is: {updated_content}"
         )
+
+
+class TestIgnoredDirectoryEventBoundary:
+    """Regression tests for PD-BUG-105: ignored_directories must be a hard
+    boundary for live events.
+
+    The known-reference-target bypass (PD-BUG-046) and the directory-move
+    paths (PD-BUG-071) skip _should_monitor_file(), which is the only place
+    ignored_directories is enforced for events. When a monitored file
+    OUTSIDE an ignored tree references a path INSIDE it (e.g. audit reports
+    quoting E2E workspace paths), events from the ignored tree re-enter the
+    pipeline and the daemon parses and WRITES inside the ignored tree —
+    racing the scoped per-test daemons that own those files.
+    """
+
+    @pytest.fixture
+    def project_setup(self, tmp_path):
+        """A report outside the ignored zone references a file inside it."""
+        zone = tmp_path / "ignored-zone" / "sub"
+        zone.mkdir(parents=True)
+        inside_target = zone / "target.md"
+        inside_target.write_text("# Target\n")
+        inside_ref = zone / "readme.md"
+        inside_ref.write_text("# Readme\n\n[Target](target.md)\n")
+
+        report = tmp_path / "audits" / "report.md"
+        report.parent.mkdir()
+        report.write_text("# Report\n\nSee `ignored-zone/sub/target.md` for details.\n")
+
+        ignored_dirs = {"ignored-zone", ".git"}
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(
+            link_db,
+            parser,
+            updater,
+            str(tmp_path),
+            ignored_directories=ignored_dirs,
+        )
+
+        # Mirror the initial scan: only files OUTSIDE ignored dirs are indexed,
+        # so the DB knows the report's reference into the ignored zone but has
+        # no entries for files inside it.
+        for file_path in tmp_path.rglob("*.md"):
+            rel_parts = file_path.relative_to(tmp_path).parts
+            if any(part in ignored_dirs for part in rel_parts):
+                continue
+            rel_path = str(file_path.relative_to(tmp_path)).replace("\\", "/")
+            references = parser.parse_file(str(file_path))
+            for ref in references:
+                ref.file_path = rel_path
+                link_db.add_link(ref)
+
+        return {
+            "tmp_path": tmp_path,
+            "zone": zone,
+            "inside_target": inside_target,
+            "inside_ref": inside_ref,
+            "report": report,
+            "link_db": link_db,
+            "handler": handler,
+        }
+
+    def test_inside_file_is_a_known_reference_target(self, project_setup):
+        """Precondition: the report's link makes the inside file a known
+        reference target — the exact condition that re-armed PD-BUG-105."""
+        handler = project_setup["handler"]
+        inside_target = project_setup["inside_target"]
+        assert handler._is_known_reference_target(str(inside_target)), (
+            "Precondition failed: the file inside the ignored zone must be a "
+            "known reference target (referenced by audits/report.md) for these "
+            "regression tests to exercise the PD-BUG-046 bypass"
+        )
+
+    def test_on_deleted_drops_event_inside_ignored_dir(self, project_setup):
+        """PD-BUG-105: a delete inside an ignored dir must NOT be buffered,
+        even when the file is a known reference target."""
+        handler = project_setup["handler"]
+        inside_target = project_setup["inside_target"]
+
+        handler.on_deleted(FileDeletedEvent(str(inside_target)))
+
+        assert not handler._move_detector.has_pending, (
+            "PD-BUG-105: on_deleted buffered a DELETE from inside an ignored "
+            "directory because the file is a known reference target — "
+            "ignored_directories must override the PD-BUG-046 bypass"
+        )
+
+    def test_move_inside_ignored_dir_rewrites_nothing(self, project_setup):
+        """PD-BUG-105: a delete+create move inside an ignored dir must not
+        update any references — neither outside nor inside the zone."""
+        handler = project_setup["handler"]
+        zone = project_setup["zone"]
+        inside_target = project_setup["inside_target"]
+        inside_ref = project_setup["inside_ref"]
+        report = project_setup["report"]
+
+        report_before = report.read_text()
+        inside_ref_before = inside_ref.read_text()
+
+        handler.on_deleted(FileDeletedEvent(str(inside_target)))
+        archive = zone / "archive"
+        archive.mkdir()
+        new_path = archive / "target.md"
+        inside_target.rename(new_path)
+        handler.on_created(FileCreatedEvent(str(new_path)))
+
+        assert report.read_text() == report_before, (
+            "PD-BUG-105: the daemon rewrote a reference in audits/report.md "
+            "for a move that happened inside an ignored directory"
+        )
+        assert inside_ref.read_text() == inside_ref_before, (
+            "PD-BUG-105: the daemon WROTE inside the ignored directory "
+            "(rewrote readme.md) — exactly the dry-run-override failure "
+            "observed in TE-E2E-019"
+        )
+        assert (
+            "archive/target.md" not in report.read_text()
+        ), "PD-BUG-105: new path must not appear in the outside report"
+
+    def test_on_created_inside_ignored_dir_not_indexed(self, project_setup):
+        """PD-BUG-105: a create inside an ignored dir must not be parsed into
+        the database, even while the move detector has pending deletes."""
+        handler = project_setup["handler"]
+        link_db = project_setup["link_db"]
+        tmp_path = project_setup["tmp_path"]
+        zone = project_setup["zone"]
+
+        # Arm the on_created bypass: a legit pending delete OUTSIDE the zone.
+        outside = tmp_path / "audits" / "floating.md"
+        outside.write_text("# Floating\n")
+        handler.on_deleted(FileDeletedEvent(str(outside)))
+        assert handler._move_detector.has_pending
+
+        new_inside = zone / "new-doc.md"
+        new_inside.write_text("# New\n\n[Target](target.md)\n")
+        handler.on_created(FileCreatedEvent(str(new_inside)))
+
+        rel = "ignored-zone/sub/new-doc.md"
+        assert rel not in link_db.get_source_files(), (
+            "PD-BUG-105: a file created inside an ignored directory was "
+            "parsed and indexed into the database"
+        )
+
+    def test_native_directory_move_inside_ignored_dir_dropped(self, project_setup):
+        """PD-BUG-105: a native directory move inside an ignored dir must be
+        dropped — _handle_directory_moved (PD-BUG-071) bypasses ignore checks
+        by design, so the guard must fire before it."""
+        handler = project_setup["handler"]
+        zone = project_setup["zone"]
+        report = project_setup["report"]
+
+        report_before = report.read_text()
+        renamed = zone.parent / "sub-renamed"
+        zone.rename(renamed)
+        handler.on_moved(DirMovedEvent(str(zone), str(renamed)))
+
+        assert report.read_text() == report_before, (
+            "PD-BUG-105: a directory rename inside an ignored directory "
+            "triggered reference updates in an outside file"
+        )
+
+    def test_native_file_move_out_of_ignored_dir_indexes_dest(self, project_setup):
+        """PD-BUG-108: a native file move OUT of an ignored tree into a
+        monitored location must index the destination like a creation.
+        The DB has never seen the file (ignored events are dropped), so
+        dropping the move leaves its links invisible until a later modify
+        event or restart."""
+        handler = project_setup["handler"]
+        link_db = project_setup["link_db"]
+        tmp_path = project_setup["tmp_path"]
+        inside_ref = project_setup["inside_ref"]
+        report = project_setup["report"]
+
+        report_before = report.read_text()
+        dest = tmp_path / "audits" / "readme.md"
+        inside_ref.rename(dest)
+        handler.on_moved(FileMovedEvent(str(inside_ref), str(dest)))
+
+        assert "audits/readme.md" in link_db.get_source_files(), (
+            "PD-BUG-108: a file natively moved out of an ignored directory "
+            "into a monitored location was not indexed — its links stay "
+            "invisible to the link database"
+        )
+        assert report.read_text() == report_before, (
+            "PD-BUG-108: move-out must be create-like indexing only — "
+            "references in outside files pointing into the ignored tree "
+            "must not be rewritten (PD-BUG-105 boundary)"
+        )
+
+    def test_native_file_move_out_non_monitored_extension_not_indexed(self, project_setup):
+        """PD-BUG-108: create-like indexing applies the normal monitoring
+        filter — a non-monitored file emerging from an ignored tree is not
+        parsed into the database."""
+        handler = project_setup["handler"]
+        link_db = project_setup["link_db"]
+        tmp_path = project_setup["tmp_path"]
+        zone = project_setup["zone"]
+
+        unmonitored = zone / "notes.xyz"
+        unmonitored.write_text("see target.md\n")
+        dest = tmp_path / "audits" / "notes.xyz"
+        unmonitored.rename(dest)
+        handler.on_moved(FileMovedEvent(str(unmonitored), str(dest)))
+
+        assert "audits/notes.xyz" not in link_db.get_source_files(), (
+            "PD-BUG-108: a non-monitored file moved out of an ignored "
+            "directory was parsed and indexed into the database"
+        )
+
+    def test_native_file_move_between_ignored_dirs_still_dropped(self, project_setup):
+        """PD-BUG-108: a native move whose destination is ALSO inside an
+        ignored tree stays fully dropped — the hard boundary (PD-BUG-105)
+        is unchanged when the file never enters monitored space."""
+        handler = project_setup["handler"]
+        link_db = project_setup["link_db"]
+        zone = project_setup["zone"]
+        inside_ref = project_setup["inside_ref"]
+        report = project_setup["report"]
+
+        report_before = report.read_text()
+        dest = zone.parent / "readme.md"  # still under ignored-zone/
+        inside_ref.rename(dest)
+        handler.on_moved(FileMovedEvent(str(inside_ref), str(dest)))
+
+        assert "ignored-zone/readme.md" not in link_db.get_source_files(), (
+            "PD-BUG-108: a move between two locations inside the ignored "
+            "tree must not index anything"
+        )
+        assert report.read_text() == report_before, (
+            "PD-BUG-108: a move within the ignored tree must not rewrite " "outside references"
+        )
+
+    def test_native_directory_move_out_of_ignored_dir_indexes_contents(self, project_setup):
+        """PD-BUG-108: a native DIRECTORY move out of an ignored tree has
+        the same root cause one line away — the whole subtree emerges into
+        monitored space and its monitored files must be indexed."""
+        handler = project_setup["handler"]
+        link_db = project_setup["link_db"]
+        tmp_path = project_setup["tmp_path"]
+        zone = project_setup["zone"]
+        report = project_setup["report"]
+
+        report_before = report.read_text()
+        dest = tmp_path / "sub-moved"
+        zone.rename(dest)
+        handler.on_moved(DirMovedEvent(str(zone), str(dest)))
+
+        assert "sub-moved/readme.md" in link_db.get_source_files(), (
+            "PD-BUG-108: a monitored file inside a directory natively moved "
+            "out of an ignored tree was not indexed"
+        )
+        assert report.read_text() == report_before, (
+            "PD-BUG-108: directory move-out must be create-like indexing "
+            "only — outside references must not be rewritten"
+        )
+
+
+class TestModifyEventRescan:
+    """Regression tests for PD-BUG-102: links written into an EXISTING
+    monitored file by an external tool were never indexed, because the
+    handler had no on_modified hook. The database only learned links at
+    startup scan, on_created, or LinkWatcher's own rewrites — so a later
+    move of the fresh link's target ran with references_count=0
+    (no_references_found) and left the link pointing at the old path.
+    """
+
+    @pytest.fixture
+    def project_setup(self, tmp_path):
+        """A target file plus a tracking file that does NOT reference it
+        yet at initial-scan time — the link arrives via external edit."""
+        notes_dir = tmp_path / "notes"
+        notes_dir.mkdir()
+        target = notes_dir / "target.md"
+        target.write_text("# Target\n")
+
+        tracking = tmp_path / "tracking.md"
+        tracking.write_text("# Tracking\n\nNo links yet.\n")
+
+        zone = tmp_path / "ignored-zone"
+        zone.mkdir()
+
+        ignored_dirs = {"ignored-zone", ".git"}
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(
+            link_db,
+            parser,
+            updater,
+            str(tmp_path),
+            ignored_directories=ignored_dirs,
+        )
+
+        # Mirror the initial scan (tracking.md has no links at this point)
+        for file_path in tmp_path.rglob("*.md"):
+            rel_parts = file_path.relative_to(tmp_path).parts
+            if any(part in ignored_dirs for part in rel_parts):
+                continue
+            rel_path = str(file_path.relative_to(tmp_path)).replace("\\", "/")
+            references = parser.parse_file(str(file_path))
+            for ref in references:
+                ref.file_path = rel_path
+                link_db.add_link(ref)
+
+        return {
+            "tmp_path": tmp_path,
+            "notes_dir": notes_dir,
+            "target": target,
+            "tracking": tracking,
+            "zone": zone,
+            "link_db": link_db,
+            "handler": handler,
+        }
+
+    def _append_link(self, tracking, link_target="notes/target.md"):
+        """Simulate an external tool writing a new link into the file."""
+        tracking.write_text(tracking.read_text() + f"\nSee [Target]({link_target}).\n")
+
+    def test_modify_event_indexes_new_link(self, project_setup):
+        """PD-BUG-102 core: an externally written link must enter the
+        database when the modify event for the edited file arrives."""
+        handler = project_setup["handler"]
+        tracking = project_setup["tracking"]
+        link_db = project_setup["link_db"]
+
+        self._append_link(tracking)
+        handler.on_modified(FileModifiedEvent(str(tracking)))
+
+        refs = link_db.get_references_to_file("notes/target.md")
+        assert refs, (
+            "PD-BUG-102: a link freshly written into an existing monitored "
+            "file was not indexed on the modify event — a later move of "
+            "notes/target.md would find no references"
+        )
+
+    def test_move_after_external_edit_rewrites_fresh_link(self, project_setup):
+        """PD-BUG-102 full scenario (matches the 2026-06-10 log evidence):
+        external edit adds a link, then the target moves via delete+create
+        correlation — the fresh link must be rewritten to the new path."""
+        handler = project_setup["handler"]
+        tracking = project_setup["tracking"]
+        tmp_path = project_setup["tmp_path"]
+        target = project_setup["target"]
+
+        self._append_link(tracking)
+        handler.on_modified(FileModifiedEvent(str(tracking)))
+
+        # Move the target: delete event, physical move, create event
+        moved_dir = tmp_path / "archive"
+        moved_dir.mkdir()
+        new_path = moved_dir / "target.md"
+        handler.on_deleted(FileDeletedEvent(str(target)))
+        target.rename(new_path)
+        handler.on_created(FileCreatedEvent(str(new_path)))
+
+        content = tracking.read_text()
+        assert "archive/target.md" in content, (
+            "PD-BUG-102: the freshly written link was not rewritten when "
+            f"its target moved — content: {content}"
+        )
+        assert "notes/target.md" not in content, (
+            "PD-BUG-102: the old path must NOT remain in the tracking file "
+            f"after the move — content: {content}"
+        )
+
+    def test_modify_event_drops_stale_entries(self, project_setup):
+        """A rewrite that REMOVES a link must also drop its DB entry —
+        the rescan must replace, not accumulate."""
+        handler = project_setup["handler"]
+        tracking = project_setup["tracking"]
+        link_db = project_setup["link_db"]
+
+        self._append_link(tracking)
+        handler.on_modified(FileModifiedEvent(str(tracking)))
+        assert link_db.get_references_to_file("notes/target.md")
+
+        # External rewrite replaces the link with a different target
+        tracking.write_text("# Tracking\n\nSee [Other](notes/other.md).\n")
+        handler.on_modified(FileModifiedEvent(str(tracking)))
+
+        stale = [
+            r
+            for r in link_db.get_references_to_file("notes/target.md")
+            if r.file_path == "tracking.md"
+        ]
+        assert not stale, (
+            "PD-BUG-102: stale link entry survived a modify-event rescan "
+            "after the link was removed from the file"
+        )
+        assert link_db.get_references_to_file(
+            "notes/other.md"
+        ), "PD-BUG-102: replacement link was not indexed by the rescan"
+
+    def test_modify_inside_ignored_dir_not_indexed(self, project_setup):
+        """PD-BUG-105 boundary applies to modify events too: edits inside
+        an ignored directory must not be parsed into the database."""
+        handler = project_setup["handler"]
+        zone = project_setup["zone"]
+        link_db = project_setup["link_db"]
+
+        inside = zone / "inside.md"
+        inside.write_text("# Inside\n\n[Target](../notes/target.md)\n")
+        handler.on_modified(FileModifiedEvent(str(inside)))
+
+        assert "ignored-zone/inside.md" not in link_db.get_source_files(), (
+            "PD-BUG-102/105: a modify event inside an ignored directory "
+            "was parsed and indexed into the database"
+        )
+
+    def test_modify_event_deferred_during_initial_scan(self, project_setup):
+        """PD-BUG-053 pattern: modify events arriving before the initial
+        scan completes must be deferred and replayed afterward."""
+        handler = project_setup["handler"]
+        tracking = project_setup["tracking"]
+        link_db = project_setup["link_db"]
+
+        handler.begin_event_deferral()
+        self._append_link(tracking)
+        handler.on_modified(FileModifiedEvent(str(tracking)))
+        assert not link_db.get_references_to_file("notes/target.md"), (
+            "modify event must not be processed while the initial scan is "
+            "still populating the database"
+        )
+
+        handler.notify_scan_complete()
+        assert link_db.get_references_to_file(
+            "notes/target.md"
+        ), "deferred modify event was not replayed after scan completion"
+
+
+class TestOwnOutputExclusion:
+    """Regression tests for PD-BUG-107: the daemon indexed its own log
+    files. logs/linkwatcher/ is not covered by ignored_directories (the
+    linkWatcher entry matches case-sensitively), so log content entered
+    the link database — moves rewrote historical log lines — and with the
+    PD-BUG-102 on_modified rescan every rescan's own log write fired
+    another modify event, a self-sustaining loop. The daemon must derive
+    an own-output exclusion zone from its effective log file (the parent
+    directory, where the launcher colocates all daemon outputs) and never
+    index or react to events there.
+    """
+
+    @pytest.fixture
+    def project_setup(self, tmp_path):
+        """A project whose config points log_file at logs/linkwatcher/,
+        with daemon-style output files and a doc referencing the log."""
+        log_dir = tmp_path / "logs" / "linkwatcher"
+        log_dir.mkdir(parents=True)
+        log_file = log_dir / "LinkWatcherLog.txt"
+        # Path-rich daemon log content — parses into references when indexed
+        log_file.write_text(
+            '2026-06-12 09:00:00 [info] file_moved src="notes/target.md" '
+            'dest="archive/target.md"\n'
+        )
+        stdout_file = log_dir / "LinkWatcherStdout.txt"
+        stdout_file.write_text('file_links_scanned file="notes/target.md"\n')
+
+        notes_dir = tmp_path / "notes"
+        notes_dir.mkdir()
+        (notes_dir / "target.md").write_text("# Target\n")
+
+        doc = tmp_path / "doc.md"
+        doc.write_text("Check [the log](logs/linkwatcher/LinkWatcherLog.txt) for activity.\n")
+
+        config = LinkWatcherConfig(log_file=str(log_file))
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(
+            link_db,
+            parser,
+            updater,
+            str(tmp_path),
+            config=config,
+        )
+
+        # Mirror the initial scan for doc.md only — the DB knows the doc's
+        # reference to the log path (known-reference-target setup)
+        for ref in parser.parse_file(str(doc)):
+            ref.file_path = "doc.md"
+            link_db.add_link(ref)
+
+        return {
+            "tmp_path": tmp_path,
+            "log_dir": log_dir,
+            "log_file": log_file,
+            "stdout_file": stdout_file,
+            "doc": doc,
+            "link_db": link_db,
+            "handler": handler,
+        }
+
+    def test_modify_event_on_own_log_not_indexed(self, project_setup):
+        """PD-BUG-107 loop link: a modify event on the daemon's own log
+        file must not trigger a rescan — indexing it makes every log
+        write (including the rescan's own log line) feed the next rescan."""
+        handler = project_setup["handler"]
+        log_file = project_setup["log_file"]
+        link_db = project_setup["link_db"]
+
+        handler.on_modified(FileModifiedEvent(str(log_file)))
+
+        assert "logs/linkwatcher/LinkWatcherLog.txt" not in link_db.get_source_files(), (
+            "PD-BUG-107: the daemon's own log file was parsed and indexed "
+            "on its modify event — every log write now feeds a rescan loop"
+        )
+
+    def test_modify_event_on_colocated_output_not_indexed(self, project_setup):
+        """The launcher redirects daemon stdout/stderr into the log
+        directory; the console handler writes a line there per log event.
+        Files colocated with the log must be excluded or the loop survives
+        through the redirect target."""
+        handler = project_setup["handler"]
+        stdout_file = project_setup["stdout_file"]
+        link_db = project_setup["link_db"]
+
+        handler.on_modified(FileModifiedEvent(str(stdout_file)))
+
+        assert "logs/linkwatcher/LinkWatcherStdout.txt" not in link_db.get_source_files(), (
+            "PD-BUG-107: a daemon output colocated with the log file "
+            "(stdout redirect) was indexed — the rescan loop survives "
+            "through the redirect target"
+        )
+
+    def test_rotation_rename_does_not_rewrite_references(self, project_setup):
+        """Log rotation renames LinkWatcherLog.txt to a timestamped
+        sibling. Docs reference the stable log path; the known-reference-
+        target bypass must not treat rotation as a move and rewrite them."""
+        handler = project_setup["handler"]
+        log_file = project_setup["log_file"]
+        log_dir = project_setup["log_dir"]
+        doc = project_setup["doc"]
+
+        rotated = log_dir / "LinkWatcherLog_20260612-090000.txt"
+        log_file.rename(rotated)
+        handler.on_moved(FileMovedEvent(str(log_file), str(rotated)))
+
+        content = doc.read_text()
+        assert "LinkWatcherLog_20260612-090000.txt" not in content, (
+            "PD-BUG-107: log rotation was treated as a move of a referenced "
+            f"target and rewrote the doc — content: {content}"
+        )
+        assert "logs/linkwatcher/LinkWatcherLog.txt" in content, (
+            "PD-BUG-107: the stable log path must survive rotation — " f"content: {content}"
+        )
+
+    def test_create_event_in_own_output_dir_not_indexed(self, project_setup):
+        """A file appearing in the daemon's output directory (rotated
+        backup, fresh report) must not be parsed into the database."""
+        handler = project_setup["handler"]
+        log_dir = project_setup["log_dir"]
+        link_db = project_setup["link_db"]
+
+        report = log_dir / "LinkWatcherBrokenLinks.txt"
+        report.write_text('broken reference: "notes/target.md" -> missing\n')
+        handler.on_created(FileCreatedEvent(str(report)))
+
+        assert "logs/linkwatcher/LinkWatcherBrokenLinks.txt" not in link_db.get_source_files(), (
+            "PD-BUG-107: a file created in the daemon's own output "
+            "directory was parsed and indexed"
+        )
+
+    def test_delete_event_in_own_output_dir_not_buffered(self, project_setup):
+        """Deletes in the daemon's output directory (rotation cleanup of
+        old backups) must not buffer for move correlation."""
+        handler = project_setup["handler"]
+        log_dir = project_setup["log_dir"]
+
+        old_backup = log_dir / "LinkWatcherLog_20260601-000000.txt"
+        handler.on_deleted(FileDeletedEvent(str(old_backup)))
+
+        assert not handler._move_detector.has_pending, (
+            "PD-BUG-107: a delete inside the daemon's own output directory "
+            "was buffered for move correlation"
+        )
+
+
+class TestOwnOutputPredicate:
+    """Unit tests for the PD-BUG-107 exclusion registry
+    (compute_own_output_exclusions / is_own_output in utils)."""
+
+    def test_log_in_subdirectory_excludes_whole_directory(self, tmp_path):
+        from linkwatcher.utils import compute_own_output_exclusions, is_own_output
+
+        log_file = tmp_path / "logs" / "linkwatcher" / "LinkWatcherLog.txt"
+        registry = compute_own_output_exclusions(str(log_file), str(tmp_path))
+
+        assert is_own_output(str(log_file), registry)
+        assert is_own_output(str(log_file.parent / "LinkWatcherStdout.txt"), registry)
+        assert is_own_output(str(log_file.parent / "nested" / "any.txt"), registry)
+        assert not is_own_output(str(tmp_path / "logs" / "other" / "x.txt"), registry)
+        assert not is_own_output(str(tmp_path / "readme.md"), registry)
+
+    def test_log_in_project_root_excludes_only_rotation_family(self, tmp_path):
+        from linkwatcher.utils import compute_own_output_exclusions, is_own_output
+
+        log_file = tmp_path / "LinkWatcherLog.txt"
+        registry = compute_own_output_exclusions(str(log_file), str(tmp_path))
+
+        # Never exclude the whole project — only the log + rotation siblings
+        assert is_own_output(str(log_file), registry)
+        assert is_own_output(str(tmp_path / "LinkWatcherLog_20260612-090000.txt"), registry)
+        assert not is_own_output(str(tmp_path / "LinkWatcherLogbook.txt"), registry)
+        assert not is_own_output(str(tmp_path / "readme.md"), registry)
+        assert not is_own_output(str(tmp_path / "notes" / "a.md"), registry)
+
+    def test_no_file_logging_excludes_nothing(self, tmp_path):
+        from linkwatcher.utils import compute_own_output_exclusions, is_own_output
+
+        registry = compute_own_output_exclusions(None, str(tmp_path))
+        assert not is_own_output(str(tmp_path / "anything.txt"), registry)

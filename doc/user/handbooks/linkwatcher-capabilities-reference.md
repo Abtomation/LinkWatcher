@@ -133,6 +133,19 @@ Three detection strategies:
 - Scanned for links if extension is in `monitored_extensions`
 - Links added to internal database
 
+### File Modifications
+
+- Edits to existing monitored files (by any tool: editors, scripts, generators) trigger a re-index of that file's links in the internal database
+- Database-only — a modification never rewrites files; only moves/renames trigger reference updates
+- Ensures links freshly written into an existing file are known when their target later moves (PD-BUG-102)
+
+### Own-Output Exclusion
+
+- The daemon never indexes or reacts to its own output files (PD-BUG-107): the exclusion zone is the parent directory of the effective `--log-file`, announced at startup via the `own_output_excluded` log event
+- Covers the active log, timestamp-rotated siblings, and any colocated files (the standard launcher redirects stdout/stderr and writes validation reports into the same directory — keep new daemon outputs colocated to inherit the exclusion)
+- If the log file sits directly in the project root, only the log and its rotation siblings are excluded — never the whole project
+- Log rotation renames are not treated as file moves: documents referencing the stable log path are not rewritten
+
 ## Validation Mode (`--validate`)
 
 - **Read-only** — no file modifications
@@ -161,7 +174,7 @@ Keys referenced by the capability sections above (full schema with all settings 
 
 | Setting | Default | Purpose |
 |---------|---------|---------|
-| `monitored_extensions` | 24 extensions | Which file types to watch |
+| `monitored_extensions` | 33 extensions | Which file types to watch |
 | `enable_*_parser` | all true | Toggle individual parsers |
 | `move_detect_delay` | 10s | Window for delete+create correlation |
 | `create_backups` | false | Create `.bak` before updates |

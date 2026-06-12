@@ -128,6 +128,10 @@ def _apply_logging_config(args, config: LinkWatcherConfig):
         level = LogLevel(config.log_level)
 
     log_file = args.log_file or config.log_file
+    # PD-BUG-107: persist the effective log path on the config — the
+    # service and handler derive their own-output exclusion zone from it
+    # (load_config never merges args.log_file).
+    config.log_file = log_file
 
     return setup_logging(
         level=level,

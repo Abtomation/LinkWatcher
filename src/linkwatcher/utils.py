@@ -103,6 +103,69 @@ def should_ignore_directory(dir_path: str, ignored_dirs: Set[str]) -> bool:
     return dir_name in ignored_dirs
 
 
+def compute_own_output_exclusions(log_file: Optional[str], project_root: str) -> dict:
+    """Build the daemon's own-output exclusion registry (PD-BUG-107).
+
+    The daemon must never index or react to files it writes itself:
+    indexed log lines make moves rewrite log history, and with the
+    on_modified rescan (PD-BUG-102) each rescan's own log write fires the
+    next modify event — a self-sustaining loop. ``ignored_directories``
+    cannot cover this (a ``linkwatcher`` basename entry would also
+    exclude ``src/linkwatcher``), so the zone is derived from the
+    effective log file instead:
+
+    - Normally the log file's parent directory is excluded. The standard
+      launcher colocates all daemon outputs there (rotated logs,
+      stdout/stderr redirects, validation reports), so one prefix covers
+      them all.
+    - If the log file sits directly in the project root, only the log
+      file and its rotation siblings (``<base>_*<ext>``) are excluded —
+      never the whole project.
+
+    Future extensions that write additional daemon outputs to other
+    locations register them by adding entries to the returned registry
+    (``dirs`` for directories, ``file_stems`` for ``(dir, base, ext)``
+    rotation families).
+
+    Returns:
+        Registry dict ``{"dirs": set[str], "file_stems": set[tuple]}``
+        with normalized absolute paths; both sets are empty when there
+        is no file logging.
+    """
+    registry = {"dirs": set(), "file_stems": set()}
+    if not log_file:
+        return registry
+    abs_log = os.path.normcase(os.path.abspath(log_file))
+    log_dir = os.path.dirname(abs_log)
+    root = os.path.normcase(os.path.abspath(project_root))
+    if log_dir == root:
+        base, ext = os.path.splitext(os.path.basename(abs_log))
+        registry["file_stems"].add((log_dir, base, ext))
+    else:
+        registry["dirs"].add(log_dir)
+    return registry
+
+
+def is_own_output(path: str, registry: dict) -> bool:
+    """Check whether *path* falls in the own-output exclusion registry
+    built by :func:`compute_own_output_exclusions` (PD-BUG-107)."""
+    if not (registry["dirs"] or registry["file_stems"]):
+        return False
+    abs_path = os.path.normcase(os.path.abspath(path))
+    for excluded_dir in registry["dirs"]:
+        if abs_path == excluded_dir or abs_path.startswith(excluded_dir + os.sep):
+            return True
+    path_dir = os.path.dirname(abs_path)
+    path_name = os.path.basename(abs_path)
+    for stem_dir, base, ext in registry["file_stems"]:
+        if path_dir != stem_dir or not path_name.endswith(ext):
+            continue
+        # The log file itself or a rotation sibling (<base>_<timestamp><ext>)
+        if path_name == base + ext or path_name.startswith(base + "_"):
+            return True
+    return False
+
+
 def normalize_path(path: str) -> str:
     """
     Normalize a path for consistent comparisons.

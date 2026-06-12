@@ -89,8 +89,11 @@ Guards the config schema's documentation surfaces against drift. `LinkWatcherCon
 | Guide Full Reference | Default accuracy | `test_guide_full_reference_scalar_defaults_match` — shown bool/int/float/str defaults equal code defaults | None (reads real guide) |
 | WIP template | Key validity | `test_wip_template_keys_are_valid_config_fields` — template keys ⊆ config fields | None (reads real template) |
 | Detection mechanism | Self-check | `test_drift_detection_catches_a_removed_key` — doctored copy with removed key is flagged | None (doctored in-memory copy) |
+| Guide Full Reference | Set-default accuracy (PD-BUG-103) | `test_guide_ignored_directories_values_match_code_default`, `test_guide_monitored_extensions_values_match_code_default` — set equality (flags both stale extras and omissions) | None (reads real guide) |
 
-**Test File**: [`test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py) — 5 test methods in `TestConfigSchemaDrift`
+**Test File**: [`test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py`](../../automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py) — 7 test methods in `TestConfigSchemaDrift`
+
+> **Single-source-of-truth guard (PD-BUG-103 root cause)**: `DEFAULT_CONFIG` (defaults.py) previously re-declared the default sets and diverged from the dataclass defaults runtime documentation assumed. `test_default_config_equals_dataclass_defaults` in `test_config.py` asserts field-for-field equality so the two can never diverge again.
 
 ### Integration Tests
 

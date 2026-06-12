@@ -6,6 +6,9 @@
 # (logs + .linkwatcher-ignore) under <project>/logs/linkwatcher/. The flat single-
 # directory layout (no nested logs/ subdir) is the post-Phase-5 home; replaces
 # the legacy process-framework-local/tools/linkWatcher/ location.
+# The daemon is started with --config <project>/tools/linkwatcher/linkwatcher-config.yaml
+# when that file exists (PF-IMP-1115, 2026-06-11), so live monitoring honors
+# per-project settings (e.g. ignored_directories — PD-BUG-105); absent → no --config.
 #
 # Testing notes (handle-inheritance gotcha for subprocess callers):
 #
@@ -71,13 +74,18 @@ function Get-LinkWatcherArguments {
     # PF-IMP-967: build the daemon argument string. --debug is opt-in (it used to be
     # hardcoded), so the default session-start path no longer floods and rapidly
     # rotates the log — the condition that fed the multi-instance rotation storm.
+    # PF-IMP-1115: optional -ConfigFile appends --config so the daemon honors the
+    # per-project linkwatcher-config.yaml (e.g. ignored_directories — PD-BUG-105).
+    # Pure (no filesystem access): the caller decides whether the config exists.
     param(
         [Parameter(Mandatory)][string]$MainPy,
         [Parameter(Mandatory)][string]$ProjectRoot,
         [Parameter(Mandatory)][string]$LogFile,
+        [string]$ConfigFile,
         [switch]$DebugLogging
     )
     $argStr = "$MainPy --project-root `"$ProjectRoot`" --log-file `"$LogFile`""
+    if ($ConfigFile) { $argStr += " --config `"$ConfigFile`"" }
     if ($DebugLogging) { $argStr += " --debug" }
     return $argStr
 }
@@ -269,7 +277,19 @@ if (-not (Test-Path $logsDir)) {
 $logFile = Join-Path $logsDir "LinkWatcherLog.txt"
 $stdoutLog = Join-Path $logsDir "LinkWatcherStdout.txt"
 $stderrLog = Join-Path $logsDir "LinkWatcherError.txt"
-$arguments = Get-LinkWatcherArguments -MainPy $lwMainPy -ProjectRoot $projectRoot -LogFile $logFile -DebugLogging:$DebugLogging
+
+# PF-IMP-1115: pass the per-project config to the daemon when it exists, so live
+# monitoring honors per-project settings (e.g. ignored_directories — PD-BUG-105).
+# Mirrors run_linkwatcher_validate.ps1's convention; absent file → no --config,
+# identical behavior to before (backward-compatible). The config is NOT created
+# here — its lifecycle is owned by Project Initiation / per-project migrations.
+$lwConfigFile = Join-Path $projectRoot "tools\linkwatcher\linkwatcher-config.yaml"
+$cfgArg = if (Test-Path $lwConfigFile) { $lwConfigFile } else { $null }
+if ($cfgArg) {
+    Write-Host "Using per-project config: $lwConfigFile" -ForegroundColor Cyan
+}
+
+$arguments = Get-LinkWatcherArguments -MainPy $lwMainPy -ProjectRoot $projectRoot -LogFile $logFile -ConfigFile $cfgArg -DebugLogging:$DebugLogging
 
 $process = Start-Process -FilePath $lwVenvPython -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
 

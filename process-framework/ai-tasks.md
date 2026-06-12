@@ -6,7 +6,7 @@
 | ------------- | ----------------------- |
 | Document Type | Task System Entry Point |
 | Created Date  | 2025-05-26              |
-| Last Updated  | 2026-06-03              |
+| Last Updated  | 2026-06-11              |
 | Version       | 3.2                     |
 | Status        | Active                  |
 
@@ -465,22 +465,21 @@ Need to track something new? Use the [State File Template](templates/support/sta
 1. ✅ **🚨 Select a task FIRST** — Task selection must be your **very first action** after reading the user's request. Do not explore code, read files, or begin any work until a task is selected from this document. Even "simple" fixes require a task framework.
 2. ✅ **Execute [.ai-entry-point.md](.ai-entry-point.md) as a startup procedure** — This is not passive context. Actively run through its checklist (task selection + task-definition read; LinkWatcher and timestamp are hook-emitted) before responding to the user.
 3. ✅ **Read the COMPLETE task definition** including completion checklist — understand the full scope before starting
-4. ✅ **Adopt the assigned AI Agent Role** specified in the task definition for optimal task execution
-5. ✅ **Understand ALL required outputs** (not just primary deliverables)
-6. ✅ **Note feedback form requirements** BEFORE starting work
+4. ✅ **Understand ALL required outputs** (not just primary deliverables)
+5. ✅ **Note feedback form requirements** BEFORE starting work
 
 ### DURING Task Execution:
 
-7. ✅ **Follow the task process step-by-step in order (Read-Do)** — Don't execute from memory or a summary. After reading the task definition, **seed a faithful per-step checklist** — one item per numbered step *and* sub-step, transcribed 1:1, never grouped or summarized. Then work **one step at a time**: re-read the step in the definition (the checklist says *which* step; the definition says *what to do*), do it, and give it an explicit disposition — `done` / `skipped (reason)` / `N-A (reason)`. No step is silently dropped. Human-checkpoint steps **block**: present findings and wait for approval before checking them off.
-8. ✅ **Always use automation scripts** when referenced by a task (never create tracked files manually). Scripts update surrounding infrastructure (ID registries, tracking files, counters) that manual edits miss, causing inconsistencies.
-9. ✅ **If a script fails**: Report the error → diagnose and fix the script → re-run the fixed script. Never bypass a broken script by manually creating files — fix the script first.
-10. ✅ **Update state files** as you progress through the work
+6. ✅ **Follow the task process step-by-step in order (Read-Do)** — Don't execute from memory or a summary. After reading the task definition, **seed a faithful per-step checklist** — one item per numbered step *and* sub-step, transcribed 1:1, never grouped or summarized. Then work **one step at a time**: re-read the step in the definition (the checklist says *which* step; the definition says *what to do*), do it, and give it an explicit disposition — `done` / `skipped (reason)` / `N-A (reason)`. No step is silently dropped. Human-checkpoint steps **block**: present findings and wait for approval before checking them off.
+7. ✅ **Always use automation scripts** when referenced by a task (never create tracked files manually). Scripts update surrounding infrastructure (ID registries, tracking files, counters) that manual edits miss, causing inconsistencies.
+8. ✅ **If a script fails**: Report the error → diagnose and fix the script → re-run the fixed script. Never bypass a broken script by manually creating files — fix the script first.
+9. ✅ **Update state files** as you progress through the work
 
 ### BEFORE Claiming Task Completion:
 
-11. ✅ **Verify ALL outputs by re-reading files, and reconcile the per-step checklist** — Do not rely on memory. Re-read state tracking files and grep for `- [ ]` / `PENDING` / `NOT_STARTED` to confirm nothing was missed. Then walk the per-step checklist from item 7 and confirm every step carries an explicit disposition — `done` / `skipped (reason)` / `N-A (reason)`. "I think I'm finished" is not a stop condition; "every step accounted for" is.
-12. ✅ **Complete ALL items** in the mandatory completion checklist — every checkbox, every state file update, every linked document
-13. ✅ **Complete feedback forms** for all tools used during the task — do not solicit human feedback; leave the "Human User Feedback" section for the human partner to fill after the session
+10. ✅ **Verify ALL outputs by re-reading files, and reconcile the per-step checklist** — Do not rely on memory. Re-read state tracking files and grep for `- [ ]` / `PENDING` / `NOT_STARTED` to confirm nothing was missed. Then walk the per-step checklist from item 6 and confirm every step carries an explicit disposition — `done` / `skipped (reason)` / `N-A (reason)`. "I think I'm finished" is not a stop condition; "every step accounted for" is.
+11. ✅ **Complete ALL items** in the mandatory completion checklist — every checkbox, every state file update, every linked document
+12. ✅ **Complete feedback forms** for all tools used during the task — do not solicit human feedback; leave the "Human User Feedback" section for the human partner to fill after the session
 
 ---
 

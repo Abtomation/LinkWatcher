@@ -119,15 +119,13 @@ graph TD
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PD-BUG-102 | Move of recently-linked file misses reference update (no_references_found) | 🆕 Needs Triage | Medium |  | 2026-06-10 | A markdown link freshly written into test-tracking.md was not rewritten when its target file was moved ~6 minutes later. The move itself was detected (move_detected via delete+create correlation) but file_moved ran with references_count=0 / no_references_found - the fresh link was absent from the in-memory database. Suspected gap: links added by an external modification shortly before a move are not indexed before the move resolves. | 1.1.1 |  |  | Source: Development; Environment: Development; Component: Handler/Database; Repro: 1. With LinkWatcher running, create file A (test/automated/unit/test_configschemadrift.py). 2. Write a markdown link to A into an existing monitored .md file (test/state-tracking/permanent/test-tracking.md, written by New-TestFile.ps1). 3. A few minutes later, move A to another directory with the same basename (Move-Item). 4. Observe move_detected followed by no_references_found in the log; the link in the .md file is not rewritten.; Expected: The modify event on test-tracking.md indexes the new link into the database; the subsequent move of the target rewrites the link to the new path.; Actual: Move processed with references_count=0 (no_references_found warning); link left pointing at the old path; manual repair required.; Evidence: logs/linkwatcher/LinkWatcherLog_20260610-215218.txt 2026-06-10 14:27:46-14:28:16 (file_created old path, file_deleted, move_detect_match result=matched, move_detected, file_moved references_count=0, no_references_found); discovered during PF-TSK-068 session for PF-STA-108; Second instance same day 14:44: a 30-minute-old link in feature-tracking.md (written 14:13 via Update-FeatureTrackingStatus) was not rewritten when its target state file moved to temporary/old/ (Finalize-Enhancement.ps1) — weakens the freshly-written-race hypothesis; modify-event rescan of externally edited .md files may be missing entirely |
-| PD-BUG-105 | Project daemon interferes with scoped E2E workspace daemons - 6 E2E cases fail | 🆕 Needs Triage | Medium |  | 2026-06-10 | The project's LinkWatcher daemon watches test/e2e-acceptance-testing/*/workspace/ and applies default-config live updates over the scoped per-test daemons. Every E2E case whose expectation differs from a plain live update fails (dry-run, ignore rules, monitored extensions, backups, startup excludes, dir rename): TE-E2E-011/015/019/023/024/025; WF-002/003/006/007 now Failing. Likely surfaced by PD-BUG-100 lock change allowing per-project-root coexistence. | N/A |  |  | Source: E2ETesting; Environment: Development; Component: E2E Test Harness; Repro: Run-E2EAcceptanceTest.ps1 -TestCase TE-E2E-019 -Workflow dry-run-mode-preview-without-changes with the project daemon running; compare workspace docs/readme.md against expected (unchanged); Expected: Scoped workspace daemons are the only writers inside their test workspace during E2E execution; Actual: Project daemon concurrently updates workspace files with default config, overriding dry-run/ignore/backup expectations. Candidate fixes: exclude e2e workspace dirs from project daemon scope, or harness pauses project daemon during runs; Evidence: logs/linkwatcher/LinkWatcherLog.txt 22:03 entries with e2e-acceptance-testing paths; TE-E2E-019 workspace link rewritten despite dry-run |
-| PD-BUG-106 | install_global.py venv rebuild fails when another project's daemon holds the shared venv | 🆕 Needs Triage | Medium |  | 2026-06-10 | stop_running_linkwatcher() only stops the daemon of the source project (via its .linkwatcher.lock). Daemons of other projects (e.g. appdev) run from the same shared ~/bin/.linkwatcher-venv and lock its python.exe, so the venv recreation step fails with Permission denied and the install exits 1 mid-flow (files copied, but no venv/wrapper/smoke-test). Hit during the v2.1.1 release. | N/A |  |  | Source: Development; Environment: Development; Component: Deployment; Repro: Start a LinkWatcher daemon for any other project (runs from ~/bin/.linkwatcher-venv python), then run python deployment/install_global.py from the source repo; Expected: Installer stops (or detects and reports) all daemons running from the install dir venv before rebuilding it, then completes; Actual: Errno 13 Permission denied on .linkwatcher-venv/Scripts/python.exe; install aborts after file copy, before venv/wrappers/smoke test; Evidence: v2.1.1 deploy 2026-06-10: first install run exit 1; appdev daemon PID 25200 held the venv python |
+| _No medium priority bugs currently active_ |
 
 ### Low Priority Bugs
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PD-BUG-103 | Config guide Full Reference ignored_directories list drifted from code default | 🆕 Needs Triage | Low |  | 2026-06-10 | configuration-guide.md Full Reference (claims to be the complete config with all defaults) shows an ignored_directories default that does not match LinkWatcherConfig.ignored_directories in settings.py. Users get a wrong picture of which directories LinkWatcher skips. Not caught by the drift-guard test, which compares set/dict defaults by key presence only (see TD261). | 0.1.3 |  |  | Source: TestAudit; Environment: Development; Component: Documentation; Repro: 1. Open doc/user/handbooks/configuration-guide.md -> 2. Find the ### Full Reference YAML block -> 3. Read the ignored_directories list -> 4. Compare against LinkWatcherConfig.ignored_directories default in src/linkwatcher/config/settings.py (lines 86-100); Expected: Guide ignored_directories list matches code default exactly: .git, .dart_tool, node_modules, .vscode, build, dist, __pycache__, tests, linkWatcher; Actual: Guide lists .pytest_cache, coverage, docs/_build, target, bin, obj instead, and omits linkWatcher and tests; Evidence: Test Audit report TE-TAR-075: test/audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-3-test-configschemadrift.md |
+| _No low priority bugs currently active_ |
 
 ## Closed Bugs
 
@@ -139,12 +137,12 @@ graph TD
 
 ### Current Status Summary
 
-- **Total Active Bugs**: 4
+- **Total Active Bugs**: 0
 - **Critical**: 0
 - **High**: 0
-- **Medium**: 3 (PD-BUG-102)
-- **Low**: 1 (PD-BUG-103)
-- **All Triaged**: Yes
+- **Medium**: 0
+- **Low**: 0
+- **All Triaged**: Yes (PD-BUG-107 and PD-BUG-108 triaged 2026-06-12)
 
 ---
 

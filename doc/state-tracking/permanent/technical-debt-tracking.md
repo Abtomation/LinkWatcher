@@ -4,7 +4,7 @@ type: Process Framework
 category: State Tracking
 version: 1.2
 created: 2025-06-15
-updated: 2026-06-10
+updated: 2026-06-12
 ---
 
 # Technical Debt Tracker
@@ -36,6 +36,7 @@ Technical debt items are tagged with **Primary Dimension** using the standard ab
 | ----- | ---------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------- | ------------ | -------- | ---------------- | ----------- | --------------- | ------------- | --------- | ---------------------------------------------------------------------------------------------------- |
 | TD260 | No automated end-to-end regression that two near-simultaneous daemon starts yield exactly one daemon per project root. PD-BUG-100's tests pin the launcher cleanup decision (TE-TST-135) and the release_lock/launcher lock-preservation decision in isolation, not the real concurrent-start to single-daemon outcome (the bug's literal symptom). | TST DI | process-framework/tools/linkWatcher/start_linkwatcher_background.ps1 + main.py acquire_lock (concurrent-start path) | 2026-06-08 | Low | M (~3-5h; concurrency harness is flaky-prone) | Open | - | - | - | Surfaced in PD-BUG-100 code review (PF-TSK-005) 2026-06-08; author pinned the precise defective decision instead of building the harness. Cross-ref PD-BUG-100 (Closed). |
 | TD261 | Config schema drift guard (test_configschemadrift.py, TE-TST-136) compares set/dict-valued defaults by key presence only, not value — missing a fully-inlined-list value check. Currently masks live drift in configuration-guide.md ignored_directories vs LinkWatcherConfig default. Extend guard to value-compare set/dict defaults for guide fields listed without an abbreviation marker. | TST | test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_configschemadrift.py | 2026-06-10 | Low | Small | Open | - | - | - | Surfaced by Test Audit TE-TAR-075 (feature 0.1.3). Routed to PF-TSK-022 (test-only Lightweight path). |
+| TD262 | rescan_file_links() is not atomic: it removes a file's DB links, then parses, with each DB call acquiring the lock separately (reference_lookup.py:243). A parse failure (e.g. transiently locked file on Windows) leaves the file's links absent until the next modify event; a timer-thread move processed in the remove/re-add window can miss that file's references. Pre-existing, but the PD-BUG-102 on_modified rescan raises invocation frequency from rare (move pipeline) to every external save. Fix shape: parse first, then swap old/new link sets under a single lock acquisition. | DI | src/linkwatcher/reference_lookup.py | 2026-06-12 | Low | S | Open | - | - | - | Discovered during PD-BUG-102 code review 2026-06-12 |
 
 ## Recently Resolved Technical Debt
 

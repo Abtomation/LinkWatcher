@@ -74,7 +74,7 @@ graph TD
 1. **`watchdog.Observer`** (daemon thread scheduled by `service.start()` at [service.py:121-123](src/linkwatcher/service.py#L121-L123)) dispatches one of: a native `FileMovedEvent(src_path, dest_path, is_directory=False)`, or a `FileDeletedEvent` followed later by a `FileCreatedEvent`.
    - Passes to next: watchdog event objects delivered to the corresponding `FileSystemEventHandler` override on `LinkMaintenanceHandler`.
 
-2. **`LinkMaintenanceHandler.on_moved()` / `on_deleted()` / `on_created()`** ([handler.py:248](src/linkwatcher/handler.py#L248), [:271](src/linkwatcher/handler.py#L271), [:302](src/linkwatcher/handler.py#L302)) receive the event.
+2. **`LinkMaintenanceHandler.on_moved()` / `on_deleted()` / `on_created()`** ([handler.py:248](src/linkwatcher/handler.py#L248), [:271](src/linkwatcher/handler.py#L271), [:302](src/linkwatcher/handler.py#L302)) receive the event. (A fourth override, `on_modified()`, re-indexes links written into existing files by external tools — PD-BUG-102 — keeping the database current so the reference lookup in step 4 finds fresh links; it is database-only and not part of the move flow itself.)
    - Phase 0: if `_scan_complete` is clear, call `_defer_event()` and return (PD-BUG-053 — events during the initial scan are queued and replayed after `notify_scan_complete()`).
    - Filter: `_should_monitor_file(path)` (extension + ignored-dir check) OR `_is_known_reference_target(path)` (PD-BUG-046, via `LinkDatabase.has_target_with_basename()` for non-monitored targets of existing references).
    - Native move route: `on_moved()` calls `_handle_file_moved(event)` directly.

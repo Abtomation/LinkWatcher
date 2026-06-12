@@ -37,7 +37,7 @@
         "templates": "test/e2e-acceptance-testing",
         "default": "templates"
       },
-      "nextAvailable": 29
+      "nextAvailable": 30
     },
     "TE-TSP": {
       "description": "Test - Test Specifications",
@@ -83,7 +83,7 @@
         "unit": "test/automated/unit",
         "default": "unit"
       },
-      "nextAvailable": 138
+      "nextAvailable": 140
     },
     "BM": {
       "description": "Performance - Benchmark Tests (Component Level 1, Operation Level 2)",

@@ -67,22 +67,56 @@ class LinkWatcherConfig:
     """
 
     # File monitoring settings
+    # Single source of truth for the default schema values (PD-BUG-103) —
+    # DEFAULT_CONFIG in defaults.py is instantiated from these, never
+    # re-declared.
     monitored_extensions: Set[str] = field(
         default_factory=lambda: {
+            # Documentation and text files
             ".md",
+            ".txt",
             ".yaml",
             ".yml",
-            ".dart",
-            ".py",
             ".json",
-            ".txt",
+            ".xml",
+            ".csv",
+            # Web development files
+            ".html",
+            ".htm",
+            ".css",
+            ".js",
+            ".ts",
+            ".jsx",
+            ".tsx",
+            ".vue",
+            ".php",
+            # Image files (commonly referenced)
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".svg",
+            ".webp",
+            ".ico",
+            # Document files
+            ".pdf",
+            # Source code files (project-specific, but commonly referenced)
+            ".py",
+            ".dart",
             ".ps1",
             ".psm1",
+            # Script and config files (PD-BUG-058)
             ".bat",
             ".toml",
+            # Media files (commonly referenced in documentation)
+            ".mp4",
+            ".mp3",
+            ".wav",
         }
     )
 
+    # Entries are matched per path component (basename), see
+    # FileEventHandler._is_in_ignored_directory and should_monitor_file.
     ignored_directories: Set[str] = field(
         default_factory=lambda: {
             ".git",
@@ -92,8 +126,13 @@ class LinkWatcherConfig:
             "build",
             "dist",
             "__pycache__",
+            ".pytest_cache",
+            "coverage",
+            "target",
+            "bin",
+            "obj",
             "tests",
-            # Matched as a basename — covers process-framework/tools/linkWatcher
+            # Covers process-framework/tools/linkWatcher
             # (shareable framework asset, intentionally static)
             "linkWatcher",
         }

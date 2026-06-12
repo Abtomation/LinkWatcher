@@ -213,7 +213,11 @@ The handler delegates move detection to two specialized detector modules, each i
 ```
 OS Event          Handler Method        Routing Logic
 ---------         --------------        -------------
-                                        Phase 0 (all three handlers): if not _scan_complete → _defer_event() and return (PD-BUG-053)
+                                        Phase 0 (all four handlers): if not _scan_complete → _defer_event() and return (PD-BUG-053)
+                                        Phase 0b (all four handlers): if _is_in_ignored_directory (PD-BUG-105) or _is_own_output (PD-BUG-107) → return
+                                           (on_moved checks _is_own_output on BOTH sides so log rotation is never treated as a move)
+                                           (on_moved src-ignored: _index_move_out_of_ignored() first (PD-BUG-108) — a dest outside ignored/own-output
+                                            zones is indexed like a creation, DB-only, move detectors bypassed; then return)
 
 FileMovedEvent  → on_moved()          → directory? → _handle_directory_moved()
                                         file (monitored OR _is_known_reference_target)? → _handle_file_moved()
@@ -225,15 +229,20 @@ FileCreatedEvent→ on_created()        → _dir_move_detector.match_created_fil
                                         _move_detector.match_created_file()     → callback → _handle_detected_move()
                                         neither                                 → scan new file
                                         Note: also processes creates for non-monitored files when move_detector.has_pending (PD-BUG-046)
+FileModifiedEvent→ on_modified()      → file, monitored, exists, not in ignored dir? → rescan_file_links()
+                                        Re-indexes links written into an EXISTING file by external tools (PD-BUG-102).
+                                        DB-only (never writes files); serial dispatch guarantees the rescan lands before any later move event.
 ErrorEvent      → on_error()          → log watchdog_error, increment errors stat (prevents silent observer thread death)
 Worker thread   → MoveDetector._expiry_worker()                → callback → _process_true_file_delete() → if file exists: rescan (PD-BUG-035)
 Timer callback  → DirectoryMoveDetector._process_dir_move_settled()  → process batch with unmatched files
 Timer callback  → DirectoryMoveDetector._process_dir_move_timeout()  → fallback: process or treat as true delete
 ```
 
-**Event deferral** (PD-BUG-053): `LinkWatcherService` calls `begin_event_deferral()` before the initial scan, then `notify_scan_complete()` after. During the deferral window, all three event handlers (`on_moved`, `on_deleted`, `on_created`) queue events in `_deferred_events` (protected by `_deferred_lock`) instead of processing them. On scan completion, queued events are replayed in arrival order. This prevents move detection against an incomplete link database.
+**Event deferral** (PD-BUG-053): `LinkWatcherService` calls `begin_event_deferral()` before the initial scan, then `notify_scan_complete()` after. During the deferral window, all four event handlers (`on_moved`, `on_deleted`, `on_created`, `on_modified`) queue events in `_deferred_events` (protected by `_deferred_lock`) instead of processing them. On scan completion, queued events are replayed in arrival order. This prevents move detection against an incomplete link database.
 
 **Non-monitored reference targets** (PD-BUG-046): `_is_known_reference_target(abs_path)` checks if a file's basename appears as a target key in the link database via `has_target_with_basename()`. This allows moves/deletes of non-monitored files (e.g., `.png`, `.pdf`) to be detected when they are referenced by monitored files.
+
+**Own-output exclusion** (PD-BUG-107): the daemon must never index or react to files it writes itself — indexed log lines make moves rewrite log history, and with the `on_modified` rescan every rescan's own log write would fire the next modify event (self-sustaining loop). `compute_own_output_exclusions()` (utils) derives the exclusion zone from the effective `--log-file` at startup: normally the log's parent directory (the launcher colocates rotated logs, stdout/stderr redirects, and validation reports there); if the log sits in the project root, only the log + rotation siblings (`<base>_*<ext>`). Enforced as a hard boundary like PD-BUG-105: `_is_own_output()` guards all four event entry points (so the PD-BUG-046 bypass cannot re-admit own files), and `_initial_scan()` prunes the zone from the walk. Announced at startup via the `own_output_excluded` log event. A `linkwatcher` entry in `ignored_directories` was rejected as the fix: basename matching would also exclude `src/linkwatcher`.
 
 **Directory move detection on Windows** (PD-BUG-019): Windows watchdog fires `FileDeletedEvent` (with `is_directory=False`) for directory deletes, followed by individual `FileCreatedEvent` for each file. The `DirectoryMoveDetector` detects this via database lookup (`get_files_under_directory`) and routes to a 3-phase batch pipeline:
 - **Phase 1 (Detect)**: Buffer known files in `_PendingDirMove`, start 300s max timer only
@@ -546,7 +555,7 @@ No outstanding implementation work. TD005 and TD009 resolved. PD-BUG-019 verifie
 - **4-module architecture** (TD005/TD022): Handler decomposed into coordinator (`handler.py`) + two detector modules (`move_detector.py`, `dir_move_detector.py`) + reference lookup module (`reference_lookup.py`) communicating via callbacks and composition
 - **Timer-based move detection** (10-second buffer) chosen over immediate delete processing to reliably detect cross-tool per-file moves
 - **Batch directory move detection** (PD-BUG-019) uses 3-phase approach with 300s max timer + 5s settle timer + count-based completion
-- **No `on_modified` override** is the explicit design decision — content changes are intentionally out of scope
+- **`on_modified` re-indexes externally edited files** (PD-BUG-102, reversing the original no-override decision) — DB-only rescan so freshly written links are known before a later move; paired with the own-output exclusion (PD-BUG-107) so the daemon's own log writes never feed the rescan
 - **Per-file exception handling** in directory moves ensures partial failures don't abort the full pipeline
 - **`normalize_path(dir) + "/"`** pattern (not `normalize_path(dir + "/")`) required because `os.path.normpath` strips trailing slashes
 - **Shared stale-reference retry** (TD009): Single `_retry_stale_references()` method used by both per-file and directory move pipelines

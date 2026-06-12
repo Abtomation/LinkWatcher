@@ -12,6 +12,8 @@ Usage:
 """
 
 import argparse
+import platform
+import re
 import shutil
 import signal
 import subprocess
@@ -70,6 +72,105 @@ def stop_running_linkwatcher(project_root):
         lock_file.unlink(missing_ok=True)
     except OSError:
         pass
+
+
+def parse_daemon_lines(output):
+    """Parse 'PID|CommandLine' lines from the daemon enumeration query.
+
+    Tolerates blank lines and malformed entries (skipped) so a noisy
+    PowerShell stdout can never crash the install.
+    """
+    processes = []
+    for line in output.splitlines():
+        line = line.strip()
+        if not line or "|" not in line:
+            continue
+        pid_part, _, cmdline = line.partition("|")
+        try:
+            pid = int(pid_part)
+        except ValueError:
+            continue
+        processes.append((pid, cmdline.strip()))
+    return processes
+
+
+def project_root_from_cmdline(cmdline):
+    """Extract the --project-root value from a daemon command line, or None."""
+    match = re.search(r'--project-root\s+"([^"]+)"', cmdline)
+    return match.group(1) if match else None
+
+
+def find_venv_daemon_processes(venv_dir):
+    """Find ALL processes running from the install-dir venv (PD-BUG-106).
+
+    Lock files only cover the source project's daemon; daemons started for
+    other projects run from the same shared venv and are found here by
+    executable path (covers python.exe and pythonw.exe). Returns a list of
+    (pid, command_line); empty on any query failure (best-effort — the
+    venv_python_locked pre-flight gate is the safety net).
+    """
+    ps_script = (
+        "Get-CimInstance Win32_Process | "
+        f"Where-Object {{ $_.ExecutablePath -like '{venv_dir}*' }} | "
+        'ForEach-Object { "$($_.ProcessId)|$($_.CommandLine)" }'
+    )
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", ps_script],
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return []
+    if result.returncode != 0:
+        return []
+    return parse_daemon_lines(result.stdout)
+
+
+def stop_daemons_using_venv(install_dir):
+    """Stop every LinkWatcher daemon running from the install-dir venv (PD-BUG-106).
+
+    Windows locks the executable of a running process, so any daemon running
+    from <install_dir>/.linkwatcher-venv blocks the venv rebuild with
+    Permission denied. taskkill /T tree-kills: the venv-shim parent spawns a
+    base-interpreter child that must go down with it. Stopped daemons restart
+    at the next session start of their project; stale lock files are
+    self-healed by daemon startup.
+    """
+    if platform.system() != "Windows":
+        return
+    venv_dir = install_dir / ".linkwatcher-venv"
+    if not venv_dir.exists():
+        return
+
+    for pid, cmdline in find_venv_daemon_processes(venv_dir):
+        subprocess.run(
+            ["taskkill", "/F", "/T", "/PID", str(pid)],
+            capture_output=True,
+        )
+        print(f"OK: Stopped LinkWatcher daemon using install venv (PID: {pid})")
+        project_root = project_root_from_cmdline(cmdline)
+        if project_root:
+            print(f"   Project: {project_root} (daemon restarts at next session start)")
+
+
+def venv_python_locked(install_dir):
+    """Pre-flight gate: is the venv python.exe still locked by a process?
+
+    Run AFTER stop_daemons_using_venv and BEFORE any files are copied — if a
+    process slipped past enumeration, aborting here leaves no partial install
+    state (the v2.1.1 failure mode aborted mid-flow: files copied, no
+    venv/wrappers/smoke test).
+    """
+    venv_python = install_dir / ".linkwatcher-venv" / "Scripts" / "python.exe"
+    if not venv_python.exists():
+        return False
+    try:
+        with venv_python.open("ab"):
+            pass
+        return False
+    except PermissionError:
+        return True
 
 
 def check_python_version():
@@ -365,6 +466,70 @@ def propagate_config_schema_signal(project_root):
         print(f"   WARNING: config-schema propagation step errored (non-fatal): {e}")
 
 
+def read_deployed_version(init_path):
+    """Parse __version__ from a linkwatcher __init__.py.
+
+    Returns the version string, or None if the file is unreadable or has no
+    __version__ line. Parsing (rather than importing) keeps this side-effect-free
+    and testable without an installed package.
+    """
+    try:
+        text = Path(init_path).read_text(encoding="utf-8")
+    except OSError:
+        return None
+    match = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', text, re.MULTILINE)
+    return match.group(1) if match else None
+
+
+def git_tags(project_root):
+    """Return the repo's git tags as a set, or None if git is unavailable.
+
+    A None result (not a repo, git not installed, command failed) suppresses the
+    release-tag warning — we only warn when we can affirmatively read the tags.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(project_root), "tag", "--list"],
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+
+def release_tag_missing(version, tags):
+    """Pure decision: should we warn about a missing release tag?
+
+    Returns True only when the version is known, the tag set is known, and no
+    'v<version>' tag is present. Returns False whenever either input is None — an
+    undeterminable state must never produce a spurious warning.
+    """
+    if not version or tags is None:
+        return False
+    return f"v{version}" not in tags
+
+
+def check_release_tag(project_root):
+    """Warn (non-fatal) if the version being deployed has no matching git tag.
+
+    The tag is created at release time, after the __version__ bump, so this is a
+    nudge at the deploy step — deliberately not a hard gate, since it must never
+    block a dev install of an as-yet-unreleased version. Mirrors the non-fatal
+    contract of propagate_config_schema_signal (PF-IMP-1106).
+    """
+    version = read_deployed_version(project_root / "src" / "linkwatcher" / "__init__.py")
+    if release_tag_missing(version, git_tags(project_root)):
+        print(
+            f"\nWARNING: deploying version {version} but no git tag 'v{version}' exists.\n"
+            f"   If this is a release, create and push the tag:\n"
+            f"       git tag v{version}\n"
+            f"       git push origin v{version}"
+        )
+
+
 def main():
     """Main installation function."""
     parser = argparse.ArgumentParser(description="Install LinkWatcher globally")
@@ -385,6 +550,16 @@ def main():
     print(f"Target:  {install_dir}")
 
     stop_running_linkwatcher(project_root)
+    stop_daemons_using_venv(install_dir)
+
+    if venv_python_locked(install_dir):
+        print(
+            "\nERROR: The install venv's python.exe is still locked by a running"
+            " process.\n"
+            f"   Check for processes running from: {install_dir / '.linkwatcher-venv'}\n"
+            "   No files were copied — the existing installation is unchanged."
+        )
+        sys.exit(1)
 
     if not check_python_version():
         sys.exit(1)
@@ -408,6 +583,8 @@ def main():
         sys.exit(1)
 
     propagate_config_schema_signal(project_root)
+
+    check_release_tag(project_root)
 
     print("\n" + "=" * 50)
     print("LinkWatcher installed successfully!")

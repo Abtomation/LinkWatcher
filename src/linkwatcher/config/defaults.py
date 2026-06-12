@@ -7,92 +7,11 @@ as a starting point or fallback.
 
 from .settings import LinkWatcherConfig
 
-# Default configuration instance
-DEFAULT_CONFIG = LinkWatcherConfig(
-    # File monitoring settings
-    monitored_extensions={
-        # Documentation and text files
-        ".md",  # Markdown files
-        ".txt",  # Text files
-        ".yaml",  # YAML files
-        ".yml",  # YAML files (alternative extension)
-        ".json",  # JSON files
-        ".xml",  # XML files
-        ".csv",  # CSV data files
-        # Web development files
-        ".html",  # HTML files
-        ".htm",  # HTML files (alternative extension)
-        ".css",  # CSS stylesheets
-        ".js",  # JavaScript files
-        ".ts",  # TypeScript files
-        ".jsx",  # React JSX files
-        ".tsx",  # React TypeScript JSX files
-        ".vue",  # Vue.js components
-        ".php",  # PHP files
-        # Image files (commonly referenced)
-        ".png",  # PNG image files
-        ".jpg",  # JPEG image files
-        ".jpeg",  # JPEG image files (alternative extension)
-        ".gif",  # GIF image files
-        ".svg",  # SVG image files (may contain links)
-        ".webp",  # WebP image files
-        ".ico",  # Icon files
-        # Document files
-        ".pdf",  # PDF documents
-        # Source code files (project-specific, but commonly referenced)
-        ".py",  # Python files
-        ".dart",  # Dart files
-        ".ps1",  # PowerShell scripts
-        ".psm1",  # PowerShell modules
-        # Script and config files (PD-BUG-058)
-        ".bat",  # Windows batch scripts
-        ".toml",  # TOML configuration files
-        # Media files (commonly referenced in documentation)
-        ".mp4",  # Video files
-        ".mp3",  # Audio files
-        ".wav",  # Audio files
-    },
-    ignored_directories={
-        ".git",  # Git repository data
-        ".dart_tool",  # Dart build tools
-        "node_modules",  # Node.js dependencies
-        ".vscode",  # VS Code settings
-        "build",  # Build output
-        "dist",  # Distribution files
-        "__pycache__",  # Python cache
-        ".pytest_cache",  # Pytest cache
-        "coverage",  # Coverage reports
-        "docs/_build",  # Documentation build
-        "target",  # Rust/Java build target
-        "bin",  # Binary files
-        "obj",  # Object files
-        "tests",  # Test files (prevent self-corruption)
-    },
-    # Parser settings - all enabled by default
-    enable_markdown_parser=True,
-    enable_yaml_parser=True,
-    enable_json_parser=True,
-    enable_dart_parser=True,
-    enable_python_parser=True,
-    enable_powershell_parser=True,
-    enable_generic_parser=True,
-    # Update behavior
-    create_backups=False,  # Create .bak files before updates (disabled by default)
-    dry_run_mode=False,  # Actually modify files
-    atomic_updates=True,  # Use temporary files for safe updates
-    # Performance settings
-    max_file_size_mb=10,  # Skip files larger than 10MB
-    initial_scan_enabled=True,  # Scan all files on startup
-    scan_progress_interval=50,  # Show progress every 50 files
-    # Logging settings
-    log_level="INFO",  # Standard logging level
-    colored_output=True,  # Use colors in console output
-    show_statistics=True,  # Show statistics on shutdown
-    # Move detection timing
-    move_detect_delay=10.0,  # Seconds to wait for matching create after delete
-    dir_move_max_timeout=300.0,  # Max seconds to wait for all directory files
-    dir_move_settle_delay=5.0,  # Seconds after last match before processing
-)
+# Default configuration instance — instantiated from the LinkWatcherConfig
+# dataclass defaults, which are the single source of truth for the schema
+# (PD-BUG-103: this module previously re-declared the default sets and
+# silently diverged from settings.py).
+DEFAULT_CONFIG = LinkWatcherConfig()
 
 # Configuration for different environments
 DEVELOPMENT_CONFIG = LinkWatcherConfig(

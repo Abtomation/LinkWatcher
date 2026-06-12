@@ -606,6 +606,26 @@ class TestDefaultConfigurations:
         config = LinkWatcherConfig()
         assert ".toml" in config.monitored_extensions
 
+    def test_default_config_equals_dataclass_defaults(self):
+        """Regression guard for PD-BUG-103 root cause: DEFAULT_CONFIG and the
+        LinkWatcherConfig dataclass defaults were two independently-maintained
+        default sources that diverged (ignored_directories, monitored_extensions).
+        The dataclass is the single source of truth; DEFAULT_CONFIG must not
+        re-declare different values for any field."""
+        import dataclasses
+
+        dataclass_defaults = LinkWatcherConfig()
+        diverged = [
+            f.name
+            for f in dataclasses.fields(LinkWatcherConfig)
+            if getattr(DEFAULT_CONFIG, f.name) != getattr(dataclass_defaults, f.name)
+        ]
+        assert not diverged, (
+            "DEFAULT_CONFIG diverged from LinkWatcherConfig dataclass defaults "
+            f"on fields: {diverged} — defaults must have a single source of truth "
+            "(PD-BUG-103)"
+        )
+
     def test_configs_are_independent(self):
         """Test that config instances are independent."""
         # Work on a copy to avoid polluting the singleton if this test fails

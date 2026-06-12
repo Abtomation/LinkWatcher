@@ -37,7 +37,12 @@ from .logging import LogTimer, get_logger, with_context
 from .parser import LinkParser
 from .parsers.base import BaseParser
 from .updater import LinkUpdater
-from .utils import get_relative_path, should_monitor_file
+from .utils import (
+    compute_own_output_exclusions,
+    get_relative_path,
+    is_own_output,
+    should_monitor_file,
+)
 
 
 class LinkWatcherService:
@@ -192,13 +197,23 @@ class LinkWatcherService:
         config = self.config if self.config else DEFAULT_CONFIG
         ignored_dirs = config.ignored_directories
         monitored_extensions = config.monitored_extensions
+        # PD-BUG-107: the daemon's own outputs (log + colocated files)
+        # must never be parsed into the link database.
+        own_output = compute_own_output_exclusions(config.log_file, str(self.project_root))
 
         for root, dirs, files in os.walk(self.project_root):
             # Skip ignored directories
             dirs[:] = [d for d in dirs if d not in ignored_dirs]
+            # PD-BUG-107: never descend into the own-output zone
+            dirs[:] = [d for d in dirs if not is_own_output(os.path.join(root, d), own_output)]
 
             for file in files:
                 file_path = os.path.join(root, file)
+
+                # PD-BUG-107: skip own-output files (covers the
+                # log-in-project-root rotation-sibling case)
+                if is_own_output(file_path, own_output):
+                    continue
 
                 if should_monitor_file(
                     file_path, monitored_extensions, ignored_dirs, str(self.project_root)

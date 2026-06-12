@@ -1,4 +1,4 @@
-# LinkWatcher per-project validation config — TEMPLATE (canonical empty default)
+# LinkWatcher per-project config — TEMPLATE (canonical empty default)
 #
 # This is the framework-distributed template (rolled out with process-framework/).
 # Each project's ACTIVE config is a copy of this at
@@ -6,10 +6,14 @@
 # created and configured during Project Initiation (new projects) or via a
 # per-project migration (existing projects). Edit the active copy, not this template.
 #
-# Only LinkWatcher's broken-link scan (`--validate`, via run_linkwatcher_validate.ps1)
-# reads this file; the live daemon ignores it. An empty path_resolution_overrides ({})
-# means no overrides — the scan behaves exactly as it would with no config at all
-# (backward-compatible).
+# Read by LinkWatcher's broken-link scan (`--validate`, via run_linkwatcher_validate.ps1)
+# AND by the live daemon (started with --config by start_linkwatcher_background.ps1
+# since PF-IMP-1115, 2026-06-11). An empty/absent config means built-in defaults —
+# behavior is exactly as with no config at all (backward-compatible).
+#
+# NOTE: set-typed keys (e.g. ignored_directories, monitored_extensions) REPLACE
+# the built-in default set wholesale — to extend a default, enumerate the full
+# desired set including the defaults you want to keep.
 #
 # Full key list, defaults, and semantics:
 #   <LinkWatcher install>/doc/user/handbooks/configuration-guide.md

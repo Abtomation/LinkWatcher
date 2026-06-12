@@ -54,22 +54,46 @@ Below is a complete config file with all available settings and their defaults.
 ```yaml
 # === File Monitoring ===
 monitored_extensions:        # File types to watch for link references
+  # Documentation and config
   - ".md"
+  - ".txt"
   - ".yaml"
   - ".yml"
   - ".json"
+  - ".xml"
+  - ".csv"
+  - ".toml"
+  # Web development
+  - ".html"
+  - ".htm"
+  - ".css"
+  - ".js"
+  - ".ts"
+  - ".jsx"
+  - ".tsx"
+  - ".vue"
+  - ".php"
+  # Images
+  - ".png"
+  - ".jpg"
+  - ".jpeg"
+  - ".gif"
+  - ".svg"
+  - ".webp"
+  - ".ico"
+  # Documents and media
+  - ".pdf"
+  - ".mp4"
+  - ".mp3"
+  - ".wav"
+  # Source code and scripts
   - ".py"
   - ".dart"
-  - ".txt"
   - ".ps1"
   - ".psm1"
   - ".bat"
-  - ".toml"
-  # Also available in defaults: .html, .htm, .css, .js, .ts, .jsx,
-  # .tsx, .vue, .php, .xml, .csv, .png, .jpg, .jpeg, .gif, .svg,
-  # .webp, .ico, .pdf, .mp4, .mp3, .wav
 
-ignored_directories:         # Directories to skip entirely
+ignored_directories:         # Directories to skip entirely (basename match)
   - ".git"
   - ".dart_tool"
   - "node_modules"
@@ -79,11 +103,11 @@ ignored_directories:         # Directories to skip entirely
   - "__pycache__"
   - ".pytest_cache"
   - "coverage"
-  - "docs/_build"
   - "target"
   - "bin"
   - "obj"
   - "tests"
+  - "linkWatcher"            # covers process-framework/tools/linkWatcher
 
 # === Parser Toggles ===
 enable_markdown_parser: true    # .md files

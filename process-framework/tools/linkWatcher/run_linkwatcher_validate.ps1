@@ -12,11 +12,12 @@ deliberately duplicated here so each tool script stays standalone and portable. 
 invokes `main.py --validate` against the project, passing
 `--config <project-root>/tools/linkwatcher/linkwatcher-config.yaml` when that file exists.
 
-The live daemon never reads the config — path_resolution_overrides is validation-only —
-so only this --validate path needs it. The config's lifecycle is owned by Project
-Initiation (new projects) and per-project migrations (existing projects): this launcher
-does NOT create the config. When it is absent, the scan runs without --config, behaving
-exactly as before (backward-compatible).
+The live daemon reads the same config since PF-IMP-1115 (start_linkwatcher_background.ps1
+passes --config when the file exists); path_resolution_overrides itself remains
+validation-only. The config's lifecycle is owned by Project Initiation (new projects)
+and per-project migrations (existing projects): this launcher does NOT create the
+config. When it is absent, the scan runs without --config, behaving exactly as before
+(backward-compatible).
 
 The scan only checks for broken links in the project; the config is an input that tunes
 how absolute-from-host ("/...") links resolve, not a thing being validated. main.py writes
