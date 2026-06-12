@@ -114,13 +114,19 @@ def compute_own_output_exclusions(log_file: Optional[str], project_root: str) ->
     exclude ``src/linkwatcher``), so the zone is derived from the
     effective log file instead:
 
-    - Normally the log file's parent directory is excluded. The standard
-      launcher colocates all daemon outputs there (rotated logs,
-      stdout/stderr redirects, validation reports), so one prefix covers
-      them all.
+    - If the log file sits in a directory strictly inside the project
+      root, that directory is excluded. The standard launcher colocates
+      all daemon outputs there (rotated logs, stdout/stderr redirects,
+      validation reports), so one prefix covers them all.
     - If the log file sits directly in the project root, only the log
       file and its rotation siblings (``<base>_*<ext>``) are excluded —
       never the whole project.
+    - If the log file sits outside the project root (PD-BUG-109: e.g. an
+      ancestor directory), nothing is excluded — the daemon only scans
+      and receives events under the project root, so an outside log can
+      never be indexed. Excluding its parent directory would prefix-match
+      the entire watched tree whenever that parent is an ancestor of the
+      root.
 
     Future extensions that write additional daemon outputs to other
     locations register them by adding entries to the returned registry
@@ -141,7 +147,10 @@ def compute_own_output_exclusions(log_file: Optional[str], project_root: str) ->
     if log_dir == root:
         base, ext = os.path.splitext(os.path.basename(abs_log))
         registry["file_stems"].add((log_dir, base, ext))
-    else:
+    # os.path.join(root, "") rather than root + os.sep: abspath keeps the
+    # trailing separator on drive roots ("C:\"), and doubling it would stop
+    # the strictly-inside check from ever matching there.
+    elif log_dir.startswith(os.path.join(root, "")):
         registry["dirs"].add(log_dir)
     return registry
 

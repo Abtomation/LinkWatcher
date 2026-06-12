@@ -73,6 +73,7 @@ _Performance test audit reports (PF-TSK-030 with `-TestType Performance`). 4 cri
 - [Audit: TE-E2E-014 (TE-TAR-062)](audits/e2e/audit-report-TE-E2E-014-test-case.md) - Test quality assessment
 - [Audit: TE-E2E-012 (TE-TAR-063)](audits/e2e/audit-report-TE-E2E-012-test-case.md) - Test quality assessment
 - [Audit: TE-E2E-015 (TE-TAR-064)](audits/e2e/audit-report-TE-E2E-015-test-case.md) - Test quality assessment
+- [Audit: TE-E2E-029 (TE-TAR-076)](audits/e2e/audit-report-te-e2e-029-test-case.md) - Test quality assessment
 _E2E acceptance test audit reports (PF-TSK-030 with `-TestType E2E`). 5 criteria: Fixture Correctness, Scenario Completeness, Expected Outcome Accuracy, Reproducibility, Precondition Coverage._
 
 ## `e2e-acceptance-testing/` — E2E Acceptance Tests

@@ -142,7 +142,7 @@ graph TD
 - **High**: 0
 - **Medium**: 0
 - **Low**: 0
-- **All Triaged**: Yes (PD-BUG-107 and PD-BUG-108 triaged 2026-06-12)
+- **All Triaged**: Yes (PD-BUG-107, PD-BUG-108, and PD-BUG-109 triaged 2026-06-12)
 
 ---
 

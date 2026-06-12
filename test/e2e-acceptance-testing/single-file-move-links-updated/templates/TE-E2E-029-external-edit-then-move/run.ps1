@@ -32,6 +32,9 @@ try {
         }
         Start-Sleep -Seconds 1; $elapsed++
     }
+    if ($elapsed -ge 20) {
+        Write-Host "Warning: initial_scan_complete not seen after 20s — edit may hit the deferred-replay path instead of the live on_modified path" -ForegroundColor Yellow
+    }
 
     # Step 2: Simulate an external tool writing a link into the EXISTING monitored file.
     Add-Content -Path (Join-Path $projectPath "notes.md") `

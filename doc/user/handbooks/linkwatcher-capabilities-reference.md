@@ -141,9 +141,10 @@ Three detection strategies:
 
 ### Own-Output Exclusion
 
-- The daemon never indexes or reacts to its own output files (PD-BUG-107): the exclusion zone is the parent directory of the effective `--log-file`, announced at startup via the `own_output_excluded` log event
+- The daemon never indexes or reacts to its own output files (PD-BUG-107): when the effective `--log-file` lives in a directory inside the project, that directory is the exclusion zone, announced at startup via the `own_output_excluded` log event
 - Covers the active log, timestamp-rotated siblings, and any colocated files (the standard launcher redirects stdout/stderr and writes validation reports into the same directory — keep new daemon outputs colocated to inherit the exclusion)
 - If the log file sits directly in the project root, only the log and its rotation siblings are excluded — never the whole project
+- If the log file lives outside the project root, nothing is excluded (PD-BUG-109): an outside log can never be scanned or generate events, and excluding its parent directory would swallow the entire watched tree when that directory is an ancestor of the project root
 - Log rotation renames are not treated as file moves: documents referencing the stable log path are not rewritten
 
 ## Validation Mode (`--validate`)

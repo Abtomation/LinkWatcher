@@ -1233,3 +1233,66 @@ class TestOwnOutputPredicate:
 
         registry = compute_own_output_exclusions(None, str(tmp_path))
         assert not is_own_output(str(tmp_path / "anything.txt"), registry)
+
+    def test_log_in_ancestor_of_root_excludes_nothing_in_tree(self, tmp_path):
+        """PD-BUG-109: a log dir that is an ancestor of the project root
+        must not be excluded as a directory — that prefix swallows the
+        entire watched tree (0 files scanned, daemon inert)."""
+        from linkwatcher.utils import compute_own_output_exclusions, is_own_output
+
+        project_root = tmp_path / "project"
+        log_file = tmp_path / "lw.log"  # E2E harness layout: log one level above root
+        registry = compute_own_output_exclusions(str(log_file), str(project_root))
+
+        assert not is_own_output(
+            str(project_root), registry
+        ), "PD-BUG-109: the project root itself matched the own-output zone"
+        assert not is_own_output(
+            str(project_root / "doc" / "readme.md"), registry
+        ), "PD-BUG-109: a project file matched the own-output zone"
+        # A log outside the watched tree can never be scanned or generate
+        # events — the registry must be empty, not merely narrower.
+        assert not registry["dirs"] and not registry["file_stems"]
+
+    def test_log_in_sibling_dir_outside_root_excludes_nothing_in_tree(self, tmp_path):
+        """PD-BUG-109 companion: log dir outside the root but not an
+        ancestor (sibling) — likewise needs no exclusion."""
+        from linkwatcher.utils import compute_own_output_exclusions, is_own_output
+
+        project_root = tmp_path / "project"
+        log_file = tmp_path / "elsewhere" / "lw.log"
+        registry = compute_own_output_exclusions(str(log_file), str(project_root))
+
+        assert not is_own_output(str(project_root / "doc" / "readme.md"), registry)
+        assert not registry["dirs"] and not registry["file_stems"]
+
+    def test_root_prefix_lookalike_dir_is_not_inside_root(self, tmp_path):
+        """PD-BUG-109 boundary: a log dir whose path merely string-prefixes
+        the root (``<root>-backup``) is outside the root — no exclusion,
+        and never one that touches the watched tree."""
+        from linkwatcher.utils import compute_own_output_exclusions, is_own_output
+
+        project_root = tmp_path / "project"
+        log_file = tmp_path / "project-backup" / "lw.log"
+        registry = compute_own_output_exclusions(str(log_file), str(project_root))
+
+        assert not is_own_output(str(project_root / "readme.md"), registry)
+        assert not registry["dirs"] and not registry["file_stems"]
+
+    def test_drive_root_project_keeps_inside_log_dir_excluded(self, tmp_path):
+        """PD-BUG-109 amendment: with the project root at a drive root,
+        ``abspath`` keeps the trailing separator, so the strictly-inside
+        check must still match a log dir like ``C:\\logs`` — losing the
+        exclusion re-opens the PD-BUG-107 rescan loop. Pure path logic,
+        so the drive-root layout needs no real files."""
+        import os
+
+        from linkwatcher.utils import compute_own_output_exclusions, is_own_output
+
+        drive_root = os.path.splitdrive(str(tmp_path))[0] + os.sep  # e.g. "C:\\"
+        log_file = os.path.join(drive_root, "logs", "lw.log")
+        registry = compute_own_output_exclusions(log_file, drive_root)
+
+        assert registry["dirs"], "log dir strictly inside a drive-root project lost its exclusion"
+        assert is_own_output(log_file, registry)
+        assert not is_own_output(os.path.join(drive_root, "readme.md"), registry)
