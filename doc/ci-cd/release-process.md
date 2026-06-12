@@ -4,7 +4,7 @@ type: Documentation
 category: CI-CD
 version: 2.3
 created: 2023-06-15
-updated: 2026-06-11
+updated: 2026-06-13
 ---
 
 # Release Process Guide
@@ -16,8 +16,8 @@ This document outlines the release process for LinkWatcher. LinkWatcher is deplo
 > Read by the Release & Deployment freshness gate (PF-TSK-008). Re-set **both** fields
 > whenever the mechanics in this guide change or are re-verified against a real release.
 
-- **Verified against release:** `2.1.1`
-- **Verified on:** 2026-06-11
+- **Verified against release:** `2.1.2`
+- **Verified on:** 2026-06-13
 
 ## Architecture
 
