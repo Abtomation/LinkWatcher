@@ -186,7 +186,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 113
+      "nextAvailable": 114
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
