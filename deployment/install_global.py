@@ -290,12 +290,37 @@ def install_linkwatcher(project_root, install_dir):
     return True
 
 
-def create_linkwatcher_venv(install_dir):
+def is_venv_lock_error(stderr):
+    """True if a venv-creation failure looks like a locked interpreter (PD-BUG-110).
+
+    A daemon that auto-restarted during the file-copy window can re-lock the
+    venv python.exe; Windows surfaces this as Access denied / WinError 5 /
+    Errno 13 / Permission denied depending on which layer raised. Non-lock
+    failures (e.g. disk full) must NOT match so they surface immediately.
+    """
+    text = (stderr or "").lower()
+    return any(
+        marker in text
+        for marker in ("permission denied", "access is denied", "winerror 5", "errno 13")
+    )
+
+
+def create_linkwatcher_venv(install_dir, max_attempts=2):
     """Create a dedicated virtual environment for LinkWatcher.
 
     PD-BUG-077: Using bare 'python' in wrapper/startup scripts resolves to a
     project's .venv in projects with virtual environments, causing silent import
     failures. A dedicated venv ensures LinkWatcher always has its dependencies.
+
+    PD-BUG-110: The pre-flight lock gate (venv_python_locked) runs in main()
+    before files are copied, but LinkWatcher daemons auto-restart asynchronously
+    and can re-lock the venv python.exe during the copy window — so a single
+    point-in-time check cannot keep the interpreter free until rebuild time. The
+    rebuild therefore defends itself: re-stop venv daemons immediately before
+    each attempt, and retry once if creation still fails on a lock error (the
+    daemon that slipped in is tree-killed, then the rebuild succeeds — mirroring
+    the manual Stop-Process + retry recovery). Non-lock failures and a second
+    consecutive lock failure return False (no masking, no unbounded retry).
     """
     venv_dir = install_dir / ".linkwatcher-venv"
     venv_python = venv_dir / "Scripts" / "python.exe"
@@ -303,17 +328,27 @@ def create_linkwatcher_venv(install_dir):
 
     print(f"\nCreating dedicated LinkWatcher venv at: {venv_dir}")
 
-    # Create venv
-    try:
-        subprocess.run(
-            [sys.executable, "-m", "venv", str(venv_dir)],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to create venv: {e.stderr}")
-        return False
+    # Create venv — re-stop venv daemons before each attempt and retry once if
+    # an auto-restarted daemon still holds the interpreter (PD-BUG-110).
+    for attempt in range(1, max_attempts + 1):
+        stop_daemons_using_venv(install_dir)
+        try:
+            subprocess.run(
+                [sys.executable, "-m", "venv", str(venv_dir)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            break
+        except subprocess.CalledProcessError as e:
+            if attempt < max_attempts and is_venv_lock_error(e.stderr):
+                print(
+                    "   venv interpreter was locked (a daemon likely auto-restarted);"
+                    " re-stopping daemons and retrying..."
+                )
+                continue
+            print(f"ERROR: Failed to create venv: {e.stderr}")
+            return False
 
     # Install dependencies — prefer requirements.txt, fall back to pyproject.toml
     try:

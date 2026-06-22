@@ -2,8 +2,14 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
+      # E2E acceptance test trees under test/e2e-acceptance-testing/ are sample-project
+      # *fixtures* that must byte-match what each case's run.ps1 generates (often
+      # intentionally non-PEP8). File-modifying hooks must skip them or they corrupt the
+      # fixtures and re-break the E2E cases (PD-BUG-111). Mirrors the flake8 exclusion below.
       - id: trailing-whitespace
+        exclude: ^test/e2e-acceptance-testing/
       - id: end-of-file-fixer
+        exclude: ^test/e2e-acceptance-testing/
       - id: check-yaml
       - id: check-json
       - id: check-merge-conflict
@@ -16,12 +22,16 @@ repos:
       - id: black
         language_version: python3
         args: [--line-length=100]
+        # See note above — E2E fixtures must not be reformatted (PD-BUG-111).
+        exclude: ^test/e2e-acceptance-testing/
 
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
       - id: isort
         args: [--profile=black, --line-length=100]
+        # See note above — E2E fixtures must not be reformatted (PD-BUG-111).
+        exclude: ^test/e2e-acceptance-testing/
 
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0

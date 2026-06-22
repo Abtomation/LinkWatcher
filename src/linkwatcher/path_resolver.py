@@ -108,24 +108,40 @@ class PathResolver:
             old_norm = normalize_path(old_path)
             if original_norm == old_norm:
                 new_norm = normalize_path(new_path)
-                # Preserve leading slash if original had one
+                # PD-BUG-112: only backslash-bearing targets are ambiguous here — a
+                # forward-slash string that exactly matches a moved path is necessarily
+                # a real reference, but a backslash string may be a string literal whose
+                # backslashes are escape characters (``\n``, ``\t``) that merely look
+                # like the moved directory after normalization. Guard that case by
+                # disk existence; if the proposed target isn't real, leave it unchanged.
+                # Forward-slash targets keep the pure-calculation fast path.
+                if "\\" in original_target and not path_exists_under_root(
+                    self.project_root, new_norm
+                ):
+                    return original_target
+                # PD-BUG-112: re-apply the original separator style so backslashes
+                # survive instead of being flipped to '/'.
+                result = self._apply_separator_style(new_norm, original_target)
                 if original_target.startswith("/"):
-                    return f"/{new_norm}"
-                return new_norm
+                    return f"/{result}"
+                return result
 
             # Directory prefix match: target is a path under the moved directory
             old_prefix = old_norm.rstrip("/") + "/"
             if original_norm.startswith(old_prefix):
                 new_norm = normalize_path(new_path)
                 suffix = original_norm[len(old_norm.rstrip("/")) :]
-                result = new_norm + suffix
+                result_norm = new_norm + suffix
                 # PD-BUG-095: Verify the proposed new target actually exists on disk.
                 # If it doesn't, the original was likely a regex/glob whose backslash
                 # was normalized to '/' (e.g. ``'doc/foo/bar-\\d+'`` → ``'doc/foo/bar-/d+'``)
                 # and incidentally matches the moved-directory prefix. Mirrors PD-BUG-033
                 # in reference_lookup._calculate_updated_relative_path.
-                if not path_exists_under_root(self.project_root, result):
+                if not path_exists_under_root(self.project_root, result_norm):
                     return original_target
+                # PD-BUG-112: re-apply the original separator style (see early-exit
+                # branch) so escape-sequence backslashes in the original are preserved.
+                result = self._apply_separator_style(result_norm, original_target)
                 if original_target.startswith("/"):
                     return f"/{result}"
                 return result
@@ -182,6 +198,21 @@ class PathResolver:
                 error_type=type(e).__name__,
             )
             return original_target
+
+    @staticmethod
+    def _apply_separator_style(normalized_path: str, original_target: str) -> str:
+        """Render *normalized_path* (forward-slash form) in the separator style of
+        *original_target* (PD-BUG-112).
+
+        When the original reference used backslashes, the rewrite must keep them: a
+        backslash in a string literal is often an escape character (``\\n``, ``\\t``,
+        ``\\"``), and flipping it to '/' corrupts the source (e.g. a Python
+        SyntaxError). Mirrors the separator-style reconstruction in
+        ``_convert_to_original_link_type``.
+        """
+        if "\\" in original_target:
+            return normalized_path.replace("/", "\\")
+        return normalized_path
 
     def _match_direct(self, absolute_target_norm: str, old_path_norm: str) -> bool:
         """Check if the resolved target directly matches the old path."""

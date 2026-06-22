@@ -1380,6 +1380,183 @@ class TestBug095PathResolverExistenceGuard:
         )
 
 
+class TestBug112SeparatorStylePreservedOnDirectoryMove:
+    """Regression tests for PD-BUG-112: the directory-path reference update reconstructs
+    the rewritten target from a forward-slash-normalized form, flipping every backslash
+    in the original string to '/'.  When those backslashes are string-literal escape
+    sequences (``\\n``, ``\\t``, ``\\"``) rather than path separators, the rewrite
+    corrupts source code (e.g. ``"SELECT a\\nFROM"`` -> ``"SELECT a/nFROM"`` -> Python
+    SyntaxError).  Observed flipping ``"blueprint\\core"`` -> ``"blueprint2/core"``.
+
+    The fix is byte-preserving: a rewrite alters only the moved-directory component and
+    re-applies the original separator style, so backslashes the user wrote survive.  It
+    also refuses to relocate a reference whose proposed new target does not resolve to a
+    real path on disk (a literal that only coincidentally matched the moved prefix).
+    """
+
+    def test_bug112_backslash_separator_preserved_on_dir_move(self, temp_project_dir):
+        """A directory reference written with a backslash separator keeps its backslash
+        when the directory moves — it is not silently normalized to '/'.
+
+        Pre-fix corruption: ``"blueprint\\core"`` -> ``"blueprint2/core"``.
+        """
+        bp_core = temp_project_dir / "blueprint" / "core"
+        bp_core.mkdir(parents=True)
+        (bp_core / "x.txt").write_text("hi")
+
+        scripts = temp_project_dir / "scripts"
+        scripts.mkdir()
+        pyfile = scripts / "feedback_db.py"
+        pyfile.write_text('def q():\n    p = "blueprint\\core"\n')
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        old_bp = temp_project_dir / "blueprint"
+        new_bp = temp_project_dir / "blueprint2"
+        old_bp.rename(new_bp)
+        service.handler.on_moved(DirMovedEvent(str(old_bp), str(new_bp)))
+
+        updated = pyfile.read_text()
+        # Negative: the backslash must NOT have been normalized to a forward slash
+        assert (
+            "blueprint2/core" not in updated
+        ), "backslash separator was normalized to '/' (PD-BUG-112 corruption)"
+        # Positive: directory name updated, backslash preserved byte-for-byte
+        assert (
+            "blueprint2\\core" in updated
+        ), f"expected the backslash separator preserved (got {updated!r})"
+
+    def test_bug112_escape_literal_not_corrupted_on_dir_move(self, temp_project_dir):
+        """A Python string literal containing escape sequences must survive a directory
+        move that coincidentally shares its leading path segment.  ``"col1\\tcol2"``
+        starts with the moved directory name ``col1`` after normalization, but it is a
+        SQL/escape literal, not a path — it must be left byte-identical.
+
+        Pre-fix corruption: ``"col1\\tcol2"`` -> ``"col1moved/tcol2"`` (\\t escape
+        destroyed and the literal bogusly relocated).
+        """
+        col1 = temp_project_dir / "col1"
+        col1.mkdir()
+        (col1 / "real.txt").write_text("x")
+
+        scripts = temp_project_dir / "scripts"
+        scripts.mkdir()
+        pyfile = scripts / "q.py"
+        pyfile.write_text('def q():\n    sql = "col1\\tcol2"\n')
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        new_col = temp_project_dir / "col1moved"
+        col1.rename(new_col)
+        service.handler.on_moved(DirMovedEvent(str(col1), str(new_col)))
+
+        updated = pyfile.read_text()
+        # Negative: the \t escape must not be slash-normalized, and no bogus relocation
+        assert "/tcol2" not in updated, "\\t escape was normalized to /t (corruption)"
+        assert "col1moved" not in updated, "non-path literal was bogusly relocated"
+        # Positive: original byte-identical
+        assert (
+            'sql = "col1\\tcol2"' in updated
+        ), f"escape literal must be preserved verbatim (got {updated!r})"
+
+    def test_bug112_real_forward_slash_path_still_updates(self, temp_project_dir):
+        """Sanity: a genuine forward-slash directory reference still updates on the move.
+        Guards against the fix over-rejecting legitimate path rewrites.
+        """
+        bp_core = temp_project_dir / "blueprint" / "core"
+        bp_core.mkdir(parents=True)
+        (bp_core / "x.txt").write_text("hi")
+
+        scripts = temp_project_dir / "scripts"
+        scripts.mkdir()
+        pyfile = scripts / "q.py"
+        pyfile.write_text('def q():\n    p = "blueprint/core"\n')
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        old_bp = temp_project_dir / "blueprint"
+        new_bp = temp_project_dir / "blueprint2"
+        old_bp.rename(new_bp)
+        service.handler.on_moved(DirMovedEvent(str(old_bp), str(new_bp)))
+
+        updated = pyfile.read_text()
+        assert (
+            'p = "blueprint2/core"' in updated
+        ), f"real forward-slash path should update on dir move (got {updated!r})"
+
+    def test_bug112_path_resolver_preserves_backslash_separator(self, temp_project_dir):
+        """PathResolver unit test: the early-exit/prefix branches must re-apply the
+        original separator style instead of returning a forward-slash-normalized form.
+        """
+        from linkwatcher.link_types import LinkType
+        from linkwatcher.models import LinkReference
+        from linkwatcher.path_resolver import PathResolver
+
+        (temp_project_dir / "blueprint2" / "core").mkdir(parents=True)
+        resolver = PathResolver(project_root=str(temp_project_dir))
+
+        ref = LinkReference(
+            file_path="scripts/feedback_db.py",
+            line_number=1,
+            column_start=0,
+            column_end=16,
+            link_text="blueprint\\core",
+            link_target="blueprint\\core",
+            link_type=LinkType.PYTHON_QUOTED_DIR,
+        )
+
+        result = resolver.calculate_new_target(ref, "blueprint\\core", "blueprint2/core")
+
+        assert "/core" not in result, f"backslash separator was normalized to '/' (got {result!r})"
+        assert (
+            result == "blueprint2\\core"
+        ), f"PathResolver must preserve the original backslash separator (got {result!r})"
+
+    def test_bug112_direct_match_backslash_literal_not_relocated_when_target_absent(
+        self, temp_project_dir
+    ):
+        """Direct-match (early-exit) branch: a backslash literal whose normalized form
+        exactly equals the moved path must be left byte-identical when the proposed new
+        target does not exist on disk — it is an escape literal that only coincidentally
+        matched, not a real reference.
+
+        Complements ``test_bug112_escape_literal_not_corrupted_on_dir_move`` (which
+        exercises the directory-prefix branch's guard) and
+        ``test_bug112_path_resolver_preserves_backslash_separator`` (which exercises the
+        direct-match branch only in the target-exists case).
+        """
+        from linkwatcher.link_types import LinkType
+        from linkwatcher.models import LinkReference
+        from linkwatcher.path_resolver import PathResolver
+
+        # Intentionally create nothing: the proposed new target "moved/test" must NOT
+        # exist under the project root, so the backslash existence guard returns the
+        # original unchanged.
+        resolver = PathResolver(project_root=str(temp_project_dir))
+
+        ref = LinkReference(
+            file_path="scripts/q.py",
+            line_number=1,
+            column_start=0,
+            column_end=10,
+            link_text="data\\test",
+            link_target="data\\test",
+            link_type=LinkType.PYTHON_QUOTED_DIR,
+        )
+
+        # original "data\\test" normalizes to "data/test", matching old_path exactly;
+        # new_path "moved/test" does not resolve to a real path on disk.
+        result = resolver.calculate_new_target(ref, "data/test", "moved/test")
+
+        assert result == "data\\test", (
+            "backslash literal must be left byte-identical when the proposed new "
+            f"target does not exist on disk (got {result!r})"
+        )
+
+
 class TestBug043PythonImportModuleLookup:
     """Regression tests for PD-BUG-043: Python dot-notation imports
     not resolved during reference lookup.

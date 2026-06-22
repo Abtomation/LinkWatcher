@@ -119,7 +119,7 @@ graph TD
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| PD-BUG-110 | install_global.py venv rebuild races against daemon auto-restart | 🆕 Needs Triage | Medium |  | 2026-06-13 | v2.1.2 deploy: first install_global.py run failed at venv creation (Errno 13 on .linkwatcher-venv/Scripts/python.exe) - an appdev daemon held the venv python. Daemons auto-restart without operator action, so one can reappear between the PD-BUG-106 stop pass / pre-copy lock check and the venv rebuild. Files were already copied when the venv step failed, contradicting the documented abort-before-copy guarantee; half-updated install until retry. | N/A |  |  | Source: Development; Environment: Development; Component: deployment/install_global.py; Repro: 1. Have a parallel session whose SessionStart/auto-restart can relaunch a LinkWatcher daemon from the install venv; 2. Run python deployment/install_global.py; 3. Daemon restarts between the stop pass and venv creation; Expected: Install either completes the venv rebuild or aborts cleanly before copying any files; the lock check should cover the venv-rebuild moment, not only the pre-copy moment (e.g. re-check/re-stop immediately before venv creation, or retry once on Errno 13); Actual: Stop pass succeeded, files copied, then venv creation failed with Errno 13 Permission denied; install exited 1 with new code copied but old venv intact; Evidence: Install log /tmp/install-v212.log (first attempt, exit 1); process list showed appdev daemon pair (PID 14900/36308) from .linkwatcher-venv started after the stop pass; retry after manual Stop-Process succeeded |
+| _No medium priority bugs currently active_ |
 
 ### Low Priority Bugs
 
@@ -137,12 +137,12 @@ graph TD
 
 ### Current Status Summary
 
-- **Total Active Bugs**: 1
+- **Total Active Bugs**: 0
 - **Critical**: 0
 - **High**: 0
-- **Medium**: 1
+- **Medium**: 0
 - **Low**: 0
-- **All Triaged**: Yes (PD-BUG-107, PD-BUG-108, and PD-BUG-109 triaged 2026-06-12)
+- **All Triaged**: Yes (PD-BUG-110 and PD-BUG-111 triaged 2026-06-13)
 
 ---
 
