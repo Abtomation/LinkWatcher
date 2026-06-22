@@ -16,8 +16,8 @@ This document outlines the release process for LinkWatcher. LinkWatcher is deplo
 > Read by the Release & Deployment freshness gate (PF-TSK-008). Re-set **both** fields
 > whenever the mechanics in this guide change or are re-verified against a real release.
 
-- **Verified against release:** `2.1.2`
-- **Verified on:** 2026-06-13
+- **Verified against release:** `2.1.3`
+- **Verified on:** 2026-06-22
 
 ## Architecture
 
@@ -134,7 +134,7 @@ It is non-fatal: on a standalone clone (no `.framework-central-pointer`) it skip
 
 ## Version Management
 
-The version is defined in **two places that must be bumped together** (currently `2.1.1`):
+The version is defined in **two places that must be bumped together** (currently `2.1.3`):
 
 - `pyproject.toml` under `[project].version` — package metadata
 - `src/linkwatcher/__init__.py` `__version__` — the value `main.py --version` actually reports (the deployed venv installs from `requirements.txt`, so there is no package metadata to read at runtime; the hardcode is authoritative in the install)
