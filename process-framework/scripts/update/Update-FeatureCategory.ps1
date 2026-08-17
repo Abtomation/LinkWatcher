@@ -81,7 +81,7 @@ Update-FeatureCategory.ps1 -Id "1.2.3" -Name "Read by ID" -Priority "P2" -Notes 
 
 .NOTES
 Consumed by:
-- PF-TSK-002 Feature Request Evaluation (Phase 2a path, after new-feature classification)
+- PF-TSK-067 Feature Request Evaluation (Phase 2a path, after new-feature classification)
 - PF-TSK-064 Codebase Feature Discovery (replaces manual feature-tracking edits in step 7)
 
 Chain target: blueprint/process-framework/scripts/file-creation/00-setup/New-TestInfrastructure.ps1 -Update

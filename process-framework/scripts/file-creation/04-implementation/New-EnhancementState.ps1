@@ -1,7 +1,31 @@
-# New-EnhancementState.ps1
-# Creates a new Enhancement State Tracking file for tracking enhancement work on existing features
-# Uses the central ID registry system and standardized document creation
-# Produced by Feature Request Evaluation (PF-TSK-067), consumed by Feature Enhancement (PF-TSK-068)
+<#
+.SYNOPSIS
+Creates a new Enhancement State Tracking file for enhancement work on an existing feature.
+
+.DESCRIPTION
+Uses the central ID registry system and standardized document creation.
+Produced by Feature Request Evaluation (PF-TSK-067), consumed by Feature Enhancement (PF-TSK-068).
+
+.PARAMETER TargetFeature
+Feature ID of the feature being enhanced (e.g. "1.2.3"). Stamped into frontmatter and the
+Overview; the feature's name is resolved from feature-tracking.md so the Overview row is not
+left as a placeholder.
+
+.PARAMETER EnhancementName
+Name of the enhancement. Drives the document title, the kebab-case filename, and the
+enhancement_name frontmatter field.
+
+.PARAMETER Description
+Brief description of the enhancement's scope. Omitted leaves the template's placeholder.
+
+.PARAMETER Dims
+Development dimension abbreviations inherited from the target feature, with importance
+(e.g. "SE Critical, UX Relevant"). Valid abbreviations: AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI —
+see the Development Dimensions Guide. Written to the inherited_dimensions frontmatter field.
+
+.PARAMETER OpenInEditor
+Opens the created state file in the configured editor after creation.
+#>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -28,14 +52,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the enhancement-specific data, and the success report.
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
@@ -47,6 +66,20 @@ $additionalMetadataFields = @{
 $customReplacements = @{
     "[Enhancement Name]"    = $EnhancementName
     "[Feature ID]"          = $TargetFeature
+}
+
+# Resolve the target feature's name from feature-tracking.md so the Overview row
+# isn't left with a "[Feature Name]" placeholder when the ID is already known (PF-IMP-1319).
+$resolvedFeatureName = $null
+try {
+    $resolvedFeatureName = Get-FeatureNameById -FeatureId $TargetFeature
+} catch {
+    Write-Warning "Could not resolve feature name for ${TargetFeature}: $($_.Exception.Message)"
+}
+if ($resolvedFeatureName) {
+    $customReplacements["[Feature Name]"] = $resolvedFeatureName
+} else {
+    Write-Warning "Feature '${TargetFeature}' not found in feature-tracking.md; '[Feature Name]' left as a placeholder for manual fill."
 }
 
 # Add description if provided
@@ -68,20 +101,15 @@ $customFileName = "enhancement-$kebabName.md"
 $processFrameworkDir = Get-ProcessFrameworkPath
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates/04-implementation/enhancement-state-tracking-template.md"
 
-try {
-    $idDesc = "Enhancement state tracking for ${TargetFeature}: ${EnhancementName}"
-    $stContext = Get-StateTrackingContext
-    $outputDir = "$($stContext.StateTrackingRelative)/temporary"
-    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $EnhancementName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+$idDesc = "Enhancement state tracking for ${TargetFeature}: ${EnhancementName}"
+$stContext = Get-StateTrackingContext
+$outputDir = "$($stContext.StateTrackingRelative)/temporary"
+$stateId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $EnhancementName -OutputDirectory $outputDir -Replacements $customReplacements -Metadata $additionalMetadataFields -FileNamePattern $customFileName -Label "enhancement state tracking file" -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "Target Feature: $TargetFeature",
-        "Enhancement: $EnhancementName",
-        "Customization required — see process-framework/guides/04-implementation/enhancement-state-tracking-customization-guide.md"
-    )
+$details = @(
+    "Target Feature: $TargetFeature",
+    "Enhancement: $EnhancementName",
+    "Customization required — apply the feature-request-evaluation craft skill (.claude/skills/feature-request-evaluation/references/enhancement-scoping.md)"
+)
 
-    Write-ProjectSuccess -Message "Created enhancement state tracking file with ID: $stateId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create enhancement state tracking file: $($_.Exception.Message)" -ExitCode 1
-}
+Write-ProjectSuccess -Message "Created enhancement state tracking file with ID: $stateId" -Details $details

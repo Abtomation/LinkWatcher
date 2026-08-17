@@ -1,9 +1,30 @@
 # ExecutionVerification.psm1
 # Soak-verification helpers for newly created or recently modified PowerShell scripts.
+
+<#
+.SYNOPSIS
+Soak-verification helpers for newly created or recently modified PowerShell scripts.
+#>
 #
-# VERSION 2.2 - PF-IMP-904 synthetic-test soak bypass (PF-TSK-009)
+# VERSION 2.3 - PF-PRO-068 WI-5 ownership-aware soak resolution (PF-TSK-026)
 # Implements PF-PRO-028 v2.0 (Script Self-Verification) — see
 # appdev/process-framework-central/proposals/old/script-self-verification.md.
+#
+# v2.3 changes (2026-08-07, PF-PRO-068 WI-5):
+#   - Soak state resolves to the central of the workspace that OWNS the script,
+#     not the one that invoked it: _Get-SoakStateFilePath / _Read-SoakStateRaw /
+#     _Write-SoakStateRaw take -ScriptPath and route through
+#     Get-OwningWorkspaceCentralPath (Core.psm1), which reads the script's N-5
+#     ownership line. A soak counter verifies one canonical script; keying its row
+#     to the caller splits that counter per consumer AND lets a received copy
+#     register a fresh row at each consumer — so a fleet-wide script reads as
+#     "never soaked" everywhere but its owner, silently.
+#   - An UNMARKED script (no ownership line) resolves to the caller's own central,
+#     which is byte-for-byte the pre-v2.3 behavior. appdev's blueprint carries no
+#     ownership lines until the cutover ships them, so this change is DARK on both
+#     live trees today.
+#   - Get-SoakStatus -ScriptId is ownership-aware; the unfiltered dump stays
+#     own-registry (documented in its .NOTES).
 #
 # v2.2 changes (2026-05-29, PF-IMP-904):
 #   - Synthetic-test bypass: when $env:PF_SOAK_DISABLE is truthy ('1'/'true'/'yes';
@@ -53,14 +74,29 @@
 #
 # State file: process-framework-central/state-tracking/permanent/script-soak-tracking.md
 #             (v2.1; was process-framework/state-tracking/... pre-2026-05-12)
-# Dependencies (resolved via Common-ScriptHelpers facade load order):
+# Dependencies (imported at module top below — PF-IMP-1165 — so this module also works when
+# imported directly, not only via the Common-ScriptHelpers facade load order):
 #   - Get-ProjectRoot           (Core.psm1)
 #   - Get-CentralFrameworkPath  (Core.psm1) — v2.1: replaces Get-ProcessFrameworkPath for soak state file
+#   - Get-OwningWorkspaceCentralPath (Core.psm1) — v2.3: ownership-aware soak state resolution
 #   - Get-ProcessFrameworkPath  (Core.psm1) — v2.1: still used by _Resolve-CallingScript for prefix stripping
 #   - Get-ProjectConfig         (Core.psm1) — v2.1: read paths.process_framework for prefix stripping
 #   - Assert-LineInFile         (FileOperations.psm1) — used internally for read-after-write verification
 
 $PSDefaultParameterValues['*:Encoding'] = 'UTF8'
+
+# Import dependencies at module top — consistent with the other Common-ScriptHelpers
+# sub-modules (e.g. DocumentManagement.psm1) and the quick-reference sub-module-scoping
+# pattern — so Core / FileOperations resolve whether this module is imported directly or
+# via the Common-ScriptHelpers facade (PF-IMP-1165). Idempotent under the facade load
+# (-Force re-import), matching the established pattern.
+$scriptPath    = Split-Path -Parent $PSScriptRoot
+$coreModule    = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/Core.psm1"
+$fileOpsModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/FileOperations.psm1"
+$tableOpsModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/TableOperations.psm1"
+if (Test-Path $coreModule)     { Import-Module $coreModule -Force }
+if (Test-Path $fileOpsModule)  { Import-Module $fileOpsModule -Force }
+if (Test-Path $tableOpsModule) { Import-Module $tableOpsModule -Force }
 
 # Module-level default soak counter. Lowered from 5 to 3 in v2.0 (PF-IMP-728)
 # based on observed behavior: deterministic defects in state-mutating scripts
@@ -73,13 +109,32 @@ $script:DefaultSoakCounter = 3
 # ============================================================================
 
 function _Get-SoakStateFilePath {
-    # v2.1 (PF-PRO-032): soak state file now lives in central — one canonical copy
-    # shared across all projects. Resolved via Get-CentralFrameworkPath:
+    # v2.1 (PF-PRO-032): soak state file lives in central — one canonical copy rather than a
+    # per-project one. Resolved via Get-CentralFrameworkPath:
     #   - From cwd=appdev: <appdev>/process-framework-central/state-tracking/permanent/...
     #   - From cwd=project: reads <project>/process-framework/.framework-central-pointer
     #                       and returns <appdev>/process-framework-central/state-tracking/permanent/...
     # Pre-v2.1 location was <fw-path>/state-tracking/permanent/... (per-project copy).
-    $central = Get-CentralFrameworkPath
+    #
+    # v2.3 (PF-PRO-068 WI-5) — OWNERSHIP-AWARE. A soak counter verifies one canonical SCRIPT,
+    # so its row belongs to the workspace that OWNS that script, not to whichever workspace
+    # happened to invoke a received copy. Caller-keyed resolution splits one counter across
+    # every consumer and — the failure this closes — lets a received copy register a FRESH row
+    # at each consumer, so a fleet-wide script reads as "never soaked" in every workspace but
+    # its owner's, silently.
+    #
+    # When -ScriptPath is supplied, resolution goes through Get-OwningWorkspaceCentralPath,
+    # which reads the script's N-5 ownership line. An UNMARKED script resolves to the caller's
+    # own central — identical to pre-v2.3 behavior — which is why this is dark until the
+    # cutover ships ownership lines into consumer trees. Callers with no path in hand (the
+    # unfiltered Get-SoakStatus dump) keep own-central resolution.
+    param([string]$ScriptPath)
+
+    $central = if ($ScriptPath) {
+        Get-OwningWorkspaceCentralPath -ArtifactPath $ScriptPath
+    } else {
+        Get-CentralFrameworkPath
+    }
     return (Join-Path -Path $central -ChildPath "state-tracking/permanent/script-soak-tracking.md")
 }
 
@@ -92,7 +147,9 @@ function _Get-SoakScriptHash {
 }
 
 function _Read-SoakStateRaw {
-    $path = _Get-SoakStateFilePath
+    # -ScriptPath threads through to ownership-aware resolution (v2.3); omitted = own central.
+    param([string]$ScriptPath)
+    $path = _Get-SoakStateFilePath -ScriptPath $ScriptPath
     if (-not (Test-Path -LiteralPath $path)) {
         throw "ExecutionVerification: soak tracking file not found at '$path'. The file is created by Phase 3 of PF-TSK-026 (Script Self-Verification)."
     }
@@ -100,8 +157,13 @@ function _Read-SoakStateRaw {
 }
 
 function _Write-SoakStateRaw {
-    param([Parameter(Mandatory=$true)][string]$Content)
-    $path = _Get-SoakStateFilePath
+    # The read and the write of one operation MUST resolve the same file — pass the same
+    # -ScriptPath to both, or the update lands in a different workspace's registry (v2.3).
+    param(
+        [Parameter(Mandatory=$true)][string]$Content,
+        [string]$ScriptPath
+    )
+    $path = _Get-SoakStateFilePath -ScriptPath $ScriptPath
     [System.IO.File]::WriteAllText($path, $Content, [System.Text.UTF8Encoding]::new($false))
     # Read-after-write verification using the Phase 2 helper. Catches truncated /
     # garbled writes at the moment of the bad write.
@@ -342,7 +404,8 @@ function Register-SoakScript {
     Optional. Stable identifier for the script. Convention (v2.1): relative path from project
     root with the framework-path prefix stripped, e.g. "scripts/file-creation/02-design/New-IntegrationNarrative.ps1"
     (NOT "blueprint/process-framework/scripts/..." or "process-framework/scripts/..."). Scripts outside
-    the framework path keep their full relative path (e.g. "process-framework-central/scripts/Push-FrameworkUpdate.ps1").
+    the framework path keep their full relative path (e.g. a hypothetical "tools/some-helper/Some-Helper.ps1";
+    since the PF-PRO-068 S3 E2 rollout-trio relocation no enrolled .ps1 lives outside the framework path).
     If omitted, auto-resolved from the calling script's path via _Resolve-CallingScript (which performs the
     prefix-stripping automatically). Must be passed together with -ScriptPath or omitted entirely.
 
@@ -380,7 +443,7 @@ function Register-SoakScript {
         throw "Register-SoakScript: pass both -ScriptId and -ScriptPath, or pass neither (for caller-aware auto-detection)."
     }
 
-    $raw = _Read-SoakStateRaw
+    $raw = _Read-SoakStateRaw -ScriptPath $ScriptPath
 
     $existing = _Find-RegisteredEntry -RawContent $raw -ScriptId $ScriptId
     if ($existing) {
@@ -407,11 +470,11 @@ function Register-SoakScript {
     $updated = _Insert-RegisteredEntry -RawContent $raw -Entry $newEntry
     $updated = _Append-UpdateHistoryRow -RawContent $updated -Action "Registered $ScriptId (counter=$script:DefaultSoakCounter)" -Actor "Register-SoakScript"
 
-    _Write-SoakStateRaw -Content $updated
+    _Write-SoakStateRaw -Content $updated -ScriptPath $ScriptPath
 
-    # Read-after-write: confirm the new row actually landed.
-    $stateFile = _Get-SoakStateFilePath
-    Assert-LineInFile -Path $stateFile -Pattern ([regex]::Escape("| $ScriptId |")) -Context "Register-SoakScript($ScriptId)"
+    # Read-after-write: confirm the new row landed and matches the table's column count.
+    $stateFile = _Get-SoakStateFilePath -ScriptPath $ScriptPath
+    Assert-TableRowInFile -Path $stateFile -Pattern ([regex]::Escape("| $ScriptId |")) -Context "Register-SoakScript($ScriptId)"
 
     Write-Verbose "Register-SoakScript: '$ScriptId' registered ($script:DefaultSoakCounter successful invocations required for Soak Complete)."
 }
@@ -475,7 +538,7 @@ function Test-ScriptInSoak {
         throw "Test-ScriptInSoak: pass both -ScriptId and -ScriptPath, or pass neither (for caller-aware auto-detection)."
     }
 
-    $raw   = _Read-SoakStateRaw
+    $raw   = _Read-SoakStateRaw -ScriptPath $ScriptPath
     $entry = _Find-RegisteredEntry -RawContent $raw -ScriptId $ScriptId
     if (-not $entry) { return $false }
 
@@ -493,7 +556,7 @@ function Test-ScriptInSoak {
         }
         $updated = _Update-RegisteredEntry -RawContent $raw       -Entry $resetEntry
         $updated = _Append-UpdateHistoryRow -RawContent $updated  -Action "Hash mismatch for $ScriptId; auto-reset counter to $script:DefaultSoakCounter" -Actor "Test-ScriptInSoak (auto)"
-        _Write-SoakStateRaw -Content $updated
+        _Write-SoakStateRaw -Content $updated -ScriptPath $ScriptPath
 
         Write-Verbose "Test-ScriptInSoak: hash mismatch for '$ScriptId' — counter auto-reset to $script:DefaultSoakCounter."
         return $true
@@ -552,6 +615,12 @@ function Confirm-SoakInvocation {
     }
 
     # v2.0 — caller-aware mode: auto-detect ScriptId from callstack when not provided.
+    # v2.3 (PF-PRO-068 WI-5) — the script's PATH is captured alongside its ID, because
+    # ownership-aware state resolution needs the file to read its ownership line from. In
+    # caller-aware mode the callstack supplies it; for an explicit -ScriptId it is resolved
+    # back from the ID. A ScriptId naming no file on disk leaves it $null, which resolves to
+    # own central — the pre-v2.3 behavior, and the only sane answer for a stale row.
+    $soakScriptPath = $null
     if (-not $ScriptId) {
         $resolved = _Resolve-CallingScript
         if (-not $resolved) {
@@ -560,9 +629,12 @@ function Confirm-SoakInvocation {
             return
         }
         $ScriptId = $resolved.ScriptId
+        $soakScriptPath = $resolved.ScriptPath
+    } else {
+        $soakScriptPath = _Resolve-SoakScriptPath -ScriptId $ScriptId
     }
 
-    $raw   = _Read-SoakStateRaw
+    $raw   = _Read-SoakStateRaw -ScriptPath $soakScriptPath
     $entry = _Find-RegisteredEntry -RawContent $raw -ScriptId $ScriptId
     if (-not $entry) {
         # v2.0 — silently no-op rather than throw. Helper-routed callers (Pattern B)
@@ -598,33 +670,197 @@ function Confirm-SoakInvocation {
 
     $updated = _Update-RegisteredEntry -RawContent $raw       -Entry $updatedEntry
     $updated = _Append-UpdateHistoryRow -RawContent $updated  -Action $action -Actor "Confirm-SoakInvocation"
-    _Write-SoakStateRaw -Content $updated
+    _Write-SoakStateRaw -Content $updated -ScriptPath $soakScriptPath
 
     Write-Verbose "Confirm-SoakInvocation: '$ScriptId' -> counter=$newCounter, status=$newStatus."
+}
+
+function _Resolve-SoakScriptPath {
+    # A ScriptId is project-root-relative with the framework-path prefix stripped
+    # when the script lives under it (see _Resolve-CallingScript v2.1). Invert
+    # that: look under the framework root first, then under the project root for
+    # scripts that live outside it (e.g. process-framework-central/scripts/...).
+    # Returns $null when the ScriptId names no file on disk — a retired or
+    # relocated script must resolve to 'unknown', never be guessed at.
+    param([Parameter(Mandatory=$true)][string]$ScriptId)
+
+    try { $projectRoot = Get-ProjectRoot } catch { return $null }
+    if (-not $projectRoot) { return $null }
+
+    $candidates = @()
+    try {
+        $cfgPath = Join-Path $projectRoot 'doc/project-config.json'
+        if (Test-Path -LiteralPath $cfgPath) {
+            $fw = (Get-Content -LiteralPath $cfgPath -Raw | ConvertFrom-Json).paths.process_framework
+            if ($fw) { $candidates += (Join-Path $projectRoot (Join-Path $fw $ScriptId)) }
+        }
+    } catch {
+        # An unreadable or malformed project-config is not fatal here — fall
+        # through to the project-root-relative candidate below.
+        Write-Verbose "_Resolve-SoakScriptPath: project-config read failed ($($_.Exception.Message)); using project-root-relative candidate only."
+    }
+    $candidates += (Join-Path $projectRoot $ScriptId)
+
+    foreach ($candidate in $candidates) {
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+    return $null
+}
+
+function _Test-ScriptIsSelfArmed {
+    # Pure inspection of one script file: does it arm its own soak counter?
+    # Kept path-based and side-effect-free so the AST logic is unit-testable
+    # against fixtures without a resolvable ScriptId or a live registry.
+    #
+    # Matching is done over the AST, not the source text: a script that merely
+    # MENTIONS a soak helper in a comment or a .DESCRIPTION must not read as
+    # instrumented (the AST-vs-text-match rule, PF-IMP-1736).
+    #
+    # Two ways to be armed:
+    #   direct   — the script calls the soak helpers itself
+    #   indirect — it routes through a creation wrapper that arms on its behalf
+    #              via DocumentManagement.psm1
+    #
+    # Returns $true / $false, or $null when the file cannot be parsed at all.
+    param([Parameter(Mandatory=$true)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
+
+    try {
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile($Path, [ref]$null, [ref]$null)
+    } catch { return $null }
+    if (-not $ast) { return $null }
+
+    $armingCommands = @(
+        'Register-SoakScript', 'Test-ScriptInSoak', 'Confirm-SoakInvocation',
+        'New-FrameworkDocument', 'Invoke-DesignArtifactCreation'
+    )
+    $calls = $ast.FindAll(
+        { param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true)
+    foreach ($call in $calls) {
+        if ($armingCommands -contains $call.GetCommandName()) { return $true }
+    }
+    return $false
+}
+
+function _Get-SoakArmingMode {
+    # Derives whether a registered script arms its own soak counter, rather than
+    # trusting a hand-maintained annotation that silently drifts (PF-IMP-1880).
+    param([Parameter(Mandatory=$true)][string]$ScriptId)
+
+    $path = _Resolve-SoakScriptPath -ScriptId $ScriptId
+    if (-not $path) { return 'unknown' }
+
+    $armed = _Test-ScriptIsSelfArmed -Path $path
+    if ($null -eq $armed) { return 'unknown' }
+    if ($armed) { return 'self-armored' }
+    return 'agent-maintained'
+}
+
+function _Test-SoakHashCurrent {
+    # Pure comparison of one script's current content hash against the hash a
+    # soak row recorded. Path-based and side-effect-free so the logic is
+    # unit-testable against fixtures. Returns $true / $false, or $null when the
+    # file is missing or the stored hash is absent — never a guess.
+    param(
+        [Parameter(Mandatory=$true)][string]$Path,
+        [string]$StoredHash
+    )
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
+    if ([string]::IsNullOrWhiteSpace($StoredHash))          { return $null }
+
+    try   { $current = _Get-SoakScriptHash -ScriptPath $Path }
+    catch { return $null }
+
+    return ($current -eq $StoredHash)
+}
+
+function _Get-SoakHashState {
+    # Resolving sibling of _Test-SoakHashCurrent, keyed by ScriptId.
+    param(
+        [Parameter(Mandatory=$true)][string]$ScriptId,
+        [string]$StoredHash
+    )
+
+    $path = _Resolve-SoakScriptPath -ScriptId $ScriptId
+    if (-not $path) { return $null }
+    return (_Test-SoakHashCurrent -Path $path -StoredHash $StoredHash)
 }
 
 function Get-SoakStatus {
     <#
     .SYNOPSIS
-    Returns the soak registry as objects (one per registered script).
+    Returns the soak registry as objects (one per registered script), each
+    carrying its derived Arming mode.
 
     .DESCRIPTION
     Use during periodic Tools Review sessions to spot stale soaks (counter not
     decrementing because agents are forgetting to call Confirm-SoakInvocation,
     or soaks never completing because the script keeps failing).
 
+    Each entry carries three derived properties, computed at call time from the
+    script on disk rather than read out of the row:
+
+      Arming       'self-armored' (it calls the soak helpers itself, or routes
+                   through a creation wrapper that arms on its behalf),
+                   'agent-maintained' (it does not, so an edit needs the manual
+                   re-sync sequence), or 'unknown' (the ScriptId resolves to no
+                   file). Derived from the script's AST. This is the
+                   authoritative answer: the `[agent-maintained]` text some
+                   Notes cells carry is human annotation that cannot be trusted
+                   to keep pace with the script (PF-IMP-1880).
+
+      HashCurrent  $true/$false — does the row's recorded hash still match the
+                   file? $null when the file is missing or no hash is recorded.
+                   A $false on a self-armored script is benign: it re-arms on
+                   its next real invocation.
+
+      NeedsResync  $true only when Arming is 'agent-maintained' AND HashCurrent
+                   is $false — i.e. the row asserts soak progress against
+                   content that no longer exists and nothing will reconcile it
+                   automatically. This encodes the rule in code so it does not
+                   have to be remembered (PF-IMP-1755).
+
+    Deriving happens here rather than in the shared row parser because the
+    parser sits on the hot path of every soak operation. Cost is one AST parse
+    plus one hash per row — measured ~3.3s for the full unfiltered registry at
+    73 rows; filtering by -ScriptId costs one of each and is effectively free.
+
     .PARAMETER ScriptId
-    Optional: filter to a single registered script.
+    Optional: filter to a single registered script. A filtered lookup is ownership-aware
+    (v2.3, PF-PRO-068 WI-5) — the ID is resolved to its file, and the row is read from the
+    registry of the workspace that OWNS that file, so a script owned elsewhere is found rather
+    than reported missing.
+
+    .NOTES
+    The UNFILTERED dump reads only the caller's own registry — one workspace's registry is one
+    file, and this function does not merge across the chain. Post-federation the fleet-wide
+    sweep (`Get-SoakStatus | Where-Object NeedsResync`) therefore covers the rows this workspace
+    homes; run it at each producer face to cover the portfolio.
     #>
     [CmdletBinding()]
     param(
         [string]$ScriptId
     )
-    $raw = _Read-SoakStateRaw
+    $soakScriptPath = if ($ScriptId) { _Resolve-SoakScriptPath -ScriptId $ScriptId } else { $null }
+    $raw = _Read-SoakStateRaw -ScriptPath $soakScriptPath
     $entries = _Get-AllRegisteredEntries -RawContent $raw
 
     if ($ScriptId) {
-        return ($entries | Where-Object { $_.ScriptId -eq $ScriptId })
+        $entries = @($entries | Where-Object { $_.ScriptId -eq $ScriptId })
+    }
+
+    foreach ($entry in $entries) {
+        $arming      = _Get-SoakArmingMode -ScriptId $entry.ScriptId
+        $hashCurrent = _Get-SoakHashState  -ScriptId $entry.ScriptId -StoredHash $entry.ContentHash
+
+        $entry | Add-Member -NotePropertyName 'Arming'      -NotePropertyValue $arming      -Force
+        $entry | Add-Member -NotePropertyName 'HashCurrent' -NotePropertyValue $hashCurrent -Force
+        $entry | Add-Member -NotePropertyName 'NeedsResync' `
+            -NotePropertyValue (($arming -eq 'agent-maintained') -and ($hashCurrent -eq $false)) -Force
     }
     return $entries
 }

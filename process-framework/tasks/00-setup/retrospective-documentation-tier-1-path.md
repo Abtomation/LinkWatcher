@@ -1,12 +1,14 @@
 # Retrospective Documentation — Tier 1 Path
 
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
+
 > **Parent task**: [Retrospective Documentation Creation](retrospective-documentation-creation.md) (PF-TSK-066)
 >
-> **Scope**: Phase 3 closure pass for **Tier 1 features only**. Tier 1 features have no FDD, TDD, Test Specification, or ADR — their design intent lives in the [Feature Implementation State file](../../../doc/state-tracking/features) §6 "Design Decisions". Steps 5-11 of the parent task do not apply. This companion condenses Phase 3 to the subset that does.
+> **Scope**: Phase 3 closure pass for **Tier 1 features only**. Tier 1 features have no FDD, TDD, Test Specification, or ADR — their design intent lives in the [Feature Implementation State file](../../../doc/state-tracking/features) §6 "Design Decisions". Steps 6-12 of the parent task do not apply. This companion condenses Phase 3 to the subset that does.
 >
-> **Use when**: The current feature is Tier 1 (validated in Step 3 of the parent task). For Tier 2/3 features, return to the parent task and follow Steps 5-17 in full.
+> **Use when**: The current feature is Tier 1 (validated in Step 4 of the parent task). For Tier 2/3 features, return to the parent task and follow Steps 6-21 in full.
 >
-> **Phase 4 finalization**: After completing this companion for each Tier 1 feature in the batch, return to the parent task for Steps 18-27 (cross-feature verification, gap analysis, archive).
+> **Phase 4 finalization**: After completing this companion for each Tier 1 feature in the batch, return to the parent task for Steps 22-33 (cross-feature verification, gap analysis, archive).
 
 ## Process
 
@@ -14,7 +16,7 @@
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 
-**T1. Confirm tier assignment**: The feature must already be Tier 1 in [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md). If parent Step 3 raised doubts, resolve them in the parent task (validate against PF-TSK-065 analysis findings) before returning here. Tier-promotion or tier-demotion routes back through Steps 5-11 if the feature becomes Tier 2+.
+**T1. Confirm tier assignment**: The feature must already be Tier 1 in [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md). If parent Step 4 raised doubts, resolve them in the parent task (validate against PF-TSK-065 analysis findings) before returning here. Tier-promotion or tier-demotion routes back through Steps 6-12 if the feature becomes Tier 2+.
 
 **T2. Create Architecture Decision Records (optional)**: If the feature embodies a discrete architectural decision worth recording, create an ADR using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1).
 
@@ -52,7 +54,7 @@
    - Update Feature Implementation State file §7 "Quality Assessment Report" link
    - Update master state: QAR ✅ for this feature (or N/A for As-Built Tier 1)
 
-**T5. Assess User Documentation Coverage**: Same step as the parent task's Step 13. Tier 1 features with CLI commands, configuration, or user workflows still need this assessment.
+**T5. Assess User Documentation Coverage**: Same as the parent task's user-documentation coverage assessment (Steps 14-17). Tier 1 features with CLI commands, configuration, or user workflows still need this assessment.
 
    - **Purpose**: Apply the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md) to populate the `### User Documentation` section in the [Feature Implementation State file](../../../doc/state-tracking/features) with one row per relevant content type.
    - **T5a — Apply decision matrix**: Identify which content types are relevant via the [decision matrix](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix). Internal/architectural Tier 1 features may have no relevant types — that's valid (use a single `N/A` row with rationale).
@@ -80,11 +82,11 @@
    - Log session notes
    - **Complete feedback form for the session** (PF-TSK-066, not this companion — the parent task owns the feedback context)
 
-**T10. Return to parent task for Phase 4** once all Tier 1 (and any Tier 2+) features in the current scope are closed. Phase 4 (Steps 18-27) covers cross-feature verification, pre-existing documentation gap analysis, framework improvement harvest, documentation map updates, and master state archive — these run once per onboarding effort, not per feature.
+**T10. Return to parent task for Phase 4** once all Tier 1 (and any Tier 2+) features in the current scope are closed. Phase 4 (Steps 22-33) covers cross-feature verification, pre-existing documentation gap analysis, framework improvement harvest, documentation map updates, and master state archive — these run once per onboarding effort, not per feature.
 
 ## ⚠️ MANDATORY Per-Feature Completion Checklist
 
-**Per-feature Tier 1 closure is NOT complete until ALL items below are checked off. Phase 4 finalization runs from the parent task.**
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it. Phase 4 finalization runs from the parent task.
 
 - [ ] **Tier 1 path applies**: Feature is confirmed Tier 1 in [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) (T1)
 - [ ] **Optional ADR** (T2): Created if architectural decision worth recording, or noted as N/A in master state
@@ -101,5 +103,5 @@
 - [Parent task: Retrospective Documentation Creation](retrospective-documentation-creation.md) (PF-TSK-066) — full Phase 3 for Tier 2/3, plus Phase 4 finalization for all tiers
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) — where tier assignments originate
 - [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) — where dimension scores are populated
-- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) — using the lightweight state file template
+- [Onboarding-sections craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/onboarding-sections.md) — using the lightweight state file template in retrospective mode (replaces the retired Feature Implementation State Tracking Guide)
 - [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md) — decision matrix + status taxonomy for T5

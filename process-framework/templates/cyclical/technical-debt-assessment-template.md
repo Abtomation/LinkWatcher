@@ -1,5 +1,5 @@
 ---
-id: [Document ID - will be automatically assigned]
+id: PF-TEM-097
 type: Process Framework
 category: Assessment
 version: 1.0
@@ -7,6 +7,8 @@ created: [Assessment Date]
 updated: [Assessment Date]
 assessment_scope: [Assessment Scope]
 assessment_type: [Assessment Type]
+creates_document_type: Product Documentation
+creates_document_category: Technical Debt Assessment
 description: "Template for technical debt assessment reports"
 ---
 # Technical Debt Assessment: [Assessment Name]
@@ -53,32 +55,32 @@ description: "Template for technical debt assessment reports"
 #### Code Quality Issues
 | Item ID | Description | Location | Impact | Effort | Priority |
 |---------|-------------|----------|--------|--------|----------|
-| [PF-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
+| [PD-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
 
 #### Security Vulnerabilities
 | Item ID | Description | Location | Impact | Effort | Priority |
 |---------|-------------|----------|--------|--------|----------|
-| [PF-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
+| [PD-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
 
 #### Performance Issues
 | Item ID | Description | Location | Impact | Effort | Priority |
 |---------|-------------|----------|--------|--------|----------|
-| [PF-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
+| [PD-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
 
 #### Architecture Concerns
 | Item ID | Description | Location | Impact | Effort | Priority |
 |---------|-------------|----------|--------|--------|----------|
-| [PF-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
+| [PD-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
 
 #### Documentation Gaps
 | Item ID | Description | Location | Impact | Effort | Priority |
 |---------|-------------|----------|--------|--------|----------|
-| [PF-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
+| [PD-TDI-XXX] | [Description] | [Location] | [High/Medium/Low] | [High/Medium/Low] | [Critical/High/Medium/Low] |
 
 ## Prioritization Analysis
 
 ### Impact vs Effort Matrix
-<!-- Reference to prioritization matrix document: [PF-TDM-XXX] -->
+<!-- Reference to prioritization matrix document: [PD-TDM-XXX] -->
 
 ### Priority Levels
 
@@ -148,8 +150,8 @@ description: "Template for technical debt assessment reports"
 
 ## Related Documents
 
-- **Debt Items**: [List all PF-TDI-XXX items created from this assessment]
-- **Prioritization Matrix**: [PF-TDM-XXX reference]
+- **Debt Items**: [List all PD-TDI-XXX items created from this assessment]
+- **Prioritization Matrix**: [PD-TDM-XXX reference]
 - **Previous Assessments**: [References to previous assessment documents]
 - **Technical Debt Tracking**: [Link to permanent state tracking]
 

@@ -1,5 +1,10 @@
 # TestRunner.psm1
 # Shared helpers for per-language test runners (Run-Tests.<language>.ps1).
+
+<#
+.SYNOPSIS
+Shared helpers for per-language test runners (Run-Tests.<language>.ps1).
+#>
 #
 # Created: 2026-05-17 by Framework Self-Testing extension (PF-PRO-035) Phase 3a.
 #
@@ -94,7 +99,7 @@ function Resolve-TestCategoryPath {
     .DESCRIPTION
     The per-language runners discover only the top-level subdirectories of the test
     'automated/' tree as categories (e.g. 'unit', 'performance'). But the framework's
-    own prescriptions (e.g. PF-TSK-009 Step 10: "run Run-Tests.ps1 -Category <area>")
+    own prescriptions (e.g. PF-TSK-009's execute-changes step: "run Run-Tests.ps1 -Category <area>")
     refer to test *areas* that live deeper — e.g. test/automated/unit/framework/helpers.
     This helper bridges that gap by resolving a category in three steps:
 

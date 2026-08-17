@@ -2,9 +2,10 @@
 id: PF-GDE-064
 type: Process Framework
 category: Guide
-version: 1.1
+version: 1.3
 created: 2026-05-04
-updated: 2026-06-03
+updated: 2026-08-05
+related_task: PF-TSK-009
 related_script: Validate-StateTracking.ps1
 description: "How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)"
 ---
@@ -15,7 +16,7 @@ description: "How to reconcile template-frontmatter schema drift surfaced by Val
 
 How to reconcile template-frontmatter schema drift surfaced by `Validate-StateTracking.ps1 -Detailed` (Surface 10: Metadata Schema Conformance).
 
-The validate script's Surface 10 checks every task, template, guide, and context map against the schema declared in [`domain-config.json`](../../domain-config.json) under `artifact_metadata_schemas`. Frontmatter fields that aren't declared as `required` or `optional` for that artifact type produce **"Unknown field"** warnings. Per [PF-IMP-646](/process-framework-central/state-tracking/permanent/process-improvement-tracking.md), these warnings are marked `-DetailOnly` because they're dominated by legitimate template-subtype fields rather than typos — the default summary line `"Warnings: N (M hidden — use -Detailed to view)"` is the trigger for this audit.
+The validate script's Surface 10 checks every task, template, and guide against the schema declared in [`domain-config.json`](../../domain-config.json) under `artifact_metadata_schemas`. Frontmatter fields that aren't declared as `required` or `optional` for that artifact type produce **"Unknown field"** warnings. Per [PF-IMP-646](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md), these warnings are marked `-DetailOnly` because they're dominated by legitimate template-subtype fields rather than typos — the default summary line `"Warnings: N (M hidden — use -Detailed to view)"` is the trigger for this audit.
 
 ## When to Use
 
@@ -29,7 +30,7 @@ There is no calendar cadence; the trigger is signal-driven from the validation o
 ## Prerequisites
 
 - [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) is present and runs cleanly
-- [`process-framework/domain-config.json`](../../domain-config.json) contains an `artifact_metadata_schemas` section with entries for `task`, `template`, `guide`, `context_map`
+- [`process-framework/domain-config.json`](../../domain-config.json) contains an `artifact_metadata_schemas` section with entries for `task`, `template`, `guide`
 - You can edit `domain-config.json` (no automation script wraps schema edits — direct JSON edits)
 
 ## Background
@@ -80,9 +81,9 @@ Not every file with `category: Template` is an *artifact* template. A second kin
 
 When Surface 10 flags `task_name`, `parent_state`, or `feature_id`, the correct outcome is **Declare**, not Fix. These fields are intentional and used consistently across the state-tracking family (`task_name` alone appears in ~7 templates) — **do not "conform" a state-tracking template to the artifact-template schema** (e.g. by swapping `task_name` for `template_for`); that destroys correct metadata. As of 2026-06-03 these three fields are declared in `domain-config.json`'s `template.optional` for exactly this reason (PF-IMP-949).
 
-> **Why declare rather than sub-type?** The schema is flat — it cannot scope a field to a template subtype — so a declared field is allowed on *every* template. That is the accepted trade-off (a too-permissive schema costs little; a false typo-fix costs more). Sibling fields a later full pass should also Declare: `feature_ids` (cross-cutting test spec), `variant_group`, and `mode` (variant-family templates) remain undeclared.
+> **Why declare rather than sub-type?** The schema is flat — it cannot scope a field to a template subtype — so a declared field is allowed on *every* template. That is the accepted trade-off (a too-permissive schema costs little; a false typo-fix costs more). The variant-family siblings (`feature_ids`, `variant_group`, `variant_siblings`, `mode`) and the generator-projection fields — the Build-TaskMetadata task frontmatter and the doc-map `description` on guides — were declared this way too (PF-IMP-1388, following PF-IMP-949).
 
-> **Placeholder styles are out of scope here.** State-tracking templates mix `[Bracketed Title]` and `[ALL-CAPS-TOKEN]` placeholders in the body. That is a template-authoring consistency concern (see the [Template Development Guide](template-development-guide.md)), not a metadata-schema one — Surface 10 only inspects frontmatter, never body placeholders.
+> **Placeholder styles are out of scope here.** State-tracking templates mix `[Bracketed Title]` and `[ALL-CAPS-TOKEN]` placeholders in the body. That is a template-authoring consistency concern (see the [`template-development` craft skill](../../../.claude/skills/template-development/SKILL.md)), not a metadata-schema one — Surface 10 only inspects frontmatter, never body placeholders.
 
 ## Step-by-Step Instructions
 
@@ -94,22 +95,25 @@ pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Vali
 
 Scoping with `-Surface MetadataSchema` keeps output focused on the relevant findings.
 
-**Expected result:** `schema-audit.txt` contains all "Unknown field" warnings plus the conforming/violation summary at the end.
+**Expected result:** `schema-audit.txt` contains all "Unknown field" warnings, the reconciliation summary read in step 2, and the conforming/violation counts at the end.
 
-### 2. Group findings by artifact type and field name
+### 2. Read the reconciliation summary
 
-Parse the output for lines of the form `Unknown field: <name> (not in schema for <artifact_type>)`. Cluster by `(artifact_type, field_name)` pairs — each pair is one decision, regardless of how many files raised it.
+The `-Detailed` run ends with an **Unknown-field reconciliation** block: one line per `(artifact_type, field_name)` pair — the unit of decision, regardless of how many files raised it — carrying the two signals that decide it. Does the field cohere with a live template subtype (the `variant_group` **family** its carrying files share), and does a creation **script** emit it?
 
-A field appearing in **many** files of one artifact type is almost always legitimate (declare). A field appearing in **one** file is more likely a typo (fix).
+```
+template widget_scope   2 file(s)  family: widget-templates  emitter: -            -> Declare (coheres with one family)
+guide    guide_title    2 file(s)  family: -                 emitter: -            -> Fix (no emitter, no family - residue candidate)
+```
+
+Occurrence count is only a weak tell, and the two lines above show why: residue left behind by an incomplete fleet-wide removal reads as a consistent multi-file cluster. `guide_title` sat in 5 guides, consistently, having been retired framework-wide months earlier.
 
 ### 3. Decide and act on each cluster
 
 For each `(artifact_type, field_name)` cluster:
 
-1. **Read one representative file's frontmatter** to confirm the field's role
-2. **Decide**:
-   - Multiple files use it consistently with the same semantics → **Declare**
-   - Single occurrence with no obvious purpose, or a near-miss of an existing field name (e.g., `created_at` vs `created`) → **Fix**
+1. **Read one representative file's frontmatter** to confirm the field's role — the summary is evidence, not a verdict
+2. **Decide**: take the summary's suggestion unless that file contradicts it. A `review` line (its carriers disagree about the family) and a near-miss of an existing field name (e.g., `created_at` vs `created` → **Fix**) are decided by hand; when still in doubt, declare
 3. **Apply**:
    - **Declare**: edit `domain-config.json`, append the field name to `artifact_metadata_schemas.<type>.optional`. Keep the array alphabetically grouped where it already is.
    - **Fix**: edit the offending file's frontmatter (rename, remove, or move to body)
@@ -126,15 +130,13 @@ pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Vali
 
 ### Example: Declare a legitimate field
 
-`schema-audit.txt` shows 8 lines like:
+`schema-audit.txt` shows 8 `applies_to` warnings, and this reconciliation line:
 
 ```
-[WARNING] [MetadataSchema] process-framework/templates/02-design/tdd-t2-template.md: Unknown field: applies_to (not in schema for template)
-[WARNING] [MetadataSchema] process-framework/templates/02-design/tdd-t3-template.md: Unknown field: applies_to (not in schema for template)
-... (6 more template files use applies_to consistently)
+template applies_to     8 file(s)  family: tdd-templates  emitter: -   -> Declare (coheres with one family)
 ```
 
-8 templates use `applies_to` for the same purpose → **declare**. Edit `domain-config.json`:
+The carriers are one live subtype, not residue → **declare**. Edit `domain-config.json`:
 
 ```json
 "template": {
@@ -188,20 +190,20 @@ updated: 2026-04-15
 
 **Symptom:** Borderline cluster — too few occurrences to confidently declare, but no obvious typo either.
 
-**Cause:** Often means the field was introduced for a specific template subtype that hasn't proliferated yet.
+**Cause:** Often a field introduced for a template subtype that hasn't proliferated yet.
 
-**Solution:** Check the templates' purpose (read the template file). If the field is meaningful and likely to recur, declare it. If it's experimental or one-off, fix it (remove from frontmatter, document in the body). When in doubt, declare — the cost of a too-permissive schema is low; the cost of false typo-fix is bigger.
+**Solution:** Count is the wrong question — read the step 2 summary's family and emitter signals. A field a script emits, or one that coheres with a live subtype, is legitimate however few files carry it; an experimental one-off is a Fix. When still in doubt, declare.
 
 ### Re-running default mode still shows large hidden-warning count
 
 **Symptom:** After reconciling 50+ findings, default summary still shows ~60 hidden warnings.
 
-**Cause:** Surface 10 also surfaces unknown fields in **task** and **context_map** files — the audit must cover all four artifact types, not just templates and guides.
+**Cause:** Surface 10 also surfaces unknown fields in **task** files — the audit must cover all three artifact types, not just templates and guides.
 
 **Solution:** The `-Surface MetadataSchema` run already includes all artifact types; re-read `schema-audit.txt` and confirm you addressed every cluster, not just the largest ones.
 
 ## Related Resources
 
-- [Validate-StateTracking.ps1](../../scripts/validation/Validate-StateTracking.ps1) — Surface 10 implementation (lines ~824-958)
+- [Validate-StateTracking.ps1](../../scripts/validation/Validate-StateTracking.ps1) — Surface 10 implementation (search for the "Surface 10" / "MetadataSchema" section)
 - [domain-config.json](../../domain-config.json) — `artifact_metadata_schemas` section
-- [Process Improvement Tracking](/process-framework-central/state-tracking/permanent/process-improvement-tracking.md) — PF-IMP-646 (introduced `-DetailOnly`) and PF-IMP-690 (this guide)
+- [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) — PF-IMP-646 (introduced `-DetailOnly`) and PF-IMP-690 (this guide)

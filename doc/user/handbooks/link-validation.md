@@ -1,5 +1,6 @@
 ---
 id: PD-UGD-003
+description: "On-demand workspace scan for broken file references using --validate"
 type: Product Documentation
 category: User Guide
 version: 1.0
@@ -150,7 +151,8 @@ path_resolution_overrides:
 - **Key** = folder relative to the project root; **value** = resolution base (relative to the project root). Map a folder to itself for the common "this folder is a shippable root" case; the two may differ.
 - **Longest-prefix match wins** when folders nest.
 - **Files outside every configured folder are unaffected** — their `/...` links still resolve against the project root.
-- **Default**: `{}` (empty) — validation behavior is unchanged when the key is absent.
+- **Default**: `{}` (empty) — behavior is unchanged when the key is absent.
+- **Not validation-only** (since v2.2): the same override also drives the **live update path** — moving or renaming files inside an override folder rewrites the folder's `/...` cross-references, preserving their virtual-root style. See the [Configuration Guide](configuration-guide.md#per-folder-path-resolution-override-path_resolution_overrides) for the live-update behavior and safety guards.
 - Set this via a config file; like `parser_type_extensions`, it is **not** configurable via a `LINKWATCHER_*` environment variable.
 
 See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-config.yaml) for a complete example.

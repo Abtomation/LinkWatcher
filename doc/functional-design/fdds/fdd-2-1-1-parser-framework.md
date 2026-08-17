@@ -1,5 +1,6 @@
 ---
 id: PD-FDD-026
+description: "2.1.1 Tier 2 — Parser registry/facade with 6 format-specific parsers"
 type: Product Documentation
 category: Functional Design Document
 version: 1.0

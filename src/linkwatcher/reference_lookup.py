@@ -35,6 +35,7 @@ import os
 import re
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 from .database import LinkDatabaseInterface
@@ -74,6 +75,16 @@ class ReferenceLookup:
         self.updater = updater
         self.project_root = project_root
         self.logger = logger or get_logger()
+        # PD-BUG-114: memory of recently processed moves (old rel path ->
+        # (new rel path, timestamp)) so links whose target moved in the same
+        # operation can be repaired instead of skipped by the existence guard.
+        self._recent_moves = {}
+        # PD-BUG-114: links skipped by the existence guard, keyed by their
+        # resolved old target -> {(moved_file_old_path, moved_file_new_path): ts}.
+        # When a later move event explains the key, apply_pending_recalcs()
+        # re-runs the link recalculation for the recorded files.
+        self._pending_recalcs = {}
+        self._move_memory_ttl = 300.0  # seconds; matches DirectoryMoveDetector window
 
     def get_path_variations(self, path):
         """Generate all format variations of a path for database lookup.
@@ -309,6 +320,106 @@ class ReferenceLookup:
                 error=str(e),
                 error_type=type(e).__name__,
             )
+
+    def record_move(self, old_path: str, new_path: str):
+        """Record a processed move so same-operation link repairs can find it.
+
+        PD-BUG-114: when two files that reference each other move in one
+        operation, the link recalculation for one file needs to know where the
+        other file went. Entries expire after _move_memory_ttl seconds.
+        """
+        now = time.monotonic()
+        self._prune_move_memory(now)
+        old_norm = old_path.replace("\\", "/")
+        new_norm = new_path.replace("\\", "/")
+        # Follow chains: an earlier move whose destination just moved again
+        # should map to the final location.
+        for key, (dest, _ts) in list(self._recent_moves.items()):
+            if dest == old_norm:
+                # Refresh the timestamp to this hop: a chain that is still
+                # moving is still live, and ageing it from the first hop would
+                # expire the chain early (PD-BUG-114 code review follow-up).
+                self._recent_moves[key] = (new_norm, now)
+        self._recent_moves[old_norm] = (new_norm, now)
+
+    def apply_pending_recalcs(self, moved_old_path: str) -> int:
+        """Repair links previously skipped because they pointed at moved_old_path.
+
+        PD-BUG-114: when a moved file's outgoing link resolved to a path that
+        was already gone from disk, the recalculation was deferred (see
+        _calculate_updated_relative_path). Once the move that vacated that path
+        is processed — and therefore in the move memory — re-run the link
+        recalculation for each recorded file.
+
+        Returns the number of links updated.
+        """
+        key = moved_old_path.replace("\\", "/")
+        entries = self._pending_recalcs.pop(key, None)
+        if not entries:
+            return 0
+        links_updated = 0
+        for pending_old, pending_new in entries:
+            abs_new = os.path.join(str(self.project_root), pending_new)
+            if not os.path.exists(abs_new):
+                # The referencing file moved again before this repair could run,
+                # so the recorded path is stale. Its own move processing
+                # re-registers the link if it still needs one. Logged rather
+                # than dropped silently — silent skips are the failure mode this
+                # bug exists to fix (PD-BUG-114 code review follow-up).
+                self.logger.warning(
+                    "pending_link_recalc_dropped",
+                    file_path=pending_new,
+                    moved_target=key,
+                )
+                continue
+            self.logger.info(
+                "pending_link_recalc_applied",
+                file_path=pending_new,
+                moved_target=key,
+            )
+            # The file was already re-indexed under its new path during its own
+            # move processing; clear those entries so the rescan inside
+            # update_links_within_moved_file doesn't leave stale targets behind.
+            self.link_db.remove_file_links(pending_new)
+            links_updated += self.update_links_within_moved_file(
+                pending_old,
+                pending_new,
+                abs_new,
+                backup_enabled=self.updater.backup_enabled,
+            )
+        return links_updated
+
+    def _lookup_recent_move(self, resolved_target: str):
+        """Return the new path a recently processed move gave resolved_target, or None."""
+        now = time.monotonic()
+        self._prune_move_memory(now)
+        entry = self._recent_moves.get(resolved_target.replace("\\", "/"))
+        return entry[0] if entry else None
+
+    def _register_pending_recalc(
+        self, resolved_target: str, old_file_path: str, new_file_path: str
+    ):
+        """Remember a link the existence guard skipped, keyed by its resolved old target."""
+        key = resolved_target.replace("\\", "/")
+        entries = self._pending_recalcs.setdefault(key, {})
+        entries[(old_file_path, new_file_path)] = time.monotonic()
+        self.logger.debug(
+            "link_recalc_pending",
+            resolved_target=key,
+            file_path=new_file_path,
+        )
+
+    def _prune_move_memory(self, now: float):
+        """Drop move-memory and pending-recalc entries older than the TTL."""
+        cutoff = now - self._move_memory_ttl
+        for key in [k for k, (_, ts) in self._recent_moves.items() if ts < cutoff]:
+            del self._recent_moves[key]
+        for key in list(self._pending_recalcs):
+            entries = self._pending_recalcs[key]
+            for entry_key in [k for k, ts in entries.items() if ts < cutoff]:
+                del entries[entry_key]
+            if not entries:
+                del self._pending_recalcs[key]
 
     def collect_directory_file_refs(self, old_file_path: str, new_file_path: str):
         """Collect references and module refs for a moved file without updating.
@@ -553,22 +664,11 @@ class ReferenceLookup:
                 link_count=len(relative_links),
             )
 
-            # Check if file stayed in the same directory (no path recalculation needed)
-            old_dir = os.path.dirname(old_file_path)
-            new_dir = os.path.dirname(new_file_path)
-
-            if old_dir == new_dir:
-                self.logger.debug(
-                    "same_directory_move_no_updates",
-                    file_path=new_file_path,
-                )
-                # PD-BUG-008: Still update DB source path — without this, subsequent
-                # moves of files referenced by this file try to open the old (non-existent) path.
-                self.rescan_moved_file_links(
-                    old_file_path, new_file_path, abs_new_path, content=content
-                )
-                return 0
-
+            # PD-BUG-114: same-directory renames run the full recalculation too.
+            # Unmoved targets recalculate to their as-authored path (no write),
+            # but a target that vanished mid-operation must reach the move-memory
+            # repair in _calculate_updated_relative_path — the former early
+            # return here left such links permanently stale.
             original_content = content
 
             # Replace links and write results
@@ -578,7 +678,17 @@ class ReferenceLookup:
             content = "\n".join(lines)
 
             if links_updated > 0 and content != original_content:
-                self._write_with_backup(abs_new_path, content, backup_enabled)
+                if self.updater.dry_run:
+                    # PD-BUG-116: honor dry-run — preview only. Reset content so
+                    # the DB rescan below indexes what is actually on disk.
+                    self.logger.info(
+                        "dry_run_skip",
+                        file_path=abs_new_path,
+                        references_count=links_updated,
+                    )
+                    content = original_content
+                else:
+                    self._write_with_backup(abs_new_path, content, backup_enabled)
 
             # PD-BUG-008: Update DB source path via shared method (same logic
             # as early-return paths above, and as _handle_directory_moved).
@@ -586,7 +696,7 @@ class ReferenceLookup:
                 old_file_path, new_file_path, abs_new_path, content=content
             )
 
-            if links_updated > 0:
+            if links_updated > 0 and not self.updater.dry_run:
                 self.logger.info(
                     "moved_file_links_updated",
                     file_path=new_file_path,
@@ -773,7 +883,49 @@ class ReferenceLookup:
             # PD-BUG-033: Skip non-existent targets — if the resolved path doesn't
             # exist as a file or directory, the extracted "link" was never a real path
             # (e.g., regex patterns, filter strings, example text in PowerShell scripts).
+            # PD-BUG-114: unless the target itself moved in the same operation —
+            # then the resolved old path is legitimately gone and the move memory
+            # knows where it went.
             if not path_exists_under_root(self.project_root, old_absolute_target):
+                moved_target = self._lookup_recent_move(old_absolute_target)
+                if moved_target is not None:
+                    if path_exists_under_root(self.project_root, moved_target):
+                        if new_dir:
+                            recalculated = os.path.relpath(moved_target, new_dir).replace("\\", "/")
+                        else:
+                            recalculated = moved_target
+                        self.logger.info(
+                            "link_target_move_applied",
+                            original_target=original_target,
+                            moved_target=moved_target,
+                            new_target=recalculated,
+                        )
+                        return recalculated + fragment
+                    self.logger.warning(
+                        "link_target_move_stale",
+                        original_target=original_target,
+                        moved_target=moved_target,
+                    )
+                    return original_target
+                # Not a known move: either a non-path string (PD-BUG-033) or a
+                # target whose own move event has not been processed yet. Record
+                # it so apply_pending_recalcs() can repair the link if that move
+                # event arrives later (PD-BUG-114).
+                self._register_pending_recalc(old_absolute_target, old_file_path, new_file_path)
+                return original_target
+
+            # PD-BUG-114 (code review follow-up): the recalculation is semantic,
+            # not textual. If the link AS AUTHORED still resolves to the same
+            # target from the file's new location, leave it exactly as written.
+            # os.path.relpath below returns a canonical path, so without this
+            # guard a same-directory rename rewrites every non-canonical form
+            # that was never wrong — "./x" to "x", backslashes to forward
+            # slashes, "dir/" to "dir". Removing the old same-directory early
+            # return is what first routed those links through relpath at all.
+            authored_from_new_dir = os.path.normpath(
+                os.path.join(new_dir, base_target) if new_dir else base_target
+            ).replace("\\", "/")
+            if authored_from_new_dir == old_absolute_target:
                 return original_target
 
             # Calculate the new relative path from the new location

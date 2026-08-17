@@ -1,13 +1,36 @@
-# New-FeedbackForm.ps1
-# Creates a new feedback form with an automatically assigned ID.
-# Supports hybrid feedback approach: Single Tool, Multiple Tools, or Task-Level evaluation.
-# Phase 7 (2026-05-11): writes to appdev/process-framework-central/feedback/feedback-forms/
-# regardless of cwd, stamps project_id/project_name/framework_version in frontmatter, and
-# emits the underscore-separated filename format YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-XXX_feedback.md.
-# Framework Self-Testing extension (PF-PRO-035, Phase 3d.7b, 2026-05-18): added -OutputDir
-# override so E2E test fixtures (and future tooling) can redirect feedback-form output to a
-# sandbox dir without modifying central-path resolution. Default behavior unchanged when
-# -OutputDir is omitted.
+<#
+.SYNOPSIS
+Creates a new feedback form (Single Tool / Multiple Tools / Task-Level) with an automatically assigned ID.
+
+.DESCRIPTION
+Phase 7 (2026-05-11): writes to appdev/process-framework-central/feedback/feedback-forms/
+regardless of cwd, stamps project_id/project_name/framework_version in frontmatter, and
+emits the underscore-separated filename format YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-XXX_feedback.md.
+Framework Self-Testing extension (PF-PRO-035, Phase 3d.7b, 2026-05-18): added -OutputDir
+override so E2E test fixtures (and future tooling) can redirect feedback-form output to a
+sandbox dir without modifying central-path resolution. Default behavior unchanged when
+-OutputDir is omitted.
+
+.PARAMETER DocumentId
+The TASK id the feedback is about (e.g. "PF-TSK-009") — not an artifact id created during the
+task. Stamped into the form's Task Evaluated row and into the filename.
+
+.PARAMETER TaskContext
+Human-readable name of the task being evaluated (e.g. "Process Improvement"). Omitted leaves the
+template's context line unfilled.
+
+.PARAMETER FeedbackType
+Which form shape to instantiate. Valid values: "SingleTool" / "Single Tool", "MultipleTools" /
+"Multiple Tools" (default), "TaskLevel" / "Task-Level" — the spaced and hyphenated spellings are
+accepted aliases of the same three types.
+
+.PARAMETER OutputDir
+Overrides the central feedback-forms destination. Intended for E2E fixtures and tooling that
+redirect output to a sandbox; omit for normal use so central-path resolution applies.
+
+.PARAMETER OpenInEditor
+Opens the created form in the configured editor after creation.
+#>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -35,14 +58,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script keeps
+# its data, its bespoke post-creation tool-section pruning, and its own report — inline.
 
 try {
     # Generate timestamp for filename
@@ -60,6 +78,12 @@ try {
     $customReplacements = @{
         "| Task Evaluated | [Task Name (PF-TSK-XXX)] |"                   = "| Task Evaluated | [$DocumentId] |"
         "| Feedback Type | [Single Tool / Multiple Tools / Task-Level] |" = "| Feedback Type | $feedbackTypeDisplay |"
+        # PF-IMP-1100: the template's guide links are authored relative to the template's own
+        # location (templates/support/), but forms land in <central>/feedback/feedback-forms/
+        # (all projects route there via Get-CentralFrameworkPath) — rewrite destination-relative
+        # at creation so emitted forms carry resolving links.
+        "guides/framework/feedback-form-guide.md)"                 = "../blueprint/process-framework/guides/framework/feedback-form-guide.md)"
+        "(../../guides/support/process-improvement-task-reference-guide.md#tool_doc_id-convention)" = "(../../../blueprint/process-framework/guides/support/process-improvement-task-reference-guide.md#tool_doc_id-convention)"
     }
 
     # Add task context if provided
@@ -124,7 +148,7 @@ try {
     } else {
         Join-Path (Get-CentralFrameworkPath) "feedback/feedback-forms"
     }
-    $artifactId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-FEE" -IdDescription "Feedback form for ${DocumentId}" -DocumentName "$DocumentId-feedback" -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $fileNamePattern -OpenInEditor:$OpenInEditor
+    $artifactId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PF-FEE" -IdDescription "Feedback form for ${DocumentId}" -DocumentName "$DocumentId-feedback" -OutputDirectory $outputDir -Replacements $customReplacements -Metadata $additionalMetadataFields -FileNamePattern $fileNamePattern -Label "feedback form" -OpenInEditor:$OpenInEditor
 
     if ($artifactId) {
         $generatedFile = Join-Path $outputDir $fileNamePattern
@@ -144,15 +168,18 @@ try {
                 if (Test-Path $generatedFile) {
                     $content = Get-Content $generatedFile -Raw
 
+                    # Prune anchors match on the stable "### Tool N: " heading prefix only —
+                    # not the placeholder text after it, which has drifted before (PF-IMP-1141:
+                    # the old anchors matched the pre-2026-04-14 placeholder and silently no-opped).
                     switch ($toolsToKeep) {
                         0 {
                             $content = $content -replace '(?ms)## Tool Evaluation\r?\n.*?---\r?\n\r?\n', ''
                         }
                         1 {
-                            $content = $content -replace '(?ms)### Tool 2: \[Tool Name \(\[PREFIX\]-XXX-XXX\)\] \*\(Optional\)\*.*?(?=\*\[Add more tool sections as needed\]\*)', ''
+                            $content = $content -replace '(?ms)^### Tool 2: .*?(?=\*\[Add more tool sections as needed\]\*)', ''
                         }
                         2 {
-                            $content = $content -replace '(?ms)### Tool 3: \[Tool Name \(\[PREFIX\]-XXX-XXX\)\] \*\(Optional\)\*.*?(?=\*\[Add more tool sections as needed\]\*)', ''
+                            $content = $content -replace '(?ms)^### Tool 3: .*?(?=\*\[Add more tool sections as needed\]\*)', ''
                         }
                     }
 

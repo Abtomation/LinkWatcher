@@ -4,9 +4,9 @@
     "version": "1.0",
     "created": "2026-04-03",
     "updated": "2026-05-28",
-    "description": "Project-local ID Registry — prefixes consumed by scripts running in cwd=project (PRJ-001+). Per Centralized Framework Management proposal §3.1: cross-project prefixes (PF-IMP, PF-PRO, PF-FEE, PF-REV, PF-EVR, PRJ, PF-SST) live in appdev's central registry and are NOT duplicated here. Backfilled by PF-IMP-879 (2026-05-28) to canonical schema produced by Initialize-ProjectLocalRegistry. Counter values for PF-STA and PF-TMP preserved from the legacy registry at process-framework-local/PF-id-registry-local.json; cross-project counters are already absorbed into appdev's central PF-id-registry-central.json (seeded 2026-05-09 from max(PRJ-001, PRJ-002) + 1).",
+    "description": "Project-local ID Registry — prefixes consumed by scripts running in cwd=project (PRJ-001+). Per Centralized Framework Management proposal §3.1: cross-project prefixes (PF-IMP, PF-PRO, PF-FEE, PF-REV, PF-EVR, PRJ, PF-SST) live in appdev's central registry and are NOT duplicated here. Backfilled by PF-IMP-879 (2026-05-28) to canonical schema produced by Initialize-ProjectLocalRegistry. Counter values for PF-STA and PF-TMP preserved from the legacy project-local registry; cross-project counters are already absorbed into appdev's central registry (seeded 2026-05-09 from max(PRJ-001, PRJ-002) + 1).",
     "format": "semantic",
-    "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
+    "id_gaps_policy": "Gaps in ID sequences are expected and never backfilled: an ID stays with its artifact for life — never reassign, renumber, or reuse a deleted artifact's ID (archives and history may still reference it). This constrains IDs, not the pool's nextAvailable counter, which must stay above every ID issued in this tree and never drops just because artifacts were deleted — EXCEPT reset it to 1 when the pool holds zero artifacts and none of its IDs are still referenced here (population migrated, retired, or blueprint seed only), or the vacated range is burned here and, for blueprint copies, in every project bootstrapped later. Projects that already grew their counter keep it."
   },
   "prefixes": {
     "PF-STA": {
@@ -18,7 +18,7 @@
         "temporary": "doc/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 110
+      "nextAvailable": 111
     },
     "PF-TMP": {
       "description": "Process Framework - Temporary State Tracking",

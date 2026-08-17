@@ -7,6 +7,7 @@ detected from paired delete+create events and that references are updated.
 """
 
 import threading
+from unittest.mock import patch
 
 import pytest
 from watchdog.events import (
@@ -1296,3 +1297,57 @@ class TestOwnOutputPredicate:
         assert registry["dirs"], "log dir strictly inside a drive-root project lost its exclusion"
         assert is_own_output(log_file, registry)
         assert not is_own_output(os.path.join(drive_root, "readme.md"), registry)
+
+
+class TestNormalConditionLogLevels:
+    """PD-BUG-117: handler outcomes that are normal must not be logged at WARNING.
+
+    WARNING is the level operators filter on, and both events below fire during
+    ordinary operation — an unreferenced file being moved, and the DirDeleted that
+    Windows emits for every directory move.  Logging them as warnings buries the
+    genuine anomalies (broken_references_found, unmatched_file_truly_deleted).
+    """
+
+    @pytest.fixture
+    def handler_setup(self, tmp_path):
+        """Minimal handler over an empty project — no links needed."""
+        link_db = LinkDatabase()
+        parser = LinkParser()
+        updater = LinkUpdater(str(tmp_path))
+        handler = LinkMaintenanceHandler(link_db, parser, updater, str(tmp_path))
+        return handler, tmp_path
+
+    def test_move_of_unreferenced_file_is_not_a_warning(self, handler_setup):
+        """A moved file that nothing links to is the common case, not an anomaly."""
+        handler, tmp_path = handler_setup
+
+        # Post-move state: the destination exists, nothing references either path
+        moved = tmp_path / "unreferenced_moved.txt"
+        moved.write_text("nothing points here")
+        event = FileMovedEvent(str(tmp_path / "unreferenced.txt"), str(moved))
+
+        with patch.object(handler, "logger") as mock_logger:
+            handler._handle_file_moved(event)
+
+        warned = [c.args[0] for c in mock_logger.warning.call_args_list]
+        informed = [c.args[0] for c in mock_logger.info.call_args_list]
+
+        assert "no_references_found" not in warned
+        assert "no_references_found" in informed
+
+    def test_directory_deleted_is_not_a_warning(self, handler_setup):
+        """On Windows every directory *move* arrives here first as a DirDeleted."""
+        handler, tmp_path = handler_setup
+
+        doomed = tmp_path / "documentation"
+        doomed.mkdir()
+        event = FileDeletedEvent(str(doomed))
+
+        with patch.object(handler, "logger") as mock_logger:
+            handler._handle_directory_deleted(event)
+
+        warned = [c.args[0] for c in mock_logger.warning.call_args_list]
+        informed = [c.args[0] for c in mock_logger.info.call_args_list]
+
+        assert "directory_deleted" not in warned
+        assert "directory_deleted" in informed

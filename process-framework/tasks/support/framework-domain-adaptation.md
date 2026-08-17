@@ -5,11 +5,23 @@ category: Task Definition
 version: 1.1
 domain: agnostic
 created: 2026-01-28
-updated: 2026-05-16
+updated: 2026-06-12
 description: "Systematically adapt the process framework from one business domain to another while preserving core structure"
+use_when: >-
+  Migrating the process framework to a different business domain while preserving core structure
+automation: manual
+trigger_status:
+  - raw: "_(user request)_"
+output_status:
+  - raw: "All framework files → domain-adapted"
+next_tasks:
+  - task: process-improvement-task.md
+    condition: "Document lessons learned from adaptation process"
 ---
 
 # Framework Domain Adaptation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -28,8 +40,6 @@ Systematically adapt the process framework from one business domain (software de
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/support/framework-domain-adaptation-map.md)
-
 - **Critical (Must Read):**
 
   - Domain Adaptation Concept document (project-specific — create during Phase 1 or reuse from prior analysis) - Complete adaptation strategy and approach
@@ -40,7 +50,7 @@ Systematically adapt the process framework from one business domain (software de
 
 - **Important (Load If Space):**
 
-  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `Get-Help <script> -Parameter *` before running**)
   - Domain Terminology Mapping (project-specific — create during Phase 1 or include in concept document) - Source domain → Target domain mappings
   - Deletion Criteria (project-specific — define during Phase 1) - DELETE vs. ADAPT vs. KEEP guidelines
   - [AI Tasks Registry](../../ai-tasks.md) - Task system overview
@@ -52,8 +62,6 @@ Systematically adapt the process framework from one business domain (software de
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Multi-session task - use temporary state tracking file throughout.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -262,12 +270,12 @@ Systematically adapt the process framework from one business domain (software de
       - `validation_rules.deprecated_keywords` - Add old domain keywords to detect
       - `domain` and `domain_description` - Update to reflect new domain
     - **Verify scripts load config correctly**:
-      - New-Task.ps1, New-ContextMap.ps1, New-TempTaskState.ps1, New-BusinessContext.ps1 should all load domain-config.json
+      - New-Task.ps1, New-TempTaskState.ps1, New-BusinessContext.ps1 should all load domain-config.json
       - Test with sample parameters to verify validation works
     - **Test validation with invalid values** to confirm rejection works:
       ```powershell
       # Should fail with clear error message showing valid values
-      .\New-Task.ps1 -TaskName "Test" -WorkflowPhase "invalid-phase"
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-Task.ps1 -TaskName "Test" -WorkflowPhase "invalid-phase"
       ```
     - **Benefits of config-based approach**:
       - Future domain adaptations only require updating domain-config.json
@@ -321,9 +329,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Phase 1: Preparation & Analysis**
   - [ ] Framework familiarization completed and documented
@@ -355,7 +361,14 @@ Before considering this task finished:
   - [ ] [Documentation Map](../../PF-documentation-map.md) - Reflects final structure
   - [ ] Legal Document Tracking (to be created) - Created and functional
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-080" and context "Framework Domain Adaptation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-080`, context "Framework Domain Adaptation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Updates** | Framework documents (multiple) | Manual | Domain-specific terminology translations, adapted templates, updated references |
+| **Deletes** | Obsolete domain-specific documents | Manual | Removes documents no longer applicable to new domain |
 
 ## Next Tasks
 

@@ -36,10 +36,10 @@
     Who created the entry (default: "AI Agent (PF-TSK-010)")
 
 .EXAMPLE
-    .\New-FeatureRequest.ps1 -Source "Tools Review 2026-03-26" -SourceLink "../../feedback/reviews/tools-review-20260326.md" -Description "Add HTML comment filtering to link validator" -Priority "HIGH"
+    New-FeatureRequest.ps1 -Source "Tools Review 2026-03-26" -SourceLink "../../feedback/reviews/tools-review-20260326.md" -Description "Add HTML comment filtering to link validator" -Priority "HIGH"
 
 .EXAMPLE
-    .\New-FeatureRequest.ps1 -Source "User request" -Description "Add TOML file support" -Priority "MEDIUM" -Notes "Requested for config files"
+    New-FeatureRequest.ps1 -Source "User request" -Description "Add TOML file support" -Priority "MEDIUM" -Notes "Requested for config files"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -131,11 +131,21 @@ $SourceColumn = if ($SourceLink -ne "") {
     $Source
 }
 
-# Build the table row — 8-column format: ID | Source | Description | Feature | Classification | Status | Last Updated | Notes
-$TableRow = "| $RequestId | $SourceColumn | $Description | — | — | 📥 Submitted | $CurrentDate | $Notes |"
-
 # Read current content
 $Content = Get-Content -Path $TrackingFile -Raw -Encoding UTF8
+
+# Build the table row — header-driven (PF-IMP-1599): cells are ordered by the live table's own
+# header, so a column added to the tracker lands as "—" in the correct position instead of
+# silently shifting every following cell. Feature and Classification take the default — they
+# are filled at Feature Request Evaluation (PF-TSK-067).
+$TableRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading '## Active Feature Requests' -ValueMap @{
+    'ID'           = $RequestId
+    'Source'       = $SourceColumn
+    'Description'  = $Description
+    'Status'       = '📥 Submitted'
+    'Last Updated' = $CurrentDate
+    'Notes'        = $Notes
+}
 
 # Find insertion point: after the last data row in "Active Feature Requests" table
 $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
@@ -202,13 +212,13 @@ if ($historyInsertIndex -ne -1) {
 
 # Update frontmatter date
 $updatedContent = ($lines -join "`r`n")
-$updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
+$updatedContent = Update-FrontmatterDate -Content $updatedContent -CurrentDate $CurrentDate
 
 try {
     Set-Content -Path $TrackingFile -Value $updatedContent -NoNewline -Encoding UTF8
 
-    # Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
-    Assert-LineInFile -Path $TrackingFile -Pattern "\| $RequestId \|" -Context "feature request row for $RequestId in $TrackingFile"
+    # Verify deterministic post-condition: row was inserted and matches the table schema (PF-PRO-028 v2.0 / PF-IMP-1563)
+    Assert-TableRowInFile -Path $TrackingFile -Pattern "\| $RequestId \|" -Context "feature request row for $RequestId in $TrackingFile"
 
     $details = @(
         "ID: $RequestId",

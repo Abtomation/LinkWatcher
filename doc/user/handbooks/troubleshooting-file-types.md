@@ -1,5 +1,6 @@
 ---
 id: PD-UGD-002
+description: "Detailed diagnosis and fixes for file type monitoring issues"
 type: Product Documentation
 category: User Guide
 version: 1.0

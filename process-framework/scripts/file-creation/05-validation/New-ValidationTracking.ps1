@@ -76,14 +76,11 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path
+# are owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script
+# keeps its data, its bespoke post-creation writes (prior-round archive, feature-scope/quality
+# -score table population, prior-round ref), and its own report — all inline under the outer
+# try/catch.
 
 $today = Get-Date -Format "yyyy-MM-dd"
 $projectRoot = Get-ProjectRoot
@@ -250,20 +247,22 @@ if ($Description -ne "") {
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "validation_round" = "$RoundNumber"
+    description        = "Validation tracking — Round $RoundNumber"
 }
 
 $customFileName = "validation-tracking-$RoundNumber.md"
 
 try {
-    $documentId = New-StandardProjectDocument `
+    $documentId = New-FrameworkDocument `
         -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/05-validation/validation-tracking-template.md") `
         -IdPrefix "PF-STA" `
         -IdDescription "Validation tracking state for Round $RoundNumber" `
         -DocumentName "Validation Tracking Round $RoundNumber" `
         -OutputDirectory "doc/state-tracking/validation" `
         -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
+        -Metadata $additionalMetadataFields `
         -FileNamePattern $customFileName `
+        -Label "validation tracking" `
         -OpenInEditor:$OpenInEditor
 
     # ============================================================

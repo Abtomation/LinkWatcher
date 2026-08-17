@@ -1,5 +1,6 @@
 ---
 id: PD-INT-008
+description: "WF-008 graceful shutdown: how Core Architecture (signal handlers, observer lifecycle, lock file), Link Updater (atomic temp-file + rename writes), and In-Memory Database (discard-on-exit; no persistence) collaborate so Ctrl+C / SIGTERM never leaves files partially written — from signal delivery through observer drain to lock release"
 type: Product Documentation
 category: Integration Narrative
 version: 1.0

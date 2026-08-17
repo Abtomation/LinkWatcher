@@ -31,7 +31,7 @@ param()
 
 # Resolve project root from project-config.json by walking up from the script location.
 # Duplicated from start_linkwatcher_background.ps1 (standalone-portability convention;
-# the daemon script's own copy notes it mirrors IdRegistry.psm1::Resolve-ProjectRootForRegistry).
+# the daemon script's own copy notes it mirrors WorkspaceResolution.psm1::Get-ProjectRoot).
 function Find-ProjectConfigPath {
     param([string]$StartPath)
     $current = $StartPath

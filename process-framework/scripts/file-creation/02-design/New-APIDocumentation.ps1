@@ -32,12 +32,12 @@
     If specified, opens the created file in the default editor.
 
 .EXAMPLE
-    .\New-APIDocumentation.ps1 -APIName "Link Validation API"
+    New-APIDocumentation.ps1 -APIName "Link Validation API"
 
     Creates link-validation-api.md in doc/technical/api/documentation/
 
 .EXAMPLE
-    .\New-APIDocumentation.ps1 -APIName "User Management API" -APIVersion "v2" -TargetAudience "Partners" -Description "User lifecycle management endpoints"
+    New-APIDocumentation.ps1 -APIName "User Management API" -APIVersion "v2" -TargetAudience "Partners" -Description "User lifecycle management endpoints"
 
 .NOTES
     Script Type: Document Creation Script
@@ -70,14 +70,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the API-documentation-specific data, and the success report.
 
 # Prepare custom replacements
 $customReplacements = @{
@@ -97,33 +92,30 @@ if ($Description -ne "") {
 $additionalMetadataFields = @{
     "api_version"     = $APIVersion
     "target_audience" = $TargetAudience
+    description       = "API documentation for $APIName (v$APIVersion)"
 }
 
-try {
-    $documentId = New-StandardProjectDocument `
-        -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/02-design/api-documentation-template.md") `
-        -IdPrefix "PD-API" `
-        -IdDescription "API Documentation: $APIName" `
-        -DocumentName $APIName `
-        -DirectoryType "documentation" `
-        -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
-        -OpenInEditor:$OpenInEditor
+$documentId = New-FrameworkDocument `
+    -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/02-design/api-documentation-template.md") `
+    -IdPrefix "PD-API" `
+    -IdDescription "API Documentation: $APIName" `
+    -DocumentName $APIName `
+    -DirectoryType "documentation" `
+    -Replacements $customReplacements `
+    -Metadata $additionalMetadataFields `
+    -Label "API documentation" `
+    -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "API Name: $APIName",
-        "API Version: $APIVersion",
-        "Target Audience: $TargetAudience"
-    )
+$details = @(
+    "API Name: $APIName",
+    "API Version: $APIVersion",
+    "Target Audience: $TargetAudience"
+)
 
-    if ($Description -ne "") {
-        $details += "Description: $Description"
-    }
-
-    $details += "Customization required — see process-framework/guides/02-design/api-specification-creation-guide.md"
-
-    Write-ProjectSuccess -Message "Created API documentation with ID: $documentId" -Details $details
+if ($Description -ne "") {
+    $details += "Description: $Description"
 }
-catch {
-    Write-ProjectError -Message "Failed to create API documentation: $($_.Exception.Message)" -ExitCode 1
-}
+
+$details += "Customization required — apply the api-design craft skill (.claude/skills/api-design/), activated by the API Design task's Check Recommended Skills step"
+
+Write-ProjectSuccess -Message "Created API documentation with ID: $documentId" -Details $details

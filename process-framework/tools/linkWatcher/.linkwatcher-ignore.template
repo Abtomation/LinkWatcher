@@ -1,0 +1,49 @@
+# .linkwatcher-ignore — Per-file validation suppression rules (project template)
+#
+# Instantiate as tools/linkwatcher/.linkwatcher-ignore at the project root
+# (next to linkwatcher-config.yaml). Format: source_glob -> target_substring.
+# A broken link is suppressed when the source file matches the glob AND the
+# link target contains the substring. Globs support fnmatch syntax plus `**`
+# for cross-directory matching.
+#
+# Use sparingly — every rule here is a potential blind spot. Prefer fixing
+# the actual link over adding a rule.
+#
+# ⚠️ Propagation: Framework Rollout mirrors this TEMPLATE into projects, but
+# a project's ACTIVE tools/linkwatcher/.linkwatcher-ignore is project-local
+# and never overwritten by rollout. Changes to baseline rules below reach
+# already-onboarded projects only via pending-migration entries (PF-TEM-079)
+# — author them when editing this template. New projects receive their active
+# copy via the Project Initiation blueprint bootstrap — appdev seeds it at
+# blueprint/tools/linkwatcher/; keep that seed in sync when editing the rules.
+
+# Framework→central references use rolled-layout-relative form (as if
+# process-framework-central sat next to process-framework/ at the project
+# root). Central lives in appdev and is reached via .framework-central-pointer
+# — these are navigational hints, not resolvable links (PF-IMP-1097).
+process-framework/** -> process-framework-central/
+
+# Per-project pending-migrations archive (PF-IMP-983): rolled-out task/guide
+# prose names the ledger-relative path `archive/pending-migrations-archive.md`
+# — a navigational hint into appdev's per-project-migrations tree, not a
+# resolvable link from the project layout.
+process-framework/** -> archive/pending-migrations-archive.md
+
+# Framework-owned craft skills (Craft-as-Skill, PF-PRO-051) are authored for the
+# project layout and reference project `doc/...` artifacts — e.g. the Design
+# Guidelines doc (PD-UIX-001) — that a project need not have materialized. Same
+# category as the framework→project-path mentions above. appdev has carried the
+# equivalent rule since the craft-as-skill rollout; this is its project-side twin
+# (PF-PRO-066).
+.claude/skills/** -> doc/
+
+# Retrospective master state (PF-PRO-066): onboarding task definitions and the
+# transition registry link to `doc/state-tracking/temporary/old/retrospective-
+# master-state.md` — an artifact only an onboarded project produces, and only in
+# its post-archival location. Verified absent from all three registered projects
+# at the time this rule was added, so the link is a lifecycle-conditional
+# navigational hint rather than a defect in any given project.
+# NOTE: whether these should be markdown links at all (vs. code spans naming the
+# path) is a separate content question filed as its own IMP — this rule keeps the
+# validate report readable without pre-deciding that.
+process-framework/** -> old/retrospective-master-state.md

@@ -1,5 +1,6 @@
 ---
 id: PD-ADR-040
+description: "0.1.2 In-Memory Link Database storage strategy"
 type: Product Documentation
 category: Architecture Decision Records
 version: 1.0

@@ -51,6 +51,9 @@ def mock_parser():
 def mock_updater():
     """Create a mock LinkUpdater."""
     updater = MagicMock()
+    # PD-BUG-116: real boolean — a bare MagicMock attribute is truthy, which
+    # would send every write test down the dry-run path.
+    updater.dry_run = False
     updater.update_references.return_value = {
         "files_updated": 0,
         "references_updated": 0,
@@ -689,6 +692,64 @@ class TestUpdateLinksWithinMovedFile:
 
         backup_path = Path(str(f) + ".bak")
         assert backup_path.exists()
+
+    def _redepth_scenario(self, mock_parser, temp_dir):
+        """Set up the standard re-depth scenario: file.md links to ../shared/data.md."""
+        f = temp_dir / "file.md"
+        original = "# Test\n\n[link](../shared/data.md)\n"
+        f.write_text(original)
+
+        target = temp_dir / "shared" / "data.md"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("# data")
+
+        ref = LinkReference(
+            file_path="src/file.md",
+            line_number=3,
+            column_start=1,
+            column_end=25,
+            link_text="link",
+            link_target="../shared/data.md",
+            link_type="markdown",
+        )
+        mock_parser.parse_content.return_value = [ref]
+        return f, original
+
+    def test_dry_run_prevents_write(self, lookup, mock_parser, mock_updater, temp_dir):
+        """Dry-run mode must not rewrite the moved file on disk (PD-BUG-116)."""
+        mock_updater.dry_run = True
+        f, original = self._redepth_scenario(mock_parser, temp_dir)
+
+        lookup.update_links_within_moved_file(
+            "src/file.md", "src/deep/file.md", str(f), backup_enabled=True
+        )
+
+        content = f.read_text()
+        assert content == original
+        assert "../../shared/data.md" not in content
+        assert not Path(str(f) + ".bak").exists()
+
+    def test_dry_run_rescans_original_content(self, lookup, mock_parser, mock_updater, temp_dir):
+        """In dry-run the DB rescan must index the on-disk (original) content,
+        not the previewed rewrite (PD-BUG-116)."""
+        mock_updater.dry_run = True
+        f, original = self._redepth_scenario(mock_parser, temp_dir)
+
+        lookup.update_links_within_moved_file("src/file.md", "src/deep/file.md", str(f))
+
+        # parse_content runs twice: link discovery, then the DB rescan.
+        rescan_content = mock_parser.parse_content.call_args_list[-1][0][0]
+        assert rescan_content == original
+        assert "../../shared/data.md" not in rescan_content
+
+    def test_normal_mode_still_writes(self, lookup, mock_parser, mock_updater, temp_dir):
+        """Non-dry-run mode still rewrites the moved file (fixture guard, PD-BUG-116)."""
+        mock_updater.dry_run = False
+        f, _ = self._redepth_scenario(mock_parser, temp_dir)
+
+        lookup.update_links_within_moved_file("src/file.md", "src/deep/file.md", str(f))
+
+        assert "../../shared/data.md" in f.read_text()
 
 
 # ---------------------------------------------------------------------------

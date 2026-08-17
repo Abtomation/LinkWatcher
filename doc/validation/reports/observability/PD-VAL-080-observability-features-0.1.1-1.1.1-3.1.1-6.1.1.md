@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-080
-type: Process Framework
+description: "Session 16 (Score: 2.60/3.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-04-02

@@ -92,7 +92,7 @@ Determines if the feature requires dedicated database schema design documentatio
 
 This comprehensive approach ensures that both documentation complexity and specialized design needs are identified early in the planning process.
 
-For a detailed guide on how to assess features and assign documentation tiers, see the [Assessment Guide](../../process-framework/guides/01-planning/assessment-guide.md).
+For the scoring criteria used to assess features and assign documentation tiers, see the `feature-request-evaluation` craft skill's [tier-assessment reference](../../.claude/skills/feature-request-evaluation/references/tier-assessment.md).
 
 ## File Structure
 

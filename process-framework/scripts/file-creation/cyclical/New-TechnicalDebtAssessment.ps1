@@ -8,7 +8,7 @@
 
 .DESCRIPTION
     This PowerShell script generates Technical Debt Assessment documents by:
-    - Generating a unique document ID (PF-TDA-XXX)
+    - Generating a unique document ID (PD-TDA-XXX)
     - Creating a properly formatted assessment document
     - Updating the ID tracker in the central ID registry
     - Providing a complete template for systematic technical debt evaluation
@@ -26,10 +26,10 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    ../../../../../../assessments/New-TechnicalDebtAssessment.ps1 -AssessmentName "Q4 2025 Codebase Assessment" -Scope "Full Codebase" -AssessmentType "Scheduled"
+    New-TechnicalDebtAssessment.ps1 -AssessmentName "Q4 2025 Codebase Assessment" -Scope "Full Codebase" -AssessmentType "Scheduled"
 
 .EXAMPLE
-    ../../../../../../assessments/New-TechnicalDebtAssessment.ps1 -AssessmentName "Pre-Release Debt Review" -Scope "Core Features" -AssessmentType "Pre-Release" -OpenInEditor
+    New-TechnicalDebtAssessment.ps1 -AssessmentName "Pre-Release Debt Review" -Scope "Core Features" -AssessmentType "Pre-Release" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -65,14 +65,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the assessment-specific data, and the success report.
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
@@ -90,23 +85,18 @@ $customReplacements = @{
 }
 
 # Create the document using standardized process
-try {
-    $documentId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/technical-debt-assessment-template.md") -IdPrefix "PD-TDA" -IdDescription "Technical Debt Assessment: $AssessmentName" -DocumentName $AssessmentName -DirectoryType "assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+$documentId = New-FrameworkDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/technical-debt-assessment-template.md") -IdPrefix "PD-TDA" -IdDescription "Technical Debt Assessment: $AssessmentName" -DocumentName $AssessmentName -DirectoryType "assessments" -Replacements $customReplacements -Metadata $additionalMetadataFields -Label "Technical Debt Assessment" -OpenInEditor:$OpenInEditor
 
-    # Provide success details
-    $details = @(
-        "Assessment Name: $AssessmentName",
-        "Scope: $Scope",
-        "Type: $AssessmentType"
-    )
+# Provide success details
+$details = @(
+    "Assessment Name: $AssessmentName",
+    "Scope: $Scope",
+    "Type: $AssessmentType"
+)
 
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/cyclical/assessment-criteria-guide.md"
-    }
-
-    Write-ProjectSuccess -Message "Created Technical Debt Assessment with ID: $documentId" -Details $details
+# Add next steps if not opening in editor
+if (-not $OpenInEditor) {
+    $details += "Customization required — apply the technical-debt-assessment craft skill (.claude/skills/technical-debt-assessment/references/assessment-criteria.md)"
 }
-catch {
-    Write-ProjectError -Message "Failed to create Technical Debt Assessment: $($_.Exception.Message)" -ExitCode 1
-}
+
+Write-ProjectSuccess -Message "Created Technical Debt Assessment with ID: $documentId" -Details $details

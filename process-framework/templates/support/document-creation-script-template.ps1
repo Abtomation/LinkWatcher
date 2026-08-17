@@ -41,6 +41,7 @@
     - Template ID: PF-TEM-020
     - Template Type: Document Creation Script
     - Created: 2025-07-08
+    - Updated: 2026-06-15 (PF-PRO-043 Option 2 — models the New-FrameworkDocument wrapper pattern)
     - For: Creating PowerShell scripts that generate documents from templates
 #>
 
@@ -64,14 +65,18 @@ param(
 # Common-ScriptHelpers.psm1 is one level up at process-framework/scripts/
 Import-Module (Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
+# PF-PRO-043 Option 2: standard init, soak opt-in, the New-StandardProjectDocument call, the
+# try/catch, and the create-failure error path are all owned by New-FrameworkDocument. This
+# script keeps only its param block (above), the per-type data below, and its own success report.
+# (New-FrameworkDocument lives in Common-ScriptHelpers/DocumentManagement.psm1 and is exported
+# through the umbrella imported above — no extra import needed.)
 
-# Prepare additional metadata fields (customize as needed)
+# Prepare additional metadata fields (customize as needed).
+# Build conditionally so empty optional fields are OMITTED (keeps frontmatter clean).
 $additionalMetadataFields = @{
     "[METADATA_FIELD_1]" = $PRIMARY_PARAMETER
-    "[METADATA_FIELD_2]" = $SECONDARY_PARAMETER
 }
+if ($SECONDARY_PARAMETER -ne "") { $additionalMetadataFields["[METADATA_FIELD_2]"] = $SECONDARY_PARAMETER }
 
 # Prepare custom replacements (customize based on template needs)
 # IMPORTANT: Use exact bracket notation like "[Placeholder Name]" - do NOT escape brackets
@@ -87,62 +92,35 @@ $customReplacements = @{
 # "[Description]" = if ($Description -ne "") { $Description } else { "Default description" }
 # "[Date]" = Get-Date -Format "yyyy-MM-dd"
 # "[Author]" = "AI Agent & Human Partner"
-# "[NEXT_STEPS_SECTION]" = "Customization required — see [path/to/guide.md]"
 
-# NEXT STEPS CUSTOMIZATION GUIDE:
-# Replace [NEXT_STEPS_SECTION] with one of these patterns:
-#
-# Pattern 1: Customization Guide Pointer (for complex processes)
-# Single-line pointer to the customization guide. Keep it terse — agents read this
-# on every invocation, so multi-line emoji banners train them to skim past real
-# warnings (e.g. 'section not found', 'ID collision'). Established by PF-IMP-584,
-# normalized across all New-* scripts by PF-IMP-700.
-# "Customization required — see [path/to/guide.md]"
-#
-# Pattern 2: Simple Next Steps (for straightforward processes)
-# "Next steps:`n1. [NEXT_STEP_1]`n2. [NEXT_STEP_2]`n3. [NEXT_STEP_3]"
-#
-# Pattern 3: No Next Steps (when opening in editor or self-explanatory)
-# "" (empty string)
+# Success-report detail lines (per-type content — the script owns its own report).
+$details = @("[DETAIL_1]: $PRIMARY_PARAMETER")
+if ($SECONDARY_PARAMETER -ne "") { $details += "[DETAIL_2]: $SECONDARY_PARAMETER" }
+if ($OPTIONAL_PARAMETER -ne "")  { $details += "[OPTIONAL_DETAIL]: $OPTIONAL_PARAMETER" }
+# Next-step hint when not opening in editor. Keep it terse — a single-line pointer to the
+# customization guide (PF-IMP-584/700); multi-line emoji banners train agents to skim past
+# real warnings. Pattern: "Customization required — see [path/to/guide.md]".
+if (-not $OpenInEditor) { $details += "[NEXT_STEPS_SECTION]" }
 
-# Create the document using standardized process
-try {
-    # Resolve template path via Get-ProcessFrameworkPath so the script works in both layouts
-    # (rolled-out projects: process-framework/ at top level; appdev: blueprint/process-framework/).
-    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/[SUBFOLDER]/[TEMPLATE_NAME].md"
+# Create via the shared wrapper. Use -DirectoryType for ID-registry-based directory resolution
+# (recommended), OR -OutputDirectory "[EXPLICIT_PATH]" for a custom path. -Label sets the noun
+# in the failure message ("Failed to create [DOCUMENT_TYPE]: ...").
+$documentId = New-FrameworkDocument `
+    -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/[SUBFOLDER]/[TEMPLATE_NAME].md") `
+    -IdPrefix "[ID_PREFIX]" -IdDescription "[DESCRIPTION_PATTERN]" -DocumentName $PRIMARY_PARAMETER `
+    -DirectoryType "[DIRECTORY_TYPE]" `
+    -Replacements $customReplacements -Metadata $additionalMetadataFields `
+    -Label "[DOCUMENT_TYPE]" -OpenInEditor:$OpenInEditor
 
-    # Use DirectoryType for ID registry-based directory resolution (recommended)
-    # Alternative: Use -OutputDirectory "[EXPLICIT_PATH]" for custom directory paths
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "[ID_PREFIX]" -IdDescription "[DESCRIPTION_PATTERN]" -DocumentName $PRIMARY_PARAMETER -DirectoryType "[DIRECTORY_TYPE]" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+# TIER-3 ONLY: if this type has bespoke post-creation tracking writes (documentation-map append,
+# state-file row, custom tracking-table surgery), do them HERE, inline, using $documentId — the
+# wrapper returns it for exactly this. When a write needs the created file's PATH, add -PassThru
+# to the call above and read Id/Path/RelativePath off the returned object instead — never
+# re-derive the filename from the document name (PF-IMP-1678). See New-ArchitectureDecision.ps1
+# for the canonical pattern.
+# [OPTIONAL_POST_CREATION_TRACKING]
 
-    # Optional: Update related documentation (customize as needed)
-    # Example: Update documentation maps, README files, etc.
-    # [OPTIONAL_DOCUMENTATION_UPDATES]
-
-    # Provide success details
-    $details = @(
-        "[DETAIL_1]: $PRIMARY_PARAMETER",
-        "[DETAIL_2]: $SECONDARY_PARAMETER"
-    )
-
-    # Add conditional details
-    if ($OPTIONAL_PARAMETER -ne "") {
-        $details += "[OPTIONAL_DETAIL]: $OPTIONAL_PARAMETER"
-    }
-
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += @(
-            "",
-            "[NEXT_STEPS_SECTION]"
-        )
-    }
-
-    Write-ProjectSuccess -Message "Created [DOCUMENT_TYPE] with ID: $documentId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create [DOCUMENT_TYPE]: $($_.Exception.Message)" -ExitCode 1
-}
+Write-ProjectSuccess -Message "Created [DOCUMENT_TYPE] with ID: $documentId" -Details $details
 
 <#
 .NOTES

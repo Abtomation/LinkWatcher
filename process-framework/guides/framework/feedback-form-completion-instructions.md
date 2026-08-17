@@ -2,9 +2,9 @@
 id: PF-GDE-017
 type: Process Framework
 category: Guide
-version: 1.1
+version: 1.2
 created: 2025-07-13
-updated: 2026-04-14
+updated: 2026-06-11
 description: "Standardized feedback form completion process referenced by all task definitions to eliminate duplication"
 ---
 
@@ -18,21 +18,23 @@ This document provides standardized instructions for completing feedback forms t
 
 ### Step 1: Create Feedback Form
 
-At session end, use the provided PowerShell script to create a feedback form template:
+At **genuine session end** — after the final batch of a multi-batch session, never at the first batch boundary — use the provided PowerShell script to create the single per-session feedback form covering all batches. Filing it early risks a mid-session Tools Review sweeping a premature, incomplete form:
 
 ```bash
 pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1 -DocumentId "[TASK-ID]" -TaskContext "[Task Name]" -FeedbackType "MultipleTools" -Confirm:\$false
 ```
 
 **Replace placeholders:**
-- `[TASK-ID]`: The actual task ID (e.g., "PF-TSK-002")
-- `[Task Name]`: The actual task name (e.g., "Feature Tier Assessment")
+- `[TASK-ID]`: The actual task ID (e.g., "PF-TSK-009")
+- `[Task Name]`: The actual task name (e.g., "Process Improvement")
 
 ### Step 2: Complete the Form
 
-The AI agent fills in all sections of the feedback form: task-level evaluation, tool ratings, integration assessment, improvement suggestions, human intervention log, and AI assistant summary.
+The AI agent fills in all sections of the feedback form: task-level evaluation, tool ratings, improvement suggestions, and the human intervention log.
 
-**Do not** solicit human feedback during the session. The "Human User Feedback" section is left for the human partner to fill independently after the session ends.
+**Authoring rule — comment-borne suggestions**: any actionable suggestion written in a rating Comments field must also be added to "Specific suggestions". The ratings extractor captures numbers only, so a suggestion that exists solely in a comment never reaches the review pipeline.
+
+**Do not** solicit human feedback during the session. The human partner contributes independently after the session by appending rows to the form's Human Intervention Log.
 
 The script automatically:
 - Names the file using format: `YYYYMMDD-HHMMSS-document-id-feedback.md`
@@ -58,12 +60,12 @@ When creating or updating task definitions, reference this guide instead of dupl
 ### For Task Executors (AI Agent)
 1. Complete your task work
 2. Create the feedback form using the script above
-3. Fill in all sections (ratings, comments, intervention log, summary)
-4. Leave the "Human User Feedback" section empty — the human partner fills it independently after the session
+3. Fill in all sections (ratings, comments, suggestions, intervention log)
+4. Repeat any comment-borne actionable suggestion in "Specific suggestions"
 
 ### For Human Partners
 1. After the session ends, open the feedback form in `appdev/process-framework-central/feedback/feedback-forms/`
-2. Fill in the "Human User Feedback" section at your own pace
+2. Append any further feedback — corrections the agent missed, observations about the session — as additional rows in the Human Intervention Log
 3. See [Feedback Form Guide](feedback-form-guide.md) for detailed completion guidance
 
 ## Benefits of This Approach

@@ -8,7 +8,7 @@ updated: 2026-04-13
 template_for: E2E Test Audit Report
 creates_document_prefix: TE-TAR
 creates_document_category: Test Audit Report
-creates_document_type: E2E Test Audit
+creates_document_type: Testing
 description: Template for E2E acceptance test audit reports with 5 criteria
 usage_context: Used by New-TestAuditReport.ps1 -TestType E2E during PF-TSK-030
 variant_group: test-audit-report-templates

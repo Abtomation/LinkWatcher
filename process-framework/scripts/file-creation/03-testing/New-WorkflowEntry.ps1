@@ -57,7 +57,7 @@ param(
     [string]$UserAction,
 
     [Parameter(Mandatory = $true)]
-    [ValidateLength(1, 100)]
+    [ValidateLength(1, 300)]
     [string]$RequiredFeatures,
 
     [Parameter(Mandatory = $true)]
@@ -119,8 +119,23 @@ $Content = Get-Content -Path $TrackingFile -Raw -Encoding UTF8
 $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
 
 # --- Step 2: Build and insert the table row ---
-# Columns: ID | Workflow | User Action | Required Features | Priority | Impl Status | E2E Status | Integration Doc
-$tableRow = "| $workflowId | $Workflow | $UserAction | $RequiredFeatures | $Priority | $ImplStatus | Not Tested | — |"
+# Header-driven (PF-IMP-1599): cells are ordered by the live table's own header, so a column
+# added to the tracker lands as "—" in the correct position instead of silently shifting every
+# following cell. The required-items column is resolved from the header because projects adapt
+# its name (e.g. appdev's framework self-test tracker carries "Required Scripts" where product
+# projects carry "Required Features").
+$workflowHeaders = @(Get-MarkdownTableHeaders -Content $Content -SectionHeading '## Workflows')
+$requiredColumn = $workflowHeaders | Where-Object { $_ -like 'Required *' } | Select-Object -First 1
+if (-not $requiredColumn) { $requiredColumn = 'Required Features' }
+$tableRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading '## Workflows' -ValueMap @{
+    'ID'            = $workflowId
+    'Workflow'      = $Workflow
+    'User Action'   = $UserAction
+    $requiredColumn = $RequiredFeatures
+    'Priority'      = $Priority
+    'Impl Status'   = $ImplStatus
+    'E2E Status'    = 'Not Tested'
+}
 
 # Find insertion point: after the last WF-xxx data row in the Workflows table
 $insertAfterIndex = -1
@@ -195,12 +210,12 @@ if ($insertionAfter -ne -1) {
 # --- Step 4: Update frontmatter date ---
 $updatedContent = ($lines -join "`r`n")
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
-$updatedContent = $updatedContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
+$updatedContent = Update-FrontmatterDate -Content $updatedContent -CurrentDate $CurrentDate
 
 Set-Content -Path $TrackingFile -Value $updatedContent -NoNewline -Encoding UTF8
 
-# Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
-Assert-LineInFile -Path $TrackingFile -Pattern "\| $workflowId \|" -Context "workflow row for $workflowId in $TrackingFile"
+# Verify deterministic post-condition: row was inserted and matches the table schema (PF-PRO-028 v2.0 / PF-IMP-1563)
+Assert-TableRowInFile -Path $TrackingFile -Pattern "\| $workflowId \|" -Context "workflow row for $workflowId in $TrackingFile"
 
 # --- Output ---
 $details = @(

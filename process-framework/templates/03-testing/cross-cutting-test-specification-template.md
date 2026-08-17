@@ -1,5 +1,5 @@
 ---
-id: [PF-TSP-XXX]
+id: PF-TEM-089
 type: Process Framework
 category: Test Specification
 version: 1.0
@@ -8,6 +8,8 @@ updated: [CREATION-DATE]
 feature_ids: [FEATURE-ID-1, FEATURE-ID-2, ...]
 test_name: [TEST-NAME]
 test_type: cross-cutting
+creates_document_type: Testing
+creates_document_category: Test Specification
 description: "Template for test specifications spanning multiple features"
 ---
 

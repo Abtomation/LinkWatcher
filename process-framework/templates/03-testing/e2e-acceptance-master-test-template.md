@@ -2,12 +2,13 @@
 id: PF-TEM-053
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.2
 created: 2026-03-15
-updated: 2026-03-15
+updated: 2026-07-22
 template_for: E2E Acceptance Master Test
+creates_document_type: Testing
 description: Template for group-level master test files that provide quick validation sequences covering all test cases in a test group
-creates_document_category: Testing
+creates_document_category: E2E Acceptance Test Group
 usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 ---
 
@@ -18,7 +19,8 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 
 ---
 id: [GROUP-ID]
-type: E2E Acceptance Test Group
+type: Testing
+category: E2E Acceptance Test Group
 feature_ids: ["[FEATURE-ID]"]
 workflow: [WF-NNN]
 test_cases_count: [NUMBER]
@@ -38,7 +40,7 @@ Quick validation sequence covering all test cases in this group. Run this FIRST 
 <!-- List the shared preconditions for all test cases in this group -->
 
 - [ ] [Service/application] is running
-- [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Group [GROUP-NAME]`
+- [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Workflow [GROUP-NAME]`
 - [ ] Workspace contains pristine copies of all test fixtures
 - [ ] [Any additional configuration requirements]
 

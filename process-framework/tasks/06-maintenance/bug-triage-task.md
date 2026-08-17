@@ -4,11 +4,33 @@ type: Process Framework
 category: Task Definition
 version: 1.5
 created: 2025-08-30
-updated: 2026-05-16
+updated: 2026-07-22
 description: "Systematically evaluate, prioritize, and assign reported bugs"
+complexity: simple
+use_when: >-
+  Systematically evaluate, prioritize, and assign reported product bugs. Triggers: 'triage this bug', 'evaluate bug report X', 'prioritize the bug backlog' (product code only — framework defects are filed as IMPs and fixed via Process Improvement).
+triggers:
+  - "triage this bug"
+  - "evaluate bug report X"
+  - "prioritize the bug backlog"
+automation: semi
+scripts:
+  - ../../scripts/update/Update-BugStatus.ps1
+trigger_status:
+  - file: bug-tracking.md
+    status: "🆕 Needs Triage"
+output_status:
+  - raw: "`bug-tracking.md` → `🔍 Needs Fix` + priority (Critical/High/Medium/Low) + scope (S/M/L) + Dims"
+next_tasks:
+  - task: bug-fixing-task.md
+    condition: "To resolve triaged bugs"
+  - task: ../04-implementation/feature-implementation-planning-task.md
+    condition: "If bugs reveal need for new functionality"
 ---
 
 # Bug Triage
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -23,13 +45,10 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/06-maintenance/bug-triage-map.md)
-
 - **Critical (Must Read):**
 
   - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) - Current bug registry and status
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To understand feature priorities and relationships
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -42,8 +61,6 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: All bug triage decisions must be documented with clear rationale.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -57,7 +74,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 3. Understand the current development priorities from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 4. For each bug, consult the affected feature's [implementation state file](../../../doc/state-tracking/features) for known issues, related bugs, and current implementation status
 5. Review any related bugs or patterns in the bug registry
-6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner
+6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner. For small rounds (1–2 bugs), combine this with the Step 12 decision checkpoint into a single gate — carry the inventory through evaluation and present it together with the triage decisions at Step 12 (the combined-checkpoint pattern [Bug Fixing](bug-fixing-task.md) codifies at its Step 11)
 
 ### Evaluation
 
@@ -65,11 +82,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
    - Verify reproduction steps
    - Confirm expected vs actual behavior
    - **Description Accuracy**: Compare the reported description against observed behavior. Bug descriptions frequently overstate or understate the actual impact — correct the description in the bug report to match reality before assigning severity/priority.
-   - **Bug vs Feature Request**: If the reported issue describes desired new behavior rather than broken existing behavior, reclassify it: close the bug as "Not a Bug" and route to [Feature Request Tracking](../../../doc/state-tracking/permanent/feature-request-tracking.md) using [New-FeatureRequest.ps1](../../scripts/file-creation/01-planning/New-FeatureRequest.ps1)
-   - **Bug vs Process Improvement**: If the issue affects process framework tooling rather than the product itself, reclassify it as a process improvement — not a product bug. Use the file-location heuristic:
-     - `doc/` or `process-framework/` → always a process improvement (route to [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) via [New-ProcessImprovement.ps1](../../scripts/file-creation/support/New-ProcessImprovement.ps1))
-     - `src/linkwatcher` (product source code) → product bug (continue triage)
-     - `test/` → evaluate case by case (test infrastructure issues are process improvements; test failures exposing product defects are bugs)
+   - **Wrong tracker? Reclassify and route.** If the issue is not a product bug — it describes desired new behavior, a framework defect, or technical debt — reclassify it using the [Issue Classification and Routing Guide](../../guides/framework/issue-classification-and-routing-guide.md) (product bug / feature request / framework improvement / technical debt, decided by where the corrective fix lands). Close the bug ("Not a Bug" / reclassified) and file it in the tracker that guide names.
 8. **Evaluate Impact and Severity**:
    - **Critical**: System crash, data loss, security vulnerability
    - **High**: Major feature not working, significant user impact
@@ -181,9 +194,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Evaluation Completeness**: Confirm all reported bugs have been evaluated
 
@@ -207,7 +218,13 @@ Before considering this task finished:
   - [ ] Bug status updated from 🆕 Needs Triage to 🔍 Needs Fix
   - [ ] Statistics section is updated with current numbers
   - [ ] All required fields are populated for triaged bugs
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-041" and context "Bug Triage"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-041`, context "Bug Triage".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Updates** | [`bug-tracking.md`](../../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (Critical/High/Medium/Low) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S"` |
 
 ## Next Tasks
 
@@ -215,9 +232,39 @@ Before considering this task finished:
 
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If bugs reveal need for new functionality
 
+<!-- merged from transition-registry entry: Bug Triage -->
+### Prerequisites for Transition
+
+- [ ] Bug impact assessment completed
+- [ ] Priority level assigned (Critical 🔴, High 🟠, Medium 🟡, Low 🟢)
+- [ ] Resource assignment determined
+- [ ] Bug status updated to 🔍 Needs Fix
+- [ ] Scheduling decision made based on priority
+
+**Next Task Selection Decision:**
+
+```
+What priority was assigned?
+├─ 🔴 Critical → Immediate Bug Fixing (within 24 hours)
+│   └─ Reason: Critical bugs require immediate attention
+├─ 🟠 High → Scheduled Bug Fixing (within 1 week)
+│   └─ Reason: High priority bugs need prompt resolution
+├─ 🟡 Medium → Backlog Assignment → Planned Bug Fixing
+│   └─ Reason: Medium priority bugs can be scheduled with regular development
+└─ 🟢 Low → Future Backlog → Bug Fixing when resources available
+    └─ Reason: Low priority bugs addressed during maintenance cycles
+```
+
+### Preparation for Next Task
+
+1. **For Critical/High Priority**: Clear immediate schedule for bug fixing work
+2. **For Medium/Low Priority**: Add to appropriate backlog with timeline estimates
+3. Ensure assigned developer has access to bug report and reproduction steps
+4. Prepare development environment for bug investigation and fixing
+5. Update Bug Tracking with assignment and timeline information
+
 ## Related Resources
 
 - [Bug Tracking State File](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry
 - [Feature Tracking State File](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature priorities and relationships
 - [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Guidance on transitioning between tasks
-- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

@@ -2,9 +2,9 @@
 id: PF-TEM-064
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.3
 created: 2026-03-24
-updated: 2026-04-14
+updated: 2026-07-19
 description: Template for structured framework evaluation reports with dimension scoring
 creates_document_prefix: PF-EVR
 template_for: Evaluation Report
@@ -56,7 +56,11 @@ creates_document_version: 1.0
 
 ## Detailed Findings
 
+> **Targeted / single-artifact scope**: For a small scope (a single artifact, or a narrow targeted evaluation), you need not instantiate all seven dimension sections — keep only the dimensions you actually evaluated and delete the rest (and their rows from the Dimensions Evaluated table above). At this scope you may also use **flat finding numbering** (`F-1`, `F-2`, …) across the whole report instead of the per-dimension prefixes (`C-`/`N-`/`R-`/`A-`/`E-`/`U-`/`S-`); the per-dimension prefixes pay off only when many findings span several dimensions.
+
 > **Cross-cutting findings**: When a finding affects 2+ dimensions, record it once in the [Cross-Cutting Findings](#cross-cutting-findings) section below and reference it by ID (e.g., "See X-1") in each affected dimension's table. Do not repeat the full description under each dimension.
+
+> **Dimension with no findings**: an in-scope dimension that produced no findings keeps its Score and Assessment; fill its findings table with the single row `| — | No findings | — | — |`.
 
 ### 1. Completeness
 
@@ -177,6 +181,22 @@ creates_document_version: 1.0
 | # | Finding Ref | Description | Priority | Effort | IMP ID |
 |---|-------------|-------------|----------|--------|--------|
 | 1 | [C-1] | [Improvement description] | [High/Medium/Low] | [High/Medium/Low] | [PF-IMP-XXX] |
+
+## Findings Resolved In-Session
+
+> Findings fixed during the evaluation session itself under the task's fix-vs-route rule (fix confined to artifacts the session or its parent extension created or modified) are recorded here; they have no Improvement Recommendations row.
+
+| # | Finding Ref | Fix Applied | Verification |
+|---|-------------|-------------|--------------|
+| 1 | [C-1] | [What was changed] | [How the fix was verified] |
+
+## Withdrawn During Verification
+
+> Candidate findings dropped by the verify-each-finding pass are recorded here so the report shows its own false-positive rate, not only surviving findings.
+
+| # | Candidate Finding | Withdrawal Reason |
+|---|-------------------|-------------------|
+| 1 | [Description] | [Why it did not survive verification] |
 
 ## Summary
 

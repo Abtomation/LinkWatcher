@@ -1,7 +1,7 @@
 # New-APIDataModel.ps1
-# Creates a new API Data Model document (PD-API-NNN), appending an entry to
-# PD-documentation-map.md and inserting a row into the feature state file's
-# §4 Documentation Inventory. Orchestration is delegated to
+# Creates a new API Data Model document (PD-API-NNN) carrying a description:
+# frontmatter line (rendered by the generated PD map) and inserting a row into the
+# feature state file's §4 Documentation Inventory. Orchestration is delegated to
 # Invoke-DesignArtifactCreation in Common-ScriptHelpers/DesignArtifactCreation.psm1.
 
 <#
@@ -54,6 +54,7 @@ $additionalMetadataFields = @{
     "related_endpoints" = $RelatedEndpoints
 }
 if ($FeatureId -ne "") { $additionalMetadataFields["feature_id"] = $FeatureId }
+$additionalMetadataFields["description"] = "API data model: $ModelName ($ApiVersion)"
 
 $customReplacements = @{
     "[Data Model Name]"                                       = $ModelName
@@ -70,14 +71,6 @@ $modelRelativePath = "doc/technical/api/models/$customFileName"
 
 $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/api-data-model-template.md"
 
-# Display label inferred from ModelName for the docmap entry text.
-$displayLabel = if     ($ModelName -match "Request")    { "Request Model" }
-                elseif ($ModelName -match "Response")   { "Response Model" }
-                elseif ($ModelName -match "Error")      { "Error Model" }
-                elseif ($ModelName -match "Validation") { "Validation Model" }
-                elseif ($ModelName -match "Model$")     { $ModelName }
-                else                                    { "$ModelName Model" }
-
 # ---- Delegate orchestration ----
 try {
     $invokeArgs = @{
@@ -91,11 +84,8 @@ try {
         FeatureName                = $ModelName
         Replacements               = $customReplacements
         AdditionalMetadataFields   = $additionalMetadataFields
-        DocMapSectionHeader        = "### ``technical/api/models/``"
-        DocMapEntryFormatter       = { param($id) "- [API Data Model: $displayLabel ($id)](technical/api/models/$customFileName) - $ApiVersion data model for $ModelName" }
         OpenInEditor               = $OpenInEditor
         DryRun                     = $DryRun
-        CallerCmdlet               = $PSCmdlet
     }
     if ($FeatureId -ne "") {
         $invokeArgs['FeatureId']                  = $FeatureId
@@ -115,7 +105,7 @@ try {
     if ($RelatedEndpoints -ne "") { $details += "Related Endpoints: $RelatedEndpoints" }
     if (-not $OpenInEditor) {
         $details += @(
-            "Customization required — see process-framework/guides/02-design/api-data-model-creation-guide.md",
+            "Customization required — apply the api-design craft skill (.claude/skills/api-design/, references/api-data-model.md), activated by the API Design task's Check Recommended Skills step",
             "",
             "Next steps:",
             "1. Define the core data structure and field definitions",
@@ -125,7 +115,6 @@ try {
             "5. Link to related API specification documents"
         )
     }
-    if ($result.DocMapUpdated)   { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
     if ($result.StateFileResult) {
         $sf = $result.StateFileResult
         $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"

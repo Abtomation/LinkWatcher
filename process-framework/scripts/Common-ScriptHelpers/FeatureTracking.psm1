@@ -46,7 +46,9 @@ function Update-FeatureTrackingStatus {
     Hashtable of additional column updates (column name -> value)
 
     .PARAMETER Notes
-    Additional notes to append to the Notes column
+    Text appended to the existing Notes cell as "<existing>; <new>" (never replaces).
+    To REPLACE the Notes cell, omit -Notes and pass -StatusColumn "Notes" -Status "<text>".
+    -Status is mandatory, so a notes-only append re-asserts the current Status; there is no notes-only wrapper.
 
     .PARAMETER DryRun
     If specified, shows what would be updated without making changes
@@ -57,6 +59,14 @@ function Update-FeatureTrackingStatus {
     .EXAMPLE
     $updates = @{ "Test Status" = "✅ All Passing"; "Code Review" = "Completed" }
     Update-FeatureTrackingStatus -FeatureId "1.2.3" -Status "🟢 Completed" -AdditionalUpdates $updates
+
+    .EXAMPLE
+    # Replace the Notes cell wholesale (point -StatusColumn at it):
+    Update-FeatureTrackingStatus -FeatureId "1.2.3" -StatusColumn "Notes" -Status "Superseded by 1.4.0"
+
+    .EXAMPLE
+    # Append to existing notes (becomes "<existing>; Added regression test"):
+    Update-FeatureTrackingStatus -FeatureId "1.2.3" -Status "🟢 Completed" -Notes "Added regression test"
     #>
 
     [CmdletBinding()]
@@ -492,6 +502,58 @@ function Get-ActiveFeatures {
     return $features
 }
 
+function Get-FeatureNameById {
+    <#
+    .SYNOPSIS
+    Resolves a feature's name from feature-tracking.md given its dotted ID.
+
+    .DESCRIPTION
+    Returns the Feature (name) column of the active feature whose ID matches
+    $FeatureId, or $null when no active feature matches. Tolerates markdown-link
+    ID cells (e.g. "[2.2.1](path)") by extracting the dotted identifier. Archived
+    features are not matched (Get-ActiveFeatures stops at the Archived Features
+    section).
+
+    .PARAMETER FeatureId
+    The dotted feature identifier to resolve (e.g. "2.2.1").
+
+    .PARAMETER Content
+    Optional full text of feature-tracking.md; when omitted, the standard
+    location is read via Get-ActiveFeatures.
+
+    .OUTPUTS
+    [string] the feature name, or $null when no active feature matches.
+
+    .EXAMPLE
+    $name = Get-FeatureNameById -FeatureId "2.2.1"
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$FeatureId,
+
+        [Parameter(Mandatory = $false)]
+        [string]$Content = ""
+    )
+
+    $wantId = if ($FeatureId -match '\d+\.\d+\.\d+') { $Matches[0] } else { $FeatureId.Trim() }
+
+    $features = if ($Content -ne "") { Get-ActiveFeatures -Content $Content } else { Get-ActiveFeatures }
+
+    foreach ($f in $features) {
+        # Strip markdown-link form "[2.2.1](path)" → "2.2.1", then normalize to the dotted id.
+        $rowId = [string]$f['ID']
+        if ($rowId -match '\[([^\]]+)\]') { $rowId = $Matches[1] }
+        if ($rowId -match '\d+\.\d+\.\d+') { $rowId = $Matches[0] }
+        if ($rowId.Trim() -eq $wantId) {
+            $name = [string]$f['Feature']
+            if ([string]::IsNullOrWhiteSpace($name)) { return $null }
+            return $name.Trim()
+        }
+    }
+    return $null
+}
+
 function Update-FeatureTrackingSummary {
     <#
     .SYNOPSIS
@@ -653,10 +715,11 @@ function Update-FeatureTrackingSummary {
 # Export functions
 Export-ModuleMember -Function @(
     'Get-ActiveFeatures',
+    'Get-FeatureNameById',
     'Update-FeatureTrackingStatus',
     'Update-FeatureTrackingStatusWithAppend',
     'Update-MultipleTrackingFiles',
     'Update-FeatureTrackingSummary'
 )
 
-Write-Verbose "FeatureTracking module loaded with 4 functions"
+Write-Verbose "FeatureTracking module loaded with 6 functions"

@@ -51,7 +51,8 @@ $SubModules = @(
     "ExecutionVerification.psm1",
     "Naming.psm1",
     "TestRunner.psm1",
-    "AssessmentParsing.psm1"
+    "AssessmentParsing.psm1",
+    "DescriptionExtraction.psm1"
 )
 
 Write-Verbose "Loading Common-ScriptHelpers v3.0 (Modularized Architecture)"
@@ -92,7 +93,17 @@ if ($LoadedFunctions.Count -gt 0) {
     $CoreFunctions = @(
         'Get-ProjectRoot',
         'Get-ProcessFrameworkPath',
+        'Get-BlueprintPath',
+        'Get-ArtifactPrefix',
+        'Get-WorkspaceRole',
+        'Get-ChildRegistryInfo',
         'Get-CentralFrameworkPath',
+        'ConvertTo-CanonicalWorkspacePath',
+        'Get-ChainRootPath',
+        'Get-RootCentralFrameworkPath',
+        'Get-ArtifactOwnerId',
+        'Resolve-WorkspaceRootById',
+        'Get-OwningWorkspaceCentralPath',
         'Import-ProjectModule',
         'New-ProjectId',
         'Get-ProjectIdDirectory',
@@ -102,7 +113,8 @@ if ($LoadedFunctions.Count -gt 0) {
         'Resolve-DocPath',
         'Resolve-TrackingFilePath',
         'Test-MSYSPathMangled',
-        'Get-EffectiveWhatIf'
+        'Get-EffectiveWhatIf',
+        'Get-NonFeatureTestDir'
     )
 
     # Output formatting functions
@@ -125,7 +137,8 @@ if ($LoadedFunctions.Count -gt 0) {
         'New-ProjectDocumentWithMetadata',
         'New-ProjectDocumentWithCodeMetadata',
         'New-ProjectCodeMetadata',
-        'New-StandardProjectDocument'
+        'New-StandardProjectDocument',
+        'New-FrameworkDocument'
     )
 
     # State file management functions
@@ -135,6 +148,7 @@ if ($LoadedFunctions.Count -gt 0) {
         'Get-RelevantTrackingFiles',
         'Get-StateFileBackup',
         'Get-ActiveFeatures',
+        'Get-FeatureNameById',
         'Update-FeatureTrackingStatus',
         'Assert-LineInFile',
         'Test-LineInFile'
@@ -170,8 +184,14 @@ if ($LoadedFunctions.Count -gt 0) {
         'Get-TestRunnerLanguageConfig'
     )
 
+    # Description extractors shared by the doc-map / task-metadata generators (PF-IMP-1311)
+    $DescriptionExtractionFunctions = @(
+        'Get-SynopsisDescription',
+        'Get-PyDocstringDescription'
+    )
+
     # Combine all functions for export
-    $AllExportedFunctions = $CoreFunctions + $OutputFunctions + $DocumentFunctions + $StateFunctions + $BatchFunctions + $AdvancedFunctions + $VerificationFunctions + $TestRunnerFunctions
+    $AllExportedFunctions = $CoreFunctions + $OutputFunctions + $DocumentFunctions + $StateFunctions + $BatchFunctions + $AdvancedFunctions + $VerificationFunctions + $TestRunnerFunctions + $DescriptionExtractionFunctions
 }
 
 # Export all functions to maintain backward compatibility

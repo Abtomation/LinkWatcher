@@ -6,6 +6,7 @@ This module tests Python-specific link parsing functionality.
 
 import pytest
 
+from linkwatcher.link_types import LinkType
 from linkwatcher.parsers.python import PythonParser
 
 pytestmark = [
@@ -392,3 +393,144 @@ class TestPythonParserDocstrings:
         comment_refs = [r for r in references if r.link_target == "src/utils/helpers.py"]
         assert len(comment_refs) >= 1
         assert comment_refs[0].link_type == "python-comment"
+
+
+class TestDocstringColumnPositions:
+    """PD-BUG-118 (Defect A) regression: docstring extraction on a line that
+    CONTAINS triple quotes recorded column offsets relative to the extracted
+    docstring text (``inner``), not the physical line.
+
+    ``parse_content`` builds ``inner`` from ``_TRIPLE_QUOTE_RE.split(line)`` and
+    then stored ``match.start()`` directly as ``column_start``.  The offset of
+    the docstring content within the line (e.g. ``len('    \"\"\"') == 7``) was
+    dropped, so every recorded column was short by that amount.  The updater's
+    ``_replace_at_position`` slices the line at those columns, consuming and
+    duplicating characters adjacent to the real target.
+
+    The invariant these tests pin is simple and total: for EVERY reference the
+    parser emits, ``line[column_start:column_end]`` must equal ``link_target``.
+    A pure docstring *body* line (no triple quotes) was always correct — it is
+    kept here as the control that discriminates the buggy branch from the sound
+    one.
+    """
+
+    def _assert_columns_are_line_absolute(self, parser, content, file_path="script.py"):
+        """Every emitted ref must slice back to its own link_target."""
+        lines = content.split("\n")
+        references = parser.parse_content(content, file_path)
+        assert references, "expected at least one reference"
+        for ref in references:
+            line = lines[ref.line_number - 1]
+            sliced = line[ref.column_start : ref.column_end]
+            assert sliced == ref.link_target, (
+                f"column drift: type={ref.link_type} target={ref.link_target!r} "
+                f"cols=[{ref.column_start},{ref.column_end}) sliced={sliced!r} "
+                f"line={line!r}"
+            )
+        return references
+
+    def test_docstring_dir_columns_on_triple_quote_line(self):
+        """The exact PD-BUG-118 evidence line from performance_db.py."""
+        parser = PythonParser()
+        line = '    """Resolve database path to test/state-tracking/permanent/."""'
+        content = "def _resolve_db_path():\n" + line + "\n"
+        refs = self._assert_columns_are_line_absolute(parser, content)
+
+        # Defect C trims the swallowed sentence period, so the target is the
+        # directory itself — trailing separator kept, punctuation excluded.
+        dir_refs = [r for r in refs if r.link_target == "test/state-tracking/permanent/"]
+        assert len(dir_refs) == 1, "expected the docstring directory reference"
+        ref = dir_refs[0]
+        # Pin the true position explicitly — the shift was exactly len('    """').
+        assert ref.column_start == line.index("test/state-tracking/permanent/")
+        assert ref.column_start != 25, "regression: column recorded relative to inner text"
+        # The sentence period must sit OUTSIDE the replaced span.
+        assert line[ref.column_end] == ".", "sentence period is inside the replaced span"
+
+    def test_docstring_file_columns_on_triple_quote_line(self):
+        """File paths (with extension) on a triple-quote line — python-docstring type."""
+        parser = PythonParser()
+        line = '    """See doc/user/handbooks/quick-reference.md for details."""'
+        content = "def f():\n" + line + "\n"
+        self._assert_columns_are_line_absolute(parser, content)
+
+    def test_deeper_indentation_shifts_columns_further(self):
+        """Indentation is part of the dropped offset — deeper nesting drifts more."""
+        parser = PythonParser()
+        line = '            """Templates in process-framework/templates/support/."""'
+        content = "class A:\n    def f(self):\n        def g():\n" + line + "\n"
+        self._assert_columns_are_line_absolute(parser, content)
+
+    def test_two_docstring_segments_on_one_line(self):
+        """Two triple-quoted segments on one line.
+
+        ``inner`` joins disjoint segments with a space, so a single scalar
+        offset cannot describe both — only span-aware scanning of the real line
+        keeps columns correct for the SECOND segment.  This is the case that
+        discriminates a span-based fix from an add-one-offset fix.
+        """
+        parser = PythonParser()
+        line = 'x = """doc/alpha/beta/""" + """doc/gamma/delta/"""'
+        content = line + "\n"
+        refs = self._assert_columns_are_line_absolute(parser, content)
+        targets = {r.link_target for r in refs}
+        assert "doc/gamma/delta/" in targets, "second segment's path must still be found"
+
+    def test_docstring_body_line_columns_unchanged(self):
+        """Control: a pure docstring body line has no triple quotes and was
+        always correct.  It must stay correct after the fix."""
+        parser = PythonParser()
+        body = "    Resolve database path to test/state-tracking/permanent/."
+        content = 'def f():\n    """\n' + body + '\n    """\n'
+        refs = self._assert_columns_are_line_absolute(parser, content)
+        assert any(r.link_target == "test/state-tracking/permanent/" for r in refs)
+
+    def test_code_after_closing_quotes_on_same_line(self):
+        """Text outside the triple quotes must not be scanned as docstring, and
+        any reference found there must still carry line-absolute columns."""
+        parser = PythonParser()
+        line = '    """Docs in doc/alpha/beta/."""  # see doc/gamma/delta/notes.md'
+        content = "def f():\n" + line + "\n"
+        self._assert_columns_are_line_absolute(parser, content)
+
+    def test_sentence_period_not_swallowed_into_directory_target(self):
+        """PD-BUG-118 (Defect C): _BARE_DIR_RE's character class contains '.', so
+        a sentence-ending period after a trailing separator was captured as part
+        of the path.  Everything inside the recorded span is destroyed by the
+        rewrite, so the period was eaten from the prose."""
+        parser = PythonParser()
+        line = '    """Resolve database path to test/state-tracking/permanent/."""'
+        content = "def f():\n" + line + "\n"
+        refs = self._assert_columns_are_line_absolute(parser, content)
+
+        dir_refs = [r for r in refs if r.link_type == LinkType.PYTHON_DOCSTRING_DIR]
+        assert dir_refs, "expected a docstring directory reference"
+        target = dir_refs[0].link_target
+        assert (
+            target == "test/state-tracking/permanent/"
+        ), "sentence punctuation captured into the link target: {!r}".format(target)
+        assert not target.endswith("."), "trailing sentence period still in target"
+
+    def test_trailing_period_without_slash_trimmed(self):
+        """A path ending in a period but no trailing slash is trimmed too."""
+        parser = PythonParser()
+        line = '    """Config lives in doc/state-tracking/permanent."""'
+        content = "def f():\n" + line + "\n"
+        refs = self._assert_columns_are_line_absolute(parser, content)
+        dir_refs = [r for r in refs if r.link_type == LinkType.PYTHON_DOCSTRING_DIR]
+        assert dir_refs, "expected a docstring directory reference"
+        assert dir_refs[0].link_target == "doc/state-tracking/permanent"
+
+    def test_backticked_path_in_docstring_keeps_delimiters(self):
+        """The reported 'eaten closing backtick' shape: a backticked path inside a
+        docstring must slice back exactly, leaving both backticks outside the span."""
+        parser = PythonParser()
+        line = '    """See `doc/state-tracking/` for status."""'
+        content = "def f():\n" + line + "\n"
+        refs = self._assert_columns_are_line_absolute(parser, content)
+        targets = [r.link_target for r in refs]
+        assert "doc/state-tracking/" in targets, "expected the backticked directory path"
+        for ref in refs:
+            assert "`" not in ref.link_target, "backtick captured into target: {!r}".format(
+                ref.link_target
+            )

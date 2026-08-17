@@ -87,6 +87,7 @@ class LinkWatcherService:
         self.updater = LinkUpdater(
             str(self.project_root),
             python_source_root=config.python_source_root if config else "",
+            path_resolution_overrides=config.path_resolution_overrides if config else None,
         )
         self.handler = LinkMaintenanceHandler(
             self.link_db,

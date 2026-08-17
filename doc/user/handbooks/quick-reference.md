@@ -1,5 +1,6 @@
 ---
 id: PD-UGD-007
+description: "CLI options, config, environment variables, examples"
 type: Product Documentation
 category: User Guide
 version: 1.1
@@ -50,7 +51,7 @@ dry_run_mode: true
 
 Full list of settings and defaults: [Configuration Guide § Full Reference](configuration-guide.md#full-reference).
 
-> **Validating blueprint/template folders?** Use `path_resolution_overrides` so `--validate` resolves `/...` links inside a folder against that folder as its own root. See the [Configuration Guide](configuration-guide.md#per-folder-path-resolution-override-path_resolution_overrides) and the [Link Validation](link-validation.md) handbook.
+> **Blueprint/template folders?** Use `path_resolution_overrides` so `/...` links inside a folder resolve against that folder as its own root — for both `--validate` and live move/rename updates (restructuring the folder keeps its `/...` cross-references intact). See the [Configuration Guide](configuration-guide.md#per-folder-path-resolution-override-path_resolution_overrides) and the [Link Validation](link-validation.md) handbook.
 
 ## Environment Variables
 

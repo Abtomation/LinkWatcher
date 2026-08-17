@@ -2,18 +2,26 @@
 
 <#
 .SYNOPSIS
-Updates feature request status in the Feature Request Tracking state file
+Updates a feature request in the Feature Request Tracking state file — a lifecycle transition, or a notes-only annotation of an open request.
 
 .DESCRIPTION
 This script automates feature request lifecycle transitions in feature-request-tracking.md.
 
 Used by Feature Request Evaluation (PF-TSK-067) to classify and close requests, and
-can also be used to defer or reject requests.
+can also be used to defer, reject, or annotate requests.
 
-Supports two operation modes:
+Supports four operation modes:
 1. Completion: Sets Classification and Feature columns, moves row from Active to Completed
    section, updates summary count, adds Update History entry, updates frontmatter date
-2. Status-only update: Changes Status column (for Deferred/Rejected transitions)
+2. Rejection: Marks the row's disposition (Classification = "❌ Rejected"), moves it from the
+   Active table to the collapsed archive section, and recounts (PF-IMP-1220) — keeps terminal
+   rejections out of the active intake view
+3. Status-only update: Changes Status column in place (Deferred — postponed, may be reactivated)
+4. Notes-only annotation (-AppendNotes, PF-IMP-1441): Appends to the Notes column of a request
+   still in the Active table, leaving Status untouched. Use case: recording research or triage
+   findings on a request before it is classified. Appends (never overwrites) and is idempotent —
+   re-running with the same text is a no-op. Sibling precedent: Update-TechDebt.ps1 -EditNotes,
+   which replaces rather than appends; this script appends, matching its own -Notes semantics.
 
 For enhancements, also updates feature-tracking.md to set the target feature's status
 to "Needs Enhancement" with a link to the Enhancement State Tracking File.
@@ -32,6 +40,12 @@ The new status. Valid values: Completed, Deferred, Rejected
 
 .PARAMETER Notes
 Additional notes to add to the Notes column (e.g., Enhancement State File link)
+
+.PARAMETER AppendNotes
+Text to append to the Notes column of a request still in the Active table, with no status
+change (NotesEdit mode — mutually exclusive with -NewStatus). The existing Notes value is
+appended to, not overwritten, and the append is idempotent: re-running with text already
+present in the cell leaves the file untouched.
 
 .PARAMETER FeatureName
 Name of the new feature (new feature classification only). When provided with -Classification
@@ -54,6 +68,14 @@ Update-FeatureRequest.ps1 -RequestId "PD-FRQ-001" -Classification "Enhancement" 
 # Classify as new feature and complete (also creates feature state file)
 Update-FeatureRequest.ps1 -RequestId "PD-FRQ-003" -Classification "NewFeature" -FeatureId "2.1.2" -FeatureName "TOML File Support" -NewStatus "Completed" -Notes "Added as feature 2.1.2 in feature-tracking.md"
 
+.PARAMETER TrackingFile
+Overrides the path to feature-request-tracking.md. Defaults to the project's
+state-tracking/permanent/feature-request-tracking.md via Resolve-DocPath.
+
+.PARAMETER FeatureTrackingFile
+Overrides the path to feature-tracking.md, written when an accepted request becomes a feature.
+Defaults to the project's state-tracking/permanent/feature-tracking.md via Resolve-DocPath.
+
 .EXAMPLE
 # Defer a request
 Update-FeatureRequest.ps1 -RequestId "PD-FRQ-002" -NewStatus "Deferred" -Notes "Postponed until v3.0"
@@ -61,6 +83,10 @@ Update-FeatureRequest.ps1 -RequestId "PD-FRQ-002" -NewStatus "Deferred" -Notes "
 .EXAMPLE
 # Reject a request
 Update-FeatureRequest.ps1 -RequestId "PD-FRQ-004" -NewStatus "Rejected" -Notes "Out of scope for this project"
+
+.EXAMPLE
+# Annotate a still-open request with research findings (no status change)
+Update-FeatureRequest.ps1 -RequestId "PD-FRQ-005" -AppendNotes "Spike found the parser already exposes a hook — see PD-TEC-001"
 
 .NOTES
 This script integrates with:
@@ -74,31 +100,36 @@ side-effect (feature state file creation). WARN and ERROR messages always pass
 through. Pass -Verbose to restore the full play-by-play log for debugging.
 #>
 
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'Lifecycle')]
 param(
     [Parameter(Mandatory = $true)]
     [ValidatePattern('^PD-FRQ-\d+$')]
     [string]$RequestId,
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Lifecycle')]
     [ValidateSet("NewFeature", "Enhancement")]
     [string]$Classification,
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Lifecycle')]
     [string]$FeatureId,
 
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $true, ParameterSetName = 'Lifecycle')]
     [ValidateSet("Completed", "Deferred", "Rejected")]
     [string]$NewStatus,
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Lifecycle')]
     [string]$FeatureName = "",
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Lifecycle')]
     [string]$Notes = "",
 
-    [Parameter(Mandatory = $false)]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Lifecycle')]
     [string]$EnhancementStateFile = "",
+
+    # --- NotesEdit parameter set (PF-IMP-1441) ---
+    [Parameter(Mandatory = $true, ParameterSetName = 'NotesEdit')]
+    [ValidateNotNullOrEmpty()]
+    [string]$AppendNotes,
 
     [Parameter(Mandatory = $false)]
     [string]$UpdatedBy = "AI Agent (PF-TSK-067)",
@@ -140,63 +171,48 @@ if (-not $FeatureTrackingFile) {
 }
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 function Test-Prerequisites {
-    Write-Log "Checking prerequisites..."
+    Write-ProjectLog "Checking prerequisites..."
 
     if (-not (Test-Path $TrackingFile)) {
-        Write-Log "Feature request tracking file not found: $TrackingFile" -Level "ERROR"
+        Write-ProjectLog "Feature request tracking file not found: $TrackingFile" -Level "ERROR"
         return $false
     }
 
     # Validate required parameters for completion
     if ($NewStatus -eq "Completed") {
         if (-not $Classification) {
-            Write-Log "Classification is required when completing a feature request" -Level "ERROR"
+            Write-ProjectLog "Classification is required when completing a feature request" -Level "ERROR"
             return $false
         }
         if (-not $FeatureId) {
-            Write-Log "FeatureId is required when completing a feature request" -Level "ERROR"
+            Write-ProjectLog "FeatureId is required when completing a feature request" -Level "ERROR"
             return $false
         }
     }
 
     # Validate enhancement-specific parameters
     if ($Classification -eq "Enhancement" -and $EnhancementStateFile -and -not (Test-Path $FeatureTrackingFile)) {
-        Write-Log "Feature tracking file not found: $FeatureTrackingFile" -Level "ERROR"
+        Write-ProjectLog "Feature tracking file not found: $FeatureTrackingFile" -Level "ERROR"
         return $false
     }
 
-    Write-Log "Prerequisites check passed" -Level "SUCCESS"
+    Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
     return $true
 }
 
 # --- Content-transformation functions ---
+
+function Join-RequestNote {
+    # Append $New to an existing Notes-column value with a normalized separator, so a prior
+    # value that already ends in '.' does not produce a '..' double period (PF-IMP-1046).
+    # Empty or placeholder ('—') existing values are replaced outright (no leading separator).
+    param([string]$Existing, [string]$New)
+    if ($Existing -and $Existing -ne "—") {
+        return "$($Existing.TrimEnd('.', ' ')). $New"
+    }
+    return $New
+}
 
 function Update-RequestRow {
     param(
@@ -212,12 +228,12 @@ function Update-RequestRow {
     $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
 
     if (-not $row) {
-        Write-Log "Feature request not found in Active table: $RequestId" -Level "ERROR"
+        Write-ProjectLog "Feature request not found in Active table: $RequestId" -Level "ERROR"
         return $null
     }
 
     $currentEntry = $row._RawLine
-    Write-Log "Found feature request entry for $RequestId"
+    Write-ProjectLog "Found feature request entry for $RequestId"
 
     # Parse columns: | ID | Source | Description | Feature | Classification | Status | Last Updated | Notes |
     $columns = Split-MarkdownTableRow -Line $currentEntry
@@ -231,19 +247,63 @@ function Update-RequestRow {
         $columns[3] = $FeatureId
     }
     if ($Notes) {
-        # Append to existing notes
-        if ($columns[7] -and $columns[7] -ne "—") {
-            $columns[7] = "$($columns[7]). $Notes"
-        } else {
-            $columns[7] = $Notes
-        }
+        $columns[7] = Join-RequestNote -Existing $columns[7] -New $Notes
     }
 
     $updatedEntry = "| " + ($columns -join " | ") + " |"
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Updated $RequestId columns" -Level "SUCCESS"
+    Write-ProjectLog "Updated $RequestId columns" -Level "SUCCESS"
     return $result
+}
+
+function Add-RequestNote {
+    # NotesEdit mode (PF-IMP-1441): appends to the Notes column of a request still in the Active
+    # table, leaving Status alone. Returns @{ Content; Changed } — Changed is $false when the text
+    # is already present (idempotent no-op), $null on failure.
+    param(
+        [string]$Content,
+        [string]$RequestId,
+        [string]$Note
+    )
+
+    $rows = ConvertFrom-MarkdownTable -Content $Content -Section "## Active Feature Requests" -IncludeRawLine
+    $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
+
+    if (-not $row) {
+        Write-ProjectLog "Feature request not found in the Active table: $RequestId (notes can only be appended to an open request)" -Level "ERROR"
+        return $null
+    }
+
+    $currentEntry = $row._RawLine
+    $columns = Split-MarkdownTableRow -Line $currentEntry
+
+    # Resolve the target columns by header NAME, not by fixed index — a table that gains a column
+    # would otherwise silently write the note into the wrong cell (the PF-IMP-006 lesson from
+    # Update-TechDebt.ps1 -EditNotes). ConvertFrom-MarkdownTable already names each row property
+    # after its column, in column order, so the parsed row doubles as the header map.
+    $headers = @($row.PSObject.Properties.Name | Where-Object { $_ -notlike '_*' })
+    $notesIdx = [Array]::IndexOf($headers, 'Notes')
+    if ($notesIdx -lt 0) {
+        Write-ProjectLog "Active Feature Requests table has no 'Notes' column" -Level "ERROR"
+        return $null
+    }
+
+    if ($columns[$notesIdx] -like "*$Note*") {
+        Write-ProjectLog "Notes for $RequestId already contain this text — nothing to append" -Level "WARN"
+        return [pscustomobject]@{ Content = $Content; Changed = $false }
+    }
+
+    $columns[$notesIdx] = Join-RequestNote -Existing $columns[$notesIdx] -New $Note
+
+    $updatedIdx = [Array]::IndexOf($headers, 'Last Updated')
+    if ($updatedIdx -ge 0) { $columns[$updatedIdx] = $CurrentDate }
+
+    $updatedEntry = "| " + ($columns -join " | ") + " |"
+    $result = $Content.Replace($currentEntry, $updatedEntry)
+
+    Write-ProjectLog "Appended notes to $RequestId" -Level "SUCCESS"
+    return [pscustomobject]@{ Content = $result; Changed = $true }
 }
 
 function Move-ToCompletedSection {
@@ -276,11 +336,11 @@ function Move-ToCompletedSection {
         -AdditionalColumns $additionalColumns
 
     if ($null -eq $result.Content) {
-        Write-Log "Failed to move $RequestId to Completed section" -Level "ERROR"
+        Write-ProjectLog "Failed to move $RequestId to Completed section" -Level "ERROR"
         return $null
     }
 
-    Write-Log "Moved $RequestId to Completed Requests section" -Level "SUCCESS"
+    Write-ProjectLog "Moved $RequestId to Completed Requests section" -Level "SUCCESS"
     return $result.Content
 }
 
@@ -297,7 +357,7 @@ function Update-SummaryCount {
 
     $result = $Content -replace '(?<=Show completed requests \()\d+(?= items?\))', $count.ToString()
 
-    Write-Log "Updated completed summary count to $count items" -Level "SUCCESS"
+    Write-ProjectLog "Updated completed summary count to $count items" -Level "SUCCESS"
     return $result
 }
 
@@ -314,7 +374,7 @@ function Update-HistorySummaryCount {
 
     $result = $Content -replace '(?<=Show update history \()\d+(?= entries?\))', $count.ToString()
 
-    Write-Log "Updated history summary count to $count entries" -Level "SUCCESS"
+    Write-ProjectLog "Updated history summary count to $count entries" -Level "SUCCESS"
     return $result
 }
 
@@ -348,14 +408,14 @@ function Add-UpdateHistoryEntry {
     }
 
     if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find Update History table" -Level "ERROR"
+        Write-ProjectLog "Could not find Update History table" -Level "ERROR"
         return $null
     }
 
     $historyRow = "| $CurrentDate | $HistoryNote | $UpdatedBy |"
     $lines.Insert($insertAfterIndex + 1, $historyRow)
 
-    Write-Log "Added Update History entry" -Level "SUCCESS"
+    Write-ProjectLog "Added Update History entry" -Level "SUCCESS"
     return ($lines -join "`r`n")
 }
 
@@ -365,7 +425,7 @@ function Update-FeatureTrackingForEnhancement {
         [string]$EnhancementStateFile
     )
 
-    Write-Log "Updating feature-tracking.md for enhancement of feature $FeatureId..."
+    Write-ProjectLog "Updating feature-tracking.md for enhancement of feature $FeatureId..."
 
     $ftContent = Get-Content $FeatureTrackingFile -Raw
 
@@ -375,8 +435,8 @@ function Update-FeatureTrackingForEnhancement {
     $ftMatch = [regex]::Match($ftContent, $featurePattern)
 
     if (-not $ftMatch.Success) {
-        Write-Log "Feature $FeatureId not found in feature-tracking.md" -Level "WARN"
-        Write-Log "You will need to manually update feature-tracking.md" -Level "WARN"
+        Write-ProjectLog "Feature $FeatureId not found in feature-tracking.md" -Level "WARN"
+        Write-ProjectLog "You will need to manually update feature-tracking.md" -Level "WARN"
         return
     }
 
@@ -390,38 +450,63 @@ function Update-FeatureTrackingForEnhancement {
 
     if ($ftContent) {
         # Update frontmatter date
-        $ftContent = $ftContent -replace '(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
+        $ftContent = Update-FrontmatterDate -Content $ftContent -CurrentDate $CurrentDate
 
         # PF-IMP-801: recompute Progress Summary — Status flip from any value to 🔄 Needs
         # Enhancement shifts the Implementation Status Overview breakdown.
         $ftContent = Update-FeatureTrackingSummary -Content $ftContent
 
         Set-Content -Path $FeatureTrackingFile -Value $ftContent -NoNewline
-        Write-Log "Updated feature $FeatureId to 'Needs Enhancement' in feature-tracking.md" -Level "SUCCESS"
+        Write-ProjectLog "Updated feature $FeatureId to 'Needs Enhancement' in feature-tracking.md" -Level "SUCCESS"
     } else {
-        Write-Log "Failed to update feature-tracking.md — update manually" -Level "WARN"
+        Write-ProjectLog "Failed to update feature-tracking.md — update manually" -Level "WARN"
     }
 }
 
 # --- Main ---
 
 function Main {
-    Write-Log "Starting Feature Request Update"
-    Write-Log "Request ID: $RequestId"
-    Write-Log "New Status: $NewStatus"
-    if ($Classification) { Write-Log "Classification: $Classification" }
-    if ($FeatureId) { Write-Log "Feature ID: $FeatureId" }
+    $isNotesEdit = $PSCmdlet.ParameterSetName -eq 'NotesEdit'
+
+    Write-ProjectLog "Starting Feature Request Update"
+    Write-ProjectLog "Request ID: $RequestId"
+    if ($isNotesEdit) { Write-ProjectLog "Mode: notes-only append (no status change)" }
+    else { Write-ProjectLog "New Status: $NewStatus" }
+    if ($Classification) { Write-ProjectLog "Classification: $Classification" }
+    if ($FeatureId) { Write-ProjectLog "Feature ID: $FeatureId" }
 
     if (-not (Test-Prerequisites)) {
         exit 1
     }
 
-    if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Update $RequestId to $NewStatus")) {
+    $intent = if ($isNotesEdit) { "Append notes to $RequestId" } else { "Update $RequestId to $NewStatus" }
+    if (-not $PSCmdlet.ShouldProcess($TrackingFile, $intent)) {
         return
     }
 
     # Single read-modify-write cycle for feature-request-tracking.md
     $content = Get-Content $TrackingFile -Raw
+
+    if ($isNotesEdit) {
+        $edit = Add-RequestNote -Content $content -RequestId $RequestId -Note $AppendNotes
+        if ($null -eq $edit) { exit 1 }
+
+        if (-not $edit.Changed) {
+            Write-ProjectSummary "$RequestId → notes unchanged (text already present)"
+            return
+        }
+
+        $content = $edit.Content
+        $content = Add-UpdateHistoryEntry -Content $content -HistoryNote "Annotated $RequestId`: $AppendNotes" -UpdatedBy $UpdatedBy
+        if ($null -eq $content) { exit 1 }
+        $content = Update-HistorySummaryCount -Content $content
+        $content = Update-FrontmatterDate -Content $content
+
+        Set-Content -Path $TrackingFile -Value $content -NoNewline
+        Write-ProjectLog "Feature request tracking file updated successfully" -Level "SUCCESS"
+        Write-ProjectSummary "$RequestId → notes appended"
+        return
+    }
 
     # Map CLI parameter values to emoji display values for the tracking file
     $StatusDisplayMap = @{
@@ -447,31 +532,49 @@ function Main {
         $content = Update-SummaryCount -Content $content
     }
     elseif ($isDeferReject) {
-        # For Deferred/Rejected: update status in-place and add notes (column-aware lookup)
+        # Column-aware lookup of the Active row (shared by both the Deferred and Rejected paths).
         $rows = ConvertFrom-MarkdownTable -Content $content -Section "## Active Feature Requests" -IncludeRawLine
         $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
 
         if (-not $row) {
-            Write-Log "Feature request not found in Active table: $RequestId" -Level "ERROR"
+            Write-ProjectLog "Feature request not found in Active table: $RequestId" -Level "ERROR"
             exit 1
         }
 
         $currentEntry = $row._RawLine
         $columns = Split-MarkdownTableRow -Line $currentEntry
 
-        $columns[5] = $DisplayStatus
-        $columns[6] = $CurrentDate
-        if ($Notes) {
-            if ($columns[7] -and $columns[7] -ne "—") {
-                $columns[7] = "$($columns[7]). $Notes"
-            } else {
-                $columns[7] = $Notes
+        if ($NewStatus -eq "Rejected") {
+            # Rejected requests are terminal: move them out of the Active intake view into the
+            # collapsed archive so rejections don't accumulate in the active queue (PF-IMP-1220).
+            # The archive table has no Status column, so the disposition rides in the
+            # Classification column ("❌ Rejected") and the rejection date in Completed Date.
+            $columns[4] = $DisplayStatus   # "❌ Rejected" → Classification column (carried by the move)
+            if ($Notes) {
+                $columns[7] = Join-RequestNote -Existing $columns[7] -New $Notes
             }
-        }
+            $updatedEntry = "| " + ($columns -join " | ") + " |"
+            $content = $content.Replace($currentEntry, $updatedEntry)
 
-        $updatedEntry = "| " + ($columns -join " | ") + " |"
-        $content = $content.Replace($currentEntry, $updatedEntry)
-        Write-Log "Updated $RequestId status to $DisplayStatus" -Level "SUCCESS"
+            # Move Active → Completed Requests (carries Classification; adds Completed Date), then
+            # recount the collapsed section.
+            $content = Move-ToCompletedSection -Content $content -RequestId $RequestId
+            if ($null -eq $content) { exit 1 }
+            $content = Update-SummaryCount -Content $content
+            Write-ProjectLog "Moved $RequestId to the collapsed archive as $DisplayStatus" -Level "SUCCESS"
+        }
+        else {
+            # Deferred requests stay in the Active table (postponed; may be reactivated later) —
+            # update Status / Last Updated / Notes in place.
+            $columns[5] = $DisplayStatus
+            $columns[6] = $CurrentDate
+            if ($Notes) {
+                $columns[7] = Join-RequestNote -Existing $columns[7] -New $Notes
+            }
+            $updatedEntry = "| " + ($columns -join " | ") + " |"
+            $content = $content.Replace($currentEntry, $updatedEntry)
+            Write-ProjectLog "Updated $RequestId status to $DisplayStatus" -Level "SUCCESS"
+        }
     }
 
     # Step 4: Add Update History entry
@@ -494,7 +597,7 @@ function Main {
     # Single write
     Set-Content -Path $TrackingFile -Value $content -NoNewline
 
-    Write-Log "Feature request tracking file updated successfully" -Level "SUCCESS"
+    Write-ProjectLog "Feature request tracking file updated successfully" -Level "SUCCESS"
 
     # Step 7: For enhancements, also update feature-tracking.md
     if ($isCompletion -and $Classification -eq "Enhancement" -and $EnhancementStateFile) {
@@ -506,19 +609,19 @@ function Main {
     if ($isCompletion -and $Classification -eq "NewFeature" -and $FeatureName) {
         $stateScript = Join-Path -Path (Get-ProcessFrameworkPath) -ChildPath "scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1"
         if (Test-Path $stateScript) {
-            Write-Log "Creating feature implementation state file for $FeatureId ($FeatureName)..."
+            Write-ProjectLog "Creating feature implementation state file for $FeatureId ($FeatureName)..."
             try {
                 & $stateScript -FeatureName $FeatureName -FeatureId $FeatureId -Description $Notes -Confirm:$false
-                Write-Log "Feature implementation state file created and linked in feature-tracking.md" -Level "SUCCESS"
+                Write-ProjectLog "Feature implementation state file created and linked in feature-tracking.md" -Level "SUCCESS"
                 $stateFileCreated = $true
             }
             catch {
-                Write-Log "Failed to create feature state file: $($_.Exception.Message)" -Level "WARN"
-                Write-Log "Create it manually using New-FeatureImplementationState.ps1" -Level "WARN"
+                Write-ProjectLog "Failed to create feature state file: $($_.Exception.Message)" -Level "WARN"
+                Write-ProjectLog "Create it manually using New-FeatureImplementationState.ps1" -Level "WARN"
             }
         } else {
-            Write-Log "New-FeatureImplementationState.ps1 not found at: $stateScript" -Level "WARN"
-            Write-Log "Create the feature state file manually" -Level "WARN"
+            Write-ProjectLog "New-FeatureImplementationState.ps1 not found at: $stateScript" -Level "WARN"
+            Write-ProjectLog "Create the feature state file manually" -Level "WARN"
         }
     }
 
@@ -530,9 +633,9 @@ function Main {
     } elseif ($FeatureId) {
         $summaryParts += "(feature $FeatureId)"
     }
-    Write-SummaryLine ($summaryParts -join ' ')
+    Write-ProjectSummary ($summaryParts -join ' ')
     if ($stateFileCreated) {
-        Write-SummaryLine "Created feature state file for $FeatureId"
+        Write-ProjectSummary "Created feature state file for $FeatureId"
     }
 }
 

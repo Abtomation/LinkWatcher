@@ -3,14 +3,14 @@
 id: PF-TEM-055
 type: Process Framework
 category: Template
-version: 1.2
+version: 1.5
 created: 2025-06-10
-updated: 2025-01-27
+updated: 2026-08-04
 
 # Document Creation Metadata
 template_for: TDD Tier 1 (Feature Planning Document)
-creates_document_type: Technical Design Document
-creates_document_category: TDD Tier 1
+creates_document_type: Product Documentation
+creates_document_category: Technical Design Document
 creates_document_prefix: PD-TDD
 creates_document_version: 1.0
 
@@ -28,6 +28,7 @@ variant_group: tdd-templates
 variant_siblings:
   - tdd-t2-template.md
   - tdd-t3-template.md
+  - tdd-instruction-template.md
 ---
 
 # Feature Planning Document: [Feature Name]
@@ -62,7 +63,7 @@ As a [user type], I want to [action] so that [benefit].
 
 ## Quality Attribute Considerations
 
-> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this feature
+> **Reference**: Define quality attributes relevant to this feature
 
 ### Applicable Quality Requirements
 
@@ -83,8 +84,12 @@ As a [user type], I want to [action] so that [benefit].
 
 > **Note**: For Tier 1 features, cross-references are kept minimal. Link to detailed documentation if it exists.
 
-- **API Specification** (if applicable): [Link to PD-API-XXX]
+> **Design dimensions**: the four are listed in design-chain order (Database → API → UI → Instruction). Keep only the ones that apply to this feature.
+
 - **Database Schema** (if applicable): [Link to PD-SCH-XXX]
+- **API Specification** (if applicable): [Link to PD-API-XXX]
+- **UI Design** (if applicable): [Link to PD-UIX-XXX]
+- **Instruction Design** (if applicable): [Link to PD-IND-XXX]
 - **Test Specification** (if applicable): [Link to PD-TST-XXX]
 
 ## Testing Considerations

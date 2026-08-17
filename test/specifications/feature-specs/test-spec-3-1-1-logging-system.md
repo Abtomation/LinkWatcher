@@ -1,5 +1,6 @@
 ---
 id: TE-TSP-041
+description: "3.1.1 Tier 2 — Structured logging, filtering, metrics"
 type: Process Framework
 category: Test Specification
 version: 1.0

@@ -1,6 +1,32 @@
-# New-StructureChangeState.ps1
-# Creates a new structure change state tracking file
-# Uses the central ID registry system and standardized document creation
+<#
+.SYNOPSIS
+Creates a new Structure Change state tracking file with an automatically assigned ID.
+
+.DESCRIPTION
+Uses the central ID registry system and standardized document creation.
+
+.PARAMETER ChangeName
+Name of the structure change. Drives the document title, the kebab-case filename, and the
+change_name frontmatter field.
+
+.PARAMETER Description
+Brief description of the change's scope. Omitted leaves the template's placeholder.
+
+.PARAMETER ChangeType
+Selects the state-file template. Valid values: "Template Update" (default), "Directory
+Reorganization", "Metadata Structure", "Documentation Architecture", "Rename", "Content Update",
+"Framework Extension". Rename / Content Update / Framework Extension each have a dedicated
+lightweight template; the rest use the standard one. Under -FromProposal this value is a label
+only — template selection ignores it.
+
+.PARAMETER FromProposal
+Uses the execution-tracking-only template for a change whose content is owned by a Structure
+Change Proposal. Rejected in combination with -ChangeType "Content Update" or "Framework
+Extension", whose templates carry type-specific content/artifact tables.
+
+.PARAMETER OpenInEditor
+Opens the created state file in the configured editor after creation.
+#>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -28,14 +54,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only its
+# param block, validation, the template selection + data, and the success report.
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
@@ -66,10 +87,15 @@ if ($FromProposal) {
     $templatePath = Join-Path $processFrameworkDir "templates/support/structure-change-state-template.md"
 }
 
+# Under -FromProposal the ChangeType is a label only (template selection ignores it) —
+# stamp an explicitly passed value, else point at the proposal-of-record instead of
+# asserting the 'Template Update' default (PF-IMP-1416)
+$changeTypeStamp = if ($FromProposal -and -not $PSBoundParameters.ContainsKey('ChangeType')) { "(see proposal)" } else { $ChangeType }
+
 # Prepare custom replacements
 $customReplacements = @{
     "[Change Name]"                                                                            = $ChangeName
-    "[Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]" = $ChangeType
+    "[Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]" = $changeTypeStamp
 }
 
 # Add description if provided
@@ -81,12 +107,11 @@ if ($Description -ne "") {
 $kebabName = ConvertTo-KebabCase -InputString $ChangeName
 $customFileName = "structure-change-$kebabName.md"
 
-try {
-    $stContext = Get-StateTrackingContext
-    $outputDir = "$($stContext.StateTrackingRelative)/temporary"
-    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Structure change state for: ${ChangeName}" -DocumentName $ChangeName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+$stContext = Get-StateTrackingContext
+$outputDir = "$($stContext.StateTrackingRelative)/temporary"
+$stateId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription "Structure change state for: ${ChangeName}" -DocumentName $ChangeName -OutputDirectory $outputDir -Replacements $customReplacements -Metadata $additionalMetadataFields -FileNamePattern $customFileName -Label "structure change state file" -OpenInEditor:$OpenInEditor
 
-    if ($FromProposal) {
+if ($FromProposal) {
         $details = @(
             "",
             "📋 LIGHTWEIGHT STATE FILE (from proposal)",
@@ -121,7 +146,3 @@ try {
     }
 
     Write-ProjectSuccess -Message "Created structure change state file with ID: $stateId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create structure change state file: $($_.Exception.Message)" -ExitCode 1
-}

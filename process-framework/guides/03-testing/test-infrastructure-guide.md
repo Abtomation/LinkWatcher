@@ -2,11 +2,10 @@
 id: PF-GDE-050
 type: Process Framework
 category: Guide
-version: 1.2
+version: 1.4
 created: 2026-03-16
-updated: 2026-06-03
+updated: 2026-07-30
 related_task: PF-TSK-053,PF-TSK-012,PF-TSK-030,PF-TSK-069,PF-TSK-070
-guide_title: Test Infrastructure Guide
 description: "How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, new-project scaffolding, and pre-existing-test migration"
 ---
 
@@ -44,7 +43,7 @@ test/
 ├── bug-validation/                 # PD-BUG-* regression validation scripts (top-level since PF-IMP-871 Phase 2b — formerly under automated/)
 │
 ├── specifications/                 # Test specifications derived from TDDs
-│   └── feature-specs/              # One spec per feature (PF-TSP-*)
+│   └── feature-specs/              # One spec per feature (TE-TSP-*)
 │
 ├── e2e-acceptance-testing/          # Formal E2E acceptance test framework (E2E-*)
 │   └── <workflow-slug>/             # Per workflow from user-workflow-tracking.md (PF-IMP-871 Phase 3c1)
@@ -91,14 +90,14 @@ The process framework eliminated redundant test tracking files. There is **no** 
 |--------|----------|---------|
 | `New-TestFile.ps1` | `scripts/file-creation` | Create automated test files with pytest markers |
 | `New-E2EAcceptanceTestCase.ps1` | `scripts/file-creation` | Create E2E acceptance test cases with TE-E2E/TE-E2G IDs |
-| `New-TestSpecification.ps1` | `scripts/file-creation` | Create test specifications with PF-TSP IDs |
+| `New-TestSpecification.ps1` | `scripts/file-creation` | Create test specifications with TE-TSP IDs |
 | `New-TestAuditReport.ps1` | `scripts/file-creation` | Create test audit reports with TE-TAR IDs, update test-tracking.md |
 | `Run-Tests.ps1` | `scripts/test` | Language-agnostic test runner (reads project-config.json + languages-config/) |
 | `Setup-TestEnvironment.ps1` | `scripts/test/e2e-acceptance-testing/` | Copy pristine fixtures to workspace for E2E acceptance testing |
 | `Verify-TestResult.ps1` | `scripts/test/e2e-acceptance-testing/` | Compare workspace state against expected state |
 | `Run-E2EAcceptanceTest.ps1` | `scripts/test/e2e-acceptance-testing/` | Orchestrate scripted test pipeline: Setup → run.ps1 → wait → Verify |
 | `Update-TestExecutionStatus.ps1` | `scripts/test/e2e-acceptance-testing/` | Update e2e-test-tracking.md with E2E acceptance test results |
-| `Validate-TestTracking.ps1` | `scripts/validation` | Validate consistency between registry, tracking, and disk |
+| `Validate-TestTracking.ps1` | `scripts/validation` | Validate consistency between registry, tracking, and disk; `-Fix` syncs drifted "Test Cases Count" cells from pytest collection; `-Path`/`-ChangedOnly` scope the report to named or git-changed files (scoped verdict — use for the post-edit "is my change clean" check, unscoped for a full gate) |
 
 ### Related Tasks
 
@@ -267,12 +266,12 @@ Run the script to layer language-specific customizations on top of the blueprint
 
 ```powershell
 cd process-framework/scripts/file-creation/00-setup
-.\New-TestInfrastructure.ps1 -Language "<your-language>"
+New-TestInfrastructure.ps1 -Language "<your-language>"
 ```
 
 **What it does:**
 - Verifies the blueprint-provided tracking files (`test-tracking.md`, `e2e-test-tracking.md`, `performance-test-tracking.md`, `TE-id-registry.json`) are present; warns if any are missing
-- Idempotently ensures structural directories exist: `test/automated/{categories}/`, `test/specifications/feature-specs/`, `cross-cutting-specs/`, `test/e2e-acceptance-testing/{templates,workspace,results}/`, `test/audits/`, `test/state-tracking/permanent/`
+- Idempotently ensures structural directories exist: `test/automated/{categories}/`, `test/specifications/feature-specs/`, `cross-cutting-specs/`, `test/e2e-acceptance-testing/{templates,workspace,results}/`, `test/audits/` plus a `test/audits/{category}/` mirror per test category (the Surface 16 audit-mirror invariant covers language/project quickCategories too — PF-IMP-1387), `test/state-tracking/permanent/`
 - Creates the shared fixture file (e.g., `conftest.py` for Python) from language config
 - Creates package markers (e.g., `__init__.py` for Python) where the language config requires
 - Creates `.gitignore` for E2E `workspace/` and `results/` directories
@@ -336,7 +335,7 @@ Create shared fixture files and package markers appropriate for your language, r
 
 ## Migrating Pre-Existing Tests Into the Framework
 
-The setup steps above scaffold the empty `test/` tree and create *new* tests — they do **not** migrate a project's pre-existing test files into the framework structure. That migration is a Tier 2+ onboarding activity owned by **[Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-setup/retrospective-documentation-creation.md) Step 8**, which delegates to **[Integration and Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md) in migration mode**.
+The setup steps above scaffold the empty `test/` tree and create *new* tests — they do **not** migrate a project's pre-existing test files into the framework structure. That migration is a Tier 2+ onboarding activity owned by **[Retrospective Documentation Creation (PF-TSK-066)](../../tasks/00-setup/retrospective-documentation-creation.md)** (its test-migration step), which delegates to **[Integration and Testing (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md) in migration mode**.
 
 In migration mode you:
 
@@ -345,7 +344,28 @@ In migration mode you:
 - Run the migrated tests to confirm they still pass, then **remove the original pre-existing test files** so no parallel test system remains.
 - Let the `New-TestFile.ps1` automation register everything in `test-tracking.md` and `feature-tracking.md`.
 
-See [Retrospective Documentation Creation Step 8](../../tasks/00-setup/retrospective-documentation-creation.md) for the full migration-mode procedure.
+See [Retrospective Documentation Creation](../../tasks/00-setup/retrospective-documentation-creation.md)'s test-migration step for the full migration-mode procedure.
+
+## Test Documentation Completeness
+
+After creating or modifying test files, complete these documentation steps to keep test specifications in sync with actual coverage. The implementation and maintenance tasks that create tests (Core Logic Implementation, Integration and Testing, Bug Fixing, Code Refactoring, Feature Enhancement) cite this section as an executable step.
+
+1. **Update the feature's test specification**:
+   - Locate the relevant spec in `test/specifications/feature-specs` for the feature under test
+   - Add the new test scenario(s) — describe what is being tested and why (not just the method name)
+   - If no test specification exists yet, note this as a gap but do not create one inline — flag it for follow-up (see step 3)
+
+2. **Run `Validate-TestTracking.ps1`** to catch tracking inconsistencies:
+   ```bash
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Validate-TestTracking.ps1
+   ```
+   Fix any errors before considering the test work complete.
+
+3. **Decide whether to escalate to formal Test Specification Creation**:
+   - **Inline update is sufficient** when: adding 1–3 scenarios to an existing spec, or the change is a straightforward regression/characterization test
+   - **Escalate to [Test Specification Creation (PF-TSK-012)](../../tasks/03-testing/test-specification-creation-task.md)** when: no spec exists for the feature, systemic test gaps are discovered (>3 new scenarios needed), or the test design requires behavioral analysis beyond what inline updates can capture
+
+> **Why this matters**: Tasks outside the formal testing pipeline (bug fixing, refactoring, feature enhancement, core logic implementation) create tests that get tracked mechanically via `New-TestFile.ps1`, but the test _specification_ — which documents what scenario is tested and why — does not get updated automatically. Without this step, test specs drift from actual coverage and become unreliable.
 
 ## Test Isolation Rules
 
@@ -377,7 +397,18 @@ Paths using directories that don't exist in the real project are already safe: `
 
 **Why**: Real project paths in test strings break when directories are renamed or moved. LinkWatcher updates real files but cannot update string literals inside test code, causing content and assertion strings to silently diverge. Git history confirms this happened in commits b3b29e2, ff5c27f, 07b1e51.
 
-See [Test File Creation Guide — Path Usage](test-file-creation-guide.md#path-usage-in-test-content) for the full pattern and examples.
+**Pattern**: store the path in a variable; derive both content and assertion from it:
+
+```python
+# CORRECT — synthetic namespace, single source of truth
+dir_path = "alpha-project/framework/scripts"
+content = f'$dir = "{dir_path}"\n'
+assert dir_path in [r.link_target for r in parser.parse_content(content, "test.ps1")]
+
+# WRONG — real project path that LinkWatcher will rewrite
+content = '$dir = "process-framework/scripts"\n'
+assert "process-framework/scripts" in [r.link_target for r in parser.parse_content(content, "test.ps1")]
+```
 
 ## Related Resources
 

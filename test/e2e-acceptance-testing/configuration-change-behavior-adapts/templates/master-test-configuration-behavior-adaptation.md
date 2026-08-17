@@ -1,6 +1,8 @@
 ---
 id: TE-E2G-012
-type: E2E Acceptance Test Group
+description: "E2E acceptance test (WF-006): Configuration Behavior Adaptation."
+type: Testing
+category: E2E Acceptance Test Group
 feature_ids: ["0.1.3", "1.1.1", "3.1.1"]
 workflow: WF-006
 test_cases_count: 3

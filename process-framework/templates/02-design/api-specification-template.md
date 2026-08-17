@@ -8,7 +8,7 @@ updated: 2025-01-27
 usage_context: Process Framework - API Specification Creation
 template_for: API Specification
 creates_document_prefix: PD-API
-creates_document_type: API Specification
+creates_document_type: Product Documentation
 creates_document_category: API Specification
 description: Template for creating comprehensive API contract definitions
 creates_document_version: 1.0

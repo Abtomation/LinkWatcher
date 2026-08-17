@@ -1,5 +1,6 @@
 ---
 id: PD-ADR-039
+description: "0.1.1 Core Architecture pattern decision"
 type: Product Documentation
 category: Architecture Decision Records
 version: 1.0

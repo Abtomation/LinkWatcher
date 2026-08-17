@@ -53,7 +53,7 @@ Requires: Priority, FixDetails, VerificationNotes. Scope defaults to "S" if not 
 Use this for small bugs that are triaged, fixed, and closed in a single session.
 
 .PARAMETER Priority
-Bug priority (Critical, High, Medium, Low) - used when transitioning to NeedsFix or with -FastClose
+Bug priority (Critical, High, Medium, Low). Required when transitioning to NeedsFix and with -FastClose.
 
 .PARAMETER Scope
 Bug fix scope (S, M, L) - used to indicate fix complexity and whether a state file is needed
@@ -61,22 +61,26 @@ Bug fix scope (S, M, L) - used to indicate fix complexity and whether a state fi
 
 
 .PARAMETER FixDetails
-Details about the fix implementation - used when transitioning to NeedsReview
+Details about the fix implementation. Required when transitioning to NeedsReview and with -FastClose.
 
 .PARAMETER RootCause
 Root cause analysis - used when transitioning to NeedsReview
 
 .PARAMETER TestsAdded
-Whether regression tests were added (Yes/No) - used when transitioning to NeedsReview
+Regression tests added — "Yes"/"No", or a short free-text summary of the tests added.
+Used when transitioning to NeedsReview; rendered into the bug's Notes as "Tests Added: <value>".
 
 .PARAMETER PullRequestUrl
 URL to the pull request containing the fix - used when transitioning to NeedsReview
 
 .PARAMETER VerificationNotes
-Notes from verification process - used when transitioning to Closed
+Notes from verification process. Required when transitioning to Closed and with -FastClose.
 
 .PARAMETER ReopenReason
-Reason for reopening the bug - used when transitioning to Reopened
+Reason for reopening the bug. Required when transitioning to Reopened.
+
+.PARAMETER RejectionReason
+Rationale for rejecting the bug (not-a-bug, won't-fix, or other). Required when transitioning to Rejected.
 
 .PARAMETER RelatedFeature
 Related feature ID or name (e.g., "1.1.1") - used when transitioning to NeedsFix to set the Related Feature column
@@ -174,7 +178,6 @@ param(
     [string]$RootCause,
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("Yes", "No")]
     [string]$TestsAdded,
 
     [Parameter(Mandatory = $false)]
@@ -292,37 +295,11 @@ $PriorityEmojis = @{
     "Low"      = "🟢"
 }
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 function Test-Prerequisites {
-    Write-Log "Checking prerequisites..."
+    Write-ProjectLog "Checking prerequisites..."
 
     if (-not (Test-Path $BugTrackingFile)) {
-        Write-Log "Bug tracking file not found: $BugTrackingFile" -Level "ERROR"
+        Write-ProjectLog "Bug tracking file not found: $BugTrackingFile" -Level "ERROR"
         return $false
     }
 
@@ -334,11 +311,11 @@ function Test-Prerequisites {
     elseif ($NewStatus -in @("Closed", "Rejected", "Reopened")) { $archiveRequired = $true }
 
     if ($archiveRequired -and -not (Test-Path $ArchiveFile)) {
-        Write-Log "Archive file not found: $ArchiveFile (required for $NewStatus transitions per PF-IMP-872 archive-split). Create from blueprint or pass -ArchiveFile pointing at an existing archive." -Level "ERROR"
+        Write-ProjectLog "Archive file not found: $ArchiveFile (required for $NewStatus transitions per PF-IMP-872 archive-split). Create from blueprint or pass -ArchiveFile pointing at an existing archive." -Level "ERROR"
         return $false
     }
 
-    Write-Log "Prerequisites check passed" -Level "SUCCESS"
+    Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
     return $true
 }
 
@@ -371,11 +348,11 @@ function Update-BugEntryContent {
     $match = [regex]::Match($Content, $bugPattern)
 
     if (-not $match.Success) {
-        Write-Log "Bug entry not found: $BugId" -Level "ERROR"
+        Write-ProjectLog "Bug entry not found: $BugId" -Level "ERROR"
         return $null
     }
 
-    Write-Log "Found bug entry for $BugId"
+    Write-ProjectLog "Found bug entry for $BugId"
     $currentEntry = $match.Value
 
     # Parse the table row (see column index mapping at top of script)
@@ -450,7 +427,7 @@ function Update-BugEntryContent {
     $updatedEntry = "| " + ($columns -join " | ") + " |"
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Successfully updated bug $BugId to status: $statusEmoji $displayName" -Level "SUCCESS"
+    Write-ProjectLog "Successfully updated bug $BugId to status: $statusEmoji $displayName" -Level "SUCCESS"
     return $result
 }
 
@@ -485,7 +462,7 @@ function Move-BugFromArchiveContent {
     }
 
     if (-not $bugLine) {
-        Write-Log "Could not find bug $BugId in archive (neither ## Closed Bugs nor ## Rejected Bugs)" -Level "ERROR"
+        Write-ProjectLog "Could not find bug $BugId in archive (neither ## Closed Bugs nor ## Rejected Bugs)" -Level "ERROR"
         return $null
     }
 
@@ -500,7 +477,7 @@ function Move-BugFromArchiveContent {
         "Medium"   { "### Medium Priority Bugs" }
         "Low"      { "### Low Priority Bugs" }
         default {
-            Write-Log "Unknown priority '$priorityValue' for bug $BugId, defaulting to ### Medium Priority Bugs" -Level "WARN"
+            Write-ProjectLog "Unknown priority '$priorityValue' for bug $BugId, defaulting to ### Medium Priority Bugs" -Level "WARN"
             "### Medium Priority Bugs"
         }
     }
@@ -523,7 +500,7 @@ function Move-BugFromArchiveContent {
         -SectionEndPattern '^### '
 
     if (-not $result -or $null -eq $result.Content) {
-        Write-Log "Move-MarkdownTableRow failed: archive($sourceArchiveSection) → live($targetSubsection) for $BugId" -Level "ERROR"
+        Write-ProjectLog "Move-MarkdownTableRow failed: archive($sourceArchiveSection) → live($targetSubsection) for $BugId" -Level "ERROR"
         return $null
     }
 
@@ -542,7 +519,7 @@ function Move-BugFromArchiveContent {
         }
     }
 
-    Write-Log "Moved bug $BugId from archive ($sourceArchiveSection) to live ($targetSubsection)" -Level "SUCCESS"
+    Write-ProjectLog "Moved bug $BugId from archive ($sourceArchiveSection) to live ($targetSubsection)" -Level "SUCCESS"
     return @{
         LiveContent    = ($newLiveLines -join "`r`n")
         ArchiveContent = $result.Content
@@ -550,6 +527,11 @@ function Move-BugFromArchiveContent {
 }
 
 function Move-BugBetweenActiveSectionsContent {
+    # PF-IMP-1136 (2026-06-12): consolidated onto the generic Move-MarkdownTableRow
+    # (same-file mode), mirroring Move-BugFromArchiveContent. What stays here is the
+    # genuinely per-file logic: locating the bug's current priority subsection, the
+    # already-in-place early exit, and the decorative-placeholder upkeep on both
+    # sides (the generic helper intentionally doesn't know about these markers).
     param(
         [string]$Content,
         [string]$BugId,
@@ -565,109 +547,97 @@ function Move-BugBetweenActiveSectionsContent {
 
     $targetSectionHeader = $priorityToSection[$TargetPriority]
     if (-not $targetSectionHeader) {
-        Write-Log "Unknown target priority '$TargetPriority'" -Level "ERROR"
+        Write-ProjectLog "Unknown target priority '$TargetPriority'" -Level "ERROR"
         return $null
     }
 
-    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
-
-    # Find the bug entry line (only in active sections, stop before Closed Bugs)
-    $bugLineIndex = -1
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match "^## Closed Bugs") { break }
-        if ($lines[$i] -match "^\|\s*$BugId\s*\|") {
-            $bugLineIndex = $i
+    # Locate the bug's current priority subsection (active sections only — stop
+    # before ## Closed Bugs).
+    $escapedBugId = [regex]::Escape($BugId)
+    $currentSectionHeader = $null
+    $scanSection = $null
+    foreach ($line in ($Content -split "\r?\n")) {
+        if ($line -match '^## Closed Bugs') { break }
+        if ($line -match '^### (Critical|High Priority|Medium Priority|Low Priority) Bugs\s*$') {
+            $scanSection = "### $($Matches[1]) Bugs"
+            continue
+        }
+        if ($scanSection -and $line -match "^\|\s*$escapedBugId\s*\|") {
+            $currentSectionHeader = $scanSection
             break
         }
     }
 
-    if ($bugLineIndex -eq -1) {
-        Write-Log "Bug $BugId not found in active sections for inter-section move" -Level "ERROR"
+    if (-not $currentSectionHeader) {
+        Write-ProjectLog "Bug $BugId not found in active sections for inter-section move" -Level "ERROR"
         return $null
-    }
-
-    # Determine current section by scanning backward
-    $currentSectionHeader = ""
-    for ($i = $bugLineIndex - 1; $i -ge 0; $i--) {
-        if ($lines[$i] -match "^### (Critical|High Priority|Medium Priority|Low Priority) Bugs") {
-            $currentSectionHeader = $lines[$i]
-            break
-        }
     }
 
     # If already in the correct section, no move needed
     if ($currentSectionHeader -eq $targetSectionHeader) {
-        Write-Log "Bug $BugId already in correct section ($targetSectionHeader), no move needed"
+        Write-ProjectLog "Bug $BugId already in correct section ($targetSectionHeader), no move needed"
         return $Content
     }
 
-    Write-Log "Moving bug $BugId from '$currentSectionHeader' to '$targetSectionHeader'"
+    Write-ProjectLog "Moving bug $BugId from '$currentSectionHeader' to '$targetSectionHeader'"
 
-    $bugLine = $lines[$bugLineIndex]
-    $lines.RemoveAt($bugLineIndex)
+    # Identity mapping — all four priority subsections share the same 11-column schema.
+    $bugHeaders = @('ID','Title','Status','Priority','Scope','Reported','Description','Related Feature','Workflows','Dims','Notes')
+    $columnMapping = [ordered]@{}
+    foreach ($h in $bugHeaders) { $columnMapping[$h] = $h }
 
-    # Check if the source section is now empty → add placeholder
-    $sourceSectionIndex = -1
-    for ($i = [Math]::Min($bugLineIndex - 1, $lines.Count - 1); $i -ge 0; $i--) {
-        if ($lines[$i] -match "^### (Critical|High Priority|Medium Priority|Low Priority) Bugs") {
-            $sourceSectionIndex = $i
+    # Same-file move. SectionEndPattern '^### ' bounds both the source row search
+    # and the destination insert scan at the next priority subsection.
+    $result = Move-MarkdownTableRow `
+        -Content $Content `
+        -RowIdPattern $escapedBugId `
+        -SourceSection $currentSectionHeader `
+        -DestinationSection $targetSectionHeader `
+        -ColumnMapping $columnMapping `
+        -SectionEndPattern '^### '
+
+    if (-not $result -or $null -eq $result.Content) {
+        Write-ProjectLog "Move-MarkdownTableRow failed: $currentSectionHeader -> $targetSectionHeader for $BugId" -Level "ERROR"
+        return $null
+    }
+
+    $newLines = [System.Collections.ArrayList]@($result.Content -split "\r?\n")
+
+    # Target section: drop its "_No X bugs currently active_" placeholder if present.
+    for ($i = 0; $i -lt $newLines.Count; $i++) {
+        if ($newLines[$i].Trim() -eq $targetSectionHeader) {
+            for ($j = $i + 1; $j -lt $newLines.Count -and -not ($newLines[$j] -match '^### |^## '); $j++) {
+                if ($newLines[$j] -match '^\|\s*_No .+ bugs currently') {
+                    $newLines.RemoveAt($j)
+                    break
+                }
+            }
             break
         }
     }
 
-    if ($sourceSectionIndex -ge 0) {
-        $hasDataRows = $false
-        for ($i = $sourceSectionIndex + 1; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -match "^(###|##) " -and $i -gt $sourceSectionIndex + 2) { break }
-            if ($lines[$i] -match "^\|\s*PD-BUG-") {
-                $hasDataRows = $true
-                break
+    # Source section: if emptied by the move, restore its placeholder after the separator row.
+    for ($i = 0; $i -lt $newLines.Count; $i++) {
+        if ($newLines[$i].Trim() -eq $currentSectionHeader) {
+            $hasDataRows = $false
+            $separatorIdx = -1
+            for ($j = $i + 1; $j -lt $newLines.Count -and -not ($newLines[$j] -match '^### |^## '); $j++) {
+                if ($separatorIdx -eq -1 -and $newLines[$j] -match '^\| -') { $separatorIdx = $j }
+                if ($newLines[$j] -match '^\|\s*PD-BUG-') { $hasDataRows = $true; break }
             }
-        }
-
-        if (-not $hasDataRows) {
-            for ($i = $sourceSectionIndex + 1; $i -lt $lines.Count; $i++) {
-                if ($lines[$i] -match "^\| -") {
-                    $sectionName = $lines[$sourceSectionIndex]
-                    $priorityLabel = if ($sectionName -match "Critical") { "critical" }
-                                     elseif ($sectionName -match "High") { "high priority" }
-                                     elseif ($sectionName -match "Medium") { "medium priority" }
-                                     else { "low priority" }
-                    $lines.Insert($i + 1, "| _No $priorityLabel bugs currently active_ |")
-                    break
-                }
+            if (-not $hasDataRows -and $separatorIdx -ge 0) {
+                $priorityLabel = if ($currentSectionHeader -match 'Critical') { 'critical' }
+                                 elseif ($currentSectionHeader -match 'High') { 'high priority' }
+                                 elseif ($currentSectionHeader -match 'Medium') { 'medium priority' }
+                                 else { 'low priority' }
+                $newLines.Insert($separatorIdx + 1, "| _No $priorityLabel bugs currently active_ |")
             }
+            break
         }
     }
 
-    # Find insertion point in target section: after last PD-BUG row, or after table separator
-    $insertAfterIndex = -1
-    $targetSectionFound = $false
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -eq $targetSectionHeader) {
-            $targetSectionFound = $true
-        }
-        if ($targetSectionFound) {
-            if ($i -gt 0 -and $lines[$i] -match "^(###|##) " -and $lines[$i] -ne $targetSectionHeader) { break }
-            if ($lines[$i] -match "^\|\s*PD-BUG-") { $insertAfterIndex = $i }
-            if ($lines[$i] -match "^\| -") { if ($insertAfterIndex -eq -1) { $insertAfterIndex = $i } }
-        }
-    }
-
-    if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find target section '$targetSectionHeader' for insertion" -Level "ERROR"
-        return $null
-    }
-
-    # Remove "No X bugs currently active" placeholder if present in target section
-    if ($insertAfterIndex + 1 -lt $lines.Count -and $lines[$insertAfterIndex + 1] -match "^\|\s*_No .+ bugs currently") {
-        $lines.RemoveAt($insertAfterIndex + 1)
-    }
-
-    $lines.Insert($insertAfterIndex + 1, $bugLine)
-
-    Write-Log "Moved bug $BugId to $targetSectionHeader" -Level "SUCCESS"
-    return ($lines -join "`r`n")
+    Write-ProjectLog "Moved bug $BugId to $targetSectionHeader" -Level "SUCCESS"
+    return ($newLines -join "`r`n")
 }
 
 function Move-BugToArchiveContent {
@@ -705,7 +675,7 @@ function Move-BugToArchiveContent {
     }
 
     if (-not $sourceSubsection) {
-        Write-Log "Could not find bug $BugId in any live priority subsection" -Level "ERROR"
+        Write-ProjectLog "Could not find bug $BugId in any live priority subsection" -Level "ERROR"
         return $null
     }
 
@@ -730,7 +700,7 @@ function Move-BugToArchiveContent {
         -SectionEndPattern '^### '
 
     if (-not $result -or $null -eq $result.Content) {
-        Write-Log "Move-MarkdownTableRow failed: live($sourceSubsection) → archive($destinationSection) for $BugId" -Level "ERROR"
+        Write-ProjectLog "Move-MarkdownTableRow failed: live($sourceSubsection) → archive($destinationSection) for $BugId" -Level "ERROR"
         return $null
     }
 
@@ -755,7 +725,7 @@ function Move-BugToArchiveContent {
         }
     }
 
-    Write-Log "Moved bug $BugId from live ($sourceSubsection) to archive ($destinationSection)" -Level "SUCCESS"
+    Write-ProjectLog "Moved bug $BugId from live ($sourceSubsection) to archive ($destinationSection)" -Level "SUCCESS"
     return @{
         LiveContent    = ($newLiveLines -join "`r`n")
         ArchiveContent = $result.DestinationContent
@@ -800,7 +770,7 @@ function Update-BugStatisticsContent {
     $result = $result -replace '- \*\*Medium\*\*:.*', (Format-StatLine "Medium" $bugIds.Medium)
     $result = $result -replace '- \*\*Low\*\*:.*', (Format-StatLine "Low" $bugIds.Low)
 
-    Write-Log "Updated bug statistics: $totalActive active ($($bugIds.Critical.Count) Critical, $($bugIds.High.Count) High, $($bugIds.Medium.Count) Medium, $($bugIds.Low.Count) Low)" -Level "SUCCESS"
+    Write-ProjectLog "Updated bug statistics: $totalActive active ($($bugIds.Critical.Count) Critical, $($bugIds.High.Count) High, $($bugIds.Medium.Count) Medium, $($bugIds.Low.Count) Low)" -Level "SUCCESS"
     return $result
 }
 
@@ -810,8 +780,8 @@ function Main {
         $script:BugId = "PD-$BugId"
     }
 
-    Write-Log "Starting Bug Status Update - $ScriptName"
-    Write-Log "Bug ID: $BugId"
+    Write-ProjectLog "Starting Bug Status Update - $ScriptName"
+    Write-ProjectLog "Bug ID: $BugId"
 
     if (-not (Test-Prerequisites)) {
         exit 1
@@ -819,17 +789,17 @@ function Main {
 
     # --- FastClose: chain NeedsFix → InProgress → Closed in one call ---
     if ($FastClose) {
-        Write-Log "Mode: FastClose (S-scope quick path)" -Level "INFO"
+        Write-ProjectLog "Mode: FastClose (S-scope quick path)" -Level "INFO"
 
         # Validate required parameters for FastClose
         if (-not $Priority) {
-            Write-Log "Priority is required for -FastClose" -Level "ERROR"; exit 1
+            Write-ProjectLog "Priority is required for -FastClose" -Level "ERROR"; exit 1
         }
         if (-not $FixDetails) {
-            Write-Log "FixDetails is required for -FastClose" -Level "ERROR"; exit 1
+            Write-ProjectLog "FixDetails is required for -FastClose" -Level "ERROR"; exit 1
         }
         if (-not $VerificationNotes) {
-            Write-Log "VerificationNotes is required for -FastClose" -Level "ERROR"; exit 1
+            Write-ProjectLog "VerificationNotes is required for -FastClose" -Level "ERROR"; exit 1
         }
 
         # Two-file mode (PF-IMP-872): load both live and archive content.
@@ -844,18 +814,18 @@ function Main {
         if ($Workflows) { $triageData.Workflows = $Workflows }
         if ($TriageNotes) { $triageData.TriageNotes = $TriageNotes }
         $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus "NeedsFix" -UpdateData $triageData
-        if ($null -eq $content) { Write-Log "FastClose failed at NeedsFix" -Level "ERROR"; exit 1 }
-        Write-Log "FastClose phase 1/3: 🔍 Needs Fix" -Level "SUCCESS"
+        if ($null -eq $content) { Write-ProjectLog "FastClose failed at NeedsFix" -Level "ERROR"; exit 1 }
+        Write-ProjectLog "FastClose phase 1/3: 🔍 Needs Fix" -Level "SUCCESS"
 
         # Move to correct priority section (non-fatal if already in correct section)
         $movedContent = Move-BugBetweenActiveSectionsContent -Content $content -BugId $BugId -TargetPriority $Priority
         if ($null -ne $movedContent) { $content = $movedContent }
-        else { Write-Log "Bug already in correct priority section or move skipped" -Level "INFO" }
+        else { Write-ProjectLog "Bug already in correct priority section or move skipped" -Level "INFO" }
 
         # Phase 2: InProgress
         $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus "InProgress" -UpdateData @{}
-        if ($null -eq $content) { Write-Log "FastClose failed at InProgress" -Level "ERROR"; exit 1 }
-        Write-Log "FastClose phase 2/3: 🟡 In Progress" -Level "SUCCESS"
+        if ($null -eq $content) { Write-ProjectLog "FastClose failed at InProgress" -Level "ERROR"; exit 1 }
+        Write-ProjectLog "FastClose phase 2/3: 🟡 In Progress" -Level "SUCCESS"
 
         # Phase 3: Closed (with fix details and verification)
         $closeData = @{}
@@ -865,12 +835,12 @@ function Main {
         if ($PullRequestUrl) { $closeData.PullRequestUrl = $PullRequestUrl }
         if ($VerificationNotes) { $closeData.VerificationNotes = $VerificationNotes }
         $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus "Closed" -UpdateData $closeData
-        if ($null -eq $content) { Write-Log "FastClose failed at Closed" -Level "ERROR"; exit 1 }
-        Write-Log "FastClose phase 3/3: 🔒 Closed" -Level "SUCCESS"
+        if ($null -eq $content) { Write-ProjectLog "FastClose failed at Closed" -Level "ERROR"; exit 1 }
+        Write-ProjectLog "FastClose phase 3/3: 🔒 Closed" -Level "SUCCESS"
 
         # Move to archive ## Closed Bugs section (PF-IMP-872) and recalculate stats
         $moveResult = Move-BugToArchiveContent -LiveContent $content -ArchiveContent $archiveContent -BugId $BugId -Disposition "Closed"
-        if ($null -eq $moveResult) { Write-Log "Failed to move bug to archive ## Closed Bugs" -Level "ERROR"; exit 1 }
+        if ($null -eq $moveResult) { Write-ProjectLog "Failed to move bug to archive ## Closed Bugs" -Level "ERROR"; exit 1 }
         $content = $moveResult.LiveContent
         $archiveContent = $moveResult.ArchiveContent
         $content = Update-BugStatisticsContent -Content $content
@@ -879,7 +849,7 @@ function Main {
             if ($PSCmdlet.ShouldProcess($BugTrackingFile, "FastClose $BugId (NeedsFix → InProgress → Closed)")) {
                 Set-Content -Path $BugTrackingFile -Value $content -NoNewline
                 Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
-                Write-SummaryLine "$BugId → Closed (FastClose: NeedsFix → InProgress → Closed)"
+                Write-ProjectSummary "$BugId → Closed (FastClose: NeedsFix → InProgress → Closed)"
 
                 # Read-after-write verification: confirm the bug row exists in archive (it moved there)
                 if (-not $WhatIfPreference) {
@@ -891,7 +861,7 @@ function Main {
                     Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome success
                 }
             } else {
-                Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+                Write-ProjectLog "Dry-run complete — no file changes written" -Level "INFO"
             }
         }
         catch {
@@ -906,7 +876,7 @@ function Main {
     }
 
     # --- Standard single-status update ---
-    Write-Log "New Status: $NewStatus"
+    Write-ProjectLog "New Status: $NewStatus"
 
     # Prepare update data
     $updateData = @{}
@@ -928,7 +898,7 @@ function Main {
     switch ($NewStatus) {
         "NeedsFix" {
             if (-not $Priority) {
-                Write-Log "Priority is required when transitioning to NeedsFix status" -Level "ERROR"
+                Write-ProjectLog "Priority is required when transitioning to NeedsFix status" -Level "ERROR"
                 exit 1
             }
         }
@@ -937,25 +907,25 @@ function Main {
         }
         "NeedsReview" {
             if (-not $FixDetails) {
-                Write-Log "FixDetails is required when transitioning to NeedsReview status" -Level "ERROR"
+                Write-ProjectLog "FixDetails is required when transitioning to NeedsReview status" -Level "ERROR"
                 exit 1
             }
         }
         "Closed" {
             if (-not $VerificationNotes) {
-                Write-Log "VerificationNotes is required when transitioning to Closed status" -Level "ERROR"
+                Write-ProjectLog "VerificationNotes is required when transitioning to Closed status" -Level "ERROR"
                 exit 1
             }
         }
         "Reopened" {
             if (-not $ReopenReason) {
-                Write-Log "ReopenReason is required when transitioning to Reopened status" -Level "ERROR"
+                Write-ProjectLog "ReopenReason is required when transitioning to Reopened status" -Level "ERROR"
                 exit 1
             }
         }
         "Rejected" {
             if (-not $RejectionReason) {
-                Write-Log "RejectionReason is required when transitioning to Rejected status" -Level "ERROR"
+                Write-ProjectLog "RejectionReason is required when transitioning to Rejected status" -Level "ERROR"
                 exit 1
             }
         }
@@ -979,7 +949,7 @@ function Main {
     if ($NewStatus -eq "Reopened") {
         $moveResult = Move-BugFromArchiveContent -LiveContent $content -ArchiveContent $archiveContent -BugId $BugId
         if ($null -eq $moveResult) {
-            Write-Log "Failed to move bug $BugId from archive to active section" -Level "ERROR"
+            Write-ProjectLog "Failed to move bug $BugId from archive to active section" -Level "ERROR"
             exit 1
         }
         $content = $moveResult.LiveContent
@@ -989,7 +959,7 @@ function Main {
     # Step 1: Update the bug entry (status, notes) in live content
     $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus $NewStatus -UpdateData $updateData
     if ($null -eq $content) {
-        Write-Log "Bug status update failed" -Level "ERROR"
+        Write-ProjectLog "Bug status update failed" -Level "ERROR"
         exit 1
     }
 
@@ -997,7 +967,7 @@ function Main {
     if ($Priority -and $NewStatus -notin @("Closed", "Rejected", "Reopened")) {
         $content = Move-BugBetweenActiveSectionsContent -Content $content -BugId $BugId -TargetPriority $Priority
         if ($null -eq $content) {
-            Write-Log "Failed to move bug $BugId to $Priority section" -Level "ERROR"
+            Write-ProjectLog "Failed to move bug $BugId to $Priority section" -Level "ERROR"
             exit 1
         }
     }
@@ -1007,7 +977,7 @@ function Main {
     if ($NewStatus -eq "Closed" -or $NewStatus -eq "Rejected") {
         $moveResult = Move-BugToArchiveContent -LiveContent $content -ArchiveContent $archiveContent -BugId $BugId -Disposition $NewStatus
         if ($null -eq $moveResult) {
-            Write-Log "Failed to move bug $BugId to archive ## $NewStatus Bugs section" -Level "ERROR"
+            Write-ProjectLog "Failed to move bug $BugId to archive ## $NewStatus Bugs section" -Level "ERROR"
             exit 1
         }
         $content = $moveResult.LiveContent
@@ -1024,7 +994,7 @@ function Main {
             if ($touchesArchive) {
                 Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
             }
-            Write-SummaryLine "$BugId → $NewStatus"
+            Write-ProjectSummary "$BugId → $NewStatus"
 
             # Read-after-write verification: confirm the bug row exists where it should be after the move
             if (-not $WhatIfPreference) {
@@ -1037,7 +1007,7 @@ function Main {
                 Confirm-SoakInvocation -ScriptId $soakScriptId -Outcome success
             }
         } else {
-            Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+            Write-ProjectLog "Dry-run complete — no file changes written" -Level "INFO"
         }
     }
     catch {

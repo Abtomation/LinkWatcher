@@ -19,7 +19,7 @@ INTEGRATION NARRATIVE TEMPLATE
 
 Purpose: Documents how 2+ features collaborate in a cross-cutting workflow.
 Created by: New-IntegrationNarrative.ps1
-Customization guide: process-framework/guides/02-design/integration-narrative-customization-guide.md
+Customization craft: the integration-narrative craft skill (.claude/skills/integration-narrative/), activated by the Integration Narrative Creation task's Check Recommended Skills step
 
 Script auto-replaces: [Workflow Name], [Workflow ID], [Description], [Date]
 Script auto-adds metadata: workflow_id, workflow_name

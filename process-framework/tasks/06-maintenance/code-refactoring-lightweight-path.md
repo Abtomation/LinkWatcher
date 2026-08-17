@@ -7,30 +7,29 @@ description: "Process steps and checklist for low-effort refactorings (≤ 15 mi
 
 # Code Refactoring — Lightweight Path
 
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
+
 > **Parent task**: [Code Refactoring Task](code-refactoring-task.md) (PF-TSK-022)
 >
 > **Scope**: Refactorings with no architectural impact and no interface/API changes (any file count, any effort level). Supports batch mode — multiple quick fixes in one session using one plan document.
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 
-**L1. Create Lightweight Refactoring Plan**:
+**L1. Create Lightweight Refactoring Plan**, applying the [`refactoring-planning` craft skill](../../../.claude/skills/refactoring-planning/SKILL.md) (activated at the parent task's Step 1) to fill the plan:
 
 ```powershell
-cd process-framework/scripts/file-creation/06-maintenance
-New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name" -Lightweight
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name" -Lightweight
 ```
 
-> **Variant**: Use `-DocumentationOnly` for DA-category items (strips test/baseline sections), `-Performance` for performance-focused refactorings (substitutes user-defined metrics), otherwise `-Lightweight`.
+> **Variant**: select the mode switch (`-Lightweight` / `-DocumentationOnly` / `-Performance`) per the `refactoring-planning` skill's mode-selection table.
 
 For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Item sections plus N Results Summary rows in one go. If you discover additional debt items mid-flight (i.e., new TD IDs — sub-findings of an existing TD become additional `Changes Made` bullets within its Item, not new Items), copy the "Item N" section in the generated plan for each one beyond the original count.
 
 > **Metadata maintenance for scope expansion**: When the plan grows beyond the original `-RefactoringScope` and `-DebtItemId` (whether via `-ItemCount` upfront or item additions mid-flight), also update the plan's frontmatter (`debt_item`, `refactoring_scope`) and document `# Title` to reflect the broader scope. Only the Item sections expand automatically — metadata fields don't.
 
-**L2. Fill Item Scope**: For each item in the plan, fill in the Scope, Debt Item ID, and Test Baseline fields. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to understand which dimension(s) the refactoring should improve along.
+**L2. Fill Item Scope**: For each item in the plan, fill in the Scope, Debt Item ID, and Test Baseline fields. Read the tech debt item's **Dims** column from [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) to understand which dimension(s) the refactoring should improve along. For a **non-TD origin** (Code Review suggestion, validation finding), put the origin reference where the TD ID would go and take the dimensions from the finding itself — the template's TD-resolution checklist item is then N/A.
 
    > **DA-category guidance**: For Documentation Alignment items (Dims column contains "DA"), trace the root cause of the drift before fixing it:
    > 1. Identify the originating task/session that introduced the drift (use `git log` on the affected files)
@@ -41,7 +40,7 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
 
 **L3. Capture Test Baseline**: Before any code changes, run the full test suite and record the exact pass/fail state. This baseline is the accountability anchor — any NEW failures after refactoring are owned by this session.
 
-   > **Documentation-only exemption**: If the change modifies only documentation files (no `.py`/`.js`/code files changed), skip this step and note in the plan: *"Documentation-only change — test baseline skipped."*
+   > **Documentation-only exemption**: If the change modifies only documentation files (no `.py`/`.js`/code files changed), skip this step and note in the plan: *"Documentation-only change — test baseline skipped."* A docstring- or comment-only change **in a code file** does not qualify — the edited file must still import and collect cleanly, so capture the baseline (L8's documentation-only shortcut still batches the doc-update items for such a change).
 
    > **Build-config-only exemption**: If the change is confined to declarative build/dependency config that pytest doesn't read at runtime — pyproject.toml `[project.dependencies]`, `[project.optional-dependencies]`, or `[project]` metadata fields; `requirements*.txt` entries — skip this step and note in the plan: *"Build-config-only change — test baseline skipped."* **Not exempt**: `[tool.pytest.*]` sections (directly affect pytest runtime) or any tool config that changes how tests execute.
 
@@ -65,11 +64,10 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
      - **Include transitive callers**: Tests that exercise the affected branch through higher-level public APIs (e.g., `update_references()` → `_calculate_new_target()` → branch under test) count as coverage even if they don't name the changed method. Trace the call path from public APIs into the refactored code rather than grepping for the method name alone.
    - **Insufficient coverage**: No tests exist for the target method/class, or tests only cover happy paths while the refactoring touches error handling or edge cases. Write characterization tests first:
      ```powershell
-     cd process-framework/scripts/file-creation/03-testing
-     New-TestFile.ps1 -FeatureId "X.Y.Z" -TestType "unit" -Component "ComponentName"
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "ComponentNameCharacterization" -TestType "unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
      ```
    - Characterization tests capture *current* behavior (even if imperfect) — they are a safety net, not a quality judgment.
-   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+   - After creating or modifying tests, complete the documentation steps in the [Test Infrastructure Guide — Test Documentation Completeness](../../guides/03-testing/test-infrastructure-guide.md#test-documentation-completeness) section.
 
 **L5. 🚨 CHECKPOINT**: Present the plan (scope + changes) to human partner for approval before implementing.
 
@@ -98,19 +96,19 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
 
 **L8. Complete Documentation & State Updates Checklist**: For each item in the plan, check every item in the "Documentation & State Updates" section. Each N/A requires a brief justification note in the plan (e.g., "Grepped TDD — no references to changed method"):
 
-   > **Tier 1 shortcut**: If the feature is Tier 1 and has no design documents (TDD, FDD, ADR, test spec), batch items 2–5 below as N/A with a single justification: *"Tier 1 feature — no design documents exist for [feature name]."* Still check items 1 (feature state file), 6 (integration narrative), 7 (user documentation), 8 (validation tracking), and 9 (tech debt) individually.
+   > **Tier 1 shortcut**: If the feature is Tier 1 and has no design documents (TDD, FDD, ADR, test spec), batch items 2–5 below as N/A with a single justification: *"Tier 1 feature — no design documents exist for [feature name]."* Still check items 1 (feature state file), 6 (integration narrative), 7 (user documentation), 8 (validation tracking), 9 (test tracking files), and 10 (technical debt) individually.
 
-   > **Test-only shortcut**: If the refactoring targets exclusively test code (no production code changes), batch items 1–8 below as N/A with a single justification: *"Test-only refactoring — no production code changes; design, user-facing, and state documents do not reference test internals."* Still check item 9 (tech debt) individually.
+   > **Test-only shortcut**: If the refactoring targets exclusively test code (no production code changes), batch items 1–8 below as N/A with a single justification: *"Test-only refactoring — no production code changes; design, user-facing, and state documents do not reference test internals."* Still check the Test tracking files (9) and Technical Debt Tracking (10) items individually.
 
-   > **Documentation-only shortcut**: If the refactoring modifies only documentation files, docstrings, or comments (no behavioral code changes), batch items 1–8 below as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design, user-facing, and state documents do not need updates for [description of change]."* Still check item 9 (tech debt) individually.
+   > **Documentation-only shortcut**: If the refactoring modifies only documentation files, docstrings, or comments (no behavioral code changes), batch items 1–8 below as N/A with a single justification: *"Documentation-only change — no behavioral code changes; design, user-facing, and state documents do not need updates for [description of change]."* Still check the Test tracking files (9) and Technical Debt Tracking (10) items individually.
 
-   > **Build-config-only shortcut**: If the refactoring modifies only declarative build/dependency config (pyproject.toml `[project.*]`, `requirements*.txt`) with no code, test, or `[tool.pytest.*]` changes, batch items 1–8 below as N/A with a single justification: *"Build-config-only change — declarative dependency/metadata edit; design, user-facing, and state documents do not reference build config."* Still check item 9 (tech debt) individually.
+   > **Build-config-only shortcut**: If the refactoring modifies only declarative build/dependency config (pyproject.toml `[project.*]`, `requirements*.txt`) with no code, test, or `[tool.pytest.*]` changes, batch items 1–8 below as N/A with a single justification: *"Build-config-only change — declarative dependency/metadata edit; design, user-facing, and state documents do not reference build config."* Still check the Test tracking files (9) and Technical Debt Tracking (10) items individually.
 
    > **Grep recipe (internal-only refactors)**: When a refactoring is confined to internal identifiers (signatures unchanged, no public API surface touched, test diff zero against L3 baseline), verify all 8 doc surfaces in one ripgrep pass:
    > ```bash
    > rg -l "<identifier>" doc/state-tracking/features/ doc/technical/ doc/functional-design/ doc/user/ doc/state-tracking/validation/ test/specifications/ README.md
    > ```
-   > If 0 matches across all surfaces, items 1–8 may share one collective justification: *"Grepped all design/state/user-doc/validation surfaces for `<identifier>` — 0 matches; no doc surface references the refactored internal."* Item 9 (tech debt) still individual.
+   > If 0 matches across all surfaces, items 1–8 may share one collective justification: *"Grepped all design/state/user-doc/validation surfaces for `<identifier>` — 0 matches; no doc surface references the refactored internal."* Items 9 (test tracking files) and 10 (technical debt) still individual.
    >
    > **Use this instead of writing 8 similar per-item N/A lines.** Hits in unexpected surfaces (e.g., a TDD that documents the renamed helper) signal that the refactoring isn't internal-only after all and the affected items need real updates.
 
@@ -136,7 +134,7 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
    - [ ] **Audit-flagged TD closure** (only if the resolved TD's Source column or resolution notes reference a `TE-TAR-*` audit report): after `Update-TechDebt.ps1` completes, close the audit status loop — otherwise `test-tracking.md` and `feature-tracking.md` retain the stale audit status from the original audit report (the gap that caused feature 0.1.2 to sit in split-brain state for ~2 weeks).
        - **If the resolution closes ALL findings from that audit** — run:
          ```powershell
-         Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
+         pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
          ```
        - **If findings are only partially addressed** — do NOT mark as "Audit Approved". Route to [Test Audit (PF-TSK-030)](../03-testing/test-audit-task.md) for a re-audit instead.
    - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md): Update feature status if applicable
@@ -147,7 +145,7 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**:
   - [ ] Lightweight Refactoring Plan created with all Item sections filled
@@ -162,4 +160,4 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
   - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
   - [ ] Refactoring plan archived to `doc/refactoring/plans/archive`
   - [ ] If file moves changed the source directory structure: run `New-SourceStructure.ps1 -Update` to refresh the [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) directory tree
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-022`, context "Code Refactoring Task".

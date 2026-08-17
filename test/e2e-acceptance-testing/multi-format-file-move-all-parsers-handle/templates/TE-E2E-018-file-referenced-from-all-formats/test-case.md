@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-018
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-005): TE-E2E-018 File Referenced From All Formats."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-008
 feature_ids: ["2.1.1", "2.2.1", "1.1.1"]
 workflow: WF-005

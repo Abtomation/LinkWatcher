@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-SUMMARY-R4-20260410
-type: Process Framework
+description: "Feature Validation Summary - Round 4."
+type: Product Documentation
 category: Validation Summary
 version: 1.0
 created: 2026-04-10

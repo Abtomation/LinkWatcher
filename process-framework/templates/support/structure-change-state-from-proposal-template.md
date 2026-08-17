@@ -1,5 +1,5 @@
 ---
-id: [DOCUMENT-ID]
+id: PF-TEM-104
 type: Process Framework
 category: Template
 version: 1.0
@@ -12,6 +12,8 @@ variant_siblings:
   - structure-change-state-content-update-template.md
   - structure-change-state-framework-extension-template.md
   - structure-change-state-rename-template.md
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Lightweight execution-tracking template for proposal-backed structure changes (phase checklist + session log only)"
 ---
 
@@ -21,8 +23,8 @@ description: "Lightweight execution-tracking template for proposal-backed struct
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]
-- **Change ID**: [To be assigned - SC-XXX format]
-- **Proposal Document**: [Link to structure-change-proposal document]
+- **Change ID**: [The PF-STA-NNN ID assigned to this state file]
+- **Proposal Document**: [Link to the proposal-of-record — a structure-change-proposal doc, or an owner-approved analysis (a Framework Evaluation finding / an approved IMP's analysis) inside a state or eval file]
 - **Change Type**: [Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]
 - **Scope**: [Brief description of what's being changed]
 

@@ -27,7 +27,7 @@
     New-E2EMilestoneEntry.ps1 -WorkflowId "WF-009"
 
 .EXAMPLE
-    New-E2EMilestoneEntry.ps1 -WorkflowId "WF-006" -SpecRef "[PF-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md)" -WhatIf
+    New-E2EMilestoneEntry.ps1 -WorkflowId "WF-006" -SpecRef "[TE-TSP-044](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-acceptance-testing-scenarios.md)" -WhatIf
 
 .NOTES
     - Does NOT generate a new ID — references an existing WF-xxx from user-workflow-tracking.md
@@ -149,8 +149,18 @@ if (-not $PSCmdlet.ShouldProcess($E2ETrackingFile, "Add E2E milestone entry for 
 }
 
 # --- Step 4: Build and insert the table row ---
-# Columns: Workflow | Description | Required Features | Features Ready | E2E Spec | E2E Cases | Status
-$tableRow = "| $WorkflowId | $workflowDescription | $requiredFeatures | $featuresReady | $SpecRef | — | $Status |"
+# Header-driven (PF-IMP-1599): cells are ordered by the live table's own header, so a column
+# added to the milestone table lands as "—" in the correct position instead of silently
+# shifting every following cell. E2E Cases takes the default — cases are linked in later by
+# New-E2EAcceptanceTestCase.ps1.
+$tableRow = New-HeaderDrivenTableRow -Content $e2eContent -SectionHeading '## Workflow Milestone Tracking' -ValueMap @{
+    'Workflow'          = $WorkflowId
+    'Description'       = $workflowDescription
+    'Required Features' = $requiredFeatures
+    'Features Ready'    = $featuresReady
+    'E2E Spec'          = $SpecRef
+    'Status'            = $Status
+}
 
 # Find insertion point: after the last WF-xxx row in the Workflow Milestone Tracking section
 $insertAfterIndex = -1
@@ -187,8 +197,8 @@ Write-Host "Inserted $WorkflowId into Workflow Milestone Tracking table" -Foregr
 $updatedContent = $e2eLines -join "`r`n"
 Set-Content -Path $E2ETrackingFile -Value $updatedContent -NoNewline -Encoding UTF8
 
-# Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
-Assert-LineInFile -Path $E2ETrackingFile -Pattern "\| $WorkflowId \|" -Context "milestone row for $WorkflowId in $E2ETrackingFile"
+# Verify deterministic post-condition: row was inserted and matches the table schema (PF-PRO-028 v2.0 / PF-IMP-1563)
+Assert-TableRowInFile -Path $E2ETrackingFile -Pattern "\| $WorkflowId \|" -Context "milestone row for $WorkflowId in $E2ETrackingFile"
 
 # --- Output ---
 $details = @(

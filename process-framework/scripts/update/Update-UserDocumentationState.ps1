@@ -12,7 +12,9 @@ Updates the following file:
 - Feature implementation state file (doc/state-tracking/features/<FeatureId>-*-implementation-state.md)
   Appends a User Handbook row to the Documentation Inventory table
 
-Note: PD-documentation-map.md is NOT updated by this script — New-Handbook.ps1 already handles that.
+Note: PD-documentation-map.md is NOT updated by this script — it is generated
+(Build-DocumentationMap.ps1 -Tree PD) from the handbook's own description: frontmatter
+(PF-PRO-037 / PF-PRO-050); regenerate it after creating the handbook.
 
 .PARAMETER FeatureId
 The feature ID (e.g., "6.1.1") used to locate the feature state file
@@ -116,45 +118,19 @@ $FeaturesDir = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/featu
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
 $ScriptName = "Update-UserDocumentationState.ps1"
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 function Test-Prerequisites {
-    Write-Log "Checking prerequisites..."
+    Write-ProjectLog "Checking prerequisites..."
 
     if (-not (Test-Path $FeaturesDir)) {
-        Write-Log "Features directory not found: $FeaturesDir" -Level "ERROR"
+        Write-ProjectLog "Features directory not found: $FeaturesDir" -Level "ERROR"
         return $false
     }
 
     # Validate handbook file exists
     $handbookFullPath = Join-Path -Path $ProjectRoot -ChildPath $HandbookPath
     if (-not (Test-Path $handbookFullPath)) {
-        Write-Log "Handbook file not found: $handbookFullPath" -Level "ERROR"
-        Write-Log "Create the handbook first using New-Handbook.ps1 before running this script." -Level "ERROR"
+        Write-ProjectLog "Handbook file not found: $handbookFullPath" -Level "ERROR"
+        Write-ProjectLog "Create the handbook first using New-Handbook.ps1 before running this script." -Level "ERROR"
         return $false
     }
 
@@ -162,29 +138,29 @@ function Test-Prerequisites {
 }
 
 function Find-FeatureStateFile {
-    Write-Log "Locating feature state file for $FeatureId..."
+    Write-ProjectLog "Locating feature state file for $FeatureId..."
 
     $pattern = "$FeatureId-*-implementation-state.md"
     $matches = Get-ChildItem -Path $FeaturesDir -Filter $pattern -File
 
     if ($matches.Count -eq 0) {
-        Write-Log "No feature state file found matching pattern: $pattern" -Level "ERROR"
+        Write-ProjectLog "No feature state file found matching pattern: $pattern" -Level "ERROR"
         return $null
     }
 
     if ($matches.Count -gt 1) {
-        Write-Log "Multiple feature state files found matching pattern: $pattern" -Level "WARN"
-        Write-Log "Using first match: $($matches[0].Name)" -Level "WARN"
+        Write-ProjectLog "Multiple feature state files found matching pattern: $pattern" -Level "WARN"
+        Write-ProjectLog "Using first match: $($matches[0].Name)" -Level "WARN"
     }
 
-    Write-Log "Found: $($matches[0].Name)"
+    Write-ProjectLog "Found: $($matches[0].Name)"
     return $matches[0].FullName
 }
 
 function Update-FeatureStateFile {
     param([string]$StateFilePath)
 
-    Write-Log "Updating feature state file..."
+    Write-ProjectLog "Updating feature state file..."
 
     $content = Get-Content -Path $StateFilePath -Raw
 
@@ -201,7 +177,7 @@ function Update-FeatureStateFile {
 
     # Check if a User Handbook row already exists for this handbook
     if ($content -match [regex]::Escape($HandbookId)) {
-        Write-Log "Handbook $HandbookId already referenced in state file — skipping" -Level "WARN"
+        Write-ProjectLog "Handbook $HandbookId already referenced in state file — skipping" -Level "WARN"
         return $true
     }
 
@@ -240,9 +216,9 @@ function Update-FeatureStateFile {
     }
 
     if ($insertIndex -eq -1) {
-        Write-Log "Could not find User Documentation table in state file" -Level "ERROR"
-        Write-Log "Expected section: ## N. Documentation Inventory > ### User Documentation" -Level "ERROR"
-        Write-Log "Ensure the feature state file has a ### User Documentation subsection." -Level "ERROR"
+        Write-ProjectLog "Could not find User Documentation table in state file" -Level "ERROR"
+        Write-ProjectLog "Expected section: ## N. Documentation Inventory > ### User Documentation" -Level "ERROR"
+        Write-ProjectLog "Ensure the feature state file has a ### User Documentation subsection." -Level "ERROR"
         return $false
     }
 
@@ -251,11 +227,11 @@ function Update-FeatureStateFile {
         if ($placeholderIndex -gt -1) {
             # Replace the placeholder or ❌ Needed row
             $newLines[$placeholderIndex] = $newRow
-            Write-Log "Replaced placeholder/needed row at line $($placeholderIndex + 1)" -Level "SUCCESS"
+            Write-ProjectLog "Replaced placeholder/needed row at line $($placeholderIndex + 1)" -Level "SUCCESS"
         } else {
             # Append after the last table row
             $newLines.Insert($insertIndex + 1, $newRow)
-            Write-Log "Appended handbook row after line $($insertIndex + 1)" -Level "SUCCESS"
+            Write-ProjectLog "Appended handbook row after line $($insertIndex + 1)" -Level "SUCCESS"
         }
         $newLines | Set-Content -Path $StateFilePath -Encoding utf8
     }
@@ -265,43 +241,43 @@ function Update-FeatureStateFile {
 
 # --- Main Execution ---
 
-Write-Log "=== $ScriptName ==="
-Write-Log "Feature: $FeatureId"
-Write-Log "Handbook: $HandbookName ($HandbookId)"
-Write-Log "Path: $HandbookPath"
+Write-ProjectLog "=== $ScriptName ==="
+Write-ProjectLog "Feature: $FeatureId"
+Write-ProjectLog "Handbook: $HandbookName ($HandbookId)"
+Write-ProjectLog "Path: $HandbookPath"
 
 # Check prerequisites
 if (-not (Test-Prerequisites)) {
-    Write-Log "Prerequisites check failed — aborting" -Level "ERROR"
+    Write-ProjectLog "Prerequisites check failed — aborting" -Level "ERROR"
     exit 1
 }
 
 # Find feature state file
 $stateFile = Find-FeatureStateFile
 if (-not $stateFile) {
-    Write-Log "Cannot proceed without a feature state file — aborting" -Level "ERROR"
+    Write-ProjectLog "Cannot proceed without a feature state file — aborting" -Level "ERROR"
     exit 1
 }
 
 # Perform updates
 $success = $true
 
-Write-Log ""
-Write-Log "--- Feature State File ---"
+Write-ProjectLog ""
+Write-ProjectLog "--- Feature State File ---"
 if (-not (Update-FeatureStateFile -StateFilePath $stateFile)) {
-    Write-Log "Failed to update feature state file" -Level "ERROR"
+    Write-ProjectLog "Failed to update feature state file" -Level "ERROR"
     $success = $false
 }
 
-Write-Log ""
+Write-ProjectLog ""
 if ($success) {
-    Write-SummaryLine "Feature $FeatureId → Documentation Inventory updated ($HandbookId)"
-    Write-Log "Remaining manual steps:"
-    Write-Log "  - Set feature status to 🟢 Completed via Update-BatchFeatureStatus.ps1"
-    Write-Log "  - Update README.md documentation table if applicable"
-    Write-Log "  - PD-documentation-map.md is handled by New-Handbook.ps1 (no action needed)"
+    Write-ProjectSummary "Feature $FeatureId → Documentation Inventory updated ($HandbookId)"
+    Write-ProjectLog "Remaining manual steps:"
+    Write-ProjectLog "  - Set feature status to 🟢 Completed via Update-BatchFeatureStatus.ps1"
+    Write-ProjectLog "  - Update README.md documentation table if applicable"
+    Write-ProjectLog "  - Regenerate PD-documentation-map.md: Build-DocumentationMap.ps1 -Tree PD (reflects the new handbook's description: frontmatter)"
 } else {
-    Write-Log "=== Update failed — review errors above ===" -Level "ERROR"
+    Write-ProjectLog "=== Update failed — review errors above ===" -Level "ERROR"
     exit 1
 }
 

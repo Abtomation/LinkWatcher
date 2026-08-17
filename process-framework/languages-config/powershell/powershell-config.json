@@ -22,7 +22,7 @@
     ],
     "_comment_lintCommand": "PSScriptAnalyzer for Pester test files. -Severity Warning filters out informational notes.",
     "lintCommand": "Invoke-ScriptAnalyzer -Path {testDir} -Recurse -Severity Warning",
-    "_comment_stopOnFirstFailure": "Pester 5+ uses -Run.SkipRemainingOnFailure programmatic config; the CLI -Strict alias is closest single-flag equivalent. Run-Tests.powershell.ps1 maps -Quick to programmatic SkipRemainingOnFailure=$true.",
+    "_comment_stopOnFirstFailure": "Documentary — the -Strict CLI alias is the closest single-flag equivalent, but Run-Tests.powershell.ps1 invokes Pester programmatically: it maps -Quick to Run.SkipRemainingOnFailure = 'Run' (an enum — None/Run/Container/Block — not a boolean), suppressed under -SaveBaseline/-Baseline because a truncated run would record an incomplete failure set. Never Run.Exit, which exits from inside Invoke-Pester and skips the post-run summary and failure recap (PF-IMP-1721).",
     "stopOnFirstFailure": "-Strict",
     "_comment_verboseFlag": "Pester verbose output uses -Output Detailed (or -Output Diagnostic for more). Programmatic equivalent: Output.Verbosity = 'Detailed'.",
     "verboseFlag": "-Output Detailed",
@@ -42,7 +42,8 @@
       "discoveryCommand": null
     },
     "_comment_featureMarkerPattern": "PowerShell tests don't have a pytest.mark.feature equivalent. Feature association is via the Describe block's -Tag attribute. Empty string disables auto-detect.",
-    "featureMarkerPattern": ""
+    "featureMarkerPattern": "",
+    "staticAnalysisCommand": "Invoke-ScriptAnalyzer -Path {srcDir} -Recurse -Severity Warning"
   },
   "directoryStructure": {
     "_comment": "PowerShell projects vary widely in source layout. Defaults below are reasonable for framework-self-test contexts (appdev) and most module-based PS projects; override per project as needed.",

@@ -10,7 +10,7 @@ updated: 2025-07-08
 # Document Creation Metadata
 template_for: State File
 creates_document_type: Process Framework
-creates_document_category: State File
+creates_document_category: State Tracking
 creates_document_prefix: PF-STA
 creates_document_version: 1.0
 

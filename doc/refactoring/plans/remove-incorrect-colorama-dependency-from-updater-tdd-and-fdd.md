@@ -1,5 +1,6 @@
 ---
 id: PD-REF-149
+description: "Lightweight Refactoring Plan: Remove incorrect colorama dependency from updater TDD and FDD."
 type: Process Framework
 category: Refactoring Plan
 version: 1.0
@@ -53,4 +54,3 @@ mode: lightweight
 
 ## Related Documentation
 - [Technical Debt Tracking](/doc/state-tracking/permanent/technical-debt-tracking.md)
-

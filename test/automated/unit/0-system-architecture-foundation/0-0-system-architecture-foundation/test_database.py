@@ -5,6 +5,8 @@ This module tests the link database functionality including
 adding, removing, and querying link references.
 """
 
+from unittest.mock import patch
+
 import pytest
 
 from linkwatcher.models import LinkReference
@@ -146,6 +148,44 @@ class TestLinkDatabase:
         assert "docs/file1.txt" in link_database.links
         assert len(link_database.links["docs/file1.txt"]) == 1
         assert link_database.links["docs/file1.txt"][0].file_path == "other.md"
+
+    def test_remove_file_links_without_links_is_not_a_warning(self, link_database):
+        """PD-BUG-117: zero removals is normal bookkeeping, not an anomaly.
+
+        remove_file_links() runs on every re-index and every move, including for
+        files that hold no outgoing links at all.  WARNING is reserved for
+        conditions needing attention, so that branch must log one level down.
+        """
+        with patch.object(link_database.logger, "warning") as mock_warning, patch.object(
+            link_database.logger, "debug"
+        ) as mock_debug:
+            link_database.remove_file_links("has/no/links.md")
+
+        # Negative assertion: the WARNING must be gone, not merely accompanied
+        mock_warning.assert_not_called()
+
+        # The condition stays observable, one level down
+        assert [c.args[0] for c in mock_debug.call_args_list] == ["no_references_to_remove"]
+        assert mock_debug.call_args.kwargs["file_path"] == "has/no/links.md"
+
+    def test_remove_file_links_with_links_still_logs_info(self, link_database):
+        """PD-BUG-117 guard: the success branch must NOT follow the demotion.
+
+        Boundary case for the fix above — a real removal is a real event and
+        stays at INFO, so demoting the no-op branch cannot silence it too.
+        """
+        link_database.add_link(
+            LinkReference("test.md", 1, 0, 10, "target.txt", "target.txt", "markdown")
+        )
+
+        with patch.object(link_database.logger, "info") as mock_info, patch.object(
+            link_database.logger, "warning"
+        ) as mock_warning:
+            link_database.remove_file_links("test.md")
+
+        mock_warning.assert_not_called()
+        assert [c.args[0] for c in mock_info.call_args_list] == ["references_removed"]
+        assert mock_info.call_args.kwargs["removed_count"] == 1
 
     def test_get_references_to_file(self, link_database):
         """Test getting references to a specific file."""

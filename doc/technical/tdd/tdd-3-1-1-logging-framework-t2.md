@@ -1,5 +1,6 @@
 ---
 id: PD-TDD-024
+description: "3.1.1 Tier 2 — Dual-formatter logging design"
 type: Technical Design Document
 category: TDD Tier 2
 version: 1.0

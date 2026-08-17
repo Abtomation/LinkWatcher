@@ -9,9 +9,9 @@ creates_document_version: 1.0
 description: Template for performance test specifications with level-specific criteria, baseline references, and measurement methodology
 template_for: Testing
 usage_context: Performance Test Specification Creation
-creates_document_type: Test Specification
+creates_document_type: Testing
 creates_document_prefix: TE-TSP
-creates_document_category: Testing
+creates_document_category: Test Specification
 ---
 
 # [Spec Title] - Performance Test Specification

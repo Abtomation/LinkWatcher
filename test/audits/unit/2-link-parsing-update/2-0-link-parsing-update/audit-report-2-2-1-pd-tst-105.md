@@ -1,5 +1,6 @@
 ---
 id: TE-TAR-009
+description: "Updater test quality assessment"
 type: Document
 category: General
 version: 1.0

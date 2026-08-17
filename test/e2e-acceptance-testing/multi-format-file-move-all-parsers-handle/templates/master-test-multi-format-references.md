@@ -1,6 +1,8 @@
 ---
 id: TE-E2G-008
-type: E2E Acceptance Test Group
+description: "E2E acceptance test (WF-005): multi-format-references."
+type: Testing
+category: E2E Acceptance Test Group
 feature_ids: ["2.1.1", "2.2.1", "1.1.1"]
 workflow: WF-005
 test_cases_count: 1

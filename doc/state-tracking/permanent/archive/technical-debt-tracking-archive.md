@@ -1,5 +1,6 @@
 ---
-id: PD-STA-008
+id: PF-FST-006
+description: "Archive of resolved and closed technical-debt items moved out of the active tracker."
 type: Process Framework
 category: State Tracking
 version: 1.0

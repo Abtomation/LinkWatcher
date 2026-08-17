@@ -1,5 +1,6 @@
 ---
 id: PD-INT-004
+description: "WF-005 multi-format file move: how File System Monitoring, Parser Framework, and Link Updater collaborate so a single move correctly rewrites references across MD, YAML, JSON, Python, PS1, and generic-fallback formats via `link_type`-tagged `LinkReference` dispatch"
 type: Product Documentation
 category: Integration Narrative
 version: 1.0

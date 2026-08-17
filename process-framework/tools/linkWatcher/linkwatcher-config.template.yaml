@@ -5,6 +5,9 @@
 #   <project-root>/tools/linkwatcher/linkwatcher-config.yaml
 # created and configured during Project Initiation (new projects) or via a
 # per-project migration (existing projects). Edit the active copy, not this template.
+# New projects receive their active copy automatically via the Project Initiation
+# blueprint bootstrap — appdev seeds it at blueprint/tools/linkwatcher/; keep that
+# seed in sync when editing this template.
 #
 # Read by LinkWatcher's broken-link scan (`--validate`, via run_linkwatcher_validate.ps1)
 # AND by the live daemon (started with --config by start_linkwatcher_background.ps1

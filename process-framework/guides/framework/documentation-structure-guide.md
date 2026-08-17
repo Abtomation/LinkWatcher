@@ -5,6 +5,7 @@ category: Guide
 version: 1.1
 created: 2025-06-07
 updated: 2025-01-11
+related_task: PF-TSK-059,PF-TSK-001,PF-TSK-014
 description: "Guide for organizing documentation structure within the framework"
 ---
 
@@ -264,8 +265,8 @@ If systems break after structural changes:
 5. Review process to prevent similar issues
 
 ## Related Resources
-- <!-- [Template Development Guide](../support/template-development-guide.md) - Template/example link commented out -->
+- <!-- [`template-development` craft skill](../../../.claude/skills/template-development/SKILL.md) - Template/example link commented out -->
 - [Migration Best Practices](../support/migration-best-practices.md)
 - [Structure Change Task](../../tasks/support/structure-change-task.md)
-- [Task Creation and Improvement Guide](../support/task-creation-guide.md)
+- [`task-creation` craft skill](../../../.claude/skills/task-creation/SKILL.md)
 - [New Task Creation Process](../../tasks/support/new-task-creation-process.md)

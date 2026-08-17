@@ -20,15 +20,23 @@ import os
 import sys
 from pathlib import Path
 
+# Files that mark a Python project's root. pytest's own rootdir discovery recognizes the same
+# set; accepting all of them (not pyproject.toml alone) lets projects configured with only
+# pytest.ini / setup.cfg / tox.ini / setup.py resolve their root (PF-IMP-1149).
+ROOT_MARKERS = ("pyproject.toml", "pytest.ini", "setup.cfg", "tox.ini", "setup.py")
+
 
 def find_project_root():
-    """Walk up from script location to find the project root (contains pyproject.toml)."""
+    """Walk up from script location to find the project root (first dir with a ROOT_MARKERS file)."""
     current = Path(__file__).resolve().parent
     for _ in range(10):
-        if (current / "pyproject.toml").exists():
+        if any((current / marker).exists() for marker in ROOT_MARKERS):
             return current
         current = current.parent
-    print("ERROR: Could not find project root (no pyproject.toml found)", file=sys.stderr)
+    print(
+        f"ERROR: Could not find project root (none of {', '.join(ROOT_MARKERS)} found)",
+        file=sys.stderr,
+    )
     sys.exit(1)
 
 

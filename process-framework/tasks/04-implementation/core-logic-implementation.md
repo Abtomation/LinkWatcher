@@ -3,13 +3,31 @@ id: PF-TSK-078
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.1
+version: 1.5
 created: 2026-03-24
-updated: 2026-05-16
+updated: 2026-08-05
 description: "General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests"
+complexity: medium
+use_when: >-
+  General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests
+automation: semi
+scripts:
+  - ../../scripts/file-creation/03-testing/New-TestFile.ps1
+  - ../../scripts/file-creation/06-maintenance/New-BugReport.ps1
+trigger_status:
+  - raw: "`feature-tracking.md` + Feature impl state file → `🟡 In Progress` + task = `not_started` in sequence"
+output_status:
+  - raw: "`feature-tracking.md` → `👀 Needs Review`; Feature impl state file → task = `completed`; Feature impl state file → User Documentation = `❌ Needed` (if user-visible)"
+next_tasks:
+  - task: integration-and-testing.md
+    condition: "(PF-TSK-053) - Validate integration and establish comprehensive test coverage after core logic is implemented"
+  - task: implementation-finalization.md
+    condition: "(PF-TSK-055) - Complete remaining items and close out the feature"
 ---
 
 # Core Logic Implementation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -23,8 +41,6 @@ Implement core business logic modules, wire integration points, and write unit t
 **Communication Style**: Present implementation choices with trade-offs, flag deviations from TDD/FDD specifications, ask about edge cases and acceptance criteria
 
 ## Context Requirements
-
-[View Context Map for this task](../../visualization/context-maps/04-implementation/core-logic-implementation-map.md)
 
 - **Critical (Must Read):**
 
@@ -43,12 +59,9 @@ Implement core business logic modules, wire integration points, and write unit t
 - **Reference Only (Access When Needed):**
   - **Test Specification** - Expected test coverage and test case details (if created)
   - [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - For documenting bugs discovered during implementation
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Update the Feature Implementation State file throughout this task.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -77,6 +90,8 @@ Implement core business logic modules, wire integration points, and write unit t
 
 ### Execution
 
+> **Instruction-medium parts (PF-PRO-064)**: when the feature's `**Medium**` (state-file §2) is `instruction` or `mixed`, this task also authors its **instruction artifacts** — as source under `src/<feature>/`, one file per artifact named in the Instruction Design document's Artifact Inventory (kind as designed there, never re-decided here), each carrying the `description:` frontmatter line the Source Code Documentation Map indexes (regenerated at Step 9). Steps 5–7's module/unit-test machinery applies to the code part only; the instruction part is verified per its design's §6 plan — run `Check-InstructionContract.ps1` over the authored artifacts now (L2), and route agent-executed fixture cases to [E2E Acceptance Test Case Creation](../03-testing/e2e-acceptance-test-case-creation-task.md) (L3). **Feature granularity (O-5)**: one independently-invocable instruction entry point plus every artifact serving it is one feature — a second independently-selectable entry point belongs to a second feature.
+
 5. **Create Module Structure**: Set up the module files and directory structure
    - Create source files following project conventions
    - Set up module exports and public API surface
@@ -91,8 +106,7 @@ Implement core business logic modules, wire integration points, and write unit t
    ```powershell
    # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
-   cd process-framework/scripts/file-creation/03-testing
-   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # Script automatically:
    # - Writes pytest markers (feature, priority, test_type)
@@ -105,9 +119,9 @@ Implement core business logic modules, wire integration points, and write unit t
    - Cover error handling and edge cases
    - Follow existing test patterns and conventions
    - Aim for coverage targets defined in the test specification (if available)
-   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+   - After creating or modifying tests, complete the documentation steps in the [Test Infrastructure Guide — Test Documentation Completeness](../../guides/03-testing/test-infrastructure-guide.md#test-documentation-completeness) section.
 8. **🚨 CHECKPOINT**: Present implemented modules, test results, and any TDD deviations to human partner for review
-   > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), create an ADR using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md).
+   > **ADR trigger**: If this implementation involved a non-obvious design choice (e.g., choosing between competing patterns, introducing a new architectural pattern, making trade-offs not covered by existing ADRs), create an ADR using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1), with the [`architecture-decision` craft skill](../../../.claude/skills/architecture-decision/SKILL.md) as the customization-craft home.
 
 ### Finalization
 
@@ -117,6 +131,7 @@ Implement core business logic modules, wire integration points, and write unit t
    - Verify the module integrates correctly with the rest of the system
    - Check that all implementation plan items for this phase are addressed
    - **Verify Critical dimensions are addressed**: For each Critical dimension in the feature's Dimension Profile, confirm the implementation checklist from the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) has been followed
+   - **Regenerate the Source Code Documentation Map** — `Build-DocumentationMap.ps1 -Tree SC`, then `-Tree SC -Check` (exit 0). Every source artifact needs a one-line description at source (`description:` frontmatter, module docstring, or doc-comment); one without it is indexed as a gap
 10. **Bug Discovery**: Systematically identify and document any bugs discovered during implementation or testing:
     - Implementation bugs (logic errors, edge case failures)
     - Integration problems (issues when wiring to existing components)
@@ -127,8 +142,7 @@ Implement core business logic modules, wire integration points, and write unit t
 
     ```powershell
     # Create standardized bug report
-    cd process-framework/scripts/file-creation/06-maintenance
-    New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Development" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case or code reference"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Brief description" -Description "Detailed description" -DiscoveredBy "Development" -Severity "High" -Component "ComponentName" -Environment "Development" -Evidence "Test case or code reference"
     ```
 
     - Follow [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) for consistent documentation
@@ -137,8 +151,8 @@ Implement core business logic modules, wire integration points, and write unit t
 12. **Update Feature Implementation State**: Document completed work
     - Update code inventory with new modules and test files
     - Note any deviations from TDD/FDD specifications
-    - **Cross-TDD check**: For each file modified or created, grep the TDD directory (`doc/technical/tdd/`) for that filename. If another feature's TDD documents the file, verify the TDD still accurately describes the file's behavior and update it if needed.
-    - **Cross-integration-narrative check**: For each file modified or created, grep `doc/technical/integration/` for the filename or the related feature ID. If a PD-INT narrative references the changed component, verify it still accurately describes the cross-feature workflow and update it if needed (or file tech debt via `Update-TechDebt.ps1 -Add` if the drift is non-trivial).
+    - **Cross-TDD check**: For each file modified or created, grep the TDD directory (`doc/technical/tdd`) for that filename. If another feature's TDD documents the file, verify the TDD still accurately describes the file's behavior and update it if needed.
+    - **Cross-integration-narrative check**: For each file modified or created, grep `doc/technical/integration` for the filename or the related feature ID. If a PD-INT narrative references the changed component, verify it still accurately describes the cross-feature workflow and update it if needed (or file tech debt via `Update-TechDebt.ps1 -Add` if the drift is non-trivial).
     - Document issues encountered and resolutions
     - Mark this task as completed in the task sequence
 13. **Flag User Documentation Status**: If this feature has user-visible behavior (CLI options, configuration, workflows), set the User Documentation section in the feature implementation state file to `❌ Needed`. This triggers [User Documentation Creation](../07-deployment/user-documentation-creation.md) later in the workflow. If the feature is internal-only, set to `N/A`.
@@ -173,9 +187,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Source modules created and functional
@@ -191,13 +203,45 @@ Before considering this task finished:
 - [ ] **Bug Documentation**: Any bugs discovered but not fixed are documented
   - [ ] Bug reports created via `New-BugReport.ps1` (if applicable)
   - [ ] [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) updated with 🆕 Needs Triage entries (if applicable)
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-078" and context "Core Logic Implementation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-078`, context "Core Logic Implementation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | Source modules | Manual | Core business logic modules in project source directory |
+| **Creates** | Integration wiring | Manual | CLI commands, service registrations, event hooks |
+| **Creates** | Unit tests | `New-TestFile.ps1` | Tracked test files with pytest markers in project test directory |
+| **Creates** | Bug reports (if applicable) | `New-BugReport.ps1` | Bug reports for issues not fixed in this session |
+| **Updates** | [Feature Implementation State Files](../../../doc/state-tracking/features) | Manual | Code inventory, task sequence, implementation notes, issues log |
+| **Updates** | [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Status → 👀 Needs Review |
+| **Updates** | [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Automated test file links and status |
+| **Updates** | [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) | Manual | Bug entries if bugs discovered (optional) |
+| **Updates** | Product documentation (TDD, integration narrative) | Manual | Cross-TDD check and Cross-integration-narrative check (Step 12) — verify other features' docs still accurately describe modified files |
 
 ## Next Tasks
 
 - [**Integration & Testing**](integration-and-testing.md) (PF-TSK-053) - Validate integration and establish comprehensive test coverage after core logic is implemented
-- [**Quality Validation**](quality-validation.md) (PF-TSK-054) - Validate implementation against quality standards
-- [**Implementation Finalization**](implementation-finalization.md) (PF-TSK-055) - Complete remaining items and prepare for production
+- [**Implementation Finalization**](implementation-finalization.md) (PF-TSK-055) - Complete remaining items and close out the feature
+
+<!-- merged from transition-registry entry: Implementation Tasks (group entry) -->
+### Prerequisites for Transition
+
+- [ ] Implementation complete according to design/requirements
+- [ ] Unit tests written and passing
+- [ ] Documentation updated
+- [ ] Feature Tracking updated with implementation status
+
+### Next Task Selection
+
+- **Always**: → Code Review
+
+### Preparation for Next Task
+
+1. Prepare code for review (clean commits, clear comments)
+2. Document any deviations from original design
+3. Ensure all tests are passing
+4. Prepare summary of implementation approach
 
 ## Related Resources
 

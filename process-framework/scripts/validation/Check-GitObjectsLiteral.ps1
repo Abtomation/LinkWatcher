@@ -29,10 +29,10 @@ $ErrorActionPreference = 'Continue'
 
 $Allowlist = @(
     'doc/state-tracking/permanent/bug-tracking.md',
-    # PD-BUG-068 forensic record relocated here by the resolved-bug archive split
-    # (PF-IMP-873, 2026-05-26); same preserved evidence, new path.
-    'doc/state-tracking/permanent/archive/bug-tracking-archive.md',
-    'doc/state-tracking/temporary/old/structure-change-test-directory-consolidation.md'
+    'doc/state-tracking/temporary/old/structure-change-test-directory-consolidation.md',
+    # Forensic IMP-tracking literal relocated into the central archive at the Phase 7
+    # central cutover (appdev-only path; harmless no-op in rolled-out project repos).
+    'process-framework-central/state-tracking/permanent/archive/process-improvement-tracking-archive.md'
 )
 
 $Pattern = '\.git/objects/[0-9a-f]{2}/[0-9a-f]{38}'

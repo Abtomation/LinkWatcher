@@ -135,8 +135,7 @@ $DocPath = Join-Path $ProjectRoot "doc"
 $ValidationChecks = @{
     "CodeQuality"   = @{
         "StaticAnalysis"        = @{
-            Description = "Run static analysis on source directory"
-            Command     = "lint"
+            Description = "Run the language's configured static analyzer (testing.staticAnalysisCommand) on the source directory"
             Severity    = "Warning"
         }
         "CodeComplexity"        = @{
@@ -278,30 +277,68 @@ function Get-ChecksToRun {
 }
 
 function Invoke-StaticAnalysis {
-    try {
-        $result = & lint 2>&1
-        $exitCode = $LASTEXITCODE
+    <#
+    .SYNOPSIS
+    Runs the project's configured source-code analyzer over $SourcePath.
 
-        $issues = @()
-        if ($exitCode -ne 0) {
-            $result | ForEach-Object {
-                if ($_ -match "^\s*(info|warning|error)\s+•\s+(.+)\s+•\s+(.+):(\d+):(\d+)") {
-                    $issues += @{
-                        Severity = $matches[1]
-                        Message  = $matches[2]
-                        File     = $matches[3]
-                        Line     = $matches[4]
-                        Column   = $matches[5]
-                    }
-                }
+    .DESCRIPTION
+    The analyzer is declared per language as testing.staticAnalysisCommand in
+    languages-config/<language>/<language>-config.json, with {srcDir} substituted here.
+    A language with no analyzer configured is not a defect: the check reports Skipped
+    rather than failing, so an unconfigured project never sees a spurious FAIL.
+
+    Verdict is read from the exit code for an external application, and from whether any
+    diagnostics were emitted for a cmdlet or function (Invoke-ScriptAnalyzer and friends
+    never set $LASTEXITCODE). Output is reported verbatim — no per-language parsing.
+    #>
+    param([Parameter(Mandatory = $true)][string]$SourcePath)
+
+    try {
+        $projectConfig = Get-ProjectConfig
+        $language = $projectConfig.testing.language
+        if ([string]::IsNullOrWhiteSpace($language)) {
+            return @{ Skipped = $true; Reason = "testing.language is not set in project-config.json"; Issues = @() }
+        }
+
+        $commandTemplate = (Get-TestRunnerLanguageConfig -Language $language -ProjectRoot $ProjectRoot).testing.staticAnalysisCommand
+        # An unfilled template placeholder ("[static analysis command ...]") counts as unconfigured.
+        if ([string]::IsNullOrWhiteSpace($commandTemplate) -or $commandTemplate.TrimStart().StartsWith('[')) {
+            return @{ Skipped = $true; Reason = "no testing.staticAnalysisCommand configured for language '$language'"; Issues = @() }
+        }
+
+        $commandLine = $commandTemplate.Replace('{srcDir}', $SourcePath)
+        $analyzer = @($commandLine -split '\s+' | Where-Object { $_ -ne '' })[0]
+
+        $resolved = Get-Command $analyzer -ErrorAction SilentlyContinue
+        if (-not $resolved) {
+            return @{
+                Success = $false
+                Issues  = @(@{ Severity = "error"; Message = "Configured analyzer '$analyzer' not found (testing.staticAnalysisCommand for language '$language'). Install it, correct the command, or remove the field to skip this check."; File = ""; Line = 0; Column = 0 })
+                RawOutput = ""
             }
         }
 
-        return @{
-            Success   = ($exitCode -eq 0)
-            Issues    = $issues
-            RawOutput = $result -join "`n"
+        # Execute the configured line as a scriptblock: an external analyzer and a cmdlet
+        # analyzer (Invoke-ScriptAnalyzer) need different argument binding, and array
+        # splatting would bind a cmdlet's named parameters positionally.
+        $output = & ([scriptblock]::Create($commandLine)) 2>&1
+        $clean = @($output | Where-Object { "$_".Trim() -ne '' })
+        # Applications report through the exit code; cmdlets never set it, so their verdict
+        # is whether any diagnostic was emitted.
+        $failed = if ($resolved.CommandType -eq 'Application') { $LASTEXITCODE -ne 0 } else { $clean.Count -gt 0 }
+
+        $issues = @()
+        if ($failed) {
+            $issues += @{
+                Severity = "warning"
+                Message  = "Static analysis reported findings ($analyzer): " + (($clean | Select-Object -First 10) -join "; ")
+                File     = $SourcePath
+                Line     = 0
+                Column   = 0
+            }
         }
+
+        return @{ Success = (-not $failed); Issues = $issues; RawOutput = ($clean -join "`n") }
     }
     catch {
         return @{
@@ -401,8 +438,14 @@ function Get-ValidationResults {
                     switch ($checkName) {
                         "StaticAnalysis" {
                             if ($checkCategory -eq "CodeQuality") {
-                                $analyzeResult = Invoke-StaticAnalysis
-                                if (-not $analyzeResult.Success) {
+                                $analyzeResult = Invoke-StaticAnalysis -SourcePath $featurePath
+                                if ($analyzeResult.Skipped) {
+                                    # Not run, so not counted: keep Total/Passed consistent.
+                                    $checkResult.Status = "SKIP"
+                                    $results.Summary.TotalChecks--
+                                    Write-Progress-Safe "   Static analysis skipped — $($analyzeResult.Reason)" "Gray"
+                                }
+                                elseif (-not $analyzeResult.Success) {
                                     $checkResult.Status = "FAIL"
                                     $checkResult.Issues = $analyzeResult.Issues
                                     $featureResults.Status = "FAIL"

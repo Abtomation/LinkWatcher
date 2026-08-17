@@ -10,11 +10,14 @@ Usage:
     python process-framework/scripts/feedback_db.py log-change \\
         --tool PF-TSK-009 --date 2026-02-26 --imp IMP-038 \\
         --description "Streamlined from 27 to 14 steps"
+    python process-framework/scripts/feedback_db.py list-changes --imp PF-IMP-038
     python process-framework/scripts/feedback_db.py query --task PF-TSK-009
     python process-framework/scripts/feedback_db.py query --tool PF-TSK-007
     python process-framework/scripts/feedback_db.py query --all
     python process-framework/scripts/feedback_db.py list-tools
     python process-framework/scripts/feedback_db.py list-tools --filter integration
+    python process-framework/scripts/feedback_db.py list-ratings --tool New-Task.ps1
+    python process-framework/scripts/feedback_db.py list-ratings --tool New-Task.ps1 --all-projects
     python process-framework/scripts/feedback_db.py report
     python process-framework/scripts/feedback_db.py report --task PF-TSK-009
     python process-framework/scripts/feedback_db.py alerts
@@ -23,39 +26,202 @@ Usage:
     python process-framework/scripts/feedback_db.py consolidate-tools
     python process-framework/scripts/feedback_db.py backfill-tool-doc-ids --dry-run
     python process-framework/scripts/feedback_db.py backfill-tool-doc-ids
+    python process-framework/scripts/feedback_db.py backfill-tool-doc-ids --all-projects
+    python process-framework/scripts/feedback_db.py merge-tool-id --dry-run \\
+        --from helpers-reroutes-troubleshooting.md \\
+        --to imp-triage/references/helpers-reroutes-troubleshooting.md
+    python process-framework/scripts/feedback_db.py trend-changes
+    python process-framework/scripts/feedback_db.py trend-changes --min-changes 5 --months 3 --limit 20
+
+Project scoping:
+    Writes (record, log-change) stamp rows with the invoking project (from
+    doc/project-config.json; --project overrides). Read/repair subcommands split
+    by what they treat as identity:
+    - Project-scoped (invoking project's rows only): list-tools, list-ratings,
+      consolidate-tools, backfill-tool-doc-ids — registration checks and repairs,
+      scoped so one project's cleanup cannot touch another's rows; list-ratings
+      and backfill-tool-doc-ids accept --all-projects (their logic is
+      project-independent).
+    - Cross-project (whole DB): query, list-changes, report, alerts,
+      trend-changes, merge-tool-id — trend analysis and artifact-identity
+      operations: tool_doc_id and task_id name shared framework artifacts, not
+      project state.
 """
 
 import argparse
 import json
+import os
+import re
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 
+def _find_workspace_root() -> Path:
+    """Walk up from this file to the workspace root — the first ancestor holding a
+    doc/project-config.json with a non-empty project.name.
+
+    The name test is what skips appdev's unfilled blueprint/doc/project-config.json
+    template, exactly as _resolve_project_name does. Errors are raised, never swallowed:
+    a workspace this script cannot locate is a broken checkout, not a reason to guess.
+    """
+    checked = []
+    current = Path(__file__).resolve().parent
+    while current != current.parent:
+        candidate = current / "doc" / "project-config.json"
+        if candidate.exists():
+            checked.append(str(candidate))
+            try:
+                with open(candidate) as f:
+                    config = json.load(f)
+            except (json.JSONDecodeError, OSError) as exc:
+                raise RuntimeError(f"{candidate} exists but could not be read: {exc}") from exc
+            if config.get("project", {}).get("name"):
+                return current
+        current = current.parent
+    hint = (
+        "  Checked (project.name empty in each):\n" + "\n".join(f"    {p}" for p in checked)
+        if checked
+        else "  No doc/project-config.json found above script location."
+    )
+    raise RuntimeError(f"Could not locate the workspace root.\n{hint}")
+
+
+# Parent-pointer filenames, most-current first (PF-PRO-068 P-5 rename, read-both transition).
+# Third implementation of the list — the PowerShell twins live in Core.psm1 and IdRegistry.psm1
+# and are pinned identical by ChainWalkParity.Tests.ps1. This one is outside that suite's reach
+# (no interop), so it is kept in sync by contract, like the resolution it belongs to.
+PARENT_POINTER_NAMES = (".framework-parent-pointer", ".framework-central-pointer")
+
+
+def _resolve_parent_pointer(fw_dir: Path):
+    """Return the parent-pointer file present in fw_dir, or None when neither name exists.
+
+    Accepts both the current and the legacy name for the whole rename transition: a rolled-out
+    project can be several rollouts behind, and a rollback can take one back to a pre-rename tag
+    at any time. When both names are present and disagree this raises rather than picking one —
+    silently preferring either would let two readers resolve different parents.
+    """
+    found = [fw_dir / name for name in PARENT_POINTER_NAMES if (fw_dir / name).exists()]
+    if not found:
+        return None
+    if len(found) >= 2:
+        values = [p.read_text(encoding="utf-8").strip() for p in found]
+        if os.path.normcase(os.path.abspath(values[0])) != os.path.normcase(
+            os.path.abspath(values[1])
+        ):
+            raise RuntimeError(
+                f"Both parent-pointer names are present in {fw_dir} and they disagree — "
+                f"'{PARENT_POINTER_NAMES[0]}' points to '{values[0]}' but "
+                f"'{PARENT_POINTER_NAMES[1]}' points to '{values[1]}'. During the rename "
+                "transition the rollout writes both with identical content, so a disagreement "
+                "means one was hand-edited. Reconcile or delete the stale one."
+            )
+    return found[0]
+
+
+def _resolve_own_central(root: Path) -> Path:
+    """Return this workspace's governing process-framework-central/ directory.
+
+    Python port of Get-CentralFrameworkPath (Common-ScriptHelpers/Core.psm1), kept in sync
+    with it by contract rather than by import — there is no PowerShell interop here:
+
+      - producer face (project_metadata.role 'framework' / 'framework-builder')
+            -> the workspace's OWN process-framework-central/
+      - leaf ('project', including an absent role)
+            -> the parent named by <paths.process_framework>/.framework-central-pointer
+
+    Every failure raises. The no-silent-fallback invariant (PF-PRO-068) applies here
+    specifically because the old fallback path — <process-framework>/feedback/ratings.db —
+    does not exist in any current layout, so falling back meant creating an EMPTY database
+    at a phantom location and reporting success against it.
+    """
+    config_path = root / "doc" / "project-config.json"
+    with open(config_path) as f:
+        config = json.load(f)
+
+    role = (config.get("project_metadata") or {}).get("role") or "project"
+    if role in ("framework", "framework-builder"):
+        return root / "process-framework-central"
+
+    fw_relative = (config.get("paths") or {}).get("process_framework") or "process-framework"
+    fw_dir = root / fw_relative
+    pointer = _resolve_parent_pointer(fw_dir)
+    if pointer is None:
+        raise RuntimeError(
+            f"No parent pointer found in {fw_dir} (probed "
+            f"{' and '.join(PARENT_POINTER_NAMES)}). This workspace has not received a Push "
+            "from its parent yet, so central cannot be resolved."
+        )
+    parent = pointer.read_text(encoding="utf-8").strip()
+    if not parent:
+        raise RuntimeError(
+            f"{pointer} is empty. Re-run the parent's Push-FrameworkUpdate.ps1 to repair."
+        )
+    central = Path(parent) / "process-framework-central"
+    if not central.is_dir():
+        raise RuntimeError(
+            f"{pointer} points to '{parent}', but the resolved central directory does not "
+            f"exist: {central}. The pointer target is stale."
+        )
+    return central
+
+
 def _resolve_db_path() -> Path:
-    """Resolve database path: domain-config.json > fallback to local."""
-    config_path = Path(__file__).resolve().parent.parent / "domain-config.json"
-    if config_path.exists():
-        try:
-            with open(config_path) as f:
-                config = json.load(f)
-            db_setting = config.get("ratings_db_path", {})
-            if isinstance(db_setting, dict) and db_setting.get("value"):
-                db_path = Path(db_setting["value"])
-                if not db_path.parent.exists():
-                    print(
-                        f"ERROR: ratings_db_path parent directory "
-                        f"does not exist: {db_path.parent}\n"
-                        f"  Configured in: {config_path}\n"
-                        f"  Check the 'ratings_db_path.value' setting.",
-                        file=sys.stderr,
-                    )
-                    sys.exit(1)
-                return db_path
-        except (json.JSONDecodeError, OSError):
-            pass
-    return Path(__file__).resolve().parent.parent / "feedback" / "ratings.db"
+    """Resolve the ratings database path: $FRAMEWORK_CENTRAL_OVERRIDE, else OWN CENTRAL.
+
+    Own-central resolution (PF-PRO-068 WI-5) needs no configuration: each workspace's
+    ratings live beside its other central instruments, resolved the same way every other
+    central write resolves. That is correct at every level — a project's own central IS its
+    parent's, so projects keep sharing one DB exactly as before, while a producer face gets
+    its own.
+
+    The former `ratings_db_path` domain-config key was RETIRED with this change (owner
+    decision, 2026-08-07). It named an absolute machine path, it shipped in a config copied
+    into every project, and once resolution is derived it could only ever drift away from
+    the answer it was meant to give. Its reader is deleted with it rather than kept as an
+    override: keeping the reader would preserve exactly the escape hatch the retirement
+    removes. A workspace that genuinely needs its ratings elsewhere gets the env override.
+
+    $FRAMEWORK_CENTRAL_OVERRIDE gives Python the same sandbox-redirect seam the PowerShell
+    fleet has, so a hermetic fixture can point both at one directory.
+
+    Nothing here falls back. The pre-retirement code silently degraded to
+    <process-framework>/feedback/ratings.db — a path that exists in no current layout — so a
+    corrupt config produced a fresh empty database and a run that looked entirely fine.
+    """
+    override = os.environ.get("FRAMEWORK_CENTRAL_OVERRIDE", "").strip()
+    if override:
+        if not Path(override).is_dir():
+            print(
+                f"ERROR: $FRAMEWORK_CENTRAL_OVERRIDE points at a non-existent "
+                f"directory: {override}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        return Path(override) / "feedback" / "ratings.db"
+
+    try:
+        central = _resolve_own_central(_find_workspace_root())
+    except (RuntimeError, json.JSONDecodeError, OSError) as exc:
+        print(
+            f"ERROR: could not resolve this workspace's process-framework-central.\n" f"  {exc}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    db_path = central / "feedback" / "ratings.db"
+    if not db_path.parent.exists():
+        print(
+            f"ERROR: resolved central feedback directory does not exist: "
+            f"{db_path.parent}\n"
+            f"  Central resolved to: {central}\n"
+            f"  Seed the feedback/ directory at that workspace.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return db_path
 
 
 def _resolve_project_name() -> str:
@@ -95,11 +261,22 @@ def _resolve_project_name() -> str:
     sys.exit(1)
 
 
+def _imp_match_key(value: str):
+    """Normalize an IMP reference to its numeric token for matching.
+
+    Stored imp_id values mix historical forms ('IMP-038', 'PF-IMP-038',
+    'PF-IMP-833 (b)'); the digits identify the improvement regardless of
+    prefix, zero padding, or constituent suffix.
+    """
+    m = re.search(r"IMP-0*(\d+)", value or "")
+    return m.group(1) if m else None
+
+
 DB_DEFAULT_PATH = _resolve_db_path()
 
 # Historical tool_doc_id drift consolidation mapping (PF-IMP-704).
 # Each entry maps a non-canonical tool_doc_id to its canonical form per the
-# convention documented in PF-TSK-009 Step 12: PF-TSK-NNN for task definitions,
+# convention documented in PF-TSK-009's tool-change-logging step: PF-TSK-NNN for task definitions,
 # filename (with extension) for everything else.
 # Used by the `consolidate-tools` subcommand. Idempotent — re-running after
 # consolidation is a no-op because the source IDs no longer exist.
@@ -158,9 +335,24 @@ CREATE TABLE IF NOT EXISTS tool_changes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_name TEXT NOT NULL,
     tool_doc_id TEXT NOT NULL,
+    tool_name TEXT,
     change_date TEXT NOT NULL,
     imp_id TEXT,
     description TEXT NOT NULL
+);
+
+-- Canonical-key aliases (PF-IMP-1691). Holds only what the frontmatter scan in
+-- extract_ratings.build_id_index() cannot derive: RETIRED artifacts (which keep the
+-- ID they had — the record outlives the file), historical junk keys ('SCRIPT',
+-- 'PF-TSK-022-L', the dead PF-SCR-*/PF-VAL-* pools), prose tool names, and project
+-- instances that attribute to their generating blueprint template. Append-only and
+-- permanent: an alias is never removed, or the rows it explains lose their key again.
+-- Looked up on the raw tool_doc_id first, then on tool_name, so both a bad key and a
+-- bad-key-with-good-name resolve through one table.
+CREATE TABLE IF NOT EXISTS tool_aliases (
+    alias TEXT PRIMARY KEY,
+    tool_doc_id TEXT NOT NULL,
+    note TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_forms_task_id ON feedback_forms(task_id);
@@ -280,6 +472,21 @@ class FeedbackDB:
             file=sys.stderr,
         )
 
+    def _ensure_identity_schema(self, conn: sqlite3.Connection):
+        """Additively bring an existing database up to the tool-identity schema (PF-IMP-1691).
+
+        Idempotent and non-destructive — unlike the v1->v2 project_name migration, both
+        additions are pure ALTER/CREATE, so no table rebuild and no data motion.
+        """
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS tool_aliases ("
+            "alias TEXT PRIMARY KEY, tool_doc_id TEXT NOT NULL, note TEXT)"
+        )
+        columns = [row[1] for row in conn.execute("PRAGMA table_info(tool_changes)")]
+        if "tool_name" not in columns:
+            conn.execute("ALTER TABLE tool_changes ADD COLUMN tool_name TEXT")
+        conn.commit()
+
     def _connect(self) -> sqlite3.Connection:
         if not self.db_path.exists():
             self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -294,7 +501,79 @@ class FeedbackDB:
         conn.execute("PRAGMA foreign_keys = ON")
         if self._needs_migration(conn):
             self._migrate(conn, self.project_name)
+        self._ensure_identity_schema(conn)
         return conn
+
+    # --- Canonical tool identity (PF-IMP-1691) --------------------------------
+
+    def resolve_tool_doc_id(
+        self, raw: str | None, tool_name: str | None = None, conn: sqlite3.Connection = None
+    ) -> str | None:
+        """Resolve any supplied tool key to its canonical form, or None if unidentifiable.
+
+        The single normalization point for tool identity. Every write path routes
+        through it, so the stored key does not depend on what the author typed —
+        which is why the historical corruption classes (blank/'N/A' keys, the 'SCRIPT'
+        placeholder, invented sub-IDs, filenames for ID-carrying artifacts) could
+        accumulate: nothing validated a key before this existed.
+
+        Order: blank -> alias(raw) -> alias(name) -> portable ID -> filename resolved
+        to its artifact's ID -> filename as-is. A NON-PORTABLE ID (PF-STA/PD-*/TE-*)
+        is by definition not a tool key — those artifacts are project instances whose
+        tool is the blueprint template that generated them — so it resolves only via an
+        alias, and otherwise returns None for the audit to surface rather than being
+        stored as a plausible-looking key.
+        """
+        from extract_ratings import is_portable_id, resolve_artifact_id  # sibling script
+
+        def normalize_concrete(value):
+            """A concrete key -> canonical form: portable ID passthrough, filename -> its
+            artifact's ID, non-portable ID discarded. Applied to BOTH the raw key and an
+            alias target, so an alias pointing at a filename that later gains an ID
+            (the 20 templates, PF-IMP-1691 Phase 3b) resolves through to the ID rather
+            than freezing on the filename and re-splitting the history."""
+            if is_portable_id(value):
+                return value
+            if re.fullmatch(r"[A-Z]{2,4}-[A-Z]{3}-\d+", value):
+                return None  # non-portable pool: an instance, never a tool key
+            return resolve_artifact_id(value) or value
+
+        owns_conn = conn is None
+        conn = conn or self._connect()
+        try:
+            candidate = (raw or "").strip()
+            # Absence wearing a value's clothes. 'SCRIPT' is here because 167 rows
+            # arrived carrying the template's literal placeholder as their key, with
+            # the real filename sitting in tool_name — unrecoverable while the key
+            # read as a value, trivially recoverable once it reads as absent.
+            if candidate.upper() in ("", "N/A", "NA", "-", "NONE", "TBD", "SCRIPT", "TOOL"):
+                candidate = ""
+            for key in (candidate, (tool_name or "").strip()):
+                if not key:
+                    continue
+                row = conn.execute(
+                    "SELECT tool_doc_id FROM tool_aliases WHERE alias = ?", (key,)
+                ).fetchone()
+                if row:
+                    return normalize_concrete(row["tool_doc_id"]) or row["tool_doc_id"]
+            if candidate:
+                resolved = normalize_concrete(candidate)
+                if resolved is not None:
+                    return resolved
+                # candidate was a non-portable ID — discard, fall through to the name.
+            # No usable key supplied — fall back to deriving one from the display name.
+            if tool_name:
+                from extract_ratings import derive_tool_doc_id
+
+                derived, _ = derive_tool_doc_id(tool_name)
+                if derived and not re.fullmatch(r"[A-Z]{2,4}-[A-Z]{3}-\d+", derived):
+                    return derived
+                if derived and is_portable_id(derived):
+                    return derived
+            return None
+        finally:
+            if owns_conn:
+                conn.close()
 
     def init_db(self, force: bool = False):
         """Create database tables. If force=True, drop and recreate."""
@@ -370,7 +649,12 @@ class FeedbackDB:
                         project_name,
                         data["form_id"],
                         tool["tool_name"],
-                        tool.get("tool_doc_id"),
+                        # Normalize at the write gate, never trust the supplied key
+                        # (PF-IMP-1691): hand-authored JSON is one of the paths that
+                        # seeded the historical blank/'N/A'/placeholder key classes.
+                        self.resolve_tool_doc_id(
+                            tool.get("tool_doc_id"), tool.get("tool_name"), conn=conn
+                        ),
                         tool.get("effectiveness"),
                         tool.get("clarity"),
                         tool.get("completeness"),
@@ -395,15 +679,22 @@ class FeedbackDB:
     def log_change(
         self, tool_doc_id: str, change_date: str, description: str, imp_id: str = None
     ) -> int:
-        """Log a tool change. Returns the row id."""
+        """Log a tool change. Returns the row id.
+
+        The supplied key is normalized (PF-IMP-1691) so a filename for an ID-carrying
+        artifact is stored under that artifact's ID; the raw input is preserved in
+        tool_name, which keeps the row human-readable and gives a later repair the same
+        recovery handle that made the historical 'SCRIPT' rows salvageable.
+        """
         conn = self._connect()
         try:
+            canonical = self.resolve_tool_doc_id(tool_doc_id, conn=conn) or tool_doc_id
             cursor = conn.execute(
                 """INSERT INTO tool_changes
-                   (project_name, tool_doc_id, change_date,
+                   (project_name, tool_doc_id, tool_name, change_date,
                     imp_id, description)
-                   VALUES (?, ?, ?, ?, ?)""",
-                (self.project_name, tool_doc_id, change_date, imp_id, description),
+                   VALUES (?, ?, ?, ?, ?, ?)""",
+                (self.project_name, canonical, tool_doc_id, change_date, imp_id, description),
             )
             conn.commit()
             return cursor.lastrowid
@@ -411,7 +702,13 @@ class FeedbackDB:
             conn.close()
 
     def is_known_tool(self, tool_doc_id: str) -> bool:
-        """True if tool_doc_id has prior usage in tool_changes or tool_ratings (this project)."""
+        """True if tool_doc_id has prior usage in tool_changes or tool_ratings (this project).
+
+        Resolves the key first (PF-IMP-1691) so the unknown-tool gate judges the
+        canonical form — otherwise a filename whose artifact has an ID would be
+        reported unknown even though its history exists under that ID.
+        """
+        tool_doc_id = self.resolve_tool_doc_id(tool_doc_id) or tool_doc_id
         conn = self._connect()
         try:
             row = conn.execute(
@@ -452,6 +749,36 @@ class FeedbackDB:
                 f = name_filter.lower()
                 result = [r for r in result if f in r["tool_doc_id"].lower()]
             return result
+        finally:
+            conn.close()
+
+    def list_ratings(self, tool_doc_id: str, all_projects: bool = False) -> list:
+        """Return raw tool_ratings rows for a tool_doc_id, unjoined (data-quality inspection).
+
+        Unlike query_by_tool (which INNER-JOINs feedback_forms for an analytic history
+        view), this reads tool_ratings directly, so the rows that matter for data-quality
+        work are all surfaced as stored: orphan rows (form_id with no matching form),
+        duplicate (form_id, tool) rows, and NULL-rating phantom rows. Project-scoped by
+        default (like list_tools); all_projects=True drops the scope. Ordered to place
+        same-form rows adjacent so duplicates are easy to spot.
+        """
+        conn = self._connect()
+        try:
+            select = """SELECT id, project_name, form_id, tool_name, tool_doc_id,
+                          effectiveness, clarity, completeness, efficiency, conciseness
+                   FROM tool_ratings
+                   WHERE tool_doc_id = ?"""
+            if all_projects:
+                rows = conn.execute(
+                    select + " ORDER BY project_name, form_id, id",
+                    (tool_doc_id,),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    select + " AND project_name = ? ORDER BY form_id, id",
+                    (tool_doc_id, self.project_name),
+                ).fetchall()
+            return [dict(r) for r in rows]
         finally:
             conn.close()
 
@@ -561,6 +888,33 @@ class FeedbackDB:
                 (tool_doc_id,),
             ).fetchall()
             return [dict(r) for r in rows]
+        finally:
+            conn.close()
+
+    def list_changes(self, imp_id: str) -> list:
+        """Get all logged tool changes for an IMP, ordered by date.
+
+        Matching normalizes both sides to the numeric IMP token (via
+        _imp_match_key), so 'IMP-038', 'PF-IMP-038', and suffixed historical
+        forms ('PF-IMP-833 (b)') all match a query in any prefix variant.
+        Cross-project by design: IMP IDs come from the central pool, so rows
+        logged from other project checkouts belong to the same improvement.
+        Caveat: pre-central-pool rows (numbers roughly < 50) used per-project
+        sequences, so a low number can match an unrelated old-era improvement —
+        the imp_id/project/date columns in the output make those evident.
+        """
+        key = _imp_match_key(imp_id)
+        if key is None:
+            return []
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                """SELECT project_name, tool_doc_id, change_date, imp_id, description
+                   FROM tool_changes
+                   WHERE imp_id IS NOT NULL
+                   ORDER BY change_date, id"""
+            ).fetchall()
+            return [dict(r) for r in rows if _imp_match_key(r["imp_id"]) == key]
         finally:
             conn.close()
 
@@ -688,7 +1042,7 @@ class FeedbackDB:
         finally:
             conn.close()
 
-    def backfill_tool_doc_ids(self, dry_run: bool = False) -> dict:
+    def backfill_tool_doc_ids(self, dry_run: bool = False, all_projects: bool = False) -> dict:
         """Fill NULL tool_ratings.tool_doc_id by re-deriving from stored tool_name.
 
         Re-derivation uses extract_ratings.derive_tool_doc_id (the same rules new
@@ -696,9 +1050,11 @@ class FeedbackDB:
         rows predate the filename-capture fix (PF-IMP-935); their tool_name still holds
         the filename, so it can be recovered without re-reading form files.
 
-        NULL-only and project-scoped — never overwrites an existing tool_doc_id.
-        Idempotent: re-running recovers nothing once applied. Rows whose tool_name yields
-        no canonical id (prose names like "Test Registry") are left NULL.
+        NULL-only — never overwrites an existing tool_doc_id. Scoped to the invoking
+        project unless all_projects=True (derivation is project-independent, so a
+        cross-project repair run is safe; PF-IMP-1690). Idempotent: re-running recovers
+        nothing once applied. Rows whose tool_name yields no canonical id (prose names
+        like "Test Registry") are left NULL.
 
         Returns {"null_before", "recovered", "remaining_null", "by_value"}.
         """
@@ -706,16 +1062,32 @@ class FeedbackDB:
 
         conn = self._connect()
         try:
+            # Blank keys ('', 'N/A') are absence wearing a value's clothes: they are not
+            # NULL, so a NULL-only scan never saw them, and 70 recoverable rows sat
+            # unrepairable behind them. Treat them as unset in BOTH modes so --dry-run
+            # reports exactly what a real run would do (PF-IMP-1691).
+            unset = (
+                "(tool_doc_id IS NULL OR TRIM(tool_doc_id) IN "
+                "('', 'N/A', 'NA', '-', 'None', 'TBD'))"
+            )
+            scope = "" if all_projects else " AND project_name = ?"
+            params = () if all_projects else (self.project_name,)
+            if not dry_run:
+                conn.execute(
+                    f"UPDATE tool_ratings SET tool_doc_id = NULL WHERE {unset}" + scope, params
+                )
+                conn.commit()
             rows = conn.execute(
-                "SELECT id, tool_name FROM tool_ratings "
-                "WHERE project_name = ? AND tool_doc_id IS NULL",
-                (self.project_name,),
+                f"SELECT id, tool_name FROM tool_ratings WHERE {unset}" + scope, params
             ).fetchall()
             null_before = len(rows)
             recovered = 0
             by_value: dict = {}
             for r in rows:
-                tool_doc_id, _ = derive_tool_doc_id(r["tool_name"] or "")
+                # Route through the shared resolver so an alias, a retired artifact's
+                # ID, or a filename->ID mapping applies identically here and at extraction.
+                derived, _ = derive_tool_doc_id(r["tool_name"] or "")
+                tool_doc_id = self.resolve_tool_doc_id(derived, r["tool_name"], conn=conn)
                 if not tool_doc_id:
                     continue
                 recovered += 1
@@ -733,6 +1105,77 @@ class FeedbackDB:
                 "remaining_null": null_before - recovered,
                 "by_value": by_value,
             }
+        finally:
+            conn.close()
+
+    def merge_tool_id(self, from_id: str, to_id: str, dry_run: bool = False) -> dict:
+        """Re-attribute every tool_ratings + tool_changes row from one tool_doc_id to another.
+
+        Repairs convention drift — one artifact registered under two ids, e.g. a bare
+        basename alongside its convention-canonical qualified form (PF-IMP-1690).
+        Cross-project by design: tool_doc_id is artifact identity, not project state.
+        to_id need not pre-exist (merging into a canonical id that has no rows yet is
+        legitimate). Idempotent: once merged, a re-run finds zero rows and errors.
+
+        Returns {"ratings_moved", "changes_moved"}. Raises ValueError on from==to or
+        when from_id matches no rows in either table (typo guard).
+        """
+        if from_id == to_id:
+            raise ValueError("--from and --to are the same id — nothing to merge.")
+        conn = self._connect()
+        try:
+            ratings = conn.execute(
+                "SELECT COUNT(*) FROM tool_ratings WHERE tool_doc_id = ?", (from_id,)
+            ).fetchone()[0]
+            changes = conn.execute(
+                "SELECT COUNT(*) FROM tool_changes WHERE tool_doc_id = ?", (from_id,)
+            ).fetchone()[0]
+            if ratings == 0 and changes == 0:
+                raise ValueError(
+                    f"No rows carry tool_doc_id '{from_id}' — nothing to merge "
+                    "(check for a typo with list-tools --filter)."
+                )
+            if not dry_run:
+                conn.execute(
+                    "UPDATE tool_ratings SET tool_doc_id = ? WHERE tool_doc_id = ?",
+                    (to_id, from_id),
+                )
+                conn.execute(
+                    "UPDATE tool_changes SET tool_doc_id = ? WHERE tool_doc_id = ?",
+                    (to_id, from_id),
+                )
+                conn.commit()
+            return {"ratings_moved": ratings, "changes_moved": changes}
+        finally:
+            conn.close()
+
+    def get_change_trends(self, min_changes: int = 3, months: int = 6) -> list:
+        """Hotspot view over the tool_changes log: artifacts with >= min_changes logged
+        changes in the last `months` months (approximated as 30 days each), most first.
+
+        Makes repeated fixes to the same artifact visible without ad-hoc SQL
+        (PF-IMP-1673). Cross-project by design: tool_doc_id is artifact identity.
+        Read the two counts together — a high change count with an equally high
+        distinct-IMP count is a high-traffic artifact; a distinct-IMP count well
+        below the change count signals the same fixes being re-worked.
+
+        Returns rows of {tool_doc_id, changes, distinct_imps, last_change}.
+        """
+        cutoff = (datetime.now() - timedelta(days=months * 30)).strftime("%Y-%m-%d")
+        conn = self._connect()
+        try:
+            return conn.execute(
+                """SELECT tool_doc_id,
+                          COUNT(*) as changes,
+                          COUNT(DISTINCT imp_id) as distinct_imps,
+                          MAX(change_date) as last_change
+                   FROM tool_changes
+                   WHERE change_date >= ?
+                   GROUP BY tool_doc_id
+                   HAVING COUNT(*) >= ?
+                   ORDER BY changes DESC, tool_doc_id""",
+                (cutoff, min_changes),
+            ).fetchall()
         finally:
             conn.close()
 
@@ -1135,7 +1578,9 @@ def _block_unknown_tools(db, entries, new_tool_flag):
     An entry escapes the block when ANY of these holds:
       - new_tool_flag is True (global override)
       - entry has "new_tool": True (per-row opt-in for mixed batches, PF-IMP-833 (a))
-      - entry's tool is already known to this project
+      - entry's tool is already known to this project (after canonical resolution —
+        is_known_tool resolves a filename for an ID-carrying artifact to its ID first,
+        so naming a known guide/template by filename is not reported unknown; PF-IMP-1691)
     """
     if new_tool_flag:
         return
@@ -1146,6 +1591,25 @@ def _block_unknown_tools(db, entries, new_tool_flag):
         print("ERROR: Unknown tool_doc_id(s) for this project:", file=sys.stderr)
         for t in unknown:
             print(f"  {t}", file=sys.stderr)
+        # PF-IMP-1691: the key an author typed may resolve to a different canonical
+        # form (a filename -> its artifact's ID). When it does, name the resolution at
+        # the point of failure rather than costing a fail-then-list-tools round trip.
+        # Supersedes the earlier PF-TSK-only suggester (PF-IMP-1570) and the now-inverted
+        # "artifact PF-IDs are not tool keys" note (PF-IMP-1395) — under the ID-first
+        # convention a portable artifact ID IS the key.
+        resolved = []
+        for t in unknown:
+            canonical = db.resolve_tool_doc_id(t)
+            if canonical and canonical != t:
+                resolved.append((t, canonical))
+        if resolved:
+            print(
+                "\nNote: the canonical key is the artifact's portable framework ID "
+                "(filename only when it has none). Did you mean:",
+                file=sys.stderr,
+            )
+            for typed, canonical in resolved:
+                print(f"  {typed} -> {canonical}", file=sys.stderr)
         print(
             "\nRun 'python feedback_db.py list-tools' to browse canonical IDs.",
             file=sys.stderr,
@@ -1158,45 +1622,87 @@ def _block_unknown_tools(db, entries, new_tool_flag):
             "    (use for bulk imports only; weakens typo detection)",
             file=sys.stderr,
         )
+        # PF-IMP-1653: restate the offending IDs in the final line so a
+        # tail-truncated capture still shows which IDs need the remediation above.
+        print(
+            f"\nBlocked: {len(unknown)} unknown tool_doc_id(s): {', '.join(unknown)}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 
 def cmd_log_change(args, db):
     """Handle the 'log-change' subcommand."""
-    if not args.batch and not (args.tool and args.date and args.description):
-        print(
-            "Error: provide either --batch or all of --tool, --date, --description", file=sys.stderr
-        )
+    if not args.batch and not (args.tool and args.description):
+        print("Error: provide either --batch or both --tool and --description", file=sys.stderr)
         sys.exit(1)
+    today = datetime.now().strftime("%Y-%m-%d")
     if args.batch:
         data = _load_json_input(args.batch, hint_stdin_workaround=True)
         if not isinstance(data, list):
             print("Error: --batch JSON must be an array of objects", file=sys.stderr)
             sys.exit(1)
+        # PF-IMP-1393 (b): shape-check every entry before any write, so a malformed
+        # entry is reported up front instead of crashing the batch mid-write after
+        # earlier entries were already logged. Also the basis of --validate-only.
+        bad = [
+            str(i)
+            for i, e in enumerate(data)
+            if not isinstance(e, dict) or not e.get("tool") or not e.get("description")
+        ]
+        if bad:
+            print(
+                "Error: --batch entries must be objects with non-empty 'tool' and "
+                f"'description' (offending indices: {', '.join(bad)})",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         _block_unknown_tools(db, data, args.new_tool)
+        if args.validate_only:
+            print(f"Validation OK: {len(data)} entries; nothing logged (--validate-only).")
+            return
         count = 0
         for entry in data:
+            change_date = entry.get("date") or today
             row_id = db.log_change(
                 tool_doc_id=entry["tool"],
-                change_date=entry["date"],
+                change_date=change_date,
                 description=entry["description"],
                 imp_id=entry.get("imp"),
             )
             print(
                 f"Logged change #{row_id}: {entry['tool']} — "
-                f"{entry.get('imp', 'no IMP')} ({entry['date']})"
+                f"{entry.get('imp', 'no IMP')} ({change_date})"
             )
             count += 1
         print(f"Batch complete: {count} changes logged.")
     else:
         _block_unknown_tools(db, [{"tool": args.tool}], args.new_tool)
+        if args.validate_only:
+            print("Validation OK: 1 entry; nothing logged (--validate-only).")
+            return
+        change_date = args.date or today
         row_id = db.log_change(
             tool_doc_id=args.tool,
-            change_date=args.date,
+            change_date=change_date,
             description=args.description,
             imp_id=args.imp,
         )
-        print(f"Logged change #{row_id}: {args.tool} — " f"{args.imp or 'no IMP'} ({args.date})")
+        print(f"Logged change #{row_id}: {args.tool} — " f"{args.imp or 'no IMP'} ({change_date})")
+
+
+def cmd_list_changes(args, db):
+    """Handle the 'list-changes' subcommand."""
+    rows = db.list_changes(args.imp)
+    if not rows:
+        # Update-ProcessImprovement.ps1's Test-ImpHasLoggedChanges (PF-IMP-1740 (b)) matches
+        # this exact "No logged changes match" prefix as its zero-rows signal (the subcommand
+        # exits 0 either way) — keep the wording in sync if this line changes.
+        print(f"No logged changes match {args.imp}.")
+        return
+    print(format_table(rows, args.format))
+    if args.format == "table":
+        print(f"\nTotal: {len(rows)} change(s)")
 
 
 def cmd_query(args, db):
@@ -1245,6 +1751,18 @@ def cmd_list_tools(args, db):
     print(f"\nTotal: {len(rows)} distinct tool_doc_ids")
 
 
+def cmd_list_ratings(args, db):
+    """Handle the 'list-ratings' subcommand."""
+    rows = db.list_ratings(args.tool, all_projects=args.all_projects)
+    scope = "all projects" if args.all_projects else f"project '{db.project_name}'"
+    if not rows:
+        print(f"No tool_ratings rows for tool_doc_id '{args.tool}' ({scope}).")
+        return
+    print(format_table(rows, args.format))
+    if args.format == "table":
+        print(f"\nTotal: {len(rows)} rating row(s) for '{args.tool}' ({scope})")
+
+
 def cmd_consolidate_tools(args, db):
     """Handle the 'consolidate-tools' subcommand."""
     results = db.consolidate_tools(CONSOLIDATION_MAPPING, dry_run=args.dry_run)
@@ -1287,7 +1805,7 @@ def cmd_consolidate_tools(args, db):
 
 def cmd_backfill_tool_doc_ids(args, db):
     """Handle the 'backfill-tool-doc-ids' subcommand."""
-    result = db.backfill_tool_doc_ids(dry_run=args.dry_run)
+    result = db.backfill_tool_doc_ids(dry_run=args.dry_run, all_projects=args.all_projects)
 
     if result["null_before"] == 0:
         print("No NULL tool_doc_id rows — nothing to backfill.")
@@ -1302,6 +1820,41 @@ def cmd_backfill_tool_doc_ids(args, db):
     print(
         f"\n{verb} {result['recovered']} of {result['null_before']} NULL tool_doc_id "
         f"row(s); {result['remaining_null']} remain NULL (unidentifiable tool names).{suffix}"
+    )
+
+
+def cmd_merge_tool_id(args, db):
+    """Handle the 'merge-tool-id' subcommand."""
+    try:
+        result = db.merge_tool_id(args.from_id, args.to_id, dry_run=args.dry_run)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    verb = "Would re-attribute" if args.dry_run else "Re-attributed"
+    suffix = "  Re-run without --dry-run to apply." if args.dry_run else ""
+    print(
+        f"{verb} {result['ratings_moved']} rating row(s) and {result['changes_moved']} "
+        f"change row(s): '{args.from_id}' -> '{args.to_id}'.{suffix}"
+    )
+
+
+def cmd_trend_changes(args, db):
+    """Handle the 'trend-changes' subcommand."""
+    rows = db.get_change_trends(min_changes=args.min_changes, months=args.months)
+    if not rows:
+        print(
+            f"No artifacts with >= {args.min_changes} logged change(s) "
+            f"in the last {args.months} month(s)."
+        )
+        return
+    total = len(rows)
+    shown = rows[: args.limit] if args.limit else rows
+    print(format_table([dict(r) for r in shown]))
+    trunc = f" (showing top {len(shown)})" if len(shown) < total else ""
+    print(
+        f"\n{total} artifact(s) with >= {args.min_changes} change(s) in the last "
+        f"{args.months} month(s){trunc}. Reading: distinct_imps well below changes = "
+        "the same fixes being re-worked; roughly equal = high-traffic artifact."
     )
 
 
@@ -1368,13 +1921,14 @@ def main():
             "Verify with: feedback_db.py list-tools --filter <substring>."
         ),
     )
-    p_change.add_argument("--date", help="Date of change (YYYY-MM-DD)")
+    p_change.add_argument("--date", help="Date of change (YYYY-MM-DD; default: today)")
     p_change.add_argument("--imp", help="Improvement ID (e.g., IMP-038)")
     p_change.add_argument("--description", help="Description of the change")
     p_change.add_argument(
         "--batch",
-        help="Path to JSON file with array of {tool, date, description, imp?, new_tool?} "
-        'objects, or "-" for stdin. Per-entry "new_tool": true opts that row out of the '
+        help="Path to JSON file with array of {tool, description, date?, imp?, new_tool?} "
+        'objects, or "-" for stdin. "date" defaults to today when omitted. '
+        'Per-entry "new_tool": true opts that row out of the '
         "unknown-ID block (PF-IMP-833 (a)) — use for mixed batches containing both "
         "known tools and first-time registrations.",
     )
@@ -1383,6 +1937,31 @@ def main():
         action="store_true",
         help="Global override: bypass unknown-ID block for the entire batch. Use for bulk "
         'imports only. For mixed batches prefer per-entry "new_tool": true in --batch JSON.',
+    )
+    p_change.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Run all input checks (JSON shape, required fields, unknown-tool block) and "
+        "exit without logging anything. Exit 0 = the same invocation without this flag "
+        "would log cleanly. Used by Update-ProcessImprovement.ps1 to validate a "
+        "-LogToolChanges payload before the terminal status move (PF-IMP-1393 (b)).",
+    )
+
+    # list-changes
+    p_changes = subparsers.add_parser(
+        "list-changes",
+        help="List logged tool changes for an improvement (all projects)",
+    )
+    p_changes.add_argument(
+        "--imp",
+        required=True,
+        help="Improvement ID (e.g., PF-IMP-038; matches historical 'IMP-038' rows too)",
+    )
+    p_changes.add_argument(
+        "--format",
+        choices=["table", "json", "csv"],
+        default="table",
+        help="Output format (default: table)",
     )
 
     # query
@@ -1410,6 +1989,28 @@ def main():
     )
     p_list.add_argument("--filter", help="Case-insensitive substring filter on tool_doc_id")
 
+    # list-ratings
+    p_list_ratings = subparsers.add_parser(
+        "list-ratings",
+        help="List raw tool_ratings rows for a tool_doc_id (unjoined; data-quality inspection)",
+    )
+    p_list_ratings.add_argument(
+        "--tool",
+        required=True,
+        help="Tool document ID whose raw rating rows to list (e.g., New-Task.ps1, PF-TSK-009)",
+    )
+    p_list_ratings.add_argument(
+        "--all-projects",
+        action="store_true",
+        help="List across all projects (default: current project only, like list-tools)",
+    )
+    p_list_ratings.add_argument(
+        "--format",
+        choices=["table", "json", "csv"],
+        default="table",
+        help="Output format (default: table)",
+    )
+
     # consolidate-tools
     p_consolidate = subparsers.add_parser(
         "consolidate-tools",
@@ -1436,6 +2037,67 @@ def main():
         "--dry-run",
         action="store_true",
         help="Preview recovery counts without applying UPDATEs",
+    )
+    p_backfill.add_argument(
+        "--all-projects",
+        action="store_true",
+        help=(
+            "Backfill NULL rows across every project, not just the invoking one "
+            "(derivation is project-independent)"
+        ),
+    )
+
+    # merge-tool-id
+    p_merge = subparsers.add_parser(
+        "merge-tool-id",
+        help=(
+            "Re-attribute every rating + change row from one tool_doc_id to another "
+            "(convention-drift repair, PF-IMP-1690). Cross-project; idempotent."
+        ),
+    )
+    p_merge.add_argument(
+        "--from",
+        dest="from_id",
+        required=True,
+        help="tool_doc_id to merge away (must currently have rows)",
+    )
+    p_merge.add_argument(
+        "--to",
+        dest="to_id",
+        required=True,
+        help="canonical tool_doc_id to merge into (need not pre-exist)",
+    )
+    p_merge.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview affected row counts without applying UPDATEs",
+    )
+
+    # trend-changes
+    p_trend = subparsers.add_parser(
+        "trend-changes",
+        help=(
+            "Hotspot view over the change log: artifacts with >= N logged changes in "
+            "the last M months (recurrence detection, PF-IMP-1673). Cross-project."
+        ),
+    )
+    p_trend.add_argument(
+        "--min-changes",
+        type=int,
+        default=3,
+        help="Minimum logged changes to list an artifact (default: 3)",
+    )
+    p_trend.add_argument(
+        "--months",
+        type=int,
+        default=6,
+        help="Look-back window in months, approximated as 30 days each (default: 6)",
+    )
+    p_trend.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Show only the top N rows (default: 0 = all)",
     )
 
     # alerts
@@ -1466,12 +2128,16 @@ def main():
         "init": cmd_init,
         "record": cmd_record,
         "log-change": cmd_log_change,
+        "list-changes": cmd_list_changes,
         "query": cmd_query,
         "list-tools": cmd_list_tools,
+        "list-ratings": cmd_list_ratings,
         "report": cmd_report,
         "alerts": cmd_alerts,
         "consolidate-tools": cmd_consolidate_tools,
         "backfill-tool-doc-ids": cmd_backfill_tool_doc_ids,
+        "merge-tool-id": cmd_merge_tool_id,
+        "trend-changes": cmd_trend_changes,
     }
     commands[args.command](args, db)
 

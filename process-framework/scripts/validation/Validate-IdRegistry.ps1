@@ -8,6 +8,13 @@
     - Files with wrong prefixes (e.g., TSK prefix in state-tracking directory)
     - Missing directory information in registry
     - Inconsistencies between registry and actual file locations
+.PARAMETER RegistryPath
+    Validates against this single registry file instead of the default three (PF-id-registry.json,
+    doc/PD-id-registry.json, test/TE-id-registry.json), whose prefixes are otherwise merged.
+    Retained for backward compatibility.
+.PARAMETER RootPath
+    Root directory scanned for files to check against the registry. Defaults to the project's
+    doc/ directory.
 .EXAMPLE
     ../Validate-IdRegistry.ps1
 #>
@@ -30,9 +37,20 @@ if ([string]::IsNullOrWhiteSpace($RootPath)) {
     $RootPath = Join-Path -Path $ProjectRoot -ChildPath "doc"
 }
 
+# Face fix (PF-PRO-068, owner-decided 2026-08-09): validation follows the WRITE face — the
+# registry it validates is the canonical authored file, and mints land in the authored tree.
+# At a producer role that is paths.blueprint (Get-BlueprintPath, no-fallback contract); at a
+# leaf, the operative tree. Left on the consumer key, a post-cutover producer would validate
+# the dead received projection: fresh mints read as missing while producer-face drift goes green.
+$frameworkWritePath = if ((Get-WorkspaceRole -ProjectRoot $ProjectRoot) -in @('framework', 'framework-builder')) {
+    Get-BlueprintPath -ProjectRoot $ProjectRoot
+} else {
+    Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
+}
+
 # Load all three registries and merge prefixes for validation
 $registryFiles = @(
-    (Join-Path -Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) -ChildPath "PF-id-registry.json"),
+    (Join-Path -Path $frameworkWritePath -ChildPath "PF-id-registry.json"),
     (Join-Path -Path $ProjectRoot -ChildPath "doc/PD-id-registry.json"),
     (Join-Path -Path $ProjectRoot -ChildPath "test/TE-id-registry.json")
 )
@@ -61,24 +79,27 @@ $registry = [PSCustomObject]@{ prefixes = $mergedPrefixes }
 # In appdev: paths.process_framework = "blueprint/process-framework" → PF-* prefix
 # directories like "process-framework/tasks/..." need to resolve under blueprint/.
 # In rolled-out projects: paths.process_framework = "process-framework" (no rewrite needed,
-# but the rewrite is idempotent so it's safe to apply).
-$frameworkAbsolute = (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot).Replace('\', '/')
+# but the rewrite is idempotent so it's safe to apply). Same write face as the registry file
+# above — the declared directories and the registry that declares them must never split faces.
+$frameworkAbsolute = $frameworkWritePath.Replace('\', '/')
 $projectRootForward = ((Resolve-Path $ProjectRoot).Path).Replace('\', '/')
 $frameworkRelative = $frameworkAbsolute.Substring($projectRootForward.Length).TrimStart('/')
 
 function Resolve-PrefixDirectoryPath {
     param([string]$PrefixName, [string]$RawPath)
-    # PF-* prefix registries are rolled out alongside the framework, so their
+    # Framework-tree registries are rolled out alongside the framework, so their
     # `directories.*` fields are written as "process-framework/..." (the canonical
-    # rolled-out layout). In appdev that prefix needs to be rewritten to the
-    # configured framework path (e.g. "blueprint/process-framework/...").
-    if ($PrefixName -like 'PF-*') {
-        if ($RawPath -match '^process-framework[/\\]') {
-            return ($RawPath -replace '^process-framework[/\\]', "$frameworkRelative/")
-        }
-        if ($RawPath -eq 'process-framework') {
-            return $frameworkRelative
-        }
+    # rolled-out layout). Where the framework tree lives elsewhere (e.g. a producer
+    # face at "blueprint/process-framework"), that prefix needs to be rewritten to
+    # the configured framework path. Keyed on the PATH SHAPE, not the prefix name:
+    # any pool whose directories declare the rolled layout gets the rewrite (PF-*
+    # and per-framework families like FB-* alike, PF-PRO-068 P-12); PD/TE-style
+    # project-root-relative values ("doc/...", "test/...") pass through untouched.
+    if ($RawPath -match '^process-framework[/\\]') {
+        return ($RawPath -replace '^process-framework[/\\]', "$frameworkRelative/")
+    }
+    if ($RawPath -eq 'process-framework') {
+        return $frameworkRelative
     }
     return $RawPath
 }

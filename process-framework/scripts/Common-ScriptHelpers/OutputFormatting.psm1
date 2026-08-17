@@ -131,6 +131,91 @@ function Write-ProjectError {
     }
 }
 
+function Write-ProjectLog {
+    <#
+    .SYNOPSIS
+    Writes a default-quiet, timestamped, leveled log line.
+
+    .DESCRIPTION
+    Shared default-quiet logger for the update-script fleet (promoted from the per-script
+    Write-Log copies, PF-IMP-1327). INFO/SUCCESS lines route to Write-Verbose (visible only
+    under -Verbose); WARN and ERROR are always written to the host. The single per-invocation
+    visible outcome line is emitted separately via Write-ProjectSummary, which bypasses this gate.
+    [CmdletBinding] is required so the Write-Verbose call inherits the calling script's -Verbose
+    preference across the module boundary.
+
+    .PARAMETER Message
+    The log message text.
+
+    .PARAMETER Level
+    Severity level: INFO (default), SUCCESS, WARN, or ERROR. Unknown levels are treated as INFO
+    (routed to Write-Verbose).
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        [Parameter(Mandatory=$false)]
+        [string]$Level = "INFO"
+    )
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $line = "[$timestamp] [$Level] $Message"
+    switch ($Level) {
+        "ERROR"   { Write-Host $line -ForegroundColor Red }
+        "WARN"    { Write-Host $line -ForegroundColor Yellow }
+        default   {
+            # Honor the calling script's -Verbose across the module boundary. PowerShell's implicit
+            # advanced-function -Verbose inheritance does NOT reach a module function when the script
+            # is launched via the & call operator (pwsh -Command "& script -Verbose") — only via
+            # -File. Resolving the caller's VerbosePreference explicitly makes the INFO/SUCCESS line
+            # surface under both invocation styles, matching the pre-consolidation per-script logger
+            # (PF-IMP-1327). The guard preserves an explicit -Verbose / -Verbose:$false on the call.
+            if (-not $PSBoundParameters.ContainsKey('Verbose')) {
+                $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
+            }
+            Write-Verbose $line
+        }
+    }
+}
+
+function Write-ProjectSummary {
+    <#
+    .SYNOPSIS
+    Writes the single always-visible per-invocation outcome line.
+
+    .DESCRIPTION
+    Companion to Write-ProjectLog (PF-IMP-1327). Always writes one timestamped, leveled line to
+    the host (green for SUCCESS, yellow for WARN, red for ERROR), bypassing Write-ProjectLog's
+    default-quiet gate so an update script's final outcome stays visible without -Verbose.
+
+    .PARAMETER Message
+    The outcome message text.
+
+    .PARAMETER Level
+    Severity level: SUCCESS (default), WARN, or ERROR.
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+
+        [Parameter(Mandatory=$false)]
+        [string]$Level = "SUCCESS"
+    )
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Level) {
+        "ERROR"   { "Red" }
+        "WARN"    { "Yellow" }
+        default   { "Green" }
+    }
+    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
+}
+
 function Test-ProjectPath {
     <#
     .SYNOPSIS
@@ -245,6 +330,120 @@ function ConvertTo-KebabCase {
     return $InputString.ToLower() -replace '[^a-z0-9]', '-' -replace '-+', '-' -replace '^-|-$', ''
 }
 
+function ConvertTo-YamlDoubleQuotedScalar {
+    <#
+    .SYNOPSIS
+    Wraps a string as a YAML double-quoted scalar, escaping backslashes and double quotes.
+
+    .DESCRIPTION
+    Produces a frontmatter-safe value (e.g. for a `description:` field whose text may contain
+    a colon or other YAML-significant characters). Shared so creation scripts emit instance
+    descriptions consistently (PF-IMP-1193 established the pattern in New-Guide.ps1; promoted
+    here for the PD/TE creation scripts per PF-PRO-050 / PF-IMP-1173 Phase 3b).
+
+    .PARAMETER Value
+    The raw string to quote.
+
+    .EXAMPLE
+    ConvertTo-YamlDoubleQuotedScalar 'Functional Design Document for Login: SSO'
+    # Returns: "Functional Design Document for Login: SSO"
+    #>
+    param([string]$Value)
+    $escaped = ($Value -replace '\\', '\\') -replace '"', '\"'
+    return '"' + $escaped + '"'
+}
+
+function Test-YamlDoubleQuotedScalar {
+    <#
+    .SYNOPSIS
+    Tests whether a string is already a well-formed YAML double-quoted scalar.
+
+    .DESCRIPTION
+    True only when the value opens and closes with a double quote AND every interior quote is
+    backslash-escaped — i.e. exactly what ConvertTo-YamlDoubleQuotedScalar produces. Raw text
+    that merely happens to start and end with a quote (`"Hello" she said "hi"`) is NOT a
+    well-formed scalar and returns false, so ConvertTo-YamlSafeScalar still quotes it.
+
+    .PARAMETER Value
+    The string to test.
+    #>
+    param([string]$Value)
+
+    if ($Value.Length -lt 2 -or -not $Value.StartsWith('"') -or -not $Value.EndsWith('"')) { return $false }
+
+    # Strip escape sequences (\\ , \" , \n …); a bare quote surviving means the value is not
+    # a single well-formed double-quoted scalar.
+    $inner = $Value.Substring(1, $Value.Length - 2)
+    return (($inner -replace '\\.', '') -notmatch '"')
+}
+
+function ConvertTo-YamlSafeScalar {
+    <#
+    .SYNOPSIS
+    Returns a frontmatter-safe YAML scalar — quoting the value only when a plain scalar would
+    mis-parse, and leaving an already-quoted scalar untouched.
+
+    .DESCRIPTION
+    The idempotent form of ConvertTo-YamlDoubleQuotedScalar, applied by the shared frontmatter
+    writer (New-ProjectDocumentMetadata) to every string metadata value so a free-text value
+    containing a colon-space can no longer emit invalid YAML (PF-IMP-1413; the trap recurred
+    after the caller-side convention was merely documented in PF-IMP-1291).
+
+    Values that are already plain-safe pass through byte-identically, so a caller that
+    pre-quotes with ConvertTo-YamlDoubleQuotedScalar and one that passes raw text both produce
+    correct frontmatter.
+
+    .PARAMETER Value
+    The raw metadata value.
+
+    .EXAMPLE
+    ConvertTo-YamlSafeScalar 'Template for feature requests'
+    # Returns: Template for feature requests   (plain-safe — unchanged)
+
+    .EXAMPLE
+    ConvertTo-YamlSafeScalar 'Template for X (Y): Z'
+    # Returns: "Template for X (Y): Z"         (colon-space — quoted)
+    #>
+    param([string]$Value)
+
+    if ([string]::IsNullOrEmpty($Value)) { return $Value }
+    if (Test-YamlDoubleQuotedScalar -Value $Value) { return $Value }
+
+    # Plain scalars mis-parse (or lose meaning) on: a colon-space or trailing colon; a comment
+    # marker; a leading YAML indicator character; a line break; leading/trailing whitespace.
+    $needsQuoting = ($Value -match ':(\s|$)') -or
+                    ($Value -match '(^|\s)#') -or
+                    ($Value -match '^[-?:,\[\]{}&*!|>''"%@`]') -or
+                    ($Value -match '[\r\n]') -or
+                    ($Value -match '^\s|\s$')
+
+    if ($needsQuoting) { return ConvertTo-YamlDoubleQuotedScalar $Value }
+    return $Value
+}
+
+function ConvertTo-MarkdownTableCellValue {
+    <#
+    .SYNOPSIS
+    Escapes a string for safe inclusion inside a Markdown table cell.
+
+    .DESCRIPTION
+    Escapes the pipe character ('|' -> '\|') so a value containing a literal pipe does not
+    introduce phantom columns and break the table render. The escaped form also renders as a
+    literal '|' in non-table prose/headings, so the result is safe to substitute into a body
+    placeholder that appears in both table and prose contexts. Shared so creation scripts that
+    inject user-supplied values into Document Metadata tables stay render-safe (PF-IMP-1284).
+
+    .PARAMETER Value
+    The raw string to make table-cell-safe.
+
+    .EXAMPLE
+    ConvertTo-MarkdownTableCellValue 'PF|PD|TE'
+    # Returns: PF\|PD\|TE
+    #>
+    param([string]$Value)
+    return $Value -replace '\|', '\|'
+}
+
 function Test-ProjectFileConflict {
     <#
     .SYNOPSIS
@@ -329,9 +528,15 @@ Export-ModuleMember -Function @(
     'Write-ProjectInfo',
     'Write-ProjectWarning',
     'Write-ProjectError',
+    'Write-ProjectLog',
+    'Write-ProjectSummary',
     'Test-ProjectPath',
     'Get-ProjectTimestamp',
     'ConvertTo-KebabCase',
+    'ConvertTo-YamlDoubleQuotedScalar',
+    'ConvertTo-YamlSafeScalar',
+    'Test-YamlDoubleQuotedScalar',
+    'ConvertTo-MarkdownTableCellValue',
     'Test-ProjectFileConflict',
     'Invoke-StandardScriptInitialization'
 )

@@ -1,5 +1,6 @@
 ---
 id: PD-UGD-004
+description: "Complete reference of all detection patterns, parsers, and update triggers"
 type: Product Documentation
 category: User Guide
 version: 1.0
@@ -122,6 +123,7 @@ Three detection strategies:
 - Updates the database entry for the moved file's own path
 - Fixes relative links inside the moved file itself
 - Updates references to directory paths
+- **Override-folder virtual-root links** (v2.2): when the moved file lives under a folder configured in `path_resolution_overrides`, host-absolute `/...` references to it from other files in that folder are matched against the folder's virtual root and rewritten, preserving their `/...` style (the blueprint-restructuring use case). References from files outside every override folder are never affected; a rewrite only fires when the resolved target is the actually-moved file and the new target exists on disk. Logged as `update_resolution_override_applied`.
 
 ### File Deletions
 
@@ -154,7 +156,7 @@ Three detection strategies:
 - Writes report to `logs/linkwatcher/LinkWatcherBrokenLinks.txt`
 - Exits with code 0 (clean) or 1 (broken links found)
 - Default validated extensions: `.md`, `.yaml`, `.yml`, `.json` (configurable via `validation_extensions`)
-- Smart resolution: tries source-file-relative first, falls back to project-root-relative
+- Smart resolution: tries source-file-relative first, falls back to project-root-relative; `/...` links in `path_resolution_overrides` folders resolve against the folder's configured base (same rule the live update path uses)
 - Context-aware skipping: code blocks, `<details>` archival sections, table rows, template files, placeholder lines
 
 ## What LinkWatcher Does NOT Do
@@ -181,7 +183,7 @@ Keys referenced by the capability sections above (full schema with all settings 
 | `create_backups` | false | Create `.bak` before updates |
 | `dry_run_mode` | false | Preview without modifying |
 | `validation_extensions` | `.md`, `.yaml`, `.yml`, `.json` | Extensions for `--validate` |
-| `path_resolution_overrides` | `{}` (empty) | Per-folder resolution base for `/...` links during `--validate` (e.g. blueprint folders) |
+| `path_resolution_overrides` | `{}` (empty) | Per-folder resolution base for `/...` links — applies to `--validate` **and** live move/rename updates (e.g. blueprint folders) |
 
 Config precedence: CLI args > Environment variables (`LINKWATCHER_*`) > Config file (YAML/JSON) > Defaults.
 

@@ -1,5 +1,6 @@
 ---
 id: PD-UGD-005
+description: "Complete guide to configuring LinkWatcher: config files, CLI arguments, environment variables, presets, and the ignore system"
 type: Product Documentation
 category: User Guide
 version: 1.1
@@ -168,7 +169,7 @@ validation_ignore_file: "tools/linkwatcher/.linkwatcher-ignore"  # Path to per-f
 
 validation_output_dir: "logs/linkwatcher"  # Where validation reports are written; null falls back to the --log-file directory, else project root
 
-path_resolution_overrides: {}   # Per-folder resolution base for "/..." links during --validate (see below)
+path_resolution_overrides: {}   # Per-folder resolution base for "/..." links — validation AND live updates (see below)
 
 # === Parser Matching ===
 parser_type_extensions:      # Extension considered valid when matching extensionless refs (e.g. Python imports); set via config file, not LINKWATCHER_*
@@ -332,7 +333,7 @@ validation_ignored_patterns:
 
 ## Per-Folder Path Resolution Override (`path_resolution_overrides`)
 
-By default, `--validate` resolves absolute-from-host links (those starting with `/`, e.g. `/process-framework/guide.md`) against the project root. A blueprint or template folder that ships to other projects — where it *becomes* the project root — authors its `/...` links from the rollout target's perspective, so those links look broken when you validate from your dev-workspace root.
+By default, LinkWatcher resolves absolute-from-host links (those starting with `/`, e.g. `/process-framework/guide.md`) against the project root. A blueprint or template folder that ships to other projects — where it *becomes* the project root — authors its `/...` links from the rollout target's perspective, so those links look broken when you validate from your dev-workspace root, and file moves inside the folder can't be matched to them.
 
 `path_resolution_overrides` maps a folder (relative to the project root) to an effective resolution base for the `/...` links in files **under** that folder:
 
@@ -344,7 +345,9 @@ path_resolution_overrides:
 - **Key** = folder relative to the project root. **Value** = resolution base (relative to the project root). Map a folder to itself for the common "this folder is a shippable root" case; the two may differ.
 - **Longest-prefix match wins** when folders nest.
 - **Files outside every configured folder are unaffected** — their `/...` links still resolve against the project root.
-- **Default is empty (`{}`)** — validation behavior is unchanged when the key is absent. This is **validation-only**; it does not affect live link updating.
+- **Default is empty (`{}`)** — behavior is unchanged when the key is absent.
+- **Applies to both validation and live updating** (live-update support added in v2.2): `--validate` resolves `/...` links in override folders against the base, and the live watcher matches and rewrites those links when files inside the folder are moved or renamed — preserving their `/...` virtual-root style. This makes blueprint restructuring safe: rename or reorganize files inside the override folder and the `/...` cross-references follow.
+- **Rewrite safety**: a `/...` reference is only rewritten when it resolves to the actually-moved file and the proposed new target exists on disk; references from files outside every override folder are never affected. Override rewrites are logged as `update_resolution_override_applied` for auditability.
 - Set this via a config file (like `parser_type_extensions`, it is not configurable via `LINKWATCHER_*` environment variables).
 
 See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-config.yaml) for a complete example.

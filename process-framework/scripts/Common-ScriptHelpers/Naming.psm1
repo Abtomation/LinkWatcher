@@ -2,6 +2,11 @@
 # Canonical slug-normalization helpers for framework scripts that produce
 # directories or filenames from human-typed names (feature names, workflow
 # names, task names, template names, etc.).
+
+<#
+.SYNOPSIS
+Canonical slug-normalization helpers for scripts that derive directory and file names from human-typed names.
+#>
 #
 # Created: 2026-05-07 (PF-IMP-008)
 # Reason: 11+ framework scripts had ad-hoc slug logic with disagreeing

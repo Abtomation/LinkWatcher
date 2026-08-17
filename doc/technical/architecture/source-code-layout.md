@@ -1,16 +1,17 @@
 ---
 id: PD-ARC-001
+description: "Documents the project's source-code directory structure, layer boundaries, and file-placement rules."
 type: Process Framework
 category: Architecture
-version: 1.1
+version: 1.2
 created: 2026-04-06
-updated: 2026-05-06
+updated: 2026-08-13
 ---
 
 # Source Code Layout
 
 > For guidance on completing this document, see the
-> [Source Code Layout Guide](/process-framework/guides/00-setup/source-code-layout-guide.md)
+> [`source-layout` craft skill](../../../.claude/skills/source-layout/SKILL.md)
 
 ## Fixed Rules
 
@@ -47,7 +48,10 @@ a dedicated `shared/` directory. Two specific deviations:
 1. **Rule 3 (Shared code in explicit directory):** No `shared/` directory exists.
    Cross-cutting helpers (`utils.py`, `models.py`, `link_types.py`, `logging.py`) live
    directly in `src/linkwatcher/` as foundation modules. The `parsers/` and `config/`
-   subdirectories group cohesive module families, not features.
+   subdirectories group cohesive module families, not features;
+   `linkwatcher_control_panel/` (added by feature 7.1.1) is the sole feature-scoped
+   subpackage — a self-contained GUI application rather than a module family
+   (see [Panel Subsystem](#panel-subsystem) below).
 2. **Rule 6 (Entry point at source root):** The executable entry point is `main.py`
    at the repository root (next to `setup.py`), not inside `src/linkwatcher/`. This
    is the standard `src/`-layout Python convention — `src/linkwatcher/` is an importable
@@ -131,29 +135,53 @@ Layer 4 — Orchestration (depend on all lower layers)
 | `handler.py` | Layer 1, `config/`, `database.py`, `dir_move_detector.py`, `move_detector.py`, `parser.py`, `reference_lookup.py`, `updater.py` |
 | `service.py` | Layer 1, `config/`, `database.py`, `handler.py`, `parser.py`, `parsers/`, `updater.py` |
 | `parsers/` submodules | Layer 1, sibling parser modules (`base.py`, `patterns.py`) |
+| `linkwatcher_control_panel/` | `config/` only — see Panel Subsystem below |
 
 **Note:** `logging_config.py` is a thin wrapper around `logging.py` (only imports from
 it) and is positioned with the foundation layer.
 
+### Panel Subsystem
+
+`linkwatcher_control_panel/` (feature 7.1.1) is a separate GUI application, not a layer of
+the daemon, and sits **outside** the Layer 1–4 stack. Its only import from the daemon core
+is `config/` (it reuses `LinkWatcherConfig` for config validate-on-save rather than
+reimplementing validation), and **no core module imports the panel** — so the daemon behaves
+identically whether or not the panel is installed. It supervises daemons exclusively through
+external surfaces it only reads or shells out to: the `.linkwatcher.lock` file, the OS
+process table, the launcher script, `main.py --validate`, and per-project log files.
+
+Internally the subpackage keeps a model/view split: the worker modules (`discovery`,
+`lifecycle`, `validation`, `config_edit`, `log_tail`, `single_instance`) are display-free and
+never touch Tk, while `views/` renders from the observable model one-way. Worker threads
+communicate with the UI thread through a dispatcher queue; Tk is touched only from the UI
+thread. The entry point `control_panel.py` lives at the repository root beside `main.py`,
+per the Rule 6 convention above.
+
 ## File Placement Decision Tree
 
-> "I'm creating a new module — where does it go?" LinkWatcher's flat structure has
-> only two subdirectory groupings (`config/` and `parsers/`); everything else lives
-> directly under `src/linkwatcher/`.
+> "I'm creating a new module — where does it go?" LinkWatcher's flat structure has three
+> subdirectory groupings (`config/`, `parsers/`, and the self-contained
+> `linkwatcher_control_panel/`); everything else lives directly under `src/linkwatcher/`.
 
 ```
-Is this a new file-format parser (e.g., for a new file type LinkWatcher should monitor)?
-  YES -> src/linkwatcher/parsers/{format}.py
-         (subclass BaseParser; register in parsers/__init__.py)
-  NO  -> Is this configuration data or settings logic?
-    YES -> src/linkwatcher/config/{name}.py
-    NO  -> Is this an executable entry point or CLI?
-      YES -> Repository root (next to main.py, setup.py)
-      NO  -> Is this an operational tool (dashboard, monitor, ad-hoc utility)?
-        YES -> tools/ at repository root
-        NO  -> It is a core module — place directly in src/linkwatcher/
-               and assign it to the lowest possible layer (see Dependency Flow).
-               If the module would create an import cycle, refactor first.
+Does this module belong to the Control Panel GUI (feature 7.1.1)?
+  YES -> Does it construct or touch Tk widgets?
+           YES -> src/linkwatcher/linkwatcher_control_panel/views/{name}.py
+           NO  -> src/linkwatcher/linkwatcher_control_panel/{name}.py
+                  (keep it display-free — rendering rules and worker logic must be
+                  testable without instantiating Tk)
+  NO  -> Is this a new file-format parser (e.g., for a new file type to monitor)?
+    YES -> src/linkwatcher/parsers/{format}.py
+           (subclass BaseParser; register in parsers/__init__.py)
+    NO  -> Is this configuration data or settings logic?
+      YES -> src/linkwatcher/config/{name}.py
+      NO  -> Is this an executable entry point or CLI?
+        YES -> Repository root (next to main.py, setup.py)
+        NO  -> Is this an operational tool (dashboard, monitor, ad-hoc utility)?
+          YES -> tools/ at repository root
+          NO  -> It is a core module — place directly in src/linkwatcher/
+                 and assign it to the lowest possible layer (see Dependency Flow).
+                 If the module would create an import cycle, refactor first.
 ```
 
 **Current file-to-module mapping:**
@@ -180,7 +208,7 @@ Is this a new file-format parser (e.g., for a new file type LinkWatcher should m
 ## Scale Transition Notes
 
 > Document when sublayers were added within feature directories and why.
-> See the [Source Code Layout Guide](/process-framework/guides/00-setup/source-code-layout-guide.md#scale-transition-criteria)
+> See the [`source-layout` craft skill](../../../.claude/skills/source-layout/SKILL.md#scale-transition-criteria)
 > for the entry format.
 
 No sublayer transitions yet.

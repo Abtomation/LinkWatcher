@@ -1,8 +1,8 @@
 ---
-id: [PF-TSP-XXX]
+id: PF-TEM-092
 type: Process Framework
 category: Test Specification
-version: 1.2
+version: 1.3
 created: [CREATION-DATE]
 updated: [CREATION-DATE]
 feature_id: [FEATURE-ID]
@@ -10,6 +10,8 @@ feature_name: [FEATURE-NAME]
 tdd_path: [TDD-PATH]
 test_tier: [1|2|3]
 change_notes: "v3.0 - Replaced Routing Plan with Component-to-Test Mapping (PF-IMP-486/PF-EVR-012). E2E/performance routing removed — decided at cross-cutting milestone and implementation time respectively."
+creates_document_type: Testing
+creates_document_category: Test Specification
 description: "Template for feature-level test specifications"
 ---
 
@@ -40,7 +42,7 @@ Automated test depth based on feature tier assessment:
 - **Tier 2 🟠**: Comprehensive unit tests, integration tests, and UI/component tests — broader edge case coverage
 - **Tier 3 🔴**: Full automated test suite with exhaustive edge cases, error paths, and component interaction tests
 
-> **Note**: Tier determines automated test depth only. E2E acceptance test applicability is decided in the Routing Phase, not by tier.
+> **Note**: Tier determines automated test depth only. E2E acceptance test applicability is decided by [Performance & E2E Test Scoping (PF-TSK-086)](../../tasks/03-testing/performance-and-e2e-test-scoping-task.md) after code review, not by tier.
 
 **Selected Tier**: [1|2|3] - [Brief justification for tier selection]
 
@@ -68,7 +70,7 @@ Automated test depth based on feature tier assessment:
 
 ### Functional Requirements Reference
 
-> **📋 Primary Documentation**: FDD Creation Task (PF-TSK-010)
+> **📋 Primary Documentation**: FDD Creation Task (PF-TSK-027)
 > **🔗 Link**: [Functional Design Document - PD-FDD-XXX] > **👤 Owner**: FDD Creation Task
 >
 > **Purpose**: This section provides a brief testing-level perspective on functional requirements. Detailed user stories, use cases, business rules, and acceptance criteria are documented in the FDD.
@@ -147,9 +149,61 @@ Automated test depth based on feature tier assessment:
 - [Security policies that require test coverage]
 - [Access control scenarios to validate]
 
+### UI Design Reference
+
+> **📋 Primary Documentation**: UI Design Task (PF-TSK-090)
+> **🔗 Link**: [UI/UX Design Document - PD-UIX-XXX] > **👤 Owner**: UI Design Task
+>
+> **Purpose**: This section provides a brief testing-level perspective on the UI design. Detailed wireframes, visual specifications, component definitions, accessibility requirements, and platform adaptations are documented in the UI Design document.
+
+#### Testing-Level UI Context
+
+<!-- Brief notes on testing-level UI concerns only (2-5 sentences) -->
+<!-- Focus on: component behavior testing, interaction/state scenarios, accessibility verification -->
+<!-- Examples:
+  - "Component tests validate widget states defined in the UI design"
+  - "Interaction tests cover the user flows specified in the wireframes"
+  - "Accessibility tests verify the requirements from the UI design's accessibility section"
+-->
+
+**Component Behavior Testing**:
+
+- [UI components from the design that require test coverage]
+- [Interaction and state scenarios to validate]
+
+**Accessibility Testing**:
+
+- [Accessibility requirements from the design that need verification]
+
+### Instruction Design Reference
+
+> **📋 Primary Documentation**: Instruction Design Task (PF-TSK-094)
+> **🔗 Link**: [Instruction Design Document - PD-IND-XXX] > **👤 Owner**: Instruction Design Task
+>
+> **Purpose**: This section provides a brief testing-level perspective on the feature's instruction artifacts. The executable procedure, artifact inventory, instruction contract, and verification plan are documented in the Instruction Design.
+>
+> **Omit this section** when the feature's medium is `code`.
+
+#### Testing-Level Instruction Context
+
+<!-- Brief notes on testing-level instruction concerns only (2-5 sentences) -->
+<!-- Focus on: which verification levels apply, what a fixture must reproduce -->
+<!-- Examples:
+  - "L2 contract checks cover the invocation lines and cross-document step references"
+  - "An L3 fixture reproduces the procedure end-to-end against a sandbox workspace"
+-->
+
+**Instruction Contract Verification**:
+
+- [Invocations, step references, or parameters that must resolve]
+
+**Procedure Execution Testing**:
+
+- [Fixture scenarios that exercise the procedure, including its branches]
+
 ### Technical Design Reference
 
-> **📋 Primary Documentation**: TDD Creation Task (PF-TSK-022)
+> **📋 Primary Documentation**: TDD Creation Task (PF-TSK-015)
 > **🔗 Link**: [Technical Design Document - PD-TDD-XXX] > **👤 Owner**: TDD Creation Task
 >
 > **Purpose**: This section provides a brief testing-level perspective on technical implementation. Detailed component architecture, design patterns, and implementation details are documented in the TDD.
@@ -350,7 +404,6 @@ test/
 
 <!-- AI Agent Session Handoff Notes section removed (v2.0) — routing plan and seeded tracking entries
      provide downstream task orientation. Downstream tasks read the routing plan directly. -->
-- [ ] Documentation updated with test results
 
 ## Related Resources
 

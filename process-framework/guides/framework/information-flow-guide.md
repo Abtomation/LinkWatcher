@@ -2,9 +2,9 @@
 id: PF-GDE-062
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.5
 created: 2026-04-13
-updated: 2026-04-13
+updated: 2026-08-05
 change_notes: "v1.0 - Extracted from Task Transition Guide (PF-GDE-018) to separate information flow concerns from transition procedures"
 description: "Information flow patterns, task ownership boundaries, cross-reference standards, and separation of concerns between tasks"
 ---
@@ -24,7 +24,7 @@ This guide establishes clear boundaries between tasks to prevent documentation d
 
 Feature Discovery
     ↓ [Feature descriptions, priorities, initial requirements]
-Feature Tier Assessment
+Feature Request Evaluation
     ↓ [Complexity tier, documentation requirements, UI design needs]
 FDD Creation
     ↓ [Functional requirements, user flows, data requirements]
@@ -34,8 +34,10 @@ FDD Creation
     │    ↓ [API contracts, endpoints, data access patterns]
     ├──→ Database Schema Design
     │    ↓ [Data model, relationships, constraints, migrations]
-    ├──→ UI/UX Design
+    ├──→ UI Design
     │    ↓ [Visual specifications, wireframes, accessibility requirements]
+    ├──→ Instruction Design
+    │    ↓ [Executable procedure, artifact inventory, instruction contract]
     └──→ TDD Creation
          ↓ [Technical design, implementation approach, components]
          └──→ Test Specification Creation (Tier 3 only)
@@ -61,13 +63,16 @@ This matrix defines **who owns what information** to prevent duplication:
 | **Database Constraints**      | Database Schema Design     | API Design, Test Specification                  | Database-level validation rules             |
 | **RLS Policies**              | Database Schema Design     | API Design, Test Specification                  | Database-level security                     |
 | **Migration Scripts**         | Database Schema Design     | Feature Implementation                          | How to deploy schema changes                |
-| **Visual Design & UI Specs**  | UI/UX Design               | TDD, Feature Implementation                     | Visual layout, components, accessibility    |
-| **Wireframes & User Flows**   | UI/UX Design               | FDD, TDD, Feature Implementation                | Visual representation of interactions       |
+| **Visual Design & UI Specs**  | UI Design                  | TDD, Feature Implementation                     | Visual layout, components, accessibility    |
+| **Wireframes & User Flows**   | UI Design                  | FDD, TDD, Feature Implementation                | Visual representation of interactions       |
+| **Executable Procedure**      | Instruction Design         | TDD, Feature Implementation, Test Specification | Steps, branches and checkpoints an agent runs |
+| **Instruction Contract**      | Instruction Design         | Test Specification, Feature Implementation      | Invocations, step references, parameters    |
 | **Technical Design**          | TDD Creation               | Feature Implementation, Test Specification      | How the feature is implemented              |
 | **Component Architecture**    | TDD Creation               | Feature Implementation                          | Code structure and organization             |
 | **Implementation Details**    | TDD Creation               | Feature Implementation                          | Specific algorithms and approaches          |
 | **Test Plans & Cases**        | Test Specification         | Feature Implementation, Integration & Testing   | Comprehensive testing strategy              |
 | **Acceptance Criteria**       | Test Specification         | Feature Implementation, Code Review             | Definition of done                          |
+| **Implementation Sequence**   | Feature Implementation Planning | Feature Implementation, Code Review        | Task order, dependencies, effort, risks     |
 | **Working Code**              | Feature Implementation     | Code Review, Release                            | Actual implementation                       |
 
 ## Cross-Reference Standards
@@ -266,7 +271,7 @@ This section clarifies what each task **owns** vs. what it **references**:
 - API endpoint specifications → API Design (PF-TSK-020)
 - Service integration patterns → API Design (PF-TSK-020) or TDD (PF-TSK-015)
 - Comprehensive test plans → Test Specification (PF-TSK-012)
-- Implementation details → TDD (PF-TSK-015) or Feature Implementation (PF-TSK-024)
+- Implementation details → TDD (PF-TSK-015) or the decomposed implementation tasks
 
 ### API Design Task (PF-TSK-020)
 
@@ -284,6 +289,42 @@ This section clarifies what each task **owns** vs. what it **references**:
 - Database schema details → Database Schema Design (PF-TSK-021)
 - Service implementation details → TDD (PF-TSK-015)
 - Functional requirements → FDD (PF-TSK-027)
+- Comprehensive test plans → Test Specification (PF-TSK-012)
+
+### UI Design Task (PF-TSK-090)
+
+**Owns**:
+
+- Wireframes and user flow diagrams
+- Visual design specifications (colors, typography, spacing, icons)
+- Component specifications (variants, states, dimensions, behavior, accessibility)
+- Accessibility requirements (WCAG 2.1 compliance, screen reader support)
+- Responsive design and platform adaptations
+- Animation and motion specifications
+- Design system integration (patterns applied, new patterns proposed)
+
+**Other tasks own**:
+
+- UI code implementation → UI Implementation (PF-TSK-052)
+- State management implementation → State Management Implementation (PF-TSK-056)
+- API endpoint specifications → API Design (PF-TSK-020)
+- Database schema design → Database Schema Design (PF-TSK-021)
+- Comprehensive test plans → Test Specification (PF-TSK-012)
+
+### Instruction Design Task (PF-TSK-094)
+
+**Owns**:
+
+- The executable procedure — its steps, branches, and checkpoints
+- The artifact inventory, with each artifact's declared kind
+- The instruction contract (invocations, cross-document step references, parameters an agent must resolve)
+- The verification plan for the procedure (which levels apply, what a fixture must reproduce)
+
+**Other tasks own**:
+
+- The feature's declared medium → Feature Request Evaluation (PF-TSK-067), recorded in the tier assessment
+- Authoring the instruction artifacts themselves → Core Logic Implementation (PF-TSK-078)
+- The terminal integrating design → TDD Creation (PF-TSK-015)
 - Comprehensive test plans → Test Specification (PF-TSK-012)
 
 ### TDD Creation Task (PF-TSK-015)
@@ -322,7 +363,7 @@ This section clarifies what each task **owns** vs. what it **references**:
 - Individual feature technical design → TDD (PF-TSK-015)
 - Individual feature functional design → FDD (PF-TSK-027)
 - Test plans for cross-feature workflows → Test Specification (PF-TSK-012)
-- Architectural decisions → Create ADR inline using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) and the [Architecture Decision Creation Guide](../02-design/architecture-decision-creation-guide.md)
+- Architectural decisions → Create ADR inline using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1), with the [`architecture-decision` craft skill](../../../.claude/skills/architecture-decision/SKILL.md) as the customization-craft home
 
 ### Test Specification Creation Task (PF-TSK-012)
 
@@ -341,6 +382,27 @@ This section clarifies what each task **owns** vs. what it **references**:
 - Technical implementation → TDD (PF-TSK-015)
 - Database schema → Database Schema Design (PF-TSK-021)
 - API contracts → API Design (PF-TSK-020)
+
+### Feature Implementation Planning Task (PF-TSK-044)
+
+**Owns**:
+
+- Decomposed task sequence with unique task IDs (assigned via ID registry)
+- Task dependencies and blocking relationships
+- Effort estimates per task
+- Integration points and system touchpoints
+- Testing strategy per implementation phase
+- Risk assessment and mitigation strategies
+- Success criteria for implementation completion
+
+**Other tasks own**:
+
+- Functional requirements → FDD (PF-TSK-027)
+- Technical design details → TDD (PF-TSK-015)
+- API specifications → API Design (PF-TSK-020)
+- Database schema design → Database Schema Design (PF-TSK-021)
+- UI design specifications → UI/UX Design (PF-TSK-090)
+- Test case details → Test Specification (PF-TSK-012)
 
 ## Common Pitfalls and Anti-Patterns
 

@@ -3,13 +3,51 @@ id: PF-TSK-030
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.3
+version: 2.4
 created: 2025-08-07
-updated: 2026-05-16
+updated: 2026-08-05
 description: "Systematic quality assessment of test implementations using six evaluation criteria"
+complexity: medium
+use_when: >-
+  Quality assurance evaluation of implemented test suites against effectiveness criteria. Triggers: 'audit the tests', 'review test quality', 'audit e2e/perf/unit tests'.
+triggers:
+  - "audit the tests"
+  - "review test quality"
+  - "audit e2e/perf/unit tests"
+automation: semi
+scripts:
+  - ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1
+  - ../../scripts/file-creation/03-testing/New-AuditTracking.ps1
+  - ../../scripts/update/Update-TestFileAuditState.ps1
+  - ../../scripts/file-creation/06-maintenance/New-BugReport.ps1
+trigger_status:
+  - raw: "`test-tracking.md` → `✅ Audit Approved` + no audit"
+output_status:
+  - raw: "`test-tracking.md` → audit status + report link; `bug-tracking.md` → `🆕 Needs Triage` (if bugs found)"
+next_tasks:
+  - task: ../04-implementation/feature-implementation-planning-task.md
+    condition: "If tests are approved, proceed with feature implementation planning"
+  - task: ../04-implementation/foundation-feature-implementation-task.md
+    condition: "For foundation features with approved tests"
+  - task: ../04-implementation/integration-and-testing.md
+    condition: "If tests need updates, return to test implementation with audit recommendations"
+  - task: performance-baseline-capture-task.md
+    condition: "If audit approved (`✅ Audit Approved`), proceed with baseline capture"
+  - task: performance-test-creation-task.md
+    condition: "If tests need updates, return to test creation with audit recommendations"
+  - task: e2e-acceptance-test-execution-task.md
+    condition: "If audit approved (`✅ Audit Approved`), proceed with execution"
+  - task: e2e-acceptance-test-case-creation-task.md
+    condition: "If tests need updates, return to case creation with audit recommendations"
+  - task: ../06-maintenance/bug-triage-task.md
+    condition: "If bugs are discovered during audit"
+  - task: ../06-maintenance/code-review-task.md
+    condition: "Review test improvements after re-implementation"
 ---
 
 # Test Audit
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -29,8 +67,6 @@ Comprehensive quality assurance task that evaluates test suites against type-spe
 **Communication Style**: Provide constructive feedback with specific improvement recommendations, ask clarifying questions about test requirements and edge cases
 
 ## Context Requirements
-
-[View Context Map for this task](../../visualization/context-maps/03-testing/test-audit-map.md)
 
 - **Critical (Must Read):**
 
@@ -53,12 +89,9 @@ Comprehensive quality assurance task that evaluates test suites against type-spe
   - [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) - Performance test methodology (for performance audits)
 
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -78,8 +111,8 @@ Before starting the audit, determine the test type. This determines which criter
 ### Preparation
 
 > **Re-Audit Workflow**: If a prior audit report exists for this test (check the relevant tracking file for linked reports):
-> 1. **Overwrite the existing report** — use `New-TestAuditReport.ps1 -Force` to replace it; evaluate all criteria from scratch. Git history preserves the prior version (`git log -- <path>` to find prior audits, `git show <commit>:<path>` to read prior content).
-> 2. **Use prior report as reference** — consult the prior version via git for context on previously identified issues, but do not carry over scores or findings — re-evaluate everything independently
+> 1. **Same test, re-audited in place** — **overwrite the existing report** with `New-TestAuditReport.ps1 -Force`; evaluate all criteria from scratch. Consult the prior version via git for context on previously identified issues (`git log -- <path>` to find prior audits, `git show <commit>:<path>` to read them), but do not carry over scores or findings — re-evaluate everything independently. Git history preserves the prior version.
+> 2. **Test was split or relocated** — when the file moved to a new path or was split into several files but its logic is unchanged, create a **fresh report** for each resulting test (no `-Force`): the new path is a distinct test identity, so the prior report is retained, not overwritten. Re-running the audit re-confirms the criteria at the new location; a performance test whose logic is unchanged needs no fresh baseline (re-audit only).
 >
 > Re-audits follow the same full process below. The prior report provides context, not a shortcut.
 
@@ -117,7 +150,7 @@ Before starting the audit, determine the test type. This determines which criter
 
    **For Automated tests** — run code coverage analysis:
    ```powershell
-   Run-Tests.ps1 -All -Coverage
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -All -Coverage
    ```
    - Review coverage summary output (per-source-file percentages)
    - Open HTML coverage report for detailed line-by-line analysis
@@ -167,7 +200,7 @@ Before starting the audit, determine the test type. This determines which criter
 
    - **Measurement Methodology**: Is the test measuring the right thing? Appropriate warmup, iteration count, timing precision, isolation from external factors. *Pass*: Stable results across runs; no I/O bottlenecks masking CPU measurements; proper warmup cycles.
    - **Tolerance Appropriateness**: Are thresholds realistic and meaningful? Not too loose (meaningless) or too tight (noisy false alarms). *Pass*: Tolerance based on observed variance, not guesswork; matches the test's performance level expectations.
-   - **Baseline Readiness**: Is the test ready for baseline capture? Clean setup/teardown, deterministic environment, no external dependencies that vary. **Tracking Consistency**: verify `performance-test-tracking.md` Tolerance column matches code assertions — drift indicates upstream refactoring left documentation behind (root cause is in PF-TSK-022; the audit catches drift at the gate). *Pass*: Consistent results in clean environment; no flaky prerequisites; tracking-file Tolerance matches code.
+   - **Baseline Readiness**: Is the test ready for baseline capture? Clean setup/teardown, deterministic environment, no external dependencies that vary. **Collection check**: confirm the test is actually selected by `python -m pytest test/automated/performance/ -m performance` — every level (including level3-scale / level4-resource) must carry the bare `@pytest.mark.performance` marker, which is what `-m performance` keys on (not `@pytest.mark.test_type("performance")`, which is classification metadata). A test missing the bare marker is silently deselected and never baselined; add it via [Minor Fix Authority](#minor-fix-authority). **Tracking Consistency**: verify `performance-test-tracking.md` Tolerance column matches code assertions — drift indicates upstream refactoring left documentation behind (root cause is in PF-TSK-022; the audit catches drift at the gate). *Pass*: Consistent results in clean environment; no flaky prerequisites; collected by `-m performance`; tracking-file Tolerance matches code.
    - **Regression Detection Config**: Will the test actually catch regressions? Sensitivity vs. noise tradeoff; appropriate comparison method. *Pass*: False positive rate manageable; meaningful regressions would be caught.
 
 #### E2E Test Criteria
@@ -180,23 +213,22 @@ Before starting the audit, determine the test type. This determines which criter
    - **Reproducibility**: Can the test be executed independently and produce consistent results? *Pass*: No hidden state dependencies; clean setup via Setup-TestEnvironment.ps1; passes on clean workspace.
    - **Precondition Coverage**: Are preconditions documented and enforceable? *Pass*: test-case.md specifies all preconditions; run.ps1 validates or sets up preconditions.
 
+   > **Agent-executed instruction cases (PF-PRO-064)**: a case with `Execution Mode: agent-executed` — no `run.ps1`; the instruction under test is executed by an agent — is audited against the same five criteria plus the instruction-fixture checks from the `e2e-test-case-creation` skill's instruction-fixtures reference: the `assert.ps1` oracle ships with the fixture (never authored by the executing agent) and has been **observed failing** on a wrong-order run; `test-case.md` links the instruction and its bindings without restating its steps; `expected/` holds the normalized verdict, not the raw end state; the central-override and leak-check plumbing is present where the procedure touches central state. A missing `run.ps1` on such a case is correct, not a Reproducibility finding.
+
 8. **Create Audit Report**: Generate audit report using automation script with the appropriate test type
 
    ```powershell
-   # Navigate to the test-audits directory from project root
-   Set-Location "test/audits"
-
    # Automated tests (default — same as before)
-   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent"
 
    # Automated tests — lightweight (when ALL six criteria PASS)
-   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Lightweight
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/unit/test_example.py" -AuditorName "AI Agent" -Lightweight
 
    # Performance tests
-   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/performance/test_benchmark.py" -AuditorName "AI Agent" -TestType Performance
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/automated/performance/level1-component/test_parser_throughput.py" -AuditorName "AI Agent" -TestType Performance
 
    # E2E tests
-   ../../scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditorName "AI Agent" -TestType E2E
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1 -FeatureId "X.X.X" -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditorName "AI Agent" -TestType E2E
 
    # Script automatically:
    # - Generates unique TE-TAR ID (format: TE-TAR-XXX)
@@ -208,9 +240,9 @@ Before starting the audit, determine the test type. This determines which criter
 
    **Script Location**: /process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1
    **Output Locations**:
-   - Automated: `test/audits/[category]/audit-report-[feature-id]-[test-file-id].md`
-   - Performance: `test/audits/performance/audit-report-[feature-id]-[test-id].md`
-   - E2E: `test/audits/e2e/audit-report-[feature-id]-[test-id].md`
+   - Automated: `test/audits/unit/<N>-<slug>/[<N.X>-<slug>/]audit-report-[feature-id]-[test-file-id].md` (path mirror of the test file's directory)
+   - Performance: `test/audits/performance/level{N}-{name}/audit-report-[feature-id]-[test-id].md` (path mirror of the test file's directory)
+   - E2E: `test/audits/e2e/audit-report-[feature-id]-[TE-E2E-id].md`
 
 9. **Document Findings**: Complete the audit report with specific findings, recommendations, and audit decision
 
@@ -241,11 +273,8 @@ Before starting the audit, determine the test type. This determines which criter
    **Example Bug Report Command**:
 
    ```powershell
-   # Navigate to the scripts directory from project root
-   Set-Location "process-framework/scripts/file-creation"
-
    # Create bug report for issues found during test audit
-   New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "TestAudit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Test failure reveals bug in component" -Description "Test consistently fails due to validation issue" -DiscoveredBy "TestAudit" -Severity "High" -Component "Component Name" -Environment "Development" -RelatedFeature "X.Y.Z"
    ```
 
 12. <a id="minor-fix-authority"></a>**Minor Fix Authority**: If the audit identifies issues that can be fixed in ≤15 minutes, implement them directly during the audit session instead of routing through Tech Debt → Code Refactoring:
@@ -289,7 +318,7 @@ Before starting the audit, determine the test type. This determines which criter
 
     ```powershell
     # Register significant test quality finding as tech debt
-    Update-TechDebt.ps1 -Add -Description "Zero-assertion tests in test_example.py (5 methods)" -Dims "TST" -Location "test/automated/unit/test_example.py" -Priority "Medium" -EstimatedEffort "Small"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description "Zero-assertion tests in test_example.py (5 methods)" -Dims "TST" -Location "test/automated/unit/test_example.py" -Priority "Medium" -EstimatedEffort "Small"
     ```
 
     > **Routing**: Test-related tech debt items (zero-assertion tests, anti-patterns, coverage gaps) route to [Code Refactoring](../06-maintenance/code-refactoring-task.md) (PF-TSK-022) for resolution — use the Lightweight Path with the test-only shortcut.
@@ -297,11 +326,8 @@ Before starting the audit, determine the test type. This determines which criter
 15. **Validate Audit Report**: Run the validation script to verify report completeness before presenting to human partner
 
    ```powershell
-   # Navigate to scripts/validation directory from project root
-   Set-Location "process-framework/scripts/validation"
-
    # Validate the completed audit report
-   Validate-AuditReport.ps1 -ReportFile "[category]/audit-report-[feature-id]-[test-file-id].md" -Detailed
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Validate-AuditReport.ps1 -ReportFile "[category]/audit-report-[feature-id]-[test-file-id].md" -Detailed
    ```
 
    Address any errors or warnings before proceeding. The script checks metadata completeness, type-specific evaluation criteria, audit decision consistency, required sections, and template placeholders.
@@ -313,14 +339,11 @@ Before starting the audit, determine the test type. This determines which criter
 17. **Update Test Tracking**: **🤖 AUTOMATED** - Update tracking with audit results using the automation script with the appropriate test type
 
 ```powershell
-# Navigate to scripts directory from project root
-Set-Location "process-framework/scripts"
-
-# Automated tests (default)
-Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "test/audits/relative/path/to/audit-report.md"
+# Automated tests (default) — -MajorFindings is an array, so this one needs -Command (arrays do not survive -File)
+pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/update/Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_example.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -TestCasesAudited 15 -PassedTests 14 -FailedTests 1 -MajorFindings @("Finding 1", "Finding 2") -AuditReportPath "test/audits/relative/path/to/audit-report.md"'
 
 # Performance tests
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md"
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level1-component/test_parser_throughput.py" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/level1-component/audit-report.md"
 
 # Performance — false-compliance correction
 # Add -LifecycleCorrection when the audit reveals that a row reached ✅ Baselined without
@@ -329,10 +352,10 @@ Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automate
 # audit gate re-applies before re-baseline (PF-TSK-085). Rows not currently ✅ Baselined
 # are skipped with a warning. Run Update-PerformanceTracking.ps1 afterward to refresh the
 # Summary table.
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/audit-report.md" -LifecycleCorrection
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level1-component/test_parser_throughput.py" -AuditStatus "Needs Update" -AuditorName "AI Agent" -AuditReportPath "test/audits/performance/level1-component/audit-report.md" -LifecycleCorrection
 
 # E2E tests
-Update-TestFileAuditState.ps1 -TestType E2E -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/e2e/audit-report.md"
+pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TestFileAuditState.ps1 -TestType E2E -TestFilePath "test/e2e-acceptance-testing/TE-E2G-001/TE-E2E-001/test-case.md" -AuditStatus "Audit Approved" -AuditorName "AI Agent" -AuditReportPath "test/audits/e2e/audit-report.md"
 
 # Script automatically:
 # - Updates the correct tracking file based on -TestType
@@ -368,9 +391,9 @@ Performance and E2E tests:
 ## Outputs
 
 - **Test Audit Report** - Type-specific document analyzing test quality with findings and recommendations:
-  - Automated: `test/audits/[category]/audit-report-[feature-id]-[test-file-id].md`
-  - Performance: `test/audits/performance/audit-report-[feature-id]-[test-id].md`
-  - E2E: `test/audits/e2e/audit-report-[feature-id]-[test-id].md`
+  - Automated: `test/audits/unit/<N>-<slug>/[<N.X>-<slug>/]audit-report-[feature-id]-[test-file-id].md` (path mirror of the test file's directory)
+  - Performance: `test/audits/performance/level{N}-{name}/audit-report-[feature-id]-[test-id].md` (path mirror of the test file's directory)
+  - E2E: `test/audits/e2e/audit-report-[feature-id]-[TE-E2E-id].md`
 - **Updated Tracking File** - The correct tracking file updated with audit status and report link (test-tracking.md, performance-test-tracking.md, or e2e-test-tracking.md)
 - **Bug Reports** - Any bugs discovered during audit documented in [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with status 🆕 Needs Triage
 - **Tech Debt Items** (if applicable) - Significant test quality findings registered in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) with category "Testing", routed to PF-TSK-022
@@ -394,13 +417,11 @@ Performance and E2E tests:
 - **Automatic Backups**: Creates backups of all state files before making changes
 - **Comprehensive Audit Trail**: Maintains detailed history of audit results, findings, and auditor information
 
-**Script**: [Update-TestFileAuditState.ps1](../../scripts/update/Update-TestFileAuditState.ps1) — run `pwsh.exe -ExecutionPolicy Bypass -File <script-path> -?` for parameters and inline examples. See also [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) for cross-cutting invocation patterns.
+**Script**: [Update-TestFileAuditState.ps1](../../scripts/update/Update-TestFileAuditState.ps1) — run `pwsh.exe -ExecutionPolicy Bypass -Command 'Get-Help <script-path> -Full'` for parameters and inline examples. See also [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) for cross-cutting invocation patterns.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Test audit report created with type-appropriate criteria and specific recommendations
@@ -412,7 +433,22 @@ Before considering this task finished:
   - [ ] Confirmed correct tracking file updated with audit status and detailed results
   - [ ] Checked [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status column shows correct aggregated status
   - [ ] Significant test quality findings registered as tech debt items in [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) (category "Testing", routed to PF-TSK-022) — or confirmed no findings warrant tech debt registration
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-030" and context "Test Audit"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-030`, context "Test Audit".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | `[TE-TAR-XXX]-[feature-id]-[test-file-id].md` | `New-TestAuditReport.ps1` | Test audit report with quality assessment and recommendations |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestAuditReport.ps1` | (Automated type) Appends audit report link in Notes column for the target test file |
+| **Updates** | [`performance-test-tracking.md`](../../../test/state-tracking/permanent/performance-test-tracking.md) | `New-TestAuditReport.ps1` | (Performance type) Updates Audit Status + Audit Report columns |
+| **Updates** | [`e2e-test-tracking.md`](../../../test/state-tracking/permanent/e2e-test-tracking.md) | `New-TestAuditReport.ps1` | (E2E type) Updates Audit Status + Audit Report columns |
+| **Updates** | [`bug-tracking.md`](../../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `Update-TestFileAuditState.ps1` | (Automated type) **AUTOMATED**: Update individual test file audit status with comprehensive details |
+| **Updates** | [`performance-test-tracking.md`](../../../test/state-tracking/permanent/performance-test-tracking.md) | `Update-TestFileAuditState.ps1` | (Performance type) Updates Audit Status + Audit Report columns directly |
+| **Updates** | [`e2e-test-tracking.md`](../../../test/state-tracking/permanent/e2e-test-tracking.md) | `Update-TestFileAuditState.ps1` | (E2E type) Updates Audit Status + Audit Report columns directly |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | `Update-TestFileAuditState.ps1` | (Automated type) **AUTOMATED**: Intelligent aggregated test status calculation |
+| **Updates** | [`technical-debt-tracking.md`](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1 -Add` (conditional) | Register significant test quality findings as tech debt items |
 
 ## Next Tasks
 
@@ -432,6 +468,43 @@ Before considering this task finished:
 **Any test type**:
 - [**Bug Triage Task**](../06-maintenance/bug-triage-task.md) - If bugs are discovered during audit
 - [**Code Review Task**](../06-maintenance/code-review-task.md) - Review test improvements after re-implementation
+
+<!-- merged from transition-registry entry: Test Audit (PF-TSK-030) -->
+### Prerequisites for Transition
+
+- [ ] Test audit report completed with type-appropriate criteria assessed (6 Automated / 4 Performance / 5 E2E)
+- [ ] Audit decision made (Audit Approved or Needs Update)
+- [ ] Type-specific tracking file updated with audit results (test-tracking.md, performance-test-tracking.md, or e2e-test-tracking.md)
+- [ ] Audit report validated using Validate-AuditReport.ps1
+
+**Next Task Selection (by test type):**
+
+```
+What test type was audited?
+├─ Automated → 3-outcome decision tree:
+│  ├─ ✅ Audit Approved → Feature Implementation → 👀 Needs Review → Code Review
+│  ├─ 🔄 Needs Update → Integration & Testing (fix issues)
+│  └─ 🔴 Tests Incomplete → Integration & Testing (add missing tests)
+│
+├─ Performance → Was audit approved?
+│  ├─ ✅ Audit Approved → Performance Baseline Capture (PF-TSK-085)
+│  │   └─ Reason: Tests meet quality criteria, ready for baseline measurement
+│  └─ 🔄 Needs Update → Performance Test Creation (fix issues, re-audit)
+│
+└─ E2E → Was audit approved?
+   ├─ ✅ Audit Approved → E2E Acceptance Test Execution (PF-TSK-070)
+   │   └─ Reason: Test cases meet quality criteria, ready for execution
+   └─ 🔄 Needs Update → E2E Test Case Creation (fix issues, re-audit)
+```
+
+### Preparation for Next Task
+
+1. **For Feature Implementation** (Automated): Review audit findings for any implementation considerations
+2. **For Integration & Testing** (Automated): Review audit recommendations and action items
+3. **For Performance Baseline Capture** (Performance): Verify Audit Status shows `✅ Audit Approved` in performance-test-tracking.md
+4. **For E2E Test Execution** (E2E): Verify Audit Status shows `✅ Audit Approved` in e2e-test-tracking.md
+5. Update type-specific tracking file with appropriate status
+6. Ensure audit findings are addressed before proceeding
 
 ## Related Resources
 

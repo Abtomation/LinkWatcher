@@ -21,17 +21,36 @@ Created: 2025-08-26
 
 # Import dependencies
 $scriptPath = Split-Path -Parent $PSScriptRoot
-$coreModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\Core.psm1"
-$outputModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\OutputFormatting.psm1"
+$coreModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/Core.psm1"
+$outputModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/OutputFormatting.psm1"
 $idRegistryModule = Join-Path -Path $scriptPath -ChildPath "IdRegistry.psm1"
-$fileOpsModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\FileOperations.psm1"
-$execVerifyModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\ExecutionVerification.psm1"
+$fileOpsModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/FileOperations.psm1"
+$execVerifyModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/ExecutionVerification.psm1"
 
 if (Test-Path $coreModule) { Import-Module $coreModule -Force }
 if (Test-Path $outputModule) { Import-Module $outputModule -Force }
 if (Test-Path $idRegistryModule) { Import-Module $idRegistryModule -Force }
 if (Test-Path $fileOpsModule) { Import-Module $fileOpsModule -Force }
 if (Test-Path $execVerifyModule) { Import-Module $execVerifyModule -Force }
+
+# Template-link-depth rewrite (PF-PRO-066 / PF-IMP-1942) — PILOT SCOPE.
+# A template's relative links are authored to resolve from the template's own
+# directory. When an instance is materialized at a different depth the link text
+# travels verbatim and stops resolving. Convert-TemplateLinkDepth fixes that at
+# write time; this list limits it to the pilot's adopter templates.
+#
+# ROLL-FORWARD: when the pilot resolves successfully, delete this list and the
+# two `if ($script:LinkDepthPilotTemplates -contains ...)` guards at the call
+# sites — the helper then applies to every materialized document. No other
+# change is needed, and no creation script is affected either way.
+$script:LinkDepthPilotTemplates = @(
+    'feature-implementation-state-template.md',              # New-FeatureImplementationState.ps1 — the confirmed-broken path
+    'feature-implementation-state-lightweight-template.md',  #   "  (Tier 1 variant of the same creator)
+    'tdd-t1-template.md',                                    # New-TDD.ps1 — proves the design-artifact pipeline entry point
+    'tdd-t2-template.md',
+    'tdd-t3-template.md',
+    'task-template.md'                                       # New-Task.ps1 — same-depth case, proves the rewrite is a no-op
+)
 
 function New-ProjectDocumentMetadata {
     <#
@@ -91,9 +110,20 @@ created: $date
 updated: $date
 "@
 
-    # Add additional fields
-    foreach ($key in $AdditionalFields.Keys) {
-        $metadata += "`n$key`: $($AdditionalFields[$key])"
+    # Add additional fields (sorted for deterministic frontmatter ordering — .NET randomizes
+    # string hashing per process, so unsorted Hashtable enumeration emitted fields in a
+    # non-deterministic order across runs; sorting makes created documents reproducible.
+    # BD-001 / PF-IMP-1135.)
+    #
+    # String values pass through ConvertTo-YamlSafeScalar, which quotes only what a plain
+    # scalar would mis-parse (colon-space, leading indicator, embedded newline …) and leaves
+    # an already-quoted scalar untouched — so free text a caller passes raw can no longer emit
+    # invalid YAML, and callers that pre-quote stay byte-identical (PF-IMP-1413). Non-string
+    # values are emitted as before.
+    foreach ($key in ($AdditionalFields.Keys | Sort-Object)) {
+        $value = $AdditionalFields[$key]
+        if ($value -is [string]) { $value = ConvertTo-YamlSafeScalar -Value $value }
+        $metadata += "`n$key`: $value"
     }
 
     $metadata += "`n---`n"
@@ -242,6 +272,159 @@ function Get-TemplateContentWithoutMetadata {
     }
 }
 
+function Convert-TemplateLinkDepth {
+    <#
+    .SYNOPSIS
+    Rewrites a materialized document's template-inherited relative links so they resolve from the document's own directory.
+
+    .DESCRIPTION
+    A framework template lives at a fixed depth (process-framework/templates/<category>/) and its
+    relative markdown links are authored to resolve from there. A creation script materializes the
+    instance somewhere else, so the link text travels verbatim while the depth changes and every
+    inherited link stops resolving (PF-PRO-066 / PF-IMP-1942).
+
+    This function recomputes each such link against the OUTPUT directory. It is deliberately
+    conservative — the failure mode it must never produce is a confidently-wrong link, which is
+    harder to notice than a broken one:
+
+    - EXISTENCE-GATED. A link is rewritten only when its template-relative target actually resolves
+      to something on disk. A target that resolves nowhere (placeholder tokens such as [feature-id]
+      or X.Y.Z, or a stale authoring defect) is left exactly as authored. A shape-based variant that
+      rewrote anything under a known tree root was prototyped and rejected: it mangled three real
+      links into paths under process-framework/templates/specifications/, which does not exist.
+    - FENCE-AWARE. Links inside ``` code fences are example syntax, not navigation, and are skipped.
+    - SCOPE-GATED. If the template or the output path falls outside the project root — the
+      central-materialization case, where resolution runs through .framework-central-pointer rather
+      than relative arithmetic — the content is returned unchanged.
+    - NO-OP BY CONSTRUCTION for depth-preserving materialization: when the output directory sits at
+      the same depth as the template, the recomputed path equals the original text.
+
+    Only '](../...)' links are considered. Root-absolute and bare same-directory links are untouched.
+
+    .PARAMETER Content
+    The fully-assembled document content (metadata block plus body), immediately before it is written.
+
+    .PARAMETER TemplatePath
+    Path to the source template — the frame the existing links were authored against.
+
+    .PARAMETER OutputPath
+    Path the document is being written to. Its directory is the new resolution frame.
+
+    .PARAMETER ProjectRoot
+    Optional explicit project root. Defaults to Get-ProjectRoot. Supplying it keeps the function
+    pure for unit tests.
+
+    .OUTPUTS
+    The content with inherited link depths corrected. On any resolution failure the input content is
+    returned unchanged — a link rewrite must never be able to fail a document creation.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [string]$TemplatePath,
+
+        [Parameter(Mandatory=$true)]
+        [string]$OutputPath,
+
+        [Parameter(Mandatory=$false)]
+        [string]$ProjectRoot
+    )
+
+    if ([string]::IsNullOrEmpty($Content)) { return $Content }
+
+    try {
+        if (-not $ProjectRoot) { $ProjectRoot = Get-ProjectRoot }
+        if (-not $ProjectRoot) {
+            Write-Verbose "Convert-TemplateLinkDepth: project root unresolved — leaving links unchanged."
+            return $Content
+        }
+
+        # Callers mix both forms: the creation core passes ABSOLUTE paths, while task
+        # documentation and tests use project-root-relative ones. Joining an already-rooted
+        # path onto the root yields garbage, so branch on IsPathRooted rather than assuming.
+        $rootFull = [System.IO.Path]::GetFullPath($ProjectRoot)
+        $toFull = {
+            param([string]$p)
+            if ([System.IO.Path]::IsPathRooted($p)) { [System.IO.Path]::GetFullPath($p) }
+            else { [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot $p)) }
+        }
+        $templateFull = & $toFull $TemplatePath
+        $outputFull   = & $toFull $OutputPath
+        $templateDir  = Split-Path -Parent $templateFull
+        $outputDir    = Split-Path -Parent $outputFull
+
+        # Scope gate: both frames must sit inside the project root, else relative
+        # arithmetic is not the right resolution model (central materialization).
+        foreach ($dir in @($templateDir, $outputDir)) {
+            if (-not $dir.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+                Write-Verbose "Convert-TemplateLinkDepth: '$dir' is outside the project root — leaving links unchanged."
+                return $Content
+            }
+        }
+
+        $stats    = @{ Rewritten = 0; Left = 0 }
+        $pattern  = '(\]\()(\.\./[^)\s]*?)(\))'
+        $inFence  = $false
+        $outLines = [System.Collections.Generic.List[string]]::new()
+
+        # Preserve the input's line-ending style. Splitting on `r?`n and re-joining with a
+        # bare `n would silently convert a CRLF document to LF — an invisible whole-file
+        # diff on every pilot-created document, which is exactly the kind of unintended
+        # mutation this helper is supposed to avoid.
+        $newline = if ($Content -match "`r`n") { "`r`n" } else { "`n" }
+
+        foreach ($line in ($Content -split "`r?`n")) {
+            if ($line.TrimStart().StartsWith('```')) {
+                $inFence = -not $inFence
+                $outLines.Add($line)
+                continue
+            }
+            if ($inFence -or $line -notmatch '\]\(\.\./') {
+                $outLines.Add($line)
+                continue
+            }
+
+            $evaluator = {
+                param($m)
+                $target = $m.Groups[2].Value
+                $split  = $target.IndexOf('#')
+                $path   = if ($split -ge 0) { $target.Substring(0, $split) } else { $target }
+                $anchor = if ($split -ge 0) { $target.Substring($split) }    else { '' }
+                if ([string]::IsNullOrWhiteSpace($path)) { return $m.Value }
+
+                $resolved = [System.IO.Path]::GetFullPath((Join-Path $templateDir $path))
+                if (-not (Test-Path -LiteralPath $resolved)) {
+                    $stats.Left++
+                    return $m.Value          # unresolvable at the template — never guess
+                }
+
+                $rebased = [System.IO.Path]::GetRelativePath($outputDir, $resolved) -replace '\\', '/'
+                if ($rebased -eq $path) { return $m.Value }
+                $stats.Rewritten++
+                return $m.Groups[1].Value + $rebased + $anchor + $m.Groups[3].Value
+            }
+
+            $outLines.Add([regex]::Replace($line, $pattern, [System.Text.RegularExpressions.MatchEvaluator]$evaluator))
+        }
+
+        if ($stats.Rewritten -gt 0 -or $stats.Left -gt 0) {
+            Write-Verbose ("Convert-TemplateLinkDepth: rewrote {0} inherited link(s), left {1} unresolvable link(s) unchanged ({2})." -f `
+                $stats.Rewritten, $stats.Left, (Split-Path $OutputPath -Leaf))
+        }
+
+        return ($outLines -join $newline)
+    }
+    catch {
+        # A link rewrite is a convenience, never a gate on document creation.
+        Write-Warning "Convert-TemplateLinkDepth: link rewrite skipped ($($_.Exception.Message)). Document written with template-relative links."
+        return $Content
+    }
+}
+
 function New-ProjectDocumentWithMetadata {
     <#
     .SYNOPSIS
@@ -334,13 +517,26 @@ function New-ProjectDocumentWithMetadata {
         }
 
         # Create proper document metadata using template information
-        $documentType = if ($templateMetadata.ContainsKey('creates_document_type')) { $templateMetadata['creates_document_type'] } else { "Document" }
-        $category = if ($templateMetadata.ContainsKey('creates_document_category')) { $templateMetadata['creates_document_category'] } else { "General" }
+        $templateName = Split-Path $TemplatePath -Leaf
+        $documentType = if ($templateMetadata.ContainsKey('creates_document_type')) { $templateMetadata['creates_document_type'] } else {
+            Write-Warning "Template '$templateName' declares no creates_document_type — falling back to type 'Document'. Declare creates_document_type in the template frontmatter."
+            "Document"
+        }
+        $category = if ($templateMetadata.ContainsKey('creates_document_category')) { $templateMetadata['creates_document_category'] } else {
+            Write-Warning "Template '$templateName' declares no creates_document_category — falling back to category 'General'. Declare creates_document_category in the template frontmatter."
+            "General"
+        }
 
         $metadata = New-ProjectDocumentMetadata -DocumentId $DocumentId -DocumentType $documentType -Category $category -AdditionalFields $metadataFields
 
         # Combine metadata with content
         $finalContent = $metadata + $documentContent
+
+        # Correct template-inherited link depth for the instance's own location
+        # (PF-PRO-066 / PF-IMP-1942). Pilot-gated — see $script:LinkDepthPilotTemplates.
+        if ($script:LinkDepthPilotTemplates -contains $templateName) {
+            $finalContent = Convert-TemplateLinkDepth -Content $finalContent -TemplatePath $TemplatePath -OutputPath $OutputPath
+        }
 
         # Ensure output directory exists
         $outputDir = Split-Path -Parent $OutputPath
@@ -482,13 +678,27 @@ function New-ProjectDocumentWithCodeMetadata {
         }
 
         # Create code metadata comment block
-        $documentType = if ($templateMetadata.ContainsKey('creates_document_type')) { $templateMetadata['creates_document_type'] } else { "Code File" }
-        $category = if ($templateMetadata.ContainsKey('creates_document_category')) { $templateMetadata['creates_document_category'] } else { "General" }
+        $templateName = Split-Path $TemplatePath -Leaf
+        $documentType = if ($templateMetadata.ContainsKey('creates_document_type')) { $templateMetadata['creates_document_type'] } else {
+            Write-Warning "Template '$templateName' declares no creates_document_type — falling back to type 'Code File'. Declare creates_document_type in the template frontmatter."
+            "Code File"
+        }
+        $category = if ($templateMetadata.ContainsKey('creates_document_category')) { $templateMetadata['creates_document_category'] } else {
+            Write-Warning "Template '$templateName' declares no creates_document_category — falling back to category 'General'. Declare creates_document_category in the template frontmatter."
+            "General"
+        }
 
         $metadataComment = New-ProjectCodeMetadata -DocumentId $DocumentId -DocumentType $documentType -Category $category -AdditionalFields $metadataFields -HeaderComment $HeaderComment
 
         # Combine metadata comment with content
         $finalContent = $metadataComment + $documentContent
+
+        # Correct template-inherited link depth for the instance's own location
+        # (PF-PRO-066 / PF-IMP-1942). Pilot-gated — see $script:LinkDepthPilotTemplates.
+        # Code templates carry links in comment blocks; the same arithmetic applies.
+        if ($script:LinkDepthPilotTemplates -contains $templateName) {
+            $finalContent = Convert-TemplateLinkDepth -Content $finalContent -TemplatePath $TemplatePath -OutputPath $OutputPath
+        }
 
         # Ensure output directory exists
         $outputDir = Split-Path -Parent $OutputPath
@@ -604,8 +814,9 @@ function New-ProjectCodeMetadata {
         "${prefix}Updated: $timestamp"
     )
 
-    # Add additional fields
-    foreach ($key in $AdditionalFields.Keys) {
+    # Add additional fields (sorted for deterministic ordering across processes — see the
+    # matching note in New-ProjectDocumentMetadata; BD-001 / PF-IMP-1135).
+    foreach ($key in ($AdditionalFields.Keys | Sort-Object)) {
         $value = $AdditionalFields[$key]
         $formattedKey = ($key -split '_' | ForEach-Object { (Get-Culture).TextInfo.ToTitleCase($_) }) -join ' '
         $metadataLines += "${prefix}${formattedKey}: $value"
@@ -704,6 +915,12 @@ function New-StandardProjectDocument {
     New-StandardProjectDocument -TemplatePath "templates/handbook-template.md" -IdPrefix "PD-UGD" -IdDescription "Reference" -DocumentName "Networking API" -DirectoryType "handbooks" -Subdirectory "reference" -Topic "networking"
     # Creates file in doc/user/handbooks/reference/networking/networking-api.md
     # Topic validated against PD-UGD.topics.values (project-declared)
+
+    .OUTPUTS
+    On success, a [pscustomobject] with Id (assigned document ID), Path (absolute path of the
+    created file), and RelativePath (project-root-relative, forward slashes) — so callers never
+    re-derive the filename from the writer's internal logic (PF-IMP-1678). Returns $false when
+    -ConflictAction Skip skips an existing file; returns nothing under -WhatIf.
     #>
 
     [CmdletBinding(SupportsShouldProcess=$true)]
@@ -760,10 +977,19 @@ function New-StandardProjectDocument {
     $WhatIfPreference = Get-EffectiveWhatIf -WhatIfPreference $WhatIfPreference `
         -WhatIfBound:$PSBoundParameters.ContainsKey('WhatIf')
 
+    # Creating the output directory is a REAL side effect on disk, and directory
+    # resolution below runs BEFORE the ShouldProcess gate (it has to — the gate's own
+    # message names the resolved output path). So the -CreateIfMissing switches are
+    # bound to this flag rather than being always-on: under -WhatIf the resolvers still
+    # return the path, and nothing is created. Without this, a preview run leaves a
+    # stray empty directory behind — which is how an untracked instruction-design
+    # directory appeared in appdev during PF-TSK-026 Session 3.
+    $createDirs = -not $WhatIfPreference
+
     try {
         # Resolve output directory (does not require document ID)
         if ($DirectoryType) {
-            $resolvedOutputDir = Get-ProjectIdDirectory -Prefix $IdPrefix -DirectoryType $DirectoryType -CreateIfMissing
+            $resolvedOutputDir = Get-ProjectIdDirectory -Prefix $IdPrefix -DirectoryType $DirectoryType -CreateIfMissing:$createDirs
         } elseif ($OutputDirectory) {
             if (-not [System.IO.Path]::IsPathRooted($OutputDirectory)) {
                 $projectRoot = Get-ProjectRoot
@@ -771,10 +997,10 @@ function New-StandardProjectDocument {
             } else {
                 $resolvedOutputDir = $OutputDirectory
             }
-            Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing -PathType Directory | Out-Null
+            Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing:$createDirs -PathType Directory | Out-Null
         } else {
             # Use default directory for prefix
-            $resolvedOutputDir = Get-ProjectIdDirectory -Prefix $IdPrefix -CreateIfMissing
+            $resolvedOutputDir = Get-ProjectIdDirectory -Prefix $IdPrefix -CreateIfMissing:$createDirs
         }
 
         # Append optional subdirectory (IMP-568: generic subdirectory support)
@@ -794,7 +1020,7 @@ function New-StandardProjectDocument {
                     }
                 }
                 $resolvedOutputDir = Join-Path -Path $resolvedOutputDir -ChildPath $Subdirectory
-                Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing -PathType Directory | Out-Null
+                Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing:$createDirs -PathType Directory | Out-Null
             }
 
             if ($Topic) {
@@ -805,7 +1031,7 @@ function New-StandardProjectDocument {
                     }
                 }
                 $resolvedOutputDir = Join-Path -Path $resolvedOutputDir -ChildPath $Topic
-                Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing -PathType Directory | Out-Null
+                Test-ProjectPath -Path $resolvedOutputDir -CreateIfMissing:$createDirs -PathType Directory | Out-Null
             }
         }
 
@@ -891,7 +1117,20 @@ function New-StandardProjectDocument {
                 }
 
                 Write-ProjectSuccess -Message "Created document: $DocumentName" -Details $details
-                return $documentId
+
+                # Return identity AND location — $outputPath is absolute in every
+                # directory-resolution branch above (PF-IMP-1678).
+                $rootForReturn = Get-ProjectRoot
+                $relativePath = $outputPath
+                if ($relativePath.StartsWith($rootForReturn, [System.StringComparison]::OrdinalIgnoreCase)) {
+                    $relativePath = $relativePath.Substring($rootForReturn.Length).TrimStart('\', '/')
+                }
+                $relativePath = $relativePath -replace '\\', '/'
+                return [pscustomobject]@{
+                    Id           = $documentId
+                    Path         = $outputPath
+                    RelativePath = $relativePath
+                }
             } else {
                 throw "Document creation failed"
             }
@@ -901,146 +1140,134 @@ function New-StandardProjectDocument {
         Write-ProjectError -Message "Failed to create document '$DocumentName': $($_.Exception.Message)" -ExitCode 1
     }
 }
-function Add-DocumentationMapEntry {
+
+function New-FrameworkDocument {
     <#
     .SYNOPSIS
-    Appends an entry to a documentation map file under a specified section header.
+    Shared creation wrapper that absorbs the boilerplate every config-as-code creation
+    script repeats — standard init, soak opt-in, the New-StandardProjectDocument call,
+    try/catch, and (optionally) the success report — so a per-type creation script is
+    reduced to its param block + data-building + one call. (PF-IMP-1135 / PF-PRO-043 Option 2.)
 
     .DESCRIPTION
-    Finds the target section header in the documentation map, locates the last
-    list entry under it, and inserts the new entry after it. Includes duplicate
-    detection, WhatIf support, and graceful error handling.
+    Generalizes the Invoke-DesignArtifactCreation pattern to ALL delegator scripts. The helper:
+      1. runs Invoke-StandardScriptInitialization (preferences + console encoding);
+      2. opts the CALLING .ps1 into soak verification via Register-SoakScript — caller-aware
+         mode walks the call stack past .psm1 frames, so the soak row is keyed on the calling
+         script, not this module (ExecutionVerification v2.0 Pattern B);
+      3. resolves the effective -WhatIf across the module boundary (Get-EffectiveWhatIf), so a
+         caller invoked with -WhatIf is honored by both the soak opt-in and the creation;
+      4. calls New-StandardProjectDocument (the unchanged inner core) with the supplied
+         template / id / directory / replacements / metadata;
+      5. on failure, writes a standard error and exits 1 (matching every legacy script's catch).
 
-    .PARAMETER DocMapPath
-    Absolute path to the documentation map file.
+    What STAYS in the per-type script: the param() block (so native ValidateSet / ValidateScript /
+    ValidateLength / -? help / tab-completion are preserved), the replacements/metadata
+    data-building (including conditional fields), its OWN Write-ProjectSuccess report (the
+    message + detail lines are per-type content), and any bespoke post-creation tracking writes
+    — done inline after this returns (see New-ArchitectureDecision for the Tier-3 pattern).
 
-    .PARAMETER SectionHeader
-    The exact section header line to find (e.g., "#### Support Guides").
+    Returns the assigned document ID (or $null under -WhatIf) — capture it for the success
+    report and for any post-creation writes. A post-creating script that also needs the
+    created file's PATH passes -PassThru and reads Id/Path/RelativePath off the returned
+    object — never re-derive the filename by mirroring the writer's internal kebab logic
+    (PF-IMP-1678).
 
-    .PARAMETER EntryLine
-    The complete markdown list entry to insert (e.g., "- [Guide: Name](path) - Description").
+    .PARAMETER TemplatePath
+    Path to the template (forwarded to New-StandardProjectDocument).
 
-    .PARAMETER CallerCmdlet
-    The $PSCmdlet from the calling script, used for ShouldProcess support.
+    .PARAMETER IdPrefix
+    ID-registry prefix for the new document (e.g. "PF-GDE", "PD-ADR").
 
-    .EXAMPLE
-    Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader "#### Support Guides" `
-        -EntryLine "- [Guide: My Guide](guides/support/my-guide.md) - Description" `
-        -CallerCmdlet $PSCmdlet
+    .PARAMETER IdDescription
+    Annotation passed to the ID registry on assignment.
+
+    .PARAMETER DocumentName
+    Human-readable document name (drives the default kebab filename + template replacements).
+
+    .PARAMETER DirectoryType / .PARAMETER OutputDirectory / .PARAMETER Subdirectory / .PARAMETER Topic / .PARAMETER FileNamePattern / .PARAMETER HeaderComment / .PARAMETER ConflictAction / .PARAMETER OpenInEditor
+    Forwarded to New-StandardProjectDocument when supplied (directory resolution, filename, etc.).
+
+    .PARAMETER Replacements
+    Template placeholder replacements (caller's hashtable).
+
+    .PARAMETER Metadata
+    Additional frontmatter fields (forwarded as -AdditionalMetadataFields). Build it
+    conditionally in the caller to omit empty optional fields (byte-identical frontmatter).
+
+    .PARAMETER Label
+    Human-readable noun for the failure message ("Failed to create <Label>: ..."). Defaults to
+    -IdPrefix. The caller owns the SUCCESS report via its own Write-ProjectSuccess, so there is
+    no success-label parameter.
+
+    .PARAMETER PassThru
+    Return the full creation result object — Id (assigned document ID), Path (absolute),
+    RelativePath (project-root-relative, forward slashes) — instead of the bare ID. Use in
+    post-creating scripts that write the created file's path into tracking tables or state
+    files (PF-IMP-1678). Still $null under -WhatIf.
     #>
-
-    [CmdletBinding(SupportsShouldProcess=$true, DefaultParameterSetName='Exact')]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param(
-        [Parameter(Mandatory=$true)]
-        [string]$DocMapPath,
-
-        [Parameter(Mandatory=$true, ParameterSetName='Exact')]
-        [string]$SectionHeader,
-
-        # F-1 (PF-IMP-871 follow-up, 2026-05-15): startsWith matcher for callers that need
-        # to target a template-headed section like `### `audits/unit/<N>-<slug>/<N.X>-<slug>/``
-        # by passing just the stable prefix `### `audits/unit/`. Existing callers continue to
-        # use exact-match -SectionHeader; this is additive.
-        [Parameter(Mandatory=$true, ParameterSetName='Prefix')]
-        [string]$SectionHeaderPrefix,
-
-        [Parameter(Mandatory=$true)]
-        [string]$EntryLine,
-
-        [Parameter(Mandatory=$true)]
-        [System.Management.Automation.PSCmdlet]$CallerCmdlet
+        [Parameter(Mandatory = $true)] [string]$TemplatePath,
+        [Parameter(Mandatory = $true)] [string]$IdPrefix,
+        [Parameter(Mandatory = $true)] [string]$IdDescription,
+        [Parameter(Mandatory = $true)] [string]$DocumentName,
+        [string]$DirectoryType,
+        [string]$OutputDirectory,
+        [string]$Subdirectory,
+        [string]$Topic,
+        [string]$FileNamePattern,
+        [hashtable]$Replacements = @{},
+        [hashtable]$Metadata = @{},
+        [hashtable]$HeaderComment,
+        [ValidateSet("Error", "Overwrite", "Skip")] [string]$ConflictAction = "Error",
+        [switch]$OpenInEditor,
+        [string]$Label,
+        [switch]$PassThru
     )
 
-    if (-not (Test-Path $DocMapPath)) {
-        Write-Warning "Documentation map not found: $DocMapPath. Manual update required."
-        return $false
-    }
+    Invoke-StandardScriptInitialization
 
-    $docMapName = [System.IO.Path]::GetFileName($DocMapPath)
-    $sectionLabel = if ($SectionHeaderPrefix) { "$SectionHeaderPrefix... (prefix)" } else { $SectionHeader }
-    if (-not $CallerCmdlet.ShouldProcess($docMapName, "Append entry under '$sectionLabel'")) {
-        return $false
-    }
+    # Effective -WhatIf across the module boundary (PF-IMP-939) — same approach as
+    # New-StandardProjectDocument / Invoke-DesignArtifactCreation. Walks the call stack
+    # for an explicit -WhatIf in any caller frame (the module-local $WhatIfPreference does
+    # not inherit it).
+    $preview = Get-EffectiveWhatIf -WhatIfPreference $WhatIfPreference `
+        -WhatIfBound:$PSBoundParameters.ContainsKey('WhatIf')
+
+    # Soak opt-in for the CALLING script (no-op under -WhatIf / $env:PF_SOAK_DISABLE).
+    Register-SoakScript -WhatIf:$preview
 
     try {
-        $docMap = Get-Content -Path $DocMapPath
-
-        # Find the section header (exact match or startsWith depending on parameter set)
-        $sectionIndex = -1
-        for ($i = 0; $i -lt $docMap.Length; $i++) {
-            $matched = if ($SectionHeaderPrefix) {
-                $docMap[$i].StartsWith($SectionHeaderPrefix)
-            } else {
-                $docMap[$i] -eq $SectionHeader
-            }
-            if ($matched) {
-                $sectionIndex = $i
-                break
-            }
+        $createArgs = @{
+            TemplatePath             = $TemplatePath
+            IdPrefix                 = $IdPrefix
+            IdDescription            = $IdDescription
+            DocumentName             = $DocumentName
+            Replacements             = $Replacements
+            AdditionalMetadataFields = $Metadata
+            ConflictAction           = $ConflictAction
         }
+        if ($DirectoryType)   { $createArgs.DirectoryType   = $DirectoryType }
+        if ($OutputDirectory) { $createArgs.OutputDirectory = $OutputDirectory }
+        if ($Subdirectory)    { $createArgs.Subdirectory    = $Subdirectory }
+        if ($Topic)           { $createArgs.Topic           = $Topic }
+        if ($FileNamePattern) { $createArgs.FileNamePattern = $FileNamePattern }
+        if ($HeaderComment)   { $createArgs.HeaderComment   = $HeaderComment }
+        if ($OpenInEditor)    { $createArgs.OpenInEditor    = $true }
 
-        if ($sectionIndex -lt 0) {
-            Write-Warning "Could not find section '$sectionLabel' in $docMapName. Manual update required."
-            return $false
+        $result = New-StandardProjectDocument @createArgs -WhatIf:$preview
+        # Inner core returns {Id, Path, RelativePath} on success (PF-IMP-1678). Default
+        # contract stays the bare ID; -PassThru surfaces the full object. $null (-WhatIf)
+        # and $false (-ConflictAction Skip) pass through unchanged either way.
+        if (-not $PassThru -and $result -and $result.PSObject.Properties['Id']) {
+            return $result.Id
         }
-
-        # Extract the relative path from the entry for duplicate check
-        $pathMatch = [regex]::Match($EntryLine, '\]\(([^)]+)\)')
-        if ($pathMatch.Success) {
-            $relativePath = $pathMatch.Groups[1].Value
-            $alreadyExists = $docMap | Where-Object { $_ -match [regex]::Escape($relativePath) }
-            if ($alreadyExists) {
-                Write-Verbose "Entry already listed in $docMapName — skipping"
-                return $false
-            }
-        }
-
-        # Find the last list entry in this section (before next header)
-        $insertIndex = $sectionIndex
-        for ($j = $sectionIndex + 1; $j -lt $docMap.Length; $j++) {
-            if ($docMap[$j] -match '^#{2,4} ') {
-                break
-            }
-            if ($docMap[$j] -match '^- \[') {
-                $insertIndex = $j
-            }
-        }
-
-        if ($insertIndex -eq $sectionIndex) {
-            # No existing entries — insert after section header + blank line
-            $insertIndex = $sectionIndex + 1
-            if ($insertIndex -lt $docMap.Length -and $docMap[$insertIndex] -eq "") {
-                $insertIndex++
-            }
-            $docMap = $docMap[0..($insertIndex - 1)] + $EntryLine + $docMap[$insertIndex..($docMap.Length - 1)]
-        }
-        else {
-            # Insert after the last list entry
-            $docMap = $docMap[0..$insertIndex] + $EntryLine + $docMap[($insertIndex + 1)..($docMap.Length - 1)]
-        }
-
-        # Soak: hash-detection auto-reset side effect (PF-PRO-028 v2.0 Pattern B caller-aware mode).
-        try { $null = Test-ScriptInSoak } catch { Write-Verbose "Test-ScriptInSoak soft-fail: $($_.Exception.Message)" }
-
-        $docMap | Set-Content -Path $DocMapPath
-
-        # Read-after-write: verify the entry actually landed. This is the historical
-        # silent-success failure point (TD221/222/225/230 — PF-IMP-586 root cause).
-        Assert-LineInFile -Path $DocMapPath -Pattern ([regex]::Escape($EntryLine)) -Context "Add-DocumentationMapEntry($docMapName, '$sectionLabel')"
-
-        # Soak: success outcome (caller-aware — no-op if caller not registered).
-        try { Confirm-SoakInvocation -Outcome success } catch { Write-Verbose "Confirm-SoakInvocation success soft-fail: $($_.Exception.Message)" }
-
-        return $true
+        return $result
     }
     catch {
-        $errMsg = $_.Exception.Message
-        try {
-            $truncated = if ($errMsg.Length -gt 200) { $errMsg.Substring(0, 200) + "..." } else { $errMsg }
-            Confirm-SoakInvocation -Outcome failure -Notes "Add-DocumentationMapEntry($docMapName): $truncated"
-        } catch { Write-Verbose "Confirm-SoakInvocation failure soft-fail: $($_.Exception.Message)" }
-        Write-Warning "Failed to update $docMapName`: $errMsg. Manual update required."
-        return $false
+        $noun = if ($Label) { $Label } else { $IdPrefix }
+        Write-ProjectError -Message "Failed to create ${noun}: $($_.Exception.Message)" -ExitCode 1
     }
 }
 
@@ -1080,16 +1307,80 @@ function Update-FrontmatterDate {
     return $Content -replace '(?m)(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
 }
 
+function Step-FrontmatterRevision {
+    <#
+    .SYNOPSIS
+    Advances a document's frontmatter revision stamp — sets `updated:` to the given date and
+    increments the last segment of `version:` — operating only inside the leading YAML
+    frontmatter block, so `version:`/`updated:` lines in the document body (code fences,
+    examples) are never touched.
+
+    .DESCRIPTION
+    Companion to Update-FrontmatterDate (which it delegates the date write to): where that
+    helper serves scripts stamping `updated:` on files they mutate, this one serves the
+    lock-release path that maintains both stamps on agent-edited markdown (PF-IMP-1900).
+    Content without a leading frontmatter block is returned unchanged. A `version:` value
+    that is not dot-separated integers (or is absent) leaves the version untouched while the
+    date still advances.
+
+    .PARAMETER Content
+    The full document content as a single string.
+
+    .PARAMETER CurrentDate
+    The new `updated:` date in YYYY-MM-DD format. Defaults to today.
+
+    .OUTPUTS
+    PSCustomObject with Content (the possibly-rewritten document), Changed (bool),
+    OldVersion and NewVersion (strings; $null when no version was bumped).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]$Content,
+
+        [Parameter(Mandatory = $false)]
+        [ValidatePattern('^\d{4}-\d{2}-\d{2}$')]
+        [string]$CurrentDate = (Get-Date -Format 'yyyy-MM-dd')
+    )
+
+    $result = [pscustomobject]@{ Content = $Content; Changed = $false; OldVersion = $null; NewVersion = $null }
+
+    # Leading frontmatter block only: '---' as the very first line, closed by a later '---' line.
+    $block = [regex]::Match($Content, '(?s)\A---\r?\n(.*?)\r?\n---(\r?\n|\z)')
+    if (-not $block.Success) { return $result }
+
+    $inner = $block.Groups[1].Value
+    $newInner = Update-FrontmatterDate -Content $inner -CurrentDate $CurrentDate
+
+    $vm = [regex]::Match($newInner, '(?m)^(version:\s*"?)(\d+(?:\.\d+)*)\.(\d+)("?\s*)$')
+    if ($vm.Success) {
+        $result.OldVersion = "$($vm.Groups[2].Value).$($vm.Groups[3].Value)"
+        $result.NewVersion = "$($vm.Groups[2].Value)." + ([int]$vm.Groups[3].Value + 1)
+        $newLine = $vm.Groups[1].Value + $result.NewVersion + $vm.Groups[4].Value
+        $newInner = $newInner.Remove($vm.Index, $vm.Length).Insert($vm.Index, $newLine)
+    }
+
+    if ($newInner -ne $inner) {
+        $result.Content = $Content.Substring(0, $block.Groups[1].Index) + $newInner +
+            $Content.Substring($block.Groups[1].Index + $block.Groups[1].Length)
+        $result.Changed = $true
+    }
+    return $result
+}
+
 # Export functions
 Export-ModuleMember -Function @(
     'New-ProjectDocumentMetadata',
     'Open-ProjectFileInEditor',
     'Get-TemplateMetadata',
     'Get-TemplateContentWithoutMetadata',
+    'Convert-TemplateLinkDepth',
     'New-ProjectDocumentWithMetadata',
     'New-ProjectDocumentWithCodeMetadata',
     'New-ProjectCodeMetadata',
     'New-StandardProjectDocument',
-    'Add-DocumentationMapEntry',
-    'Update-FrontmatterDate'
+    'New-FrameworkDocument',
+    'Update-FrontmatterDate',
+    'Step-FrontmatterRevision'
 )

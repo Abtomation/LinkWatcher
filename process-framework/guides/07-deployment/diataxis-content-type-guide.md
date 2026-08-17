@@ -82,7 +82,7 @@ Each content-type row in a feature's `### User Documentation` table carries one 
 
 | Status | Meaning | When to use |
 |--------|---------|-------------|
-| `✅ Created — [link]` | A dedicated handbook of this content type exists for this feature | Handbook lives in `doc/user/handbooks/<content-type>/[<topic>/]` and is registered in [PD Documentation Map](../../../doc/PD-documentation-map.md) |
+| `✅ Created — [link]` | A dedicated handbook of this content type exists for this feature | Handbook lives in `doc/user/handbooks/<content-type>/[<topic>/]` and is indexed by the generated [PD Documentation Map](../../../doc/PD-documentation-map.md) (on `Build-DocumentationMap.ps1 -Tree PD` regeneration) |
 | `✅ Covered Elsewhere — [link]` | Content of this type for this feature is captured in a cross-cutting handbook (quick-reference, capabilities-reference, etc.) | A cross-cutting handbook adequately covers this need without a feature-dedicated handbook. Include a note describing the coverage |
 | `❌ Needed` | The content type is relevant but no coverage exists | Feature qualifies via the decision matrix but no current handbook (dedicated or cross-cutting) covers it. Triggers `📖 Needs User Docs` on the feature |
 | `N/A` | This content type is not relevant for this feature | Internal/architectural feature, or content type ruled out by the decision matrix. Include a brief rationale |

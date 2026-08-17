@@ -1,9 +1,10 @@
-# Update-ScriptReferences.ps1
-# Updates all references to moved New-*.ps1 scripts to point to the centralized location
+<#
+.SYNOPSIS
+Updates references to relocated New-*.ps1 creation scripts across doc/ markdown to point at the centralized scripts/file-creation location.
+#>
 
-param(
-    [switch]$DryRun = $false
-)
+[CmdletBinding(SupportsShouldProcess)]
+param()
 
 # Import Common-ScriptHelpers to get project root
 $dir = $PSScriptRoot
@@ -61,6 +62,10 @@ $scriptMappings = @{
     "../process-framework-local/feedback/New-FeedbackForm.ps1"                                                                                                                                                                                                                                        = "../$newScriptPath/New-FeedbackForm.ps1"
 }
 
+# -DryRun replaced by standard -WhatIf (SupportsShouldProcess): ShouldProcess returning
+# $false (under -WhatIf) drives the existing no-write preview path below.
+$DryRun = -not $PSCmdlet.ShouldProcess("script references under doc/", "Update")
+
 Write-Host "🔍 Scanning for script references to update..." -ForegroundColor Cyan
 
 $totalUpdates = 0
@@ -104,7 +109,7 @@ Write-Host "  Files processed: $filesProcessed" -ForegroundColor White
 Write-Host "  Total updates: $totalUpdates" -ForegroundColor White
 
 if ($DryRun) {
-    Write-Host "`n🔍 This was a dry run. Use -DryRun:`$false to apply changes." -ForegroundColor Yellow
+    Write-Host "`n🔍 This was a -WhatIf preview. Run without -WhatIf to apply changes." -ForegroundColor Yellow
 }
 else {
     Write-Host "`n✅ All script references have been updated!" -ForegroundColor Green

@@ -43,8 +43,7 @@ New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -Ta
 
 ### 2. **Customizing the Plan**
 
-- Follow the [Refactoring Plan Template Customization Guide](../../process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md)
-- Use the [Context Map](../../process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md) for component relationships
+- Apply the [`refactoring-planning` craft skill](../../.claude/skills/refactoring-planning/SKILL.md) (activated by the Code Refactoring task's Check Recommended Skills step)
 
 ### 3. **Completing the Refactoring**
 
@@ -90,8 +89,7 @@ New-RefactoringPlan.ps1 -RefactoringScope "Fix TDD pseudocode drift (TD046)" -Ta
 This directory integrates with:
 
 - **[Code Refactoring Task](../../process-framework/tasks/06-maintenance/code-refactoring-task.md)** - Main task definition
-- **[Context Map](../../process-framework/visualization/context-maps/06-maintenance/code-refactoring-task-map.md)** - Component relationships
-- **[Template Customization Guide](../../process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md)** - Detailed usage instructions
+- **[`refactoring-planning` craft skill](../../.claude/skills/refactoring-planning/SKILL.md)** - Plan customization craft (replaces the retired customization guide)
 - **[Technical Debt Tracking](../state-tracking/permanent/technical-debt-tracking.md)** - State tracking integration
 - **[Feature Tracking](../state-tracking/permanent/feature-tracking.md)** - Feature status updates
 

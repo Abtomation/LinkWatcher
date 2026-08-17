@@ -1,5 +1,6 @@
 ---
 id: TE-TSP-035
+description: "0.1.1 Tier 3 — Existing test coverage with gap analysis"
 type: Process Framework
 category: Test Specification
 version: 1.0

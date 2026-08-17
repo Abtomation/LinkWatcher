@@ -1,5 +1,5 @@
 ---
-id: [DOCUMENT-ID]
+id: PF-TEM-105
 type: Process Framework
 category: Template
 version: 1.0
@@ -12,6 +12,8 @@ variant_siblings:
   - structure-change-state-content-update-template.md
   - structure-change-state-framework-extension-template.md
   - structure-change-state-from-proposal-template.md
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Template for rename-focused structure changes"
 ---
 
@@ -21,7 +23,7 @@ description: "Template for rename-focused structure changes"
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]
-- **Change ID**: [To be assigned - SC-XXX format]
+- **Change ID**: [The PF-STA-NNN ID assigned to this state file]
 - **Change Type**: Rename
 - **Scope**: [Brief description of what's being changed]
 

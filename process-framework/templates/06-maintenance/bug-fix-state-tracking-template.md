@@ -84,7 +84,7 @@ template_for: Bug Fix State Tracking
 |----------|----|--------|--------|
 | Feature State File | [PF-FEA-XXX or N/A] | [Update / N/A] | [Pending / Done / N/A] |
 | TDD | [PD-TDD-XXX or N/A] | [Update / N/A] | [Pending / Done / N/A] |
-| Test Specification | [PF-TSP-XXX or N/A] | [Update / N/A] | [Pending / Done / N/A] |
+| Test Specification | [TE-TSP-XXX or N/A] | [Update / N/A] | [Pending / Done / N/A] |
 | FDD | [PD-FDD-XXX or N/A] | [Update / N/A] | [Pending / Done / N/A] |
 
 ## Session Log

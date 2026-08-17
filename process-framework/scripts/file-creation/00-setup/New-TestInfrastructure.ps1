@@ -14,13 +14,21 @@
     -Scaffold (default, back-compat with existing Project Initiation step 11):
         Applies the language-specific layer (fixtures, package markers, E2E .gitignore) on top of a
         blueprint-copied test/ tree. Idempotently ensures structural directories exist for projects
-        not initialized from the blueprint. Tracking files and the TE-id-registry are NOT created
-        here — those come from the blueprint copy.
+        not initialized from the blueprint, including a test/audits/<category> mirror per test
+        category so the Surface 16 audit-mirror invariant holds for language/project quickCategories
+        from the first scaffold (PF-IMP-1387). Each created dir gets a .gitkeep so it survives a
+        fresh clone, matching the -Update sections; the gitignored e2e workspace/ and results/ are
+        excluded, as they are below (PF-IMP-1529). Tracking files and the TE-id-registry are NOT
+        created here — those come from the blueprint copy.
 
         Note (2026-05-14, PF-IMP-871): the hardcoded auto-add of "integration" to TestCategories was
         removed because `test/automated/integration/` is no longer part of the framework's test layout.
 
     -Update (added 2026-05-14, PF-IMP-871 / PF-PRO-034 Phase 2b — skeleton only):
+        Default-quiet (PF-IMP-1440): chained callers (Update-FeatureCategory, New-WorkflowEntry,
+        New-FeatureImplementationState) run this mode as a sub-step, so by default only
+        [CREATED]/[UPDATED] change lines, anomalies, and the closing summary print; the full
+        per-dir [EXISTS] detail renders under -Verbose.
         Reads feature-tracking.md (categories + subgroups) and user-workflow-tracking.md (workflows)
         and idempotently scaffolds the VARIABLE parts of the test tree:
             test/automated/unit/<N>-<slug>/             + test/audits/unit/<N>-<slug>/
@@ -75,6 +83,10 @@
 .PARAMETER WhatIf
     Standard ShouldProcess support — show what would change without acting.
 
+.PARAMETER TestRoot
+    Update mode only. Overrides the test-directory root the update scans and scaffolds under.
+    Omitted resolves it from the project root plus the configured tests path.
+
 .PARAMETER Confirm
     Standard ShouldProcess support — prompt before each action.
 
@@ -91,7 +103,7 @@
     - Requires doc/project-config.json (run Project Initiation first)
     - Update mode also requires feature-tracking.md (and optionally user-workflow-tracking.md)
     - Safe to re-run: idempotent in both modes
-    - Used during Project Initiation (PF-TSK-059) Step 11 (Scaffold)
+    - Used during Project Initiation (PF-TSK-059)'s test-infrastructure step (Scaffold)
     - Chained from Update-FeatureCategory.ps1 + New-FeatureImplementationState.ps1 + New-WorkflowEntry.ps1 (Update; Phases 3a/3c1 wiring)
 
     Script Type: Test Infrastructure Scaffolding (dual-mode)
@@ -336,11 +348,11 @@ function Get-WorkflowsFromTracking {
 # =========================================================================
 if ($PSCmdlet.ParameterSetName -eq 'Update') {
 
-    Write-Host ""
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  New-TestInfrastructure.ps1 -Update" -ForegroundColor Cyan
-    Write-Host "  Mode: feature-tracking + workflow-tracking-driven scaffolding" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
+    # Default-quiet (PF-IMP-1440): -Update runs chained as a sub-step of the creation-flow
+    # scripts, so routine detail (banner, section headers, per-dir [EXISTS]/[UNCHANGED]) goes
+    # to the verbose stream; only [CREATED]/[UPDATED] change lines, anomalies, and the closing
+    # summary print by default. Run with -Verbose for the full per-dir tree.
+    Write-Verbose "New-TestInfrastructure.ps1 -Update (feature-tracking + workflow-tracking-driven scaffolding)"
 
     # Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
     Register-SoakScript
@@ -366,7 +378,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
             }
             $TestRoot = Join-Path $projectRoot $testsPath
         }
-        Write-Host "  Test root: $TestRoot" -ForegroundColor Gray
+        Write-Verbose "Test root: $TestRoot"
 
         # --- Resolve tracking file paths ---
         if ([string]::IsNullOrEmpty($FeatureTrackingFile)) {
@@ -385,9 +397,8 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
                 $WorkflowTrackingFile = ""
             }
         }
-        Write-Host "  Feature tracking: $FeatureTrackingFile" -ForegroundColor Gray
-        Write-Host "  Workflow tracking: $WorkflowTrackingFile" -ForegroundColor Gray
-        Write-Host ""
+        Write-Verbose "Feature tracking: $FeatureTrackingFile"
+        Write-Verbose "Workflow tracking: $WorkflowTrackingFile"
 
         $changesCount = 0
 
@@ -401,12 +412,12 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
         # Subgroup dirs use the full ID-prefix slug ("1-2-customer-read"), keeping the
         # leaf-name globally unambiguous regardless of nesting depth.
         # =====================================================================
-        Write-Host "Section A: Unit feature-category scaffolding..." -ForegroundColor Yellow
+        Write-Verbose "Section A: Unit feature-category scaffolding..."
 
         $categories = Get-FeatureCategoriesFromTracking -Path $FeatureTrackingFile
 
         if ($categories.Count -eq 0) {
-            Write-Host "  No categories found" -ForegroundColor DarkGray
+            Write-Verbose "No categories found"
         } else {
             # Pre-compute parent slugs so level-2 entries can resolve their parent dir name
             $parentSlugMap = @{}
@@ -442,12 +453,11 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
                             $changesCount++
                         }
                     } else {
-                        Write-Host "  [EXISTS] $d" -ForegroundColor DarkGray
+                        Write-Verbose "[EXISTS] $d"
                     }
                 }
             }
         }
-        Write-Host ""
 
         # =====================================================================
         # Section B: Performance 4-level scaffolding (PF-IMP-871 Phase 3b — complete)
@@ -457,7 +467,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
         # `.gitkeep` markers; this loop is the recovery path that recreates them if deleted.
         # No parser is needed — the level list IS the canonical implementation.
         # =====================================================================
-        Write-Host "Section B: Performance 4-level scaffolding (blueprint-provided fixed bones)..." -ForegroundColor Yellow
+        Write-Verbose "Section B: Performance 4-level scaffolding (blueprint-provided fixed bones)..."
         $perfLevels = @('level1-component', 'level2-operation', 'level3-scale', 'level4-resource')
         foreach ($lvl in $perfLevels) {
             foreach ($side in @('automated', 'audits')) {
@@ -472,7 +482,6 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
                 }
             }
         }
-        Write-Host ""
 
         # =====================================================================
         # Section C: E2E workflow scaffolding (PF-IMP-871 Phase 3c1 — complete)
@@ -488,12 +497,12 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
         # be ignored too. The dirs still get created for runtime convenience (Setup-/Verify-
         # scripts append into them).
         # =====================================================================
-        Write-Host "Section C: E2E workflow scaffolding..." -ForegroundColor Yellow
+        Write-Verbose "Section C: E2E workflow scaffolding..."
 
         $workflows = Get-WorkflowsFromTracking -Path $WorkflowTrackingFile
 
         if ($workflows.Count -eq 0) {
-            Write-Host "  No workflows found" -ForegroundColor DarkGray
+            Write-Verbose "No workflows found"
         } else {
             foreach ($wf in $workflows) {
                 $slug = ConvertTo-FeatureSlug -Name $wf.Name -Convention kebab-case
@@ -522,7 +531,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
                             $changesCount++
                         }
                     } else {
-                        Write-Host "  [EXISTS] $d" -ForegroundColor DarkGray
+                        Write-Verbose "[EXISTS] $d"
                     }
                 }
 
@@ -535,11 +544,10 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
                         $changesCount++
                     }
                 } else {
-                    Write-Host "  [EXISTS] $auditE2eDir" -ForegroundColor DarkGray
+                    Write-Verbose "[EXISTS] $auditE2eDir"
                 }
             }
         }
-        Write-Host ""
 
         # =====================================================================
         # Section D: Bug-validation top-level scaffolding (PF-IMP-871 Phase 3d — complete)
@@ -550,7 +558,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
         # — there is exactly one dir, and it is not project-driven (every project gets the
         # same flat dir; per-bug subdirs are not part of this scaffolding contract).
         # =====================================================================
-        Write-Host "Section D: Bug-validation scaffolding (blueprint-provided fixed bone)..." -ForegroundColor Yellow
+        Write-Verbose "Section D: Bug-validation scaffolding (blueprint-provided fixed bone)..."
         $bugValidationDir = Join-Path $TestRoot "bug-validation"
         if (-not (Test-Path $bugValidationDir)) {
             if ($PSCmdlet.ShouldProcess($bugValidationDir, "Create bug-validation dir")) {
@@ -560,9 +568,8 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
                 $changesCount++
             }
         } else {
-            Write-Host "  [EXISTS] $bugValidationDir" -ForegroundColor DarkGray
+            Write-Verbose "[EXISTS] $bugValidationDir"
         }
-        Write-Host ""
 
         # =====================================================================
         # Section E: Regeneration of derived artifacts (PF-IMP-871 Phase 4a — Step 30)
@@ -585,19 +592,25 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
         # computed maps differ from current content; audits/README.md is always
         # refreshed (the timestamp would change anyway).
         # =====================================================================
-        Write-Host "Section E: Regenerate TE-id-registry.json + audits/README.md..." -ForegroundColor Yellow
+        Write-Verbose "Section E: Regenerate TE-id-registry.json + audits/README.md..."
 
         # --- 1. Compute fresh directory maps from filesystem ---
+        # Runtime/cache dirs are not test categories (PF-IMP-978). Sourced from the
+        # shared Get-NonFeatureTestDir helper (Common-ScriptHelpers/Core.psm1) so this
+        # list cannot diverge from Validate-StateTracking's surfaces (PF-IMP-1152).
+        $runtimeCacheDirs = Get-NonFeatureTestDir -Scope RuntimeCache
         $autoRoot = Join-Path $TestRoot "automated"
         $auditRoot = Join-Path $TestRoot "audits"
         $auditDirs = @()
         $autoDirs = @()
         if (Test-Path $auditRoot) {
             $auditDirs = Get-ChildItem -Path $auditRoot -Directory -ErrorAction SilentlyContinue |
+                Where-Object { $runtimeCacheDirs -notcontains $_.Name } |
                 ForEach-Object { $_.Name } | Sort-Object
         }
         if (Test-Path $autoRoot) {
             $autoDirs = Get-ChildItem -Path $autoRoot -Directory -ErrorAction SilentlyContinue |
+                Where-Object { $runtimeCacheDirs -notcontains $_.Name } |
                 ForEach-Object { $_.Name } | Sort-Object
         }
 
@@ -655,7 +668,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
                     $changesCount++
                 }
             } else {
-                Write-Host "  [UNCHANGED] $registryPath (directory maps already current)" -ForegroundColor DarkGray
+                Write-Verbose "[UNCHANGED] $registryPath (directory maps already current)"
             }
         } else {
             Write-Host "  [SKIP] TE-id-registry.json not found at $registryPath" -ForegroundColor DarkGray
@@ -692,13 +705,24 @@ if ($PSCmdlet.ParameterSetName -eq 'Update') {
             $treeBlock = $treeLines -join "`n"
             $generatedTs = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
+            # Layout-aware framework path (PF-IMP-1095): the framework subtree lives at
+            # process-framework/ in rolled-out projects but blueprint/process-framework/ in
+            # appdev. Read paths.process_framework so the generated README links resolve in
+            # BOTH layouts ("../../<pf>" from test/audits/README.md reaches the framework root).
+            $pfRootRel = 'process-framework'
+            try {
+                $cfg = Get-ProjectConfig
+                if ($cfg.paths.process_framework) { $pfRootRel = $cfg.paths.process_framework }
+            } catch { }
+            $pfLinkRel = "../../$pfRootRel"
+
             # Use single-quoted here-string (no variable interpolation, no backtick escaping)
             # and token-substitute via -replace afterwards. Markdown code-fences and backticks
             # render through unchanged.
             $readmeTemplate = @'
 <!-- AUTO-GENERATED FILE — DO NOT EDIT MANUALLY -->
 <!-- Source of truth: filesystem (test/audits/) -->
-<!-- Regenerated by: process-framework/scripts/file-creation/00-setup/New-TestInfrastructure.ps1 -Update -->
+<!-- Regenerated by: {{PF_ROOT}}/scripts/file-creation/00-setup/New-TestInfrastructure.ps1 -Update -->
 <!-- Last regenerated: {{GENERATED_TS}} -->
 
 # Test Audits Directory
@@ -716,7 +740,7 @@ transformation (`test/automated/<path>/` → `test/audits/<path>/`,
 
 ## How Audits Get Placed
 
-Audit reports are created by [New-TestAuditReport.ps1](../../process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1).
+Audit reports are created by [New-TestAuditReport.ps1]({{PF_REL}}/scripts/file-creation/03-testing/New-TestAuditReport.ps1).
 
 - **Automated tests** (unit): audit path = test path with `automated/` → `audits/`
   segment swap. No feature-ID prefix switch (PF-IMP-871 Phase 3a refactor).
@@ -727,10 +751,10 @@ Audit reports are created by [New-TestAuditReport.ps1](../../process-framework/s
 
 ## Related Documentation
 
-- [Test Audit Task (PF-TSK-030)](../../process-framework/tasks/03-testing/test-audit-task.md)
+- [Test Audit Task (PF-TSK-030)]({{PF_REL}}/tasks/03-testing/test-audit-task.md)
 - [Test Tracking](../state-tracking/permanent/test-tracking.md)
-- [New-TestAuditReport.ps1](../../process-framework/scripts/file-creation/03-testing/New-TestAuditReport.ps1)
-- [Validate-AuditReport.ps1](../../process-framework/scripts/validation/Validate-AuditReport.ps1)
+- [New-TestAuditReport.ps1]({{PF_REL}}/scripts/file-creation/03-testing/New-TestAuditReport.ps1)
+- [Validate-AuditReport.ps1]({{PF_REL}}/scripts/validation/Validate-AuditReport.ps1)
 - Validate-StateTracking.ps1 Surfaces 16/17/18 — audit mirror invariant + category alignment + workflow alignment (PF-IMP-871 Phase 4a)
 
 ## File Naming Convention
@@ -751,7 +775,7 @@ Re-audits overwrite the existing report (`New-TestAuditReport.ps1 -Force`). Prio
 are preserved by **git history**, not by an `old/` subdirectory.
 '@
 
-            $readmeContent = $readmeTemplate.Replace('{{GENERATED_TS}}', $generatedTs).Replace('{{TREE_BLOCK}}', $treeBlock)
+            $readmeContent = $readmeTemplate.Replace('{{GENERATED_TS}}', $generatedTs).Replace('{{TREE_BLOCK}}', $treeBlock).Replace('{{PF_REL}}', $pfLinkRel).Replace('{{PF_ROOT}}', $pfRootRel)
 
             $existingContent = if (Test-Path $readmePath) { Get-Content -Path $readmePath -Raw -Encoding UTF8 } else { '' }
             # Compare ignoring the "Last regenerated" line (timestamp churn)
@@ -765,7 +789,7 @@ are preserved by **git history**, not by an `old/` subdirectory.
                     $changesCount++
                 }
             } else {
-                Write-Host "  [UNCHANGED] $readmePath (content already current)" -ForegroundColor DarkGray
+                Write-Verbose "[UNCHANGED] $readmePath (content already current)"
             }
         } else {
             Write-Host "  [SKIP] audits/ dir does not exist at $auditRoot" -ForegroundColor DarkGray
@@ -853,12 +877,18 @@ Write-Host ""
 
 # --- Helper: Create directory if it doesn't exist ---
 function New-DirectoryIfNeeded {
-    param([string]$Path, [string]$Description)
+    # -NoGitKeep marks a gitignored runtime directory, matching the per-directory GitKeep spec
+    # the -Update sections use: an empty dir vanishes on clone unless a marker holds it, but a
+    # marker in a gitignored dir would never be committed anyway.
+    param([string]$Path, [string]$Description, [switch]$NoGitKeep)
     $fullPath = Join-Path $projectRoot $Path
     if (Test-Path $fullPath) {
         Write-Host "  [EXISTS] $Path" -ForegroundColor DarkGray
     } elseif ($PSCmdlet.ShouldProcess($Path, "Create directory: $Description")) {
         New-Item -ItemType Directory -Path $fullPath -Force | Out-Null
+        if (-not $NoGitKeep) {
+            New-Item -ItemType File -Path (Join-Path $fullPath ".gitkeep") -Force | Out-Null
+        }
         Write-Host "  [CREATED] $Path" -ForegroundColor Green
         $script:scaffoldChangesCount++
     }
@@ -948,11 +978,15 @@ New-DirectoryIfNeeded -Path "test/specifications/cross-cutting-specs" -Descripti
 
 # E2E acceptance testing directories
 New-DirectoryIfNeeded -Path "test/e2e-acceptance-testing/templates" -Description "E2E test case templates"
-New-DirectoryIfNeeded -Path "test/e2e-acceptance-testing/workspace" -Description "E2E working copies (gitignored)"
-New-DirectoryIfNeeded -Path "test/e2e-acceptance-testing/results" -Description "E2E execution logs (gitignored)"
+New-DirectoryIfNeeded -Path "test/e2e-acceptance-testing/workspace" -Description "E2E working copies (gitignored)" -NoGitKeep
+New-DirectoryIfNeeded -Path "test/e2e-acceptance-testing/results" -Description "E2E execution logs (gitignored)" -NoGitKeep
 
-# Audit directory
+# Audit directory + per-category mirrors (Surface 16 demands audits/<category> for every
+# test category under automated/, including language/project quickCategories — PF-IMP-1387)
 New-DirectoryIfNeeded -Path "test/audits" -Description "Test audit reports"
+foreach ($category in $TestCategories) {
+    New-DirectoryIfNeeded -Path "test/audits/$category" -Description "Audit mirror for test category: $category"
+}
 
 # Bug-validation directory (top-level since PF-IMP-871 Phase 2b — moved from test/automated/bug-validation/)
 New-DirectoryIfNeeded -Path "test/bug-validation" -Description "Bug regression validation scripts"
@@ -1058,9 +1092,17 @@ Write-Host "  Test Infrastructure Setup Complete" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "  Changes: $script:scaffoldChangesCount (new directories/files created)" -ForegroundColor White
 Write-Host ""
+# Language-aware next steps (PF-IMP-1440): derive the examples from the loaded language
+# config instead of hardcoding pytest/pip guidance for every language.
+$langLower = $Language.ToLower()
+$langBaseCommand = if ($langConfig.testing -and $langConfig.testing.baseCommand) {
+    $langConfig.testing.baseCommand
+} else {
+    "the $langLower test runner"
+}
 Write-Host "Next steps:" -ForegroundColor Yellow
-Write-Host "  1. Create/verify native test runner config (e.g., pytest.ini for Python)" -ForegroundColor White
-Write-Host "  2. Install test dependencies (e.g., pip install pytest pytest-cov)" -ForegroundColor White
+Write-Host "  1. Create/verify the native test-runner config for $langLower (see process-framework/languages-config/$langLower/)" -ForegroundColor White
+Write-Host "  2. Ensure the test dependencies for '$langBaseCommand' are installed" -ForegroundColor White
 Write-Host "  3. Verify: Run-Tests.ps1 -ListCategories" -ForegroundColor White
 Write-Host "  4. Verify: Run-Tests.ps1 -Quick" -ForegroundColor White
 Write-Host ""

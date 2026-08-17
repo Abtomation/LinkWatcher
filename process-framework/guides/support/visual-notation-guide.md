@@ -4,8 +4,8 @@ type: Process Framework
 category: Guide
 version: 1.0
 created: 2025-06-11
-updated: 2025-01-27
-description: "Standard notation used in diagrams and context maps"
+updated: 2026-06-15
+description: "Standard notation for framework mermaid diagrams (e.g. Integration Narratives, task/guide component diagrams)"
 ---
 
 # Visual Notation Guide for AI Interpretation

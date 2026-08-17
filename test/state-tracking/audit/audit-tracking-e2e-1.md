@@ -1,5 +1,6 @@
 ---
 id: PF-STA-089
+description: "Test Audit Tracking — Round 1."
 type: Process Framework
 category: State Tracking
 version: 1.0
@@ -32,7 +33,7 @@ This file tracks the progress and results of a **Test Audit round** across all t
 | # | Feature ID | Test File | Current Status | Audit Status | Report Link | Session | Notes |
 |---|------------|-----------|----------------|--------------|-------------|---------|-------|
 | 1 | TE-E2G-001 | master-test-powershell-regex-preservation.md | Passed | Skipped | — | 1 | Group-level — audited via case |
-| 2 | TE-E2E-001 | TE-E2E-001-regex-preserved-on-file-move | Passed | Done | [TE-TAR-037](../../audits/e2e/audit-report-1-1-1-test-case.md) | 1 | 🔍 Audit Approved |
+| 2 | TE-E2E-001 | TE-E2E-001-regex-preserved-on-file-move | Passed | Done | [TE-TAR-077](../../audits/e2e/audit-report-1-1-1-te-e2e-001.md) | 1 | ✅ Audit Approved — re-audited 2026-08-07; superseded TE-TAR-037 (removed) |
 | 3 | TE-E2G-002 | master-test-powershell-parser-patterns.md | Passed | Skipped | — | 1 | Group-level — audited via cases; has template placeholders |
 | 4 | TE-E2E-002 | TE-E2E-002-powershell-md-file-move | Passed | Done | [TE-TAR-038](../../audits/e2e/audit-report-2-1-1-test-case.md) | 1 | 🔍 Audit Approved |
 | 5 | TE-E2E-003 | TE-E2E-003-powershell-script-file-move | Passed | Done | [TE-TAR-039](../../audits/e2e/audit-report-te-e2e-003-test-case.md) | 1 | 🔍 Audit Approved |
@@ -43,14 +44,14 @@ This file tracks the progress and results of a **Test Audit round** across all t
 | 10 | TE-E2E-006 | TE-E2E-006-json-link-update-on-file-move | Passed | Done | [TE-TAR-042](../../audits/e2e/audit-report-te-e2e-006-test-case.md) | 1 | 🔍 Audit Approved |
 | 11 | TE-E2E-007 | TE-E2E-007-python-import-update-on-file-move | Passed | Done | [TE-TAR-043](../../audits/e2e/audit-report-te-e2e-007-test-case.md) | 1 | 🔍 Audit Approved; minor fix applied to test-case.md |
 | 12 | TE-E2G-005 | master-test-runtime-dynamic-operations.md | Passed | Skipped | — | 2 | Group-level — audited via cases |
-| 13 | TE-E2E-008 | TE-E2E-008-file-create-and-move | Passed | Done | [TE-TAR-057](../../audits/e2e/audit-report-te-e2e-008-test-case.md) | 2 | 🔍 Audit Approved |
-| 14 | TE-E2E-009 | TE-E2E-009-directory-create-and-move | Passed | Done | [TE-TAR-058](../../audits/e2e/audit-report-te-e2e-009-test-case.md) | 2 | 🔍 Audit Approved |
-| 15 | TE-E2E-010 | TE-E2E-010-file-create-and-rename | Passed | Done | [TE-TAR-059](../../audits/e2e/audit-report-te-e2e-010-test-case.md) | 2 | 🔍 Audit Approved |
-| 16 | TE-E2E-011 | TE-E2E-011-directory-create-and-rename | Passed | Done | [TE-TAR-060](../../audits/e2e/audit-report-te-e2e-011-test-case.md) | 2 | 🔍 Audit Approved |
-| 17 | TE-E2E-013 | TE-E2E-013-nested-directory-move | Passed | Done | [TE-TAR-061](../../audits/e2e/audit-report-te-e2e-013-test-case.md) | 2 | 🔍 Audit Approved |
-| 18 | TE-E2E-014 | TE-E2E-014-directory-move-internal-refs | Passed | Done | [TE-TAR-062](../../audits/e2e/audit-report-te-e2e-014-test-case.md) | 2 | 🔍 Audit Approved |
+| 13 | TE-E2E-008 | TE-E2E-008-file-create-and-move | Passed | Done | TE-TAR-057 (deleted; superseded by [TE-TAR-078](../../audits/e2e/audit-report-1-1-1-te-e2e-008.md), re-audit 2026-08-10) | 2 | 🔍 Audit Approved |
+| 14 | TE-E2E-009 | TE-E2E-009-directory-create-and-move | Passed | Done | TE-TAR-058 (deleted; superseded by [TE-TAR-079](../../audits/e2e/audit-report-1-1-1-te-e2e-009.md), re-audit 2026-08-10) | 2 | 🔍 Audit Approved |
+| 15 | TE-E2E-010 | TE-E2E-010-file-create-and-rename | Passed | Done | TE-TAR-059 (deleted; superseded by [TE-TAR-080](../../audits/e2e/audit-report-1-1-1-te-e2e-010.md), re-audit 2026-08-10) | 2 | 🔍 Audit Approved |
+| 16 | TE-E2E-011 | TE-E2E-011-directory-create-and-rename | Passed | Done | TE-TAR-060 (deleted; superseded by [TE-TAR-081](../../audits/e2e/audit-report-1-1-1-te-e2e-011.md), re-audit 2026-08-10) | 2 | 🔍 Audit Approved |
+| 17 | TE-E2E-013 | TE-E2E-013-nested-directory-move | Passed | Done | TE-TAR-061 (deleted; superseded by [TE-TAR-083](../../audits/e2e/audit-report-1-1-1-te-e2e-013.md), re-audit 2026-08-10) | 2 | 🔍 Audit Approved |
+| 18 | TE-E2E-014 | TE-E2E-014-directory-move-internal-refs | Passed | Done | TE-TAR-062 (deleted; superseded by [TE-TAR-084](../../audits/e2e/audit-report-1-1-1-te-e2e-014.md), re-audit 2026-08-10) | 2 | 🔍 Audit Approved |
 | 19 | TE-E2G-006 | master-test-startup-operations.md | Passed | Skipped | — | 2 | Group-level — audited via cases |
-| 20 | TE-E2E-012 | TE-E2E-012-file-operations-during-startup | Passed | Done | [TE-TAR-063](../../audits/e2e/audit-report-te-e2e-012-test-case.md) | 2 | 🔍 Audit Approved |
+| 20 | TE-E2E-012 | TE-E2E-012-file-operations-during-startup | Passed | Done | TE-TAR-063 (deleted; superseded by [TE-TAR-085](../../audits/e2e/audit-report-0-1-1-te-e2e-012.md), re-audit 2026-08-10) | 2 | 🔍 Audit Approved |
 | 21 | TE-E2E-015 | TE-E2E-015-startup-custom-config-excludes | Passed | Done | [TE-TAR-064](../../audits/e2e/audit-report-te-e2e-015-test-case.md) | 2 | 🔍 Audit Approved; minor fixes: lw_flags + feature_ids format |
 | 22 | TE-E2G-007 | master-test-rapid-sequential-moves.md | Passed | Skipped | — | 3 | Group-level — audited via cases |
 | 23 | TE-E2E-016 | TE-E2E-016-two-files-moved-rapidly | Passed | Done | [TE-TAR-044](../../audits/e2e/audit-report-te-e2g-007-test-case.md) | 3 | 🔍 Audit Approved |

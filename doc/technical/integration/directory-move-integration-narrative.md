@@ -1,5 +1,6 @@
 ---
 id: PD-INT-006
+description: "WF-002 directory move pipeline: how File System Monitoring (DirectoryMoveDetector 3-phase state machine with settle+max timers + native `DirMovedEvent`), In-Memory Database, Parser Framework, and Link Updater collaborate through the 5-phase batched pipeline (Phase 0 source-path re-key, Phase 1/1b/1c batched collect→single-pass update (TD129)→deferred bulk rescan (TD128), Phase 1.5 inside-file relative links, Phase 2 directory-path refs) to update every inbound reference, every contained file's outward links, and every reference to the directory path itself in a single orchestrated flow"
 type: Product Documentation
 category: Integration Narrative
 version: 1.0

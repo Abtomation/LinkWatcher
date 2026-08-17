@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-041
-type: Process Framework
+description: "Batch 2 (Score: 3.400/4.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-03-03

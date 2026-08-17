@@ -4,10 +4,10 @@
 
 <#
 .SYNOPSIS
-Creates a new temporary state tracking file for multi-session task creation, process improvement, framework extension, framework evaluation, blueprint sync, refactoring, or retrospective documentation workflows.
+Creates a new temporary state tracking file for multi-session task creation, process improvement, framework extension, framework evaluation, refactoring, or retrospective documentation workflows.
 
 .DESCRIPTION
-Creates a temporary state file from one of seven template variants. The destination directory
+Creates a temporary state file from one of six template variants. The destination directory
 is resolved at runtime via Get-StateTrackingContext (project_id-aware routing):
   - For appdev (project_id == "PRJ-000"): process-framework-central/state-tracking/temporary/
   - For projects (project_id != "PRJ-000"): doc/state-tracking/temporary/
@@ -24,7 +24,6 @@ Which template variant to instantiate. Allowed values:
   - ProcessImprovement        — process improvement work (PF-TSK-009)
   - FrameworkExtension        — multi-artifact framework extensions (PF-TSK-026)
   - FrameworkEvaluation       — multi-session framework evaluations (PF-TSK-079; dimension analysis + findings log)
-  - BlueprintSync             — framework-blueprint-sync sessions (PF-TSK-087)
   - Refactoring               — code refactoring (PF-TSK-022 Standard Path; ≥5 items or 3+ sessions)
   - RetrospectiveDocumentation — per-feature Phase 3 documentation creation (PF-TSK-066; Tier 2/3 multi-session)
 
@@ -56,7 +55,7 @@ param(
     [string]$TaskName,
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("TaskCreation", "ProcessImprovement", "FrameworkExtension", "FrameworkEvaluation", "BlueprintSync", "Refactoring", "RetrospectiveDocumentation")]
+    [ValidateSet("TaskCreation", "ProcessImprovement", "FrameworkExtension", "FrameworkEvaluation", "Refactoring", "RetrospectiveDocumentation")]
     [string]$Variant = "TaskCreation",
 
     [Parameter(Mandatory = $false)]
@@ -73,14 +72,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only its
+# param block, the per-variant template/data selection, and the success report.
 
 $kebabName = ConvertTo-KebabCase -InputString $TaskName
 $processFrameworkDir = Get-ProcessFrameworkPath  # Phase 5.5: configurable via paths.process_framework
@@ -109,7 +103,7 @@ if ($Variant -eq "ProcessImprovement") {
         "✅ Process improvement state file created.",
         "",
         "📖 CUSTOMIZATION GUIDE:",
-        "process-framework/guides/support/temp-state-tracking-customization-guide.md",
+        ".claude/skills/state-file-customization/SKILL.md",
         "🎯 FOCUS: Fill in Improvement Overview, Affected Components, and phase checklists.",
         "",
         "💡 This template is pre-structured for process improvement workflows —",
@@ -134,7 +128,7 @@ if ($Variant -eq "ProcessImprovement") {
         "✅ Framework extension state file created.",
         "",
         "📖 CUSTOMIZATION GUIDE:",
-        "process-framework/guides/support/temp-state-tracking-customization-guide.md",
+        ".claude/skills/state-file-customization/SKILL.md",
         "🎯 FOCUS: Fill in Extension Overview, Artifact Tracking table, Task Impact table, and phase checklists.",
         "",
         "💡 This template is pre-structured for multi-artifact framework extensions —",
@@ -163,24 +157,6 @@ if ($Variant -eq "ProcessImprovement") {
         "",
         "💡 This template is pre-structured for multi-session framework evaluations —",
         "   artifact inventory, per-dimension progress across the seven dimensions, findings log with routing, and session tracking."
-    )
-} elseif ($Variant -eq "BlueprintSync") {
-    # --- Blueprint Sync variant ---
-    $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\temp-blueprint-sync-state-template.md"
-    $customFileName = "temp-blueprint-sync-$kebabName.md"
-    $idDescription = "Temporary blueprint sync state: ${TaskName}"
-
-    $customReplacements = @{}
-
-    $successDetails = @(
-        "",
-        "✅ Blueprint sync state file created.",
-        "",
-        "📖 CONSUMER TASK: process-framework/tasks/support/framework-blueprint-sync-task.md (PF-TSK-087)",
-        "🎯 FOCUS: Fill in Session Parameters, Per-Item Classification & Selection table, Notes on Specific Items, and Session Log.",
-        "",
-        "💡 This template is pre-structured for blueprint sync sessions —",
-        "   per-directory rules, per-item classification, durable backlog/log refs."
     )
 } elseif ($Variant -eq "Refactoring") {
     # --- Refactoring variant ---
@@ -236,17 +212,12 @@ if ($Variant -eq "ProcessImprovement") {
     }
 
     $successDetails = @(
-        "Customization required — see process-framework/guides/support/temp-state-tracking-customization-guide.md"
+        "Customization required — see .claude/skills/state-file-customization/SKILL.md"
     )
 }
 
-try {
-    $stContext = Get-StateTrackingContext
-    $outputDir = "$($stContext.StateTrackingRelative)/temporary"
-    $tempId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDescription -DocumentName $TaskName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+$stContext = Get-StateTrackingContext
+$outputDir = "$($stContext.StateTrackingRelative)/temporary"
+$tempId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDescription -DocumentName $TaskName -OutputDirectory $outputDir -Replacements $customReplacements -Metadata $additionalMetadataFields -FileNamePattern $customFileName -Label "temporary state file" -OpenInEditor:$OpenInEditor
 
-    Write-ProjectSuccess -Message "Created temporary state file with ID: $tempId (Variant: $Variant)" -Details $successDetails
-}
-catch {
-    Write-ProjectError -Message "Failed to create temporary state file: $($_.Exception.Message)" -ExitCode 1
-}
+Write-ProjectSuccess -Message "Created temporary state file with ID: $tempId (Variant: $Variant)" -Details $successDetails

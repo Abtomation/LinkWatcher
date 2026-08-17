@@ -4,19 +4,25 @@
 .SYNOPSIS
     Master state validation script — validates that state tracking entries match actual files on disk.
 .DESCRIPTION
-    Checks consistency across 19 validation surfaces:
-    1. ../feature-tracking.md — all document links (FDD, TDD, Test Spec, Assessment, State File)
-    2. Feature implementation state files — link checks in the Documentation Inventory, Code Inventory, and Dependencies sections (matched by title, so both the full and lightweight/Tier 1 templates' section numbering work)
-    3. ../test-tracking.md — test file path references
+    Checks consistency across 17 validation surfaces:
+    1. (retired — PF-IMP-1299) Feature Tracking links — broken-link detection delegated to LinkWatcher --validate (run_linkwatcher_validate.ps1), wired into the task finalization gates
+    2. Feature implementation state files — STRUCTURAL checks only (PF-IMP-1299): the Documentation/Code/Dependencies inventory sections are present and non-empty (matched by title, so the full and Tier 1 templates both work), and the features dir is present/non-empty. Broken-link detection within those sections is delegated to LinkWatcher --validate.
+    3. (retired — PF-IMP-1299) Test Tracking links — broken-link detection delegated to LinkWatcher --validate
     4. Cross-reference consistency — feature IDs in test-registry.yaml vs feature-tracking.md
     5. ID counter health — nextAvailable counters vs actual max IDs
     6. Feature Dependencies — regenerate feature-dependencies.md if stale
     7. Dimension Consistency — dimension profile presence and valid abbreviations (Tier 1 lightweight files skipped — they have no Dimension Profile by design)
     8. Workflow Tracking — workflow-feature mapping consistency and status accuracy
-    9. Task Registry — all PF-TSK IDs present in process-framework-task-registry.md
+    9. (retired — PF-IMP-1210) Task Registry — superseded by Build-TaskMetadata.ps1 -Check (PF-PRO-042)
     10. Metadata Schema — YAML frontmatter conformance against domain-config.json schemas
-    11. Context Map Orphans — cross-reference context map related_task metadata against actual task files
-    12. AI Tasks Consistency — detect task files in tasks/ directories but missing from ai-tasks.md
+    11. (retired) Context Map Orphans — removed with the context-map ecosystem. The number is
+        left vacant rather than renumbered so later surfaces keep their long-standing IDs, which
+        are cited across tests, IMP history, and the inline `# Surface NN` section headers below.
+        Consequence: a `# Surface NN` header is that stable historical ID and intentionally does
+        NOT equal the surface's positional index in the $CanonicalSurfaces name list (which has no
+        gap). -Surface has no ValidateSet — unknown names are caught by a runtime "no surfaces
+        matched" guard, not at parameter binding.
+    12. (retired — PF-IMP-1210) AI Tasks Consistency — superseded by Build-TaskMetadata.ps1 -Check (PF-PRO-042)
     13. Master State Consistency — phase checkboxes, progress counters, and doc summary vs Feature Inventory
     14. Source Layout — compare source-code-layout.md directory tree against actual source directories
     15. Test Status Aggregation — cross-check feature-tracking Test Status against aggregated test-tracking statuses (PF-IMP-573)
@@ -24,13 +30,21 @@
     17. Category Alignment — feature-tracking.md categories/subgroups vs `test/automated/unit/<N>-<slug>/` dirs (PF-IMP-871 Phase 4a)
     18. Workflow Alignment — user-workflow-tracking.md WF-NNN rows vs `test/e2e-acceptance-testing/<slug>/templates/` dirs (PF-IMP-871 Phase 4a)
     19. Variant Pair Consistency — per-file frontmatter variant_group/variant_siblings symmetry and sibling existence (PF-IMP-837)
+    20. Feature Request Tracking — intra-tracker markdown link existence in feature-request-tracking.md (PF-IMP-1212; broken links → WARNING, warn-first)
+    21. Architecture Tracking — intra-tracker markdown link existence in architecture-tracking.md (PF-IMP-1212)
+    22. Technical Debt Tracking — intra-tracker markdown link existence in technical-debt-tracking.md (PF-IMP-1212)
+    23. Bug Tracking — intra-tracker markdown link existence in bug-tracking.md (PF-IMP-1212)
+    24. Process Improvement Tracking (central) — reachability + table-structure check of the central process-improvement-tracking.md (PF-IMP-1212; links not validated — they are appdev-relative)
+    25. Blueprint Central References — blueprint/**/*.md markdown links into process-framework-central/ checked against the real central tree (PF-IMP-1589; appdev layout only, N/A in rolled-out projects; broken links → WARNING, warn-first). These links are rolled-layout-relative navigational hints (PF-IMP-1097) that resolve nowhere on disk, so LinkWatcher can neither update nor validate them — this surface is their only detector.
+    26. Technical Exploration Tracking — intra-tracker markdown link existence in technical-exploration-tracking.md (PF-IMP-1584; PF-EVR-029 F-4), closing the tracker's gap vs its sibling intake queues (Surfaces 20–23) so a resolved exploration row with a rotted Findings Doc link is detected post-resolve
+    27. Task ID References — PF-TSK-NNN ids cited in authored framework prose (tasks/, guides/, templates/, .claude/skills/) checked against the task files' own ids (PF-IMP-1677; appdev layout only; warn-first). Two checks: phantom ids (cited but assigned to no task) and name-vs-id mismatches ("Bug Triage (PF-TSK-024)" where the named task declares a different id) — the second catches wrong-but-live ids that a membership check passes
 
     Created as IMP-028 from Tools Review 2026-02-21.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection from script location.
 .PARAMETER Surface
     Which validation surfaces to run. Accepts one or more of:
-    "FeatureTracking", "StateFiles", "TestTracking", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "TaskRegistry", "MetadataSchema", "ContextMapOrphans", "AiTasksConsistency", "MasterStateConsistency", "SourceLayout", "TestStatusAggregation", "AuditMirror", "CategoryAlignment", "WorkflowAlignment", "VariantPairConsistency", "All"
+    "StateFiles", "CrossRef", "IdCounters", "FeatureDeps", "DimensionConsistency", "WorkflowTracking", "MetadataSchema", "MasterStateConsistency", "SourceLayout", "TestStatusAggregation", "AuditMirror", "CategoryAlignment", "WorkflowAlignment", "VariantPairConsistency", "FeatureRequestTracking", "ArchitectureTracking", "TechDebtTracking", "BugTracking", "ProcessImprovementTracking", "BlueprintCentralRefs", "ExplorationTracking", "TaskIdRefs", "All" (FeatureTracking / TestTracking retired — PF-IMP-1299, delegated to LinkWatcher --validate)
     Default: "All"
 .PARAMETER Detailed
     Show every checked link, not just failures. Also reveals schema-detail-only warnings
@@ -40,21 +54,62 @@
     reconciliation workflow that consumes -Detailed Surface 10 output.
 .PARAMETER FixCounters
     Auto-fix nextAvailable counters in ID registries (Surface 5 only).
+.PARAMETER SaveBaseline
+    Save this run's ERROR findings as a baseline JSON for later delta comparison.
+    The file is auto-named (vst-baseline-<project>-<timestamp>-<PID>.json — unique per
+    session, so parallel sessions never collide) and written to a WORKSPACE-SCOPED
+    directory, $env:TEMP\vst-baselines-<project>-<root-hash>\ (PF-IMP-1984); the path is
+    printed at the end of the run — read it from there rather than composing it. Save a
+    baseline BEFORE starting a scoped change, then re-run with -Baseline <path> afterward
+    to prove the change introduced no NEW errors. Each save prunes baselines older than 3
+    days (the validator owns cleanup — no manual deletion needed); the prune is confined
+    to this workspace's own directory. Exit-code semantics of the save run are
+    unchanged (a debt-carrying project still exits 1; callers saving a baseline
+    typically ignore it).
+.PARAMETER Baseline
+    Path to a baseline JSON previously written by -SaveBaseline. After the run, compares
+    current errors against the baseline and reports NEW / pre-existing / resolved.
+    Exit code becomes delta-based: 1 only if NEW errors exist — pre-existing debt no
+    longer fails the run. Warns if the baseline was saved for a different project root
+    or surface selection. The baseline file is kept (fix-and-recompare is allowed);
+    the 3-day prune handles cleanup.
+.PARAMETER Json
+    Write a machine-readable JSON summary of the run (counts, per-surface coverage,
+    error fingerprints, baseline delta, and the exit code) so programmatic / CI consumers
+    do not have to scrape the colored host text. Without -JsonPath the file is auto-named
+    (vst-summary-<project>-<timestamp>-<PID>.json) under the workspace-scoped
+    $env:TEMP\vst-summaries-<project>-<root-hash>\ (PF-IMP-1984) and its path is printed at
+    the end. The human-facing host output and exit codes are unchanged.
+.PARAMETER JsonPath
+    Explicit destination for the -Json summary (implies -Json). Use this in CI to pin the
+    summary to a known location, e.g. -JsonPath validation-summary.json.
 .EXAMPLE
     ../Validate-StateTracking.ps1
 .EXAMPLE
-    ../Validate-StateTracking.ps1 -Surface FeatureTracking,StateFiles
+    ../Validate-StateTracking.ps1 -Surface StateFiles,IdCounters
 .EXAMPLE
     ../Validate-StateTracking.ps1 -Detailed
 .EXAMPLE
     ../Validate-StateTracking.ps1 -Surface IdCounters -FixCounters
+.EXAMPLE
+    ../Validate-StateTracking.ps1 -JsonPath validation-summary.json
+    # machine-readable summary for a CI gate; exit code still reflects pass/fail
+.EXAMPLE
+    ../Validate-StateTracking.ps1 -SaveBaseline
+    # ... make the scoped change, then prove no NEW errors, passing the path the save run
+    # PRINTED (the directory is workspace-scoped, so do not compose it by hand):
+    ../Validate-StateTracking.ps1 -Baseline $env:TEMP\vst-baselines-<project>-<root-hash>\vst-baseline-<project>-<timestamp>-<PID>.json
 #>
 
 param(
     [string]$ProjectRoot = "",
     [string[]]$Surface = @("All"),
     [switch]$Detailed,
-    [switch]$FixCounters
+    [switch]$FixCounters,
+    [switch]$SaveBaseline,
+    [string]$Baseline = "",
+    [switch]$Json,
+    [string]$JsonPath = ""
 )
 
 # --- Locate + import Common-ScriptHelpers umbrella ---
@@ -76,12 +131,36 @@ if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
     $ProjectRoot = Get-ProjectRoot
 }
 
+# Normalize to an absolute path before any path math runs (PF-IMP-1956). Several surfaces derive
+# a repo-relative path with $file.FullName.Substring($root.Length) — FullName is always absolute,
+# so a relative -ProjectRoot ("blueprint") makes the offsets disagree by the length of the absolute
+# prefix: every derived path is silently sliced mid-token ("...\FrameworkBuilder\..." →
+# "rameworkBuilder\...") and surfaces report fabricated findings instead of failing loudly.
+# Resolved against $PWD rather than via Resolve-Path, deliberately: the root need not exist —
+# callers pass a non-existent root to exercise the empty-project context — and .NET's
+# CurrentDirectory does not track PowerShell's location, so the base is passed explicitly.
+# DirectoryInfo drops any trailing separator (keeping it at a drive root) so the Substring
+# offsets stay exact. Get-ProjectRoot already returns absolute, so auto-detect is a no-op.
+$ProjectRoot = ([System.IO.DirectoryInfo]::new(
+    [System.IO.Path]::GetFullPath($ProjectRoot, $PWD.Path))).FullName
+
 # --- Globals ---
 $totalChecks = 0
 $errorCount = 0
 $warningCount = 0
 $passCount = 0
 $detailOnlyHiddenCount = 0  # Warnings counted but display-suppressed unless -Detailed
+$errorFingerprints = [System.Collections.Generic.List[string]]::new()  # "Surface|Context|Message" per ERROR, for -SaveBaseline / -Baseline
+$surfaceRecorded = [ordered]@{}  # PF-IMP-1209: Add-CheckResult call count per Surface, for an honest per-surface coverage report (X-1) — distinguishes "recorded nothing" from a clean pass
+$surfaceExamined = [ordered]@{}  # PF-IMP-1209 remainder: instances each surface actually examined — the faithful denominator (distinct from $surfaceRecorded's Add-CheckResult call count)
+$projectId = ""                  # captured from project-config.json below; identity/provenance only — absent-target severity is driven by $script:workspaceRole (declared role, PF-PRO-067), not by this id
+# PF-IMP-1214: summary fields read by Complete-Run at every terminal exit. Initialized here
+# so the JSON summary is well-formed even on early exits (e.g. the no-surface-match guard)
+# before the tail computes the real values.
+$selectedSurfaces = @()
+$silentSurfaces   = @()
+$newErrors        = $null
+$jsonBaseline     = $null
 
 # Normalize -Surface: split any comma-joined elements into separate items, trim, drop empties.
 # Handles `pwsh.exe -File -Surface a,b,c` invocation where PowerShell passes the comma-joined
@@ -92,25 +171,45 @@ $Surface = @($Surface | ForEach-Object { $_ -split ',' } | ForEach-Object { $_.T
 
 $runAll = $Surface -contains "All"
 
-# --- Load language config for test file extension ---
+# PF-IMP-1209: canonical surface names (same set as the -Surface gates / .PARAMETER list),
+# in display order. The summary's per-surface coverage report walks this to show which selected
+# surfaces recorded no findings — so "checked nothing" is distinguishable from "found no problems".
+# Note (PF-IMP-1170): the inline `# Surface NN` section headers use stable historical numbers with
+# a gap at 11 (retired Context Map Orphans), so a header's NN is NOT this list's positional index.
+$CanonicalSurfaces = @(
+    # FeatureTracking / TestTracking retired (PF-IMP-1299) — broken-link detection delegated to
+    # LinkWatcher --validate. StateFiles retained for its structural inventory checks.
+    'StateFiles', 'CrossRef', 'IdCounters', 'FeatureDeps',
+    'DimensionConsistency', 'WorkflowTracking', 'MetadataSchema',
+    'MasterStateConsistency', 'SourceLayout', 'TestStatusAggregation',
+    'AuditMirror', 'CategoryAlignment', 'WorkflowAlignment', 'VariantPairConsistency',
+    # PF-IMP-1212 / PF-PRO-049: surfaces for the previously-uncovered permanent trackers
+    # (4 project-local + the central IMP tracker). TaskRegistry / AiTasksConsistency removed
+    # (PF-IMP-1210 — superseded by Build-TaskMetadata.ps1 -Check).
+    'FeatureRequestTracking', 'ArchitectureTracking', 'TechDebtTracking', 'BugTracking',
+    'ProcessImprovementTracking',
+    # PF-IMP-1589: blueprint→central reference-rot detector (appdev layout only)
+    'BlueprintCentralRefs',
+    # PF-IMP-1584 (PF-EVR-029 F-4): exploration tracker joins its sibling intake queues
+    'ExplorationTracking',
+    # PF-IMP-1677: task ids cited in authored framework prose (appdev layout only)
+    'TaskIdRefs'
+)
+
+# --- Load project config (project_id drives the project-type-aware absent-target severity) ---
+# (The language-config / test-file-extension load was removed with Surface 3 — PF-IMP-1299.)
 $projectConfigPath = Join-Path $ProjectRoot "doc/project-config.json"
-$testFileExtRegex = '\.py$'  # fallback
 if (Test-Path $projectConfigPath) {
     try {
         $projCfg = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
-        $lang = $projCfg.project_metadata.primary_language.ToLower()
-        $langCfgPath = Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "languages-config/$lang/$lang-config.json"
-        if (Test-Path $langCfgPath) {
-            $langCfg = Get-Content $langCfgPath -Raw | ConvertFrom-Json
-            $ext = $langCfg.testing.testFileExtension
-            if ($ext) {
-                $testFileExtRegex = [regex]::Escape($ext) + '$'
-            }
-        }
+        $script:projectId = "$($projCfg.project_id)"   # $script:-qualified deliberately (PF-PRO-067 hardening rider) — read as $script:projectId inside functions
     } catch {
-        Write-Warning "Could not load language config, using .py fallback for test file matching"
+        Write-Warning "Could not load project config — project_id stays empty"
     }
 }
+# Declared workspace role (PF-PRO-067 Contract 4) — drives the absent-product-tracker severity
+# ("do I have a product?" role question). Resolved once here via the shared helper.
+$script:workspaceRole = Get-WorkspaceRole -ProjectRoot $ProjectRoot
 
 # --- Helper: Resolve a markdown-relative path to an absolute path ---
 function Resolve-MarkdownLink {
@@ -209,8 +308,18 @@ function Add-CheckResult {
     )
 
     $script:totalChecks++
+    # PF-IMP-1209: per-surface coverage tally. Keyed by the Surface arg every call already passes;
+    # lets the summary distinguish a surface that recorded nothing from one that found no problems.
+    if (-not [string]::IsNullOrEmpty($Surface)) {
+        if (-not $script:surfaceRecorded.Contains($Surface)) { $script:surfaceRecorded[$Surface] = 0 }
+        $script:surfaceRecorded[$Surface]++
+    }
     switch ($Level) {
-        "ERROR"   { $script:errorCount++; Write-Host "    $([char]0x274C) $Context : $Message" -ForegroundColor Red }
+        "ERROR"   {
+            $script:errorCount++
+            $script:errorFingerprints.Add("$Surface|$Context|$Message")
+            Write-Host "    $([char]0x274C) $Context : $Message" -ForegroundColor Red
+        }
         "WARNING" {
             $script:warningCount++
             if ($DetailOnly -and -not $Detailed) {
@@ -223,6 +332,109 @@ function Add-CheckResult {
     }
 }
 
+# --- Helper: record the faithful instance count a surface examined (PF-IMP-1209 remainder) ---
+# Distinct from $surfaceRecorded (Add-CheckResult call count). A surface that walks N instances
+# but only records findings on problems would look "silent" by call-count alone; the examined-N
+# denominator makes "examined N, found nothing" distinguishable from "examined nothing".
+function Set-SurfaceExamined {
+    param([string]$Surface, [int]$Count)
+    if (-not [string]::IsNullOrEmpty($Surface)) { $script:surfaceExamined[$Surface] = $Count }
+}
+
+# --- Helper: standardized absent / empty target finding (PF-IMP-1209 remainder, one convention) ---
+# Every surface whose target file/dir is missing, or which examines 0 instances, routes through
+# here so the outcome is a first-class finding (never silent, never a clean OK-pass) carrying a
+# uniform "examined 0 instances" message and recording examined=0. Severity is the caller's call:
+#   - ERROR for a required target (feature-tracking, state-files dir, domain-config, registries),
+#     and for a secondary product tracker absent in a real product project — a setup defect that
+#     must gate (a WARNING risks being ignored).
+#   - WARNING for a present-but-empty target, a conditional/onboarding-only target, or a product
+#     tracker absent in appdev (PRJ-000), where product state is legitimately N/A.
+function Add-AbsentTargetResult {
+    param(
+        [ValidateSet("ERROR", "WARNING")][string]$Level,
+        [string]$Surface,
+        [string]$Context,
+        [string]$Reason   # e.g. "feature-tracking.md not found", "directory exists but holds 0 state files"
+    )
+    $script:surfaceExamined[$Surface] = 0
+    Add-CheckResult $Level $Surface $Context "$Reason — surface examined 0 instances (coverage gap, not a clean pass)"
+}
+
+# --- Helper: workspace-scoped temp directory for the validator's side files (PF-IMP-1984) ---
+# Baselines and JSON summaries live under $env:TEMP. The directory used to be shared by every
+# workspace that ran this validator ("vst-baselines" / "vst-summaries"), which is harmless for
+# writes — each file is already auto-named per project + timestamp + PID — but NOT for the
+# retention prune below: that prunes by AGE across the whole directory, so a second workspace
+# running this validator deletes the first workspace's baselines. Scoping the directory to the
+# resolved project root makes the prune structurally incapable of reaching another workspace's
+# files, rather than relying on filenames it never inspects. The short root hash disambiguates
+# two checkouts that share a leaf directory name.
+function Get-ValidatorTempDir {
+    param(
+        [Parameter(Mandatory)][ValidateSet('vst-baselines', 'vst-summaries')][string]$Kind,
+        [Parameter(Mandatory)][string]$Root
+    )
+    $normalized = "$Root".TrimEnd('\', '/').ToLowerInvariant()
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $hash = (($sha256.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($normalized))) |
+            ForEach-Object { $_.ToString('x2') }) -join ''
+    } finally { $sha256.Dispose() }
+    $leaf = (Split-Path $Root -Leaf) -replace '[^\w\-]', '-'
+    Join-Path ([System.IO.Path]::GetTempPath()) ("{0}-{1}-{2}" -f $Kind, $leaf, $hash.Substring(0, 8))
+}
+
+# --- Helper: emit optional JSON summary, then exit (PF-IMP-1214) ---
+# Centralizes every terminal exit so a machine-readable summary can be written at each
+# verdict path (final / baseline-delta / no-surface-match). Without -Json/-JsonPath this
+# is a transparent `exit $ExitCode` — host output and exit semantics are unchanged.
+function Complete-Run {
+    param([int]$ExitCode)
+
+    if ($Json -or -not [string]::IsNullOrWhiteSpace($JsonPath)) {
+        $summary = [ordered]@{
+            schema         = 1
+            generated      = (Get-Date -Format 'o')
+            projectRoot    = "$ProjectRoot"
+            surfaces       = @($Surface)
+            exitCode       = $ExitCode
+            totalChecks    = $script:totalChecks
+            errors         = $script:errorCount
+            warnings       = $script:warningCount
+            warningsHidden = $script:detailOnlyHiddenCount
+            passed         = $script:passCount
+            coverage       = [ordered]@{
+                selected   = @($script:selectedSurfaces)
+                silent     = @($script:silentSurfaces)
+                examined   = $script:surfaceExamined
+                perSurface = $script:surfaceRecorded
+            }
+            errorFingerprints = @($script:errorFingerprints)
+            baseline       = $script:jsonBaseline
+        }
+        $jsonText = $summary | ConvertTo-Json -Depth 6
+
+        $target = $JsonPath
+        if ([string]::IsNullOrWhiteSpace($target)) {
+            $jsonDir = Get-ValidatorTempDir -Kind 'vst-summaries' -Root $ProjectRoot
+            New-Item -ItemType Directory -Path $jsonDir -Force | Out-Null
+            $projectName = (Split-Path $ProjectRoot -Leaf) -replace '[^\w\-]', '-'
+            $target = Join-Path $jsonDir ("vst-summary-{0}-{1}-{2}.json" -f $projectName, (Get-Date -Format 'yyyyMMdd-HHmmss'), $PID)
+        }
+        try {
+            $jsonText | Set-Content -Path $target -Encoding UTF8
+            Write-Host ""
+            Write-Host "  JSON summary written: $target" -ForegroundColor Cyan
+        } catch {
+            Write-Host ""
+            Write-Host "  Could not write JSON summary to '$target': $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+
+    exit $ExitCode
+}
+
 # =========================================================================
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  State Tracking Validation Report" -ForegroundColor Cyan
@@ -231,62 +443,13 @@ Write-Host "Project Root: $ProjectRoot" -ForegroundColor Gray
 Write-Host ""
 
 # =========================================================================
-# SURFACE 1: Feature Tracking
+# SURFACE 1: Feature Tracking — RETIRED (PF-IMP-1299)
+# Broken-link detection for feature-tracking.md is delegated to LinkWatcher --validate
+# (run_linkwatcher_validate.ps1), wired into the task finalization gates (structure-change /
+# retrospective-documentation / framework-rollout Mode C). 'FeatureTracking' was removed from
+# $CanonicalSurfaces and the -Surface list; the number is left vacant (not renumbered), per the
+# Surface 11 convention above. (Surfaces 4 and 8 still load feature-tracking.md independently.)
 # =========================================================================
-if ($runAll -or $Surface -contains "FeatureTracking") {
-    Write-Host "[1/5] Feature Tracking (feature-tracking.md)" -ForegroundColor Cyan
-
-    $ftPath = Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-tracking.md"
-    if (-not (Test-Path $ftPath)) {
-        Add-CheckResult "ERROR" "FeatureTracking" "feature-tracking.md" "File not found: $ftPath"
-    } else {
-        $ftDir = [System.IO.Path]::GetDirectoryName($ftPath)
-        $ftLines = Get-Content $ftPath -Encoding UTF8
-        $featureCount = 0
-        $linkCount = 0
-
-        foreach ($line in $ftLines) {
-            # Match feature table rows: start with | [X.X.X]( or | [text](
-            # Feature rows have the pattern: | [0.1.1](path) | Name | Status | ...
-            if ($line -match '^\|\s*\[(\d+\.\d+\.\d+)\]\(') {
-                $featureId = $matches[1]
-                $featureCount++
-
-                # Extract all markdown links from this row
-                $links = Get-MarkdownLinks -Line $line
-                $validLinks = 0
-                $brokenLinks = 0
-
-                foreach ($link in $links) {
-                    $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $ftDir
-                    if ($null -eq $resolved) { continue }
-
-                    $linkCount++
-                    if (Test-Path $resolved) {
-                        $validLinks++
-                        Add-CheckResult "OK" "FeatureTracking" "$featureId/$($link.Text)" "Link valid"
-                    } else {
-                        $brokenLinks++
-                        $suggestion = Find-SimilarFile -ExpectedPath $resolved
-                        $msg = "Link broken: $($link.Path)"
-                        if ($suggestion -and $suggestion.Length -gt 0) {
-                            $msg += " (did you mean: " + $suggestion + "?)"
-                        }
-                        Add-CheckResult "ERROR" "FeatureTracking" "$featureId/$($link.Text)" $msg
-                    }
-                }
-
-                # In non-detailed mode, show per-feature summary for clean features
-                if (-not $Detailed -and $brokenLinks -eq 0 -and $validLinks -gt 0) {
-                    Write-Host "    $([char]0x2705) Feature $featureId : $validLinks/$validLinks links valid" -ForegroundColor Green
-                }
-            }
-        }
-
-        Write-Host "  Checked $featureCount features, $linkCount links total" -ForegroundColor Gray
-    }
-    Write-Host ""
-}
 
 # =========================================================================
 # SURFACE 2: Feature State Files
@@ -296,17 +459,28 @@ if ($runAll -or $Surface -contains "StateFiles") {
 
     $stateDir = Join-Path $ProjectRoot "doc/state-tracking/features"
     if (-not (Test-Path $stateDir)) {
-        Add-CheckResult "ERROR" "StateFiles" "features" "Directory not found: $stateDir"
+        # Role-aware severity per the Add-AbsentTargetResult policy: product state is
+        # legitimately N/A in a non-project workspace (PF-IMP-1957; role-based per PF-PRO-067).
+        $absentLevel = if ($script:workspaceRole -ne 'project') { "WARNING" } else { "ERROR" }
+        Add-AbsentTargetResult $absentLevel "StateFiles" "features" "feature state-files directory not found ($stateDir)"
     } else {
         $stateFiles = Get-ChildItem -Path $stateDir -Filter "*-implementation-state.md" -File
+        Set-SurfaceExamined "StateFiles" (@($stateFiles).Count)
         Write-Host "  Found $($stateFiles.Count) state files" -ForegroundColor Gray
+
+        # PF-IMP-1209 (A-1/A-2): an existing dir with zero state files used to record nothing — a
+        # silent false-green. Worse, on a single-surface run totalChecks stayed 0 and misfired the
+        # "No surfaces matched" guard, reporting a valid empty surface as an unknown surface name.
+        # Emit the standardized empty-instance WARNING so the surface visibly examined 0 instances.
+        if (@($stateFiles).Count -eq 0) {
+            Add-AbsentTargetResult "WARNING" "StateFiles" $stateDir "directory exists but holds 0 feature state files"
+        }
 
         foreach ($sf in $stateFiles) {
             $sfDir = $sf.DirectoryName
             $sfContent = Get-Content $sf.FullName -Encoding UTF8
             $sfName = $sf.Name
-            $brokenInFile = 0
-            $validInFile = 0
+            $linksInFile = 0
             $inSection = ""
 
             foreach ($line in $sfContent) {
@@ -320,7 +494,7 @@ if ($runAll -or $Surface -contains "StateFiles") {
                 elseif ($line -match '^## \d+\. Dependencies') { $inSection = "Dependencies" }
                 elseif ($line -match '^## \d') { $inSection = "" }
 
-                # Only validate links in the three link-bearing inventory sections
+                # Only the three link-bearing inventory sections feed the structural check
                 if ($inSection -notin @("DocInventory", "CodeInventory", "Dependencies")) { continue }
 
                 # Skip non-table rows
@@ -328,33 +502,24 @@ if ($runAll -or $Surface -contains "StateFiles") {
                 # Skip header separator rows
                 if ($line -match '^\|\s*-') { continue }
 
+                # STRUCTURAL check only (PF-IMP-1299): count resolvable file links present so the
+                # "inventory section has no links" warning below still fires. Whether each link
+                # RESOLVES on disk is delegated to LinkWatcher --validate (run_linkwatcher_validate.ps1),
+                # wired into the task finalization gates — no Test-Path here.
                 $links = Get-MarkdownLinks -Line $line
                 foreach ($link in $links) {
                     $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $sfDir
                     if ($null -eq $resolved) { continue }
-
-                    if (Test-Path $resolved) {
-                        $validInFile++
-                        Add-CheckResult "OK" "StateFiles" "$sfName/$inSection/$($link.Text)" "Link valid"
-                    } else {
-                        $brokenInFile++
-                        $suggestion = Find-SimilarFile -ExpectedPath $resolved
-                        $msg = "Link broken: $($link.Path)"
-                        if ($suggestion -and $suggestion.Length -gt 0) {
-                            $msg += " (did you mean: " + $suggestion + "?)"
-                        }
-                        Add-CheckResult "ERROR" "StateFiles" "$sfName/$inSection/$($link.Text)" $msg
-                    }
+                    $linksInFile++
                 }
             }
 
-            $total = $validInFile + $brokenInFile
-            if ($total -gt 0 -and $brokenInFile -eq 0 -and -not $Detailed) {
-                Write-Host "    $([char]0x2705) $sfName : $validInFile/$total links valid" -ForegroundColor Green
-            } elseif ($total -eq 0) {
+            if ($linksInFile -eq 0) {
                 Write-Host "    $([char]0x26A0)  $sfName : No links found in the Documentation/Code/Dependencies inventory sections" -ForegroundColor Yellow
                 $script:warningCount++
                 $script:totalChecks++
+            } elseif ($Detailed) {
+                Write-Host "    $([char]0x2705) $sfName : $linksInFile inventory link(s) present (existence checked by LinkWatcher --validate)" -ForegroundColor Green
             }
         }
     }
@@ -362,51 +527,12 @@ if ($runAll -or $Surface -contains "StateFiles") {
 }
 
 # =========================================================================
-# SURFACE 3: Test Tracking
+# SURFACE 3: Test Tracking — RETIRED (PF-IMP-1299)
+# Broken-link detection for test-tracking.md test-file references is delegated to LinkWatcher
+# --validate (run_linkwatcher_validate.ps1), wired into the task finalization gates. 'TestTracking'
+# was removed from $CanonicalSurfaces and the -Surface list; the number is left vacant (not
+# renumbered), per the Surface 11 convention above.
 # =========================================================================
-if ($runAll -or $Surface -contains "TestTracking") {
-    Write-Host "[3/5] Test Tracking" -ForegroundColor Cyan
-
-    $titPath = Join-Path $ProjectRoot "test/state-tracking/permanent/test-tracking.md"
-    if (-not (Test-Path $titPath)) {
-        Add-CheckResult "ERROR" "TestTracking" "test-tracking.md" "File not found: $titPath"
-    } else {
-        $titDir = [System.IO.Path]::GetDirectoryName($titPath)
-        $titLines = Get-Content $titPath -Encoding UTF8
-        $testFileCount = 0
-        $brokenTestFiles = 0
-
-        foreach ($line in $titLines) {
-            # Match table rows with test file IDs: | PD-TST-### | ... or | TE-TST-### | ...
-            if ($line -match '^\|\s*(?:PD|TE)-TST-\d+\s*\|') {
-                $links = Get-MarkdownLinks -Line $line
-
-                # The test file link is typically the 1st link in the row
-                foreach ($link in $links) {
-                    # Only check links that look like test file paths (not task links)
-                    if ($link.Path -match '\.\./.*tests/' -or $link.Path -match $testFileExtRegex) {
-                        $testFileCount++
-                        $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $titDir
-                        if ($null -eq $resolved) { continue }
-
-                        if (Test-Path $resolved) {
-                            Add-CheckResult "OK" "TestTracking" "$($link.Text)" "File exists"
-                        } else {
-                            $brokenTestFiles++
-                            Add-CheckResult "ERROR" "TestTracking" "$($link.Text)" "File not found: $($link.Path)"
-                        }
-                    }
-                }
-            }
-        }
-
-        if (-not $Detailed -and $brokenTestFiles -eq 0 -and $testFileCount -gt 0) {
-            Write-Host "    $([char]0x2705) $testFileCount/$testFileCount test file references valid" -ForegroundColor Green
-        }
-        Write-Host "  Checked $testFileCount test file references" -ForegroundColor Gray
-    }
-    Write-Host ""
-}
 
 # =========================================================================
 # SURFACE 4: Cross-Reference Consistency
@@ -492,9 +618,20 @@ if ($runAll -or $Surface -contains "CrossRef") {
 if ($runAll -or $Surface -contains "IdCounters") {
     Write-Host "[5/5] ID Counter Health" -ForegroundColor Cyan
 
+    # Face fix (PF-PRO-068, owner-decided 2026-08-09): Surface 5 validates counters against the
+    # WRITE face — the registry mints increment and the tree their artifacts land in
+    # (paths.blueprint at a producer role, the operative tree at a leaf). On the consumer key a
+    # post-cutover -FixCounters would write nextAvailable into the received projection while
+    # mints increment the producer registry — a counter/file split through the validation door.
+    $pfFrameworkWritePath = if ($script:workspaceRole -in @('framework', 'framework-builder')) {
+        Get-BlueprintPath -ProjectRoot $ProjectRoot
+    } else {
+        Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
+    }
+
     # Load all three ID registries
     $registryMap = @{
-        'PF' = @{ Path = (Join-Path (Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot) "PF-id-registry.json"); Registry = $null; Fixed = 0 }
+        'PF' = @{ Path = (Join-Path $pfFrameworkWritePath "PF-id-registry.json"); Registry = $null; Fixed = 0 }
         'PD' = @{ Path = (Join-Path $ProjectRoot "doc/PD-id-registry.json"); Registry = $null; Fixed = 0 }
         'TE' = @{ Path = (Join-Path $ProjectRoot "test/TE-id-registry.json"); Registry = $null; Fixed = 0 }
     }
@@ -510,61 +647,102 @@ if ($runAll -or $Surface -contains "IdCounters") {
     }
 
     if ($allLoaded) {
-        # Prefixes to validate with their file patterns
-        $prefixChecks = @(
-            @{ Prefix = "PD-FIS";  Dir = "doc/state-tracking/features";                              Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-FDD";  Dir = "doc/functional-design/fdds";                                Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-TDD";  Dir = "doc/technical/architecture/design-docs/tdd";                Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-ADR";  Dir = "doc/technical/adr";                                          Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "PD-ASS";  Dir = "doc/documentation-tiers/assessments";                       Pattern = "*.md"; Domain = "PD" }
-            @{ Prefix = "TE-TSP";  Dir = "test/specifications/feature-specs";                                       Pattern = "*.md"; Domain = "TE" }
-        )
+        # PF-IMP-1213: enumerate EVERY counter-bearing prefix across the three registries
+        # rather than a hardcoded subset of 6. Counter health is file-validatable only for
+        # prefixes whose documents carry an `id: <PREFIX>-NNN` frontmatter line in a directory;
+        # table-row ID pools (e.g. PD-BUG, PD-FRQ, WF — IDs live as rows in a tracking table,
+        # not per-file) have no file instances to scan and are reported as "not file-validated"
+        # rather than faked as a green pass (the PF-IMP-1209 coverage-honesty principle applied
+        # to Surface 5).
+        #
+        # Scan base differs by registry: PF prefix dirs are framework-relative
+        # ("process-framework/..."), so they resolve under the PARENT of the framework path
+        # (works in both the appdev blueprint layout and a rolled-out project, because every
+        # face tree's leaf directory is literally named "process-framework"); PD/TE dirs are
+        # project-relative. Write face, same as the registry file above — the counters and the
+        # artifacts they count must come from the same tree. The `id:` match is anchored to the
+        # start of a line (frontmatter), so table cells and inline references like
+        # "...some-id: PD-BUG-001..." don't false-match.
+        $pfBase = Split-Path $pfFrameworkWritePath -Parent
 
-        foreach ($check in $prefixChecks) {
-            $prefix = $check.Prefix
-            $domain = $check.Domain
-            $dirPath = Join-Path $ProjectRoot $check.Dir
+        $validatedPrefixCount = 0
+        $uncheckedPrefixes = [System.Collections.Generic.List[string]]::new()
 
-            # Get nextAvailable from the correct registry
-            $idRegistry = $registryMap[$domain].Registry
-            $registryEntry = $idRegistry.prefixes.$prefix
-            if (-not $registryEntry) {
-                Add-CheckResult "WARNING" "IdCounters" $prefix "Prefix not found in $domain-id-registry.json"
-                continue
-            }
-            $nextAvailable = $registryEntry.nextAvailable
+        foreach ($regKey in @('PF', 'PD', 'TE')) {
+            $idRegistry = $registryMap[$regKey].Registry
+            if (-not $idRegistry -or -not $idRegistry.prefixes) { continue }
+            $scanBase = if ($regKey -eq 'PF') { $pfBase } else { $ProjectRoot }
 
-            # Scan files for max ID
-            $maxId = 0
-            if (Test-Path $dirPath) {
-                $files = Get-ChildItem -Path $dirPath -Filter $check.Pattern -File -ErrorAction SilentlyContinue
-                foreach ($file in $files) {
-                    $content = Get-Content $file.FullName -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
-                    if ($content -and $content -match "id:\s*$([regex]::Escape($prefix))-(\d+)") {
-                        $num = [int]$matches[1]
-                        if ($num -gt $maxId) { $maxId = $num }
+            foreach ($prefixProp in $idRegistry.prefixes.PSObject.Properties) {
+                $prefix = $prefixProp.Name
+                $registryEntry = $prefixProp.Value
+                if ($null -eq $registryEntry.nextAvailable) { continue }
+                $nextAvailable = [int]$registryEntry.nextAvailable
+
+                # Resolve the prefix's directories (every dir key except the "default" pointer,
+                # whose value is a key name, not a path); keep existing ones; drop any nested
+                # under another so a parent dir (e.g. PF-TSK's tasks/ over its phase subdirs) is
+                # scanned once.
+                $dirPaths = @()
+                if ($registryEntry.directories) {
+                    foreach ($dprop in $registryEntry.directories.PSObject.Properties) {
+                        if ($dprop.Name -eq 'default') { continue }
+                        $abs = Join-Path $scanBase $dprop.Value
+                        if (Test-Path $abs) { $dirPaths += (Resolve-Path $abs).Path }
                     }
                 }
-            }
-
-            $expectedNext = if ($maxId -gt 0) { $maxId + 1 } else { $nextAvailable }
-
-            if ($maxId -eq 0) {
-                Add-CheckResult "OK" "IdCounters" $prefix "nextAvailable=$nextAvailable (no files found with IDs to validate)"
-            } elseif ($nextAvailable -eq $expectedNext) {
-                Add-CheckResult "OK" "IdCounters" $prefix "nextAvailable=$nextAvailable, maxUsed=$prefix-$maxId"
-            } elseif ($nextAvailable -lt $expectedNext) {
-                Add-CheckResult "ERROR" "IdCounters" $prefix "nextAvailable=$nextAvailable but max ID is $prefix-$maxId (would cause collision! expected: $expectedNext)"
-                if ($FixCounters) {
-                    $idRegistry.prefixes.$prefix.nextAvailable = $expectedNext
-                    $registryMap[$domain].Fixed++
-                    Write-Host "      Fixed: nextAvailable set to $expectedNext" -ForegroundColor Magenta
+                $topPaths = @()
+                foreach ($p in (@($dirPaths | Sort-Object -Unique) | Sort-Object { $_.Length })) {
+                    $sep = [System.IO.Path]::DirectorySeparatorChar
+                    if (-not ($topPaths | Where-Object { $p.StartsWith("$_$sep", [System.StringComparison]::OrdinalIgnoreCase) })) {
+                        $topPaths += $p
+                    }
                 }
-            } else {
-                # nextAvailable > expectedNext — gap exists, just a warning
-                Add-CheckResult "WARNING" "IdCounters" $prefix "nextAvailable=$nextAvailable but max ID is $prefix-$maxId (gap of $($nextAvailable - $expectedNext))"
+
+                # Scan for the max `id:` frontmatter number across the prefix's directories.
+                $maxId = 0
+                $found = $false
+                foreach ($dir in $topPaths) {
+                    $files = Get-ChildItem -Path $dir -Filter "*.md" -File -Recurse -ErrorAction SilentlyContinue
+                    foreach ($file in $files) {
+                        $content = Get-Content $file.FullName -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+                        if ($content -and $content -match "(?m)^id:\s*$([regex]::Escape($prefix))-(\d+)") {
+                            $found = $true
+                            $num = [int]$matches[1]
+                            if ($num -gt $maxId) { $maxId = $num }
+                        }
+                    }
+                }
+
+                if (-not $found) {
+                    # No file-based instances: counter not file-validatable (table-row pool or
+                    # empty dir). Recorded honestly below, not as a green "no files" OK.
+                    $uncheckedPrefixes.Add($prefix)
+                    continue
+                }
+
+                $validatedPrefixCount++
+                $expectedNext = $maxId + 1
+                if ($nextAvailable -eq $expectedNext) {
+                    Add-CheckResult "OK" "IdCounters" $prefix "nextAvailable=$nextAvailable, maxUsed=$prefix-$maxId"
+                } elseif ($nextAvailable -lt $expectedNext) {
+                    Add-CheckResult "ERROR" "IdCounters" $prefix "nextAvailable=$nextAvailable but max ID is $prefix-$maxId (would cause collision! expected: $expectedNext)"
+                    if ($FixCounters) {
+                        $registryEntry.nextAvailable = $expectedNext
+                        $registryMap[$regKey].Fixed++
+                        Write-Host "      Fixed: nextAvailable set to $expectedNext" -ForegroundColor Magenta
+                    }
+                } else {
+                    # nextAvailable > expectedNext — gap exists, just a warning
+                    Add-CheckResult "WARNING" "IdCounters" $prefix "nextAvailable=$nextAvailable but max ID is $prefix-$maxId (gap of $($nextAvailable - $expectedNext))"
+                }
             }
         }
+
+        # Honest Surface-5 coverage line (PF-IMP-1213 / the PF-IMP-1209 principle): state how many
+        # counters were actually validated against files and which prefixes had no file-based
+        # instances, so a green Surface 5 is not misread as "all counters are healthy".
+        Add-CheckResult "OK" "IdCounters" "Coverage" "Validated $validatedPrefixCount file-based prefix counter(s); $($uncheckedPrefixes.Count) prefix(es) have no file-based instances (table-row pools or empty dirs), not counter-validated: $($uncheckedPrefixes -join ', ')"
 
         if ($FixCounters) {
             foreach ($key in $registryMap.Keys) {
@@ -677,6 +855,7 @@ if ($runAll -or $Surface -contains "DimensionConsistency") {
             }
         }
 
+        Set-SurfaceExamined "DimensionConsistency" (@($stateFiles).Count)
         Write-Host "  Feature state files: $($stateFiles.Count) total, $filesWithProfile with profiles, $filesWithoutProfile without, $filesSkippedLightweight Tier 1 (skipped)" -ForegroundColor Gray
     } else {
         Add-CheckResult "WARNING" "DimensionConsistency" "Directory" "Feature state directory not found: $stateDir"
@@ -715,6 +894,7 @@ if ($runAll -or $Surface -contains "WorkflowTracking") {
             }
         }
 
+        Set-SurfaceExamined "WorkflowTracking" (@($workflowIds).Count)
         Write-Host "  Found $($workflowIds.Count) workflows" -ForegroundColor Gray
 
         # Load known feature IDs from feature-tracking.md
@@ -799,75 +979,13 @@ if ($runAll -or $Surface -contains "WorkflowTracking") {
 }
 
 # =========================================================================
-# Surface 9: Task Registry Completeness
+# Surfaces 9 (Task Registry) and 12 (AI Tasks Consistency) RETIRED — PF-IMP-1210 / PF-PRO-049.
+# Task-registry / ai-tasks consistency is owned by the authoritative regeneration-diff gate
+# `Build-TaskMetadata.ps1 -Check` (PF-PRO-042), which renders ai-tasks.md + the task registry
+# from task frontmatter and is wired into .pre-commit-config.yaml. The retired surfaces only
+# substring-checked ID presence and could disagree with -Check on malformed entries. Their
+# historical numbers (9, 12) are left as gaps, like retired Surface 11.
 # =========================================================================
-if ($runAll -or $Surface -contains "TaskRegistry") {
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  Surface 9: Task Registry" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
-
-    $fwDir = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
-    $registryPath = Join-Path $fwDir "infrastructure/process-framework-task-registry.md"
-    $pfIdRegistryPath = Join-Path $fwDir "PF-id-registry.json"
-
-    if (-not (Test-Path $registryPath)) {
-        Add-CheckResult "WARNING" "TaskRegistry" "process-framework-task-registry.md" "File not found — task registry not set up"
-    } elseif (-not (Test-Path $pfIdRegistryPath)) {
-        Add-CheckResult "WARNING" "TaskRegistry" "PF-id-registry.json" "File not found — cannot determine expected task IDs"
-    } else {
-        # Get all PF-TSK IDs that have been assigned (from nextAvailable counter)
-        $pfRegistry = Get-Content $pfIdRegistryPath -Raw -Encoding UTF8 | ConvertFrom-Json
-        $nextAvailable = $pfRegistry.prefixes.'PF-TSK'.nextAvailable
-        $allTaskIds = @()
-        for ($i = 1; $i -lt $nextAvailable; $i++) {
-            $allTaskIds += "PF-TSK-{0:D3}" -f $i
-        }
-
-        # Get all PF-TSK IDs mentioned in the task registry
-        $registryContent = Get-Content $registryPath -Raw -Encoding UTF8
-        $registryTaskIds = @()
-        $idMatches = [regex]::Matches($registryContent, 'PF-TSK-\d+')
-        foreach ($m in $idMatches) {
-            if ($registryTaskIds -notcontains $m.Value) {
-                $registryTaskIds += $m.Value
-            }
-        }
-
-        # Also get task IDs that actually have files on disk (to avoid flagging deleted tasks)
-        $taskDir = Join-Path $fwDir "tasks"
-        $taskFiles = Get-ChildItem -Path $taskDir -Recurse -Filter "*.md" -File -ErrorAction SilentlyContinue
-        $taskFileIds = @()
-        foreach ($tf in $taskFiles) {
-            $firstLines = Get-Content $tf.FullName -TotalCount 10 -Encoding UTF8 -ErrorAction SilentlyContinue
-            foreach ($line in $firstLines) {
-                if ($line -match '^id:\s*(PF-TSK-\d+)') {
-                    $taskFileIds += $matches[1]
-                    break
-                }
-            }
-        }
-
-        Write-Host "  Task IDs assigned: $($allTaskIds.Count), In registry: $($registryTaskIds.Count), With files: $($taskFileIds.Count)" -ForegroundColor Gray
-
-        # Check: every task ID with an actual file on disk should be in the registry
-        # Exclude PF-TSK-000 (tasks/README.md index file, not an actual task)
-        $taskFileIds = $taskFileIds | Where-Object { $_ -ne "PF-TSK-000" }
-        $missingCount = 0
-        foreach ($tid in $taskFileIds) {
-            if ($registryTaskIds -contains $tid) {
-                Add-CheckResult "OK" "TaskRegistry" $tid "Present in task registry"
-            } else {
-                Add-CheckResult "ERROR" "TaskRegistry" $tid "Has task file on disk but missing from task registry"
-                $missingCount++
-            }
-        }
-
-        if ($missingCount -gt 0) {
-            Write-Host "    $([char]0x2139) $missingCount task(s) missing from registry — run New-Task.ps1 or add manually" -ForegroundColor Yellow
-        }
-    }
-    Write-Host ""
-}
 
 # =========================================================================
 # Surface 10: Metadata Schema Conformance
@@ -892,13 +1010,14 @@ if ($runAll -or $Surface -contains "MetadataSchema") {
                 "task"        = @{ dir = "tasks"; recurse = $true }
                 "template"    = @{ dir = "templates"; recurse = $true }
                 "guide"       = @{ dir = "guides"; recurse = $true }
-                "context_map" = @{ dir = "visualization/context-maps"; recurse = $true }
             }
 
             $totalFiles = 0
             $conformingFiles = 0
             $violationFiles = 0
             $fwDirMS = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
+            # Per-(artifact_type, field) accumulator feeding the reconciliation summary below.
+            $unknownFieldIndex = @{}
 
             foreach ($artifactType in $artifactDirs.Keys) {
                 $schema = $schemas.$artifactType
@@ -995,6 +1114,73 @@ if ($runAll -or $Surface -contains "MetadataSchema") {
                         if ($fieldName -notin $knownFields) {
                             Add-CheckResult "WARNING" "MetadataSchema" $relPath "Unknown field: $fieldName (not in schema for $artifactType)" -DetailOnly
                             $fileHasViolation = $true
+                            # Collect the Declare/Fix evidence for the reconciliation summary below:
+                            # which variant_group family each carrying file belongs to, and how many
+                            # carriers declare no family at all.
+                            $ufKey = "$artifactType|$fieldName"
+                            if (-not $unknownFieldIndex.ContainsKey($ufKey)) {
+                                $unknownFieldIndex[$ufKey] = [pscustomobject]@{
+                                    ArtifactType  = $artifactType
+                                    Field         = $fieldName
+                                    Count         = 0
+                                    NoFamilyCount = 0
+                                    Families      = [System.Collections.Generic.List[string]]::new()
+                                }
+                            }
+                            $ufEntry = $unknownFieldIndex[$ufKey]
+                            $ufEntry.Count++
+                            $ufVg = $fields['variant_group']
+                            if ($ufVg) {
+                                if ($ufVg -notin $ufEntry.Families) { $ufEntry.Families.Add($ufVg) }
+                            } else {
+                                $ufEntry.NoFamilyCount++
+                            }
+                        }
+                    }
+
+                    # Body-frontmatter axis check (templates only). A template that authors the
+                    # CREATED document's frontmatter in its BODY (a second --- block below the
+                    # header — payload copied verbatim by a hand-rolling creation script) must emit
+                    # type:/category: matching its own creates_document_type/_category declaration.
+                    # The header-only parse above never sees those body blocks, so a contradiction
+                    # (e.g. header declares "Product Documentation" but the payload emits
+                    # "Process Framework") ships to every document created from the template. Two
+                    # incidents drove this: the E2E templates (PF-IMP-1525) and validation-report
+                    # (PF-IMP-1698). Placeholder values (containing '[') are skipped.
+                    if ($artifactType -eq 'template' -and
+                        ($fields.ContainsKey('creates_document_type') -or $fields.ContainsKey('creates_document_category'))) {
+                        $declType = $fields['creates_document_type']
+                        $declCat  = $fields['creates_document_category']
+                        $allLines = $content -split '\r?\n'
+                        $fenceIdx = @(for ($li = 0; $li -lt $allLines.Count; $li++) { if ($allLines[$li] -match '^---[ \t]*$') { $li } })
+                        # Skip the header block (its first two fences), then greedily pair the rest.
+                        $fptr = if ($fenceIdx.Count -ge 2) { 2 } else { $fenceIdx.Count }
+                        while ($fptr -lt $fenceIdx.Count - 1) {
+                            $a = $fenceIdx[$fptr]; $b = $fenceIdx[$fptr + 1]
+                            if ($b - $a -le 1) { $fptr += 1; continue }   # empty block (adjacent fences / stray rules)
+                            $blockLines = $allLines[($a + 1)..($b - 1)]
+                            $kv       = @($blockLines | Where-Object { $_ -match '^[A-Za-z_][A-Za-z0-9_]*:\s' })
+                            $nonblank = @($blockLines | Where-Object { $_.Trim() -ne '' })
+                            # Frontmatter-shaped block = majority key:value lines (a horizontal-rule
+                            # pair with prose between fails this and advances by one, keeping alignment).
+                            if ($nonblank.Count -gt 0 -and $kv.Count -ge [Math]::Max(2, $nonblank.Count * 0.6)) {
+                                $bodyType = $null; $bodyCat = $null
+                                foreach ($bl in $blockLines) {
+                                    if ($bl -match '^type:\s*(.+?)\s*$')        { $bodyType = $Matches[1] }
+                                    elseif ($bl -match '^category:\s*(.+?)\s*$') { $bodyCat  = $Matches[1] }
+                                }
+                                if ($declType -and $bodyType -and $bodyType -notmatch '\[' -and $bodyType -ne $declType) {
+                                    Add-CheckResult "ERROR" "MetadataSchema" $relPath "Emitted body 'type: $bodyType' contradicts declared creates_document_type '$declType'"
+                                    $fileHasViolation = $true
+                                }
+                                if ($declCat -and $bodyCat -and $bodyCat -notmatch '\[' -and $bodyCat -ne $declCat) {
+                                    Add-CheckResult "ERROR" "MetadataSchema" $relPath "Emitted body 'category: $bodyCat' contradicts declared creates_document_category '$declCat'"
+                                    $fileHasViolation = $true
+                                }
+                                $fptr += 2
+                            } else {
+                                $fptr += 1
+                            }
                         }
                     }
 
@@ -1007,158 +1193,66 @@ if ($runAll -or $Surface -contains "MetadataSchema") {
                 }
             }
 
+            Set-SurfaceExamined "MetadataSchema" $totalFiles
             Write-Host "  Scanned $totalFiles files: $conformingFiles conforming, $violationFiles with violations" -ForegroundColor Gray
+
+            # Unknown-field reconciliation summary (PF-IMP-1750). Each (artifact_type, field) pair
+            # is one Declare-vs-Fix decision, and occurrence count is only a weak proxy for it:
+            # residue left behind by an incomplete fleet-wide removal reads as a consistent
+            # multi-file cluster and so argues Declare by count while being a Fix (guide_title sat
+            # in 5 guides with no emitter, retired fleet-wide months earlier). The deciding signals
+            # are structural — the variant_group family the carrying files belong to, and whether a
+            # creation script emits the field — so they are computed here instead of being
+            # reconstructed by hand per cluster. Detail-gated: the per-file findings above are
+            # -DetailOnly, so this rides the same -Detailed run the schema-audit procedure runs.
+            if ($Detailed -and $unknownFieldIndex.Count -gt 0) {
+                # Emitter index: a creation script emits a field when it names it as a quoted
+                # literal ($meta["field"] = ...) or a bare hashtable key (@{ field = ... }).
+                # Whole-line comments are dropped first so a field merely discussed in a comment
+                # does not read as an emitter — that false positive would argue Declare for exactly
+                # the residue this summary exists to catch. Trailing comments are left intact
+                # (stripping them would truncate strings containing '#').
+                $emitterMap = @{}
+                $creationDirMS = Join-Path $fwDirMS 'scripts/file-creation'
+                if (Test-Path $creationDirMS) {
+                    $ufFields = @($unknownFieldIndex.Values | Select-Object -ExpandProperty Field -Unique)
+                    foreach ($csFile in (Get-ChildItem -Path $creationDirMS -Filter '*.ps1' -Recurse -File)) {
+                        $csCode = (Get-Content $csFile.FullName | Where-Object { $_ -notmatch '^\s*#' }) -join "`n"
+                        foreach ($ufField in $ufFields) {
+                            $ufEsc = [regex]::Escape($ufField)
+                            $quotedPat = '([''"])' + $ufEsc + '\1'
+                            $keyPat    = '(?m)^\s*' + $ufEsc + '\s*='
+                            if ($csCode -match $quotedPat -or $csCode -match $keyPat) {
+                                if (-not $emitterMap.ContainsKey($ufField)) {
+                                    $emitterMap[$ufField] = [System.Collections.Generic.List[string]]::new()
+                                }
+                                if ($csFile.Name -notin $emitterMap[$ufField]) { $emitterMap[$ufField].Add($csFile.Name) }
+                            }
+                        }
+                    }
+                }
+
+                Write-Host "  Unknown-field reconciliation (Declare/Fix evidence - see schema-audit-procedure-guide.md):" -ForegroundColor Gray
+                foreach ($ufKeySorted in ($unknownFieldIndex.Keys | Sort-Object)) {
+                    $e = $unknownFieldIndex[$ufKeySorted]
+                    $famText = if ($e.Families.Count -gt 0) { $e.Families -join ', ' } else { '-' }
+                    $emitText = if ($emitterMap.ContainsKey($e.Field)) { $emitterMap[$e.Field] -join ', ' } else { '-' }
+                    $verdict =
+                        if ($emitText -ne '-') { 'Declare (script emits it)' }
+                        elseif ($e.Families.Count -eq 1 -and $e.NoFamilyCount -eq 0) { 'Declare (coheres with one family)' }
+                        elseif ($e.Families.Count -eq 0) { 'Fix (no emitter, no family - residue candidate)' }
+                        else { 'review (carriers disagree - mixed or multi-family)' }
+                    Write-Host ("    {0,-8} {1,-26} {2,3} file(s)  family: {3}  emitter: {4}  -> {5}" -f `
+                        $e.ArtifactType, $e.Field, $e.Count, $famText, $emitText, $verdict) -ForegroundColor Gray
+                }
+            }
         }
     }
     Write-Host ""
 }
 
-# =========================================================================
-# Surface 11: Context Map Orphan Detection
-# =========================================================================
-if ($runAll -or $Surface -contains "ContextMapOrphans") {
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  Surface 11: Context Map Orphans" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
-
-    $fwDirCM = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
-    $cmDir = Join-Path $fwDirCM "visualization/context-maps"
-    if (-not (Test-Path $cmDir)) {
-        Add-CheckResult "WARNING" "ContextMapOrphans" "context-maps/" "Directory not found — skipped"
-    } else {
-        # Build a lookup of all task IDs from task files
-        $taskDir = Join-Path $fwDirCM "tasks"
-        $taskIds = @{}
-        if (Test-Path $taskDir) {
-            $taskFiles = Get-ChildItem -Path $taskDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
-            foreach ($tf in $taskFiles) {
-                $tfContent = Get-Content $tf.FullName -Raw -Encoding UTF8
-                if ($tfContent -match '(?m)^id:\s*(PF-TSK-\d+)') {
-                    $taskIds[$Matches[1]] = $tf.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
-                }
-            }
-        }
-
-        # Scan context maps for related_task references
-        $cmFiles = Get-ChildItem -Path $cmDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
-        $orphanCount = 0
-        $checkedCount = 0
-
-        foreach ($cm in $cmFiles) {
-            $cmContent = Get-Content $cm.FullName -Raw -Encoding UTF8
-            $cmRelPath = $cm.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
-
-            # Extract related_task from frontmatter
-            if ($cmContent -match '(?m)^related_task:\s*(PF-TSK-\d+)') {
-                $relatedTask = $Matches[1]
-                $checkedCount++
-
-                if ($taskIds.ContainsKey($relatedTask)) {
-                    Add-CheckResult "OK" "ContextMapOrphans" $cmRelPath "related_task $relatedTask exists at $($taskIds[$relatedTask])"
-                } else {
-                    Add-CheckResult "ERROR" "ContextMapOrphans" $cmRelPath "Orphaned — related_task $relatedTask not found in any task file"
-                    $orphanCount++
-                }
-            } elseif ($cmContent -match '^---\s*\r?\n[\s\S]*?\r?\n---') {
-                # Has frontmatter but no related_task
-                $checkedCount++
-                Add-CheckResult "WARNING" "ContextMapOrphans" $cmRelPath "No related_task field in frontmatter"
-            }
-        }
-
-        Write-Host "  Checked $checkedCount context maps: $orphanCount orphaned" -ForegroundColor Gray
-    }
-    Write-Host ""
-}
-
-# =========================================================================
-# Surface 12: AI Tasks Consistency
-# =========================================================================
-if ($runAll -or $Surface -contains "AiTasksConsistency") {
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  Surface 12: AI Tasks Consistency" -ForegroundColor Cyan
-    Write-Host "========================================" -ForegroundColor Cyan
-
-    $fwDirAT = Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
-    $aiTasksPath = Join-Path $fwDirAT "ai-tasks.md"
-    $taskDir = Join-Path $fwDirAT "tasks"
-
-    if (-not (Test-Path $aiTasksPath)) {
-        Add-CheckResult "WARNING" "AiTasksConsistency" "ai-tasks.md" "File not found — skipped"
-    } elseif (-not (Test-Path $taskDir)) {
-        Add-CheckResult "WARNING" "AiTasksConsistency" "tasks/" "Directory not found — skipped"
-    } else {
-        $aiTasksContent = Get-Content $aiTasksPath -Raw -Encoding UTF8
-
-        # Collect all task IDs from task files on disk.
-        # For each file, scan the YAML frontmatter for `id:` AND `status:` so we can
-        # later distinguish active tasks from deprecated ones (`status: deprecated`).
-        # Deprecated task files are EXPECTED to be absent from ai-tasks.md selection
-        # trees — without this carve-out, every formally deprecated task would
-        # permanently surface as a Surface 12 error.
-        $taskFiles = Get-ChildItem -Path $taskDir -Filter "*.md" -Recurse -File | Where-Object { $_.Name -ne "README.md" }
-        $diskTasks = @{}
-        foreach ($tf in $taskFiles) {
-            $firstLines = Get-Content $tf.FullName -TotalCount 20 -Encoding UTF8 -ErrorAction SilentlyContinue
-            $taskId = $null
-            $taskStatus = $null
-            foreach ($line in $firstLines) {
-                if ($line -match '^id:\s*(PF-TSK-\d+)') {
-                    $taskId = $matches[1]
-                } elseif ($line -match '^status:\s*(\S+)') {
-                    $taskStatus = $matches[1].ToLower()
-                } elseif ($line -match '^---\s*$' -and $taskId) {
-                    # Closing frontmatter delimiter — id has been seen, stop scanning.
-                    break
-                }
-            }
-            if ($taskId) {
-                $relPath = $tf.FullName.Substring($ProjectRoot.Length + 1) -replace '\\', '/'
-                $diskTasks[$taskId] = [PSCustomObject]@{
-                    Path   = $relPath
-                    Status = $taskStatus
-                }
-            }
-        }
-
-        # Check which task files are referenced in ai-tasks.md
-        $missingCount = 0
-        $deprecatedCount = 0
-        foreach ($entry in $diskTasks.GetEnumerator() | Sort-Object Key) {
-            $taskId = $entry.Key
-            $taskInfo = $entry.Value
-            $taskFile = $taskInfo.Path
-            $taskStatus = $taskInfo.Status
-            # Extract just the filename to check for references (ai-tasks.md uses relative links to task files)
-            $fileName = [System.IO.Path]::GetFileName($taskFile)
-            $isReferenced = ($aiTasksContent -match [regex]::Escape($fileName)) -or ($aiTasksContent -match [regex]::Escape($taskId))
-
-            if ($taskStatus -eq 'deprecated') {
-                # Deprecated tasks should be absent from ai-tasks.md selection. Presence is
-                # allowed (with strikethrough/deprecation marker), but absence is the
-                # canonical state — record as OK either way.
-                if ($isReferenced) {
-                    Add-CheckResult "OK" "AiTasksConsistency" $taskId "Deprecated — still referenced in ai-tasks.md ($fileName); consider removing"
-                } else {
-                    Add-CheckResult "OK" "AiTasksConsistency" $taskId "Deprecated — correctly absent from ai-tasks.md ($fileName)"
-                }
-                $deprecatedCount++
-            } elseif ($isReferenced) {
-                Add-CheckResult "OK" "AiTasksConsistency" $taskId "Referenced in ai-tasks.md ($fileName)"
-            } else {
-                Add-CheckResult "ERROR" "AiTasksConsistency" $taskId "Task file exists ($taskFile) but not referenced in ai-tasks.md"
-                $missingCount++
-            }
-        }
-
-        $activeCount = $diskTasks.Count - $deprecatedCount
-        Write-Host "  Task files on disk: $($diskTasks.Count) ($activeCount active, $deprecatedCount deprecated), Missing from ai-tasks.md: $missingCount" -ForegroundColor Gray
-        if ($missingCount -gt 0) {
-            Write-Host "    $([char]0x2139) $missingCount task(s) on disk not referenced in ai-tasks.md — add entries or remove stale files" -ForegroundColor Yellow
-        }
-    }
-    Write-Host ""
-}
+# Surface 12 (AI Tasks Consistency) RETIRED — PF-IMP-1210 / PF-PRO-049. See the Surface 9/12
+# retirement note above; both are superseded by `Build-TaskMetadata.ps1 -Check`.
 
 # =========================================================================
 # Surface 13: Master State Consistency (IMP-004)
@@ -1180,7 +1274,9 @@ if ($runAll -or $Surface -contains "MasterStateConsistency") {
     }
 
     if ($masterStateFiles.Count -eq 0) {
-        Add-CheckResult "OK" "MasterStateConsistency" "Search" "No retrospective master state files found — nothing to validate"
+        # PF-IMP-1209 (A-1/A-2): "examined nothing" must not read as a clean OK pass. Standardize the
+        # empty-instance case to WARNING (matching Surfaces 2 and 10) so the absence is visible.
+        Add-CheckResult "WARNING" "MasterStateConsistency" "Search" "No retrospective master state files found — surface examined 0 instances (coverage gap, not a clean pass)"
     } else {
         foreach ($msFile in $masterStateFiles) {
             $msName = $msFile.Name
@@ -1236,6 +1332,7 @@ if ($runAll -or $Surface -contains "MasterStateConsistency") {
             }
 
             $totalFeatures = $featureRows.Count
+            Set-SurfaceExamined "MasterStateConsistency" $totalFeatures
             Write-Host "  Found $totalFeatures features in inventory" -ForegroundColor Gray
 
             # --- Helper: count statuses in a column ---
@@ -1516,8 +1613,12 @@ if ($runAll -or $Surface -contains "SourceLayout") {
                 # Get actual directories on disk
                 $actualDirs = @()
                 if (Test-Path $sourceRootAbs) {
+                    # Skip runtime/cache artifacts — shared exclusion via the canonical
+                    # Get-NonFeatureTestDir helper so this source-tree filter cannot diverge
+                    # from the test-tree surfaces / New-TestInfrastructure.ps1 (PF-IMP-1152).
+                    $runtimeCacheDirs = Get-NonFeatureTestDir -Scope RuntimeCache
                     $actualDirs = Get-ChildItem -Path $sourceRootAbs -Directory |
-                        Where-Object { $_.Name -ne "__pycache__" -and $_.Name -ne ".git" -and $_.Name -ne "node_modules" -and $_.Name -ne ".venv" -and $_.Name -ne "venv" } |
+                        Where-Object { $runtimeCacheDirs -notcontains $_.Name } |
                         ForEach-Object { $_.Name }
                 }
 
@@ -1608,7 +1709,12 @@ if ($runAll -or $Surface -contains "TestStatusAggregation") {
     if (-not (Test-Path $ttPath)) {
         Add-CheckResult "ERROR" "TestStatusAggregation" "test-tracking.md" "File not found: $ttPath"
     } elseif (-not (Test-Path $ftPath)) {
-        Add-CheckResult "ERROR" "TestStatusAggregation" "feature-tracking.md" "File not found: $ftPath"
+        # feature-tracking.md is a product tracker: absent in a non-project workspace it rates
+        # the WARNING branch of the Add-AbsentTargetResult policy (PF-IMP-1957; role-based per
+        # PF-PRO-067); test-tracking.md above stays ERROR everywhere — a test tree without its
+        # tracker is a defect in any workspace.
+        $absentLevel = if ($script:workspaceRole -ne 'project') { "WARNING" } else { "ERROR" }
+        Add-AbsentTargetResult $absentLevel "TestStatusAggregation" "feature-tracking.md" "feature-tracking.md not found ($ftPath)"
     } else {
         # Valid feature-tracking.md Test Status legend values (SC-027 unified legend)
         $validStatuses = @(
@@ -1772,6 +1878,7 @@ if ($runAll -or $Surface -contains "TestStatusAggregation") {
             }
         }
 
+        Set-SurfaceExamined "TestStatusAggregation" $checked
         Write-Host "  Checked $checked feature(s)" -ForegroundColor Gray
     }
     Write-Host ""
@@ -1905,6 +2012,22 @@ function Get-ParsedWorkflows {
 }
 
 # =========================================================================
+# Shared test-tree exclusion (PF-IMP-979, consolidated PF-IMP-1152)
+# =========================================================================
+# Directory names under test/ that are infrastructure, committed data, or
+# framework self-tests — NOT feature-organized test code — and are therefore
+# exempt from BOTH the Surface 16 audit-mirror requirement and the Surface 17
+# category-alignment requirement.
+# Sourced from the shared Get-NonFeatureTestDir helper (Common-ScriptHelpers/
+# Core.psm1) so Surfaces 14/16/17 and New-TestInfrastructure.ps1 cannot silently
+# diverge the way Surface 17 did after PF-IMP-956 only patched Surface 16.
+#   - Runtime/cache artifacts: pytest caches, VCS / dependency / venv dirs
+#   - Data-only support dirs:  committed test data (fixtures) with no audit mirror
+#   - Self-test trees:         framework/ (appdev framework self-tests; PF-IMP-1190)
+# =========================================================================
+$script:NonFeatureTestDirs = Get-NonFeatureTestDir -Scope TestTree
+
+# =========================================================================
 # Surface 16: Audit Mirror Invariant
 # =========================================================================
 # Enforces the path-transform rule from PF-IMP-871 Phase 3a:
@@ -1929,19 +2052,18 @@ if ($runAll -or $Surface -contains "AuditMirror") {
     } else {
         $checked = 0; $issues = 0
 
-        # Runtime/cache artifact dirs (pytest __pycache__, VCS/dependency/venv dirs) are not
-        # part of the auditable test tree — skip them in the recursive walks below so they
-        # don't read as "missing audit mirror" (16a) or orphan/unknown-subtree dirs (16c).
-        # Mirrors the Surface 14 source-dir filter (PF-IMP-956).
-        $runtimeCacheDirs = @('__pycache__', '.git', 'node_modules', '.venv', 'venv')
+        # Non-feature dirs (runtime/cache artifacts + committed data-only support dirs like
+        # fixtures/) are not part of the auditable test tree — skip them in the recursive walks
+        # below so they don't read as "missing audit mirror" (16a) or orphan/unknown-subtree
+        # dirs (16c). Uses the shared $script:NonFeatureTestDirs list (PF-IMP-956, PF-IMP-979).
 
         # --- 16a: automated/ ↔ audits/ subtree (every automated dir has an audit mirror) ---
         if (Test-Path $automatedRoot) {
             $autoSubdirs = Get-ChildItem -Path $automatedRoot -Directory -Recurse -ErrorAction SilentlyContinue
             foreach ($d in $autoSubdirs) {
                 $rel = $d.FullName.Substring($automatedRoot.Length).TrimStart('\','/')
-                # Skip runtime/cache artifact dirs anywhere in the path (PF-IMP-956)
-                if (($rel -split '[\\/]').Where({ $runtimeCacheDirs -contains $_ }).Count -gt 0) { continue }
+                # Skip non-feature dirs (runtime/cache + data-only) anywhere in the path (PF-IMP-956, PF-IMP-979)
+                if (($rel -split '[\\/]').Where({ $script:NonFeatureTestDirs -contains $_ }).Count -gt 0) { continue }
                 # Skip bug-validation tree if it accidentally still exists under automated/
                 # (Phase 3d moved it to test/ top-level; presence here would be stale)
                 if ($rel -match '^bug-validation([\\/]|$)') { continue }
@@ -1979,31 +2101,33 @@ if ($runAll -or $Surface -contains "AuditMirror") {
             $auditSubdirs = Get-ChildItem -Path $auditsRoot -Directory -Recurse -ErrorAction SilentlyContinue
             foreach ($d in $auditSubdirs) {
                 $rel = $d.FullName.Substring($auditsRoot.Length).TrimStart('\','/')
-                # Skip runtime/cache artifact dirs anywhere in the path (PF-IMP-956)
-                if (($rel -split '[\\/]').Where({ $runtimeCacheDirs -contains $_ }).Count -gt 0) { continue }
+                # Skip non-feature dirs (runtime/cache + data-only) anywhere in the path (PF-IMP-956, PF-IMP-979)
+                if (($rel -split '[\\/]').Where({ $script:NonFeatureTestDirs -contains $_ }).Count -gt 0) { continue }
 
-                # Determine expected source location based on top-level audit subtree
+                # Determine expected source location based on top-level audit subtree.
+                # Known subtrees = the canonical unit/performance, e2e (special mapping), plus any
+                # further test category actually present under automated/ (language/project
+                # quickCategories, e.g. dart's widget) — symmetric with the 16a forward walk,
+                # which demands a mirror for whatever exists under automated/ (PF-IMP-1387).
                 $topSegment = ($rel -split '[\\/]', 2)[0]
                 $rest = if ($rel -match '[\\/]') { ($rel -split '[\\/]', 2)[1] } else { "" }
 
                 $expectedSource = $null
-                switch ($topSegment) {
-                    'unit'        { $expectedSource = Join-Path (Join-Path $automatedRoot "unit") $rest }
-                    'performance' { $expectedSource = Join-Path (Join-Path $automatedRoot "performance") $rest }
-                    'e2e' {
-                        # audits/e2e/<wf>/ traces back to e2e-acceptance-testing/<wf>/templates/
-                        # Only check at depth 1; deeper levels (audit reports per test case) are fine.
-                        if ($rest -and -not ($rest -match '[\\/]')) {
-                            $expectedSource = Join-Path (Join-Path $e2eRoot $rest) "templates"
-                        }
+                if ($topSegment -eq 'e2e') {
+                    # audits/e2e/<wf>/ traces back to e2e-acceptance-testing/<wf>/templates/
+                    # Only check at depth 1; deeper levels (audit reports per test case) are fine.
+                    if ($rest -and -not ($rest -match '[\\/]')) {
+                        $expectedSource = Join-Path (Join-Path $e2eRoot $rest) "templates"
                     }
-                    default {
-                        # Unknown top-level audit subtree (e.g., legacy foundation/authentication/core-features)
-                        # → warn, don't error: useful early-warning for stale leftovers.
-                        $checked++
-                        Add-CheckResult "WARNING" "AuditMirror" "audits/$rel" "Audit dir under unknown top-level subtree '$topSegment' (expected: unit/performance/e2e)"
-                        continue
-                    }
+                } elseif ($topSegment -in @('unit', 'performance') -or (Test-Path (Join-Path $automatedRoot $topSegment))) {
+                    $expectedSource = Join-Path (Join-Path $automatedRoot $topSegment) $rest
+                } else {
+                    # Unknown top-level audit subtree (no automated/ counterpart, e.g. legacy
+                    # foundation/authentication/core-features leftovers)
+                    # → warn, don't error: useful early-warning for stale leftovers.
+                    $checked++
+                    Add-CheckResult "WARNING" "AuditMirror" "audits/$rel" "Audit dir under unknown top-level subtree '$topSegment' (no matching test category under automated/, and not e2e)"
+                    continue
                 }
 
                 if ($null -ne $expectedSource) {
@@ -2019,6 +2143,7 @@ if ($runAll -or $Surface -contains "AuditMirror") {
             }
         }
 
+        Set-SurfaceExamined "AuditMirror" $checked
         Write-Host "  Checked $checked mirror pair(s), $issues issue(s)" -ForegroundColor Gray
     }
     Write-Host ""
@@ -2093,9 +2218,11 @@ if ($runAll -or $Surface -contains "CategoryAlignment") {
             }
         }
 
-        # 17c: reverse — every dir under unit/ traces back to a category/subgroup
+        # 17c: reverse — every dir under unit/ traces back to a category/subgroup.
+        # Skip non-feature dirs (runtime/cache + data-only) so they don't read as orphans (PF-IMP-979).
         $topDirs = Get-ChildItem -Path $unitRoot -Directory -ErrorAction SilentlyContinue
         foreach ($t in $topDirs) {
+            if ($t.Name -in $script:NonFeatureTestDirs) { continue }
             if (-not $expectedTopByName.ContainsKey($t.Name)) {
                 Add-CheckResult "WARNING" "CategoryAlignment" "unit/$($t.Name)" "Orphan unit dir — no matching category in feature-tracking.md (rename/remove?)"
             } else {
@@ -2104,6 +2231,7 @@ if ($runAll -or $Surface -contains "CategoryAlignment") {
                 $subDirs = Get-ChildItem -Path $t.FullName -Directory -ErrorAction SilentlyContinue
                 $expectedSubs = if ($expectedSubByParent.ContainsKey($parentId)) { $expectedSubByParent[$parentId] } else { @() }
                 foreach ($s in $subDirs) {
+                    if ($s.Name -in $script:NonFeatureTestDirs) { continue }
                     if ($s.Name -notin $expectedSubs) {
                         Add-CheckResult "WARNING" "CategoryAlignment" "unit/$parentSlug/$($s.Name)" "Orphan subgroup dir — no matching subgroup under category $parentId"
                     }
@@ -2111,6 +2239,7 @@ if ($runAll -or $Surface -contains "CategoryAlignment") {
             }
         }
 
+        Set-SurfaceExamined "CategoryAlignment" (@($cats).Count)
         Write-Host "  Checked $($cats.Count) tracked category/subgroup entries" -ForegroundColor Gray
     }
     Write-Host ""
@@ -2167,6 +2296,7 @@ if ($runAll -or $Surface -contains "WorkflowAlignment") {
             }
         }
 
+        Set-SurfaceExamined "WorkflowAlignment" (@($workflows).Count)
         Write-Host "  Checked $($workflows.Count) tracked workflow(s)" -ForegroundColor Gray
     }
     Write-Host ""
@@ -2270,9 +2400,342 @@ if ($runAll -or $Surface -contains "VariantPairConsistency") {
 
         # Count distinct groups
         $groups = $variantFiles.Values | ForEach-Object { $_.Group } | Select-Object -Unique
+        Set-SurfaceExamined "VariantPairConsistency" (@($variantFiles).Count)
         Write-Host "  Checked $($variantFiles.Count) variant files across $($groups.Count) group(s)" -ForegroundColor Gray
     }
     Write-Host ""
+}
+
+# =========================================================================
+# Surfaces 20–24: Permanent-tracker coverage (PF-IMP-1212 / PF-PRO-049).
+# The "master state" validator previously had no surface for 4 of the permanent project
+# trackers (feature-request, architecture, technical-debt, bug-tracking) or for the central
+# IMP tracker (PF-EVR-026 finding C-2). These surfaces close that gap. Per PF-PRO-049 decision A
+# the 4 project-local surfaces validate intra-tracker markdown link existence — the defect class
+# CrossRef (Surface 4, ID cross-ref) and IdCounters (Surface 5, counter health) do NOT cover —
+# reusing the same Get-MarkdownLinks / Resolve-MarkdownLink / Find-SimilarFile helpers as
+# Surfaces 1–3. Broken links are reported as WARNING, not ERROR: this is a warn-first rollout
+# (newly-covered trackers carry pre-existing link debt in some trees, e.g. appdev's leftover
+# mirror), promotable to ERROR after soak — mirroring the PF-IMP-1211 warn→block gate staging.
+# Absent target → the standardized PF-IMP-1209 "examined 0 instances" WARNING.
+# =========================================================================
+function Invoke-TrackerLinkSurface {
+    param(
+        [string]$SurfaceName,
+        [string]$TrackerPath,
+        [string]$DisplayLabel
+    )
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  $DisplayLabel" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+
+    if (-not (Test-Path $TrackerPath)) {
+        # PF-IMP-1209 remainder + PF-PRO-049 decision A: an absent product tracker is a setup defect
+        # that must gate in a leaf product project (ERROR), but is legitimately N/A in a non-project
+        # workspace (a framework workspace has no product features/bugs by design) → WARNING.
+        # Severity by declared role — the "do I have a product?" role question (PF-PRO-067 Contract 4).
+        $absentLevel = if ($script:workspaceRole -ne 'project') { "WARNING" } else { "ERROR" }
+        Add-AbsentTargetResult $absentLevel $SurfaceName ([System.IO.Path]::GetFileName($TrackerPath)) "tracker not found ($TrackerPath)"
+        Write-Host ""
+        return
+    }
+
+    Set-SurfaceExamined $SurfaceName 1   # tracker present = 1 instance examined (links are sub-checks)
+    $trackerDir = [System.IO.Path]::GetDirectoryName($TrackerPath)
+    $lines = Get-Content $TrackerPath -Encoding UTF8
+    $linkCount = 0
+    $brokenCount = 0
+    foreach ($line in $lines) {
+        $links = Get-MarkdownLinks -Line $line
+        foreach ($link in $links) {
+            $resolved = Resolve-MarkdownLink -LinkPath $link.Path -SourceFileDir $trackerDir
+            if ($null -eq $resolved) { continue }
+            $linkCount++
+            $ctx = if ($link.Text) { $link.Text } else { $link.Path }
+            if (Test-Path $resolved) {
+                Add-CheckResult "OK" $SurfaceName $ctx "Link valid"
+            } else {
+                $brokenCount++
+                $suggestion = Find-SimilarFile -ExpectedPath $resolved
+                $msg = "Link broken: $($link.Path)"
+                if ($suggestion -and $suggestion.Length -gt 0) { $msg += " (did you mean: $suggestion?)" }
+                Add-CheckResult "WARNING" $SurfaceName $ctx $msg
+            }
+        }
+    }
+    if ($linkCount -eq 0) {
+        # Present but no file links — record the visit so the surface is not "silent" (PF-IMP-1209).
+        Add-CheckResult "OK" $SurfaceName ([System.IO.Path]::GetFileName($TrackerPath)) "Tracker present; no file links to validate"
+    }
+    Write-Host "  Checked $linkCount link(s), $brokenCount broken" -ForegroundColor Gray
+    Write-Host ""
+}
+
+if ($runAll -or $Surface -contains "FeatureRequestTracking") {
+    Invoke-TrackerLinkSurface -SurfaceName "FeatureRequestTracking" `
+        -TrackerPath (Join-Path $ProjectRoot "doc/state-tracking/permanent/feature-request-tracking.md") `
+        -DisplayLabel "Surface 20: Feature Request Tracking"
+}
+
+if ($runAll -or $Surface -contains "ArchitectureTracking") {
+    Invoke-TrackerLinkSurface -SurfaceName "ArchitectureTracking" `
+        -TrackerPath (Join-Path $ProjectRoot "doc/state-tracking/permanent/architecture-tracking.md") `
+        -DisplayLabel "Surface 21: Architecture Tracking"
+}
+
+if ($runAll -or $Surface -contains "TechDebtTracking") {
+    Invoke-TrackerLinkSurface -SurfaceName "TechDebtTracking" `
+        -TrackerPath (Join-Path $ProjectRoot "doc/state-tracking/permanent/technical-debt-tracking.md") `
+        -DisplayLabel "Surface 22: Technical Debt Tracking"
+}
+
+if ($runAll -or $Surface -contains "BugTracking") {
+    Invoke-TrackerLinkSurface -SurfaceName "BugTracking" `
+        -TrackerPath (Join-Path $ProjectRoot "doc/state-tracking/permanent/bug-tracking.md") `
+        -DisplayLabel "Surface 23: Bug Tracking"
+}
+
+# Surface 24: central IMP tracker — reachability + structural check only. Its markdown links are
+# authored relative to appdev's tree (where central is local); resolving them from an arbitrary
+# project's ProjectRoot would mis-resolve, so link existence is intentionally NOT validated here
+# (that stays an appdev-side concern). Resolved via the central pointer (Get-CentralFrameworkPath,
+# which throws on an unresolvable pointer — caught and downgraded to a coverage WARNING).
+if ($runAll -or $Surface -contains "ProcessImprovementTracking") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 24: Process Improvement Tracking (central)" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    $impPath = $null
+    try {
+        $centralRoot = Get-CentralFrameworkPath
+        if ($centralRoot) { $impPath = Join-Path $centralRoot "state-tracking/permanent/process-improvement-tracking.md" }
+    } catch {
+        $impPath = $null
+    }
+
+    if (-not $impPath -or -not (Test-Path $impPath)) {
+        # Conditional target: the central tracker resolves via .framework-central-pointer, which only
+        # exists after a Push reaches the project — a not-yet-reached project legitimately can't resolve
+        # it, so this stays WARNING rather than ERROR.
+        Add-AbsentTargetResult "WARNING" "ProcessImprovementTracking" "process-improvement-tracking.md" "central IMP tracker not resolved/found (pointer absent → project not yet reached by a Push)"
+    } else {
+        Set-SurfaceExamined "ProcessImprovementTracking" 1
+        $impContent = Get-Content $impPath -Raw -Encoding UTF8
+        if ($impContent -match '(?m)^\|.*\|') {
+            Add-CheckResult "OK" "ProcessImprovementTracking" "process-improvement-tracking.md" "Central IMP tracker reachable and contains a table"
+        } else {
+            Add-CheckResult "WARNING" "ProcessImprovementTracking" "process-improvement-tracking.md" "Central IMP tracker reachable but no markdown table found"
+        }
+    }
+    Write-Host ""
+}
+
+# =========================================================================
+# Surface 25: Blueprint Central References (PF-IMP-1589) — appdev layout only.
+# Links from blueprint/**/*.md into process-framework-central/ are rolled-layout-relative
+# navigational hints (PF-IMP-1097): they resolve to a nonexistent path in EVERY layout
+# (appdev and rolled-out projects alike), so LinkWatcher can neither update them when a
+# central artifact moves nor validate them (the .linkwatcher-ignore suppression rule hides
+# them from --validate by design). Until this surface, only a manual grep caught the rot —
+# it recurred at extension closures (PF-IMP-1171: 3 dead refs; 2026-07-16: 6 more).
+# Check: take each markdown link whose target contains "process-framework-central/", strip
+# the relative prefix and any anchor, and assert the "process-framework-central/<rest>" tail
+# exists under the real central tree at the project root. Broken links → WARNING (warn-first,
+# like Surfaces 20–23). Outside the appdev layout (no blueprint/ + process-framework-central/
+# pair at the root) the surface records an explicit N/A-by-design OK — a project not having
+# a blueprint tree is the healthy state, not a coverage gap.
+# =========================================================================
+if ($runAll -or $Surface -contains "BlueprintCentralRefs") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 25: Blueprint Central References" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    $bcrBlueprintDir = Join-Path $ProjectRoot "blueprint"
+    $bcrCentralDir   = Join-Path $ProjectRoot "process-framework-central"
+    if (-not ((Test-Path $bcrBlueprintDir) -and (Test-Path $bcrCentralDir))) {
+        # Not the framework-management workspace — nothing to examine BY DESIGN (unlike an
+        # absent product tracker, this is not a setup defect in any project). Examined=1:
+        # the layout question itself was checked (mirrors the "tracker present; no file
+        # links" convention of the tracker link surfaces).
+        Set-SurfaceExamined "BlueprintCentralRefs" 1
+        Add-CheckResult "OK" "BlueprintCentralRefs" "blueprint/" "No blueprint/ + process-framework-central/ pair at this root — blueprint-to-central references exist only in the framework-management workspace (appdev); nothing to examine"
+        Write-Host "  Not the appdev layout - surface N/A by design" -ForegroundColor Gray
+        Write-Host ""
+    } else {
+        $bcrMarker = 'process-framework-central/'
+        $bcrLinkCount = 0
+        $bcrBrokenCount = 0
+        foreach ($bcrFile in (Get-ChildItem -Path $bcrBlueprintDir -Recurse -Filter *.md -File)) {
+            $bcrRel = ([System.IO.Path]::GetRelativePath($ProjectRoot, $bcrFile.FullName)) -replace '\\', '/'
+            $bcrLineNo = 0
+            foreach ($bcrLine in [System.IO.File]::ReadLines($bcrFile.FullName)) {
+                $bcrLineNo++
+                if ($bcrLine.IndexOf($bcrMarker) -lt 0) { continue }
+                foreach ($bcrLink in (Get-MarkdownLinks -Line $bcrLine)) {
+                    $bcrIdx = $bcrLink.Path.IndexOf($bcrMarker)
+                    if ($bcrIdx -lt 0) { continue }
+                    $bcrLinkCount++
+                    # Strip anchor, then keep only the central-relative tail — the relative
+                    # prefix is a layout fiction and must not participate in resolution.
+                    $bcrTail = (($bcrLink.Path -split '#')[0])
+                    $bcrTail = $bcrTail.Substring($bcrTail.IndexOf($bcrMarker) + $bcrMarker.Length)
+                    $bcrTarget = if ([string]::IsNullOrWhiteSpace($bcrTail)) { $bcrCentralDir } else { Join-Path $bcrCentralDir $bcrTail }
+                    $bcrContext = "$bcrRel`:$bcrLineNo"
+                    if (Test-Path $bcrTarget) {
+                        Add-CheckResult "OK" "BlueprintCentralRefs" $bcrContext "Central link target exists: process-framework-central/$bcrTail"
+                    } else {
+                        $bcrBrokenCount++
+                        $bcrSuggestion = Find-SimilarFile -ExpectedPath ([System.IO.Path]::GetFullPath($bcrTarget))
+                        $bcrMsg = "Central link target missing: process-framework-central/$bcrTail (link: $($bcrLink.Path))"
+                        if ($bcrSuggestion -and $bcrSuggestion.Length -gt 0) { $bcrMsg += " (did you mean: $bcrSuggestion?)" }
+                        Add-CheckResult "WARNING" "BlueprintCentralRefs" $bcrContext $bcrMsg
+                    }
+                }
+            }
+        }
+        Set-SurfaceExamined "BlueprintCentralRefs" $bcrLinkCount
+        if ($bcrLinkCount -eq 0) {
+            # Appdev layout but zero blueprint→central links — implausible (89 at introduction),
+            # so surface it as an examined-0 coverage gap rather than a clean pass.
+            Add-AbsentTargetResult "WARNING" "BlueprintCentralRefs" "blueprint/" "appdev layout present but no blueprint-to-central markdown links found"
+        }
+        Write-Host "  Checked $bcrLinkCount central link(s), $bcrBrokenCount broken" -ForegroundColor Gray
+        Write-Host ""
+    }
+}
+
+# Surface 26: Technical Exploration Tracking (PF-IMP-1584; PF-EVR-029 F-4) — the exploration
+# tracker copied feature-request-tracking as its pattern model in every respect except this
+# surface. Update-Exploration.ps1 guards Findings Doc presence at RESOLVE time only; this
+# closes the post-resolve gap (a rotted findings link is a dead end for the downstream task).
+# Same helper + warn-first semantics as its sibling intake queues (Surfaces 20–23).
+if ($runAll -or $Surface -contains "ExplorationTracking") {
+    Invoke-TrackerLinkSurface -SurfaceName "ExplorationTracking" `
+        -TrackerPath (Join-Path $ProjectRoot "doc/state-tracking/permanent/technical-exploration-tracking.md") `
+        -DisplayLabel "Surface 26: Technical Exploration Tracking"
+}
+
+# =========================================================================
+# Surface 27: Task ID References (PF-IMP-1677) — appdev layout only. Task ids in authored
+# framework prose are hand-typed free text with no coupling to the task files that own them,
+# and the metadata generator's -Check validates projections, not prose — so wrong ids ship
+# silently (a 9-site phantom gate id survived 2026-04..07; 7 wrong-but-live ids survived a
+# dedicated sweep; 3 more found at this surface's introduction). Two checks over the authored
+# directories (tasks/, guides/, templates/, .claude/skills/ — the generated projections and
+# the registry's deliberate tombstone entries are outside this set):
+#   (a) membership — a cited PF-TSK-NNN assigned to no task file (phantom id);
+#   (b) name-vs-id — a "Name (PF-TSK-NNN)" pair whose Name normalizes to a known task's own
+#       title while the cited id differs (wrong-but-live id, which check (a) passes). The
+#       lookup is precision-first: a name matching no task title is simply not checked, so
+#       legitimate loose pairings ("Improvements (PF-TSK-009)", artifact→owning-task refs)
+#       never flag.
+# Both warn-first WARNING, promotable after soak. Authored prose exists only in the
+# framework-management workspace (appdev); projects get the moved-upstream N/A OK.
+# =========================================================================
+if ($runAll -or $Surface -contains "TaskIdRefs") {
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "  Surface 27: Task ID References" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    $tirFrameworkRoot = Join-Path $ProjectRoot "blueprint/process-framework"
+    if (-not (Test-Path (Join-Path $tirFrameworkRoot "tasks"))) {
+        # Not the framework-management workspace — authored task prose is edited (and thus
+        # fixable) only in appdev, so there is nothing actionable to examine here by design.
+        Set-SurfaceExamined "TaskIdRefs" 1
+        Add-CheckResult "OK" "TaskIdRefs" "blueprint/process-framework/tasks/" "No authored framework tree at this root — task-id prose references are checked in the framework-management workspace (appdev); nothing to examine"
+        Write-Host "  Not the appdev layout - surface N/A by design" -ForegroundColor Gray
+        Write-Host ""
+    } else {
+        function Get-TirNormalizedTaskName {
+            param([string]$Name)
+            $n = $Name.Trim().ToLowerInvariant() -replace '\s+', ' '
+            $n = $n -replace '^the\s+', ''
+            while ($n -match '\s(task|process)$') { $n = $n -replace '\s(task|process)$', '' }
+            return $n
+        }
+
+        # id -> title map from the task files' own frontmatter + H1; title -> id reverse map
+        # for the name-vs-id check (a normalized-title collision would make the reverse lookup
+        # ambiguous, so colliding names are dropped from it).
+        $tirIdMap = @{}
+        $tirNameMap = @{}
+        $tirCollisions = [System.Collections.Generic.HashSet[string]]::new()
+        foreach ($tirTaskFile in (Get-ChildItem (Join-Path $tirFrameworkRoot "tasks") -Recurse -Filter *.md -File)) {
+            $tirId = $null; $tirTitle = $null
+            foreach ($tirLine in [System.IO.File]::ReadLines($tirTaskFile.FullName)) {
+                if (-not $tirId -and $tirLine -match '^id:\s*([A-Z]{2,4}-TSK-\d+)') { $tirId = $Matches[1] }
+                if (-not $tirTitle -and $tirLine -match '^#\s+(.+)$') { $tirTitle = $Matches[1].Trim() }
+                if ($tirId -and $tirTitle) { break }
+            }
+            if (-not $tirId) { continue }
+            $tirIdMap[$tirId] = $tirTitle
+            if ($tirTitle) {
+                $tirNorm = Get-TirNormalizedTaskName $tirTitle
+                if ($tirNameMap.ContainsKey($tirNorm)) { [void]$tirCollisions.Add($tirNorm) }
+                else { $tirNameMap[$tirNorm] = $tirId }
+            }
+        }
+        foreach ($tirC in $tirCollisions) { $tirNameMap.Remove($tirC) }
+
+        # Authored prose set: the three authored framework dirs + the framework craft skills.
+        $tirScanDirs = @(
+            (Join-Path $tirFrameworkRoot "tasks"),
+            (Join-Path $tirFrameworkRoot "guides"),
+            (Join-Path $tirFrameworkRoot "templates"),
+            (Join-Path $ProjectRoot "blueprint/.claude/skills")
+        ) | Where-Object { Test-Path $_ }
+
+        $tirTokenRe = [regex]'[A-Z]{2,4}-TSK-\d{3}'
+        $tirPairRe  = [regex]'([A-Z][A-Za-z0-9&/() .-]{2,60}?)(?:\*\*)?\s*\(([A-Z]{2,4}-TSK-\d{3})\)'
+        $tirTokenCount = 0
+        $tirPhantomCount = 0
+        $tirMismatchCount = 0
+        foreach ($tirDir in $tirScanDirs) {
+            foreach ($tirFile in (Get-ChildItem $tirDir -Recurse -Filter *.md -File)) {
+                $tirRel = ([System.IO.Path]::GetRelativePath($ProjectRoot, $tirFile.FullName)) -replace '\\', '/'
+                $tirLineNo = 0
+                foreach ($tirLine in [System.IO.File]::ReadLines($tirFile.FullName)) {
+                    $tirLineNo++
+                    if ($tirLine.IndexOf('-TSK-') -lt 0) { continue }
+                    foreach ($tirM in $tirTokenRe.Matches($tirLine)) {
+                        $tirTokenCount++
+                        if (-not $tirIdMap.ContainsKey($tirM.Value)) {
+                            $tirPhantomCount++
+                            Add-CheckResult "WARNING" "TaskIdRefs" "$tirRel`:$tirLineNo" "Phantom task id $($tirM.Value): assigned to no task file"
+                        }
+                    }
+                    foreach ($tirP in $tirPairRe.Matches($tirLine)) {
+                        $tirCitedId = $tirP.Groups[2].Value
+                        $tirNorm = Get-TirNormalizedTaskName $tirP.Groups[1].Value
+                        # The name capture is left-greedy and may swallow leading sentence text
+                        # ("Escalate friction via Bug Triage"), so resolve by longest known-title
+                        # SUFFIX, with an exact match preferred. A phrase ending in no known
+                        # title is simply not checked (precision-first).
+                        $tirExpectedId = $null
+                        if ($tirNameMap.ContainsKey($tirNorm)) {
+                            $tirExpectedId = $tirNameMap[$tirNorm]
+                        } else {
+                            $tirBestKey = $null
+                            foreach ($tirK in $tirNameMap.Keys) {
+                                if ($tirNorm.EndsWith(" $tirK") -and ($null -eq $tirBestKey -or $tirK.Length -gt $tirBestKey.Length)) { $tirBestKey = $tirK }
+                            }
+                            if ($tirBestKey) { $tirExpectedId = $tirNameMap[$tirBestKey] }
+                        }
+                        if ($tirExpectedId -and $tirExpectedId -ne $tirCitedId) {
+                            $tirMismatchCount++
+                            $tirActual = if ($tirIdMap.ContainsKey($tirCitedId)) { $tirIdMap[$tirCitedId] } else { "no task" }
+                            Add-CheckResult "WARNING" "TaskIdRefs" "$tirRel`:$tirLineNo" "Task name/id mismatch: '$($tirIdMap[$tirExpectedId])' declares $tirExpectedId but is cited as $tirCitedId (= $tirActual)"
+                        }
+                    }
+                }
+            }
+        }
+        Set-SurfaceExamined "TaskIdRefs" $tirTokenCount
+        if ($tirTokenCount -eq 0) {
+            Add-AbsentTargetResult "WARNING" "TaskIdRefs" "blueprint/process-framework/" "authored framework tree present but no task-id (*-TSK) references found"
+        } elseif ($tirPhantomCount -eq 0 -and $tirMismatchCount -eq 0) {
+            Add-CheckResult "OK" "TaskIdRefs" "authored framework prose" "All $tirTokenCount task-id references resolve ($($tirIdMap.Count) known task ids)"
+        }
+        Write-Host "  Checked $tirTokenCount task-id reference(s): $tirPhantomCount phantom, $tirMismatchCount name/id mismatch" -ForegroundColor Gray
+        Write-Host ""
+    }
 }
 
 # =========================================================================
@@ -2293,19 +2756,158 @@ if ($totalChecks -eq 0 -and -not $runAll) {
     Write-Host ""
     Write-Host "  No surfaces matched -Surface argument(s): $($Surface -join ', ')" -ForegroundColor Red
     Write-Host "  Check spelling, or use -Surface All. Valid surface names are listed in the script's .DESCRIPTION." -ForegroundColor Red
-    exit 1
+    Complete-Run -ExitCode 1
+}
+
+# =========================================================================
+# Per-surface coverage report (PF-IMP-1209: X-1 / A-1).
+# Makes "this surface recorded nothing" visible instead of folding it into a blanket
+# "All checks passed!". $silentSurfaces also qualifies the final green verdict below.
+# =========================================================================
+$selectedSurfaces = if ($runAll) { $CanonicalSurfaces } else { @($CanonicalSurfaces | Where-Object { $Surface -contains $_ }) }
+# PF-IMP-1209 remainder: "examined N" is the faithful coverage denominator. A surface is "silent"
+# (a coverage gap) only when it examined 0 instances — NOT merely when it recorded 0 findings
+# (examined N>0, recorded 0 = a clean pass). Surfaces not yet instrumented with Set-SurfaceExamined
+# fall back to their Add-CheckResult call count.
+$silentSurfaces = @($selectedSurfaces | Where-Object {
+    $e = if ($surfaceExamined.Contains($_)) { [int]$surfaceExamined[$_] }
+         elseif ($surfaceRecorded.Contains($_)) { [int]$surfaceRecorded[$_] }
+         else { 0 }
+    $e -eq 0
+})
+if ($Detailed -and $selectedSurfaces.Count -gt 0) {
+    Write-Host ""
+    Write-Host "  Per-surface coverage (examined / recorded):" -ForegroundColor Gray
+    foreach ($s in $selectedSurfaces) {
+        $e = if ($surfaceExamined.Contains($s)) { [int]$surfaceExamined[$s] }
+             elseif ($surfaceRecorded.Contains($s)) { [int]$surfaceRecorded[$s] }
+             else { 0 }
+        $r = if ($surfaceRecorded.Contains($s)) { [int]$surfaceRecorded[$s] } else { 0 }
+        $color = if ($e -eq 0) { "DarkYellow" } else { "Gray" }
+        Write-Host ("    {0,-26} examined {1,4}, recorded {2,4}" -f $s, $e, $r) -ForegroundColor $color
+    }
+}
+if ($silentSurfaces.Count -gt 0) {
+    Write-Host ""
+    Write-Host "  Coverage note: $($silentSurfaces.Count) of $($selectedSurfaces.Count) selected surface(s) examined 0 instances: $($silentSurfaces -join ', ')" -ForegroundColor DarkYellow
+    Write-Host "  (examined-nothing is a coverage gap, not a clean pass — verify these had targets to check; use -Detailed for full per-surface counts)" -ForegroundColor DarkYellow
+}
+
+# =========================================================================
+# Baseline compare (-Baseline): delta this run's errors against a saved baseline.
+# Exit code becomes delta-based — 1 only on NEW errors (pre-existing debt passes).
+# =========================================================================
+$newErrors = $null
+if (-not [string]::IsNullOrWhiteSpace($Baseline)) {
+    if (-not (Test-Path $Baseline)) {
+        Write-Host ""
+        Write-Host "  Baseline file not found: $Baseline" -ForegroundColor Red
+        exit 1
+    }
+    try {
+        $baselineData = Get-Content $Baseline -Raw | ConvertFrom-Json
+    } catch {
+        Write-Host ""
+        Write-Host "  Baseline file is not valid JSON: $Baseline" -ForegroundColor Red
+        exit 1
+    }
+
+    Write-Host ""
+    Write-Host "  Baseline comparison ($(Split-Path $Baseline -Leaf), saved $($baselineData.saved))" -ForegroundColor Cyan
+
+    $normCurrentRoot  = "$ProjectRoot".TrimEnd('\', '/')
+    $normBaselineRoot = "$($baselineData.projectRoot)".TrimEnd('\', '/')
+    if ($normBaselineRoot -ne $normCurrentRoot) {
+        Write-Host "  $([char]0x26A0)  Baseline was saved for a different project root ($normBaselineRoot) - comparison may be meaningless" -ForegroundColor Yellow
+    }
+    $baselineSurfaces = (@($baselineData.surfaces) | Sort-Object) -join ','
+    $currentSurfaces  = (@($Surface) | Sort-Object) -join ','
+    if ($baselineSurfaces -ne $currentSurfaces) {
+        Write-Host "  $([char]0x26A0)  Baseline surface selection ($baselineSurfaces) differs from this run ($currentSurfaces) - delta may be incomplete" -ForegroundColor Yellow
+    }
+
+    $baselineSet = [System.Collections.Generic.HashSet[string]]::new([string[]]@($baselineData.errors | Where-Object { $_ }))
+    $currentSet  = [System.Collections.Generic.HashSet[string]]::new([string[]]$errorFingerprints)
+    $newErrors   = @($errorFingerprints | Where-Object { -not $baselineSet.Contains($_) } | Select-Object -Unique)
+    $resolved    = @($baselineSet | Where-Object { -not $currentSet.Contains($_) })
+    $preExisting = $currentSet.Count - $newErrors.Count
+
+    # PF-IMP-1214: capture the baseline delta for the optional JSON summary.
+    $script:jsonBaseline = [ordered]@{
+        file          = (Split-Path $Baseline -Leaf)
+        newErrors     = @($newErrors)
+        newErrorCount = @($newErrors).Count
+        preExisting   = $preExisting
+        resolved      = @($resolved).Count
+    }
+
+    Write-Host "  New errors:          $($newErrors.Count)" -ForegroundColor $(if ($newErrors.Count -eq 0) { "Green" } else { "Red" })
+    Write-Host "  Pre-existing errors: $preExisting" -ForegroundColor Gray
+    Write-Host "  Resolved errors:     $($resolved.Count)" -ForegroundColor $(if ($resolved.Count -gt 0) { "Green" } else { "Gray" })
+    foreach ($fp in $newErrors) {
+        Write-Host "    $([char]0x274C) NEW: $fp" -ForegroundColor Red
+    }
+}
+
+# =========================================================================
+# Baseline save (-SaveBaseline): write this run's error fingerprints for a later
+# -Baseline comparison. Auto-named per session (timestamp + PID) so parallel sessions
+# never collide; 3-day retention prune keeps the dir self-cleaning.
+# =========================================================================
+if ($SaveBaseline) {
+    $baselineDir = Get-ValidatorTempDir -Kind 'vst-baselines' -Root $ProjectRoot
+    New-Item -ItemType Directory -Path $baselineDir -Force | Out-Null
+
+    # Retention: the validator owns cleanup — prune baselines older than 3 days on every save.
+    # Safe to prune by age alone only because the directory is workspace-scoped (PF-IMP-1984);
+    # in the former shared directory this deleted other workspaces' baselines.
+    Get-ChildItem -Path $baselineDir -Filter "vst-baseline-*.json" -ErrorAction SilentlyContinue |
+        Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-3) } |
+        Remove-Item -Force -ErrorAction SilentlyContinue
+
+    $projectName  = (Split-Path $ProjectRoot -Leaf) -replace '[^\w\-]', '-'
+    $baselineFile = Join-Path $baselineDir ("vst-baseline-{0}-{1}-{2}.json" -f $projectName, (Get-Date -Format 'yyyyMMdd-HHmmss'), $PID)
+    [ordered]@{
+        schema      = 1
+        saved       = (Get-Date -Format 'o')
+        projectRoot = "$ProjectRoot"
+        surfaces    = @($Surface)
+        errorCount  = $errorCount
+        errors      = @($errorFingerprints)
+    } | ConvertTo-Json -Depth 4 | Set-Content -Path $baselineFile -Encoding UTF8
+
+    Write-Host ""
+    Write-Host "  Baseline saved: $baselineFile" -ForegroundColor Cyan
+    Write-Host "  Compare after your change with: -Baseline `"$baselineFile`"" -ForegroundColor Gray
+}
+
+# Delta-based exit when -Baseline was supplied: only NEW errors fail the run.
+if ($null -ne $newErrors) {
+    if ($newErrors.Count -eq 0) {
+        Write-Host ""
+        Write-Host "  No new errors vs baseline." -ForegroundColor Green
+        Complete-Run -ExitCode 0
+    } else {
+        Write-Host ""
+        Write-Host "  Validation failed: $($newErrors.Count) new error(s) vs baseline." -ForegroundColor Red
+        Complete-Run -ExitCode 1
+    }
 }
 
 if ($errorCount -eq 0 -and $warningCount -eq 0) {
     Write-Host ""
-    Write-Host "  All checks passed!" -ForegroundColor Green
-    exit 0
+    if (@($silentSurfaces).Count -gt 0) {
+        Write-Host "  No errors or warnings — but $(@($silentSurfaces).Count) selected surface(s) recorded no findings (see coverage note above)." -ForegroundColor Green
+    } else {
+        Write-Host "  All checks passed!" -ForegroundColor Green
+    }
+    Complete-Run -ExitCode 0
 } elseif ($errorCount -eq 0) {
     Write-Host ""
     Write-Host "  Passed with warnings." -ForegroundColor Yellow
-    exit 0
+    Complete-Run -ExitCode 0
 } else {
     Write-Host ""
     Write-Host "  Validation failed." -ForegroundColor Red
-    exit 1
+    Complete-Run -ExitCode 1
 }

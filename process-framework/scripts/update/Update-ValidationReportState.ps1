@@ -135,7 +135,6 @@ try {
 # --- Configuration ---
 $ScriptName = "Update-ValidationReportState.ps1"
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
-$CurrentTimestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 if (-not $Date) { $Date = $CurrentDate }
 
@@ -167,35 +166,10 @@ $DimensionColumnHeaders = @{
     "Data Integrity"                  = "Data Integrity"
 }
 
-# --- Logging ---
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Level, [string]$Message)
-    $line = "[$CurrentTimestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$CurrentTimestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 # --- Prerequisites ---
 function Test-Prerequisites {
     if (-not (Test-Path $ResolvedTrackingFile)) {
-        Write-Log "ERROR" "Tracking file not found: $ResolvedTrackingFile"
+        Write-ProjectLog -Level "ERROR" -Message "Tracking file not found: $ResolvedTrackingFile"
         return $false
     }
     return $true
@@ -220,7 +194,7 @@ function Update-FeatureByFeatureCells {
     }
 
     if ($headerIdx -eq -1) {
-        Write-Log "WARN" "Could not find Feature-by-Feature Progress table"
+        Write-ProjectLog -Level "WARN" -Message "Could not find Feature-by-Feature Progress table"
         return $Lines
     }
 
@@ -236,7 +210,7 @@ function Update-FeatureByFeatureCells {
     }
 
     if ($columnIdx -eq -1) {
-        Write-Log "WARN" "Could not find column '$columnHeader' in Feature-by-Feature table"
+        Write-ProjectLog -Level "WARN" -Message "Could not find column '$columnHeader' in Feature-by-Feature table"
         return $Lines
     }
 
@@ -263,11 +237,11 @@ function Update-FeatureByFeatureCells {
                 # Cell is pending or in progress — update it
                 $cells[$columnIdx] = " $cellValue "
                 $Lines[$i] = $cells -join '|'
-                Write-Log "SUCCESS" "Updated: $featureCell [$columnHeader] -> $cellValue"
+                Write-ProjectLog -Level "SUCCESS" -Message "Updated: $featureCell [$columnHeader] -> $cellValue"
             } elseif ($currentValue -eq 'N/A') {
-                Write-Log "INFO" "Skipped: $featureCell [$columnHeader] is N/A"
+                Write-ProjectLog -Level "INFO" -Message "Skipped: $featureCell [$columnHeader] is N/A"
             } else {
-                Write-Log "INFO" "Skipped: $featureCell [$columnHeader] already set: $currentValue"
+                Write-ProjectLog -Level "INFO" -Message "Skipped: $featureCell [$columnHeader] already set: $currentValue"
             }
         }
     }
@@ -331,7 +305,7 @@ function Update-OverallProgress {
     }
 
     if ($progressHeaderIdx -eq -1) {
-        Write-Log "WARN" "Could not find Overall Progress table"
+        Write-ProjectLog -Level "WARN" -Message "Could not find Overall Progress table"
         return $Lines
     }
 
@@ -370,7 +344,7 @@ function Update-OverallProgress {
 
             $Lines[$i] = $cells -join '|'
             $finalReports = if (-not $reportAlreadyExists) { $currentReports + 1 } else { $currentReports }
-            Write-Log "SUCCESS" "Overall Progress: $Dimension -> $totalValidated/$totalApplicable validated, $finalReports reports"
+            Write-ProjectLog -Level "SUCCESS" -Message "Overall Progress: $Dimension -> $totalValidated/$totalApplicable validated, $finalReports reports"
             break
         }
     }
@@ -385,7 +359,7 @@ function Add-RegistryEntry {
     $escapedId = [regex]::Escape($ReportId)
     foreach ($line in $Lines) {
         if ($line -match $escapedId) {
-            Write-Log "INFO" "Registry entry for $ReportId already exists — skipping"
+            Write-ProjectLog -Level "INFO" -Message "Registry entry for $ReportId already exists — skipping"
             return $Lines
         }
     }
@@ -401,7 +375,7 @@ function Add-RegistryEntry {
     }
 
     if ($sectionIdx -eq -1) {
-        Write-Log "WARN" "Could not find registry section for '$Dimension Validation Reports'"
+        Write-ProjectLog -Level "WARN" -Message "Could not find registry section for '$Dimension Validation Reports'"
         return $Lines
     }
 
@@ -416,7 +390,7 @@ function Add-RegistryEntry {
     }
 
     if ($tableHeaderIdx -eq -1) {
-        Write-Log "WARN" "Could not find registry table under '$Dimension Validation Reports'"
+        Write-ProjectLog -Level "WARN" -Message "Could not find registry table under '$Dimension Validation Reports'"
         return $Lines
     }
 
@@ -440,7 +414,7 @@ function Add-RegistryEntry {
     # Insert the new row
     $result = [System.Collections.ArrayList]::new($Lines)
     $result.Insert($insertIdx, $newRow)
-    Write-Log "SUCCESS" "Added registry entry: $ReportId ($featureList)"
+    Write-ProjectLog -Level "SUCCESS" -Message "Added registry entry: $ReportId ($featureList)"
 
     return $result.ToArray()
 }
@@ -514,7 +488,7 @@ function Update-FeatureOverallStatus {
         if ($currentStatus -ne $newStatus) {
             $cells[$overallIdx] = " $newStatus "
             $Lines[$i] = $cells -join '|'
-            Write-Log "SUCCESS" "Feature $featureCell Overall: $currentStatus -> $newStatus"
+            Write-ProjectLog -Level "SUCCESS" -Message "Feature $featureCell Overall: $currentStatus -> $newStatus"
         }
     }
 
@@ -527,7 +501,7 @@ function Update-FrontmatterDate {
     for ($i = 0; $i -lt [Math]::Min(20, $Lines.Count); $i++) {
         if ($Lines[$i] -match '^updated:\s*\d{4}-\d{2}-\d{2}') {
             $Lines[$i] = "updated: $CurrentDate"
-            Write-Log "SUCCESS" "Updated frontmatter date to $CurrentDate"
+            Write-ProjectLog -Level "SUCCESS" -Message "Updated frontmatter date to $CurrentDate"
             break
         }
     }
@@ -537,11 +511,11 @@ function Update-FrontmatterDate {
 
 # --- Main ---
 
-Write-Log "INFO" "Starting Validation Report State Update — $ScriptName"
-Write-Log "INFO" "Tracking file: $ResolvedTrackingFile"
-Write-Log "INFO" "Dimension: $Dimension"
-Write-Log "INFO" "Features: $($FeatureIds -join ', ')"
-Write-Log "INFO" "Report: $ReportId"
+Write-ProjectLog -Level "INFO" -Message "Starting Validation Report State Update — $ScriptName"
+Write-ProjectLog -Level "INFO" -Message "Tracking file: $ResolvedTrackingFile"
+Write-ProjectLog -Level "INFO" -Message "Dimension: $Dimension"
+Write-ProjectLog -Level "INFO" -Message "Features: $($FeatureIds -join ', ')"
+Write-ProjectLog -Level "INFO" -Message "Report: $ReportId"
 
 if (-not (Test-Prerequisites)) {
     exit 1
@@ -560,9 +534,9 @@ $lines = Update-FrontmatterDate -Lines $lines
 # Single write
 if ($PSCmdlet.ShouldProcess($ResolvedTrackingFile, "Update validation tracking for $Dimension ($ReportId)")) {
     $lines | Set-Content $ResolvedTrackingFile -Encoding UTF8
-    Write-SummaryLine "$ReportId → $($FeatureIds.Count) feature$(if ($FeatureIds.Count -ne 1) { 's' }) × $Dimension"
+    Write-ProjectSummary "$ReportId → $($FeatureIds.Count) feature$(if ($FeatureIds.Count -ne 1) { 's' }) × $Dimension"
 } else {
-    Write-Log "INFO" "WhatIf mode — no changes written"
+    Write-ProjectLog -Level "INFO" -Message "WhatIf mode — no changes written"
 }
 
 

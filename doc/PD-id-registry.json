@@ -6,7 +6,8 @@
     "updated": "2026-05-18",
     "description": "Product Documentation ID Registry - project-specific document IDs",
     "format": "semantic",
-    "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
+    "axis_note": "Prefix entries store category = documentation tree and type = document kind — transposed relative to document frontmatter, which stores type = tree and category = kind. Never copy values across without swapping the axes.",
+    "id_gaps_policy": "Gaps in ID sequences are expected and never backfilled: an ID stays with its artifact for life — never reassign, renumber, or reuse a deleted artifact's ID (archives and history may still reference it). This constrains IDs, not the pool's nextAvailable counter, which must stay above every ID issued in this tree and never drops just because artifacts were deleted — EXCEPT reset it to 1 when the pool holds zero artifacts and none of its IDs are still referenced here (population migrated, retired, or blueprint seed only), or the vacated range is burned here and, for blueprint copies, in every project bootstrapped later. Projects that already grew their counter keep it."
   },
   "prefixes": {
     "PD-DOC": {
@@ -14,10 +15,12 @@
       "category": "Product Documentation",
       "type": "Documentation",
       "directories": {
+        "founding": "doc/founding",
         "main": "doc",
         "default": "main"
       },
-      "nextAvailable": 1
+      "notes": "Two reserved singletons, both blueprint-shipped stubs pinned directly rather than allocated from nextAvailable (same convention as PD-UIX-001): PD-DOC-001 is the project's Product Concept (doc/founding/product-concept.md, from PF-TEM-086), synthesized by Project Initiation from doc/founding/inputs/; PD-DOC-002 is the Feature Landscape (doc/founding/feature-landscape.md, from PF-TEM-087), the discovery-cycle rationale record filled by Feature Discovery. PD-DOC-000 is the blueprint-shipped doc/README.md, likewise pinned below the counter. nextAvailable starts at 3 so no later PD-DOC allocation collides with a reserved slot. Founding INPUTS (raw human material under doc/founding/inputs/) deliberately receive NO IDs - the framework does not own them, they carry no frontmatter, and the directory is excluded from the PD documentation map; the Product Concept's Sources section indexes them by path instead. Projects onboarded before this convention shipped keep their existing PD-DOC assignments (grandfathered - the id_gaps_policy above forbids reassignment).",
+      "nextAvailable": 3
     },
     "PD-MAI": {
       "description": "Product Documentation - Main/Index (singleton: PD-documentation-map.md). Parallel to PF-MAI for the framework documentation map.",
@@ -39,7 +42,19 @@
         "main": "doc/technical/design/ui-ux",
         "default": "features"
       },
-      "nextAvailable": 3
+      "nextAvailable": 4
+    },
+    "PD-IND": {
+      "description": "Product Documentation - Instruction Design Documents. The fourth design dimension (Instruction Medium, PF-PRO-064): the design artifact for a feature whose deliverable includes instruction artifacts an agent executes. Created by New-InstructionDesign.ps1.",
+      "category": "Product Documentation",
+      "type": "Instruction Design Document",
+      "directories": {
+        "features": "doc/technical/design/instruction/features",
+        "main": "doc/technical/design/instruction",
+        "default": "features"
+      },
+      "notes": "One prefix per design DIMENSION (PD-UIX / PD-API / PD-SCH / PD-IND); a prefix's multiple 'directories' entries are facets WITHIN that dimension, never a second dimension borrowing a pool (PF-PRO-064 correction C-10). Not to be confused with PD-INT (Integration Narratives) - the two mnemonics are one letter apart and describe unrelated artifacts. The terminal PD-TDD references a PD-IND; a PD-IND is never housed under PD-TDD.",
+      "nextAvailable": 1
     },
     "PD-TDD": {
       "description": "Product Documentation - Technical Design Documents",
@@ -49,7 +64,7 @@
         "main": "doc/technical/tdd",
         "default": "main"
       },
-      "nextAvailable": 33
+      "nextAvailable": 34
     },
     "PD-FDD": {
       "description": "Product Documentation - Functional Design Documents",
@@ -60,7 +75,7 @@
         "main": "doc/functional-design",
         "default": "fdds"
       },
-      "nextAvailable": 34
+      "nextAvailable": 35
     },
     "PD-ADR": {
       "description": "Product Documentation - Architecture Decision Records",
@@ -72,6 +87,16 @@
       },
       "nextAvailable": 42
     },
+    "PD-ARC": {
+      "description": "Product Documentation - Architecture Documents",
+      "category": "Product Documentation",
+      "type": "Architecture",
+      "directories": {
+        "main": "doc/technical/architecture",
+        "default": "main"
+      },
+      "nextAvailable": 3
+    },
     "PD-IMP": {
       "description": "Product Documentation - Implementation",
       "category": "Product Documentation",
@@ -81,7 +106,7 @@
         "technical": "doc/technical",
         "default": "implementation-plans"
       },
-      "nextAvailable": 3
+      "nextAvailable": 4
     },
     "PD-API": {
       "description": "Product Documentation - API Specifications",
@@ -186,7 +211,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 114
+      "nextAvailable": 120
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -196,7 +221,7 @@
         "assessments": "doc/documentation-tiers/assessments",
         "default": "assessments"
       },
-      "nextAvailable": 201
+      "nextAvailable": 202
     },
     "PD-STA": {
       "description": "Product Documentation - State Tracking",
@@ -208,7 +233,7 @@
         "temporary": "doc/state-tracking/temporary",
         "default": "permanent"
       },
-      "nextAvailable": 67
+      "nextAvailable": 69
     },
     "PD-FRQ": {
       "description": "Product Documentation - Feature Requests",
@@ -218,7 +243,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 11
+      "nextAvailable": 19
     },
     "PD-FIS": {
       "description": "Product Documentation - Feature Implementation States",
@@ -228,7 +253,7 @@
         "features": "doc/state-tracking/features",
         "default": "features"
       },
-      "nextAvailable": 56
+      "nextAvailable": 57
     },
     "PD-VAL": {
       "description": "Product Documentation - Validation Reports",
@@ -254,7 +279,7 @@
         "plans": "doc/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 237
+      "nextAvailable": 238
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",
@@ -304,7 +329,7 @@
         "main": "doc/state-tracking/permanent",
         "default": "main"
       },
-      "nextAvailable": 10
+      "nextAvailable": 12
     }
   }
 }

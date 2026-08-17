@@ -7,7 +7,7 @@
 .DESCRIPTION
     Created for PF-IMP-952 (Framework Evaluation PF-EVR-024, finding F8a; consolidates F14).
     Replaces the manual "ensure the file is valid JSON" eyeball check at Project Initiation
-    (PF-TSK-059) Step 9 with a programmatic gate. Read-only — never writes or creates files.
+    (PF-TSK-059) config-validation step with a programmatic gate. Read-only — never writes or creates files.
 
     Checks performed:
       1. File exists at the resolved path.
@@ -18,7 +18,8 @@
       5. No leftover "[Placeholder]" bracket tokens remain in any string value.
 
     project_id == null is reported as informational, not a failure — Register-Project.ps1
-    sets it during PF-TSK-059 Step 19, after this validation runs.
+    sets it at registration (PF-TSK-059 Phase A for new projects; Framework Rollout Mode A
+    for retrofits), which may not have happened yet when this validator runs standalone.
 
     Exit code: 0 when valid, 1 when any error is found (so it can gate a task step or CI).
 
@@ -166,7 +167,7 @@ foreach ($e in $script:errors) {
 # project_id is informational (set later by Register-Project.ps1), not a validation error.
 $projectId = Get-ConfigValue -Object $config -DottedPath 'project_id'
 if ($null -eq $projectId -or ($projectId -is [string] -and [string]::IsNullOrWhiteSpace($projectId))) {
-    Write-Host "   ℹ️  project_id is null — Register-Project.ps1 sets it during PF-TSK-059 Step 19." -ForegroundColor Yellow
+    Write-Host "   ℹ️  project_id is null — Register-Project.ps1 sets it at registration (PF-TSK-059 Phase A; Mode A for retrofits)." -ForegroundColor Yellow
 }
 
 Write-Host ""

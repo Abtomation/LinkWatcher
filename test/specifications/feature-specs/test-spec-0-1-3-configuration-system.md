@@ -1,5 +1,6 @@
 ---
 id: TE-TSP-037
+description: "0.1.3 Tier 1 — Multi-source config loading and validation"
 type: Process Framework
 category: Test Specification
 version: 1.0

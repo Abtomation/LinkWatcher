@@ -1,10 +1,11 @@
 ---
-id: PD-STA-001
+id: PF-FST-001
+description: "Tracks implementation status and documentation requirements for every feature across the project."
 type: Process Framework
 category: State Tracking
 version: 2.1
 created: 2023-06-15
-updated: 2026-06-22
+updated: 2026-08-14
 ---
 
 # LinkWatcher - Feature Tracking Document
@@ -36,10 +37,12 @@ This document tracks the implementation status and documentation requirements fo
 
 | Symbol | Status                | Description                                                                           | Next Task |
 | ------ | --------------------- | ------------------------------------------------------------------------------------- | --------- |
-| ⬜     | Needs Assessment      | Feature added, needs complexity/tier assessment                                       | PF-TSK-002 |
+| ⬜     | Needs Assessment      | Feature added, needs complexity/tier assessment                                       | PF-TSK-067 |
 | 📋     | Needs FDD             | Assessment done (Tier 2+), needs Functional Design Document                           | PF-TSK-027 |
 | 🗄️     | Needs DB Design       | FDD done (or Assessment for T1), assessment marks DB design required, needs database schema | PF-TSK-021 |
 | 🔌     | Needs API Design      | DB Design done (or not needed), assessment marks API design required, needs API specification | PF-TSK-020 |
+| 🎨     | Needs UI Design       | API Design done (or not needed), assessment marks UI design required, needs UI/UX design document | PF-TSK-090 |
+| 📜     | Needs Instruction Design | UI Design done (or not needed), assessment marks instruction design required, needs instruction design document | PF-TSK-094 |
 | 📝     | Needs TDD             | All design tasks done, needs Technical Design Document                                | PF-TSK-015 |
 | 🧪     | Needs Test Spec       | TDD done, needs test specification                                                    | PF-TSK-012 |
 | 🔧     | Needs Impl Plan       | Test spec done, needs implementation planning                                         | PF-TSK-044 |
@@ -49,8 +52,9 @@ This document tracks the implementation status and documentation requirements fo
 | 📖     | Needs User Docs       | Test scoping complete, feature has user-visible behavior needing documentation         | PF-TSK-081 |
 | 🟢     | Completed             | All scoping and documentation complete (or not needed), feature fully complete         | — |
 | 🔄     | Needs Enhancement     | Enhancement scoped, needs execution (see linked state file)                           | PF-TSK-068 |
+| 🔬     | Needs Technical Exploration | Feature blocked on an open research question; the exploration is queued in technical-exploration-tracking.md. Divert-and-return: cleared back to the feature's pipeline status when the exploration resolves | PF-TSK-093 |
 
-> **Design status branching**: After FDD (Tier 2+) or Assessment (Tier 1), the next status depends on the design-requirement flags recorded in the assessment document's Design Requirements Evaluation section. Order: DB Design first → API Design → TDD. If a design is not required, that status is skipped. Per-feature design artifact links live in each feature's state file `§4 Documentation Inventory` (per PF-PRO-002 / PF-IMP-760, not in master columns). ADRs are tracked cross-cuttingly in the [ADR Index](architecture-tracking.md#adr-index), not per-feature.
+> **Design status branching**: After FDD (Tier 2+) or Assessment (Tier 1), the next status depends on the design-requirement flags recorded in the assessment document's Design Requirements Evaluation section. Order: DB Design first → API Design → UI Design → Instruction Design → TDD. If a design is not required, that status is skipped. Per-feature design artifact links live in each feature's state file `§4 Documentation Inventory` (per PF-PRO-002 / PF-IMP-760, not in master columns). ADRs are tracked cross-cuttingly in the [ADR Index](architecture-tracking.md#adr-index), not per-feature.
 
 ### Documentation Tier
 
@@ -116,9 +120,9 @@ Foundation features that provide architectural foundations for the application.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  Test Status  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  -----------  |  ------------  |  -----  |
-| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | ✅ All Passing | — | **FOUNDATION** Service orchestrator, data models, path utilities, CLI entry point |
-| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | ✅ All Passing | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups; TD163 resolved (2026-04-03): +14 tests, coverage 81%→93%, 57/57 passing. Audit: [TE-TAR-019](../../../test/audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-2-test-database.md) |
-| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 🟢 Completed | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-193-0-1-3-configuration-system.md) | ✅ All Passing | — | **FOUNDATION** Multi-source config loading, validation, environment presets |
+| [0.1.1](../features/0.1.1-core-architecture-implementation-state.md) | Core Architecture | 🟢 Completed | P1 | [🔴 Tier 3](../../documentation-tiers/assessments/PD-ASS-191-0-1-1-core-architecture.md) | 🔄 Re-testing Needed | — | **FOUNDATION** Service orchestrator, data models, path utilities, CLI entry point |
+| [0.1.2](../features/0.1.2-in-memory-link-database-implementation-state.md) | In-Memory Link Database | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-192-0-1-2-in-memory-link-database.md) | 🔄 Re-testing Needed | 0.1.1 | **FOUNDATION** Thread-safe, target-indexed link storage with O(1) lookups; TD163 resolved (2026-04-03): +14 tests, coverage 81%→93%, 57/57 passing. Audit: [TE-TAR-019](../../../test/audits/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/audit-report-0-1-2-test-database.md) |
+| [0.1.3](../features/0.1.3-configuration-system-implementation-state.md) | Configuration System | 🟢 Completed | P1 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-193-0-1-3-configuration-system.md) | 🔄 Re-testing Needed | — | **FOUNDATION** Multi-source config loading, validation, environment presets |
 
 </details>
 
@@ -131,7 +135,7 @@ Real-time file system monitoring and movement detection.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  Test Status  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  -----------  |  ------------  |  -----  |
-| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md) | ✅ All Passing | 0.1.1 | Watchdog event handling, move detection, directory moves, file filtering |
+| [1.1.1](../features/1.1.1-file-system-monitoring-implementation-state.md) | File System Monitoring | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-194-1-1-1-file-system-monitoring.md) | 🔄 Re-testing Needed | 0.1.1 | Watchdog event handling, move detection, directory moves, file filtering |
 
 </details>
 
@@ -144,8 +148,8 @@ Parser implementations for different file formats and link update mechanisms.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  Test Status  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  -----------  |  ------------  |  -----  |
-| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-195-2-1-1-link-parsing-system.md) | ✅ All Passing | 0.1.1 | Parser registry/facade with 7 format-specific parsers |
-| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-196-2-2-1-link-updating.md) | ✅ All Passing | 0.1.1 | Reference updating with relative path calculation, atomic writes, dry-run mode |
+| [2.1.1](../features/2.1.1-link-parsing-system-implementation-state.md) | Link Parsing System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-195-2-1-1-link-parsing-system.md) | 🔄 Re-testing Needed | 0.1.1 | Parser registry/facade with 7 format-specific parsers |
+| [2.2.1](../features/2.2.1-link-updating-implementation-state.md) | Link Updating | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-196-2-2-1-link-updating.md) | 🔄 Re-testing Needed | 0.1.1 | Reference updating with relative path calculation, atomic writes, dry-run mode — blueprint-aware reference updating; Test specification created: TE-TSP-046 (2026-08-10) |
 
 </details>
 
@@ -158,7 +162,7 @@ Logging system and operational monitoring features.
 
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  Test Status  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  -----------  |  ------------  |  -----  |
-| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-197-3-1-1-logging-system.md) | ✅ All Passing | 0.1.3 | Structured logging, colored console, JSON file logging, log rotation, runtime filtering |
+| [3.1.1](../features/3.1.1-logging-system-implementation-state.md) | Logging System | 🟢 Completed | P1 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-197-3-1-1-logging-system.md) | 🔄 Re-testing Needed | 0.1.3 | Structured logging, colored console, JSON file logging, log rotation, runtime filtering |
 
 </details>
 
@@ -172,6 +176,17 @@ On-demand link health auditing and broken link reporting.
 |  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  Test Status  |  Dependencies  |  Notes  |
 |  --  |  -------  |  ------  |  --------  |  --------  |  -----------  |  ------------  |  -----  |
 | [6.1.1](<../features/6.1.1-Link Validation-implementation-state.md>) | Link Validation | 🟢 Completed | P2 | [🔵 Tier 1](../../documentation-tiers/assessments/PD-ASS-200-6.1.1-link-validation.md) | ✅ All Passing | 0.1.1, 2.1.1 | On-demand broken link scanning with context-aware filtering; per-folder path-resolution override for designated folders. |
+
+</details>
+
+<details>
+<summary><strong>7. Operations & Control</strong></summary>
+
+### 7.1 Control Panel
+
+|  ID  |  Feature  |  Status  |  Priority  |  Doc Tier  |  Test Status  |  Dependencies  |  Notes  |
+|  --  |  -------  |  ------  |  --------  |  --------  |  -----------  |  ------------  |  -----  |
+| [7.1.1](../features/7.1.1-LinkWatcher-Control-Panel-implementation-state.md) | LinkWatcher Control Panel | 👀 Needs Review | P3 | [🟠 Tier 2](../../documentation-tiers/assessments/PD-ASS-201-7.1.1-linkwatcher-control-panel.md) | ✅ All Passing |  | Desktop window control panel: cross-project daemon management, log viewing, config view/edit, validation triggering, drain-and-terminate on panel close (window auto-opens on hook start).; Assessment completed: PD-ASS-201 (2026-06-29); UI Design: Required — routed to 🎨 Needs UI Design ahead of TDD (UI Design gate added by PF-IMP-1352); FDD created: PD-FDD-034 (2026-06-29); UI Design created: PD-UIX-003 (2026-07-06); TDD created: PD-TDD-033 (2026-07-12); Test specification created: TE-TSP-045 (2026-07-12); Implementation Plan created: PD-IMP-003 (2026-07-15); Core Logic Implementation Phase A complete — settings + registry resolution (pointer discovery) + window-shell foundation, TE-TST-141 13/13 (2026-07-27); Core Logic Implementation Phase B complete — discovery + observable model + live daemon list; panel is now a truthful read-only monitor. TE-TST-142/143/144 (25/22/6) pass, 1030 unit tests green. TDD PD-TDD-033 amended to v1.1 (normalized project-root identity; live-daemon-outranks-stale-lock precedence; frozen-project filtering question resolved) (2026-07-31); Core Logic Implementation Phase C complete — lifecycle actions: start via launcher, observational drain, kill-time-guarded pair termination, self-owned lock cleanup, live toolbar enablement. TE-TST-146 (25) + TE-TST-147 (10, COMP-1) + INT-3/4/9; panel suite 113/113, 1074 unit tests green. Verified live: panel-start + clean drain-stop of TimeTrackingV2's daemon incl. stale-lock reclaim and lock cleanup (2026-08-10); Core Logic Implementation Phase D complete — **PF-TSK-078 done (Phases A–D)**: shutdown orchestration — close drains all managed daemons behind the modal Screen-4 dialog, watchdog-bounded deterministic exit (AC-7/AC-9). INT-5/6 + watchdog/zero-target/adopted-drain + COMP-5; panel suite 123/123, 1087 unit tests green. Verified live: close-with-running-daemon drained TimeTrackingV2 and exited itself in 4.9 s. Next: UI Implementation (PF-TSK-052) Phase E detail panes (2026-08-10); UI Implementation Phase E complete — **PF-TSK-052 done**: all three detail panes live — log tail (incremental, rotation-aware, CRLF-safe, bounded buffer), validation (`--validate` subprocess, report-file count extraction — TDD §8 Q3 resolved, per-project busy guard), config editor (validate-on-save via real `LinkWatcherConfig`, atomic replace, default skeleton), unsaved-changes guard on row+tab switches, Ctrl+1/2/3 / Ctrl+S / Ctrl+End accelerators. TE-TST-148/149/150 created + INT-7 + COMP-3/4/6/7; panel suite 183/183, 1147 unit tests green, TDD v1.2. Verified live: scripted real-Tk run against a synthetic project, 14/14 checks incl. real `--validate` finding a planted broken link (2026-08-10); Integration & Testing Phase F complete — **the panel ships and auto-opens**: `single_instance.py` (loopback bind + `panel.port` + SURFACE/banner handshake + self-owned release), `app.surface()`, hook-wrapper detached `pythonw.exe` auto-open (no redirection → no inherited capture pipe), installer ships `control_panel.py` + panel wrappers + GUI-safe smoke test. TE-TST-151 (23 fns / 29 cases, UNIT-I1…I4); panel suite 212/212, 1180 unit tests green. Verified live: hook wrapper returned in 2.4 s with piped stdout, repeat launch surfaced the same window (AC-11). Step 16 found and fixed three deployment defects — `psutil` and `GitPython` were undeclared runtime deps, and a fresh install aborted at venv creation (installer now generates `requirements.txt`). Next: Phase G hardening (2026-08-10) |
 
 </details>
 
@@ -196,10 +211,11 @@ Features that have been generalized into the process framework or otherwise reti
 
 | Status                | Count  | Percentage |
 | --------------------- | ------ | ---------- |
-| 🟢 Completed | 8      | 100%      |
-| **Total Active**    | **8**  | **100%**   |
+| 🟢 Completed | 8      | 88.9%      |
+| 👀 Needs Review | 1      | 11.1%      |
+| **Total Active**    | **9**  | **100%**   |
 
-> **📝 NOTE**: All 8 active features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests. See [Archived Features](#archived-features) for retired features.
+> **📝 NOTE**: All 9 active features are fully implemented in code (retrospective). The status reflects documentation completeness, not implementation progress. All features have passing tests. See [Archived Features](#archived-features) for retired features.
 
 </details>
 
@@ -208,10 +224,10 @@ Features that have been generalized into the process framework or otherwise reti
 
 | Tier                  | Count  | Percentage |
 | --------------------- | ------ | ---------- |
-| 🔵 Tier 1 (Simple)   | 2      | 25%      |
-| 🟠 Tier 2 (Moderate)   | 5      | 62.5%      |
-| 🔴 Tier 3 (Complex)   | 1      | 12.5%      |
-| **Total Active**    | **8**  | **100%**   |
+| 🔵 Tier 1 (Simple)   | 2      | 22.2%      |
+| 🟠 Tier 2 (Moderate)   | 6      | 66.7%      |
+| 🔴 Tier 3 (Complex)   | 1      | 11.1%      |
+| **Total Active**    | **9**  | **100%**   |
 
 </details>
 
@@ -220,7 +236,7 @@ Features that have been generalized into the process framework or otherwise reti
 <details>
 <summary><strong>Tasks That Update This File</strong></summary>
 
-- [Feature Tier Assessment](../../../process-framework/tasks/01-planning/feature-tier-assessment-task.md): Updates when features are assessed
+- [Feature Request Evaluation](../../../process-framework/tasks/01-planning/feature-request-evaluation.md): Updates when new features are added and assessed (tier assessment embedded)
 - [FDD Creation](../../../process-framework/tasks/02-design/fdd-creation-task.md): Updates when FDDs are created
 - [TDD Creation](../../../process-framework/tasks/02-design/tdd-creation-task.md): Updates when technical designs are completed
 - [Test Specification Creation](../../../process-framework/tasks/03-testing/test-specification-creation-task.md): Updates Test Status when specs are created; Test Specification link inserted into per-feature state file §4 Documentation Inventory
@@ -260,3 +276,7 @@ Features that have been generalized into the process framework or otherwise reti
 | 2026-02-17 | v1.0 — Initial feature tracking with 42 features | [Codebase Feature Discovery (PF-TSK-064)](../../../process-framework/tasks/00-setup/codebase-feature-discovery.md) |
 | 2026-03-22 | Archived feature 4.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). Testing infrastructure is now a framework concern, not a product feature. | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
 | 2026-03-22 | Archived feature 5.1.1: Generalized into framework (PF-PRO-009, 2026-03-22). CI/CD infrastructure is now a framework concern, not a product feature. Major components deleted (ci.yml, run_tests.py, setup_cicd.py). | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |
+| 2026-07-06 | Feature 2.2.1: 🔄 Needs Enhancement → 👀 Needs Review (enhancement finalized) | [Finalize-Enhancement.ps1](../../../process-framework/scripts/update/Finalize-Enhancement.ps1) |
+| 2026-07-06 | Feature 2.2.1: 👀 Needs Review → 🔄 Needs Enhancement — Code Review of the blueprint-aware reference updating change set: 1 Major finding (residual virtual-root hijack via PD-BUG-045 suffix block; OPEN implementation gap in state file §9), all other dimensions PASS (968 tests green; acceptance criteria FR-8/FR-9/BR-9/AC-7 met, BR-8 unmet at the gap edge). Fix + re-review before release. Reviewer: AI Agent + Human Partner. | [Code Review (PF-TSK-005)](../../../process-framework/tasks/06-maintenance/code-review-task.md) |
+| 2026-07-12 | Feature 2.2.1: 🔄 Needs Enhancement → 👀 Needs Review — implementation gap fixed (bug-fix-style follow-up): PD-BUG-045 suffix block gated on `not is_virtual_root_link` in path_resolver; regression test added (failed pre-fix with exact hijack signature, passes post-fix); PD-TDD-026 overclaiming wording corrected; TE-TSP-040 scenario (f) added. Full suite 963 passed / 0 failed. State file §9 gap closed. Ready for Code Review repeat cycle. | [Bug Fixing (PF-TSK-007)](../../../process-framework/tasks/06-maintenance/bug-fixing-task.md) |
+| 2026-07-12 | Feature 2.2.1: 👀 Needs Review → 🔎 Needs Test Scoping — Code Review repeat cycle PASSED (gap-fix delta): suffix-block gate verified correct and class-closing (all three unresolved-form comparison sites now share one gating condition; Step-3 matchers confirmed resolved-form only; Python-import sibling confirmed not exposed); regression test faithfully reproduces the hijack; TDD/test-spec corrections accurate. Scoped tests 60/60, full suite 955 passed / 0 failed, black clean. Findings: 0 Critical/Major/Minor; 1 Suggestion (path_resolver module docstring lags v1.1 flow — routed to Code Refactoring lightweight path). Status set via `Update-FeatureTrackingStatus` helper: `Update-CodeReviewState.ps1 -ReviewStatus "Completed"` maps to non-legend "✅ Review Completed" (script drift filed as IMP). Reviewer: AI Agent + Human Partner. | [Code Review (PF-TSK-005)](../../../process-framework/tasks/06-maintenance/code-review-task.md) |

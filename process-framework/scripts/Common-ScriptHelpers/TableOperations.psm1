@@ -30,10 +30,17 @@ High-level operations (v1.0):
 - Update-MarkdownTableWithAppend: Row updates with append semantics
 - Move-MarkdownTableRow: Row migration between table sections
 
+Post-condition verification (v2.3):
+- Assert-TableRowInFile: Verify a written row exists AND matches its table header's column count
+
+Header-driven row construction (v2.4):
+- Get-MarkdownTableHeaders: Read a section's table header names
+- New-HeaderDrivenTableRow: Build a row ordered by the live table's headers (drift-proof)
+
 .NOTES
-Version: 2.0
+Version: 2.4
 Created: 2025-08-30
-Updated: 2026-04-03
+Updated: 2026-07-17
 Extracted From: StateFileManagement.psm1
 Dependencies: None (pure functions)
 #>
@@ -128,6 +135,10 @@ function ConvertTo-MarkdownTableRow {
     Takes an array of strings and returns "| val1 | val2 | val3 |".
     Also supports creating separator rows.
 
+    Literal pipes inside a cell value are escaped as '\|' (PF-IMP-1875), the write half of
+    the round-trip contract Split-MarkdownTableRow already reads. Escaping is idempotent, so
+    a cell that already contains '\|' is left alone.
+
     .PARAMETER Cells
     Array of cell values to format.
 
@@ -161,7 +172,16 @@ function ConvertTo-MarkdownTableRow {
         return "| " + ($dashes -join " | ") + " |"
     }
 
-    return "| " + ($Cells -join " | ") + " |"
+    # PF-IMP-1875: escape literal pipes in cell values. Split-MarkdownTableRow splits on
+    # '(?<!\\)\|' and returns cells raw so escapes survive a round-trip — that is the read
+    # half of markdown's \| contract (PF-IMP-603); this is the write half, which was never
+    # implemented. Without it a cell carrying prose like a regex or a path alternation emits
+    # extra delimiters, and every later cell silently lands under the wrong header.
+    # Idempotent: the negative lookbehind leaves an already-escaped '\|' alone, so a
+    # read-modify-write cycle does not accumulate backslashes.
+    $escaped = @($Cells | ForEach-Object { $_ -replace '(?<!\\)\|', '\|' })
+
+    return "| " + ($escaped -join " | ") + " |"
 }
 
 function ConvertFrom-MarkdownTable {
@@ -315,6 +335,16 @@ function ConvertFrom-MarkdownTable {
 
         $cells = Split-MarkdownTableRow $lines[$i]
         if ($null -eq $cells) {
+            # A '|'-started line that fails row-parse inside a table is damaged data
+            # (e.g. a row missing its closing pipe), not the end of the table. Skip it
+            # with a warning instead of silently dropping every row after it — one
+            # malformed row previously blinded callers to the whole table tail
+            # (PF-IMP-1393 (a)). Prose, headings, and blank lines still end the table.
+            if ($inTable -and $lines[$i] -match '^\s*\|') {
+                $preview = $lines[$i].Substring(0, [Math]::Min(80, $lines[$i].Length))
+                Write-Warning "ConvertFrom-MarkdownTable: malformed table row at line $($i + 1) skipped (missing closing '|'?): $preview"
+                continue
+            }
             if ($inTable) {
                 $inTable = $false
                 if (-not $AllTables) { break }
@@ -491,7 +521,7 @@ function Update-MarkdownTable {
                         $columns[$statusIndex] = $Status
                     }
                 } else {
-                    Write-Warning "Update-MarkdownTable: StatusColumn '$StatusColumn' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Status update for '$FeatureId' was skipped."
+                    throw "Update-MarkdownTable: StatusColumn '$StatusColumn' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Status update for '$FeatureId' cannot be applied."
                 }
 
                 # Apply additional updates
@@ -502,7 +532,7 @@ function Update-MarkdownTable {
                             $columns[$updateIndex] = $AdditionalUpdates[$columnName]
                         }
                     } else {
-                        Write-Warning "Update-MarkdownTable: AdditionalUpdates column '$columnName' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Update for '$FeatureId' was skipped."
+                        throw "Update-MarkdownTable: AdditionalUpdates column '$columnName' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Update for '$FeatureId' cannot be applied."
                     }
                 }
 
@@ -645,7 +675,7 @@ function Update-MarkdownTableWithAppend {
                         $columns[$statusIndex] = $Status
                     }
                 } elseif ($StatusColumn -and $Status) {
-                    Write-Warning "Update-MarkdownTableWithAppend: StatusColumn '$StatusColumn' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Status update for '$FeatureId' was skipped."
+                    throw "Update-MarkdownTableWithAppend: StatusColumn '$StatusColumn' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Status update for '$FeatureId' cannot be applied."
                 }
 
                 # Apply additional updates (replace existing content)
@@ -656,7 +686,7 @@ function Update-MarkdownTableWithAppend {
                             $columns[$updateIndex] = $AdditionalUpdates[$columnName]
                         }
                     } else {
-                        Write-Warning "Update-MarkdownTableWithAppend: AdditionalUpdates column '$columnName' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Update for '$FeatureId' was skipped."
+                        throw "Update-MarkdownTableWithAppend: AdditionalUpdates column '$columnName' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Update for '$FeatureId' cannot be applied."
                     }
                 }
 
@@ -675,7 +705,7 @@ function Update-MarkdownTableWithAppend {
                             }
                         }
                     } else {
-                        Write-Warning "Update-MarkdownTableWithAppend: AppendUpdates column '$columnName' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Update for '$FeatureId' was skipped."
+                        throw "Update-MarkdownTableWithAppend: AppendUpdates column '$columnName' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Update for '$FeatureId' cannot be applied."
                     }
                 }
 
@@ -1193,6 +1223,420 @@ function Add-MarkdownTableRow {
     }
 }
 
+function Remove-MarkdownSection {
+    <#
+    .SYNOPSIS
+    Removes a heading-anchored section (the heading and everything under it up to the
+    next heading of equal or higher level) from markdown content.
+
+    .DESCRIPTION
+    Pure markdown manipulation — no knowledge of state files or repo paths. Locates the
+    heading line (exact trimmed-end match), reads its level from the leading '#' count,
+    and deletes from that heading through the line immediately before the next heading
+    whose level is equal or higher (or end-of-content if none follows). The blank line
+    preceding the removed heading is left in place as the separator before the following
+    heading. Line endings are preserved. No-ops (returns content unchanged, Action
+    'NotFound') when the heading is absent, so callers can strip an optional subsection
+    unconditionally.
+
+    Used to drop a conditional subsection from a freshly created document — e.g.
+    New-FeatureImplementationState.ps1 omits the onboarding-only "Existing Project
+    Documentation" subsection from greenfield state files.
+
+    .PARAMETER Content
+    The full document content as a single string. Line endings preserved on output.
+
+    .PARAMETER SectionHeading
+    Exact heading line that anchors the section (e.g. "### Existing Project Documentation").
+    Compared trimmed-end against each line. The section ends at the next heading line whose
+    hash count is <= the anchor's hash count.
+
+    .OUTPUTS
+    Hashtable with keys:
+      Content    - updated content (or original when Action is 'NotFound')
+      Action     - 'Removed' | 'NotFound'
+      LineNumber - 1-based line of the removed heading (0 when not found)
+      Message    - human-readable detail
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [string]$SectionHeading
+    )
+
+    $newline = if ($Content -match "`r`n") { "`r`n" } else { "`n" }
+    $lines = $Content -split "`r?`n"
+
+    # Determine anchor heading level (number of leading #s)
+    $anchorLevel = 0
+    if ($SectionHeading -match '^(#{1,6})\s') { $anchorLevel = $matches[1].Length }
+    if ($anchorLevel -eq 0) {
+        Write-Warning "Remove-MarkdownSection: SectionHeading '$SectionHeading' is not a markdown heading (must start with 1-6 # characters)."
+        return @{ Content = $Content; Action = 'NotFound'; LineNumber = 0; Message = "Invalid SectionHeading" }
+    }
+
+    # Find anchor heading line (trimmed-end exact match)
+    $anchorTrim = $SectionHeading.TrimEnd()
+    $anchorIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i].TrimEnd() -eq $anchorTrim) { $anchorIdx = $i; break }
+    }
+    if ($anchorIdx -lt 0) {
+        return @{ Content = $Content; Action = 'NotFound'; LineNumber = 0; Message = "Heading '$SectionHeading' not found" }
+    }
+
+    # Section end: next heading of equal or higher level (<= anchor level), else EOF
+    $nextHeadingIdx = $lines.Count
+    $endPattern = "^#{1,$anchorLevel}\s"
+    for ($i = $anchorIdx + 1; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match $endPattern) { $nextHeadingIdx = $i; break }
+    }
+
+    # Keep everything except [anchorIdx, nextHeadingIdx) — the blank line before the
+    # anchor (kept) becomes the separator before the following heading.
+    $kept = New-Object System.Collections.Generic.List[string]
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($i -ge $anchorIdx -and $i -lt $nextHeadingIdx) { continue }
+        $kept.Add($lines[$i])
+    }
+
+    return @{
+        Content    = ($kept -join $newline)
+        Action     = 'Removed'
+        LineNumber = ($anchorIdx + 1)
+        Message    = "Removed section '$SectionHeading' (lines $($anchorIdx + 1)-$nextHeadingIdx)"
+    }
+}
+
+function Remove-BlockquoteBlock {
+    <#
+    .SYNOPSIS
+    Removes one blockquote block — an anchor line and the blockquote lines continuing it —
+    from markdown content.
+
+    .DESCRIPTION
+    Pure markdown manipulation — no knowledge of state files or repo paths. Sibling of
+    Remove-MarkdownSection for content that lives inside a blockquote rather than under a
+    heading, where no heading anchors the span. Locates the anchor line by literal
+    starts-with match, then deletes it plus every following line that is still part of the
+    blockquote, stopping at the first line that is not a blockquote line ('>') and at the
+    first blank-blockquote separator ('>' alone), so only the anchored paragraph goes and
+    sibling notes in the same blockquote survive. A '>' separator line immediately preceding
+    the anchor is removed too, leaving no dangling separator. Line endings are preserved.
+    No-ops (returns content unchanged, Action 'NotFound') when the anchor is absent, so
+    callers can strip an optional note unconditionally.
+
+    Used to drop a mode-conditional note from a freshly created document — e.g.
+    New-FeatureImplementationState.ps1 omits the onboarding-only "Retrospective Analysis
+    mode" note from greenfield state files.
+
+    .PARAMETER Content
+    The full document content as a single string. Line endings preserved on output.
+
+    .PARAMETER AnchorPrefix
+    Literal text the anchor line starts with, compared after trimming the line's end
+    (e.g. "> **Retrospective Analysis mode**"). Matched literally, not as a regex.
+
+    .OUTPUTS
+    Hashtable with keys:
+      Content    - updated content (or original when Action is 'NotFound')
+      Action     - 'Removed' | 'NotFound'
+      LineNumber - 1-based line of the removed anchor (0 when not found)
+      Message    - human-readable detail
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [string]$AnchorPrefix
+    )
+
+    $newline = if ($Content -match "`r`n") { "`r`n" } else { "`n" }
+    $lines = $Content -split "`r?`n"
+
+    # Find the anchor line (literal starts-with, trimmed-end)
+    $anchorIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i].TrimEnd().StartsWith($AnchorPrefix)) { $anchorIdx = $i; break }
+    }
+    if ($anchorIdx -lt 0) {
+        return @{ Content = $Content; Action = 'NotFound'; LineNumber = 0; Message = "Anchor '$AnchorPrefix' not found" }
+    }
+
+    # Block end: first line that is not a blockquote continuation line, or a '>' separator
+    $endIdx = $lines.Count
+    for ($i = $anchorIdx + 1; $i -lt $lines.Count; $i++) {
+        $t = $lines[$i].TrimEnd()
+        if ($t -eq '>' -or -not $t.StartsWith('>')) { $endIdx = $i; break }
+    }
+
+    # Also drop a '>' separator immediately preceding the anchor
+    $startIdx = $anchorIdx
+    if ($startIdx -gt 0 -and $lines[$startIdx - 1].TrimEnd() -eq '>') { $startIdx-- }
+
+    $kept = New-Object System.Collections.Generic.List[string]
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($i -ge $startIdx -and $i -lt $endIdx) { continue }
+        $kept.Add($lines[$i])
+    }
+
+    return @{
+        Content    = ($kept -join $newline)
+        Action     = 'Removed'
+        LineNumber = ($anchorIdx + 1)
+        Message    = "Removed blockquote block '$AnchorPrefix' (lines $($startIdx + 1)-$endIdx)"
+    }
+}
+
+function Get-MarkdownTableHeaders {
+    <#
+    .SYNOPSIS
+    Returns the column header names of the first markdown table inside a named section.
+
+    .DESCRIPTION
+    Locates the heading line, then returns the cells of the first non-separator table row
+    below it — the table's header. The section ends at the next heading of equal or higher
+    level (so a "## Summary" anchor does not run into "## Registry", and a "### Level 1"
+    anchor stops at "### Level 2" as well as at "## Sections").
+
+    Returns an empty array when the section or its table is not found; callers decide
+    whether that is fatal.
+
+    .PARAMETER Content
+    Full file content as a single string.
+
+    .PARAMETER SectionHeading
+    Exact heading line anchoring the table (e.g. "### Component Benchmarks (Level 1)"
+    or "## Technical Debt Registry").
+
+    .OUTPUTS
+    [string[]] Header cell values, or an empty array.
+
+    .EXAMPLE
+    Get-MarkdownTableHeaders -Content $c -SectionHeading '## Technical Debt Registry'
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [string]$SectionHeading
+    )
+
+    $anchorLevel = 0
+    if ($SectionHeading -match '^(#{1,6})\s') { $anchorLevel = $matches[1].Length }
+
+    $lines = $Content -split "\r?\n"
+    $inSection = $false
+    foreach ($line in $lines) {
+        if (-not $inSection) {
+            if ($line.TrimEnd() -eq $SectionHeading.TrimEnd()) { $inSection = $true }
+            continue
+        }
+        # Leave at the next heading of equal-or-higher level (fewer/equal '#')
+        if ($anchorLevel -gt 0 -and $line -match '^(#{1,6})\s' -and $matches[1].Length -le $anchorLevel) { break }
+        # First non-separator table row inside the section is its header
+        if ($line -match '^\s*\|.*\|\s*$' -and $line -notmatch '^\s*\|[\s\-:|]+\|\s*$') {
+            return Split-MarkdownTableRow -Line $line.Trim()
+        }
+    }
+    return @()
+}
+
+function New-HeaderDrivenTableRow {
+    <#
+    .SYNOPSIS
+    Builds a markdown table row ordered by the target table's own header names.
+
+    .DESCRIPTION
+    The structural fix for hardcoded row templates (PF-IMP-1599; pattern established by
+    Update-TechDebt.ps1's Add-NewDebtItemContent, PF-IMP-006). Instead of emitting cells in a
+    literal order the script assumes, this reads the live table's header and places each value
+    under the header it belongs to. A column added to the table lands as $DefaultCell in the
+    correct position rather than shifting every following cell one place left — the silent
+    corruption that Assert-TableRowInFile detects and this prevents.
+
+    Throws when the section's table header cannot be found — a script cannot safely insert a
+    row into a table whose schema it cannot read.
+
+    .PARAMETER Content
+    Full file content as a single string.
+
+    .PARAMETER SectionHeading
+    Exact heading line anchoring the target table.
+
+    .PARAMETER ValueMap
+    Hashtable of header name -> cell value. Keys are matched against the table's header cells.
+    Headers absent from the map receive $DefaultCell.
+
+    .PARAMETER DefaultCell
+    Placeholder for headers the map does not supply. Defaults to an em-dash ("—"), the
+    convention in most trackers; pass "-" for tables that use a plain hyphen (e.g. the
+    technical-debt registry). Match the table's existing rows.
+
+    .OUTPUTS
+    [string] A formatted markdown table row.
+
+    .EXAMPLE
+    $row = New-HeaderDrivenTableRow -Content $c -SectionHeading '### Component Benchmarks (Level 1)' -ValueMap @{
+        'Test ID' = $testId; 'Operation' = $Operation; 'Status' = '⬜ Needs Creation'
+    }
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [string]$SectionHeading,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable]$ValueMap,
+
+        [Parameter(Mandatory=$false)]
+        [string]$DefaultCell = "—"
+    )
+
+    $headers = @(Get-MarkdownTableHeaders -Content $Content -SectionHeading $SectionHeading)
+    if ($headers.Count -eq 0) {
+        throw ("New-HeaderDrivenTableRow: could not read the table header under section " +
+               "'$SectionHeading' — cannot build a row for a table whose schema is unreadable.")
+    }
+
+    # Surface value-map keys that match no header: usually a renamed column, which would
+    # otherwise drop the value silently and leave the cell as the placeholder.
+    $unmatched = @($ValueMap.Keys | Where-Object { $headers -notcontains $_ })
+    if ($unmatched.Count -gt 0) {
+        Write-Warning ("New-HeaderDrivenTableRow: value(s) supplied for column(s) not present in " +
+                       "'$SectionHeading': '$($unmatched -join "', '")'. Table headers are: " +
+                       "'$($headers -join "', '")'. Those values were not written.")
+    }
+
+    $cells = @($headers | ForEach-Object { if ($ValueMap.ContainsKey($_)) { [string]$ValueMap[$_] } else { $DefaultCell } })
+    return ConvertTo-MarkdownTableRow -Cells $cells
+}
+
+function Assert-TableRowInFile {
+    <#
+    .SYNOPSIS
+    Asserts that a file contains a markdown table row matching a pattern, and that the row's
+    cell count matches its table header; throws on mismatch.
+
+    .DESCRIPTION
+    Read-after-write verification helper for scripts that insert a row into a markdown
+    tracking table. Where Assert-LineInFile proves only that a pattern is present somewhere
+    in the file, this proves the written row is structurally consistent with the table it
+    landed in: it locates the matching row line, walks up to that row's governing header
+    (the header row above the nearest preceding separator line), and compares cell counts.
+
+    Catches the silent failure mode where a script's hardcoded row template drifts from a
+    table whose header has since gained or lost a column: the row parses as markdown, the
+    ID is present, but every cell after the added column is shifted and lands under the
+    wrong header. Also catches a row that is not a well-formed table row at all (e.g. a
+    missing trailing pipe), which markdown table parsers skip silently.
+
+    .PARAMETER Path
+    Absolute or relative path to the file to inspect.
+
+    .PARAMETER Pattern
+    Regex pattern (default) or literal substring (with -Literal) identifying the row.
+    Matched per-line; the first matching table row is verified.
+
+    .PARAMETER Literal
+    When specified, Pattern is treated as a literal substring instead of a regex.
+
+    .PARAMETER Context
+    Optional caller-supplied context appended to the error message to aid diagnosis.
+
+    .EXAMPLE
+    Assert-TableRowInFile -Path $TrackingFile -Pattern "\| $testId \|" -Context "performance test row for $testId"
+
+    .NOTES
+    Introduced by PF-IMP-1563. Detects header/row drift at the moment of the bad write;
+    it does not prevent drift — header-driven row construction is the structural fix.
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Pattern,
+
+        [switch]$Literal,
+
+        [string]$Context
+    )
+
+    $contextSuffix = if ($Context) { " (context: $Context)" } else { "" }
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "Assert-TableRowInFile: file not found: '$Path'$contextSuffix"
+    }
+
+    $lines = @(Get-Content -LiteralPath $Path -Encoding UTF8)
+
+    # Locate the first line matching the pattern
+    $rowIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $hit = if ($Literal) { $lines[$i].Contains($Pattern) } else {
+            try { $lines[$i] -match $Pattern } catch {
+                throw "Assert-TableRowInFile: invalid regex pattern '$Pattern' for '$Path'$contextSuffix : $($_.Exception.Message)"
+            }
+        }
+        if ($hit) { $rowIdx = $i; break }
+    }
+
+    if ($rowIdx -lt 0) {
+        $patternKind = if ($Literal) { "literal" } else { "regex" }
+        throw "Assert-TableRowInFile: $patternKind pattern '$Pattern' not found in '$Path'$contextSuffix"
+    }
+
+    $rowCells = Split-MarkdownTableRow -Line $lines[$rowIdx]
+    if ($null -eq $rowCells) {
+        throw ("Assert-TableRowInFile: the line matching '$Pattern' in '$Path' is not a well-formed " +
+               "markdown table row (expected it to start and end with '|')$contextSuffix. Line: $($lines[$rowIdx])")
+    }
+
+    # Walk up to the separator line (| --- | --- |) that follows this table's header row
+    $sepIdx = -1
+    for ($i = $rowIdx - 1; $i -ge 0; $i--) {
+        if ($lines[$i] -match '^\s*\|[\s:\-\|]+\|\s*$') { $sepIdx = $i; break }
+        if ($lines[$i] -notmatch '^\s*\|') { break }   # left the table without finding one
+    }
+
+    if ($sepIdx -lt 1) {
+        throw ("Assert-TableRowInFile: could not locate the table header governing the row matching " +
+               "'$Pattern' in '$Path' (no separator row found above it)$contextSuffix")
+    }
+
+    $headerCells = Split-MarkdownTableRow -Line $lines[$sepIdx - 1]
+    if ($null -eq $headerCells) {
+        throw ("Assert-TableRowInFile: the header line above the separator at line $($sepIdx + 1) in " +
+               "'$Path' is not a well-formed markdown table row$contextSuffix")
+    }
+
+    if ($rowCells.Count -ne $headerCells.Count) {
+        throw ("Assert-TableRowInFile: row/header column-count mismatch in '$Path'$contextSuffix. " +
+               "The row written at line $($rowIdx + 1) has $($rowCells.Count) cell(s); its header at line " +
+               "$sepIdx has $($headerCells.Count) ('$($headerCells -join "', '")'). The row's cells are " +
+               "shifted and land under the wrong headers — the row template has drifted from the table schema.")
+    }
+}
+
 #endregion High-Level Operations
 
 # Export functions
@@ -1207,7 +1651,16 @@ Export-ModuleMember -Function @(
     'Update-MarkdownTableWithAppend',
     'Move-MarkdownTableRow',
     # Section-scoped upsert (v2.1 — PF-IMP-028 / PF-PRO-002 Phase 1)
-    'Add-MarkdownTableRow'
+    'Add-MarkdownTableRow',
+    # Section removal (v2.2 — PF-IMP-1359)
+    'Remove-MarkdownSection',
+    # Blockquote-block removal (v2.3 — PF-IMP-1562)
+    'Remove-BlockquoteBlock',
+    # Row-shape post-condition (v2.3 — PF-IMP-1563)
+    'Assert-TableRowInFile',
+    # Header-driven row construction (v2.4 — PF-IMP-1599)
+    'Get-MarkdownTableHeaders',
+    'New-HeaderDrivenTableRow'
 )
 
-Write-Verbose "TableOperations module loaded with 8 functions"
+Write-Verbose "TableOperations module loaded with 12 functions"

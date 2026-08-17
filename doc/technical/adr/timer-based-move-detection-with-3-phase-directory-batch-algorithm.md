@@ -1,5 +1,6 @@
 ---
 id: PD-ADR-041
+description: "1.1.1 File System Monitoring delete+create correlation and dual-timer strategy"
 type: Product Documentation
 category: Architecture Decision Records
 version: 1.1

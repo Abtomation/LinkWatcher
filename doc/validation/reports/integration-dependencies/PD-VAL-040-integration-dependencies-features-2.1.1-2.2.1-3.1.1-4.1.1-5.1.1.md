@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-040
-type: Process Framework
+description: "Integration & Dependencies Validation Report - Features 2.1.1-2.2.1-3.1.1-4.1.1-5.1.1."
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-03-03

@@ -385,6 +385,14 @@ class MarkdownParser(BaseParser):
             potential_path = match.group(1)
             if self._overlaps_any(match.start(1), match.end(1), all_spans):
                 continue
+            # PD-BUG-118: the segment character class includes '.', so a path at
+            # the end of a sentence is captured with its period ("doc/x/." ).
+            # The rewrite replaces the whole recorded span, so the period would
+            # be eaten from the prose.  Same trailing-boundary contract the
+            # standalone pattern gets from its lookahead (PD-BUG-080).
+            potential_path = self._trim_trailing_punctuation(potential_path)
+            if "/" not in potential_path and "\\" not in potential_path:
+                continue
             _, ext = os.path.splitext(potential_path)
             if ext:
                 if not self._looks_like_file_path(potential_path):
@@ -397,7 +405,7 @@ class MarkdownParser(BaseParser):
                     file_path=file_path,
                     line_number=line_num,
                     column_start=match.start(1),
-                    column_end=match.end(1),
+                    column_end=match.start(1) + len(potential_path),
                     link_text=potential_path,
                     link_target=potential_path,
                     link_type=LinkType.MARKDOWN_BARE_PATH,
@@ -418,6 +426,11 @@ class MarkdownParser(BaseParser):
             potential_path = match.group(1)
             if self._overlaps_any(match.start(), match.end(), all_spans):
                 continue
+            # PD-BUG-118: see _extract_bare_paths — same swallowed-punctuation
+            # class ("@doc/x/." captures the sentence period).
+            potential_path = self._trim_trailing_punctuation(potential_path)
+            if "/" not in potential_path and "\\" not in potential_path:
+                continue
             _, ext = os.path.splitext(potential_path)
             if ext:
                 if not self._looks_like_file_path(potential_path):
@@ -430,7 +443,7 @@ class MarkdownParser(BaseParser):
                     file_path=file_path,
                     line_number=line_num,
                     column_start=match.start(1),
-                    column_end=match.end(1),
+                    column_end=match.start(1) + len(potential_path),
                     link_text=potential_path,
                     link_target=potential_path,
                     link_type=LinkType.MARKDOWN_AT_PREFIX,

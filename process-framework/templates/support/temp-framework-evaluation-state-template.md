@@ -2,16 +2,20 @@
 id: PF-TEM-081
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2026-06-03
-updated: 2026-06-03
+updated: 2026-07-21
 task_name: [TASK-NAME]
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Template for tracking multi-session framework evaluation (PF-TSK-079) — Artifacts-in-Scope inventory, per-dimension progress across the seven evaluation dimensions, findings log with scores and routing, and session plan (via New-TempTaskState.ps1 -Variant FrameworkEvaluation)"
 ---
 
 # Temporary Framework Evaluation State: [Task Name]
 
 > **⚠️ TEMPORARY FILE**: This file tracks a multi-session [Framework Evaluation (PF-TSK-079)](../../tasks/support/framework-evaluation.md). Move to `process-framework-central/state-tracking/temporary/old` after the evaluation report is generated and all IMPs are registered.
+
+> **Targeted / single-artifact scope**: For a small evaluation (one artifact or a narrow targeted scope), trim this file to fit — keep only the dimensions you evaluate in the Dimension Progress table, and you may collapse the four-phase Evaluation Roadmap to a single phase. The Findings Log already uses flat `F`-numbering (`F1`, `F2`, …); keep it flat at this scope rather than the report's per-dimension prefixes.
 
 ## Evaluation Overview
 
@@ -79,7 +83,7 @@ description: "Template for tracking multi-session framework evaluation (PF-TSK-0
 
 - [ ] **Score & draft findings** (Steps 7–8): Populate the Findings Log with scores, severity, fixes, and routing
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **CHECKPOINT** (Step 9): Findings summary + routing decisions approved
+- [ ] **CHECKPOINT** (Step 9): Findings summary + suggested routes (triage hints for PF-TSK-089) approved
   - **Status**: [NOT_STARTED/APPROVED/REJECTED]
 
 ### Phase 4: Report & Registration (Steps 10–12)
@@ -90,8 +94,6 @@ description: "Template for tracking multi-session framework evaluation (PF-TSK-0
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Report**: [PF-EVR-XXX]
 - [ ] **Register IMP entries** (Step 11): `New-ProcessImprovement.ps1` for each approved finding; link back to the report
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-- [ ] **Complete feedback form** (Step 12): PF-TSK-079
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
 ## Session Tracking
@@ -119,7 +121,7 @@ This temporary state file can be moved to `process-framework-central/state-track
 - [ ] All selected dimensions are scored with supporting evidence
 - [ ] Evaluation report (PF-EVR-XXX) is generated and customized
 - [ ] IMP entries are registered for each approved finding, linked to the report
-- [ ] Feedback form is completed
+- [ ] Feedback form completed for every calendar session (one per session — ai-tasks.md), including the final one
 
 ## Notes and Decisions
 

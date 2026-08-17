@@ -1,5 +1,5 @@
 ---
-id: [DOCUMENT-ID]
+id: PF-TEM-103
 type: Process Framework
 category: Template
 version: 1.0
@@ -12,6 +12,8 @@ variant_siblings:
   - structure-change-state-content-update-template.md
   - structure-change-state-from-proposal-template.md
   - structure-change-state-rename-template.md
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Lightweight template for framework extension structure changes (artifact tracking, no pilot/rollback/metrics)"
 ---
 
@@ -21,7 +23,7 @@ description: "Lightweight template for framework extension structure changes (ar
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]
-- **Change ID**: [To be assigned - SC-XXX format]
+- **Change ID**: [The PF-STA-NNN ID assigned to this state file]
 - **Extension Concept**: [Link to framework-extension-concept document, if applicable]
 - **Change Type**: Framework Extension
 - **Scope**: [Brief description of what's being changed]
@@ -55,7 +57,7 @@ Registries, tracking files, and documentation maps requiring updates:
 
 ## Implementation Roadmap
 
-### Stage 1: Preparation (Session 1)
+### Stage 1: Preparation
 - [ ] **Review extension concept**: Confirm scope and affected components
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 - [ ] **Complete affected components tables** above
@@ -63,7 +65,7 @@ Registries, tracking files, and documentation maps requiring updates:
 - [ ] **Checkpoint**: Present plan to human partner for approval
   - **Status**: [NOT_STARTED/COMPLETED]
 
-### Stage 2: Create & Modify Artifacts (Session 1-2)
+### Stage 2: Create & Modify Artifacts
 - [ ] **Create new artifacts**: Templates, scripts, guides per New Artifacts table
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 - [ ] **Modify existing artifacts**: Updates per Modified Artifacts table
@@ -71,7 +73,7 @@ Registries, tracking files, and documentation maps requiring updates:
 - [ ] **Update infrastructure**: Registries, tracking files, documentation maps
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
-### Stage 3: Validation & Cleanup (Session 2-3)
+### Stage 3: Validation & Cleanup
 - [ ] **Validate changes**: Run relevant validation scripts, verify cross-references
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 - [ ] **Update documentation**: Documentation Map, affected guides

@@ -17,6 +17,8 @@
     - Updating the ID tracker in the central ID registry
     - Writing pytest markers (feature, priority, test_type, specification) into the file
     - Automatically updating test implementation tracking (when FeatureId provided)
+    - Placing the file in the per-feature category/subgroup subdirectory when FeatureId is supplied
+      and the scaffolded dirs exist (otherwise the flat test-type directory)
 
 .PARAMETER TestName
     The name of the test (e.g., "UserAuthentication", "PaymentProcessing")
@@ -30,13 +32,23 @@
     The name of the component being tested (optional)
 
 .PARAMETER FeatureId
-    The feature ID this test is associated with (for automation integration)
+    The feature ID this test is associated with. Drives automation integration (pytest markers +
+    test-tracking) and per-feature subdirectory placement (PF-IMP-1221).
+
+.PARAMETER TestSpecification
+    Optional relative path to the governing test specification. When supplied (and FeatureId
+    is set), it is written into the test file's pytest specification marker via Add-PytestMarkers.
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
+.PARAMETER Priority
+    Test priority, written into the file's [PRIORITY] placeholder and its pytest markers.
+    Valid values: "Critical", "Standard" (default), "Extended".
+
 .PARAMETER DryRun
-    If specified, shows what would be updated without making changes
+    Backward-compatible alias for -WhatIf: previews the operation without creating the test
+    file, consuming a TE-TST ID, or updating tracking. Prefer -WhatIf in new callers.
 
 .EXAMPLE
     New-TestFile.ps1 -TestName "UserAuthentication" -TestType "Unit"
@@ -79,6 +91,9 @@ param(
     [string]$FeatureId = "",
 
     [Parameter(Mandatory=$false)]
+    [string]$TestSpecification = "",
+
+    [Parameter(Mandatory=$false)]
     [ValidateSet("Critical", "Standard", "Extended")]
     [string]$Priority = "Standard",
 
@@ -96,13 +111,62 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-try {
-    Invoke-StandardScriptInitialization
-} catch {
-    Write-Warning "Standard initialization not available, proceeding with basic setup"
-    $ErrorActionPreference = "Stop"
+# --- Helper functions (defined before any body logic — PowerShell does not hoist functions) ---
+
+function Get-FeatureTestSubPath {
+    <#
+    .SYNOPSIS
+        Resolves the per-feature category/subgroup subpath under a test-type directory for a FeatureId.
+    .DESCRIPTION
+        Returns the forward-slash subpath (relative to $BaseTypeDir) of the scaffolded per-feature dirs
+        that match the FeatureId's numeric prefix — e.g. "1.2.3" -> "1-customer-management/1-2-customer-read".
+        Matching is by numeric prefix only ("1-", then "1-2-"), so it is independent of the slug text and of
+        how New-TestInfrastructure.ps1 -Update named the dirs. Returns the category-only subpath when no
+        subgroup dir exists, and "" when -FeatureId is empty or no matching category dir exists — so the
+        caller falls back to the flat test-type directory (PF-IMP-1221).
+    #>
+    param(
+        [Parameter(Mandatory=$true)] [string]$BaseTypeDir,
+        [Parameter(Mandatory=$true)] [string]$FeatureId
+    )
+
+    if ([string]::IsNullOrWhiteSpace($FeatureId)) { return "" }
+    if (-not (Test-Path $BaseTypeDir)) { return "" }
+
+    $segments = @($FeatureId -split '\.' | Where-Object { $_ -ne "" })
+    if ($segments.Count -lt 1) { return "" }
+    $catNum = $segments[0]
+
+    $catDir = Get-ChildItem -Path $BaseTypeDir -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -match ('^' + [regex]::Escape($catNum) + '-') } |
+        Select-Object -First 1
+    if (-not $catDir) { return "" }
+
+    $subPath = $catDir.Name
+    if ($segments.Count -ge 2) {
+        $subPrefix = "$catNum-$($segments[1])"
+        $subDir = Get-ChildItem -Path $catDir.FullName -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match ('^' + [regex]::Escape($subPrefix) + '-') } |
+            Select-Object -First 1
+        if ($subDir) { $subPath = "$($catDir.Name)/$($subDir.Name)" }
+    }
+
+    return $subPath
 }
+
+# Dot-source guard (PF-IMP-1221): when this script is dot-sourced (e.g. by Pester to unit-test the
+# helper above), return before running the creation body so no side effects or exits occur.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
+# PF-IMP-1045: -DryRun is a backward-compatible alias for -WhatIf. Engaging WhatIf here routes
+# the dry-run no-op through the single ShouldProcess gate below, so -DryRun no longer creates
+# the test file / consumes a TE-TST ID before the (former) post-creation guard.
+if ($DryRun) { $WhatIfPreference = $true }
+
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path
+# are owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script
+# keeps its data, its bespoke post-creation writes (pytest markers + test-tracking update),
+# and its own report — all inline under the outer try/catch.
 
 # Get project root
 $projectRoot = Get-ProjectRoot
@@ -125,11 +189,6 @@ if (Test-Path $projectConfigPath) {
     Write-Warning "project-config.json not found at $projectConfigPath, defaulting to Dart"
 }
 
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
 
 # --- Language configuration from process-framework/languages-config/{language}/{language}-config.json ---
 $langConfigPath = Join-Path (Get-ProcessFrameworkPath) "languages-config/$($language.ToLower())/$($language.ToLower())-config.json"
@@ -181,9 +240,13 @@ if (-not $matchedDir) {
     exit 1
 }
 
-# Determine output directory
+# Determine output directory. PF-IMP-1221: when -FeatureId is supplied and the scaffolded
+# per-feature category/subgroup dirs exist, descend into them; otherwise stay at the flat
+# test-type root (backward-compatible).
 $testTypeDir = $matchedDir
-$outputDirectory = Join-Path $projectRoot (Join-Path $testScanRoot $testTypeDir)
+$baseTypeDir = Join-Path $projectRoot (Join-Path $testScanRoot $testTypeDir)
+$featureSubPath = if ($FeatureId -ne "") { Get-FeatureTestSubPath -BaseTypeDir $baseTypeDir -FeatureId $FeatureId } else { "" }
+$outputDirectory = if ($featureSubPath) { Join-Path $baseTypeDir $featureSubPath } else { $baseTypeDir }
 
 # Generate test file name from pattern
 $sanitizedName = $TestName.ToLower() -replace '[\s\-]+', '_'
@@ -241,7 +304,7 @@ try {
         }
     }
 
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "TE-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -FileNamePattern $testFileName -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor -HeaderComment $headerComment
+    $documentId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "TE-TST" -IdDescription "test_file" -DocumentName $TestName -OutputDirectory $outputDirectory -FileNamePattern $testFileName -Replacements $customReplacements -Metadata $additionalMetadataFields -HeaderComment $headerComment -Label "test file" -OpenInEditor:$OpenInEditor
 
     # Provide success details
     $details = @(
@@ -288,45 +351,34 @@ try {
             if ($missingFunctions.Count -eq 0) {
                 Write-Host "`n🔄 Updating pytest markers and test tracking..." -ForegroundColor Cyan
 
-                # Prepare relative paths for tracking
-                $relativePath = "$testsRoot/$testTypeDir/$testFileName"
-                $trackingRelativePath = "../../automated/$testTypeDir/$testFileName"
+                # Prepare relative paths for tracking. PF-IMP-1221: include the per-feature subpath so the
+                # tracking link points at the real file location, not the flat test-type root.
+                $featureTrackingSub = if ($featureSubPath) { "$featureSubPath/" } else { "" }
+                $trackingRelativePath = "../../automated/$testTypeDir/$featureTrackingSub$testFileName"
 
                 # Write pytest markers into the created test file (SC-007: markers are source of truth)
                 $testFileFullPath = Join-Path $outputDirectory $testFileName
                 $specPath = if ($TestSpecification -ne "") { $TestSpecification } else { $null }
 
-                if ($DryRun) {
-                    Write-Host "DRY RUN: Would write pytest markers for $FeatureId" -ForegroundColor Yellow
-                    Write-Host "  Feature ID: $FeatureId" -ForegroundColor Cyan
-                    Write-Host "  Test Type: $($testTypeDir.ToLower())" -ForegroundColor Cyan
-                    Write-Host "  Priority: $Priority" -ForegroundColor Cyan
-                    Write-Host "  Test File: [$testFileName]($trackingRelativePath)" -ForegroundColor Cyan
+                # -DryRun/-WhatIf return at the ShouldProcess gate above, so this block runs on
+                # real invocations only — no inline dry-run guard needed (PF-IMP-1045).
+                # Write markers into the test file
+                Add-PytestMarkers -FilePath $testFileFullPath -FeatureId $FeatureId -TestType $testTypeDir.ToLower() -Priority $Priority -SpecificationPath $specPath
+                Write-Host "  ✅ Pytest markers written to test file" -ForegroundColor Green
 
-                    if ($testTypeDir.ToLower() -eq "performance") {
-                        Write-Host "DRY RUN: Would skip test-tracking.md (performance tests use performance-test-tracking.md)" -ForegroundColor Yellow
-                    } else {
-                        Write-Host "DRY RUN: Would update test-tracking.md for $FeatureId" -ForegroundColor Yellow
-                    }
+                if ($testTypeDir.ToLower() -eq "performance") {
+                    # Performance tests are tracked in performance-test-tracking.md (cross-cutting, Test ID based)
+                    # not in feature-based test-tracking.md
+                    Write-Host "  ℹ️  Performance test — skipping test-tracking.md update" -ForegroundColor Cyan
+                    Write-Host "  📋 Manual update required: add entry to performance-test-tracking.md" -ForegroundColor Yellow
+                    Write-Host "  📖 See: test/state-tracking/permanent/performance-test-tracking.md" -ForegroundColor Yellow
                 } else {
-                    # Write markers into the test file
-                    Add-PytestMarkers -FilePath $testFileFullPath -FeatureId $FeatureId -TestType $testTypeDir.ToLower() -Priority $Priority -SpecificationPath $specPath
-                    Write-Host "  ✅ Pytest markers written to test file" -ForegroundColor Green
+                    # Update test implementation tracking (file path as identifier — SC-007)
+                    $updateResult = Update-TestImplementationStatusEnhanced -FeatureId $FeatureId -TestFilePath $trackingRelativePath -Status "🟡 Implementation In Progress"
 
-                    if ($testTypeDir.ToLower() -eq "performance") {
-                        # Performance tests are tracked in performance-test-tracking.md (cross-cutting, Test ID based)
-                        # not in feature-based test-tracking.md
-                        Write-Host "  ℹ️  Performance test — skipping test-tracking.md update" -ForegroundColor Cyan
-                        Write-Host "  📋 Manual update required: add entry to performance-test-tracking.md" -ForegroundColor Yellow
-                        Write-Host "  📖 See: test/state-tracking/permanent/performance-test-tracking.md" -ForegroundColor Yellow
-                    } else {
-                        # Update test implementation tracking (file path as identifier — SC-007)
-                        $updateResult = Update-TestImplementationStatusEnhanced -FeatureId $FeatureId -TestFilePath $trackingRelativePath -Status "🟡 Implementation In Progress" -DryRun:$DryRun
-
-                        Write-Host "  ✅ Test implementation tracking updated" -ForegroundColor Green
-                        Write-Host "  🟡 Status: 📝 Needs Implementation → 🟡 Implementation In Progress" -ForegroundColor Green
-                        Write-Host "  🔗 Test file linked in tracking" -ForegroundColor Green
-                    }
+                    Write-Host "  ✅ Test implementation tracking updated" -ForegroundColor Green
+                    Write-Host "  🟡 Status: 📝 Needs Implementation → 🟡 Implementation In Progress" -ForegroundColor Green
+                    Write-Host "  🔗 Test file linked in tracking" -ForegroundColor Green
                 }
             } else {
                 Write-Host "`n⚠️  Automation functions not available:" -ForegroundColor Yellow

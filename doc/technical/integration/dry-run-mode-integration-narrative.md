@@ -1,5 +1,6 @@
 ---
 id: PD-INT-003
+description: "WF-007 dry-run preview mode: how Configuration System, Core Architecture, Link Updater, and Logging Framework collaborate to short-circuit disk writes and report intended changes as structured log events"
 type: Product Documentation
 category: Integration Narrative
 version: 1.0

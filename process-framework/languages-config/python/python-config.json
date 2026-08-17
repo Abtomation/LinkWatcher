@@ -31,7 +31,8 @@
       ],
       "discoveryCommand": "python -m pytest --fixtures -q"
     },
-    "featureMarkerPattern": "pytest\\.mark\\.feature\\([\"']([^\"']+)[\"']\\)"
+    "featureMarkerPattern": "pytest\\.mark\\.feature\\([\"']([^\"']+)[\"']\\)",
+    "staticAnalysisCommand": "python -m flake8 {srcDir} --max-line-length=100"
   },
   "directoryStructure": {
     "sourceRoot": "",

@@ -3,13 +3,35 @@ id: PF-TSK-066
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.1
+version: 2.5
 created: 2026-02-17
-updated: 2026-05-16
+updated: 2026-08-05
+change_notes: "v2.3 - Step 0 extended to also activate the onboarding-edge-cases craft skill (confidence-tagging craft; retired guide), alongside the batch-1 architecture-decision activation (Craft-as-Skill BL-5 batch 5)"
 description: "Create tier assessments and required design documentation"
+complexity: complex
+use_when: >-
+  After analysis - validate tier assessments and create required design documentation (FDD, TDD, ADRs) for Tier 2+ features
+automation: semi
+scripts:
+  - ../../scripts/validation/Validate-StateTracking.ps1
+trigger_status:
+  - raw: "`retrospective-master-state.md` → Phase 2 = `100%`"
+output_status:
+  - raw: "Per-feature state files' §4 Documentation Inventory rows for FDD / TDD / ADR / Test Spec inserted (PF-PRO-002 / PF-IMP-760); `test-tracking.md` → test files registered (TE-TST-XXX). `feature-tracking.md` Status / Test Status columns updated. **Release Process Guide captured or confirmed** (`doc/ci-cd/release-process.md`) with its Freshness Stamp set, Step 26. **Product Concept captured or confirmed** (`doc/founding/product-concept.md`, `PD-DOC-001`) with `status` set off `Stub`, Step 27."
+next_tasks:
+  - task: ../04-implementation/feature-implementation-planning-task.md
+    condition: "For implementing features after documentation"
+  - task: ../04-implementation/feature-enhancement.md
+    condition: "For extending or modifying existing features"
+  - task: ../06-maintenance/code-review-task.md
+    condition: "For validating existing implementation against documented design"
+  - task: ../cyclical/technical-debt-assessment-task.md
+    condition: "For identifying and prioritizing technical debt discovered during analysis"
 ---
 
 # Retrospective Documentation Creation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -26,8 +48,6 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/00-setup/retrospective-documentation-creation-map.md)
-
 - **Critical (Must Read):**
 
   - [Retrospective Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 2 complete
@@ -36,24 +56,25 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 - **Important (Load If Space):**
 
-  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `Get-Help <script> -Parameter *` before running**)
   - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Understanding tier documentation requirements
   - [FDD Creation Task](../02-design/fdd-creation-task.md) - For creating Functional Design Documents
   - [TDD Creation Task](../02-design/tdd-creation-task.md) - For creating Technical Design Documents
   - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating Test Specifications
-  - [Integration and Testing Task](../04-implementation/integration-and-testing.md) - For migrating pre-existing tests to framework structure (Step 8, migration mode)
-  - [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) - For creating Architecture Decision Records
+  - [Integration and Testing Task](../04-implementation/integration-and-testing.md) - For migrating pre-existing tests to framework structure (Step 9, migration mode)
+  - [`architecture-decision` craft skill](../../../.claude/skills/architecture-decision/SKILL.md) — the ADR customization craft (activated in Preparation Step 0, Check Recommended Skills; replaces the former Architecture Decision Creation Guide). Note its retrospective-mode guidance: mark unknowns clearly.
   - [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1) - Script for creating ADRs
 
 - **Reference Only (Access When Needed):**
   - [API Design Task](../02-design/api-design-task.md) - For documenting existing API contracts
   - [Database Schema Design Task](../02-design/database-schema-design-task.md) - For documenting existing schema
+  - [Instruction Design Task](../02-design/instruction-design-task.md) - For documenting an existing executable procedure (medium `instruction` / `mixed`)
   - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for multi-feature test specifications
   - [Test Query Tool](../../scripts/test/test_query.py) - Query test files by feature, priority, and markers
   - [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Understanding documentation workflow
   - [PF Documentation Map](../../PF-documentation-map.md) - For registering process-framework artifacts
-  - [PD Documentation Map](../../../doc/PD-documentation-map.md) - For registering product documents (FDDs, TDDs, ADRs, validation reports)
-  - [TE Documentation Map](../../../test/TE-documentation-map.md) - For registering test specifications and audit reports
+  - [PD Documentation Map](../../../doc/PD-documentation-map.md) - Generated map (`Build-DocumentationMap.ps1 -Tree PD`); reflects new product docs' `description:` on regeneration
+  - [TE Documentation Map](../../../test/TE-documentation-map.md) - Generated map (`Build-DocumentationMap.ps1 -Tree TE`); reflects new test docs' `description:` on regeneration
 
 ## Process
 
@@ -71,30 +92,33 @@ This is the final onboarding task that transforms code analysis into formal desi
 
 ### Preparation
 
+> **Step 0 — Check Recommended Skills** *(numbered 0 so the numbered step sequence below, which the retrospective state template keys to, stays stable)*: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `retrospective-documentation-creation`. **Two craft skills bind here** — activate each that is available in the session: the `architecture-decision` skill owns the **ADR customization craft** this task delegates to at Step 9 (including retrospective mode: mark unknowns clearly), and the `onboarding-edge-cases` skill owns the **confidence-tagging craft** for every retroactive document this task creates (tag levels, section-level application, flag-Low-for-review rule). Any that is not listed in the session can be read directly — its `SKILL.md` under [`.claude/skills/`](../../../.claude/skills/) is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. A craft is unavailable for this run only if its skill file is absent (the retired procedural guides have no successors).
+
 1. **Read [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)**:
    - Verify Phase 2 is complete
    - Identify which features still need assessment and documentation
    - Set status to "ASSESSMENT_AND_DOCUMENTATION" if not already
-2. **Verify tech debt consolidation**: Confirm that [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) has been populated with debt items from feature state files (PF-TSK-065 Step 14). If the registry is empty despite debt items in feature state files, consolidate before proceeding.
+2. **Verify tech debt consolidation**: Confirm that [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) has been populated with debt items from feature state files (PF-TSK-065's tech-debt consolidation step). If the registry is empty despite debt items in feature state files, consolidate before proceeding.
 3. **🚨 CHECKPOINT**: Present features needing documentation and proposed priority order to human partner
 
 ### Phase 3: Documentation Creation
 
-> **Prerequisite**: All features have tier assessments and Feature Implementation State files, created during [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) Step 10.
+> **Prerequisite**: All features have tier assessments and Feature Implementation State files, created during [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md)'s tier-assessment step.
 
-3. **Validate Tier Assessments** (if needed):
+4. **Validate Tier Assessments** (if needed):
    - Compare assessment tier with analysis findings from PF-TSK-065
    - If inaccurate based on deeper analysis, update the assessment and Feature Tracking
    - Document any discrepancies in master state session notes
 
-4. **🚨 CHECKPOINT**: Confirm tier assignments are accurate for current batch of features before creating documents
+5. **🚨 CHECKPOINT**: Confirm tier assignments are accurate for current batch of features before creating documents
 
 #### Per Feature: Document (Tier 2+ only)
 
 > **Extraction-First Principle**: Before writing any design document from scratch, check the feature's Section 4 "Existing Project Documentation" table for entries marked `Confirmed` or `Partially Accurate`. Extract validated content from those sources first, then supplement with findings from source code analysis. When reusing content, include attribution (e.g., "Derived from HOW_IT_WORKS.md, Architecture section").
 
-5. **Create Functional Design Document (Tier 2+)**:
+6. **Create Functional Design Document (Tier 2+)**:
    - Use [FDD Creation Task](../02-design/fdd-creation-task.md)
+   - **Scaffold with `-Retrospective`**: invoke `New-FDD.ps1 -FeatureId <id> -FeatureName "<name>" -Retrospective` so the FDD starts from the as-built sibling template (forward-planning scaffolding pre-stripped, cross-references flattened) rather than the forward-planning template. This is the default for retrospective documentation.
    - **Source**: [Feature Implementation State file](../../../doc/state-tracking/features) + existing code
    - **Check first**: Section 4 "Existing Project Documentation" for confirmed docs with functional/user-facing content
    - **Read**: Section 8 "Quality Assessment" for the feature's classification
@@ -118,7 +142,7 @@ This is the final onboarding task that transforms code analysis into formal desi
 
    - Update master state: FDD ✅ for this feature
 
-6. **Create Technical Design Document (Tier 2+)**:
+7. **Create Technical Design Document (Tier 2+)**:
    - Use [TDD Creation Task](../02-design/tdd-creation-task.md)
    - **Source**: [Feature Implementation State file](../../../doc/state-tracking/features) (Component Architecture, Data Flow, Design Decisions)
    - **Check first**: Section 4 "Existing Project Documentation" for confirmed docs with architecture/technical content
@@ -137,29 +161,28 @@ This is the final onboarding task that transforms code analysis into formal desi
 
    - Update master state: TDD ✅ for this feature
 
-7. **Create Test Specification (Tier 2+)**:
+8. **Create Test Specification (Tier 2+)**:
    - Use [Test Specification Creation Task](../03-testing/test-specification-creation-task.md)
    - **Check first**: The feature's test files listed in Section 6 of the [Feature Implementation State file](../../../doc/state-tracking/features); browse the existing test directory structure on disk
    - **Source**: Existing test files (primary), [Feature Implementation State file](../../../doc/state-tracking/features) → Test Files section and [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) (secondary)
    - **Approach**: Document and formalize existing test coverage, then identify gaps — not design tests from scratch
    - **Adapting PF-TSK-012 steps**: The task assumes pre-implementation spec creation. For retrospective use:
-     - *Preparation Steps 1-5*: Replace "Review the Target TDD" with reviewing existing test files and the feature state file
-     - *Step 6 "Define Test Categories"*: Categorize existing tests into the defined categories rather than designing new ones
-     - *Step 7 "Specify Test Cases"*: Extract Arrange/Act/Assert from existing test code rather than specifying new cases
-     - *Step 8 "Map TDD Components to Tests"*: Map existing tests back to TDD components to reveal coverage gaps
-     - *Step 10 "AI Session Context"*: Focus the roadmap on gap coverage (untested components) rather than full implementation
+     - *Preparation Steps 2–6*: Replace "Review the Target TDD" with reviewing existing test files and the feature state file
+     - *Step 11 "Specify Test Cases"*: Extract Arrange/Act/Assert from existing test code — categorize existing tests into the spec's Test Categories rather than designing new cases
+     - *Step 12 "Map TDD Components to Tests"*: Map existing tests back to TDD components to reveal coverage gaps
+     - *The spec's test-implementation roadmap*: Focus on gap coverage (untested components) rather than full implementation
    - **Content**: Document existing tests, coverage, test scenarios
    - **Gaps**: Identify missing test coverage as a gap analysis section
    - **Cross-cutting**: If test files on disk cover multiple features, create cross-cutting test specifications using `New-TestSpecification.ps1 -CrossCutting -FeatureIds "X.Y.Z,A.B.C" -FeatureName "scenario-name"`. These go in `/test/specifications/cross-cutting-specs/`
    - **Mark**: Add "Retrospective" note in header
    - Update master state: Test Spec ✅
-   - **Multiple specs in one session**: When creating specs for several features, complete each spec fully before starting the next — create the file via `New-TestSpecification.ps1`, then update all 5 state files (feature-tracking, test-registry, id-registry, TE-documentation-map, test-tracking) per PF-TSK-012's State Tracking section. This keeps tracking consistent and avoids end-of-session drift.
+   - **Multiple specs in one session**: When creating specs for several features, complete each spec fully before starting the next — create the file via `New-TestSpecification.ps1`, then update the per-spec state files (feature-tracking, test-registry, id-registry, test-tracking) per PF-TSK-012's State Tracking section. (The TE documentation map is generated — regenerated once at finalization via `Build-DocumentationMap.ps1 -Tree TE`, not per spec.) This keeps tracking consistent and avoids end-of-session drift.
 
-8. **Migrate Pre-Existing Tests to Framework Structure (Tier 2+)**:
+9. **Migrate Pre-Existing Tests to Framework Structure (Tier 2+)**:
    - **Purpose**: Ensure pre-existing tests are fully consumed by the framework — no parallel test systems
    - **Delegate to**: [Integration and Testing Task (PF-TSK-053)](../04-implementation/integration-and-testing.md) in **migration mode**
    - **Migration mode framing** — the following PF-TSK-053 adaptations apply:
-     - *Step 1 "Review Test Specification"*: Use the test specification just created in Step 7 as the reference
+     - *Step 1 "Review Test Specification"*: Use the test specification just created in Step 8 as the reference
      - *Step 7 "Create Test Files"*: Use `New-TestFile.ps1` to create new framework-structured test files. Copy test logic (assertions, setup, fixtures) from the pre-existing files into the generated framework files. Do not rewrite test logic — restructure it to match the template and add pytest markers (`feature`, `priority`, `test_type`). **Language note:** pytest markers are a Python convention; for non-Python projects, tag tests by `feature`/`priority`/`test_type` using your test framework's equivalent mechanism.
      - *Steps 8-11*: Verify existing tests cover the spec; fill gaps only where the spec identifies missing coverage
      - *Steps 12-13 "Mocks and Coverage"*: Migrate existing mocks/fixtures; run coverage to establish baseline
@@ -170,23 +193,24 @@ This is the final onboarding task that transforms code analysis into formal desi
    - **State updates**: test-tracking.md, feature-tracking.md Test Status, and Feature Implementation State File are updated by `New-TestFile.ps1` automation
    - Update master state: Tests Migrated ✅ for this feature
 
-9. **Create Architecture Decision Records (any feature with architectural decisions worth recording)**:
-   - Create ADR using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1), following the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) for content customization
+10. **Create Architecture Decision Records (any feature with architectural decisions worth recording)**:
+   - Create ADR using [New-ArchitectureDecision.ps1](../../scripts/file-creation/02-design/New-ArchitectureDecision.ps1); drive the content customization with the `architecture-decision` craft skill (activated at Preparation Step 0, Check Recommended Skills)
    - **Source**: [Feature Implementation State file](../../../doc/state-tracking/features) → Design Decisions
    - **Content**: Document architectural patterns/decisions discovered in code
    - **Scope**: ADRs are not restricted to Foundation 0.x.x features. Create an ADR for any feature where the implementation embodies a discrete architectural decision worth recording (pattern choice, trade-off resolution, technology selection, etc.). Foundation features tend to have more such decisions, but non-foundation features regularly produce ADRs too (e.g., format-toolchain choice, identifier-validation strategy).
    - **Note**: Mark unknowns (alternatives considered, full rationale) clearly
    - Update master state: ADR ✅
 
-10. **Create Conditional Documents** (if tier assessment indicates):
+11. **Create Conditional Documents** (if tier assessment indicates):
    - **API Design**: Use [API Design Task](../02-design/api-design-task.md) — document existing API contracts
    - **Database Schema**: Use [Database Schema Design Task](../02-design/database-schema-design-task.md) — document existing schema
-   - **UI Design**: Use [UI Design Task](../02-design/ui-design-task.md) — document existing UI/UX patterns for user-facing features (requires Design Guidelines (PD-UIX-001) in the project)
+   - **UI Design**: Use [UI Design Task](../02-design/ui-design-task.md) — document existing UI/UX patterns for user-facing features. **Capture the codebase's Design Guidelines first**: if the project has no Design Guidelines (PD-UIX-001) yet, create it with [New-DesignGuidelines.ps1](../../scripts/file-creation/02-design/New-DesignGuidelines.ps1) and fill it from the existing UI's established design system (palette, typography, spacing, components, patterns) before documenting per-feature UI.
+   - **Instruction Design**: Use [Instruction Design Task](../02-design/instruction-design-task.md) — document the executable procedure and its artifact inventory for a feature whose medium is `instruction` or `mixed`
    - Update master state for each document created
 
-11. **Generate Tech Debt Items from Gap Analysis** (Target-State features only):
+12. **Generate Tech Debt Items from Gap Analysis** (Target-State features only):
    - For each gap identified in the FDD and TDD Gap Analysis sections:
-     - **Dedup against existing TDs first**: Search the existing [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) registry (and any TDs surfaced by PF-TSK-065 Step 14 for this feature) for the same gap, file, or pattern. If a match is found, link the FDD/TDD gap entry to the existing PD-TDI-XXX ID via the gap-ID rather than registering a duplicate.
+     - **Dedup against existing TDs first**: Search the existing [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) registry (and any TDs surfaced by PF-TSK-065's tech-debt consolidation step for this feature) for the same gap, file, or pattern. If a match is found, link the FDD/TDD gap entry to the existing PD-TDI-XXX ID via the gap-ID rather than registering a duplicate.
      - If no existing TD covers the gap, create a new tech debt item.
        - **Single-item form** (1-2 items per session):
          ```powershell
@@ -201,7 +225,7 @@ This is the final onboarding task that transforms code analysis into formal desi
    - Update the Feature Implementation State file Section 10 "Known Limitations & Tech Debt" with links to created items
    - **"No new TDs" is a valid outcome**: If gap analysis surfaces no items beyond what PF-TSK-065 already captured, record this explicitly in the Feature Implementation State file Section 10 — e.g., "No new TDs registered for this feature; gaps are tracked under existing PD-TDI-XXX, PD-TDI-YYY (from PF-TSK-065)." This signals a thorough prior analysis, not a missed step.
 
-12. **Create Quality Assessment Report** (Target-State features only):
+13. **Create Quality Assessment Report** (Target-State features only):
    - Use the automation script:
      ```powershell
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/00-setup/New-QualityAssessmentReport.ps1 -FeatureName "<name>" -FeatureId "<id>" -Tier <tier> -CodeMaturity <code-score> -TestMaturity <test-score>
@@ -209,37 +233,36 @@ This is the final onboarding task that transforms code analysis into formal desi
    - Fill in:
      - Section 2: Dimension scores with evidence (copy from Feature Implementation State file Section 8)
      - Section 3: Overall quality narrative — systemic issues, not just individual symptoms
-     - Section 4: Gap analysis summary — link each gap to its PD-TDI-XXX tech debt item from Step 11
+     - Section 4: Gap analysis summary — link each gap to its PD-TDI-XXX tech debt item from Step 12
      - Section 5: Recommended remediation sequence — order by dependency and impact
      - Section 6: Links to feature state file, FDD, TDD, and tech debt items
    - Update Feature Implementation State file Section 8 "Quality Assessment Report" link
    - Update master state: QAR ✅ for this feature
 
-13. **Assess User Documentation Coverage** (all features, including Tier 1):
-   > Unlike Steps 5-12, this assessment applies to all features regardless of tier — user-visible behavior is independent of feature complexity. Tier 1 features with CLI commands, configuration, or user workflows still need this assessment.
+14. **Assess User Documentation Coverage — apply the decision matrix** (all features, including Tier 1):
+   > Unlike Steps 6-13, this assessment (Steps 14-17) applies to all features regardless of tier — user-visible behavior is independent of feature complexity. Tier 1 features with CLI commands, configuration, or user workflows still need this assessment.
 
    - **Purpose**: Apply the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md) to populate the `### User Documentation` section in the [Feature Implementation State file](../../../doc/state-tracking/features) with one row per relevant content type, mirroring what [Feature Implementation Planning (PF-TSK-044)](../04-implementation/feature-implementation-planning-task.md) does for new features.
+   - Use the [decision matrix](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix) to identify which content types are relevant for this feature. Internal/architectural features may have no relevant types — that's valid (use a single `N/A` row with rationale).
 
-   - **Step 13a — Apply decision matrix**: Use the [Diátaxis Content Type Guide](../../guides/07-deployment/diataxis-content-type-guide.md#decision-matrix) to identify which content types are relevant for this feature. Internal/architectural features may have no relevant types — that's valid (use a single `N/A` row with rationale).
+15. **Assess existing coverage for each relevant content type**:
+   - Grep `doc/user/handbooks/` for feature-related terms (CLI options, config keys, component names) to identify dedicated and cross-cutting coverage
+   - Categorize using the [status taxonomy](../../guides/07-deployment/diataxis-content-type-guide.md#status-taxonomy): `✅ Created — [link]` / `✅ Covered Elsewhere — [link]` / `❌ Needed`
+   - Mark non-relevant types as `N/A`
 
-   - **Step 13b — For each relevant content type, assess existing coverage**:
-     - Grep `doc/user/handbooks/` for feature-related terms (CLI options, config keys, component names) to identify dedicated and cross-cutting coverage
-     - Categorize using the [status taxonomy](../../guides/07-deployment/diataxis-content-type-guide.md#status-taxonomy): `✅ Created — [link]` / `✅ Covered Elsewhere — [link]` / `❌ Needed`
-     - Mark non-relevant types as `N/A`
+16. **Populate the state file**: Add one row per relevant content type to the `### User Documentation` section. See [examples in the guide](../../guides/07-deployment/diataxis-content-type-guide.md#examples).
 
-   - **Step 13c — Populate state file**: Add one row per relevant content type to the `### User Documentation` section. See [examples in the guide](../../guides/07-deployment/diataxis-content-type-guide.md#examples).
-
-   - **Step 13d — Flag feature**: If any row is `❌ Needed`, set the feature to `📖 Needs User Docs` in [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) to enter the [PF-TSK-081](../07-deployment/user-documentation-creation.md) queue post-onboarding.
+17. **Flag the feature**: If any row is `❌ Needed`, set the feature to `📖 Needs User Docs` in [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) to enter the [PF-TSK-081](../07-deployment/user-documentation-creation.md) queue post-onboarding.
 
    - Update master state: User Doc Audit ✅ for this feature
 
 #### After Each Feature
 
-14. **🚨 CHECKPOINT**: Present created documents for current batch of features for review
+18. **🚨 CHECKPOINT**: Present created documents for current batch of features for review
 
-15. **Update [Feature Implementation State File](../../../doc/state-tracking/features)** for the feature:
+19. **Update [Feature Implementation State File](../../../doc/state-tracking/features)** for the feature:
     - **Section 3 (Progress)**: Mark documentation milestones as complete (FDD ✅, TDD ✅, Test Spec ✅, ADR ✅ as applicable)
-    - **§4 Documentation Inventory** (canonical home per PF-PRO-002 / PF-IMP-760): Add a row per created document (FDD, TDD, Test Spec, ADR, QAR, Schema Design, API Spec, UI Design, etc.) with Document / Type / Status / Path / Created Date cells. The design-creator scripts (`New-FDD.ps1`, `New-TDD.ps1`, `New-SchemaDesign.ps1`, `New-APISpecification.ps1`, `New-UIDesign.ps1`, `New-TestSpecification.ps1`) insert these rows automatically via `Add-StateFileDocumentationInventoryRow`. ADRs and QARs have no auto-inserting creator script — add their rows by invoking the same helper directly:
+    - **§4 Documentation Inventory** (canonical home per PF-PRO-002 / PF-IMP-760): Add a row per created document (FDD, TDD, Test Spec, ADR, QAR, Schema Design, API Spec, UI Design, Instruction Design, etc.) with Document / Type / Status / Path / Created Date cells. The design-creator scripts (`New-FDD.ps1`, `New-TDD.ps1`, `New-SchemaDesign.ps1`, `New-APISpecification.ps1`, `New-UIDesign.ps1`, `New-InstructionDesign.ps1`, `New-TestSpecification.ps1`) insert these rows automatically via `Add-StateFileDocumentationInventoryRow`. ADRs and QARs have no auto-inserting creator script — add their rows by invoking the same helper directly:
       ```powershell
       Add-StateFileDocumentationInventoryRow -FeatureId "0.3.1" -ArtifactId "PD-QAR-002" `
           -ArtifactPath "doc/pre-framework/quality-assessments/0.3.1-data-store-quality-assessment.md" `
@@ -248,22 +271,22 @@ This is the final onboarding task that transforms code analysis into formal desi
       The helper resolves the feature's state file and upserts the row idempotently against the `### Design Documentation` table; for an ADR, use `-ArtifactType "ADR"` with its `doc/technical/adr/...` path.
     - **Section 10 (Next Steps)**: Update to reflect documentation is complete; replace any stale "pending documentation" markers with actual next actions (e.g., implementation planning, enhancement work)
 
-16. **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**:
-    - Per PF-PRO-002 / PF-IMP-760, master feature-tracking.md is a lightweight cross-feature index (Status / Priority / Doc Tier / Test Status / Dependencies / Notes) — it does NOT carry per-document columns. The Status / Test Status columns may update as documentation milestones complete; design-document links live in the per-feature state file's §4 Documentation Inventory (Step 15).
+20. **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**:
+    - Per PF-PRO-002 / PF-IMP-760, master feature-tracking.md is a lightweight cross-feature index (Status / Priority / Doc Tier / Test Status / Dependencies / Notes) — it does NOT carry per-document columns. The Status / Test Status columns may update as documentation milestones complete; design-document links live in the per-feature state file's §4 Documentation Inventory (Step 19).
 
-17. **Update [Master State](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) After Each Session**:
+21. **Update [Master State](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) After Each Session**:
    - Mark assessment and document completion status per feature
    - Log session notes
    - **Complete feedback form for the session**
 
 ### Phase 4: Finalization
 
-18. **Verify Codebase Coverage**:
+22. **Verify Codebase Coverage**:
     - All source files assigned to at least one feature? ✅
     - All features have [Feature Implementation State files](../../../doc/state-tracking/features)? ✅
     - Coverage metric = 100%? ✅
 
-19. **Verify Documentation Completeness**:
+23. **Verify Documentation Completeness**:
     - All features have tier assessments (created or validated)? ✅
     - All Tier 2+ features have FDD and TDD? ✅
     - All Tier 2+ features have Test Specifications? ✅
@@ -273,20 +296,29 @@ This is the final onboarding task that transforms code analysis into formal desi
     - All Target-State features have Quality Assessment Reports with tech debt items? ✅
     - All documents marked "Retrospective" (or "Retrospective — Target-State")? ✅
 
-20. **Verify Tracking Completeness**:
+24. **Verify Tracking Completeness**:
     - All document links in the per-feature state file's §4 Documentation Inventory (canonical home per PF-PRO-002 / PF-IMP-760)? ✅
     - All [Feature Implementation State files](../../../doc/state-tracking/features) linked in Feature Tracking? ✅
 
-21. **🚨 CHECKPOINT**: Present completeness verification results and reconciliation plan to human partner for approval
+25. **🚨 CHECKPOINT**: Present completeness verification results and reconciliation plan to human partner for approval
 
-21a. **Capture the Project's Release Process into the Release Process Guide** (project-level, once per onboarding — runs before the Step 22 archival so the claimed source is archived there):
+26. **Capture the Project's Release Process into the Release Process Guide** (project-level, once per onboarding — runs before the Step 28 archival so the claimed source is archived there):
     > **Goal**: Promote the project's existing release knowledge into the structured Release Process Guide so [Release & Deployment (PF-TSK-008)](../07-deployment/release-deployment-task.md)'s Critical Must-Read reference is real and its freshness gate has a baseline. Runs **once per onboarding regardless of tier mix**; because the [Tier-1 path](retrospective-documentation-tier-1-path.md) delegates Phase 4 back to this parent task, all-Tier-1 onboards inherit this step with no Tier-1-path edit.
     - Identify any pre-existing release knowledge: a `RELEASING.md`, a `docs/release*.md`, release steps embedded in the README, or undocumented tribal knowledge of how the project ships.
     - Capture it into the structured guide at [`doc/ci-cd/release-process.md`](../../../doc/ci-cd/release-process.md) (the `PD-CIC` instance, structured from the [Release Process Guide template](../../templates/07-deployment/release-process-guide-template.md)): fill in the **Distribution Model**, **Version Management**, and **Deploy / Distribute Steps** sections from the existing knowledge, and set the **Freshness Stamp** (`Verified against release` / `Verified on`) to the release the captured content was last accurate for.
-    - **Hand the original's archival to Step 22**: register the claimed release doc in the master-state "Existing Documentation Inventory" as consumed-by `release-process.md`, so the next step (Step 22) archives the original to `doc/archive-pre-framework/manuals` and rewrites README references. Do **not** archive it separately here.
+    - **Hand the original's archival to Step 28**: register the claimed release doc in the master-state "Existing Documentation Inventory" as consumed-by `release-process.md`, so Step 28 archives the original to `doc/archive-pre-framework/manuals` and rewrites README references. Do **not** archive it separately here.
     - If the project has no pre-existing release knowledge, leave the shipped stub as-is (`Freshness Stamp` = `unverified`) and note "no pre-existing release process to capture" in the master-state session log.
 
-22. **Pre-existing Documentation Gap Analysis**:
+27. **Capture the Project's Founding Material into the Product Concept** (project-level, once per onboarding — runs before the Step 28 archival so the claimed sources are archived there):
+    > **Goal**: Promote the project's existing origin knowledge into the structured Product Concept so downstream planning has an authoritative statement of *what this product is*. A greenfield project gets this at [Project Initiation (PF-TSK-059)](project-initiation-task.md)'s founding-material synthesis step; an onboarded project's equivalent material already exists as legacy documents, and this step captures it. Runs **once per onboarding regardless of tier mix**; because the [Tier-1 path](retrospective-documentation-tier-1-path.md) delegates Phase 4 back to this parent task, all-Tier-1 onboards inherit this step with no Tier-1-path edit.
+    - Identify any pre-existing origin knowledge: a vision or concept document, a pitch or slide export, a product-requirements doc, a "why we built this" section in the README, or undocumented tribal knowledge of what the product is for and who it serves.
+    - Place the originals in [`doc/founding/inputs/`](../../../doc/founding/inputs/README.md). They stay raw — any format, **no IDs, no frontmatter**; that directory is deliberately excluded from the product documentation map.
+    - Capture their still-true content into [`doc/founding/product-concept.md`](../../../doc/founding/product-concept.md) (the `PD-DOC-001` instance, structured from the [Product Concept template](../../templates/00-setup/product-concept-template.md)): vision, target users, core value proposition, capability areas, business-model notes, and open questions. Index every input in the concept's **Sources** table, mark agent interpretation *(elaboration)*, and set `status` off `Stub`.
+    - **Capture what is true now, not what was once intended.** A years-old vision doc frequently describes a product that no longer exists; where the original and the shipped system disagree, the concept records the system as built and the divergence becomes an open question for the human partner — not a silent rewrite of history.
+    - **Hand the originals' archival to Step 28**: register each claimed document in the master-state "Existing Documentation Inventory" as consumed-by `product-concept.md`, so Step 28 archives it to `doc/archive-pre-framework/manuals` and rewrites README references. Do **not** archive them separately here.
+    - If the project has no pre-existing origin knowledge, leave the shipped stub as-is (`status` = `Stub — no founding material synthesized yet`) and note "no founding material to capture" in the master-state session log.
+
+28. **Pre-existing Documentation Gap Analysis**:
     > **Goal**: Verify that all valuable content from pre-existing documentation has been consumed by framework docs created during Phase 3. After onboarding, no pre-existing docs should remain as active references outside the framework tree.
     - Review the master state "Existing Documentation Inventory" table
     - For each pre-existing document, assess consumption status:
@@ -301,7 +333,7 @@ This is the final onboarding task that transforms code analysis into formal desi
     - Rewrite root `README.md` to reference framework documentation exclusively
     - Update the master state inventory with the consumption status and target framework doc(s) for each document
 
-23. **Harvest Framework Improvement Ideas**:
+29. **Harvest Framework Improvement Ideas**:
     > **Goal**: Formalize any observations accumulated during onboarding (PF-TSK-064, PF-TSK-065, and this task) into actionable PF-IMP entries for the framework's continuous improvement cycle.
     - Review the master state "Framework Improvement Observations" section
     - For each observation, evaluate: Is this an actionable improvement the framework should adopt?
@@ -309,29 +341,29 @@ This is the final onboarding task that transforms code analysis into formal desi
     - For each approved observation, create a PF-IMP entry:
       ```powershell
       # Single item
-      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -Description "<improvement description>" -Priority "LOW|MEDIUM|HIGH" -Source "Onboarding: [Project Name]" -Notes "<context from observation>"
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -Description "<improvement description>" -Source "Onboarding: [Project Name]" -Notes "<context from observation>"
 
       # Batch mode (preferred for multiple improvements) — pass a JSON array file:
       pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -BatchFile "improvements.json"
       ```
     - If no observations were recorded during onboarding, note "No framework improvement observations" in the master state session log and skip this step
 
-24. **Update Documentation Maps**: Add all new documents to the appropriate map:
-    - Process-framework artifacts → [PF Documentation Map](../../PF-documentation-map.md)
-    - Product documents (FDDs, TDDs, ADRs) → [PD Documentation Map](../../../doc/PD-documentation-map.md)
-    - Test specifications and audit reports → [TE Documentation Map](../../../test/TE-documentation-map.md)
+30. **Regenerate the Documentation Maps**: All three maps are generated, DO-NOT-EDIT projections (PF-PRO-037 / PF-PRO-050) — regenerate each tree that gained documents this round, then `-Check`:
+    - Process-framework artifacts → `Build-DocumentationMap.ps1` ([PF map](../../PF-documentation-map.md))
+    - Product documents (FDDs, TDDs, ADRs) → `Build-DocumentationMap.ps1 -Tree PD` ([PD map](../../../doc/PD-documentation-map.md))
+    - Test specifications and audit reports → `Build-DocumentationMap.ps1 -Tree TE` ([TE map](../../../test/TE-documentation-map.md))
 
-25. **Calculate Final Metrics**:
+31. **Calculate Final Metrics**:
     - Total features documented
     - Total documents created (by type)
     - Total sessions and time spent
     - Coverage percentage achieved
     - Record in [master state file](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) Completion Summary section
 
-26. **Archive Master State File**:
-    - Move from `/temporary/` to `/temporary/archived/` (or `/temporary/old/`)
+32. **Archive Master State File**:
+    - Move from `doc/state-tracking/temporary/` to `doc/state-tracking/temporary/old/`
 
-27. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+33. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -344,15 +376,16 @@ This is the final onboarding task that transforms code analysis into formal desi
 - **API/DB Design Documents** — Conditional per assessment, marked "Retrospective"
 - **Quality Assessment Reports** (PD-QAR-XXX) — One per Target-State feature, linking dimension scores to tech debt items with remediation sequence
 - **Tech Debt Items** (PD-TDI-XXX) — Auto-generated from gap analysis in Target-State FDDs/TDDs
-- **User Documentation Audit** — Per-feature Diátaxis content-type rows populated in `### User Documentation` of each [Feature Implementation State file](../../../doc/state-tracking/features); features with `❌ Needed` rows flagged `📖 Needs User Docs` to enter the [PF-TSK-081](../07-deployment/user-documentation-creation.md) queue
+- **User Documentation Audit** — Per-feature Diátaxis content-type rows populated in `### User Documentation`../doc/state-tracking/features); features with `❌ Needed` rows flagged `📖 Needs User Docs` to enter the [PF-TSK-081](../07-deployment/user-documentation-creation.md) queue
 
 ### Phase 4 Outputs: Finalization
-- **Release Process Guide captured or confirmed** (`PD-CIC`, `doc/ci-cd/release-process.md`) — The project's release process captured into the structured guide with its **Freshness Stamp** set (or the shipped stub left `unverified` with a "no pre-existing release process to capture" note); any claimed pre-existing release doc handed to the Step 22 archival (Step 21a)
+- **Release Process Guide captured or confirmed** (`PD-CIC`, `doc/ci-cd/release-process.md`) — The project's release process captured into the structured guide with its **Freshness Stamp** set (or the shipped stub left `unverified` with a "no pre-existing release process to capture" note); any claimed pre-existing release doc handed to the Step 28 archival (Step 26)
+- **Product Concept captured or confirmed** (`PD-DOC-001`, `doc/founding/product-concept.md`) — The project's founding material placed raw in `doc/founding/inputs/` and its still-true content captured into the structured concept with `status` set off `Stub` (or the shipped stub left unfilled with a "no founding material to capture" note); any claimed origin doc handed to the Step 28 archival (Step 27)
 - **Updated [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)** — Status / Test Status reflect documentation completion; design-document links live in per-feature state file §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
-- **Updated Documentation Maps** — All new documents registered in the appropriate map: product docs (FDDs/TDDs/ADRs) → [PD Documentation Map](../../../doc/PD-documentation-map.md); test specs → [TE Documentation Map](../../../test/TE-documentation-map.md); process artifacts → [PF Documentation Map](../../PF-documentation-map.md)
+- **Regenerated Documentation Maps** — Each tree that gained documents regenerated (DO-NOT-EDIT projections, PF-PRO-037 / PF-PRO-050): product docs (FDDs/TDDs/ADRs) → [PD map](../../../doc/PD-documentation-map.md) (`-Tree PD`); test specs → [TE map](../../../test/TE-documentation-map.md) (`-Tree TE`); process artifacts → [PF map](../../PF-documentation-map.md)
 - **Pre-existing documentation gap analysis** — All pre-existing docs verified as consumed by framework docs or gaps identified and addressed; originals archived to `doc/archive-pre-framework/manuals`; root README.md rewritten to reference framework docs
 - **Framework Improvement Entries** (PF-IMP-XXX) — Observations from onboarding formalized as process improvement entries (if any)
-- **Archived [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)** — Moved to `/temporary/archived/`
+- **Archived [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)** — Moved to `doc/state-tracking/temporary/old/`
 
 ## State Tracking
 
@@ -362,13 +395,13 @@ This is the final onboarding task that transforms code analysis into formal desi
 - [Feature Implementation State Files](../../../doc/state-tracking/features) — Documentation Inventory section updated with created document links
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Tier assignments and Status updates; design-document links live in per-feature state file §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) — Migrated test files registered with TE-TST IDs (updated by `New-TestFile.ps1` automation)
-- [PD Documentation Map](../../../doc/PD-documentation-map.md) — Product documents (FDDs, TDDs, ADRs) registered
-- [TE Documentation Map](../../../test/TE-documentation-map.md) — Test specifications and audit reports registered
-- [PF Documentation Map](../../PF-documentation-map.md) — Process-framework artifacts registered
+- [PD Documentation Map](../../../doc/PD-documentation-map.md) — Regenerated (`Build-DocumentationMap.ps1 -Tree PD`) to reflect new product documents (FDDs, TDDs, ADRs)
+- [TE Documentation Map](../../../test/TE-documentation-map.md) — Regenerated (`Build-DocumentationMap.ps1 -Tree TE`) to reflect new test specifications and audit reports
+- [PF Documentation Map](../../PF-documentation-map.md) — Regenerated (`Build-DocumentationMap.ps1`) to reflect new process-framework artifacts
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Phase 3 Complete: Documentation**
   - [ ] Tier assessments validated against PF-TSK-065 analysis findings (updated if inaccurate)
@@ -378,25 +411,45 @@ This is the final onboarding task that transforms code analysis into formal desi
   - [ ] **All Tier 2+ features with pre-existing tests**: Tests migrated to framework structure (TE-TST IDs, pytest markers, registered in test-tracking.md), original test files removed
   - [ ] **All features with discrete architectural decisions**: ADR created (foundation features and non-foundation features alike), marked "Retrospective"
   - [ ] **Conditional documents**: API/DB designs created where assessment indicates
-  - [ ] **All Target-State features**: Tech debt items generated from FDD/TDD gap analysis (Steps 11)
-  - [ ] **All Target-State features**: Quality Assessment Report created with dimension scores, gap analysis, and remediation sequence (Step 12)
-  - [ ] **All features (including Tier 1)**: User documentation coverage assessed (Step 13); per-content-type rows populated in `### User Documentation` of each Feature Implementation State file; features with `❌ Needed` rows flagged `📖 Needs User Docs` in feature-tracking.md
+  - [ ] **All Target-State features**: Tech debt items generated from FDD/TDD gap analysis (Step 12)
+  - [ ] **All Target-State features**: Quality Assessment Report created with dimension scores, gap analysis, and remediation sequence (Step 13)
+  - [ ] **All features (including Tier 1)**: User documentation coverage assessed (Steps 14-17); per-content-type rows populated in `### User Documentation` of each Feature Implementation State file; features with `❌ Needed` rows flagged `📖 Needs User Docs` in feature-tracking.md
   - [ ] All As-Built documents accurately reflect implemented code; all Target-State documents describe intended design with gap analysis
   - [ ] All [Feature Implementation State files](../../../doc/state-tracking/features) updated: Section 3 progress, Section 4 Quick Links, Section 10 Next Steps reflect created documents
   - [ ] All document links added to the per-feature state file's §4 Documentation Inventory (canonical home per PF-PRO-002 / PF-IMP-760)
 
 - [ ] **Phase 4 Complete: Finalization**
-  - [ ] Release Process Guide capture complete (Step 21a) — project release process captured into `doc/ci-cd/release-process.md` with the Freshness Stamp set, or the shipped stub left `unverified` with a "none to capture" note in the session log; any claimed pre-existing release doc registered in the master-state inventory for Step 22 archival
+  - [ ] Release Process Guide capture complete (Step 26) — project release process captured into `doc/ci-cd/release-process.md` with the Freshness Stamp set, or the shipped stub left `unverified` with a "none to capture" note in the session log; any claimed pre-existing release doc registered in the master-state inventory for Step 28 archival
+  - [ ] Product Concept capture complete (Step 27) — founding material placed in `doc/founding/inputs/` and captured into `doc/founding/product-concept.md` with `status` set off `Stub`, Sources table populated and agent interpretation marked *(elaboration)*, or the shipped stub left unfilled with a "none to capture" note in the session log; any claimed origin doc registered in the master-state inventory for Step 28 archival
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) verified complete (Status, Test Status, tier assignments); design-document links verified in per-feature state file §4 Documentation Inventory
-  - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — 0 errors across all surfaces
+  - [ ] Run [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1) — no NEW errors vs the pre-change baseline (`-SaveBaseline` before the first change → compare with `-Baseline <printed path>` here; equals 0 errors on a project without pre-existing validation debt)
+  - [ ] Run [`run_linkwatcher_validate.ps1`](../../tools/linkWatcher/run_linkwatcher_validate.ps1) — LinkWatcher broken-link scan (exit 1 on any broken link); confirm no NEW broken links in the printed report (no baseline mode — judge pre-existing link debt from the report)
   - [ ] Pre-existing documentation gap analysis complete — each doc in master state inventory marked with consumption status (Fully Consumed / Partially Consumed / Not Consumed) and target framework doc(s); gaps addressed or flagged as follow-up; originals archived to `doc/archive-pre-framework/manuals`; root README.md rewritten to reference framework docs
   - [ ] Framework improvement observations reviewed and approved observations formalized as PF-IMP entries (or noted as "none" in session log)
-  - [ ] Documentation Maps updated with all new documents: [PD Documentation Map](../../../doc/PD-documentation-map.md) (FDDs/TDDs/ADRs), [TE Documentation Map](../../../test/TE-documentation-map.md) (test specs), [PF Documentation Map](../../PF-documentation-map.md) (process artifacts)
+  - [ ] Documentation Maps regenerated (and `-Check`-clean) for each tree that gained documents: [PD](../../../doc/PD-documentation-map.md) via `-Tree PD` (FDDs/TDDs/ADRs), [TE](../../../test/TE-documentation-map.md) via `-Tree TE` (test specs), [PF](../../PF-documentation-map.md) (process artifacts)
   - [ ] Final metrics calculated and recorded in [master state](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)
-  - [ ] [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) archived to `/temporary/archived/`
+  - [ ] [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) archived to `doc/state-tracking/temporary/old/`
 
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-066" and context "Retrospective Documentation Creation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-066`, context "Retrospective Documentation Creation".
   - **Scope note**: Evaluate the Retrospective Documentation Creation task (PF-TSK-066) and its tools (tier assessment workflow, documentation creation process), not the documents you created.
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | FDDs, TDDs, ADRs, Test Specifications | Existing design scripts | Tier-appropriate design documents for each discovered feature |
+| **Creates** | Quality Assessment Reports (PD-QAR-XXX) | `New-QualityAssessmentReport.ps1` | For Target-State features |
+| **Creates** | Tech Debt Items (PD-TDI-XXX) | `Update-TechDebt.ps1 -Add` (single) or `-BatchFile` (PF-IMP-012, recommended for 3+ items per session) | For Target-State feature gaps |
+| **Creates** | Process Improvement Entries (PF-IMP-XXX) | `New-ProcessImprovement.ps1` | Framework improvement observations |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | Design scripts | Tier assignments, document links, status progression |
+| **Updates** | [`PF-documentation-map.md`](../../PF-documentation-map.md) | Generated by [`Build-DocumentationMap.ps1`](../../scripts/validation/Build-DocumentationMap.ps1) | Regenerate to reflect new PF documents (DO-NOT-EDIT projection) |
+| **Updates** | [`PD-documentation-map.md`](../../../doc/PD-documentation-map.md) | Generated by [`Build-DocumentationMap.ps1 -Tree PD`](../../scripts/validation/Build-DocumentationMap.ps1) | Regenerate to reflect new PD documents (DO-NOT-EDIT projection, PF-PRO-050) |
+| **Updates** | [`TE-documentation-map.md`](../../../test/TE-documentation-map.md) | Generated by [`Build-DocumentationMap.ps1 -Tree TE`](../../scripts/validation/Build-DocumentationMap.ps1) | Regenerate to reflect new test specs and audit reports (DO-NOT-EDIT projection, PF-PRO-050) |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Migrated test files registered |
+| **Updates** | [`process-improvement-tracking.md`](../../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | `New-ProcessImprovement.ps1` | Improvement entries from observations |
+| **Captures** | [`release-process.md`](../../../doc/ci-cd/release-process.md) (`PD-CIC`) | Manual (Step 26) | Captures the project's existing release process into the structured Release Process Guide and sets its Freshness Stamp (once per onboarding; inherited by all-Tier-1 onboards via the Tier-1 path's Phase-4 delegation). Claimed source doc handed to Step 28 archival. If no release knowledge exists, the shipped stub is left `unverified`. |
+| **Captures** | [`product-concept.md`](../../../doc/founding/product-concept.md) (`PD-DOC-001`) | Manual (Step 27) | Places the project's founding material raw in `doc/founding/inputs/` and captures its still-true content into the structured Product Concept, setting `status` off `Stub` (once per onboarding; inherited by all-Tier-1 onboards via the Tier-1 path's Phase-4 delegation). Claimed origin docs handed to Step 28 archival. If no founding material exists, the shipped stub is left unfilled. |
+| **Updates** | Retrospective Master State File | Manual | Archive upon completion |
 
 ## Next Tasks
 
@@ -406,6 +459,37 @@ After completing the full retrospective documentation effort:
 - [**Feature Enhancement**](../04-implementation/feature-enhancement.md) — For extending or modifying existing features
 - [**Code Review Task**](../06-maintenance/code-review-task.md) — For validating existing implementation against documented design
 - [**Technical Debt Assessment**](../cyclical/technical-debt-assessment-task.md) — For identifying and prioritizing technical debt discovered during analysis
+
+<!-- merged from transition-registry entry: Retrospective Documentation Creation (PF-TSK-066) -->
+### Prerequisites for Transition
+
+- [ ] Every feature has a tier assessment (created or validated)
+- [ ] All Tier 2+ features have FDD and TDD, marked "Retrospective"
+- [ ] All Tier 3 features have Test Specifications, marked "Retrospective"
+- [ ] All features with discrete architectural decisions have ADRs (foundation features and non-foundation features alike)
+- [ ] All document links added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
+- [ ] [Documentation Map](../../PF-documentation-map.md) updated with all new documents
+- [ ] Final metrics recorded in master state Completion Summary
+- [ ] Release Process Guide captured or confirmed (`doc/ci-cd/release-process.md`) with its Freshness Stamp set — or the shipped stub left `unverified` with a "none to capture" note (Step 26)
+- [ ] Product Concept captured or confirmed (`doc/founding/product-concept.md`) with `status` set off `Stub` — or the shipped stub left unfilled with a "none to capture" note (Step 27)
+- [ ] [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) archived to `doc/state-tracking/temporary/old/`
+
+### Next Task Selection
+
+```
+What work follows the completed onboarding?
+├─ Extend or modify existing features → Feature Implementation
+├─ Validate code against documented design → Code Review
+├─ Address technical debt discovered during analysis → Technical Debt Assessment
+└─ No immediate development work → Framework adoption complete, use normal workflow
+```
+
+### Preparation for Next Task
+
+1. Review Feature Tracking for features requiring further work
+2. Consult retrospective documentation for design decisions and patterns
+3. Use the normal development workflow (Feature Discovery → Tier Assessment → Design → Implementation)
+4. Technical debt items identified during onboarding can be addressed via Technical Debt Assessment
 
 ## Metrics and Evaluation
 
@@ -418,7 +502,7 @@ After completing the full retrospective documentation effort:
 
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) - First onboarding task
 - [Codebase Feature Analysis (PF-TSK-065)](codebase-feature-analysis.md) - Second onboarding task (prerequisite)
-- [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - For creating tier assessments
+- [Tier-assessment criteria (`feature-request-evaluation` skill)](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md) - For creating tier assessments
 - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Tier definitions and documentation requirements
 - [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Understanding documentation workflow
-- [Onboarding Edge Cases Guide](../../guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging
+- [`onboarding-edge-cases` craft skill](../../../.claude/skills/onboarding-edge-cases/SKILL.md) - Confidence-tagging craft for retroactive documentation (replaces the retired Onboarding Edge Cases Guide); activated at Step 0

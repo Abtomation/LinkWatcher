@@ -6,12 +6,15 @@
 
 .DESCRIPTION
     For each test case, compares files in <workflow>/workspace/<test-case>/project/
-    against <workflow>/templates/<test-case>/expected/. Reports per-file match/mismatch
-    with optional detailed diff output. Test cases live directly under <workflow>/templates/
+    against <workflow>/templates/<test-case>/expected/. Reports per-file match/mismatch;
+    on a mismatch it prints a capped line-by-line diff by default (-Detailed for the full diff).
+    Test cases live directly under <workflow>/templates/
     (no intermediate group layer — PF-IMP-871 Phase 3c2).
 
 .PARAMETER TestCase
     Optional: Verify a single test case by ID (e.g., "E2E-001").
+    Requires -Workflow — the script errors if -TestCase is given without it, rather than
+    silently falling through to verifying every case in every workflow.
 
 .PARAMETER Workflow
     Optional: Verify all test cases in a workflow (e.g., "user-login").
@@ -19,7 +22,8 @@
     If neither -TestCase nor -Workflow is specified, verifies all workflows.
 
 .PARAMETER Detailed
-    Optional: Show line-by-line diff for mismatched files.
+    Optional: Show the full line-by-line diff for mismatched files. A capped diff
+    (first 10 differing lines) prints by default on every mismatch; -Detailed removes the cap.
 
 .PARAMETER ProjectRoot
     Optional: Project root path. Auto-detected if not specified.
@@ -62,6 +66,13 @@ try {
 } catch {
     Write-Error "Failed to import Common-ScriptHelpers: $($_.Exception.Message)"
     exit 1
+}
+
+# Guard: -TestCase requires -Workflow (PF-IMP-1281) — mirrors the Run-E2EAcceptanceTest.ps1
+# fix (PF-IMP-1228). Without -Workflow, the collection logic below falls through to the
+# verify-all branch instead of verifying the single named case.
+if ($TestCase -and -not $Workflow) {
+    Write-ProjectError -Message "-TestCase '$TestCase' requires -Workflow. Specify the case's workflow (e.g. -Workflow 'feedback-collection') — without it Verify falls through to checking every case in every workflow." -ExitCode 1
 }
 
 # Resolve project root
@@ -155,8 +166,8 @@ foreach ($tc in $testCasesToVerify) {
             continue
         }
 
-        $expContent = [string](Get-Content -LiteralPath $expFile.FullName -Raw -Encoding UTF8) -replace '\r\n', "`n"
-        $wsContent = [string](Get-Content -LiteralPath $workspaceFile -Raw -Encoding UTF8) -replace '\r\n', "`n"
+        $expContent = [string](Get-Content -LiteralPath $expFile.FullName -Raw -Encoding UTF8) -replace "\r", ""
+        $wsContent = [string](Get-Content -LiteralPath $workspaceFile -Raw -Encoding UTF8) -replace "\r", ""
 
         # Normalize trailing whitespace (PowerShell Set-Content may add extra newline)
         $expContent = $expContent.TrimEnd()
@@ -166,22 +177,33 @@ foreach ($tc in $testCasesToVerify) {
             Write-Host "  🔴 $($tc.CaseId): Mismatch: $relativePath" -ForegroundColor Red
             $casePassed = $false
 
-            if ($Detailed) {
-                # Show simple diff
-                $expLines = $expContent -split '\r?\n'
-                $wsLines = $wsContent -split '\r?\n'
-                $maxLines = [Math]::Max($expLines.Count, $wsLines.Count)
+            # Show the differing lines on EVERY mismatch (PF-IMP-1185(e)). A bare filename
+            # forced a re-run with -Detailed just to see what differed; the diff now prints by
+            # default, capped so a large mismatch stays readable. -Detailed removes the cap.
+            $expLines = $expContent -split '\r?\n'
+            $wsLines = $wsContent -split '\r?\n'
+            $maxLines = [Math]::Max($expLines.Count, $wsLines.Count)
+            $diffCap = 10
+            $shown = 0
+            $diffTotal = 0
 
-                for ($i = 0; $i -lt $maxLines; $i++) {
-                    $expLine = if ($i -lt $expLines.Count) { $expLines[$i] } else { "<EOF>" }
-                    $wsLine = if ($i -lt $wsLines.Count) { $wsLines[$i] } else { "<EOF>" }
+            for ($i = 0; $i -lt $maxLines; $i++) {
+                $expLine = if ($i -lt $expLines.Count) { $expLines[$i] } else { "<EOF>" }
+                $wsLine = if ($i -lt $wsLines.Count) { $wsLines[$i] } else { "<EOF>" }
 
-                    if ($expLine -ne $wsLine) {
+                if ($expLine -ne $wsLine) {
+                    $diffTotal++
+                    if ($Detailed -or $shown -lt $diffCap) {
                         Write-Host "    Line $($i + 1):" -ForegroundColor DarkGray
                         Write-Host "      Expected: $expLine" -ForegroundColor Green
                         Write-Host "      Actual:   $wsLine" -ForegroundColor Red
+                        $shown++
                     }
                 }
+            }
+
+            if (-not $Detailed -and $diffTotal -gt $shown) {
+                Write-Host "    … $($diffTotal - $shown) more differing line(s); re-run with -Detailed for the full diff" -ForegroundColor DarkGray
             }
         }
     }

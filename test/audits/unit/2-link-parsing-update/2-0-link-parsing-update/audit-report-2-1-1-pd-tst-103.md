@@ -1,5 +1,6 @@
 ---
 id: TE-TAR-010
+description: "Parser test quality assessment"
 type: Document
 category: General
 version: 1.0

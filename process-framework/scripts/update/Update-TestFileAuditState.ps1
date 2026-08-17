@@ -54,7 +54,13 @@ invalidate the captured baseline. Rows whose current Lifecycle Status is not
 ✅ Baselined are skipped with a warning.
 
 .PARAMETER DryRun
-If specified, shows what would be updated without making changes
+Backward-compatible alias for -WhatIf (PF-IMP-1051): shows what would be updated without
+writing any tracking files. Prefer -WhatIf in new callers. -Confirm is also supported and
+prompts once before the writes on a real run.
+
+.PARAMETER TestType
+Which tracking file and status vocabulary to write against. Valid values: "Automated" (default),
+"Performance", "E2E". -LifecycleCorrection is supported only with "Performance".
 
 .EXAMPLE
 Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py" -AuditStatus "Audit Approved" -AuditReportPath "test/audits/foundation/audit-report-0-1-1-test_service.md"
@@ -67,7 +73,7 @@ Update-TestFileAuditState.ps1 -TestFilePath "test/automated/unit/test_service.py
 
 .EXAMPLE
 # Performance: false-compliance correction — audit fails and the row(s) need to roll back to 📋 Needs Baseline
-Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/test_benchmark.py" -AuditStatus "Needs Update" -AuditReportPath "test/audits/performance/audit-report-2-1-1-test-benchmark.md" -LifecycleCorrection
+Update-TestFileAuditState.ps1 -TestType Performance -TestFilePath "test/automated/performance/level1-component/test_parser_throughput.py" -AuditStatus "Needs Update" -AuditReportPath "test/audits/performance/level1-component/audit-report-2-1-1-test-benchmark.md" -LifecycleCorrection
 
 .NOTES
 This script addresses Process Improvement items:
@@ -79,10 +85,11 @@ This script addresses Process Improvement items:
 Created: 2025-08-29
 Updated: 2026-04-13 (IMP-495: add -TestType param for Performance/E2E audit support)
 Updated: 2026-04-30 (PF-IMP-639: add -LifecycleCorrection flag for false-compliance correction)
-Version: 3.1
+Updated: 2026-06-20 (PF-IMP-1051: SupportsShouldProcess — -DryRun is now a -WhatIf alias; -Confirm gate added)
+Version: 3.2
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory=$false)]
     [ValidateSet("Automated", "Performance", "E2E")]
@@ -144,6 +151,45 @@ catch {
     Write-Error "Failed to import Common-ScriptHelpers module: $($_.Exception.Message)"
     exit 1
 }
+
+# --- Script-local helper (defined before the dot-source guard so Pester can load it) ---
+function Get-AuditReportRelativeLink {
+    <#
+    .SYNOPSIS
+        Builds the markdown link from a tracking file to an audit report, preserving the report's
+        full subdirectory structure (PF-IMP-1044).
+    .DESCRIPTION
+        Computes the real relative path from the tracking file's directory to the audit report via
+        [System.IO.Path]::GetRelativePath, so any level{N}-*/ (Performance) or <workflow-slug>/
+        (E2E) subdir in -AuditReportPath is preserved. Replaces the prior category+basename rebuild
+        that dropped the subdir and 404'd the Audit Report link across all matching rows.
+    #>
+    param(
+        [Parameter(Mandatory = $true)][string]$AuditReportPath,
+        [Parameter(Mandatory = $true)][string]$TrackingFilePath,
+        [string]$ProjectRoot
+    )
+    if (-not $ProjectRoot) { $ProjectRoot = Get-ProjectRoot }
+
+    $reportBaseName  = [System.IO.Path]::GetFileNameWithoutExtension((Split-Path $AuditReportPath -Leaf))
+    $absReportPath   = if ([System.IO.Path]::IsPathRooted($AuditReportPath)) { $AuditReportPath } else { Join-Path $ProjectRoot $AuditReportPath }
+    $absTrackingPath = if ([System.IO.Path]::IsPathRooted($TrackingFilePath)) { $TrackingFilePath } else { Join-Path $ProjectRoot $TrackingFilePath }
+    $trackingFileDir = Split-Path -Parent $absTrackingPath
+
+    $relPath = ([System.IO.Path]::GetRelativePath($trackingFileDir, $absReportPath)) -replace '\\', '/'
+    return "[$reportBaseName]($relPath)"
+}
+
+# Dot-source guard (PF-IMP-1044): when this script is dot-sourced (e.g. by Pester to unit-test
+# the helper above), stop before running the executable body so loading has no side effects.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
+# PF-IMP-1051: -DryRun is a backward-compatible alias for -WhatIf, and -WhatIf must drive the
+# existing dry-run preview path. Making the two flags equivalent lets every `if ($DryRun)` preview
+# and helper -DryRun:$DryRun call serve -WhatIf unchanged (behavior-preserving). On a real run the
+# ShouldProcess gate in Main execution honors -Confirm.
+if ($DryRun) { $WhatIfPreference = $true }
+if ($WhatIfPreference) { $DryRun = $true }
 
 # Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
 Register-SoakScript
@@ -363,6 +409,14 @@ try {
         Write-Host ""
     }
 
+    # PF-IMP-1051: -Confirm gate. -WhatIf/-DryRun previews are handled by the $DryRun-driven path
+    # (here $DryRun is already $true, so this is skipped); on a real run, honor -Confirm before any
+    # writes. A decline aborts cleanly before backups or tracking-file mutations.
+    if (-not $DryRun -and -not $PSCmdlet.ShouldProcess("$TestType audit state for $TestFilePath", "Update tracking files")) {
+        Write-Host "Operation cancelled - ShouldProcess declined." -ForegroundColor Yellow
+        return
+    }
+
     # --- Performance / E2E: update dedicated tracking file Audit Status + Audit Report columns ---
     if ($TestType -ne "Automated") {
         $trackingFilePath = switch ($TestType) {
@@ -399,15 +453,12 @@ try {
             "Audit Failed" { "🔴 Audit Failed" }
         }
 
-        # Build audit report link if path provided
+        # Build audit report link if path provided. PF-IMP-1044: derive the relative link from the
+        # actual -AuditReportPath so any level{N}-*/ (Performance) or <workflow-slug>/ (E2E) subdir
+        # is preserved — the prior category+basename rebuild dropped it and 404'd the link.
         $auditReportLink = "—"
         if ($AuditReportPath) {
-            $reportFileName = Split-Path $AuditReportPath -Leaf
-            $reportBaseName = [System.IO.Path]::GetFileNameWithoutExtension($reportFileName)
-            # Build relative path from tracking file to audit report
-            $auditCategory = switch ($TestType) { "Performance" { "performance" }; "E2E" { "e2e" } }
-            $auditRelPath = "../../audits/$auditCategory/$reportFileName"
-            $auditReportLink = "[$reportBaseName]($auditRelPath)"
+            $auditReportLink = Get-AuditReportRelativeLink -AuditReportPath $AuditReportPath -TrackingFilePath $trackingFilePath
         }
 
         if ($DryRun) {
@@ -729,11 +780,6 @@ try {
     } else {
         Write-Host ""
         Write-Host "✅ Test file audit state update completed successfully!" -ForegroundColor Green
-
-        # Validation
-        Write-Host ""
-        Write-Host "Running validation..." -ForegroundColor Yellow
-        Write-Host "✅ Validation skipped (function not implemented)" -ForegroundColor Yellow
 
         # Next steps guidance (verbose-only — restore with -Verbose)
         if ($AuditStatus -eq "Needs Update") {

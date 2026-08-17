@@ -5,17 +5,16 @@
 # Refactored 2026-05-08 (PF-PRO-002 Phase 2 / option B): orchestration delegated
 # to Invoke-DesignArtifactCreation in Common-ScriptHelpers/DesignArtifactCreation.psm1.
 # This wrapper now owns only what's per-type: param parsing, slug/filename
-# composition, next-master-Status computation (via Get-NextStatusAfterDesignArtifact),
-# and the docmap entry formatter.
+# composition, and next-master-Status computation (via Get-NextStatusAfterDesignArtifact).
 
 <#
 .SYNOPSIS
     Creates a new Functional Design Document (FDD) with an automatically assigned ID.
 
 .DESCRIPTION
-    Generates an FDD document file (PD-FDD-XXX), appends an entry to
-    PD-documentation-map.md, updates master Status (no per-feature artifact
-    column writes per PF-PRO-002), and inserts/updates the corresponding row
+    Generates an FDD document file (PD-FDD-XXX) carrying a description: frontmatter
+    line (rendered by the generated PD map), updates master Status (no per-feature
+    artifact column writes per PF-PRO-002), and inserts/updates the corresponding row
     in the feature state file's §4 ▸ Design Documentation table.
 
 .PARAMETER FeatureId
@@ -35,11 +34,20 @@
     update, state-file §4 row) without performing any writes. Equivalent to
     -WhatIf — either flag short-circuits all side effects (PF-IMP-785).
 
-.EXAMPLE
-    .\New-FDD.ps1 -FeatureId "1.1.1" -FeatureName "User Registration"
+.PARAMETER Retrospective
+    Generate the FDD from the as-built retrospective sibling template
+    (fdd-retrospective-template.md) instead of the forward-planning template.
+    Use when documenting an already-implemented feature (e.g. during onboarding
+    via the Retrospective Documentation Creation task). PF-PRO-003 pilot.
 
 .EXAMPLE
-    .\New-FDD.ps1 -FeatureId "1.2.3" -FeatureName "Payment Processing" -Description "Stripe integration" -DryRun
+    New-FDD.ps1 -FeatureId "1.1.1" -FeatureName "User Registration"
+
+.EXAMPLE
+    New-FDD.ps1 -FeatureId "1.1.2" -FeatureName "Customer Management" -Retrospective
+
+.EXAMPLE
+    New-FDD.ps1 -FeatureId "1.2.3" -FeatureName "Payment Processing" -Description "Stripe integration" -DryRun
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -57,7 +65,10 @@ param(
     [switch]$OpenInEditor,
 
     [Parameter(Mandatory=$false)]
-    [switch]$DryRun
+    [switch]$DryRun,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$Retrospective
 )
 
 # Import the common helpers with walk-up path resolution
@@ -82,10 +93,12 @@ $featureIdForFilename = $FeatureId.Replace('.', '-')
 $featureNameForFilename = ConvertTo-FeatureSlug -Name $FeatureName -Convention 'kebab-case'
 $customFileName = "fdd-$featureIdForFilename-$featureNameForFilename.md"
 $fddRelativePath = "doc/functional-design/fdds/$customFileName"
-$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/fdd-template.md"
+# Retrospective documentation (PF-PRO-003 pilot): -Retrospective selects the as-built
+# sibling template (forward-planning scaffolding stripped/reframed) instead of the forward one.
+$templateFile = if ($Retrospective) { "fdd-retrospective-template.md" } else { "fdd-template.md" }
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/$templateFile"
 
 $customReplacements = @{
-    "[Feature ID]" = $FeatureId
     "[Feature Name]" = $FeatureName
     "[Feature Description]" = if ($Description -ne "") { $Description } else { "Functional specification for $FeatureName" }
     "[Date]" = Get-Date -Format "yyyy-MM-dd"
@@ -95,6 +108,7 @@ $customReplacements = @{
 $additionalMetadataFields = @{
     "feature_id" = $FeatureId
     "feature_name" = $FeatureName
+    description = "Functional Design Document for $FeatureName ($FeatureId)"
 }
 
 # Compute next master Status from the feature's tier assessment (PF-IMP-766).
@@ -107,7 +121,6 @@ $nextStatus = Get-NextStatusAfterDesignArtifact -FeatureId $FeatureId -CurrentAr
 # Per-type closures inlined into the splat — they capture $FeatureName,
 # $customFileName, etc. from this scope and are invoked by the core after
 # $documentId is assigned.
-$docMapDescription = if ($Description -ne "") { "$FeatureId — $Description" } else { "$FeatureId Functional Design Document" }
 
 try {
     $invokeArgs = @{
@@ -122,14 +135,11 @@ try {
         FeatureName                = $FeatureName
         Replacements               = $customReplacements
         AdditionalMetadataFields   = $additionalMetadataFields
-        DocMapSectionHeader        = "### ``functional-design/fdds/``"
-        DocMapEntryFormatter       = { param($id) "- [FDD: $FeatureName ($id)](functional-design/fdds/$customFileName) - $docMapDescription" }
         NewMasterStatus            = $nextStatus
         MasterStatusNotesFormatter = { param($id) "FDD created: $id ($(Get-ProjectTimestamp -Format 'Date'))" }
         ArtifactRelativePath       = $fddRelativePath
         OpenInEditor               = $OpenInEditor
         DryRun                     = $DryRun
-        CallerCmdlet               = $PSCmdlet
     }
     $result = Invoke-DesignArtifactCreation @invokeArgs
 
@@ -144,8 +154,7 @@ try {
         "Feature Name: $FeatureName"
     )
     if ($Description -ne "") { $details += "Description: $Description" }
-    if (-not $OpenInEditor)   { $details += "Customization required — see process-framework/guides/02-design/fdd-customization-guide.md" }
-    if ($result.DocMapUpdated) { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
+    if (-not $OpenInEditor)   { $details += "Customization required — apply the fdd-creation craft skill (.claude/skills/fdd-creation/), activated by the FDD Creation task's Check Recommended Skills step" }
     if ($result.StateFileResult) {
         $sf = $result.StateFileResult
         $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"

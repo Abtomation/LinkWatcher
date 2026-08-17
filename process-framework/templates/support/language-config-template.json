@@ -45,7 +45,9 @@
       "discoveryCommand": "[e.g. 'python -m pytest --fixtures -q', or null if not supported]"
     },
     "_comment_featureMarkerPattern": "OPTIONAL. Regex pattern that extracts feature_id from a test file metadata marker. Capture group 1 must be the feature_id. Used by New-RefactoringPlan.ps1 to auto-detect -FeatureId from a test-file -TargetArea. Empty string disables auto-detect for languages that have no feature-marker convention (e.g., Dart, Go, JavaScript).",
-    "featureMarkerPattern": ""
+    "featureMarkerPattern": "",
+    "_comment_staticAnalysisCommand": "OPTIONAL. Static analysis command for SOURCE code, consumed by Quick-ValidationCheck.ps1 CodeQuality checks. Omit if the language has no analyzer configured - the check then reports SKIP instead of failing. Use {srcDir} placeholder.",
+    "staticAnalysisCommand": "[static analysis command for source code, e.g. python -m flake8 {srcDir} --max-line-length=100]"
   },
   "directoryStructure": {
     "_comment": "REQUIRED. Defines source code directory conventions for this language. Used by New-SourceStructure.ps1 and source-code-layout.md.",
@@ -84,8 +86,17 @@
     "_comment_importRewriteTool": "OPTIONAL. AST/codemod tool the agent reads (never a script it runs) to rewrite import nodes during Codebase Source Migration (PF-TSK-091): e.g. libcst for Python, or manual to edit imports by hand and grep for path strings.",
     "importRewriteTool": "[import-rewrite tool for source migration, e.g. libcst; or manual]"
   },
-  "_comment_recommended_skills": "OPTIONAL. Claude Code skills recommended for specific tasks when working in this language. Each entry maps a skill name to the task slugs (task definition filenames without .md) where it adds value. Populated during Project Initiation (PF-TSK-059 Step 10). Tasks with a Recommended Skills reference in their process steps check this field at session start.",
+  "_comment_recommended_skills": "OPTIONAL. Claude Code skills recommended for specific tasks when working in this language. Each entry maps a skill name to the task slugs (task definition filenames without .md) where it adds value, with kind 'craft' (framework-owned craft skill under .claude/skills/) or 'implementation' (general technology/tooling skill) — language-config entries are typically 'implementation'. Populated during Project Initiation (PF-TSK-059 recommended-skills step). Tasks with a Recommended Skills reference in their process steps check this field at session start.",
   "recommended_skills": [],
+  "_comment_doc_extraction": "OPTIONAL. Doc-comment extraction spec for the Source Code Documentation Map (Build-DocumentationMap.ps1 -Tree SC, PF-IMP-1955). Declaring this block is all a language needs to join the SC map — the generic 'line-marker' engine (Get-MarkerDocDescription in DescriptionExtraction.psm1) is driven by these markers; no framework-script edit required. line_marker = per-line doc marker (e.g. '///'); block_start/block_end = optional block doc-comment delimiters (e.g. '/**' '*/'); ignore_prefixes = non-doc prefixes skipped while scanning (plain comments, shebang). The doc block must precede the first code line; only its first paragraph is indexed. Omit the block if the language's convention does not fit the marker model — then a bespoke extractor in DescriptionExtraction.psm1 is needed instead. See dart/dart-config.json for a worked example.",
+  "doc_extraction": {
+    "engine": "line-marker",
+    "extensions": ["[source file extension(s) with the dot, e.g. '.dart']"],
+    "line_marker": "[per-line doc marker, e.g. '///']",
+    "block_start": "[optional block doc opener, e.g. '/**' — omit if none]",
+    "block_end": "[optional block doc closer, e.g. '*/' — omit if none]",
+    "ignore_prefixes": ["[non-doc comment prefix, e.g. '//']", "[e.g. '#!']"]
+  },
   "_comment_headerComment": "REQUIRED for code-file generation. Comment syntax used by New-ProjectCodeMetadata when prepending document metadata blocks to generated code files. 'open' and 'close' are the block delimiters; 'linePrefix' is prepended to each metadata line. Examples — Python docstring: open '\"\"\"', close '\"\"\"', linePrefix ''. C-family (Dart/JS/TS/Java): open '/*', close ' */', linePrefix ' * '. PowerShell: open '<#', close '#>', linePrefix ''.",
   "headerComment": {
     "open": "[block-comment opener, e.g. '\"\"\"' for Python or '/*' for C-family]",

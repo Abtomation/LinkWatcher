@@ -31,6 +31,18 @@ Resolution flow (_calculate_new_target_relative):
     the original style (absolute, relative, filename-only, separator style).
     On no match or exception: returns the original target unchanged.
 
+Override-aware resolution (v1.1, PD-TDD-026 "Override-Aware Path Resolution"):
+    path_resolution_overrides maps a folder to a resolution base; host-absolute
+    (/...) targets in files under such a folder are *virtual-root* links.
+    For them, the two early-exit checks and the PD-BUG-045 suffix match are
+    all skipped — each compares the unresolved link form, so a real or
+    suffix-coinciding path merely coinciding with the virtual path would
+    hijack the link. Base-aware Step-3 resolution is their only match path:
+    _resolve_to_absolute_path() resolves the target against the folder's
+    base, and _convert_to_original_link_type() strips the base back off so
+    the rewritten link keeps its /... virtual-root style (containment-guarded;
+    emits update_resolution_override_applied).
+
 Python import handler (_calculate_new_python_import):
     Compares extensionless paths (strips .py). Supports python_source_root
     config to strip a prefix like "src/" so imports match project-root paths
@@ -45,10 +57,12 @@ Key design decisions:
 
 import os
 from pathlib import Path
+from typing import Dict, Optional
 
 from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
+from .resolution_overrides import build_resolution_overrides, resolution_base_for_rel
 from .utils import normalize_path, path_exists_under_root
 
 
@@ -60,7 +74,13 @@ class PathResolver:
     and conversion back to the original link style.
     """
 
-    def __init__(self, project_root: str = ".", logger=None, python_source_root: str = ""):
+    def __init__(
+        self,
+        project_root: str = ".",
+        logger=None,
+        python_source_root: str = "",
+        path_resolution_overrides: Optional[Dict[str, str]] = None,
+    ):
         self.project_root = Path(project_root).resolve()
         self.logger = logger or get_logger()
         # Normalized source root prefix (e.g., "src") for stripping from
@@ -68,6 +88,14 @@ class PathResolver:
         self._python_source_root = (
             python_source_root.strip("/").strip("\\") if python_source_root else ""
         )
+        # Virtual-root resolution overrides for host-absolute (/...) links in
+        # override folders (blueprint-aware reference updating, PD-TDD-026
+        # "Override-Aware Path Resolution").  Normalized once, longest folder
+        # first; empty list => override resolution is a no-op (v1.0 behavior).
+        self._resolution_overrides = build_resolution_overrides(path_resolution_overrides)
+        # Per-source-file base cache — the base depends only on the (static)
+        # config and the source path, so entries never go stale.
+        self._resolution_base_cache: Dict[str, str] = {}
 
     def calculate_new_target(self, ref: LinkReference, old_path: str, new_path: str) -> str:
         """Calculate the new target path for a reference."""
@@ -85,11 +113,13 @@ class PathResolver:
             updated_target = self._calculate_new_target_relative(
                 target_part, old_path, new_path, ref.file_path
             )
+            updated_target = self._apply_trailing_separator_style(updated_target, target_part)
             return f"{updated_target}#{anchor}"
         else:
-            return self._calculate_new_target_relative(
+            updated_target = self._calculate_new_target_relative(
                 original_target, old_path, new_path, ref.file_path
             )
+            return self._apply_trailing_separator_style(updated_target, original_target)
 
     def _calculate_new_target_relative(
         self, original_target: str, old_path: str, new_path: str, source_file: str
@@ -101,12 +131,25 @@ class PathResolver:
         3. If it matches the moved file, convert back to original link style with new location
         """
         try:
+            original_norm = normalize_path(original_target)
+            old_norm = normalize_path(old_path)
+
+            # Override-aware resolution (PD-TDD-026 v1.1): a host-absolute
+            # (/...) target from an override-folder source is a *virtual-root*
+            # reference — its normalized form must NOT be equality/prefix
+            # matched against on-disk paths by the early-exit branches below
+            # (false positive when a real root-level path coincides with the
+            # virtual path, e.g. a root test/ file moving while a blueprint
+            # link says /test/...).  Base-aware Step-3 resolution handles
+            # virtual-root links correctly, so skip the early exits for them.
+            is_virtual_root_link = original_target.replace("\\", "/").startswith("/") and bool(
+                self._resolution_base_for(source_file)
+            )
+
             # Early check: if the original target directly matches the old path,
             # it's a project-root-relative path (e.g., path strings in scripts).
             # Return new_path directly to preserve the root-relative style.
-            original_norm = normalize_path(original_target)
-            old_norm = normalize_path(old_path)
-            if original_norm == old_norm:
+            if not is_virtual_root_link and original_norm == old_norm:
                 new_norm = normalize_path(new_path)
                 # PD-BUG-112: only backslash-bearing targets are ambiguous here — a
                 # forward-slash string that exactly matches a moved path is necessarily
@@ -128,7 +171,7 @@ class PathResolver:
 
             # Directory prefix match: target is a path under the moved directory
             old_prefix = old_norm.rstrip("/") + "/"
-            if original_norm.startswith(old_prefix):
+            if not is_virtual_root_link and original_norm.startswith(old_prefix):
                 new_norm = normalize_path(new_path)
                 suffix = original_norm[len(old_norm.rstrip("/")) :]
                 result_norm = new_norm + suffix
@@ -175,9 +218,14 @@ class PathResolver:
             # When the original target (e.g., "utils/helpers.py") is a suffix of
             # old_path (e.g., "sub/project/utils/helpers.py"), extract the
             # corresponding suffix from new_path.  Constrained: source file
-            # must be under the same sub-project root.
+            # must be under the same sub-project root.  Skipped for virtual-root
+            # links — like the early exits above, this block compares the
+            # *unresolved* link form, so a suffix-coinciding move would hijack
+            # a virtual-root link whose true target (<base>/...) did not move,
+            # and the lossy rewrite would also drop the /... style.  Base-aware
+            # Step-3 resolution is the only match path for virtual-root links.
             suffix_tag = "/" + original_norm
-            if old_norm.endswith(suffix_tag):
+            if not is_virtual_root_link and old_norm.endswith(suffix_tag):
                 subtree_root = old_norm[: -len(suffix_tag)]
                 source_norm = normalize_path(source_file)
                 if source_norm.startswith(subtree_root + "/"):
@@ -199,6 +247,28 @@ class PathResolver:
             )
             return original_target
 
+    def _resolution_base_for(self, source_file: str) -> str:
+        """Return the virtual-root resolution base for *source_file*, or ``""``.
+
+        Files under a folder configured in ``path_resolution_overrides`` get
+        the configured base (project-root-relative, forward-slash form);
+        all other files get ``""`` — meaning their ``/...`` links resolve
+        project-root-relative exactly as before (backward-compatible no-op).
+        Folder matching is delegated to the shared ``resolution_overrides``
+        helper (longest-prefix match); the result is cached per source file
+        since the base depends only on the static config and the path.
+        """
+        if not self._resolution_overrides:
+            return ""
+        cached = self._resolution_base_cache.get(source_file)
+        if cached is not None:
+            return cached
+        rel = normalize_path(source_file)
+        match = resolution_base_for_rel(self._resolution_overrides, rel)
+        base = match[1] if match else ""
+        self._resolution_base_cache[source_file] = base
+        return base
+
     @staticmethod
     def _apply_separator_style(normalized_path: str, original_target: str) -> str:
         """Render *normalized_path* (forward-slash form) in the separator style of
@@ -213,6 +283,29 @@ class PathResolver:
         if "\\" in original_target:
             return normalized_path.replace("/", "\\")
         return normalized_path
+
+    @staticmethod
+    def _apply_trailing_separator_style(result: str, original_target: str) -> str:
+        """Re-append the authored trailing separator stripped during normalization
+        (PD-BUG-118).
+
+        Every rewrite branch returns ``normalize_path`` output, and
+        ``os.path.normpath`` drops a trailing separator — so a directory
+        reference authored as ``doc/x/`` came back as ``doc/x``. That damaged the
+        authored form on every rewrite, and made the rewrite differ from the
+        original even when the path itself was unchanged, so files were written
+        for a difference that carried no meaning.
+
+        Sibling of ``_apply_separator_style`` (PD-BUG-112) and of the authored-
+        form guard in ``reference_lookup._calculate_updated_relative_path``,
+        whose comment names this exact case: a rewrite changes WHERE a target
+        points, never how it was written.
+        """
+        if not result or not original_target.endswith(("/", "\\")):
+            return result
+        if result.endswith(("/", "\\")):
+            return result
+        return result + ("\\" if "\\" in original_target else "/")
 
     def _match_direct(self, absolute_target_norm: str, old_path_norm: str) -> bool:
         """Check if the resolved target directly matches the old path."""
@@ -305,6 +398,16 @@ class PathResolver:
 
         # If already absolute, return as-is
         if link_info["is_absolute"]:
+            # Override-aware resolution (PD-TDD-026 v1.1): a host-absolute
+            # (/...) target from an override-folder source is written against
+            # that folder's *virtual* root, so resolve it against <base>/ to
+            # get the comparison form that can match the moved file's on-disk
+            # project-root-relative path.  Drive-letter absolutes are never
+            # virtual-root links; empty base keeps the v1.0 verbatim behavior.
+            if target_norm.startswith("/"):
+                base = self._resolution_base_for(source_file)
+                if base:
+                    return os.path.normpath(f"{base}/{target_norm.lstrip('/')}").replace("\\", "/")
             return target_norm
 
         # Get the directory containing the source file
@@ -341,8 +444,34 @@ class PathResolver:
 
         # If original was absolute, return absolute
         if link_info["is_absolute"]:
-            # Ensure the result starts with / to maintain absolute path format
-            result = new_path_norm if new_path_norm.startswith("/") else f"/{new_path_norm}"
+            original_target = link_info["original_target"].replace("\\", "/")
+            base = self._resolution_base_for(source_file) if original_target.startswith("/") else ""
+            if base:
+                # Override-aware reconstruction (PD-TDD-026 v1.1): strip the
+                # virtual-root base back off so the rewritten link keeps its
+                # /... virtual-root style instead of the on-disk path.
+                stripped = new_path_norm.lstrip("/")
+                # Containment guard (mirrors PD-BUG-095): only rewrite when
+                # the proposed target is a real path under the project root —
+                # otherwise leave the original reference unchanged.
+                if not path_exists_under_root(self.project_root, stripped):
+                    return link_info["original_target"]
+                if stripped == base or stripped.startswith(base + "/"):
+                    remainder = stripped[len(base) :].lstrip("/")
+                    result = f"/{remainder}"
+                    self.logger.debug(
+                        "update_resolution_override_applied",
+                        source_file=source_norm,
+                        resolution_base=base,
+                        new_target=result,
+                    )
+                else:
+                    # Moved outside the virtual root — cannot be expressed as
+                    # a virtual-root link; fall back to the absolute form.
+                    result = new_path_norm if new_path_norm.startswith("/") else f"/{new_path_norm}"
+            else:
+                # Ensure the result starts with / to maintain absolute path format
+                result = new_path_norm if new_path_norm.startswith("/") else f"/{new_path_norm}"
         # If original was filename-only, check if we can keep it that way
         elif link_info["is_filename_only"]:
             new_filename = os.path.basename(new_path_norm)

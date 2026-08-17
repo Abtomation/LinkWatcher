@@ -1,10 +1,12 @@
 ---
-id: [Document ID - will be automatically assigned]
+id: PF-TEM-096
 type: Process Framework
 category: Assessment
 version: 1.0
 created: [Matrix Date]
 updated: [Matrix Date]
+creates_document_type: Product Documentation
+creates_document_category: Technical Debt Matrix
 description: "Template for debt prioritization matrices"
 ---
 # Technical Debt Prioritization Matrix: [Matrix Name]
@@ -13,7 +15,7 @@ description: "Template for debt prioritization matrices"
 
 - **Matrix Name**: [Matrix Name]
 - **Created Date**: [Matrix Date]
-- **Assessment Reference**: [PF-TDA-XXX]
+- **Assessment Reference**: [PD-TDA-XXX]
 - **Total Items Analyzed**: [Number of debt items]
 - **Matrix Type**: Impact vs Effort Analysis
 
@@ -85,42 +87,42 @@ Legend:
 
 | Item ID | Title | Impact | Effort | Score | Notes |
 |---------|-------|--------|--------|-------|-------|
-| [PF-TDI-XXX] | [Item Title] | High (3) | Low (1) | 3.0 | [Priority justification] |
+| [PD-TDI-XXX] | [Item Title] | High (3) | Low (1) | 3.0 | [Priority justification] |
 
 #### 🟡 High Priority (High Impact, Medium Effort)
 *"Major Projects" - Plan for next sprint/release*
 
 | Item ID | Title | Impact | Effort | Score | Notes |
 |---------|-------|--------|--------|-------|-------|
-| [PF-TDI-XXX] | [Item Title] | High (3) | Medium (2) | 1.5 | [Priority justification] |
+| [PD-TDI-XXX] | [Item Title] | High (3) | Medium (2) | 1.5 | [Priority justification] |
 
 #### 🟡 High Priority (Medium Impact, Low Effort)
 *"Fill-ins" - Address when capacity allows*
 
 | Item ID | Title | Impact | Effort | Score | Notes |
 |---------|-------|--------|--------|-------|-------|
-| [PF-TDI-XXX] | [Item Title] | Medium (2) | Low (1) | 2.0 | [Priority justification] |
+| [PD-TDI-XXX] | [Item Title] | Medium (2) | Low (1) | 2.0 | [Priority justification] |
 
 #### 🟢 Medium Priority (Medium Impact, Medium Effort)
 *"Evaluate" - Consider for future planning*
 
 | Item ID | Title | Impact | Effort | Score | Notes |
 |---------|-------|--------|--------|-------|-------|
-| [PF-TDI-XXX] | [Item Title] | Medium (2) | Medium (2) | 1.0 | [Priority justification] |
+| [PD-TDI-XXX] | [Item Title] | Medium (2) | Medium (2) | 1.0 | [Priority justification] |
 
 #### 🟢 Low Priority (Low Impact, Any Effort)
 *"Questionable" - Consider deferring or rejecting*
 
 | Item ID | Title | Impact | Effort | Score | Notes |
 |---------|-------|--------|--------|-------|-------|
-| [PF-TDI-XXX] | [Item Title] | Low (1) | [Effort] | [Score] | [Priority justification] |
+| [PD-TDI-XXX] | [Item Title] | Low (1) | [Effort] | [Score] | [Priority justification] |
 
 #### 🟢 Low Priority (High Impact, High Effort)
 *"Thankless Tasks" - Plan carefully or break down*
 
 | Item ID | Title | Impact | Effort | Score | Notes |
 |---------|-------|--------|--------|-------|-------|
-| [PF-TDI-XXX] | [Item Title] | High (3) | High (3) | 1.0 | [Consider breaking into smaller items] |
+| [PD-TDI-XXX] | [Item Title] | High (3) | High (3) | 1.0 | [Consider breaking into smaller items] |
 
 ## Priority Summary
 
@@ -129,31 +131,31 @@ Legend:
 **Total Estimated Effort**: [X days/weeks]
 
 Items requiring immediate attention:
-- [PF-TDI-XXX]: [Brief description]
-- [PF-TDI-XXX]: [Brief description]
+- [PD-TDI-XXX]: [Brief description]
+- [PD-TDI-XXX]: [Brief description]
 
 ### Next Sprint/Release (High Priority)
 **Count**: [X items]
 **Total Estimated Effort**: [X days/weeks]
 
 Items for upcoming development cycle:
-- [PF-TDI-XXX]: [Brief description]
-- [PF-TDI-XXX]: [Brief description]
+- [PD-TDI-XXX]: [Brief description]
+- [PD-TDI-XXX]: [Brief description]
 
 ### Future Planning (Medium Priority)
 **Count**: [X items]
 **Total Estimated Effort**: [X days/weeks]
 
 Items for future consideration:
-- [PF-TDI-XXX]: [Brief description]
-- [PF-TDI-XXX]: [Brief description]
+- [PD-TDI-XXX]: [Brief description]
+- [PD-TDI-XXX]: [Brief description]
 
 ### Deferred/Rejected (Low Priority)
 **Count**: [X items]
 
 Items with questionable value:
-- [PF-TDI-XXX]: [Brief description and reason for deferral]
-- [PF-TDI-XXX]: [Brief description and reason for deferral]
+- [PD-TDI-XXX]: [Brief description and reason for deferral]
+- [PD-TDI-XXX]: [Brief description and reason for deferral]
 
 ## Resource Allocation Recommendations
 
@@ -172,13 +174,13 @@ Items with questionable value:
 
 ### High-Risk Items
 Items that could cause significant problems if not addressed:
-- [PF-TDI-XXX]: [Risk description]
-- [PF-TDI-XXX]: [Risk description]
+- [PD-TDI-XXX]: [Risk description]
+- [PD-TDI-XXX]: [Risk description]
 
 ### Dependencies
 Items that block or depend on others:
-- [PF-TDI-XXX] blocks [PF-TDI-YYY]
-- [PF-TDI-XXX] depends on [PF-TDI-YYY]
+- [PD-TDI-XXX] blocks [PD-TDI-YYY]
+- [PD-TDI-XXX] depends on [PD-TDI-YYY]
 
 ## Implementation Roadmap
 
@@ -212,8 +214,8 @@ Items that block or depend on others:
 
 ## Related Documents
 
-- **Source Assessment**: [PF-TDA-XXX]
-- **Individual Debt Items**: [List all PF-TDI-XXX items included]
+- **Source Assessment**: [PD-TDA-XXX]
+- **Individual Debt Items**: [List all PD-TDI-XXX items included]
 - **Previous Matrices**: [References to previous prioritization matrices]
 - **Technical Debt Tracking**: [Link to permanent state tracking]
 

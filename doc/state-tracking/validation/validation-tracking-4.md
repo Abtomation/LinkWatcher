@@ -1,5 +1,6 @@
 ---
 id: PF-STA-079
+description: "Round 4 post-bug-fix re-validation tracking (10 dimensions × 8 features, 65 validations)"
 type: Process Framework
 category: State Tracking
 version: 1.0

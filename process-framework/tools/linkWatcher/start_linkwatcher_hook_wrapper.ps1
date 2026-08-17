@@ -1,29 +1,35 @@
-# LinkWatcher SessionStart Hook Wrapper
-#
-# Why a wrapper instead of invoking start_linkwatcher_background.ps1 directly
-# from .claude/settings.json:
-#
-# The LinkWatcher daemon (python.exe) inherits inheritable stdout/stderr
-# handles from its parent. When invoked from any pipe-capturing context
-# (such as a Claude Code SessionStart hook, which captures the hook command's
-# stdout for additionalContext injection), the daemon keeps the pipe's
-# write-end open for its lifetime — the calling pipe never sees EOF and the
-# session-start blocks indefinitely. The sibling start_linkwatcher_background.ps1
-# script's header (lines 10-32) documents this constraint and reference-implements
-# the isolation pattern adopted here.
-#
-# This wrapper applies the TE-E2E-009 locked-in pattern:
-#   - Start-Process with explicit -RedirectStandardOutput / -RedirectStandardError
-#     to dedicated temp files (daemon inherits the temp-file handles, not the
-#     hook's capture pipe).
-#   - WaitForExit(8000) bound — if the startup script genuinely hangs, kill it
-#     so the hook doesn't block session start.
-#   - Emit only the last few lines of combined output so the agent sees the
-#     success banner or error context (full daemon logs live in
-#     <project>/logs/linkwatcher/).
-#
-# Exit code: always 0. LinkWatcher startup failures must not block session start.
-# The output line carries the diagnostic for the agent to surface to the human.
+<#
+.SYNOPSIS
+    Starts LinkWatcher from a SessionStart hook without letting the daemon's
+    inherited stdout handle block the hook's capture pipe.
+
+.DESCRIPTION
+    Why a wrapper instead of invoking start_linkwatcher_background.ps1 directly
+    from .claude/settings.json:
+
+    The LinkWatcher daemon (python.exe) inherits inheritable stdout/stderr
+    handles from its parent. When invoked from any pipe-capturing context
+    (such as a Claude Code SessionStart hook, which captures the hook command's
+    stdout for additionalContext injection), the daemon keeps the pipe's
+    write-end open for its lifetime — the calling pipe never sees EOF and the
+    session-start blocks indefinitely. The sibling start_linkwatcher_background.ps1
+    script's .NOTES block ("Testing notes") documents this constraint and
+    reference-implements the isolation pattern adopted here.
+
+    This wrapper applies the TE-E2E-009 locked-in pattern:
+      - Start-Process with explicit -RedirectStandardOutput / -RedirectStandardError
+        to dedicated temp files (daemon inherits the temp-file handles, not the
+        hook's capture pipe).
+      - WaitForExit(8000) bound — if the startup script genuinely hangs, kill it
+        so the hook doesn't block session start.
+      - Emit only the last few lines of combined output so the agent sees the
+        success banner or error context (full daemon logs live in
+        <project>/logs/linkwatcher/).
+
+.NOTES
+    Exit code: always 0. LinkWatcher startup failures must not block session start.
+    The output line carries the diagnostic for the agent to surface to the human.
+#>
 
 $ErrorActionPreference = 'Stop'
 

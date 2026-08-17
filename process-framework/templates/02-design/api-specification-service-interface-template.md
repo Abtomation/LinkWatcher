@@ -8,7 +8,7 @@ updated: 2026-05-08
 usage_context: Process Framework - API Specification Creation (Service-Interface variant)
 template_for: API Specification (Service Interface)
 creates_document_prefix: PD-API
-creates_document_type: API Specification
+creates_document_type: Product Documentation
 creates_document_category: API Specification
 description: Template for Service-Interface API specifications — subprocess invocations, COM/in-process integrations, file-system contracts, library contracts. Sibling of PF-TEM-021 (REST/HTTP variant); selected by New-APISpecification.ps1 when -APIType "Service Interface".
 creates_document_version: 1.0

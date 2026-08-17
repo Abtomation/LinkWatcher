@@ -23,10 +23,10 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-RetrospectiveMasterState.ps1 -ProjectName "LinkWatcher"
+    New-RetrospectiveMasterState.ps1 -ProjectName "LinkWatcher"
 
 .EXAMPLE
-    .\New-RetrospectiveMasterState.ps1 -ProjectName "MyProject" -OpenInEditor
+    New-RetrospectiveMasterState.ps1 -ProjectName "MyProject" -OpenInEditor
 
 .NOTES
     - The output file is placed in <state-tracking-root>/temporary/ where state-tracking-root
@@ -63,14 +63,9 @@ try {
     exit 1
 }
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the retrospective-master-state-specific data, and the success report.
 
 # Resolve paths (Phase 5.5: configurable framework subtree via paths.process_framework)
 $processFrameworkDir = Get-ProcessFrameworkPath
@@ -123,39 +118,35 @@ $additionalMetadataFields = @{
 }
 
 # Create the document using standardized process
-try {
-    $documentId = New-StandardProjectDocument `
-        -TemplatePath $templatePath `
-        -IdPrefix "PF-STA" `
-        -IdDescription "Retrospective master state for $ProjectName onboarding" `
-        -DocumentName "retrospective-master-state" `
-        -DirectoryType "temporary" `
-        -FileNamePattern "retrospective-master-state.md" `
-        -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
-        -OpenInEditor:$OpenInEditor
+$documentId = New-FrameworkDocument `
+    -TemplatePath $templatePath `
+    -IdPrefix "PF-STA" `
+    -IdDescription "Retrospective master state for $ProjectName onboarding" `
+    -DocumentName "retrospective-master-state" `
+    -DirectoryType "temporary" `
+    -FileNamePattern "retrospective-master-state.md" `
+    -Replacements $customReplacements `
+    -Metadata $additionalMetadataFields `
+    -Label "Retrospective Master State file" `
+    -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "Project: $ProjectName",
-        "Location: $($stContext.StateTrackingRelative)/temporary/retrospective-master-state.md",
-        "Status: DISCOVERY",
-        "Started: $today",
-        "",
-        "📋 NEXT STEPS:",
-        "1. Survey the project structure (Step 3 of PF-TSK-064)",
-        "2. List ALL source files in the Unassigned Files section",
-        "3. Record total file count in Coverage Metrics",
-        "4. Begin feature discovery and code assignment",
-        "",
-        "📖 TASK DEFINITION:",
-        "process-framework/tasks/00-setup/codebase-feature-discovery.md",
-        "",
-        "⚠️  This is a TEMPORARY file - archive it when onboarding is complete.",
-        "✅ Update this file at the END of every onboarding session."
-    )
+$details = @(
+    "Project: $ProjectName",
+    "Location: $($stContext.StateTrackingRelative)/temporary/retrospective-master-state.md",
+    "Status: DISCOVERY",
+    "Started: $today",
+    "",
+    "📋 NEXT STEPS:",
+    "1. Survey the project structure (Step 3 of PF-TSK-064)",
+    "2. List ALL source files in the Unassigned Files section",
+    "3. Record total file count in Coverage Metrics",
+    "4. Begin feature discovery and code assignment",
+    "",
+    "📖 TASK DEFINITION:",
+    "process-framework/tasks/00-setup/codebase-feature-discovery.md",
+    "",
+    "⚠️  This is a TEMPORARY file - archive it when onboarding is complete.",
+    "✅ Update this file at the END of every onboarding session."
+)
 
-    Write-ProjectSuccess -Message "Created Retrospective Master State file with ID: $documentId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create Retrospective Master State file: $($_.Exception.Message)" -ExitCode 1
-}
+Write-ProjectSuccess -Message "Created Retrospective Master State file with ID: $documentId" -Details $details

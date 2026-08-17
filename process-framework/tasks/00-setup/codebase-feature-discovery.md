@@ -3,13 +3,36 @@ id: PF-TSK-064
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.9
+version: 1.11
 created: 2026-02-17
-updated: 2026-06-03
+updated: 2026-08-04
+change_notes: "v1.10 - Check Recommended Skills wiring (Step 0, no renumber - step numbers externally load-bearing via state templates' 'PF-TSK-064 step 3b' citations): one step activates both the source-layout and onboarding-edge-cases craft skills, replacing the retired Source Code Layout and Onboarding Edge Cases guides (Craft-as-Skill BL-5 batch 5)"
 description: "Discover all features in existing codebase and assign every source file"
+complexity: medium
+use_when: >-
+  Adopting process framework into existing project - discover features and assign all code. Triggers: 'onboard the codebase', 'adopt the framework', 'discover features in existing code'.
+triggers:
+  - "onboard the codebase"
+  - "adopt the framework"
+  - "discover features in existing code"
+automation: manual
+scripts:
+  - ../../scripts/file-creation/00-setup/New-RetrospectiveMasterState.ps1
+  - ../../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1
+  - ../../scripts/validation/Validate-OnboardingCompleteness.ps1
+  - ../../scripts/file-creation/00-setup/New-SourceStructure.ps1
+trigger_status:
+  - raw: "_(user request)_ / `retrospective-master-state.md` → Phase = `DISCOVERY`"
+output_status:
+  - raw: "`retrospective-master-state.md` → Phase 1 = `100%`; `feature-tracking.md` → `⬜ Needs Assessment`; `user-workflow-tracking.md` → created"
+next_tasks:
+  - task: codebase-source-migration-task.md
+    condition: "Relocate the assigned legacy source into the scaffolded `src/<feature>/` directories, file-by-file with behavior-preserving verification. Builds its Source Migration Queue from the per-feature File Inventories produced here."
 ---
 
 # Codebase Feature Discovery
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -26,20 +49,20 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/00-setup/codebase-feature-discovery-map.md)
-
 - **Critical (Must Read):**
 
   - **Prerequisite — [Project Initiation (PF-TSK-059)](project-initiation-task.md) outputs**: `project-config.json` (provides `paths.source_code`) and `source-code-layout.md` must already exist before this task runs — Step 7.f's source-structure script (`New-SourceStructure.ps1`) reads them. When adopting the framework into an existing codebase, run Project Initiation first.
   - [Retrospective Master State Template](../../templates/00-setup/retrospective-state-template.md) - Template for tracking codebase-wide progress
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature status and tier assessments
-  - [Assessment Guide](../../guides/01-planning/assessment-guide.md) - For performing tier assessments in Step 10
+  - [Tier-assessment criteria (`feature-request-evaluation` skill)](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md) - For performing tier assessments in Step 10
   - **Existing Codebase** - Source code, tests, and configuration
 
 - **Important (Load If Space):**
 
-  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `-?` before running**)
-  - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for using the state template
+  - [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md) - PowerShell execution patterns and parameter checking (**always check script parameters with `Get-Help <script> -Parameter *` before running**)
+  - [Onboarding-sections craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/onboarding-sections.md) - Using the state template in retrospective mode (replaces the retired Feature Implementation State Tracking Guide)
+  - [`onboarding-edge-cases` craft skill](../../../.claude/skills/onboarding-edge-cases/SKILL.md) — ambiguous-assignment and shared-utility craft, activated in Step 0 (Check Recommended Skills)
+  - [`source-layout` craft skill](../../../.claude/skills/source-layout/SKILL.md) — source-organization craft for the Step 7.f–h source-structure work, activated in Step 0 (Check Recommended Skills)
 
 - **Reference Only (Access When Needed):**
   - [Feature Dependencies](../../../doc/technical/architecture/feature-dependencies.md) - Understanding feature relationships
@@ -67,6 +90,8 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
+
+> **Step 0 — Check Recommended Skills** *(numbering deliberately unchanged — this task's step numbers are externally load-bearing: the state templates key to "PF-TSK-064 step 3b" and sibling tasks cite Step 7 sub-steps)*: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `codebase-feature-discovery`. **Two craft skills bind here** — activate each that is available in the session: the `onboarding-edge-cases` skill owns the **ambiguous-assignment craft** the file-by-file pass delegates to (assignment decision tree, shared-utility handling, 100%-coverage principle), and the `source-layout` skill owns the **source-organization craft** the source-structure step (Step 7.f–h) delegates to (scaffolding judgment, dependency flow, adapting the placement decision tree). Any that is not listed in the session can be read directly — its `SKILL.md` under [`.claude/skills/`](../../../.claude/skills/) is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. A craft is unavailable for this run only if its skill file is absent (the retired procedural guides have no successors).
 
 1. **Check for Existing Master State File**:
    - Look in `../../../doc/state-tracking/temporary` for an existing retrospective master state file
@@ -165,13 +190,12 @@ This task produces the foundational inventory that subsequent onboarding tasks (
    a. **Add entry via scripted atomic mutation** — Use [`Update-FeatureCategory.ps1`](../../scripts/update/Update-FeatureCategory.ps1) (PF-IMP-871 / PF-PRO-034 Phase 3a) for each confirmed feature. Call once per structural level that doesn't exist yet — outer levels first:
       ```powershell
       # Category 1 doesn't exist yet: create category, subgroup, then feature row (3 calls)
-      cd process-framework/scripts/update
-      .\Update-FeatureCategory.ps1 -Id "1" -Name "Customer Management"
-      .\Update-FeatureCategory.ps1 -Id "1.2" -Name "Customer Read"
-      .\Update-FeatureCategory.ps1 -Id "1.2.3" -Name "Read by ID"
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-FeatureCategory.ps1 -Id "1" -Name "Customer Management"
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-FeatureCategory.ps1 -Id "1.2" -Name "Customer Read"
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-FeatureCategory.ps1 -Id "1.2.3" -Name "Read by ID"
 
       # Category 1.2 already exists from a previous feature: just add the new feature row
-      .\Update-FeatureCategory.ps1 -Id "1.2.4" -Name "Read by Email"
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-FeatureCategory.ps1 -Id "1.2.4" -Name "Read by Email"
       ```
       The script writes the `<details><summary>` block / `### N.X` subgroup heading / feature row at the correct level and chains to `New-TestInfrastructure.ps1 -Update`, which scaffolds the matching `test/automated/unit/<N>-<slug>/[<N.X>-<slug>/]` dirs and `test/audits/unit/...` mirrors. Leave Doc Tier empty if no assessment exists yet — `Update-FeatureCategory.ps1` defaults it to blank.
 
@@ -184,7 +208,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
       ```
       This creates: source root directory, shared/ directory, one directory per confirmed feature, package markers, and fills the Project Configuration + Directory Tree placeholder sections in [source-code-layout.md](../../../doc/technical/architecture/source-code-layout.md) (this file is created from the blueprint template during Project Initiation or must exist before running this script).
    g. Complete the **Dependency Flow** section in source-code-layout.md — document which feature directories may import from which
-   h. Complete the **File Placement Decision Tree** section — adapt the generic tree from the [Source Code Layout Guide](../../guides/00-setup/source-code-layout-guide.md) to this project's features
+   h. Complete the **File Placement Decision Tree** section — adapt the generic tree from the [`source-layout` craft skill](../../../.claude/skills/source-layout/SKILL.md) (activated at Step 0) to this project's features
    i. The scaffolded `src/<feature>/` directories stay **empty** at this stage — Discovery assigns every file to an owning feature but does not move it. Relocating the assigned legacy source into these directories (and the no-source-at-root conformance check that confirms it) is owned by [Codebase Source Migration (PF-TSK-091)](codebase-source-migration-task.md), which runs next and builds its queue from the per-feature File Inventories.
 
 8. **Populate User Workflow Tracking File**:
@@ -203,7 +227,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
     For each discovered feature, assess the complexity tier and create the appropriate state file. This must happen before code inventory (Phase 2) so state files exist to receive inventory entries.
 
     **Per feature:**
-    a. Perform tier assessment following the [Feature Tier Assessment Task (PF-TSK-002)](../01-planning/feature-tier-assessment-task.md) process — base scores on initial codebase observations
+    a. Perform tier assessment following the `feature-request-evaluation` skill's [tier-assessment reference](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md) (the criteria Feature Request Evaluation's embedded procedure scores against) — base scores on initial codebase observations, and declare each feature's Implementation Medium alongside its Design Requirements Evaluation. A discovered feature is `code` unless the workspace is `mixed` **and** the feature's own inventory includes instruction artifacts an agent executes.
     b. Create the assessment artifact using `New-Assessment.ps1`
     c. Create the Feature Implementation State file using the assessed tier to select the template:
 
@@ -219,11 +243,11 @@ This task produces the foundational inventory that subsequent onboarding tasks (
     - Script location: `../../scripts/file-creation/04-implementation/New-FeatureImplementationState.ps1`
     - Automatically creates file at: `/doc/state-tracking/features/[X.Y.Z]-[name]-implementation-state.md`
     - Automatically links the file in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
-    d. Update Feature Tracking with tier assignment using `Update-FeatureTrackingFromAssessment.ps1`. **For retrospective onboarding** (this task), code already exists, so the post-assessment workflow is irrelevant — override the default with `-Status "🔎 Needs Test Scoping"` to land Tier 1 features at the appropriate retrospective status (PF-TSK-086 Test Scoping is the next applicable workflow step). Tier 2+ features may also need an override if their FDD/TDD will be created retrospectively in PF-TSK-066 — typically `-Status "🔎 Needs Test Scoping"` after Phase 3 documentation completes, or skip the script entirely and let PF-TSK-066 Step 13d set the post-Phase-3 status.
+    d. Update Feature Tracking with tier assignment using `Update-FeatureTrackingFromAssessment.ps1`. **For retrospective onboarding** (this task), code already exists, so the post-assessment workflow is irrelevant — override the default with `-Status "NeedsTestScoping"` to land Tier 1 features at the appropriate retrospective status (PF-TSK-086 Test Scoping is the next applicable workflow step). Tier 2+ features may also need an override if their FDD/TDD will be created retrospectively in PF-TSK-066 — typically `-Status "NeedsTestScoping"` after Phase 3 documentation completes, or skip the script entirely and let PF-TSK-066's user-documentation flag step set the post-Phase-3 status.
 
     Example for Tier 1 retrospective:
     ```powershell
-    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-XXX" -Status "🔎 Needs Test Scoping" -Force
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-XXX" -Status "NeedsTestScoping" -Force
     ```
 
     > **Sub-components:** Capabilities classified as sub-components during consolidation review should be documented as sections or notes within their parent feature's state file.
@@ -347,7 +371,7 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] Master State File created in `../../../doc/state-tracking/temporary`
 - [ ] ALL features discovered and added to Feature Tracking
@@ -362,13 +386,43 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 - [ ] `workflows:` metadata field added to all Feature Implementation State files
 - [ ] **Quality Verification completed** (Step 14): Random sample of 5-10 high-connectivity files verified, all import statements match documentation
 - [ ] Phase 1 marked complete in master state file
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-064" and context "Codebase Feature Discovery"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-064`, context "Codebase Feature Discovery".
   - **Scope note**: Evaluate the Codebase Feature Discovery task (PF-TSK-064) and its tools (master state file, feature implementation state files), not the features you discovered.
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | Retrospective Master State File | `New-RetrospectiveMasterState.ps1` | Tracks 3-phase retrospective onboarding progress |
+| **Creates** | Feature Implementation State Files (multiple) | `New-FeatureImplementationState.ps1` | One per discovered feature in `doc/state-tracking/features/` |
+| **Creates** | Source directory structure | `New-SourceStructure.ps1 -Scaffold` | Source root, shared/, feature directories, source-code-layout.md updates |
+| **Creates** | Tier Assessment Artifacts (PD-ASS-XXX) | `New-Assessment.ps1` | One per discovered feature |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Add discovered features with initial status |
+| **Updates** | [`user-workflow-tracking.md`](../../../doc/state-tracking/permanent/user-workflow-tracking.md) | Manual | Map features to user workflows |
 
 ## Next Tasks
 
 - [**Codebase Source Migration (PF-TSK-091)**](codebase-source-migration-task.md) — Relocate the assigned legacy source into the scaffolded `src/<feature>/` directories, file-by-file with behavior-preserving verification. Builds its Source Migration Queue from the per-feature File Inventories produced here.
   - Followed by [**Codebase Feature Analysis (PF-TSK-065)**](codebase-feature-analysis.md) — analyzes implementation patterns, dependencies, and design decisions once the code is in its final `src/<feature>/` locations.
+
+<!-- merged from transition-registry entry: Codebase Feature Discovery (PF-TSK-064) -->
+### Prerequisites for Transition
+
+- [ ] [Retrospective Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) created with project name and DISCOVERY status
+- [ ] ALL source files listed and assigned to features (100% codebase file coverage)
+- [ ] ALL features added to [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) with IDs and descriptions
+- [ ] [Feature Implementation State file](../../../doc/state-tracking/features) created for every feature with complete code inventory
+- [ ] Phase 1 marked complete in master state file
+
+### Next Task Selection
+
+- **Always**: → [Codebase Source Migration (PF-TSK-091)](codebase-source-migration-task.md)
+
+### Preparation for Next Task
+
+1. Verify master state shows Phase 1 complete with 100% file coverage and `Validate-OnboardingCompleteness.ps1` reports PASS
+2. Confirm the `src/<feature>/` directories are scaffolded (empty) and every file has an owning feature in its File Inventory — the migration queue is built from those inventories
+3. Set master state status to "SOURCE_MIGRATION" (runtime value; the migration task flips it to "ANALYSIS" at its exit gate)
 
 ## Metrics and Evaluation
 
@@ -383,9 +437,9 @@ This task produces the foundational inventory that subsequent onboarding tasks (
 - [Retrospective Master State Template](../../templates/00-setup/retrospective-state-template.md) - Template for tracking codebase-wide progress
 - [Feature Implementation State Template (Full)](../../templates/04-implementation/feature-implementation-state-template.md) - Full template for Tier 2/3 features
 - [Feature Implementation State Template (Lightweight)](../../templates/04-implementation/feature-implementation-state-lightweight-template.md) - Lightweight template for Tier 1 features
-- [Assessment Guide](../../guides/01-planning/assessment-guide.md) - For performing tier assessments in Step 10
-- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Comprehensive guide for using the state template
+- [Tier-assessment criteria (`feature-request-evaluation` skill)](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md) - For performing tier assessments in Step 10
+- [Onboarding-sections craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/onboarding-sections.md) - Using the state template in retrospective mode (replaces the retired Feature Implementation State Tracking Guide)
 - [Test Query Tool](../../scripts/test/test_query.py) - Query test files by feature, priority, and markers
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking (populated during PF-TSK-065)
 - [Validate-OnboardingCompleteness.ps1](../../scripts/validation/Validate-OnboardingCompleteness.ps1) - Validates 100% source file coverage and feature state file existence
-- [Onboarding Edge Cases Guide](../../guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging
+- [`onboarding-edge-cases` craft skill](../../../.claude/skills/onboarding-edge-cases/SKILL.md) - Edge-case craft for ambiguous file assignment, shared utilities, and confidence tagging (replaces the retired Onboarding Edge Cases Guide); activated at Step 0

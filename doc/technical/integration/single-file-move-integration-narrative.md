@@ -1,5 +1,6 @@
 ---
 id: PD-INT-002
+description: "WF-001 single-file move pipeline: how File System Monitoring, In-Memory Database, Parser Framework, and Link Updater collaborate from watchdog event detection to atomic reference rewrites and DB re-sync"
 type: Product Documentation
 category: Integration Narrative
 version: 1.0
@@ -100,6 +101,7 @@ graph TD
 8. **`ReferenceLookup.cleanup_after_file_move(references, old_targets, moved_file_path=old_path)`** ([reference_lookup.py:191](src/linkwatcher/reference_lookup.py#L191)) collects all source files that contained references, calls `LinkDatabase.remove_targets_by_path(old_variation)` for every old-path variation (anchor-aware thread-safe removal), discards `moved_file_path` from the affected set, and for each remaining affected file does `LinkDatabase.remove_file_links(rel)` + `LinkParser.parse_file(abs)` + per-ref `LinkDatabase.add_link()` — ensuring post-move line numbers and targets in the DB reflect current file contents.
 
 9. **`LinkMaintenanceHandler._update_links_within_moved_file(old_path, new_path, abs_new)`** ([handler.py:753](src/linkwatcher/handler.py#L753)) — runs only when the new path passes `_should_monitor_file()`. Delegates to `ReferenceLookup.update_links_within_moved_file()` ([reference_lookup.py:492](src/linkwatcher/reference_lookup.py#L492)) which reads the moved file once, filters its refs to relative-style links, recalculates each target from the new location via `_calculate_updated_relative_path()`, writes the file atomically, and refreshes the moved file's outgoing-link entries via `parse_content(content, abs_new)` + `LinkDatabase.remove_file_links(old_path)` + per-ref `LinkDatabase.add_link()` keyed by `new_path`.
+   - **Simultaneous-move repair** (PD-BUG-114, 2026-08-10): `_handle_file_moved` brackets the pipeline with `ReferenceLookup.record_move(old_path, new_path)` up front (a 300s-TTL move memory) and `apply_pending_recalcs(old_path)` at the end. During target recalculation, a link whose old-resolved target is missing from disk is checked against the move memory — a target that moved in the same operation gets the link rewritten to its new location instead of the PD-BUG-033 skip; an unexplained miss registers a pending recalc that a later move event of the target repairs. See the WF-004 narrative and [PD-TDD-026 § Simultaneous-Move Repair](../tdd/tdd-2-2-1-link-updater-t2.md).
 
 10. **`LinkMaintenanceHandler._update_stat()`** ([handler.py, guarded by `_stats_lock` — PD-BUG-026](src/linkwatcher/handler.py)) increments `stats["files_moved"]` by 1 and `stats["links_updated"]` by `update_stats["references_updated"]`, and `stats["errors"]` by `update_stats["errors"]`. Control returns to the watchdog event thread; the workflow is complete.
 

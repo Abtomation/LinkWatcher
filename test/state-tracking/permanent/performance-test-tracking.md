@@ -1,5 +1,6 @@
 ---
 id: TE-STA-003
+description: "Single source of truth for performance tests — registry, baselines, and lifecycle status."
 type: Process Framework
 category: State File
 version: 1.1
@@ -61,6 +62,7 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 | BM-003 | — | Initial scan (100 file sets, 400 files) | 0.1.1, 2.1.1, 0.1.2 | ✅ Baselined | 1.51s | <10s | 1.56s (warm mean of runs 2-3, run 1 cold: 2.83s) | 2026-06-13 | [test_operation_benchmarks.py](/test/automated/performance/level2-operation/test_operation_benchmarks.py) | ✅ Audit Approved | [audit-report-0-1-1-test-operation-benchmarks](../../audits/performance/audit-report-0-1-1-test-operation-benchmarks.md) | — |
 | BM-005 | — | Validation mode (100 file sets, 300 validated) | 0.1.1, 2.1.1 | ✅ Baselined | 1.020s | <5s | 1.017s (mean of 3 runs) | 2026-06-13 | [test_operation_benchmarks.py](/test/automated/performance/level2-operation/test_operation_benchmarks.py) | ✅ Audit Approved | [audit-report-0-1-1-test-operation-benchmarks](../../audits/performance/audit-report-0-1-1-test-operation-benchmarks.md) | — |
 | BM-006 | — | Delete+create correlation (20 moves; 100% match rate also asserted in test code) | 1.1.1 | ✅ Baselined | 1.06ms avg, 100% match rate | <5ms | 1.24ms avg, 100% match rate (mean of 3 runs) | 2026-06-13 | [test_operation_benchmarks.py](/test/automated/performance/level2-operation/test_operation_benchmarks.py) | ✅ Audit Approved | [audit-report-0-1-1-test-operation-benchmarks](../../audits/performance/audit-report-0-1-1-test-operation-benchmarks.md) | — |
+| BM-009 | — | Move handling with path_resolution_overrides configured (override-folder tree, virtual-root refs) | 2.2.1, 0.1.3 | ⬜ Needs Creation | — | <5s | — | — | — | — | — | Decision matrix Q2 (end-to-end operation pipeline changed): PF-STA-110 adds override-aware virtual-root resolution to the live move/update path. All existing updater benchmarks (BM-004, PH-001/004/005/006) run override-free, so the override code path has zero benchmark coverage while being the feature's primary use case (blueprint restructures proposing 1600+ refs). |
 
 ### Scale Tests (Level 3)
 
@@ -90,10 +92,10 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 | Level | Total | ✅ Baselined | 📋 Needs Baseline | ⬜ Needs Creation | ⚠️ Needs Re-baseline |
 |-------|-------|-------------|-----------|-------------|----------|
 | Component | 5 | 5 | 0 | 0 | 0 |
-| Operation | 3 | 3 | 0 | 0 | 0 |
+| Operation | 4 | 3 | 0 | 1 | 0 |
 | Scale | 6 | 6 | 0 | 0 | 0 |
 | Resource | 2 | 2 | 0 | 0 | 0 |
-| **Total** | **16** | **16** | **0** | **0** | **0** |
+| **Total** | **17** | **16** | **0** | **1** | **0** |
 
 ## Migration Notes
 

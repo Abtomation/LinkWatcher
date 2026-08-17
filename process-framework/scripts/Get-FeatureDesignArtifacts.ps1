@@ -34,19 +34,19 @@ Output format: Table (default), Json, Csv.
 Optional override; defaults to Get-ProjectRoot.
 
 .EXAMPLE
-.\Get-FeatureDesignArtifacts.ps1
+Get-FeatureDesignArtifacts.ps1
 # All design artifacts across all features
 
 .EXAMPLE
-.\Get-FeatureDesignArtifacts.ps1 -Type "*FDD*"
+Get-FeatureDesignArtifacts.ps1 -Type "*FDD*"
 # Which features have an FDD?
 
 .EXAMPLE
-.\Get-FeatureDesignArtifacts.ps1 -Feature 1.1.3 -Format Json
+Get-FeatureDesignArtifacts.ps1 -Feature 1.1.3 -Format Json
 # JSON dump for one feature
 
 .EXAMPLE
-.\Get-FeatureDesignArtifacts.ps1 -Format Csv > artifacts.csv
+Get-FeatureDesignArtifacts.ps1 -Format Csv > artifacts.csv
 # Bulk export for spreadsheet review
 
 .NOTES

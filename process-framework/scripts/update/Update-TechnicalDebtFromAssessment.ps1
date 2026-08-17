@@ -13,28 +13,26 @@ This script bridges the gap between Technical Debt Assessment creation and regis
 making the Technical Debt Assessment Task fully automated.
 
 .PARAMETER AssessmentId
-The assessment ID (e.g., "PF-TDA-001") to process debt items from
+The assessment ID (e.g., "PD-TDA-001") to process debt items from
 
 .PARAMETER AssessmentDirectory
-Directory containing the assessment and debt item files (defaults to process-framework/assessments/technical-debt/)
-
-.PARAMETER DryRun
-If specified, shows what would be done without making actual changes
+Directory containing the assessment and debt item files. Defaults to <project-root>/doc/technical-debt
+(resolved via Get-ProjectRoot); pass an explicit path to scan a fixture or non-default tree.
 
 .PARAMETER Force
 If specified, processes items even if they appear to already be in the registry
 
 .EXAMPLE
-# Process all debt items from assessment PF-TDA-001
-../Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-001"
+# Process all debt items from assessment PD-TDA-001
+../Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PD-TDA-001"
 
 .EXAMPLE
-# Dry run to see what would be processed
-../Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-001" -DryRun
+# Preview (no writes) what would be processed
+../Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PD-TDA-001" -WhatIf
 
 .EXAMPLE
 # Force processing even if items appear to be already added
-../Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PF-TDA-001" -Force
+../Update-TechnicalDebtFromAssessment.ps1 -AssessmentId "PD-TDA-001" -Force
 
 .NOTES
 This script is part of the Technical Debt Assessment automation system and integrates with:
@@ -47,27 +45,25 @@ The script makes the Technical Debt Assessment Task fully automated by eliminati
 the manual step of updating the technical debt tracking registry.
 
 Output behavior: Default output is one summary line per invocation (the outcome,
-e.g. "PF-TDA-001 → 7 items added (0 failed)"). WARN and ERROR messages always
+e.g. "PD-TDA-001 → 7 items added (0 failed)"). WARN and ERROR messages always
 pass through. Pass -Verbose to restore the full play-by-play log for debugging.
 #>
 
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory = $true)]
     [string]$AssessmentId,
 
     [Parameter(Mandatory = $false)]
-    [string]$AssessmentDirectory = "../process-framework/assessments/technical-debt",
-
-    [Parameter(Mandatory = $false)]
-    [switch]$DryRun,
+    [string]$AssessmentDirectory = "",
 
     [Parameter(Mandatory = $false)]
     [switch]$Force
 )
 
 # Configuration
-$ScriptName = "../Update-TechnicalDebtFromAssessment.ps1"
-$UpdateScript = "../process-framework/scripts/update/Update-TechDebt.ps1"
+$ScriptName = "Update-TechnicalDebtFromAssessment.ps1"
+$UpdateScript = $null  # resolved after module import (needs Get-ProcessFrameworkPath)
 
 # Import the common helpers with walk-up path resolution
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
@@ -88,59 +84,41 @@ catch {
     exit 1
 }
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
+# Resolve paths against the project root (cwd-independent). Debt items live under
+# doc/technical-debt/ per the PD-TDI / PD-TDA registry entries; the -AssessmentDirectory
+# override lets callers (and tests) point at a fixture tree instead.
+if ([string]::IsNullOrWhiteSpace($AssessmentDirectory)) {
+    $AssessmentDirectory = Join-Path (Get-ProjectRoot) "doc/technical-debt"
 }
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
+$UpdateScript = Join-Path (Get-ProcessFrameworkPath) "scripts/update/Update-TechDebt.ps1"
 
 function Test-Prerequisites {
-    Write-Log "Checking prerequisites..."
+    Write-ProjectLog "Checking prerequisites..."
 
     if (-not (Test-Path $AssessmentDirectory)) {
-        Write-Log "Assessment directory not found: $AssessmentDirectory" -Level "ERROR"
+        Write-ProjectLog "Assessment directory not found: $AssessmentDirectory" -Level "ERROR"
         return $false
     }
 
     if (-not (Test-Path $UpdateScript)) {
-        Write-Log "Update script not found: $UpdateScript" -Level "ERROR"
+        Write-ProjectLog "Update script not found: $UpdateScript" -Level "ERROR"
         return $false
     }
 
-    Write-Log "Prerequisites check passed" -Level "SUCCESS"
+    Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
     return $true
 }
 
 function Find-AssessmentDebtItems {
     param([string]$AssessmentId)
 
-    Write-Log "Searching for debt items from assessment: $AssessmentId"
+    Write-ProjectLog "Searching for debt items from assessment: $AssessmentId"
 
     # Look for debt item files that reference this assessment
     $debtItemsDir = Join-Path -Path $AssessmentDirectory -ChildPath "debt-items"
 
     if (-not (Test-Path $debtItemsDir)) {
-        Write-Log "Debt items directory not found: $debtItemsDir" -Level "WARN"
+        Write-ProjectLog "Debt items directory not found: $debtItemsDir" -Level "WARN"
         return @()
     }
 
@@ -151,31 +129,31 @@ function Find-AssessmentDebtItems {
         $content = Get-Content $file.FullName -Raw -ErrorAction SilentlyContinue
 
         # Check if this debt item references our assessment
-        if ($content -match $AssessmentId -or $file.Name -match "^PF-TDI-\d+") {
+        if ($content -match $AssessmentId -or $file.Name -match "^PD-TDI-\d+") {
             # Extract debt item metadata
-            $debtItem = Parse-DebtItemFile -FilePath $file.FullName -Content $content
+            $debtItem = ConvertFrom-DebtItemFile -FilePath $file.FullName -Content $content
             if ($debtItem) {
                 $debtItems += $debtItem
             }
         }
     }
 
-    Write-Log "Found $($debtItems.Count) debt items for assessment $AssessmentId"
+    Write-ProjectLog "Found $($debtItems.Count) debt items for assessment $AssessmentId"
     return $debtItems
 }
 
-function Parse-DebtItemFile {
+function ConvertFrom-DebtItemFile {
     param(
         [string]$FilePath,
         [string]$Content
     )
 
     try {
-        # Extract debt item ID from filename (PF-TDI-XXX)
+        # Extract debt item ID from filename (PD-TDI-XXX)
         $fileName = [System.IO.Path]::GetFileNameWithoutExtension($FilePath)
-        $debtItemIdMatch = [regex]::Match($fileName, 'PF-TDI-\d+')
+        $debtItemIdMatch = [regex]::Match($fileName, 'PD-TDI-\d+')
         if (-not $debtItemIdMatch.Success) {
-            Write-Log "Could not extract debt item ID from filename: $fileName" -Level "WARN"
+            Write-ProjectLog "Could not extract debt item ID from filename: $fileName" -Level "WARN"
             return $null
         }
         $debtItemId = $debtItemIdMatch.Value
@@ -188,7 +166,7 @@ function Parse-DebtItemFile {
         }
 
         # Extract title from filename (after the ID)
-        $titleMatch = [regex]::Match($fileName, 'PF-TDI-\d+-(.+)')
+        $titleMatch = [regex]::Match($fileName, 'PD-TDI-\d+-(.+)')
         if ($titleMatch.Success) {
             $debtItem.Title = $titleMatch.Groups[1].Value -replace '-', ' '
         }
@@ -242,12 +220,12 @@ function Parse-DebtItemFile {
         return $debtItem
     }
     catch {
-        Write-Log "Error parsing debt item file $FilePath`: $($_.Exception.Message)" -Level "ERROR"
+        Write-ProjectLog "Error parsing debt item file $FilePath`: $($_.Exception.Message)" -Level "ERROR"
         return $null
     }
 }
 
-function Process-DebtItem {
+function Invoke-DebtItemProcessing {
     param(
         [hashtable]$DebtItem,
         [string]$AssessmentId,
@@ -258,11 +236,11 @@ function Process-DebtItem {
     $debtItemId = $DebtItem.DebtItemId
     $title = $DebtItem.Title
 
-    Write-Log "Processing debt item: $debtItemId - $title"
+    Write-ProjectLog "Processing debt item: $debtItemId - $title"
 
     # Check if already added (unless Force is specified)
     if ($DebtItem.AlreadyAdded -and -not $Force) {
-        Write-Log "Debt item $debtItemId already marked as added to registry (use -Force to override)" -Level "WARN"
+        Write-ProjectLog "Debt item $debtItemId already marked as added to registry (use -Force to override)" -Level "WARN"
         return $false
     }
 
@@ -275,17 +253,17 @@ function Process-DebtItem {
     if (-not $DebtItem.EstimatedEffort -or $DebtItem.EstimatedEffort -eq '') { $missingFields += 'EstimatedEffort' }
 
     if ($missingFields.Count -gt 0) {
-        Write-Log "Debt item $debtItemId is missing required fields: $($missingFields -join ', ')" -Level "ERROR"
+        Write-ProjectLog "Debt item $debtItemId is missing required fields: $($missingFields -join ', ')" -Level "ERROR"
         return $false
     }
 
     if ($DryRun) {
-        Write-Log "[DRY RUN] Would add debt item to registry:" -Level "INFO"
-        Write-Log "  Description: $($DebtItem.Description)" -Level "INFO"
-        Write-Log "  Dim: $($DebtItem.Dim)" -Level "INFO"
-        Write-Log "  Location: $($DebtItem.Location)" -Level "INFO"
-        Write-Log "  Priority: $($DebtItem.Priority)" -Level "INFO"
-        Write-Log "  Estimated Effort: $($DebtItem.EstimatedEffort)" -Level "INFO"
+        Write-ProjectLog "[DRY RUN] Would add debt item to registry:" -Level "INFO"
+        Write-ProjectLog "  Description: $($DebtItem.Description)" -Level "INFO"
+        Write-ProjectLog "  Dim: $($DebtItem.Dim)" -Level "INFO"
+        Write-ProjectLog "  Location: $($DebtItem.Location)" -Level "INFO"
+        Write-ProjectLog "  Priority: $($DebtItem.Priority)" -Level "INFO"
+        Write-ProjectLog "  Estimated Effort: $($DebtItem.EstimatedEffort)" -Level "INFO"
         return $true
     }
 
@@ -304,31 +282,31 @@ function Process-DebtItem {
     )
 
     try {
-        Write-Log "Executing: $($addCommand -join ' ')"
-        $result = & $addCommand[0] $addCommand[1..($addCommand.Length - 1)]
+        Write-ProjectLog "Executing: $($addCommand -join ' ')"
+        $null = & $addCommand[0] $addCommand[1..($addCommand.Length - 1)]
 
         if ($LASTEXITCODE -eq 0) {
-            Write-Log "Successfully added debt item $debtItemId to registry" -Level "SUCCESS"
+            Write-ProjectLog "Successfully added debt item $debtItemId to registry" -Level "SUCCESS"
             return $true
         }
         else {
-            Write-Log "Failed to add debt item $debtItemId to registry (exit code: $LASTEXITCODE)" -Level "ERROR"
+            Write-ProjectLog "Failed to add debt item $debtItemId to registry (exit code: $LASTEXITCODE)" -Level "ERROR"
             return $false
         }
     }
     catch {
-        Write-Log "Error executing update command for $debtItemId`: $($_.Exception.Message)" -Level "ERROR"
+        Write-ProjectLog "Error executing update command for $debtItemId`: $($_.Exception.Message)" -Level "ERROR"
         return $false
     }
 }
 
 function Main {
-    Write-Log "Starting Technical Debt Assessment Integration - $ScriptName"
-    Write-Log "Assessment ID: $AssessmentId"
-    Write-Log "Assessment Directory: $AssessmentDirectory"
+    Write-ProjectLog "Starting Technical Debt Assessment Integration - $ScriptName"
+    Write-ProjectLog "Assessment ID: $AssessmentId"
+    Write-ProjectLog "Assessment Directory: $AssessmentDirectory"
 
     if ($DryRun) {
-        Write-Log "DRY RUN MODE - No changes will be made" -Level "WARN"
+        Write-ProjectLog "WHATIF PREVIEW MODE - No changes will be made" -Level "WARN"
     }
 
     if (-not (Test-Prerequisites)) {
@@ -339,17 +317,17 @@ function Main {
     $debtItems = Find-AssessmentDebtItems -AssessmentId $AssessmentId
 
     if ($debtItems.Count -eq 0) {
-        Write-Log "No debt items found for assessment $AssessmentId" -Level "WARN"
+        Write-ProjectLog "No debt items found for assessment $AssessmentId" -Level "WARN"
         exit 0
     }
 
-    Write-Log "Processing $($debtItems.Count) debt items..."
+    Write-ProjectLog "Processing $($debtItems.Count) debt items..."
 
     $successCount = 0
     $failureCount = 0
 
     foreach ($debtItem in $debtItems) {
-        if (Process-DebtItem -DebtItem $debtItem -AssessmentId $AssessmentId -DryRun $DryRun -Force $Force) {
+        if (Invoke-DebtItemProcessing -DebtItem $debtItem -AssessmentId $AssessmentId -DryRun $DryRun -Force $Force) {
             $successCount++
         }
         else {
@@ -357,15 +335,19 @@ function Main {
         }
     }
 
-    $dryNote = if ($DryRun) { " (DRY RUN — no changes written)" } else { "" }
+    $dryNote = if ($DryRun) { " (WhatIf preview — no changes written)" } else { "" }
     if ($failureCount -gt 0) {
-        Write-SummaryLine "$AssessmentId → $successCount items added, $failureCount failed$dryNote" -Level "ERROR"
+        Write-ProjectSummary "$AssessmentId → $successCount items added, $failureCount failed$dryNote" -Level "ERROR"
     } else {
-        Write-SummaryLine "$AssessmentId → $successCount items added$dryNote"
+        Write-ProjectSummary "$AssessmentId → $successCount items added$dryNote"
     }
 
     exit $(if ($failureCount -gt 0) { 1 } else { 0 })
 }
+
+# -DryRun replaced by standard -WhatIf (SupportsShouldProcess): ShouldProcess returning
+# $false (under -WhatIf) drives the existing dry-run preview path in Main.
+$DryRun = -not $PSCmdlet.ShouldProcess($AssessmentId, "Integrate technical-debt items into the tracking registry")
 
 # Execute main function
 Main

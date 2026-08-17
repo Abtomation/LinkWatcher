@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-028
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-009): TE-E2E-028 Validate Ignore Rules Suppress."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-013
 feature_ids: ["0.1.1", "2.1.1", "6.1.1"]
 workflow: WF-009

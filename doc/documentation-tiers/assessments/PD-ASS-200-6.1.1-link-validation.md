@@ -1,5 +1,6 @@
 ---
 id: PD-ASS-200
+description: "Documentation tier assessment for feature 6.1.1."
 type: Artifact
 category: Assessment
 version: 1.0

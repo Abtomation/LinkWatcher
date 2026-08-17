@@ -1,7 +1,36 @@
-# New-BugFixState.ps1
-# Creates a new Bug Fix State Tracking file for tracking multi-session complex bug fixes
-# Uses the central ID registry system and standardized document creation
-# Produced and consumed by Bug Fixing task (PF-TSK-007) for Large-effort bugs
+<#
+.SYNOPSIS
+Creates a new Bug Fix State Tracking file for a multi-session complex bug fix.
+
+.DESCRIPTION
+Uses the central ID registry system and standardized document creation.
+Produced and consumed by Bug Fixing task (PF-TSK-007) for Large-effort bugs.
+
+.PARAMETER BugId
+ID of the bug being fixed (e.g. "PD-BUG-042"). Stamped into the bug_id frontmatter field and the
+document body.
+
+.PARAMETER BugTitle
+Title of the bug. Drives the document title and the kebab-case filename.
+
+.PARAMETER Severity
+Bug severity. Valid values: "Critical", "High", "Medium" (default), "Low". Stamped into
+frontmatter and the body severity row.
+
+.PARAMETER AffectedFeature
+Feature ID the bug affects (e.g. "1.2.3"). Omitted leaves the template's placeholder.
+
+.PARAMETER EstimatedSessions
+Expected number of sessions the fix will span. Defaults to 2; this template is for Large-effort
+bugs, so values below 2 are unusual.
+
+.PARAMETER Dims
+Development dimension abbreviations relevant to the fix (e.g. "SE DI"). Valid abbreviations:
+AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI — see the Development Dimensions Guide.
+
+.PARAMETER OpenInEditor
+Opens the created state file in the configured editor after creation.
+#>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -35,14 +64,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the bug-fix-state-specific data, and the success report.
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
@@ -77,29 +101,24 @@ $customFileName = "bug-fix-state-$kebabBugId.md"
 
 # Build absolute template path (Phase 5.5: configurable via paths.process_framework)
 $processFrameworkDir = Get-ProcessFrameworkPath
-$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\06-maintenance\bug-fix-state-tracking-template.md"
+$templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates/06-maintenance/bug-fix-state-tracking-template.md"
 
-try {
-    $idDesc = "Bug fix state tracking for ${BugId}: ${BugTitle}"
-    $stContext = Get-StateTrackingContext
-    $outputDir = "$($stContext.StateTrackingRelative)/temporary"
-    $stateId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $BugTitle -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+$idDesc = "Bug fix state tracking for ${BugId}: ${BugTitle}"
+$stContext = Get-StateTrackingContext
+$outputDir = "$($stContext.StateTrackingRelative)/temporary"
+$stateId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PF-STA" -IdDescription $idDesc -DocumentName $BugTitle -OutputDirectory $outputDir -Replacements $customReplacements -Metadata $additionalMetadataFields -FileNamePattern $customFileName -Label "bug fix state tracking file" -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "",
-        "   Bug: $BugId — $BugTitle",
-        "   Severity: $Severity",
-        "   Estimated Sessions: $EstimatedSessions",
-        "Customization required — see Bug Fixing task (PF-TSK-007). Populate as you progress:",
-        "  1. Root Cause Analysis (after Step 9 investigation)",
-        "  2. Fix Approach (before Step 10 implementation)",
-        "  3. Implementation Progress (during Step 11)",
-        "  4. Validation Status (after Step 13 testing)",
-        "  5. Session Log (end of each session — Step 17)"
-    )
+$details = @(
+    "",
+    "   Bug: $BugId — $BugTitle",
+    "   Severity: $Severity",
+    "   Estimated Sessions: $EstimatedSessions",
+    "Customization required — see Bug Fixing task (PF-TSK-007). Populate as you progress:",
+    "  1. Root Cause Analysis (after Step 9 investigation)",
+    "  2. Fix Approach (before Step 10 implementation)",
+    "  3. Implementation Progress (during Step 11)",
+    "  4. Validation Status (after Step 13 testing)",
+    "  5. Session Log (end of each session — Step 17)"
+)
 
-    Write-ProjectSuccess -Message "Created bug fix state tracking file with ID: $stateId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create bug fix state tracking file: $($_.Exception.Message)" -ExitCode 1
-}
+Write-ProjectSuccess -Message "Created bug fix state tracking file with ID: $stateId" -Details $details

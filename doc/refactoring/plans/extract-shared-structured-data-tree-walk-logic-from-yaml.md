@@ -1,5 +1,6 @@
 ---
 id: PD-REF-165
+description: "Refactoring Plan: Extract shared structured-data tree-walk logic from YAML/JSON parsers."
 type: Document
 category: General
 version: 1.0

@@ -3,14 +3,14 @@
 id: PF-TEM-057
 type: Process Framework
 category: Template
-version: 1.3
+version: 1.7
 created: 2023-06-15
-updated: 2026-04-04
+updated: 2026-08-04
 
 # Document Creation Metadata
 template_for: TDD Tier 3 (Comprehensive Technical Design Document)
-creates_document_type: Technical Design Document
-creates_document_category: TDD Tier 3
+creates_document_type: Product Documentation
+creates_document_category: Technical Design Document
 creates_document_prefix: PD-TDD
 creates_document_version: 1.0
 
@@ -28,6 +28,7 @@ variant_group: tdd-templates
 variant_siblings:
   - tdd-t1-template.md
   - tdd-t2-template.md
+  - tdd-instruction-template.md
 ---
 
 # Technical Design Document: [Feature Name]
@@ -58,7 +59,7 @@ variant_siblings:
 
 ### 2.2 Quality Attribute Requirements
 
-> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this feature
+> **Reference**: Define quality attributes relevant to this feature
 
 #### Performance Requirements
 
@@ -186,19 +187,19 @@ class ExampleState:
         self._state[key] = value
 ```
 
-<!-- RETROSPECTIVE: For retrospective TDDs, sections 5–7 and 10 are cross-reference scaffolding.
+<!-- RETROSPECTIVE: For retrospective TDDs, sections 5–9 and 12 are cross-reference scaffolding.
      Simplify to a flat list of links to existing docs and remove subsections for documents that
      don't exist. The "Primary Documentation / Owner" scaffolding is for forward planning.
-     Section 8 (Quality Attribute Implementation): Reframe as "Observed Quality Characteristics"
+     Section 10 (Quality Attribute Implementation): Reframe as "Observed Quality Characteristics"
      describing actual implementation rather than planned targets.
-     Section 9 (Quality Measurement): Remove if no monitoring/metrics exist, or document
+     Section 11 (Quality Measurement): Remove if no monitoring/metrics exist, or document
      actual observed characteristics.
-     Section 11 (Implementation Plan): Reframe as "Implementation Notes" — describe what was
+     Section 13 (Implementation Plan): Reframe as "Implementation Notes" — describe what was
      built and actual dependencies, not future steps/timeline. -->
 
 ## 5. Functional Requirements Reference
 
-> **📋 Primary Documentation**: FDD Creation Task (PF-TSK-010)
+> **📋 Primary Documentation**: FDD Creation Task (PF-TSK-027)
 > **🔗 Link**: [Functional Design Document - PD-FDD-XXX] > **👤 Owner**: FDD Creation Task
 >
 > **Purpose**: This section provides a brief implementation-level perspective on functional requirements. Detailed user stories, use cases, business rules, and acceptance criteria are documented in the FDD.
@@ -223,34 +224,7 @@ class ExampleState:
 - [How functional requirements map to technical components]
 - [Key workflows and their technical implementation]
 
-## 6. API Specification Reference
-
-> **📋 Primary Documentation**: API Design Task (PF-TSK-020)
-> **🔗 Link**: [API Specification Document - PD-API-XXX] > **👤 Owner**: API Design Task
->
-> **Purpose**: This section provides a brief implementation-level perspective on API integration. Detailed API contracts, endpoint specifications, authentication patterns, and error handling are documented in the API Specification.
-
-### Implementation-Level API Notes
-
-<!-- Brief notes on implementation-level API concerns only (2-5 sentences) -->
-<!-- Focus on: how services integrate with APIs, implementation patterns for API consumption -->
-<!-- Examples:
-  - "Service layer consumes endpoints defined in API specification"
-  - "Authentication handled via configured auth mechanism in service layer"
-  - "Error responses from API mapped to user-friendly messages in UI layer"
--->
-
-**API Integration Approach**:
-
-- [Which APIs this feature integrates with]
-- [How services consume API endpoints]
-
-**Implementation Patterns**:
-
-- [Service layer patterns for API communication]
-- [Error handling and retry logic]
-
-## 7. Database Schema Reference
+## 6. Database Schema Reference
 
 > **📋 Primary Documentation**: Database Schema Design Task (PF-TSK-021)
 > **🔗 Link**: [Database Schema Design Document - PD-SCH-XXX] > **👤 Owner**: Database Schema Design Task
@@ -282,9 +256,83 @@ class ExampleState:
 - [Transaction boundaries and consistency requirements]
 - [Concurrency control approach]
 
-## 8. Quality Attribute Implementation
+## 7. API Specification Reference
 
-### 8.1 Performance Implementation
+> **📋 Primary Documentation**: API Design Task (PF-TSK-020)
+> **🔗 Link**: [API Specification Document - PD-API-XXX] > **👤 Owner**: API Design Task
+>
+> **Purpose**: This section provides a brief implementation-level perspective on API integration. Detailed API contracts, endpoint specifications, authentication patterns, and error handling are documented in the API Specification.
+
+### Implementation-Level API Notes
+
+<!-- Brief notes on implementation-level API concerns only (2-5 sentences) -->
+<!-- Focus on: how services integrate with APIs, implementation patterns for API consumption -->
+<!-- Examples:
+  - "Service layer consumes endpoints defined in API specification"
+  - "Authentication handled via configured auth mechanism in service layer"
+  - "Error responses from API mapped to user-friendly messages in UI layer"
+-->
+
+**API Integration Approach**:
+
+- [Which APIs this feature integrates with]
+- [How services consume API endpoints]
+
+**Implementation Patterns**:
+
+- [Service layer patterns for API communication]
+- [Error handling and retry logic]
+
+## 8. UI Design Reference
+
+> **📋 Primary Documentation**: UI Design Task (PF-TSK-090)
+> **🔗 Link**: [UI/UX Design Document - PD-UIX-XXX] > **👤 Owner**: UI Design Task
+>
+> **Purpose**: This section provides a brief implementation-level perspective on the UI design. Detailed wireframes, visual specifications, component definitions, accessibility requirements, and platform adaptations are documented in the UI Design document.
+
+### Implementation-Level UI Notes
+
+<!-- Brief notes on implementation-level UI concerns only (2-5 sentences) -->
+<!-- Focus on: how designed screens/components map to technical components, state and interaction patterns the design imposes -->
+<!-- Examples:
+  - "Widget tree implements the component hierarchy from the UI design"
+  - "Interaction states from the wireframes drive the state management design"
+  - "Accessibility requirements constrain component implementation choices"
+-->
+
+**UI Integration Approach**:
+
+- [Which screens/components from the UI design this feature implements]
+- [How visual specs and interaction patterns map to the component architecture]
+
+## 9. Instruction Design Reference
+
+<!-- Applies to a feature with an instruction dimension (medium `instruction` or `mixed`).
+Remove this section for a pure-code feature — and renumber the sections after it. -->
+
+> **📋 Primary Documentation**: Instruction Design Task (PF-TSK-094)
+> **🔗 Link**: [Instruction Design Document - PD-IND-XXX] > **👤 Owner**: Instruction Design Task
+>
+> **Purpose**: This section provides a brief implementation-level perspective on the feature's instruction artifacts. The Artifact Inventory, instruction contract, execution flow, and verification plan are documented in the Instruction Design document.
+
+### Implementation-Level Instruction Notes
+
+<!-- Brief notes on the code/instruction seam only (2-5 sentences) -->
+<!-- Focus on: which code this feature's instructions invoke, and which code consumes their output -->
+<!-- Examples:
+  - "The procedure invokes the feature's CLI entry point; exit codes drive its failure branch"
+  - "Instruction output is a markdown tracker the reporting module parses"
+  - "Fixture-based execution checks (Level 3) reuse the existing E2E harness"
+-->
+
+**Instruction Integration Approach**:
+
+- [Which instruction artifacts from the Instruction Design this feature ships, and their kinds]
+- [The seam: what the instructions invoke, and what code consumes their output]
+
+## 10. Quality Attribute Implementation
+
+### 10.1 Performance Implementation
 
 [Describe how the technical design achieves performance targets]
 
@@ -300,7 +348,7 @@ class ExampleState:
 
 [How the design supports scaling requirements]
 
-### 8.2 Security Implementation
+### 10.2 Security Implementation
 
 [Describe security measures implemented in the technical design]
 
@@ -316,7 +364,7 @@ class ExampleState:
 
 [Describe input validation and security measures]
 
-### 8.3 Reliability Implementation
+### 10.3 Reliability Implementation
 
 [Describe error handling, recovery mechanisms, and monitoring in the design]
 
@@ -332,7 +380,7 @@ class ExampleState:
 
 [How system health and performance are monitored]
 
-### 8.4 Usability Implementation
+### 10.4 Usability Implementation
 
 [Describe how the design ensures good user experience]
 
@@ -348,9 +396,9 @@ class ExampleState:
 
 [How loading states and error handling enhance user experience]
 
-## 9. Quality Measurement
+## 11. Quality Measurement
 
-### 9.1 Performance Monitoring
+### 11.1 Performance Monitoring
 
 [How performance will be measured and monitored for this feature]
 
@@ -362,7 +410,7 @@ class ExampleState:
 
 [Tools and methods used for performance monitoring]
 
-### 9.2 Security Validation
+### 11.2 Security Validation
 
 [How security requirements will be validated and monitored]
 
@@ -374,7 +422,7 @@ class ExampleState:
 
 [How compliance with security standards is verified]
 
-### 9.3 Reliability Monitoring
+### 11.3 Reliability Monitoring
 
 [How reliability and error rates will be monitored]
 
@@ -386,7 +434,7 @@ class ExampleState:
 
 [How errors and failures are tracked and analyzed]
 
-### 9.4 User Experience Metrics
+### 11.4 User Experience Metrics
 
 [How user experience will be measured and validated]
 
@@ -398,7 +446,7 @@ class ExampleState:
 
 [How accessibility compliance is verified]
 
-## 10. Testing Reference
+## 12. Testing Reference
 
 > **📋 Primary Documentation**: Test Specification Creation Task (PF-TSK-012)
 > **🔗 Link**: [Test Specification Document - PD-TST-XXX] > **👤 Owner**: Test Specification Creation Task
@@ -431,25 +479,25 @@ class ExampleState:
 - [Test data needs for this feature]
 - [Mock data and fixtures required]
 
-## 11. Implementation Plan
+## 13. Implementation Plan
 
-### 11.1 Dependencies
+### 13.1 Dependencies
 
 [List dependencies that must be implemented first]
 
-### 11.2 Implementation Steps
+### 13.2 Implementation Steps
 
 [List the steps to implement this feature]
 
-### 11.3 Timeline
+### 13.3 Timeline
 
 [Provide a rough timeline for implementation]
 
-## 12. Open Questions
+## 14. Open Questions
 
 [List any open questions or decisions that need to be made]
 
-## 13. AI Agent Session Handoff Notes
+## 15. AI Agent Session Handoff Notes
 
 This section maintains context between development sessions:
 
@@ -469,12 +517,12 @@ This section maintains context between development sessions:
 
 [Any issues or challenges encountered]
 
-## 13. Appendix
+## 16. Appendix
 
-### 13.1 References
+### 16.1 References
 
 [List any references or resources]
 
-### 13.2 Glossary
+### 16.2 Glossary
 
 [Define any terms or acronyms used in this document]

@@ -1,5 +1,6 @@
 ---
 id: PD-TDD-021
+description: "0.1.1 Tier 3 — Full architecture with component diagrams"
 type: Product Documentation
 category: Technical Design Document
 version: 1.0

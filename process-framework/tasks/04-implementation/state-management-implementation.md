@@ -4,11 +4,30 @@ type: Process Framework
 category: Task Definition
 version: 1.2
 created: 2025-12-13
-updated: 2026-05-16
+updated: 2026-06-12
 description: "Implement state management layer connecting data layer to UI layer"
+complexity: medium
+use_when: >-
+  Implement state management layer connecting data layer to UI layer
+automation: semi
+scripts:
+  - ../../scripts/file-creation/03-testing/New-TestFile.ps1
+trigger_status:
+  - raw: "Feature impl state file → prior task (PF-TSK-051) = `completed`"
+output_status:
+  - raw: "Feature impl state file → task = `completed`"
+next_tasks:
+  - task: ui-implementation.md
+    condition: "Implement UI components and screens that consume the state layer created in this task"
+  - task: integration-and-testing.md
+    condition: "Verify state layer integrates correctly with data and UI layers through comprehensive testing"
+  - task: core-logic-implementation.md
+    condition: "If using integrated mode, continue with general-purpose implementation"
 ---
 
 # State Management Implementation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -25,8 +44,6 @@ Implement the state management layer for a feature. This task creates the reacti
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/04-implementation/state-management-implementation-map.md)
-
 - **Critical (Must Read):**
 
   - **Feature Implementation State File** - The permanent state tracking document at `/doc/state-tracking/features/[feature-id]-implementation-state.md` containing implementation progress and context
@@ -38,14 +55,11 @@ Implement the state management layer for a feature. This task creates the reacti
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
   - [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Existing State Management Examples** - Similar state management implementations in codebase for pattern consistency
   - **Framework Documentation** - Official documentation for the state management framework specified in the TDD
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Update Feature Implementation State File throughout implementation.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -78,9 +92,8 @@ Implement the state management layer for a feature. This task creates the reacti
 
     ```powershell
     # Create test files using automation script (writes pytest markers)
-    cd process-framework/scripts/file-creation/03-testing
-    New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "StateContainers"
-    New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "StateDependencyInjection"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "StateContainers"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "StateDependencyInjection"
 
     # Script automatically:
     # - Writes pytest markers (feature, priority, test_type)
@@ -124,9 +137,7 @@ Implement the state management layer for a feature. This task creates the reacti
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] State model classes created following appropriate patterns
@@ -147,7 +158,17 @@ Before considering this task finished:
   - [ ] Proper async and error handling in place
   - [ ] State container naming follows project conventions
   - [ ] Code follows framework best practices as specified in TDD
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-056" and context "State Management Implementation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-056`, context "State Management Implementation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | State model classes, containers, mutation handlers | Manual | State management layer connecting data to UI |
+| **Creates** | State tests | `New-TestFile.ps1` | Unit and integration tests with pytest markers |
+| **Updates** | Feature Implementation State File | Manual | Code Inventory and Implementation Progress sections |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` (auto) | Automated test file registration |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` (auto) | Automated test status update |
 
 ## Next Tasks
 
@@ -155,7 +176,26 @@ Before considering this task finished:
 - [**Integration & Testing (PF-TSK-053)**](integration-and-testing.md) - Verify state layer integrates correctly with data and UI layers through comprehensive testing
 - [**Core Logic Implementation (PF-TSK-078)**](core-logic-implementation.md) - If using integrated mode, continue with general-purpose implementation
 
+<!-- merged from transition-registry entry: Implementation Tasks (group entry) -->
+### Prerequisites for Transition
+
+- [ ] Implementation complete according to design/requirements
+- [ ] Unit tests written and passing
+- [ ] Documentation updated
+- [ ] Feature Tracking updated with implementation status
+
+### Next Task Selection
+
+- **Always**: → Code Review
+
+### Preparation for Next Task
+
+1. Prepare code for review (clean commits, clear comments)
+2. Document any deviations from original design
+3. Ensure all tests are passing
+4. Prepare summary of implementation approach
+
 ## Related Resources
 
-- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
+- [Living-document maintenance craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/living-document-maintenance.md) - Maintaining the feature state file (replaces the retired Feature Implementation State Tracking Guide)
 - **TDD State Management Section** - Technology-specific patterns, framework references, and state container conventions for the feature

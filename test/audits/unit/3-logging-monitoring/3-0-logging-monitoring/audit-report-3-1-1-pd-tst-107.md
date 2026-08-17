@@ -1,5 +1,6 @@
 ---
 id: TE-TAR-008
+description: "Logging test quality assessment"
 type: Document
 category: General
 version: 1.0

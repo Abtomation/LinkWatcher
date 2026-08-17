@@ -19,10 +19,16 @@
     - Test type is auto-detected from report content, or can be specified via -TestType
 
 .PARAMETER ReportFile
-    Path to the audit report file to validate
+    Path to the audit report file to validate. A relative path is resolved against test/audits/
+    first (the convention used by the examples below), then against the project root, then against
+    the current directory — the first that exists wins. An absolute path is used as-is.
 
 .PARAMETER Detailed
     If specified, provides detailed validation output with specific issues
+
+.PARAMETER TestType
+    Which criteria set to validate the report against. Valid values: "Automated", "Performance",
+    "E2E". Omitted auto-detects the type from the report's content.
 
 .EXAMPLE
     Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md"
@@ -74,11 +80,21 @@ Invoke-StandardScriptInitialization
 $ProjectRoot = Get-ProjectRoot
 $auditsDir = Join-Path $ProjectRoot "test" "audits"
 
-# Resolve the report file path
-$reportPath = if ([System.IO.Path]::IsPathRooted($ReportFile)) {
-    $ReportFile
+# Resolve the report file path. A bare relative path is tried against test/audits/ first (the
+# documented convention used by the .EXAMPLE invocations), then against the project root and the
+# current directory, so a natural repo-root-relative path (e.g. test/audits/unit/foo.md) resolves
+# instead of doubling to test/audits/test/audits/... . First existing candidate wins; if none
+# exist, the audits-relative form is kept for a convention-consistent not-found message. (PF-IMP-1067)
+if ([System.IO.Path]::IsPathRooted($ReportFile)) {
+    $reportPath = $ReportFile
 } else {
-    Join-Path -Path $auditsDir -ChildPath $ReportFile
+    $candidates = @(
+        (Join-Path -Path $auditsDir -ChildPath $ReportFile)   # documented test/audits-relative convention
+        (Join-Path -Path $ProjectRoot -ChildPath $ReportFile) # repo-root-relative
+        $ReportFile                                           # current-directory-relative
+    )
+    $reportPath = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if (-not $reportPath) { $reportPath = $candidates[0] }
 }
 
 # Check if file exists
@@ -235,7 +251,10 @@ function Test-RequiredSections {
 function Test-TemplatePlaceholders {
     param($Content)
 
-    $placeholderPattern = '\[([A-Z_][A-Z0-9_]*)\]'
+    # Require >= 2 chars (A-Z0-9_ after the first) so genuine multi-character placeholders like
+    # [FEATURE_ID] / [DATE] are flagged, while single-letter bracketed tokens such as the [N] in a
+    # code-span array index (e.g. `parents[N]`) are not — those are never template fields. (PF-IMP-1224)
+    $placeholderPattern = '\[([A-Z_][A-Z0-9_]+)\]'
     $placeholders = [regex]::Matches($Content, $placeholderPattern) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
 
     if ($placeholders.Count -gt 0) {

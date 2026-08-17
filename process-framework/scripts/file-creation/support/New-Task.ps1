@@ -1,41 +1,70 @@
 # New-Task.ps1
 # Creates a new task document with an automatically assigned ID
-# Uses the central ID registry system and standardized document creation
 
 <#
 .SYNOPSIS
-Creates a new task definition document with an automatically assigned PF-TSK ID.
+Creates a new task definition document with an automatically assigned task ID from the workspace's declared artifact family (PF-TSK at appdev, FB-TSK at FB — PF-PRO-068 P-12a).
 
 .DESCRIPTION
-Generates a new task definition file from the task template under process-framework/tasks/<workflow-phase>/. Updates the PF-id-registry and ai-tasks.md task registry. (PF-documentation-map.md is generated separately by Build-DocumentationMap.ps1.)
+Generates a new task definition file from the task template under
+process-framework/tasks/<workflow-phase>/, seeds the PF-PRO-042 task-metadata
+frontmatter (use_when, complexity/frequency, automation, description), then
+regenerates the task-metadata projections so the new task appears in ai-tasks.md,
+both infrastructure registries, and the tasks/README catalog.
+
+The task file's frontmatter + authored sections are the single source of truth
+(PF-IMP-1134): this script no longer hand-inserts rows into ai-tasks.md, the
+registries, or tasks/README — those are generated views produced by
+Build-TaskMetadata.ps1. (PF-documentation-map.md is generated separately by
+Build-DocumentationMap.ps1, as for every other New-* script.)
+
+The script seeds only the scalar routing fields. The nested list/map fields
+(triggers, scripts, trigger_status, output_status, next_tasks) and the body
+sections (File Operations, the Next Tasks transition subsections) are documented
+in the template's schema comment and filled during customization — re-run
+Build-TaskMetadata.ps1 afterward to refresh the projections.
 
 .PARAMETER TaskName
-Human-readable name for the task. Used as the document title and converted to kebab-case for the filename.
+Human-readable name for the task. Used as the document title and converted to
+kebab-case for the filename.
 
 .PARAMETER Description
-Optional 1-2 sentence description of the task's purpose. Replaces the template's purpose placeholder.
+Optional 1-2 sentence description of the task's purpose. Becomes the `description:`
+frontmatter (drives PF-documentation-map.md) and, absent -UseWhen, the initial
+Use When routing text.
 
 .PARAMETER WorkflowPhase
-Which workflow phase the task belongs to. Determines the subdirectory under process-framework/tasks/. Allowed values:
-  - 00-setup
-  - 01-planning (default)
-  - 02-design
-  - 03-testing
-  - 04-implementation
-  - 05-validation
-  - 06-maintenance
-  - 07-deployment
-  - support
-  - cyclical
+Which workflow phase the task belongs to. Determines the subdirectory under
+process-framework/tasks/ and the per-category metadata rules. The valid values are the
+workspace's own task-pool directory types as declared in its ID registry (PF-PRO-068 E2:
+level differences are data, never hardcoded lists) — at appdev the ten domain phases
+(00-setup … 07-deployment, support, cyclical), at FB only 'support'. Omitted, the phase
+falls back to the registry's declared default ('01-planning' at appdev, 'support' at FB).
+An undeclared phase is refused naming the declared set.
+
+.PARAMETER Complexity
+Task complexity for the Complexity column (simple|medium|complex; default medium).
+Omitted for support tasks (their table has no Complexity column).
+
+.PARAMETER Automation
+Automation status (full|semi|partial|manual; default manual — new tasks start
+manual until their scripts are wired during customization).
+
+.PARAMETER UseWhen
+Explicit Use When routing text. Defaults to -Description, or a placeholder.
+
+.PARAMETER Frequency
+Frequency text for cyclical tasks (renders the Frequency column; default "As needed").
+Ignored for non-cyclical phases.
 
 .PARAMETER OpenInEditor
 Open the created file in the default editor after creation.
 
 .EXAMPLE
-.\New-Task.ps1 -TaskName "Database Migration Review" -WorkflowPhase "06-maintenance" -Description "Review pending DB migrations before deployment"
+New-Task.ps1 -TaskName "Database Migration Review" -WorkflowPhase "06-maintenance" -Complexity medium -Description "Review pending DB migrations before deployment"
 
 .EXAMPLE
-.\New-Task.ps1 -TaskName "API Endpoint Design" -WorkflowPhase "02-design"
+New-Task.ps1 -TaskName "Cache Warmup" -WorkflowPhase "cyclical" -Frequency "Before each release"
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
@@ -46,73 +75,96 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$Description = "",
 
+    # No static ValidateSet: the valid phases are per-workspace registry data (PF-PRO-068 E2) —
+    # a hardcoded ten-member set threw at FB on the default invocation and 9 of 10 phases.
+    # Validated in-body against the task pool's declared directory types; '' = registry default.
     [Parameter(Mandatory = $false)]
-    [ValidateSet("00-setup", "01-planning", "02-design", "03-testing", "04-implementation", "05-validation", "06-maintenance", "07-deployment", "support", "cyclical")]
-    [string]$WorkflowPhase = "01-planning",
+    [string]$WorkflowPhase = "",
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("simple", "medium", "complex")]
+    [string]$Complexity = "medium",
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("full", "semi", "partial", "manual")]
+    [string]$Automation = "manual",
+
+    [Parameter(Mandatory = $false)]
+    [string]$UseWhen = "",
+
+    [Parameter(Mandatory = $false)]
+    [string]$Frequency = "",
 
     [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
-# Import the common helpers
+# Import the common helpers + the ID registry module (Get-PrefixDirectories / Get-PrefixInfo
+# for the registry-driven phase validation below — IdRegistry is a sibling top-level module,
+# not re-exported by the umbrella).
 $dir = $PSScriptRoot
 while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+Import-Module (Join-Path $dir "IdRegistry.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script keeps
+# its data, its bespoke post-creation task-metadata regeneration, and its own output — inline.
 
+# Metadata values are passed raw — the shared frontmatter writer makes every string metadata
+# value YAML-safe itself (ConvertTo-YamlSafeScalar, PF-IMP-1413; caller-side pre-quoting
+# removed per PF-IMP-1524).
 
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
-
-# Helper: pad table row cells to match separator line column widths
-function Format-AlignedTableRow {
-    param(
-        [string[]]$FileLines,
-        [int]$TableHeaderIndex,
-        [string[]]$Cells
-    )
-    # Separator line is immediately after the header
-    $separatorLine = $FileLines[$TableHeaderIndex + 1]
-    # Extract column widths from separator segments (e.g., "| ---- | ---------- |")
-    $segments = $separatorLine -split '\|'
-    # Skip first/last empty segments from leading/trailing pipe
-    $colWidths = @()
-    foreach ($seg in $segments) {
-        $trimmed = $seg.Trim()
-        if ($trimmed -match '^-+$') {
-            $colWidths += $seg.Length  # preserve original spacing including surrounding spaces
-        }
-    }
-    # Build padded row
-    $paddedCells = @()
-    for ($c = 0; $c -lt $Cells.Count; $c++) {
-        if ($c -lt $colWidths.Count) {
-            $targetWidth = $colWidths[$c] - 2  # subtract 2 for the surrounding spaces
-            $cell = $Cells[$c]
-            if ($cell.Length -lt $targetWidth) {
-                $cell = $cell + (' ' * ($targetWidth - $cell.Length))
-            }
-            $paddedCells += " $cell "
-        } else {
-            $paddedCells += " $($Cells[$c]) "
-        }
-    }
-    return "|" + ($paddedCells -join '|') + "|"
-}
-
-# Prepare custom replacements
+# Title + purpose replacements applied to the template body
+$purposeText = if ($Description -ne "") { $Description } else { "Task for $TaskName" }
 $customReplacements = @{
     "# [Task Name]"                                                                       = "# $TaskName"
-    "[1-2 sentences explaining the task's purpose and importance in the overall process]" = if ($Description -ne "") { $Description } else { "Task for $TaskName" }
+    "[1-2 sentences explaining the task's purpose and importance in the overall process]" = $purposeText
 }
 
-# Create the document using standardized process
+# Initial Use When routing text (human refines during customization)
+$useWhenText = if ($UseWhen -ne "") { $UseWhen } elseif ($Description -ne "") { $Description } else { "When working on $TaskName" }
+
+# P-12a (PF-PRO-068): the shipped-pool family is the workspace's declared artifact_prefix
+# ('PF' at appdev, 'FB' at FB). Resolved, never hardcoded — a leaf role throws here by
+# contract (task creation is a support task; leaves author no shipped framework artifacts).
+$artifactFamily = Get-ArtifactPrefix
+
+# Registry-driven workflow phases (PF-PRO-068 E2 FB live-break fix): the valid phases are the
+# workspace's own task-pool directory types as declared in its ID registry — never a hardcoded
+# list (the former static ValidateSet threw at FB on the default invocation and 9 of 10
+# phases). 'main' (the tasks/ catalog root) and the 'default' alias are bookkeeping keys, not
+# phases. No -WorkflowPhase → the registry's declared default ('01-planning' at appdev,
+# 'support' at FB). Runs before any side effect, so an undeclared phase refuses cleanly.
+$taskPrefix = "$artifactFamily-TSK"
+$declaredPhases = @(Get-PrefixDirectories -Prefix $taskPrefix -ListTypes | Where-Object { $_ -ne 'main' })
+if ($WorkflowPhase -eq "") {
+    $WorkflowPhase = (Get-PrefixInfo -Prefix $taskPrefix).directories.default
+    if (-not $WorkflowPhase) {
+        throw "The $taskPrefix registry entry declares no 'default' directory type — pass -WorkflowPhase explicitly. Declared phases: $($declaredPhases -join ', ')."
+    }
+} elseif ($WorkflowPhase -notin $declaredPhases) {
+    throw "WorkflowPhase '$WorkflowPhase' is not declared for $taskPrefix in this workspace's ID registry. Declared phases: $($declaredPhases -join ', ')."
+}
+
+# Scalar task-metadata frontmatter fields (PF-PRO-042). Nested list/map fields are left
+# to customization per the template schema comment. Per-category rules: support omits
+# complexity; cyclical uses frequency instead.
+$metadataFields = @{
+    domain      = "agnostic"
+    description = $purposeText
+    use_when    = $useWhenText
+    automation  = $Automation
+}
+if ($WorkflowPhase -eq "cyclical") {
+    $freqText = if ($Frequency -ne "") { $Frequency } else { "As needed" }
+    $metadataFields["frequency"] = $freqText
+} elseif ($WorkflowPhase -ne "support") {
+    $metadataFields["complexity"] = $Complexity
+}
+
 # Build absolute template path (config-driven; honors paths.process_framework in project-config.json)
 $processFrameworkDir = Get-ProcessFrameworkPath
 $templatePath = Join-Path -Path $processFrameworkDir -ChildPath "templates\support\task-template.md"
@@ -123,291 +175,52 @@ try {
     if ($taskDocName -notmatch '(?i)[-\s]task$') {
         $taskDocName = "$taskDocName-task"
     }
-    # IMP-438: Compute kebab filename once and reuse across all update sections
+    # IMP-438: Compute kebab filename once for the created-path resolution below
     $kebabFileName = ConvertTo-KebabCase -InputString $taskDocName
 
-    $taskId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-TSK" -IdDescription "$WorkflowPhase task: ${TaskName}" -DocumentName $taskDocName -DirectoryType $WorkflowPhase -Replacements $customReplacements -OpenInEditor:$OpenInEditor
+    # $artifactFamily resolved above (with the registry-driven phase validation).
+    $taskId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "$artifactFamily-TSK" `
+        -IdDescription "$WorkflowPhase task: ${TaskName}" -DocumentName $taskDocName `
+        -DirectoryType $WorkflowPhase -Replacements $customReplacements `
+        -Metadata $metadataFields -Label "task" -OpenInEditor:$OpenInEditor
 
     Write-Verbose "Created task with ID: $taskId"
 
-    # PF-documentation-map.md is generated from each task's `description:` frontmatter
-    # by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
-
-    # Update the tasks README
-    $tasksReadmePath = Join-Path -Path $processFrameworkDir -ChildPath "tasks\README.md"
-    if (Test-Path $tasksReadmePath) {
-        if ($PSCmdlet.ShouldProcess("Update tasks README with new task")) {
-            $tasksReadme = Get-Content -Path $tasksReadmePath
-
-            # Map workflow phase to tasks/README.md section header
-            $phaseToReadmeSection = @{
-                "00-setup"          = "### 00 - Setup Tasks"
-                "01-planning"       = "### 01 - Planning Tasks"
-                "02-design"         = "### 02 - Design Tasks"
-                "03-testing"        = "### 03 - Testing Tasks"
-                "04-implementation" = "### 04 - Implementation Tasks"
-                "05-validation"     = "### 05 - Validation Tasks"
-                "06-maintenance"    = "### 06 - Maintenance Tasks"
-                "07-deployment"     = "### 07 - Deployment Tasks"
-                "support"           = "### Support Tasks"
-                "cyclical"          = "### Cyclical Tasks"
-            }
-            $sectionHeader = $phaseToReadmeSection[$WorkflowPhase]
-            if (-not $sectionHeader) {
-                Write-Warning "Unknown workflow phase '$WorkflowPhase' for tasks README. Manual update required."
-                return
-            }
-
-            $sectionIndex = $tasksReadme.IndexOf($sectionHeader)
-
-            if ($sectionIndex -ge 0) {
-                $tableStartIndex = $sectionIndex
-                for ($i = $sectionIndex; $i -lt $tasksReadme.Length; $i++) {
-                    if ($tasksReadme[$i] -match "^\| Task.*\| Description.*\| When to Use.*\|$") {
-                        $tableStartIndex = $i
-                        break
-                    }
-                }
-
-                if ($tableStartIndex -gt $sectionIndex) {
-                    $cells = @(
-                        "[$TaskName]($WorkflowPhase/$kebabFileName.md)",
-                        $Description,
-                        "When working on $TaskName"
-                    )
-                    $newEntry = Format-AlignedTableRow -FileLines $tasksReadme -TableHeaderIndex $tableStartIndex -Cells $cells
-                    $tasksReadme = $tasksReadme[0..($tableStartIndex + 1)] + $newEntry + $tasksReadme[($tableStartIndex + 2)..($tasksReadme.Length - 1)]
-                    $tasksReadme | Set-Content -Path $tasksReadmePath
-                    Write-Verbose "Updated tasks README with new task"
-                }
-                else {
-                    Write-Warning "Could not find table in section '$sectionHeader' in tasks README. Manual update required."
-                }
-            }
-            else {
-                Write-Warning "Could not find section '$sectionHeader' in tasks README. Manual update required."
-            }
-        }
-    }
-
-    # Update the AI Tasks main entry point
-    $aiTasksPath = Join-Path -Path (Get-ProcessFrameworkPath) -ChildPath "ai-tasks.md"
-    if (Test-Path $aiTasksPath) {
-        if ($PSCmdlet.ShouldProcess("Update AI Tasks main entry point with new task")) {
-            $aiTasks = Get-Content -Path $aiTasksPath
-
-            # Validate process-framework/ai-tasks.md structure matches script expectations
-            $expectedSections = @(
-                "### 🎓 00 - Setup Tasks",
-                "### 📋 01 - Planning Tasks",
-                "### 🎨 02 - Design Tasks",
-                "### 🧪 03 - Testing Tasks",
-                "### ⚙️ 04 - Implementation Tasks",
-                "### ✅ 05 - Validation Tasks",
-                "### 🔧 06 - Maintenance Tasks",
-                "### 🚀 07 - Deployment Tasks",
-                "### 🔧 Support Tasks"
-            )
-
-            $missingSections = @()
-            foreach ($section in $expectedSections) {
-                if ($aiTasks -notcontains $section) {
-                    $missingSections += $section
-                }
-            }
-
-            if ($missingSections.Count -gt 0) {
-                Write-Error "❌ STRUCTURE MISMATCH DETECTED in ai-tasks.md"
-                Write-Error ""
-                Write-Error "The following expected section headers are missing:"
-                foreach ($missing in $missingSections) {
-                    Write-Error "  - $missing"
-                }
-                Write-Error ""
-                Write-Error "This script expects ai-tasks.md to use category-based section headers."
-                Write-Error "The file structure has likely changed. Please update the script's"
-                Write-Error "category-to-section mapping at line ~126 to match the current structure."
-                Write-Error ""
-                Write-Error "Script location: $PSCommandPath"
-                Write-Error "Target file: $aiTasksPath"
-                throw "ai-tasks.md structure validation failed. Cannot proceed with task creation."
-            }
-
-            Write-Verbose "✓ ai-tasks.md structure validation passed"
-
-            # Determine the section header based on category
-            # PF-IMP-886: relative path from ai-tasks.md (which lives at <process-framework-root>/ai-tasks.md)
-            # to the task file. Previously emitted "/process-framework/tasks/..." (absolute-from-host)
-            # which breaks post-Phase-5.5 in appdev cwd (framework lives under blueprint/process-framework/).
-            $relativePath = "tasks/$WorkflowPhase/$kebabFileName.md"
-
-            # Map workflow phase to section header (process-framework/ai-tasks.md uses phase-based sections)
-            $phaseToSection = @{
-                "00-setup" = "### 🎓 00 - Setup Tasks"
-                "01-planning" = "### 📋 01 - Planning Tasks"
-                "02-design" = "### 🎨 02 - Design Tasks"
-                "03-testing" = "### 🧪 03 - Testing Tasks"
-                "04-implementation" = "### ⚙️ 04 - Implementation Tasks"
-                "05-validation" = "### ✅ 05 - Validation Tasks"
-                "06-maintenance" = "### 🔧 06 - Maintenance Tasks"
-                "07-deployment" = "### 🚀 07 - Deployment Tasks"
-                "support" = "### 🔧 Support Tasks"
-            }
-
-            $sectionHeader = $phaseToSection[$WorkflowPhase]
-            if (-not $sectionHeader) {
-                Write-Warning "Unknown workflow phase '$WorkflowPhase'. Cannot determine section header. Manual update required."
-                return
-            }
-
-            $useWhen = if ($Description -ne "") { $Description } else { "When working on $TaskName" }
-            if ($WorkflowPhase -eq "support") {
-                $tableHeaderPattern = "^\| Task.*\| Use When.*\| Link.*\|$"
-                $cells = @("**$TaskName**", $useWhen, "[→ Definition]($relativePath)")
+    # Regenerate the task-metadata projections from the new task's frontmatter.
+    # Replaces the former hand-rolled insertion into ai-tasks.md / registries / README,
+    # which are now generated views (PF-IMP-1134). Run as a child process: the generator
+    # calls `exit`, which would otherwise terminate this script. -WhatIf skips both the
+    # creation above and this regeneration (nothing was created to project).
+    $generator = Join-Path -Path $processFrameworkDir -ChildPath "scripts/validation/Build-TaskMetadata.ps1"
+    if ($PSCmdlet.ShouldProcess("ai-tasks.md, both infrastructure registries, tasks/README", "Regenerate task-metadata projections")) {
+        if (Test-Path $generator) {
+            & pwsh.exe -NoProfile -ExecutionPolicy Bypass -File $generator -FrameworkRoot $processFrameworkDir
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Build-TaskMetadata.ps1 exited $LASTEXITCODE. Review the new task's frontmatter (YAML validity / required fields) and regenerate manually: Build-TaskMetadata.ps1"
             } else {
-                $tableHeaderPattern = "^\| Task.*\| Use When.*\| Complexity.*\| Link.*\|$"
-                $cells = @("**$TaskName**", $useWhen, "🟡 Medium", "[→ Definition]($relativePath)")
+                Write-Verbose "Task-metadata projections regenerated."
             }
-
-            $sectionIndex = $aiTasks.IndexOf($sectionHeader)
-
-            if ($sectionIndex -ge 0) {
-                $tableStartIndex = $sectionIndex
-                for ($i = $sectionIndex; $i -lt $aiTasks.Length; $i++) {
-                    if ($aiTasks[$i] -match $tableHeaderPattern) {
-                        $tableStartIndex = $i
-                        break
-                    }
-                }
-
-                if ($tableStartIndex -gt $sectionIndex) {
-                    # Insert after the separator line (which is after the header)
-                    $insertIndex = $tableStartIndex + 2
-                    $newEntry = Format-AlignedTableRow -FileLines $aiTasks -TableHeaderIndex $tableStartIndex -Cells $cells
-                    $aiTasks = $aiTasks[0..($insertIndex - 1)] + $newEntry + $aiTasks[$insertIndex..($aiTasks.Length - 1)]
-                    $aiTasks | Set-Content -Path $aiTasksPath
-                    Write-Verbose "Updated AI Tasks main entry point with new task"
-                }
-                else {
-                    Write-Warning "Could not find table in section '$sectionHeader' in AI Tasks file. Manual update required."
-                }
-            }
-            else {
-                Write-Warning "Could not find section '$sectionHeader' in AI Tasks file. Manual update required."
-            }
-        }
-    }
-    else {
-        Write-Warning "AI Tasks file not found at $aiTasksPath. Manual update required."
-    }
-
-    # Update the Process Framework Task Registry
-    $registryPath = Join-Path -Path $processFrameworkDir -ChildPath "infrastructure/process-framework-task-registry.md"
-    if (Test-Path $registryPath) {
-        if ($PSCmdlet.ShouldProcess("Update task registry with new task")) {
-            $registry = Get-Content -Path $registryPath -Encoding UTF8
-
-            # Map workflow phase to registry section header and entry prefix
-            $phaseToRegistry = @{
-                "00-setup"          = @{ Section = "### **SETUP TASKS**";      Prefix = "S" }
-                "01-planning"       = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
-                "02-design"         = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
-                "03-testing"        = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
-                "04-implementation" = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
-                "05-validation"     = @{ Section = "### **VALIDATION TASKS**"; Prefix = "V" }
-                "06-maintenance"    = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
-                "07-deployment"     = @{ Section = "### **DISCRETE TASKS**";   Prefix = "" }
-                "support"           = @{ Section = "### **SUPPORT TASKS**";    Prefix = "" }
-                "cyclical"          = @{ Section = "### **CYCLICAL TASKS**";   Prefix = "" }
-            }
-
-            $registryInfo = $phaseToRegistry[$WorkflowPhase]
-            if ($registryInfo) {
-                $sectionHeader = $registryInfo.Section
-                $entryPrefix = $registryInfo.Prefix
-
-                # Find section boundaries
-                $sectionStart = -1
-                $sectionEnd = $registry.Length - 1
-                for ($i = 0; $i -lt $registry.Length; $i++) {
-                    if ($registry[$i] -eq $sectionHeader) {
-                        $sectionStart = $i
-                    } elseif ($sectionStart -ge 0 -and $i -gt $sectionStart -and $registry[$i] -match '^### \*\*') {
-                        $sectionEnd = $i - 1
-                        break
-                    }
-                }
-
-                if ($sectionStart -ge 0) {
-                    # Find the highest entry number in this section
-                    $maxNum = 0
-                    for ($i = $sectionStart; $i -le $sectionEnd; $i++) {
-                        if ($registry[$i] -match "^#### \*\*${entryPrefix}(\d+)") {
-                            $num = [int]$matches[1]
-                            if ($num -gt $maxNum) { $maxNum = $num }
-                        }
-                    }
-                    $nextNum = $maxNum + 1
-
-                    $relPath = "../tasks/$WorkflowPhase/$kebabFileName.md"
-
-                    # Build skeleton entry
-                    $skeleton = @(
-                        ""
-                        "#### **${entryPrefix}${nextNum}. ${TaskName}** ([$taskId]($relPath))"
-                        ""
-                        "**`u{1F527} Process Type:** `u{1F527} **Manual** (Newly created — customize after task definition is complete)"
-                        ""
-                        "**`u{1F4CB} AUTOMATION DETAILS**"
-                        ""
-                        "- **Script:** _None — update after task customization_"
-                        "- **Output Directory:** _TBD_"
-                        ""
-                        "**`u{1F4C1} FILE OPERATIONS**"
-                        "| Operation | File Path | Update Method | Details |"
-                        "|-----------|-----------|---------------|---------|"
-                        "| _TBD_ | _Update after task customization_ | _TBD_ | _TBD_ |"
-                        ""
-                        "**`u{1F3AF} KEY IMPACTS**"
-                        ""
-                        "- **Primary output:** _Update after task customization_"
-                        "- **Enables next steps:** _TBD_"
-                        "- **Dependencies:** _TBD_"
-                    )
-
-                    # Insert before the next section (at sectionEnd + 1) or at the end of this section
-                    $insertAt = $sectionEnd + 1
-                    $registry = $registry[0..($insertAt - 1)] + $skeleton + $registry[$insertAt..($registry.Length - 1)]
-                    $registry | Set-Content -Path $registryPath -Encoding UTF8
-                    Write-Verbose "Updated task registry with skeleton entry"
-                } else {
-                    Write-Warning "Could not find section '$sectionHeader' in task registry. Manual update required."
-                }
-            } else {
-                Write-Warning "Unknown workflow phase '$WorkflowPhase' for task registry mapping. Manual update required."
-            }
+        } else {
+            Write-Warning "Build-TaskMetadata.ps1 not found at $generator. Regenerate the task-metadata projections manually."
         }
     }
 
-    # Display next steps guidance
-    Write-Host ""
-    Write-Host "🚨 MANDATORY NEXT STEP: Task Creation Guide Review Required" -ForegroundColor Red
-    Write-Host "   You MUST consult the Task Creation Guide before proceeding with customization." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "📖 REQUIRED READING:" -ForegroundColor Cyan
-    Write-Host "process-framework/guides/support/task-creation-guide.md" -ForegroundColor White
-    Write-Host "   Focus on: 'Phase 2: Content Customization' section" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "⚠️  The created file is only a structural framework - it requires extensive" -ForegroundColor Yellow
-    Write-Host "   customization following the guide's instructions to become functional." -ForegroundColor Yellow
-    Write-Host ""
-
-    if (-not $OpenInEditor) {
-        Write-Verbose "Task created successfully with automatic updates to:"
-        Write-Verbose "  - Tasks README"
-        Write-Verbose "  - AI Tasks main entry point"
-        Write-Verbose "  - Process Framework Task Registry"
-        Write-Verbose "Edit the file to complete the task documentation."
+    # Display next steps guidance (real creation only; -WhatIf short-circuits $taskId to $null)
+    if ($taskId) {
+        Write-Host ""
+        Write-Host "Created task '$TaskName' ($taskId) at tasks/$WorkflowPhase/$kebabFileName.md" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "MANDATORY NEXT STEP: apply the task-creation craft skill" -ForegroundColor Red
+        Write-Host "   You MUST apply the task-creation craft skill before customizing." -ForegroundColor Yellow
+        Write-Host "   .claude/skills/task-creation/SKILL.md (the two-phase model)" -ForegroundColor White
+        Write-Host ""
+        Write-Host "The new task is a STARTING POINT. During customization, fill in (per the" -ForegroundColor Yellow
+        Write-Host "template's TASK METADATA SCHEMA comment): the nested frontmatter fields" -ForegroundColor Yellow
+        Write-Host "(triggers, scripts, trigger_status, output_status, next_tasks) and the body" -ForegroundColor Yellow
+        Write-Host "sections (File Operations, the Next Tasks transition subsections). Then re-run:" -ForegroundColor Yellow
+        Write-Host "   Build-TaskMetadata.ps1   (refreshes ai-tasks.md / registries / README)" -ForegroundColor White
+        Write-Host "   Build-DocumentationMap.ps1   (refreshes PF-documentation-map.md)" -ForegroundColor White
+        Write-Host ""
     }
 }
 catch {

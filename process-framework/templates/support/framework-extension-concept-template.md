@@ -1,8 +1,8 @@
 ---
-id: [DOCUMENT_ID]
+id: PF-TEM-032
 type: Process Framework
 category: Proposal
-version: 1.4
+version: 1.5
 created: [Created Date]
 updated: [Created Date]
 extension_name: [Extension Name]
@@ -13,6 +13,9 @@ variant_siblings:
   - framework-extension-concept-creation-template.md
   - framework-extension-concept-modification-template.md
   - framework-extension-concept-minimal-template.md
+  - framework-extension-concept-pattern-template.md
+creates_document_type: Process Framework
+creates_document_category: Proposal
 description: "Template for creating framework extension concept documents (Hybrid type; also used as base)"
 ---
 
@@ -212,7 +215,7 @@ This framework extension should be used when:
 
 For each new state file:
 
-- [ ] **Locality decision**: Is this file **project-local** (lives in `process-framework-central/state-tracking/` for framework-management work in appdev, `doc/state-tracking/` for product-project work) or **shareable across projects** (lives in `process-framework/state-tracking/` — rolled out with the framework)?
+- [ ] **Locality decision**: Is this file **project-local** (lives in `process-framework-central/state-tracking` for framework-management work in appdev, `doc/state-tracking` for product-project work) or **shareable across projects** (lives in `process-framework/state-tracking` — rolled out with the framework)?
 - [ ] **ID prefix match**: Does the assigned ID prefix's `directories` block in the relevant registry match that locality? Verify against the proposed file location.
 - [ ] **Registry update**: If no existing prefix matches, add a new prefix to the appropriate registry **before** assigning IDs (do not assign and migrate later).
 
@@ -280,7 +283,7 @@ Common prefixes:
 |-----------|---------|--------------|
 | [Task 1] | [Purpose] | [Dependencies] |
 | [Task 2] | [Purpose] | [Dependencies] |
-| [Task 3] | [Type] | [Purpose] | [Dependencies] |
+| [Task 3] | [Purpose] | [Dependencies] |
 
 > **Design checklist** — verify for each task listed above:
 > - [ ] **Trigger**: What specific event, state, or condition triggers this task?
@@ -304,8 +307,8 @@ Common prefixes:
 | [Point 3] | [Component 3] | [Method 3] |
 
 > **Framework integration reminder** — after implementation, update these core framework files:
-> - **ai-tasks.md**: Register new tasks in the main task registry
-> - **Documentation maps**: Add new artifacts to the appropriate map (`PF-documentation-map.md` for process framework, `doc/PD-documentation-map.md` for product, `test/TE-documentation-map.md` for test)
+> - **ai-tasks.md / both registries / tasks/README**: generated projections (PF-PRO-042) — register a new task by filling its frontmatter + `## File Operations` + `## Next Tasks` subsections and running `Build-TaskMetadata.ps1`, not by hand-editing these views
+> - **Documentation maps**: Regenerate the appropriate map — all generated, DO-NOT-EDIT projections (PF-PRO-037 / PF-PRO-050): `Build-DocumentationMap.ps1` (process framework, `PF-documentation-map.md`), `… -Tree PD` (product, `doc/PD-documentation-map.md`), `… -Tree TE` (test, `test/TE-documentation-map.md`); never hand-edit. New artifacts appear once they carry a `.SYNOPSIS` / `description:` frontmatter / `metadata.description`
 > - **ID registries**: Add new ID prefixes to the appropriate registry (PF/PD/TE-id-registry.json) if the extension creates new file types
 
 ### Multi-Session Implementation Plan
@@ -397,11 +400,11 @@ Common prefixes:
 ### Approval Decision
 - [ ] **APPROVED**: Concept is approved for implementation
 - [ ] **NEEDS REVISION**: Concept needs changes before approval
-- [ ] **REJECTED**: Concept is not suitable for framework extension
+- [ ] **NOT ADOPTED**: Declined on current evidence — record falsifiable re-open conditions in the concept and archive it to proposals/old/ as the evaluation record
 
 **Human Reviewer**: [Name]
 **Review Date**: [Date]
-**Decision**: [APPROVED/NEEDS REVISION/REJECTED]
+**Decision**: [APPROVED/NEEDS REVISION/NOT ADOPTED]
 **Comments**: [Review comments and feedback]
 
 ---

@@ -23,138 +23,56 @@ $PSDefaultParameterValues['*:Encoding'] = 'UTF8'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
 
-# Global variables for cached paths
-$script:ProjectRoot = $null
+# The shared resolution leaf module. Project root, declared role, the config read, the framework
+# faces, the parent-pointer chain walk and central resolution have ONE implementation, there —
+# Core re-exports them below, so this module's public surface is unchanged (PF-PRO-068 E4-g,
+# closing PF-EVR-036 F4/F7/F8; before it, each of those existed twice, here and in IdRegistry).
+# Imported at the top of the file so it lands in THIS module's session state and Core's own
+# function bodies can call it (Script Development Quick Reference, "Sub-Module Function Scoping").
+$script:WorkspaceResolutionPath = Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "WorkspaceResolution.psm1"
+Import-Module $script:WorkspaceResolutionPath -Force
+
+# Global variables for cached paths. The project-root cache moved into WorkspaceResolution.psm1
+# with Get-ProjectRoot itself.
 $script:IdRegistryPath = $null
 $script:DocumentManagementPath = $null
 $script:ProjectConfig = $null
 $script:DomainConfig = $null
 
-function Get-ProjectRoot {
+function Get-ArtifactPrefix {
     <#
     .SYNOPSIS
-    Gets the project root directory from any script location
+    Returns this workspace's declared shipped-artifact ID family — the prefix its producer face mints framework-pool artifacts under (e.g. 'PF' at appdev, 'FB' at FrameworkBuilder) (PF-PRO-068 P-12a).
 
     .DESCRIPTION
-    Finds the project root by looking for key markers like process-framework/.ai-entry-point.md
-    Caches the result for performance
-    #>
+    Reads artifact_prefix from doc/project-config.json — the workspace-local read; the allocation of
+    record is the parent's framework-registry row (self-declared at the chain root, whose registry row
+    carries parent: null). Introduced by the Substrate Hoist (PF-PRO-068 P-12a) as the variable-prefix
+    resolver. Only the SHIPPED framework pools (TSK / GDE / TEM / FST, plus the hand-assigned
+    MAI / VIS / INF) vary by workspace — a framework ships those into its children, so two minters
+    genuinely collide. Portfolio-global central pools (PF-IMP/PRO/FEE/REV/EVR — one chain-root counter,
+    P-3) and project-local pools (PF-STA / PF-TMP / PD-* / TE-*) are fixed and never resolve through
+    here.
 
-    if ($script:ProjectRoot) {
-        return $script:ProjectRoot
-    }
+    Sibling of Get-BlueprintPath, sharing its no-fallback contract: a leaf role throws (a leaf authors
+    no shipped framework artifacts — its local pools are received copies); a producer face without the
+    key throws, naming the parent registry as the allocation of record. A silent default here would
+    mint into another workspace's pool and surface only when the two trees meet at a rollout.
 
-    $startPath = $PSScriptRoot
-    $maxDepth = 10
-
-    # Pass 1 — Primary anchor: doc/project-config.json WITH project_id set.
-    # This is the canonical project-root marker, present at the same relative path
-    # in both regular projects AND in appdev (Phase 5.5+ blueprint layout).
-    # Walking the FULL ancestor chain for this marker first is critical: in the
-    # appdev post-Phase-5.5 layout, a script at
-    # appdev/blueprint/process-framework/scripts/.../X.ps1 would otherwise find
-    # the secondary marker `process-framework/.ai-entry-point.md` at
-    # appdev/blueprint/ and falsely return that as project root, BEFORE the
-    # walk reaches the real root at appdev/. Two-pass design prevents that.
-    #
-    # The project_id != null requirement skips the blueprint TEMPLATE config at
-    # appdev/blueprint/doc/project-config.json (template has project_id: null
-    # until PF-TSK-059 stamps it during bootstrap). Without this filter, the
-    # template would mask appdev's real PRJ-000 root when scripts run from
-    # inside appdev/blueprint/.
-    $currentPath = $startPath
-    $depth = 0
-    while ($depth -lt $maxDepth) {
-        $docConfigPath = Join-Path -Path $currentPath -ChildPath "doc/project-config.json"
-        if (Test-Path $docConfigPath) {
-            $hasProjectId = $false
-            try {
-                $configCheck = Get-Content -Path $docConfigPath -Raw | ConvertFrom-Json
-                if ($configCheck.project_id) { $hasProjectId = $true }
-            } catch {
-                # Unparseable — treat as no project_id; keep walking.
-            }
-            if ($hasProjectId) {
-                $script:ProjectRoot = $currentPath
-                return $script:ProjectRoot
-            }
-        }
-        $parentPath = Split-Path -Parent $currentPath
-        if ($parentPath -eq $currentPath) { break }
-        $currentPath = $parentPath
-        $depth++
-    }
-
-    # Pass 2 — Fallback markers. Only reached if no doc/project-config.json was
-    # found anywhere on the ancestor chain (e.g., pre-Project-Initiation trees,
-    # or pre-PD-BUG-022 layouts with project-config.json at root level).
-    $currentPath = $startPath
-    $depth = 0
-    while ($depth -lt $maxDepth) {
-        # Legacy root-level project-config.json (pre-PD-BUG-022 layout).
-        $configPath = Join-Path -Path $currentPath -ChildPath "project-config.json"
-        if (Test-Path $configPath) {
-            try {
-                $config = Get-Content $configPath -Raw | ConvertFrom-Json
-                if ($config.project.root_directory -and (Test-Path $config.project.root_directory)) {
-                    $script:ProjectRoot = $config.project.root_directory
-                    return $script:ProjectRoot
-                }
-            } catch {
-                # If config is unreadable, fall through to markers
-            }
-        }
-
-        # Last-resort markers (rolled-out projects' top-level layout).
-        $markers = @(
-            "process-framework/.ai-entry-point.md",
-            "process-framework/ai-tasks.md",
-            ".git"
-        )
-        foreach ($marker in $markers) {
-            $markerPath = Join-Path -Path $currentPath -ChildPath $marker
-            if (Test-Path $markerPath) {
-                $script:ProjectRoot = $currentPath
-                return $script:ProjectRoot
-            }
-        }
-
-        $parentPath = Split-Path -Parent $currentPath
-        if ($parentPath -eq $currentPath) { break }
-        $currentPath = $parentPath
-        $depth++
-    }
-
-    throw "Could not find project root from $PSScriptRoot"
-}
-
-function Get-ProcessFrameworkPath {
-    <#
-    .SYNOPSIS
-    Returns the absolute path to the process-framework subtree, configurable via project-config.json.
-
-    .DESCRIPTION
-    Reads paths.process_framework from doc/project-config.json and joins with the project root.
-    Added by Phase 5.5 of the Centralized Framework Management extension (2026-05-11) so that
-    appdev — where process-framework/ moved into blueprint/process-framework/ — works alongside
-    rolled-out projects where process-framework/ is still at the top level.
-
-    Falls back to "process-framework" if the config field is unset (legacy projects, defensive default).
+    The value is an explicitly configured allocation, conventionally the framework's mnemonic — never
+    derived from it (FWK-APP's family is the grandfathered 'PF').
 
     .PARAMETER ProjectRoot
     Optional explicit project root override. When omitted, resolves via Get-ProjectRoot (cwd-based).
-    Use this when a caller is validating a project other than the cwd (e.g., Validate-StateTracking.ps1
-    accepts -ProjectRoot to point at an external project).
+    Same test seam as Get-BlueprintPath: -ProjectRoot plus $env:FRAMEWORK_PROJECT_ROOT_OVERRIDE give
+    fixtures full control; cross-workspace resolution is by composition, never implicit.
 
     .OUTPUTS
-    String — absolute path to the framework subtree.
+    String — the artifact family, shape ^[A-Z]{2,4}$ (e.g. 'PF', 'FB').
 
     .EXAMPLE
-    $fwDir = Get-ProcessFrameworkPath
-    $templatesDir = Join-Path -Path $fwDir -ChildPath "templates"
-
-    .EXAMPLE
-    $fwDir = Get-ProcessFrameworkPath -ProjectRoot $ExternalProjectPath
+    $fam = Get-ArtifactPrefix   # 'PF' at appdev, 'FB' at FB
+    $taskId = New-FrameworkDocument -IdPrefix "$fam-TSK" ...
     #>
 
     [CmdletBinding()]
@@ -164,109 +82,355 @@ function Get-ProcessFrameworkPath {
     )
 
     $projectRoot = if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { Get-ProjectRoot } else { $ProjectRoot }
-    $configPath = Join-Path -Path $projectRoot -ChildPath "doc/project-config.json"
-    $relative = "process-framework"
-    if (Test-Path $configPath) {
-        try {
-            $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json
-            if ($config.paths -and $config.paths.process_framework) {
-                $relative = $config.paths.process_framework
-            }
-        } catch {
-            # Defensive fallback to default; log via verbose only.
-            Write-Verbose "Get-ProcessFrameworkPath: could not parse doc/project-config.json; falling back to 'process-framework'."
-        }
+    $cfg = Read-WorkspaceConfig -ProjectRoot $projectRoot
+    if ($cfg.ParseError) {
+        throw "Get-ArtifactPrefix: doc/project-config.json at '$($cfg.Path)' could not be parsed ($($cfg.ParseError)). The artifact family cannot be resolved; repair the config."
     }
-    return (Join-Path -Path $projectRoot -ChildPath $relative)
+    $prefix = if ($cfg.Config) { $cfg.Config.artifact_prefix } else { $null }
+    if (-not [string]::IsNullOrWhiteSpace($prefix)) {
+        $prefix = $prefix.Trim()
+        # Case-SENSITIVE shape check: default -match would admit 'fb'/'Pf' and mint a malformed family.
+        if ($prefix -cnotmatch '^[A-Z]{2,4}$') {
+            throw "Get-ArtifactPrefix: workspace '$projectRoot' declares artifact_prefix '$prefix', which is not a valid family (2-4 uppercase letters, e.g. 'PF', 'FB'). Fix the value in doc/project-config.json to match the parent registry's allocation (PF-PRO-068 P-12a)."
+        }
+        return $prefix
+    }
+
+    # Role decides which mistake this is — never a workspace-ID literal (convention gate, PF-PRO-067).
+    $role = Get-WorkspaceRole -ProjectRoot $projectRoot
+    if ($role -in @('framework', 'framework-builder')) {
+        throw "Get-ArtifactPrefix: workspace '$projectRoot' declares role '$role' (a producer face) but its doc/project-config.json has no artifact_prefix. A producer face must declare the family it mints shipped framework artifacts under; the allocation of record is its parent's framework-registry row (self-declared at the chain root). Add artifact_prefix to the config to match that allocation (PF-PRO-068 P-12a)."
+    }
+    throw "Get-ArtifactPrefix: workspace '$projectRoot' has role '$role' — a leaf workspace authors no shipped framework artifacts, so there is no artifact family to resolve here. Shipped framework artifacts are minted at the owning framework workspace; to target it, pass -ProjectRoot with that workspace's root."
 }
 
-function Get-CentralFrameworkPath {
+function Get-ChildRegistryInfo {
     <#
     .SYNOPSIS
-    Returns the absolute path to appdev's process-framework-central/ directory, resolving via
-    project_id and (for non-appdev projects) the .framework-central-pointer file.
+    Returns the shape of this workspace's child registry — filename, top-level collection key,
+    per-row version-pin field, accepted child roles, and sandbox key pattern — derived from the
+    workspace's declared role (PF-PRO-068 P-10: one shared resolver, level differences are data).
 
     .DESCRIPTION
-    Phase 7 of the Centralized Framework Management extension cut writers over from per-project
-    process-framework-local/ paths (legacy, pre-migration) to a single central location under appdev. This helper hides
-    the cwd-dependent resolution from script callers:
+    The two live child registries differ in more than filename, so a filename-only resolver
+    under-serves every consumer (measured, Sub-concept 3 Session 9):
 
-    - If $env:FRAMEWORK_CENTRAL_OVERRIDE is set and non-empty: returns it directly (after
-      verifying the path exists). This is the test-injection hook used by TE-E2E cases that
-      exercise central-writing scripts (WF-007 imp-lifecycle, WF-019 soak-verification, etc.)
-      against a per-test sandbox-central dir, so the real appdev central is never written to
-      mid-test. The override is the FULL central path, not the appdev root — tests construct
-      exactly the dir they want, including any required state-file skeletons.
-    - From cwd=appdev (project_id == "PRJ-000"): returns <projectRoot>/process-framework-central.
-    - From cwd=project (project_id != "PRJ-000"): reads .framework-central-pointer (single-line
-      file containing the absolute path to appdev, written by Push-FrameworkUpdate.ps1) from
-      <Get-ProcessFrameworkPath>/.framework-central-pointer, then returns
-      <appdev-root>/process-framework-central.
+      role 'framework'          -> project-registry.json,  key 'projects',   pin 'current_framework_version'
+      role 'framework-builder'  -> framework-registry.json, key 'frameworks', pin 'current_substrate_version'
 
-    Throws if, in a non-appdev project, the pointer file is missing, empty, or resolves to a
-    non-existent central directory — each case gets a distinct, actionable message. A missing
-    pointer means the project was never reached by a Push; an empty pointer is a corrupt write;
-    a broken target means the pointer is stale (appdev was moved or deleted). All three are
-    setup errors rather than something to silently fall back from.
+    Every rollout consumer (Push / Restore / Commit-SandboxBaseline / Register, plus the
+    fan-out in New-PendingMigration) indexes the registry through this shape instead of
+    hard-coding appdev's, so the same script operates from any producer face.
+
+    Field semantics:
+    - FileName / CollectionKey — where the child rows live and how they are indexed.
+    - PinField — the per-row received-version field (Contract 5 per-edge pins). The names
+      deliberately differ per level (framework vs substrate version) — that is recorded
+      Session B design, so the difference is carried as data, never converged by code.
+    - AcceptedChildRoles — which declared child roles this producer's fan-out serves; a row's
+      ABSENT role reads as 'project' (the leaf default, PF-PRO-067 Contract 4). Push/Restore
+      role guards compare against this instead of a hard-coded 'project', which at FB would
+      exclude every child (the P-8 inversion, measured Session 9).
+    - SandboxKeyPattern — rows matching it are sandboxes: excluded from FAN-OUT, always
+      allowed as EXPLICIT targets (P-8; the fleet precedent is Resolve-EligibleProjects in
+      New-PendingMigration.ps1). At a framework face the pattern DERIVES from the workspace's
+      own declared identity (P-14: FWK-APP -> '^APP-T', FWK-LEG -> '^LEG-T'); a producer whose
+      project_id is not FWK-shaped keeps the legacy '^PRJ-T' rung — the correct answer for the
+      pre-P-13-shaped synthetic E2E worlds. The FWK-T shape is provisional — no FB sandbox row
+      exists yet; it mirrors the mnemonic-T precedent the registry metadata cites.
+    - LedgerDirName — the central migrations directory holding one per-child pending-migrations
+      ledger (per-project-migrations at a framework face, per-framework-migrations at FB —
+      Session B skeleton naming). Consumed by Register (ledger scaffold at registration) and,
+      once FB-level fan-out is wired, by New-PendingMigration.
+
+    A leaf role (project, subject) has no children and therefore no child registry — that
+    throws, because every caller is a fan-out/rollout operation that is meaningless at a leaf.
+
+    .PARAMETER ProjectRoot
+    Optional explicit workspace root; defaults to Get-ProjectRoot (same contract as
+    Get-WorkspaceRole, which this derives from).
 
     .OUTPUTS
-    String — absolute path to appdev/process-framework-central/ (or the override target).
+    Hashtable — Role, FileName, CollectionKey, PinField, AcceptedChildRoles, SandboxKeyPattern,
+    LedgerDirName.
 
     .EXAMPLE
-    $central = Get-CentralFrameworkPath
-    $feedbackDir = Join-Path -Path $central -ChildPath "feedback/feedback-forms"
+    $reg = Get-ChildRegistryInfo
+    $registry = Get-Content (Join-Path $centralRoot $reg.FileName) -Raw | ConvertFrom-Json -AsHashtable
+    $children = $registry[$reg.CollectionKey]
     #>
 
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter(Mandatory=$false)]
+        [string]$ProjectRoot
+    )
 
-    # Test-injection override (PF-PRO-035 Session 29 / OP-1). Lets per-test fixtures redirect
-    # central writes to a sandbox-central dir so mid-test mutations don't leak into the real
-    # appdev central tracking files. Set by TE-E2E run.ps1 fixtures before invoking the
-    # framework script under test; unset in production.
-    if ($env:FRAMEWORK_CENTRAL_OVERRIDE) {
-        $override = $env:FRAMEWORK_CENTRAL_OVERRIDE.Trim()
-        if (-not (Test-Path $override)) {
-            throw "Get-CentralFrameworkPath: `$env:FRAMEWORK_CENTRAL_OVERRIDE points at non-existent path: $override. The test fixture must create the sandbox-central dir before invoking the framework script."
+    $role = if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { Get-WorkspaceRole } else { Get-WorkspaceRole -ProjectRoot $ProjectRoot }
+
+    switch ($role) {
+        'framework-builder' {
+            return @{
+                Role               = $role
+                FileName           = 'framework-registry.json'
+                CollectionKey      = 'frameworks'
+                PinField           = 'current_substrate_version'
+                AcceptedChildRoles = @('framework')
+                SandboxKeyPattern  = '^FWK-T'
+                LedgerDirName      = 'per-framework-migrations'
+            }
         }
-        return $override
+        'framework' {
+            # P-14: sandbox rows key <MNEMONIC>-T<NN>, so the pattern derives from the
+            # framework's own declared identity (FWK-APP -> '^APP-T'), letting the same
+            # substrate serve every framework. A producer whose project_id is not FWK-shaped
+            # (the TE-E2E-012/013 synthetic seeds are deliberate pre-P-13-shaped worlds) keeps
+            # the legacy '^PRJ-T' rung — quiet by design: the legacy shape IS that world's answer.
+            $sandboxPattern = '^PRJ-T'
+            $cfgRoot = if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { Get-ProjectRoot } else { $ProjectRoot }
+            $cfg = Read-WorkspaceConfig -ProjectRoot $cfgRoot
+            if ($cfg.ParseError) {
+                Write-Verbose "Get-ChildRegistryInfo: could not read project_id from '$($cfg.Path)' ($($cfg.ParseError)); SandboxKeyPattern keeps the legacy '^PRJ-T' shape."
+            } elseif ($cfg.Config) {
+                $ownDeclaredId = $cfg.Config.project_id
+                if ($ownDeclaredId -cmatch '^FWK-([A-Z]{2,4})$') { $sandboxPattern = '^' + $Matches[1] + '-T' }
+            }
+            return @{
+                Role               = $role
+                FileName           = 'project-registry.json'
+                CollectionKey      = 'projects'
+                PinField           = 'current_framework_version'
+                AcceptedChildRoles = @('project')
+                SandboxKeyPattern  = $sandboxPattern
+                LedgerDirName      = 'per-project-migrations'
+            }
+        }
+        default {
+            throw "Get-ChildRegistryInfo: workspace role '$role' declares no child registry — only producer-face roles (framework, framework-builder) fan out to children (PF-PRO-068 P-10). A leaf workspace is a rollout TARGET; run the rollout scripts from the owning producer's root."
+        }
     }
+}
 
-    $projectRoot = Get-ProjectRoot
-    $configPath = Join-Path -Path $projectRoot -ChildPath "doc/project-config.json"
+function Get-ArtifactOwnerId {
+    <#
+    .SYNOPSIS
+    Returns the workspace ID declared by a shipped artifact's N-5 ownership line, or $null when
+    the file carries none (PF-PRO-067 N-5; PF-PRO-068 WI-5).
 
-    $isAppdev = $false
-    if (Test-Path $configPath) {
+    .DESCRIPTION
+    Every file the framework ships carries an ownership line naming the workspace that owns it —
+    authored once at the owning workspace and shipped byte-identical, so a received copy states
+    its own provenance. The per-language conventions are declared in payload-manifest.json
+    (ownership_line_conventions) and read here:
+
+      PowerShell  .NOTES line   'OWNERSHIP: FWK-FB (FrameworkBuilder) - ...'
+      Python      header comment, same sentence
+      Markdown    frontmatter   'owned_by: FWK-FB'
+      JSON        'metadata.owned_by'
+
+    Resolution is deliberately scoped to the file's LEADING header region — frontmatter, the
+    opening comment/help block, and the blank lines between them — never the body. A guide that
+    *documents* the convention, or a script whose prose quotes it, would otherwise report itself
+    as owned by whatever ID that prose names. JSON has no comment syntax, so a .json file is
+    parsed and read at metadata.owned_by instead.
+
+    Returns $null — not an error — when no ownership line is present. An unmarked file is the
+    pre-hoist state (appdev's blueprint carries no ownership lines until the cutover ships them),
+    and every caller treats "unmarked" as "governed by this workspace", which is exactly the
+    pre-hoist behavior. That is what keeps ownership-aware resolution DARK before the cutover.
+
+    .PARAMETER Path
+    Path to the artifact.
+
+    .OUTPUTS
+    String — the owning workspace ID (e.g. 'FWK-FB'), or $null when the file carries no
+    ownership line or does not exist.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
+
+    if ([System.IO.Path]::GetExtension($Path) -ieq '.json') {
         try {
-            $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json
-            if ($config.project_id -eq "PRJ-000") { $isAppdev = $true }
+            $json = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
         } catch {
-            # Fall through to non-appdev branch; pointer-file path will fail loudly if absent.
+            Write-Verbose "Get-ArtifactOwnerId: '$Path' is not parseable JSON; treating as unmarked."
+            return $null
         }
+        if ($json.metadata -and $json.metadata.owned_by) { return "$($json.metadata.owned_by)".Trim() }
+        return $null
     }
 
-    if ($isAppdev) {
-        return (Join-Path -Path $projectRoot -ChildPath "process-framework-central")
+    # Header-region scan. The region ends at the first line that is neither blank, nor a line
+    # comment, nor inside a block comment / frontmatter fence — i.e. at the first line of real
+    # content. A shebang keeps the region open (it precedes the help block).
+    $ownerPattern = '(?:OWNERSHIP:\s*|owned_by\s*:\s*"?)([A-Z][A-Z0-9]*-[A-Z0-9]+)'
+    $inBlockComment = $false
+    $inFrontmatter  = $false
+    $lineNo = 0
+    foreach ($line in (Get-Content -LiteralPath $Path -ErrorAction SilentlyContinue)) {
+        $lineNo++
+        $trimmed = $line.Trim()
+
+        if ($lineNo -eq 1 -and $trimmed -eq '---') { $inFrontmatter = $true; continue }
+        if ($inFrontmatter) {
+            if ($trimmed -eq '---') { $inFrontmatter = $false; continue }
+        }
+        elseif ($inBlockComment) {
+            if ($trimmed -match '#>' -or $trimmed -match '^"""') { $inBlockComment = $false; continue }
+        }
+        else {
+            if ($trimmed -match '^<#' -or $trimmed -match '^"""') {
+                # A block comment that also CLOSES on its opening line ('<# banner #>',
+                # '"""doc."""') must NOT flag the region open: its closer is consumed here, so
+                # flagging would leave the scan open for the rest of the file and let body prose
+                # satisfy the marker pattern — the exact false positive this scan exists to
+                # prevent. Falling through instead keeps the line scannable, so a self-contained
+                # '<# OWNERSHIP: FWK-XX ... #>' still reads.
+                $opensAndCloses = ($trimmed -match '^<#.*#>') -or ($trimmed -match '^""".*"""')
+                if (-not $opensAndCloses) { $inBlockComment = $true; continue }
+            }
+            # Outside every comment construct: blank lines, '#' comments and a shebang keep the
+            # header region open; anything else is the first line of content — stop.
+            elseif ($trimmed -ne '' -and $trimmed -notmatch '^#') { break }
+        }
+
+        if ($line -match $ownerPattern) { return $Matches[1] }
+    }
+    return $null
+}
+
+function Resolve-WorkspaceRootById {
+    <#
+    .SYNOPSIS
+    Returns the workspace root of the chain member whose declared project_id equals $WorkspaceId
+    (PF-PRO-068 WI-5).
+
+    .DESCRIPTION
+    Identity in this portfolio is the workspace's key in its parent's registry, declared as
+    project_id in doc/project-config.json (PF-PRO-068 P-13's identity rule). This helper turns
+    such an ID back into a filesystem root by walking the SAME parent-pointer chain
+    Get-ChainRootPath walks — start workspace first, then each parent up to the chain root —
+    and comparing each hop's declared project_id.
+
+    Chain membership is the whole search space by design: a workspace can only resolve the
+    workspaces it is federated with. An ID that names something off-chain is a configuration
+    error, not a lookup miss, so it throws with the walked chain named (the no-silent-fallback
+    invariant — a silent miss here would route state writes to the wrong workspace's central).
+
+    .PARAMETER WorkspaceId
+    The declared workspace ID to find (e.g. 'FWK-FB', 'FWK-APP').
+
+    .PARAMETER StartRoot
+    Optional workspace root to start the walk from. Defaults to Get-ProjectRoot.
+
+    .OUTPUTS
+    String — absolute, canonicalized workspace root.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$WorkspaceId,
+
+        [Parameter(Mandatory=$false)]
+        [string]$StartRoot
+    )
+
+    $current = if ([string]::IsNullOrWhiteSpace($StartRoot)) { Get-ProjectRoot } else { $StartRoot }
+    $current = ConvertTo-CanonicalWorkspacePath -Path $current
+    $walked = [System.Collections.Generic.List[string]]::new()
+
+    for ($hop = 0; $hop -lt (Get-ParentChainHopCap); $hop++) {
+        $cfg = Read-WorkspaceConfig -ProjectRoot $current
+        $declaredId = $null
+        if ($cfg.ParseError) {
+            Write-Warning "Resolve-WorkspaceRootById: doc/project-config.json at '$($cfg.Path)' could not be parsed ($($cfg.ParseError)); this hop cannot be matched by identity."
+        } elseif ($cfg.Config) {
+            $declaredId = $cfg.Config.project_id
+        }
+        $walked.Add("$current (project_id: $(if ($declaredId) { $declaredId } else { '<none>' }))")
+        if ($declaredId -and $declaredId -eq $WorkspaceId) { return $current }
+
+        # Same single-hop step as Get-ChainRootPath: no pointer, or a self-pointer, is the root.
+        $fwDir = Get-ProcessFrameworkPath -ProjectRoot $current
+        $pointerPath = Get-ParentPointerFile -FrameworkDir $fwDir
+        if ($null -eq $pointerPath) { break }
+        $rawPointer = Get-Content -Path $pointerPath -Raw
+        $parentRaw = if ($null -ne $rawPointer) { $rawPointer.Trim() } else { '' }
+        if (-not $parentRaw) {
+            throw "Resolve-WorkspaceRootById: the parent pointer at $pointerPath is empty. Re-run the parent workspace's Push-FrameworkUpdate.ps1 to repair."
+        }
+        $parent = ConvertTo-CanonicalWorkspacePath -Path $parentRaw
+        if ($parent -ieq $current) { break }
+        if (-not (Test-Path $parent)) {
+            throw "Resolve-WorkspaceRootById: the parent pointer at $pointerPath points to '$parentRaw', but that workspace root does not exist. The pointer target is stale — correct the pointer, or re-run the parent's Push-FrameworkUpdate.ps1."
+        }
+        $current = $parent
     }
 
-    $fwDir = Get-ProcessFrameworkPath
-    $pointerPath = Join-Path -Path $fwDir -ChildPath ".framework-central-pointer"
-    if (-not (Test-Path $pointerPath)) {
-        throw "Get-CentralFrameworkPath: .framework-central-pointer not found at $pointerPath. This project has not received a Push from appdev yet — central writes cannot be resolved. Run Push-FrameworkUpdate.ps1 from appdev to deploy the pointer."
-    }
+    throw "Resolve-WorkspaceRootById: no workspace declaring project_id '$WorkspaceId' was found on the parent-pointer chain. Walked: $($walked -join ' -> '). Either the artifact's ownership line names a workspace this one is not federated with, or a chain member's doc/project-config.json declares the wrong project_id."
+}
 
-    # Get-Content -Raw returns $null for a 0-byte file (and a whitespace-only file trims to '').
-    # Guard the null so both render the intended "is empty" message rather than a generic
-    # "cannot call a method on a null-valued expression".
-    $rawPointer = Get-Content -Path $pointerPath -Raw
-    $appdevRoot = if ($null -ne $rawPointer) { $rawPointer.Trim() } else { '' }
-    if (-not $appdevRoot) {
-        throw "Get-CentralFrameworkPath: .framework-central-pointer at $pointerPath is empty. Re-run Push-FrameworkUpdate.ps1 to repair."
-    }
+function Get-OwningWorkspaceCentralPath {
+    <#
+    .SYNOPSIS
+    Returns the process-framework-central/ of the workspace that OWNS a given artifact — the home
+    of that artifact's framework state, regardless of which workspace invoked it (PF-PRO-068 WI-5).
 
-    $centralPath = Join-Path -Path $appdevRoot -ChildPath "process-framework-central"
+    .DESCRIPTION
+    Some framework state is keyed to the ARTIFACT rather than to the caller: soak verification
+    counts invocations of one canonical script, so its row must live in one place no matter how
+    many workspaces run their received copies. Resolving such state through the caller's own
+    central instead splits one counter across every consumer, and — worse — lets a received copy
+    silently register a fresh row at each consumer, which reads as "never soaked" forever.
+
+    Resolution:
+      1. No ownership line (Get-ArtifactOwnerId returns $null) -> Get-CentralFrameworkPath, i.e.
+         exactly the pre-hoist behavior. Unmarked is the pre-cutover state of every appdev
+         blueprint file, which is what makes this helper dark before the cutover.
+      2. Owner is this workspace          -> Get-CentralFrameworkPath  (honors FRAMEWORK_CENTRAL_OVERRIDE)
+      3. Owner is the chain root          -> Get-RootCentralFrameworkPath (honors both override axes)
+      4. Owner is an intermediate parent  -> <owner root>/process-framework-central
+
+    Cases 2 and 3 delegate rather than re-deriving, so every existing single-axis test fixture
+    keeps its exact current meaning and the two-axis seam works unchanged.
+
+    A resolved owner whose declared role is not a producer face throws: only framework and
+    framework-builder workspaces have a central of their own, so an ownership line naming a leaf
+    is a classification error rather than something to fall back from.
+
+    .PARAMETER ArtifactPath
+    Path to the artifact whose owning workspace should be resolved.
+
+    .OUTPUTS
+    String — absolute path to the owning workspace's process-framework-central/.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$ArtifactPath
+    )
+
+    $ownerId = Get-ArtifactOwnerId -Path $ArtifactPath
+    if (-not $ownerId) { return (Get-CentralFrameworkPath) }
+
+    $projectRoot = ConvertTo-CanonicalWorkspacePath -Path (Get-ProjectRoot)
+    $ownerRoot = Resolve-WorkspaceRootById -WorkspaceId $ownerId -StartRoot $projectRoot
+
+    if ($ownerRoot -ieq $projectRoot) { return (Get-CentralFrameworkPath) }
+    if ($ownerRoot -ieq (Get-ChainRootPath -StartRoot $projectRoot)) { return (Get-RootCentralFrameworkPath) }
+
+    $ownerRole = Get-WorkspaceRole -ProjectRoot $ownerRoot
+    if ($ownerRole -notin @('framework', 'framework-builder')) {
+        throw "Get-OwningWorkspaceCentralPath: '$ArtifactPath' declares owner '$ownerId', which resolves to '$ownerRoot' — a workspace with role '$ownerRole'. Only producer faces (framework / framework-builder) hold a central of their own, so this ownership line is a classification error."
+    }
+    $centralPath = Join-Path -Path $ownerRoot -ChildPath "process-framework-central"
     if (-not (Test-Path $centralPath)) {
-        throw "Get-CentralFrameworkPath: .framework-central-pointer at $pointerPath points to '$appdevRoot', but the resolved central directory does not exist: $centralPath. The pointer target is stale (appdev was moved or deleted) — correct the path in the pointer file, or re-run Push-FrameworkUpdate.ps1 from appdev to repair it."
+        throw "Get-OwningWorkspaceCentralPath: '$ArtifactPath' is owned by '$ownerId' at '$ownerRoot', but that workspace has no process-framework-central directory: $centralPath. Create it at the owning workspace, or correct the artifact's ownership line."
     }
     return $centralPath
 }
@@ -573,22 +737,26 @@ function Get-DomainConfig {
 function Get-StateTrackingContext {
     <#
     .SYNOPSIS
-    Returns the state-tracking routing context, routing to central for appdev (PRJ-000) and to
-    doc/state-tracking/ for regular projects.
+    Returns the state-tracking routing context, routing to the workspace's own central for
+    producer-face workspaces and to doc/state-tracking/ for leaf projects.
 
     .DESCRIPTION
-    Reads project_id from doc/project-config.json. Per centralized-framework-management.md
-    (§3.1, §3.2), appdev/doc/ is the blueprint for new projects, so appdev's own framework-
-    management state (temp state files, PF-STA registry, permanent IMP tracking, etc.) lives
-    in appdev/process-framework-central/ instead. Regular projects (PRJ-001+) write state to
+    Reads the declared workspace role (Get-WorkspaceRole; PF-PRO-067 Contract 4). A
+    producer-face workspace (role 'framework' or 'framework-builder') routes its own
+    framework-management state (temp state files, PF-STA registry, permanent IMP tracking,
+    etc.) to <root>/process-framework-central/ — producer-face state lives in the workspace's
+    own central because such a workspace's own work IS framework development (two-faces model;
+    this rationale replaced the stale pre-2026-05-17 "appdev/doc/ is the blueprint" one, and
+    the branch replaced the project_id == "PRJ-000" identity comparison). Leaf projects
+    (role 'project', including the absent-field default) write state to
     <project>/doc/state-tracking/.
 
     State-creating scripts should consume this helper for OutputDirectory and registry paths,
-    so the same script binary works correctly whether invoked from cwd=appdev or cwd=project.
+    so the same script binary works correctly whichever workspace it runs in.
 
     .OUTPUTS
     PSCustomObject with properties:
-    - Mode: "central" (appdev/PRJ-000) or "project" (regular projects)
+    - Mode: "central" (producer-face workspace) or "project" (leaf)
     - StateTrackingRoot: absolute path to the state-tracking directory
         appdev  → <projectRoot>/process-framework-central/state-tracking
         project → <projectRoot>/doc/state-tracking
@@ -601,8 +769,8 @@ function Get-StateTrackingContext {
         project → <projectRoot>/doc/state-tracking/PF-id-registry-local.json
 
     The equivalent private helper Resolve-LocalRegistryPath in IdRegistry.psm1 returns the
-    same RegistryPath value via the same project_id == "PRJ-000" contract (inlined there to
-    avoid a circular import: Common-ScriptHelpers/DocumentManagement.psm1 imports IdRegistry).
+    same RegistryPath value via the same declared-role contract (inlined there to avoid a
+    circular import: Common-ScriptHelpers/DocumentManagement.psm1 imports IdRegistry).
 
     .EXAMPLE
     $context = Get-StateTrackingContext
@@ -615,21 +783,12 @@ function Get-StateTrackingContext {
     param()
 
     $projectRoot = Get-ProjectRoot
-    $configPath = Join-Path -Path $projectRoot -ChildPath "doc/project-config.json"
 
-    $isAppdev = $false
-    if (Test-Path $configPath) {
-        try {
-            $config = Get-Content -Path $configPath -Raw | ConvertFrom-Json
-            if ($config.project_id -eq "PRJ-000") {
-                $isAppdev = $true
-            }
-        } catch {
-            # Fall through to project mode if config unreadable
-        }
-    }
+    # Role question: "am I the central hub?" — producer-face workspaces route own state to
+    # their own central (PF-PRO-067 Contract 4; declared, never inferred from a workspace ID).
+    $role = Get-WorkspaceRole -ProjectRoot $projectRoot
 
-    if ($isAppdev) {
+    if ($role -in @('framework', 'framework-builder')) {
         return [PSCustomObject]@{
             Mode = "central"
             StateTrackingRoot = Join-Path -Path $projectRoot -ChildPath "process-framework-central\state-tracking"
@@ -655,7 +814,7 @@ function Resolve-DocPath {
     Reads paths.documentation_root from <projectRoot>/doc/project-config.json and joins Subpath under it.
     Defaults to "doc" when the field is absent (matches the historical project default).
 
-    For appdev (PRJ-000), paths.documentation_root is "doc" — appdev's own workspace state lives at
+    For appdev (FWK-APP), paths.documentation_root is "doc" — appdev's own workspace state lives at
     <projectRoot>/doc/ (post-Phase-5.5 layout: <projectRoot>/blueprint/doc/ is rolled-out template
     material, not appdev's own state). Scripts that explicitly need the blueprint template should
     hardcode "blueprint/doc/..." rather than going through this resolver.
@@ -711,7 +870,7 @@ function Resolve-TrackingFilePath {
 
     Added 2026-05-17 by Framework Self-Testing extension Phase 3a-continuation #2 to replace
     scattered `Join-Path $projectRoot "test/state-tracking/permanent/<file>"` patterns across
-    ~17 framework scripts. For appdev (PRJ-000), the configured paths resolve to appdev's own
+    ~17 framework scripts. For appdev (FWK-APP), the configured paths resolve to appdev's own
     framework-self-test state files; for regular projects, the defaults match the historical
     hardcoded paths exactly.
 
@@ -903,11 +1062,77 @@ function Get-EffectiveWhatIf {
     return $false
 }
 
+function Get-NonFeatureTestDir {
+    <#
+    .SYNOPSIS
+    Returns the canonical directory-name exclusion list for source/test-tree scans.
+
+    .DESCRIPTION
+    Single source of truth for "directory names that are NOT feature-organized
+    source/test code." Consumed by Validate-StateTracking.ps1 (Surfaces 14/16/17)
+    and New-TestInfrastructure.ps1 so a new validation surface or scaffolder cannot
+    silently diverge — the recurring root cause of PF-IMP-956 / PF-IMP-979 / PF-IMP-1152.
+
+    The categories are composed internally so future additions stay principled:
+    - Runtime/cache artifacts: build / VCS / dependency / venv / test-cache dirs that
+      are noise in every tree.
+    - Data-only support dirs:  committed test data (fixtures/) and shared test helpers
+      (helpers/, the language-pack testSetup dir) with no audit mirror (PF-IMP-1387).
+    - Self-test trees:         the appdev framework self-test tree (framework/), which
+      exercises framework scripts rather than product features and is therefore exempt
+      from the audit-mirror (Surface 16) and category-alignment (Surface 17) invariants
+      (PF-IMP-1190).
+
+    Matching is by directory base name (a path segment equal to one of these names),
+    consistent with how callers apply the list.
+
+    .PARAMETER Scope
+    RuntimeCache : runtime/cache artifacts only — for source-tree scans (Surface 14,
+                   New-SourceStructure.ps1) and audit/auto dir-map computation, where
+                   only build/VCS noise should be skipped.
+    TestTree     : RuntimeCache + data-only support dirs + self-test trees — for the
+                   audit-mirror (Surface 16) and category-alignment (Surface 17)
+                   invariants. This is the default.
+
+    .EXAMPLE
+    $skip = Get-NonFeatureTestDir -Scope RuntimeCache
+    Get-ChildItem $root -Directory | Where-Object { $skip -notcontains $_.Name }
+
+    .OUTPUTS
+    System.String[] — directory base names.
+    #>
+    [CmdletBinding()]
+    [OutputType([string[]])]
+    param(
+        [ValidateSet('RuntimeCache', 'TestTree')]
+        [string]$Scope = 'TestTree'
+    )
+
+    $runtimeCache = @('__pycache__', '.pytest_cache', '.git', 'node_modules', '.venv', 'venv')
+    $dataOnly     = @('fixtures', 'helpers')
+    $selfTestTree = @('framework')
+
+    switch ($Scope) {
+        'RuntimeCache' { , $runtimeCache }
+        'TestTree'     { , ($runtimeCache + $dataOnly + $selfTestTree) }
+    }
+}
+
 # Export functions
 Export-ModuleMember -Function @(
     'Get-ProjectRoot',
     'Get-ProcessFrameworkPath',
+    'Get-BlueprintPath',
+    'Get-ArtifactPrefix',
+    'Get-WorkspaceRole',
+    'Get-ChildRegistryInfo',
     'Get-CentralFrameworkPath',
+    'ConvertTo-CanonicalWorkspacePath',
+    'Get-ChainRootPath',
+    'Get-RootCentralFrameworkPath',
+    'Get-ArtifactOwnerId',
+    'Resolve-WorkspaceRootById',
+    'Get-OwningWorkspaceCentralPath',
     'Import-ProjectModule',
     'New-ProjectId',
     'Get-ProjectIdDirectory',
@@ -917,5 +1142,6 @@ Export-ModuleMember -Function @(
     'Resolve-DocPath',
     'Resolve-TrackingFilePath',
     'Test-MSYSPathMangled',
-    'Get-EffectiveWhatIf'
+    'Get-EffectiveWhatIf',
+    'Get-NonFeatureTestDir'
 )

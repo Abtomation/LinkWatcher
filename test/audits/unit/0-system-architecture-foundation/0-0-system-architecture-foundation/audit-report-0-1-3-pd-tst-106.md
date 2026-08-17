@@ -1,5 +1,6 @@
 ---
 id: TE-TAR-007
+description: "Configuration test quality assessment"
 type: Document
 category: General
 version: 1.0

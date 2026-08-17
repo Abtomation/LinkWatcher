@@ -1,5 +1,10 @@
 # StateFileInventory.psm1
 # Per-feature state file ▸ §4 Documentation Inventory operations.
+
+<#
+.SYNOPSIS
+Per-feature state-file §4 Documentation Inventory operations — path resolution and inventory-row insertion.
+#>
 #
 # Created 2026-05-07 for PF-PRO-002 / PF-IMP-028 (Feature Tracking Lightweight Index).
 # Phase 1 deliverable: a single high-level helper that design writer scripts

@@ -6,13 +6,18 @@
 
 <#
 .SYNOPSIS
-    Creates a Technical Design Document at the tier-appropriate complexity.
+    Creates the terminal design document for a feature — tier-appropriate for code, instruction-shaped for a pure-instruction feature.
 
 .DESCRIPTION
-    Generates a TDD document file (PD-TDD-XXX) using the t1/t2/t3 template,
-    appends an entry to PD-documentation-map.md, updates master Status (no
-    per-feature artifact column writes per PF-PRO-002), and inserts/updates
-    the TDD row in the feature state file's §4 ▸ Design Documentation table.
+    Generates a TDD document file (PD-TDD-XXX), carrying a description: frontmatter
+    line (rendered by the generated PD map), updates master Status (no per-feature
+    artifact column writes per PF-PRO-002), and inserts/updates the TDD row in the
+    feature state file's §4 ▸ Design Documentation table.
+
+    Template selection forks on two independent axes (PF-PRO-064): TIER (-Tier picks
+    t1/t2/t3 for a code feature) and MEDIUM (-Medium instruction picks the
+    tier-agnostic instruction terminal instead). A mixed feature keeps the code TDD,
+    whose Instruction Design Reference section carries its instruction half.
 
 .PARAMETER FeatureId
     Feature ID (e.g., "1.2.3").
@@ -23,6 +28,20 @@
 .PARAMETER Tier
     Complexity tier: 1 (Planning), 2 (Lightweight TDD), or 3 (Full TDD).
     Picks the matching template and appends `-tN` to the filename.
+    Under -Medium instruction the tier no longer selects the template (the
+    instruction terminal is tier-agnostic) but still classifies the feature and
+    is still carried in the filename.
+
+.PARAMETER Medium
+    The feature's implementation medium, from its tier assessment / state file
+    (PF-PRO-064). Selects the shape of the terminal design document:
+      code        (default) - the tier-appropriate code TDD, unchanged
+      mixed                 - the tier-appropriate code TDD, whose Instruction
+                              Design Reference section points at the PD-IND
+      instruction           - the tier-agnostic instruction terminal template
+    A pure-instruction feature must never receive the Models/Services/Repositories
+    structure of the code TDD; that is the defect this parameter exists to prevent.
+    Medium is declared, never inferred: pass what the feature declares.
 
 .PARAMETER OpenInEditor
     Open the created TDD in the default editor.
@@ -32,7 +51,11 @@
     Equivalent to -WhatIf (PF-IMP-785).
 
 .EXAMPLE
-    .\New-TDD.ps1 -FeatureId "1.2.3" -FeatureName "User Authentication" -Tier 2
+    New-TDD.ps1 -FeatureId "1.2.3" -FeatureName "User Authentication" -Tier 2
+
+.EXAMPLE
+    # Pure-instruction feature: tier-agnostic instruction terminal instead of the code TDD
+    New-TDD.ps1 -FeatureId "2.1.1" -FeatureName "Application Triage" -Tier 2 -Medium instruction
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -40,6 +63,7 @@ param (
     [Parameter(Mandatory=$true)] [string]$FeatureId,
     [Parameter(Mandatory=$true)] [string]$FeatureName,
     [Parameter(Mandatory=$true)] [ValidateSet("1", "2", "3")] [string]$Tier,
+    [Parameter(Mandatory=$false)] [ValidateSet("code", "instruction", "mixed")] [string]$Medium = "code",
     [switch]$OpenInEditor,
     [Parameter(Mandatory=$false)] [switch]$DryRun
 )
@@ -60,9 +84,18 @@ $tierNames = @{
     "2" = "Tier 2 (Lightweight TDD)"
     "3" = "Tier 3 (Full TDD)"
 }
-$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/tdd-t$Tier-template.md"
+# Medium-aware terminal template selection (PF-PRO-064 / PF-IMP-1947, WI-5).
+# The tdd-* family forks on two independent axes: TIER (how much design depth a code
+# feature warrants) and MEDIUM (what the deliverable is made of). Only a PURE-instruction
+# feature switches axis — a mixed feature keeps the code TDD, whose Instruction Design
+# Reference section carries its instruction half. Without this, a pure-instruction feature
+# reached "📝 Needs TDD" (every design gate in the router is a pass-through) and was handed
+# a Models/Services/Repositories template with nothing to report the mismatch.
+$templateName = if ($Medium -eq 'instruction') { 'tdd-instruction-template.md' } else { "tdd-t$Tier-template.md" }
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/$templateName"
 if (-not (Test-Path $templatePath)) {
-    Write-ProjectError -Message "Template for Tier $Tier not found at $templatePath" -ExitCode 1
+    $what = if ($Medium -eq 'instruction') { "Instruction-medium terminal template" } else { "Template for Tier $Tier" }
+    Write-ProjectError -Message "$what not found at $templatePath" -ExitCode 1
 }
 
 $safeFeatureName = ConvertTo-KebabCase -InputString $FeatureName
@@ -74,9 +107,15 @@ $customReplacements = @{
     '[Feature Name]' = $FeatureName
     '[FEATURE_ID]'   = $FeatureId
 }
+# The description records the document's own SHAPE (which terminal template produced it),
+# not a per-artifact medium declaration — medium is declared at exactly two levels
+# (workspace config, feature assessment/state file) and artifacts inherit it (PF-PRO-064
+# invariant). No `medium` metadata field is stamped here, deliberately.
+$shapeNote = if ($Medium -eq 'instruction') { "instruction terminal, Tier $Tier" } else { "Tier $Tier" }
 $additionalMetadataFields = @{
     "feature_id" = $FeatureId
     "tier"       = $Tier
+    description  = "Technical Design Document ($shapeNote) for $FeatureName ($FeatureId)"
 }
 
 # ---- Delegate orchestration ----
@@ -93,14 +132,11 @@ try {
         FeatureName                = $FeatureName
         Replacements               = $customReplacements
         AdditionalMetadataFields   = $additionalMetadataFields
-        DocMapSectionHeader        = "### ``technical/tdd/`` — Technical Design Documents (TDDs)"
-        DocMapEntryFormatter       = { param($id) "- [TDD: $FeatureName ($id)](technical/tdd/$customFileName) - $FeatureId Tier $Tier — $($tierNames[$Tier])" }
         NewMasterStatus            = "🧪 Needs Test Spec"
         MasterStatusNotesFormatter = { param($id) "TDD created: $id ($(Get-ProjectTimestamp -Format 'Date'))" }
         ArtifactRelativePath       = $tddRelativePath
         OpenInEditor               = $OpenInEditor
         DryRun                     = $DryRun
-        CallerCmdlet               = $PSCmdlet
     }
     $result = Invoke-DesignArtifactCreation @invokeArgs
 
@@ -108,24 +144,35 @@ try {
     $details = @(
         "Feature: $FeatureId - $FeatureName",
         "Tier: $($tierNames[$Tier])",
+        "Medium: $Medium  (template: $templateName)",
         "",
         "The document includes an AI Agent Session Handoff Notes section for maintaining context between development sessions."
     )
+    if ($Medium -eq 'instruction') {
+        $details += @(
+            "",
+            "📜 Instruction terminal: this document is tier-agnostic — scale it by marking",
+            "   sections N/A with a reason, never by forking a per-tier instruction template.",
+            "   Its Instruction Design Reference (§5.2) must point at the feature's PD-IND."
+        )
+    }
+    elseif ($Medium -eq 'mixed') {
+        $details += @(
+            "",
+            "📜 Mixed medium: this is the CODE TDD by design. Fill its Instruction Design",
+            "   Reference section so the terminal document integrates both dimensions."
+        )
+    }
     if (-not $OpenInEditor) {
         $details += @(
             "",
-            "🚨 MANDATORY NEXT STEP: TDD Creation Guide Review Required",
-            "   You MUST consult the TDD Creation Guide before proceeding.",
-            "",
-            "📖 REQUIRED READING:",
-            "process-framework/guides/02-design/tdd-creation-guide.md",
-            "   Focus on: 'Step-by-Step Instructions' and 'Quality Assurance' sections",
+            "Customization required — apply the tdd-creation craft skill (.claude/skills/tdd-creation/),",
+            "activated by the TDD Creation task's Check Recommended Skills step.",
             "",
             "⚠️  The created file is only a structural framework - it requires extensive",
-            "   customization following the guide's instructions to become functional."
+            "   customization guided by the craft skill to become functional."
         )
     }
-    if ($result.DocMapUpdated)    { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
     if ($result.StateFileResult)  {
         $sf = $result.StateFileResult
         $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"

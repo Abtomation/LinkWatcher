@@ -1,0 +1,417 @@
+{
+  "metadata": {
+    "description": "Per-file word budgets for core framework files (task definitions and guides), enforced warn-first by Check-CoreFileBudget.ps1 (PF-IMP-1938).",
+    "policy": "Raising a budget is an owner-escalation door under the workspace Standing Orders. Resolve an over-budget warning by compressing the file, or by a deliberate owner-approved bump recorded here - never silently.",
+    "counting": "Whitespace-separated tokens of the raw file, frontmatter and code blocks included.",
+    "created": "2026-08-04",
+    "updated": "2026-08-13"
+  },
+  "budgets": {
+    "guides/01-planning/architectural-framework-usage-guide.md": {
+      "words": 394,
+      "set": "2026-08-04"
+    },
+    "guides/01-planning/feature-granularity-guide.md": {
+      "words": 1284,
+      "set": "2026-08-04"
+    },
+    "guides/02-design/app-shell-vs-feature-views-convention-guide.md": {
+      "words": 829,
+      "set": "2026-08-04"
+    },
+    "guides/03-testing/performance-testing-guide.md": {
+      "words": 3226,
+      "set": "2026-08-04"
+    },
+    "guides/03-testing/test-infrastructure-guide.md": {
+      "words": 3150,
+      "set": "2026-08-04"
+    },
+    "guides/04-implementation/definition-of-done.md": {
+      "words": 1036,
+      "set": "2026-08-04"
+    },
+    "guides/04-implementation/development-guide.md": {
+      "words": 1454,
+      "set": "2026-08-04"
+    },
+    "guides/05-validation/documentation-guide.md": {
+      "words": 1768,
+      "set": "2026-08-04"
+    },
+    "guides/05-validation/feature-validation-guide.md": {
+      "words": 1595,
+      "set": "2026-08-04"
+    },
+    "guides/06-maintenance/bug-reporting-guide.md": {
+      "words": 1306,
+      "set": "2026-08-04"
+    },
+    "guides/07-deployment/ci-cd-setup-guide.md": {
+      "words": 1392,
+      "set": "2026-08-04"
+    },
+    "guides/07-deployment/diataxis-content-type-guide.md": {
+      "words": 1453,
+      "set": "2026-08-04"
+    },
+    "guides/framework/development-dimensions-guide.md": {
+      "words": 2283,
+      "set": "2026-08-04"
+    },
+    "guides/framework/documentation-structure-guide.md": {
+      "words": 1260,
+      "set": "2026-08-04"
+    },
+    "guides/framework/feedback-form-completion-instructions.md": {
+      "words": 571,
+      "set": "2026-08-04"
+    },
+    "guides/framework/feedback-form-guide.md": {
+      "words": 1792,
+      "set": "2026-08-04"
+    },
+    "guides/framework/information-flow-guide.md": {
+      "words": 2963,
+      "set": "2026-08-05",
+      "note": "Raised from 2808 by owner approval (PF-TSK-026 WI-7, Instruction Medium): the fourth design dimension has to be enumerated wherever the other three are."
+    },
+    "guides/framework/issue-classification-and-routing-guide.md": {
+      "words": 1113,
+      "set": "2026-08-04"
+    },
+    "guides/framework/task-execution-protocol-guide.md": {
+      "words": 1577,
+      "set": "2026-08-04"
+    },
+    "guides/framework/terminology-guide.md": {
+      "words": 725,
+      "set": "2026-08-04"
+    },
+    "guides/support/craft-skill-authoring-guide.md": {
+      "words": 2611,
+      "set": "2026-08-04"
+    },
+    "guides/support/cross-project-issue-filing-guide.md": {
+      "words": 1337,
+      "set": "2026-08-04"
+    },
+    "guides/support/feature-tracking-mutation-guide.md": {
+      "words": 930,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "guides/support/framework-rollout-usage-guide.md": {
+      "words": 5359,
+      "set": "2026-08-04"
+    },
+    "guides/support/guide-creation-best-practices-guide.md": {
+      "words": 2841,
+      "set": "2026-08-04"
+    },
+    "guides/support/migration-best-practices.md": {
+      "words": 1604,
+      "set": "2026-08-04"
+    },
+    "guides/support/process-improvement-task-reference-guide.md": {
+      "words": 4599,
+      "set": "2026-08-04"
+    },
+    "guides/support/schema-audit-procedure-guide.md": {
+      "words": 1582,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "guides/support/script-development-quick-reference.md": {
+      "words": 10938,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "guides/support/tools-review-edge-cases-guide.md": {
+      "words": 714,
+      "set": "2026-08-04"
+    },
+    "guides/support/visual-notation-guide.md": {
+      "words": 465,
+      "set": "2026-08-04"
+    },
+    "tasks/00-setup/codebase-feature-analysis.md": {
+      "words": 3726,
+      "set": "2026-08-04"
+    },
+    "tasks/00-setup/codebase-feature-discovery.md": {
+      "words": 4955,
+      "set": "2026-08-04"
+    },
+    "tasks/00-setup/codebase-source-migration-task.md": {
+      "words": 2363,
+      "set": "2026-08-04"
+    },
+    "tasks/00-setup/project-initiation-task.md": {
+      "words": 6506,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/00-setup/retrospective-documentation-creation.md": {
+      "words": 6717,
+      "set": "2026-08-04"
+    },
+    "tasks/00-setup/retrospective-documentation-tier-1-path.md": {
+      "words": 1497,
+      "set": "2026-08-04"
+    },
+    "tasks/01-planning/feature-discovery-task.md": {
+      "words": 1942,
+      "set": "2026-08-04"
+    },
+    "tasks/01-planning/feature-request-evaluation.md": {
+      "words": 4560,
+      "set": "2026-08-04"
+    },
+    "tasks/01-planning/system-architecture-review.md": {
+      "words": 2456,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/01-planning/technical-exploration-task.md": {
+      "words": 2005,
+      "set": "2026-08-04"
+    },
+    "tasks/02-design/api-design-task.md": {
+      "words": 2480,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/02-design/database-schema-design-task.md": {
+      "words": 2183,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/02-design/fdd-creation-task.md": {
+      "words": 2390,
+      "set": "2026-08-05",
+      "note": "Raised from 2240 by owner approval (PF-TSK-026 WI-7, Instruction Medium): the fourth design dimension has to be enumerated wherever the other three are."
+    },
+    "tasks/02-design/instruction-design-task.md": {
+      "words": 2923,
+      "set": "2026-08-04"
+    },
+    "tasks/02-design/integration-narrative-creation.md": {
+      "words": 1914,
+      "set": "2026-08-04"
+    },
+    "tasks/02-design/tdd-creation-task.md": {
+      "words": 2670,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/02-design/ui-design-task.md": {
+      "words": 3229,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/03-testing/e2e-acceptance-test-case-creation-task.md": {
+      "words": 2480,
+      "set": "2026-08-04"
+    },
+    "tasks/03-testing/e2e-acceptance-test-execution-task.md": {
+      "words": 2638,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/03-testing/performance-and-e2e-test-scoping-task.md": {
+      "words": 2642,
+      "set": "2026-08-04"
+    },
+    "tasks/03-testing/performance-baseline-capture-task.md": {
+      "words": 1760,
+      "set": "2026-08-04"
+    },
+    "tasks/03-testing/performance-test-creation-task.md": {
+      "words": 1298,
+      "set": "2026-08-04"
+    },
+    "tasks/03-testing/test-audit-task.md": {
+      "words": 4677,
+      "set": "2026-08-04"
+    },
+    "tasks/03-testing/test-specification-creation-task.md": {
+      "words": 2081,
+      "set": "2026-08-05",
+      "note": "Raised from 1962 by owner approval (PF-TSK-026 WI-11, Instruction Medium Phase 4 checkpoint): the instruction-medium branch has to be named where the executable-test assumption lives."
+    },
+    "tasks/04-implementation/core-logic-implementation.md": {
+      "words": 2414,
+      "set": "2026-08-05",
+      "note": "Raised from 2237 by owner approval (PF-TSK-026 WI-11, Instruction Medium Phase 4 checkpoint): instruction artifacts are implemented by this task, so the medium branch and the O-5 granularity rule are load-bearing additions."
+    },
+    "tasks/04-implementation/data-layer-implementation.md": {
+      "words": 1627,
+      "set": "2026-08-04"
+    },
+    "tasks/04-implementation/feature-enhancement.md": {
+      "words": 2236,
+      "set": "2026-08-04"
+    },
+    "tasks/04-implementation/feature-implementation-planning-task.md": {
+      "words": 3868,
+      "set": "2026-08-04"
+    },
+    "tasks/04-implementation/foundation-feature-implementation-task.md": {
+      "words": 1929,
+      "set": "2026-08-04"
+    },
+    "tasks/04-implementation/implementation-finalization.md": {
+      "words": 1064,
+      "set": "2026-08-04"
+    },
+    "tasks/04-implementation/integration-and-testing.md": {
+      "words": 2926,
+      "set": "2026-08-04"
+    },
+    "tasks/04-implementation/state-management-implementation.md": {
+      "words": 1668,
+      "set": "2026-08-04"
+    },
+    "tasks/04-implementation/ui-implementation.md": {
+      "words": 1694,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/accessibility-ux-compliance-validation-path.md": {
+      "words": 478,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/ai-agent-continuity-validation-path.md": {
+      "words": 499,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/architectural-consistency-validation-path.md": {
+      "words": 453,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/code-quality-standards-validation-path.md": {
+      "words": 407,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/data-integrity-validation-path.md": {
+      "words": 440,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/dimension-validation-task.md": {
+      "words": 1809,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/documentation-alignment-validation-path.md": {
+      "words": 781,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/extensibility-maintainability-validation-path.md": {
+      "words": 491,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/integration-dependencies-validation-path.md": {
+      "words": 414,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/observability-validation-path.md": {
+      "words": 456,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/performance-scalability-validation-path.md": {
+      "words": 429,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/security-data-protection-validation-path.md": {
+      "words": 454,
+      "set": "2026-08-04"
+    },
+    "tasks/05-validation/validation-preparation.md": {
+      "words": 1769,
+      "set": "2026-08-04"
+    },
+    "tasks/06-maintenance/bug-fixing-task.md": {
+      "words": 4820,
+      "set": "2026-08-04"
+    },
+    "tasks/06-maintenance/bug-triage-task.md": {
+      "words": 2204,
+      "set": "2026-08-04"
+    },
+    "tasks/06-maintenance/code-refactoring-lightweight-path.md": {
+      "words": 2464,
+      "set": "2026-08-04"
+    },
+    "tasks/06-maintenance/code-refactoring-standard-path.md": {
+      "words": 2856,
+      "set": "2026-08-04"
+    },
+    "tasks/06-maintenance/code-refactoring-task.md": {
+      "words": 2307,
+      "set": "2026-08-04"
+    },
+    "tasks/06-maintenance/code-review-task.md": {
+      "words": 4067,
+      "set": "2026-08-04"
+    },
+    "tasks/07-deployment/git-commit-and-push.md": {
+      "words": 1721,
+      "set": "2026-08-04"
+    },
+    "tasks/07-deployment/release-deployment-task.md": {
+      "words": 2036,
+      "set": "2026-08-04"
+    },
+    "tasks/07-deployment/user-documentation-creation.md": {
+      "words": 2106,
+      "set": "2026-08-04"
+    },
+    "tasks/cyclical/documentation-tier-adjustment-task.md": {
+      "words": 1200,
+      "set": "2026-08-04"
+    },
+    "tasks/cyclical/technical-debt-assessment-task.md": {
+      "words": 2564,
+      "set": "2026-08-04"
+    },
+    "tasks/support/framework-domain-adaptation.md": {
+      "words": 3027,
+      "set": "2026-08-04"
+    },
+    "tasks/support/framework-evaluation.md": {
+      "words": 3873,
+      "set": "2026-08-04"
+    },
+    "tasks/support/framework-extension-task.md": {
+      "words": 8906,
+      "set": "2026-08-04"
+    },
+    "tasks/support/framework-rollout-task.md": {
+      "words": 5936,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/support/imp-triage-task.md": {
+      "words": 4005,
+      "set": "2026-08-13",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/support/new-task-creation-process.md": {
+      "words": 5928,
+      "set": "2026-08-04"
+    },
+    "tasks/support/process-improvement-task.md": {
+      "words": 5677,
+      "set": "2026-08-13",
+      "note": "Zero headroom, deliberately: three independent reader reports in two days (PF-FEE-1723/1725/1749) named this file's Steps 2 and 10 as too dense, and two prior relocations (PF-IMP-1571, PF-IMP-1778) did not hold. Budget is its post-compression size, so the next addition must compress something else or take an owner-approved bump (PF-IMP-1938).",
+      "reason": "PF-PRO-068 S3 E4-i owner-approved bump 2026-08-13: restored to the -Init +5% headroom; rework/compression tracked separately."
+    },
+    "tasks/support/structure-change-task.md": {
+      "words": 7048,
+      "set": "2026-08-04"
+    },
+    "tasks/support/tools-review-task.md": {
+      "words": 5162,
+      "set": "2026-08-04"
+    }
+  }
+}

@@ -1,10 +1,11 @@
 ---
 id: TE-TSP-040
+description: "2.2.1 Tier 2 — Atomic updates, dry-run, backup creation"
 type: Process Framework
 category: Test Specification
-version: 1.0
+version: 1.1
 created: 2026-02-24
-updated: 2026-02-24
+updated: 2026-07-06
 feature_id: 2.2.1
 feature_name: Link Updating
 tdd_path: doc/technical/tdd/tdd-2-2-1-link-updater-t2.md
@@ -75,8 +76,11 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | LinkUpdater | Link text preserved (display name) | `test_link_text_not_updated_when_display_name` — display name text preserved unchanged | None |
 | LinkUpdater | Link text preserved (filename) | `test_link_text_not_updated_when_filename_only` — filename-only text preserved unchanged | None |
 | LinkUpdater | Link text end-to-end | `test_link_text_updated_end_to_end` — full file update with link text matching old target | `temp_project_dir` |
+| ReferenceLookup | Dry-run gates moved-file rewrite (PD-BUG-116) | `test_dry_run_prevents_write` — moved file with re-depth-needing link stays byte-identical on disk, no `.bak` even with backup enabled | `temp_dir` |
+| ReferenceLookup | Dry-run DB honesty (PD-BUG-116) | `test_dry_run_rescans_original_content` — DB rescan indexes the on-disk (original) content, not the previewed rewrite | `temp_dir` |
+| ReferenceLookup | Live mode still rewrites (PD-BUG-116 guard) | `test_normal_mode_still_writes` — with `dry_run=False` the moved file's link is re-depthed on disk | `temp_dir` |
 
-**Test File**: [`test/automated/unit/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) (24 methods)
+**Test File**: [`test/automated/unit/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) (24 methods); PD-BUG-116 rows in [`test_reference_lookup.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py) (`TestUpdateLinksWithinMovedFile`)
 
 ### Integration Tests
 
@@ -96,6 +100,49 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | Substring corruption (PD-BUG-025) | `test_bug025_generic_quoted_substring_not_corrupted` | PowerShell with helpers.py and core/helpers.py in quotes: each updated independently | `temp_project_dir` |
 
 **Test File**: [`test/automated/integration/test_link_updates.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py) (12 methods)
+
+### Override-Aware Resolution Tests (v1.1)
+
+> **Added in v1.1 (2026-06-29)** — blueprint-aware reference updating enhancement (PF-STA-110). Scenarios for `PathResolver` honouring `path_resolution_overrides` on the live move/update path. Design: [PD-TDD-026 § Override-Aware Path Resolution](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md#override-aware-path-resolution-v11). These are **specified, not yet implemented** — implemented in Session 2 (state file Step 15). Each is configured with a `path_resolution_overrides` mapping (the key is unexercised by the default suite, so coverage must set it explicitly).
+
+| # | Scenario | Test Focus | Expected Outcome |
+|---|----------|-----------|------------------|
+| a | Override-source `/…` reference rewritten | A file under the configured override folder references a moved/renamed sibling via a host-absolute `/…` link | Link rewritten to the new name, **leading-slash virtual-root style preserved** (e.g. `/process-framework/tasks/foo.md` → `/process-framework/tasks/foo-task.md`) |
+| b | Non-override source unchanged (regression) | The *same* `/…` reference in a file **outside** every override folder | Left **byte-for-byte unchanged** — proves override resolution is scoped and v1.0 behavior is preserved |
+| c | Non-existent resolved target guarded | An override-source `/…` reference whose base-resolved target does not exist on disk | Left unchanged (`path_exists_under_root` containment guard, mirroring PD-BUG-095) |
+| d | Separator-style preserved on override rewrite (PD-BUG-112) | An override-source reference written with backslash separators | Rewrite keeps backslash style; no `\`→`/` flip that would corrupt a string literal |
+| e | Directory restructure inside blueprint | A folder moved/renamed inside the override folder, with multiple sibling `/…` references to files under it | **All** affected `/…` references rewritten to the new directory, virtual-root style preserved |
+| f | Virtual-root link not hijacked by coinciding moves | A real root-level path coinciding with the virtual path moves (file or directory), or an unrelated file whose old path merely path-suffix-matches the virtual link moves (2026-07-06 code-review Major finding) | Virtual-root link left **unchanged** — the early-exit branches *and* the PD-BUG-045 suffix block are all skipped for virtual-root links; Step-3 base-aware resolution is their only match path |
+
+**Additional required assertions** (state file Step 15):
+- A regression assertion that **non-override resolution is byte-for-byte unchanged** (covers scenario b and the broader no-config default path).
+- Coverage placed in `test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py` (unit) and `test_link_updates.py` (integration), using the existing test markers/registry conventions.
+
+### Simultaneous-Move Repair Tests (PD-BUG-114)
+
+> **Added 2026-08-10** — regression coverage for the PD-BUG-114 fix (move memory + pending recalcs in `ReferenceLookup`). Scenario class: file A links to file B and **both** vacate their old disk locations before either move event is processed. Design: [PD-TDD-026 § Simultaneous-Move Repair](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md).
+
+| Scenario | Test | Expected Outcome |
+|----------|------|------------------|
+| Referencing file's event first | `test_both_endpoints_move_referencing_file_event_first` | A's link re-pointed at B's new location and re-depthed for A's new location; stale as-authored link absent (negative assertion); unmoved-target links re-depthed |
+| Target file's event first | `test_both_endpoints_move_target_file_event_first` | Same outcome in the opposite processing order |
+| DB consistency | `test_database_consistent_after_simultaneous_move` | `get_references_to_file(B_new)` returns A at its new path |
+| Fragment preservation | `test_fragment_preserved_across_simultaneous_move` | `#fragment` survives the repair |
+| In-place rename + concurrent target move | `test_rename_in_place_with_concurrent_target_move` | Same-directory rename reaches the repair path (former early return removed) |
+| PD-BUG-033 guard regression | `test_never_existed_target_still_not_rewritten` | Link-shaped strings whose target never existed remain unmodified |
+
+#### Authored-Form Preservation (PD-BUG-114 code review follow-up)
+
+> **Added 2026-08-10** — the Code Review Major finding. Removing the same-directory early return routed in-place renames through `os.path.relpath`, which canonicalizes; links that already resolved correctly were reformatted. Recalculation must be **semantic, not textual**. Design: [PD-TDD-026 § Authored-form preservation](../../../doc/technical/tdd/tdd-2-2-1-link-updater-t2.md).
+
+| Scenario | Test | Expected Outcome |
+|----------|------|------------------|
+| Dot-slash form, in-place rename | `test_dot_slash_link_untouched_by_same_directory_rename` | `./target.md` survives byte-identical; canonicalized `target.md` absent (negative assertion) |
+| Backslash form, in-place rename | `test_backslash_link_untouched_by_same_directory_rename` | `..\other\C.md` in a `.ps1` keeps its separators; forward-slash form absent |
+| Trailing-slash directory link | `test_trailing_slash_directory_link_untouched` | `../assets/` keeps its trailing slash; file byte-identical |
+| Boundary: cross-directory move | `test_cross_directory_move_still_rewrites` | Suppression must NOT leak — the same `./target.md` form moved deeper IS recalculated to `../target.md` |
+
+**Test File**: [`test/automated/unit/2-link-parsing-update/test_simultaneousmoves.py`](../../automated/unit/2-link-parsing-update/test_simultaneousmoves.py) (TE-TST-145, 10 methods). Manual validation: `test/bug-validation/PD-BUG-114_simultaneous_move_validation.py` (3 scenarios — both event orders plus authored-form preservation).
 
 ## Test Implementation Roadmap
 

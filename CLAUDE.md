@@ -8,15 +8,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Key Features**: File watching, multi-format support, safe atomic updates, dry-run mode, comprehensive testing (247+ test methods)
 
+> **What this product is**: [`doc/founding/product-concept.md`](doc/founding/product-concept.md) (`PD-DOC-001`) is the authoritative statement of what is being built and why — vision, target users, value proposition, capability areas, open questions. The summary above is a convenience; the concept is the source of truth. Its raw source material sits in [`doc/founding/inputs/`](doc/founding/inputs/README.md), and [`doc/founding/feature-landscape.md`](doc/founding/feature-landscape.md) records why the feature set is shaped as it is. Until the project's founding material is synthesized (Project Initiation Step 22), the concept reads as an unfilled stub.
+
 ## Mandatory Workflow
 
-**CRITICAL**: This project uses a strict task-based approach. Before ANY work:
+**CRITICAL**: This project uses a strict task-based approach. Working without a task selection violates the project methodology — no exceptions. Before ANY work:
 
-1. **Read the entry point**: @process-framework/.ai-entry-point.md
-2. **Select a task**: @process-framework/ai-tasks.md - All work MUST be done within a task framework
-3. **If no task fits**: Ask the user before proceeding
+1. **Open the [Task Execution Protocol](process-framework/guides/framework/task-execution-protocol-guide.md)** — the operative procedure for every task. Its **Phase A** selects a task: match the user's request against the **Use When** column in the [task catalog](process-framework/ai-tasks.md) (selection happens before any other exploration or work; if nothing matches, ask the user). **Phases B–C** govern execution, completion, and feedback.
+2. **Read the COMPLETE task definition** including its completion checklist before starting work.
+3. **If no task fits**: Ask the user before proceeding.
 
-**No exceptions** - working without a task selection violates the project methodology.
+## Following Linked Documents
+
+The framework is a **graph of linked documents you are expected to traverse**, not a single file. When an `@`-referenced file, a task definition, the [Task Execution Protocol](process-framework/guides/framework/task-execution-protocol-guide.md), or a step-referenced lookup table points you somewhere, that content is **load-bearing and mandatory** — read and follow it as if it were inlined here. Tasks are deliberately lean: the universal execution contract lives once in the Task Execution Protocol, and each task plugs its task-specific steps into it. Skipping a linked document because the pointer "looked optional" is a process violation.
+
+## Framework Craft Skills
+
+The framework ships **craft skills** under `.claude/skills/` (e.g. `ui-design`, `tdd-creation`, `api-design`). Each holds the *craft* half of one framework task - the judgment its steps delegate to - while the task definition keeps the process (steps, checkpoints, completion checklist).
+
+- **Activation**: a craft skill activates only from its task's *Check Recommended Skills* step, resolved through the `recommended_skills` binding in `doc/project-config.json` (or a language config) - bindings with `kind: "craft"` are these framework-owned skills. When that step names a skill, invoke it via the Skill tool and apply its guidance through the rest of the task. Craft skills carry `user-invocable: false` - they are task-activated, not slash commands.
+- **Graceful degradation**: if a bound skill is not listed in the session, read its `.claude/skills/<name>/SKILL.md` directly and apply it - that file is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. Only if the skill file itself is absent does the task proceed without the craft for that run.
+- **Framework-owned content**: skill files are deployed and kept current by Framework Rollout's `.claude/skills/` mirror, so treat the local copies as read-only. An improvement or defect in skill content is a framework finding - file it as an IMP (see the [Issue Classification and Routing Guide](process-framework/guides/framework/issue-classification-and-routing-guide.md)) so the fix lands in the canonical tree and reaches every project at the next rollout.
 
 ## Session Startup Requirements
 
@@ -40,11 +52,15 @@ LinkWatcher background startup and session-start timestamp are emitted automatic
 Check a script's parameters before invoking it, then prefer `-File` with a direct path:
 
 ```bash
-pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 -?                                 # inspect params (don't guess — ValidateSet rejects unknowns)
+pwsh.exe -ExecutionPolicy Bypass -Command 'Get-Help path/to/Script.ps1 -Parameter *'          # inspect params (`-?` never shows them; ValidateSet values need the metadata one-liner — see the reference)
 pwsh.exe -ExecutionPolicy Bypass -File path/to/Script.ps1 -Param "value" -Confirm:\$false     # run (escape $ as \$)
 ```
 
 `-File` needs no `cd` or quoting wrapper. For the `-Command` fallback, human-terminal usage, and Bash-tool troubleshooting, see the single source of truth: @process-framework/guides/support/script-development-quick-reference.md (§ PowerShell Script Execution (AI Agents)).
+
+## Cross-Project Issue Filing
+
+If you discover a **product bug or feature request that belongs to a different registered project** (e.g. a defect in another in-house tool spotted while working here), file it directly into that project rather than losing the finding. See [Cross-Project Issue Filing Guide](process-framework/guides/support/cross-project-issue-filing-guide.md): resolve the target's path from the central `project-registry.json`, then run **that project's own** `New-BugReport.ps1` / `New-FeatureRequest.ps1` and file it raw for the target's own triage. (Framework defects still go to the central IMP tracking, not here.)
 
 ## Architecture Overview
 
@@ -95,32 +111,32 @@ All framework documents use structured IDs:
 
 ### Creating Framework Documents
 
-All scripts are in `process-framework/scripts/file-creation`:
+All scripts live under `process-framework/scripts/file-creation/`, in phase-keyed subdirectories:
 
 ```powershell
-# Create new task definition
-.\New-Task.ps1
+# Create a feature request
+New-FeatureRequest.ps1
 
-# Create new template
-.\New-Template.ps1
+# Create a Functional Design Document
+New-FDD.ps1
 
-# Create new guide
-.\New-Guide.ps1
+# Create a Technical Design Document
+New-TDD.ps1
+
+# Create a test specification
+New-TestSpecification.ps1
+
+# Create a bug report
+New-BugReport.ps1
 
 # Create feedback form
-.\New-FeedbackForm.ps1
-
-# Create context map (task relationships)
-.\New-ContextMap.ps1
+New-FeedbackForm.ps1
 
 # Create temporary state file
 New-TempTaskState.ps1
 
 # Create permanent state file
-.\New-PermanentState.ps1
-
-# Create framework extension concept
-.\New-FrameworkExtensionConcept.ps1
+New-PermanentState.ps1
 ```
 
 ### Validation Scripts
@@ -141,8 +157,7 @@ process-framework/scripts/validation/Validate-StateTracking.ps1
 **CRITICAL**: Tasks are NOT complete until:
 1. All deliverables are created
 2. Feedback form is completed using templates in process-framework/templates/support/feedback-form-template.md
-3. Session duration is manually calculated and entered in feedback form
-4. State files are updated
+3. State files are updated
 
 Each task definition includes a mandatory completion checklist.
 
@@ -161,7 +176,9 @@ Framework uses standardized diagram formats. See @process-framework/guides/suppo
 
 > **Full reference**: @doc/user/handbooks/linkwatcher-capabilities-reference.md — consult before making assumptions.
 
-LinkWatcher runs in background and automatically maintains all cross-references. You can move/rename files using VS Code, File Explorer, or git — LinkWatcher handles all updates automatically. Check `LinkWatcher/LinkWatcherLog.txt` for activity logs.
+LinkWatcher runs in background and automatically maintains all cross-references. You can move/rename files using VS Code, File Explorer, or git — LinkWatcher handles all updates automatically. Check `logs/linkwatcher/LinkWatcherLog.txt` for activity logs.
+
+**Check broken links**: run the validate launcher — `pwsh.exe -ExecutionPolicy Bypass -File process-framework/tools/linkWatcher/run_linkwatcher_validate.ps1` — which scans with the project's per-project config (`tools/linkwatcher/linkwatcher-config.yaml`); the report path is printed at the end of the run.
 
 ### What LinkWatcher Updates (DO NOT assume limitations)
 

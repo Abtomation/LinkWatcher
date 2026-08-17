@@ -31,6 +31,10 @@
     Optional comma-separated list of feature IDs to include (e.g., "0.1.1,2.1.1").
     If omitted, all test files with auditable status are included.
 
+.PARAMETER TestType
+    Which test population the audit round covers. Valid values: "Automated" (default),
+    "Performance", "E2E". Selects the tracking file the inventory is auto-populated from.
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor.
 
@@ -74,14 +78,10 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the inventory-building + audit-tracking-specific data, and the
+# success report.
 
 $today = Get-Date -Format "yyyy-MM-dd"
 
@@ -257,43 +257,40 @@ $customReplacements = @{
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "audit_round" = "$RoundNumber"
+    description   = "Test audit tracking — Round $RoundNumber"
 }
 
 $typeSuffix = switch ($TestType) { "Performance" { "-performance" }; "E2E" { "-e2e" }; default { "" } }
 $customFileName = "audit-tracking$typeSuffix-$RoundNumber.md"
 
-try {
-    $documentId = New-StandardProjectDocument `
-        -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/audit-tracking-template.md") `
-        -IdPrefix "PF-STA" `
-        -IdDescription "Audit tracking state for Round $RoundNumber" `
-        -DocumentName "Audit Tracking Round $RoundNumber" `
-        -OutputDirectory "test/state-tracking/audit" `
-        -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
-        -FileNamePattern $customFileName `
-        -OpenInEditor:$OpenInEditor
+$documentId = New-FrameworkDocument `
+    -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/audit-tracking-template.md") `
+    -IdPrefix "PF-STA" `
+    -IdDescription "Audit tracking state for Round $RoundNumber" `
+    -DocumentName "Audit Tracking Round $RoundNumber" `
+    -OutputDirectory "test/state-tracking/audit" `
+    -Replacements $customReplacements `
+    -Metadata $additionalMetadataFields `
+    -FileNamePattern $customFileName `
+    -Label "audit tracking" `
+    -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "Round: $RoundNumber",
-        "Location: test/state-tracking/audit/$customFileName",
-        "Test files in scope: $totalCount"
-    )
+$details = @(
+    "Round: $RoundNumber",
+    "Location: test/state-tracking/audit/$customFileName",
+    "Test files in scope: $totalCount"
+)
 
-    if ($Description -ne "") {
-        $details += "Description: $Description"
-    }
-
-    if ($FeatureFilter -ne "") {
-        $details += "Feature filter: $FeatureFilter"
-    }
-
-    $details += @(
-        "Customization required: review auto-populated inventory, plan session sequence, mark 'Skipped' files. See process-framework/tasks/03-testing/test-audit-task.md"
-    )
-
-    Write-ProjectSuccess -Message "Created audit tracking with ID: $documentId" -Details $details
+if ($Description -ne "") {
+    $details += "Description: $Description"
 }
-catch {
-    Write-ProjectError -Message "Failed to create audit tracking: $($_.Exception.Message)" -ExitCode 1
+
+if ($FeatureFilter -ne "") {
+    $details += "Feature filter: $FeatureFilter"
 }
+
+$details += @(
+    "Customization required: review auto-populated inventory, plan session sequence, mark 'Skipped' files. See process-framework/tasks/03-testing/test-audit-task.md"
+)
+
+Write-ProjectSuccess -Message "Created audit tracking with ID: $documentId" -Details $details

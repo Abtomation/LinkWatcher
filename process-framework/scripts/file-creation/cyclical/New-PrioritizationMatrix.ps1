@@ -8,12 +8,12 @@
 
 .DESCRIPTION
     This PowerShell script generates prioritization matrix documents by:
-    - Generating a unique document ID (PD-TDA-XXX) automatically
+    - Generating a unique document ID (PD-TDM-XXX) automatically
     - Creating a properly formatted matrix document from template
     - Populating assessment reference, date, and item count
     - Updating the ID tracker in the central ID registry
 
-    Used by the Technical Debt Assessment task (PF-TSK-023) Step 8 to create
+    Used by the Technical Debt Assessment task (PF-TSK-023)'s prioritization step to create
     the impact vs. effort prioritization matrix for identified debt items.
 
 .PARAMETER MatrixName
@@ -46,7 +46,7 @@ param(
     [string]$MatrixName,
 
     [Parameter(Mandatory = $false)]
-    [string]$AssessmentId = "[PF-TDA-XXX]",
+    [string]$AssessmentId = "[PD-TDA-XXX]",
 
     [Parameter(Mandatory = $false)]
     [int]$ItemCount = 0,
@@ -62,14 +62,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the matrix-specific data, and the success report.
 
 $today = Get-Date -Format "yyyy-MM-dd"
 
@@ -77,7 +72,7 @@ $today = Get-Date -Format "yyyy-MM-dd"
 $customReplacements = @{
     "[Matrix Name]"               = $MatrixName
     "[Matrix Date]"               = $today
-    "[PF-TDA-XXX]"                = $AssessmentId
+    "[PD-TDA-XXX]"                = $AssessmentId
     "[Number of debt items]"      = if ($ItemCount -gt 0) { "$ItemCount" } else { "[Number of debt items]" }
     "[Assessor]"                  = "AI Agent & Human Partner"
 }
@@ -87,30 +82,26 @@ $additionalMetadataFields = @{
     "assessment_reference" = $AssessmentId
 }
 
-try {
-    $documentId = New-StandardProjectDocument `
-        -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/prioritization-matrix-template.md") `
-        -IdPrefix "PD-TDA" `
-        -IdDescription "Prioritization Matrix: $MatrixName" `
-        -DocumentName $MatrixName `
-        -OutputDirectory "doc/technical-debt/matrices" `
-        -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
-        -OpenInEditor:$OpenInEditor
+$documentId = New-FrameworkDocument `
+    -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/prioritization-matrix-template.md") `
+    -IdPrefix "PD-TDM" `
+    -IdDescription "Prioritization Matrix: $MatrixName" `
+    -DocumentName $MatrixName `
+    -OutputDirectory "doc/technical-debt/matrices" `
+    -Replacements $customReplacements `
+    -Metadata $additionalMetadataFields `
+    -Label "prioritization matrix" `
+    -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "Matrix Name: $MatrixName",
-        "Assessment Reference: $AssessmentId"
-    )
+$details = @(
+    "Matrix Name: $MatrixName",
+    "Assessment Reference: $AssessmentId"
+)
 
-    if ($ItemCount -gt 0) {
-        $details += "Items to Prioritize: $ItemCount"
-    }
-
-    $details += "Customization required — see process-framework/guides/cyclical/prioritization-guide.md"
-
-    Write-ProjectSuccess -Message "Created prioritization matrix with ID: $documentId" -Details $details
+if ($ItemCount -gt 0) {
+    $details += "Items to Prioritize: $ItemCount"
 }
-catch {
-    Write-ProjectError -Message "Failed to create prioritization matrix: $($_.Exception.Message)" -ExitCode 1
-}
+
+$details += "Customization required — apply the technical-debt-assessment craft skill (.claude/skills/technical-debt-assessment/references/prioritization.md)"
+
+Write-ProjectSuccess -Message "Created prioritization matrix with ID: $documentId" -Details $details

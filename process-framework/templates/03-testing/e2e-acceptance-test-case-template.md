@@ -2,12 +2,13 @@
 id: PF-TEM-054
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.3
 created: 2026-03-15
-updated: 2026-03-18
+updated: 2026-07-22
 template_for: E2E Acceptance Test Case
+creates_document_type: Testing
 description: Template for individual E2E acceptance test case files with exact steps, preconditions, expected outcomes, and verification methods
-creates_document_category: Testing
+creates_document_category: E2E Acceptance Test Case
 usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 ---
 
@@ -18,7 +19,9 @@ usage_context: E2E Acceptance Test Case Creation Task (PF-TSK-069)
 
 ---
 id: [E2E-NNN]
-type: E2E Acceptance Test Case
+type: Testing
+category: E2E Acceptance Test Case
+description: "E2E acceptance test case: [TITLE]"
 group: [GROUP-ID]
 feature_ids: [FEATURE-IDS-YAML]
 workflow: [WF-NNN]
@@ -51,7 +54,7 @@ updated: [YYYY-MM-DD]
 <!-- Be specific: running services, configuration, file system state -->
 
 - [ ] [Service/application] is running with [specific configuration]
-- [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Group [GROUP-NAME]`
+- [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Workflow [GROUP-NAME]`
 - [ ] Workspace contains pristine copy of this test case's fixtures
 - [ ] [Any additional preconditions specific to this test case]
 
@@ -133,7 +136,7 @@ updated: [YYYY-MM-DD]
 
 <!-- How to confirm the test passed — multiple methods can be used -->
 
-- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase [TE-E2E-NNN]` — compares workspace against `expected/`
+- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase [TE-E2E-NNN] -Workflow [workflow-slug]` — compares workspace against `expected/`
 - [ ] **Visual inspection**: Open files listed in Expected Results and confirm changes
 - [ ] **Log check**: Check application log for [specific messages or absence of errors]
 

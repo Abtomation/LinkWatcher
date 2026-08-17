@@ -9,9 +9,9 @@
     Creates a new Database Schema Design document (PD-SCH-XXX).
 
 .DESCRIPTION
-    Generates a Schema Design document, appends to PD-documentation-map.md,
-    and (when -FeatureId is provided) updates master Status and inserts a row
-    into the feature state file's §4 ▸ Design Documentation table.
+    Generates a Schema Design document (carrying a description: frontmatter line
+    rendered by the generated PD map) and (when -FeatureId is provided) updates master
+    Status and inserts a row into the feature state file's §4 ▸ Design Documentation table.
 
 .PARAMETER FeatureName
     Feature requiring schema changes.
@@ -60,6 +60,7 @@ $additionalMetadataFields = @{
     "schema_type"  = $SchemaType.ToLower()
 }
 if ($FeatureId -ne "") { $additionalMetadataFields["feature_id"] = $FeatureId }
+$additionalMetadataFields["description"] = "Database schema design ($SchemaType) for $FeatureName"
 
 $customReplacements = @{
     "[Feature Name]" = $FeatureName
@@ -96,11 +97,8 @@ try {
         FeatureName                = $FeatureName
         Replacements               = $customReplacements
         AdditionalMetadataFields   = $additionalMetadataFields
-        DocMapSectionHeader        = "### ``technical/database/schemas/``"
-        DocMapEntryFormatter       = { param($id) "- [Schema: $FeatureName ($id)](technical/database/schemas/$customFileName) - $SchemaType schema for $FeatureName" }
         OpenInEditor               = $OpenInEditor
         DryRun                     = $DryRun
-        CallerCmdlet               = $PSCmdlet
     }
     if ($FeatureId -ne "") {
         $invokeArgs['FeatureId']                  = $FeatureId
@@ -117,9 +115,8 @@ try {
     )
     if ($Description -ne "") { $details += "Description: $Description" }
     if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/02-design/schema-design-creation-guide.md"
+        $details += "Customization required — see process-framework/tasks/02-design/database-schema-design-task.md"
     }
-    if ($result.DocMapUpdated)   { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
     if ($result.StateFileResult) {
         $sf = $result.StateFileResult
         $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"

@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-052
-type: Process Framework
+description: "Batch A (Score: 2.55/3.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-03-26

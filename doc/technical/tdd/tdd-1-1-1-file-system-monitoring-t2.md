@@ -1,5 +1,6 @@
 ---
 id: PD-TDD-023
+description: "1.1.1 Tier 2 — State machine, timer-based move detection"
 type: Technical Design Document
 category: TDD Tier 2
 version: 1.0

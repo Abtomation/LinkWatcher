@@ -2,14 +2,38 @@
 id: PF-TSK-021
 type: Process Framework
 category: Task Definition
-version: 1.5
+version: 1.6
 created: 2025-07-21
-updated: 2026-05-16
+updated: 2026-08-04
 change_notes: "v1.3 - Updated for IMP-097/IMP-098: Clarified database-only scope, added information flow section, updated outputs to remove non-database concerns"
 description: "Plan data model changes before coding to prevent data integrity issues"
+complexity: medium
+use_when: >-
+  Plan data model changes before coding to prevent data integrity issues
+automation: full
+scripts:
+  - ../../scripts/file-creation/02-design/New-SchemaDesign.ps1
+trigger_status:
+  - file: feature-tracking.md
+    status: "🗄️ Needs DB Design"
+output_status:
+  - raw: "`feature-tracking.md` Status → next design-chain gate still flagged (`🔌 Needs API Design` / `🎨 Needs UI Design` / `📜 Needs Instruction Design`) else `📝 Needs TDD` (Tier 2+) / `🔧 Needs Impl Plan` (Tier 1 — Tier 1 skips TDD); Schema Design row inserted into per-feature state file's §4 Documentation Inventory (PF-PRO-002)"
+next_tasks:
+  - task: ../04-implementation/feature-implementation-planning-task.md
+    condition: "Plan and implement the feature using the designed schema"
+  - task: api-design-task.md
+    condition: "Design APIs that work with the new data model (if applicable)"
+  - task: ui-design-task.md
+    condition: "Feature Status is `🎨 Needs UI Design` — the design-chain gate after API"
+  - task: instruction-design-task.md
+    condition: "Feature Status is `📜 Needs Instruction Design` — the feature has an instruction dimension"
+  - task: ../06-maintenance/code-review-task.md
+    condition: "Review the schema design before implementation begins"
 ---
 
 # Database Schema Design Task
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 **🤖 AUTOMATION UPDATE (PF-PRO-002 / PF-IMP-760)**: This task is **FULLY AUTOMATED**. The `New-SchemaDesign.ps1` script (via the shared `Invoke-DesignArtifactCreation` core) inserts a Schema Design row into the per-feature state file's §4 Documentation Inventory and updates the feature-tracking.md row's Status. The feature-tracking.md schema no longer carries a DB Design column — the design-required flag from Tier Assessment is preserved in the per-feature state file and drives the next-action Status transition.
 
@@ -28,48 +52,28 @@ Systematic data model planning before implementation to prevent data integrity i
 
 ## Information Flow
 
-> **📋 Detailed Guidance**: See [Information Flow Guide](../../guides/framework/information-flow-guide.md) for comprehensive information flow patterns.
+> **📋 Ownership & cross-reference rules**: [Information Flow Guide → Database Schema Design Task (PF-TSK-021)](../../guides/framework/information-flow-guide.md#database-schema-design-task-pf-tsk-021) — what this task owns, what it references instead, and the cross-reference format.
 
 ### Inputs from Other Tasks
 
-- **FDD Creation Task** (PF-TSK-001): Functional requirements, data requirements, business rules, user flows
-- **Feature Tier Assessment** (PF-TSK-003): Complexity tier, documentation requirements, confirmation that DB Design is needed
+- **FDD Creation Task** (PF-TSK-027): Functional requirements, data requirements, business rules, user flows
+- **Tier assessment** (via Feature Request Evaluation, PF-TSK-067): Complexity tier, documentation requirements, confirmation that DB Design is needed
 - **API Design Task** (PF-TSK-020): API contracts and data access patterns (when API Design precedes Schema Design)
 
 ### Outputs to Other Tasks
 
 - **API Design Task** (PF-TSK-020): Data model, relationships, constraints, security policies (when Schema Design precedes API Design)
-- **TDD Creation Task** (PF-TSK-022): Schema design, database performance considerations, data access patterns
+- **TDD Creation Task** (PF-TSK-015): Schema design, database performance considerations, data access patterns
 - **Test Specification Task** (PF-TSK-012): Validation rules, security policies (RLS), performance requirements, migration testing needs
-- **Feature Implementation Task** (PF-TSK-030): Migration scripts, schema specifications, data model documentation
-
-### Separation of Concerns
-
-**This task owns**:
-
-- ✅ Data structures (tables, columns, types)
-- ✅ Relationships (foreign keys, joins)
-- ✅ Database constraints (unique, not null, check)
-- ✅ Database security (RLS policies, grants)
-- ✅ Migration scripts and rollback procedures
-- ✅ Database performance (indexes, partitioning)
-
-**Other tasks own**:
-
-- ❌ API endpoint specifications → API Design Task (PF-TSK-020)
-- ❌ Service integration patterns → API Design Task (PF-TSK-020) or TDD (PF-TSK-022)
-- ❌ Comprehensive test plans → Test Specification Task (PF-TSK-012)
-- ❌ Implementation details → TDD (PF-TSK-022) or Feature Implementation (PF-TSK-030)
+- **Decomposed implementation tasks**: Migration scripts, schema specifications, data model documentation
 
 ## Context Requirements
-
-[View Context Map for this task](../../visualization/context-maps/02-design/database-schema-design-task-map.md)
 
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and data requirements that inform schema design (located in `/doc/functional-design/fdds`)
   - [Feature Requirements](../../../doc/state-tracking/permanent/feature-tracking.md) - Understanding what functionality requires database changes and confirming DB Design is required
-  - **Feature Tier Assessment** - The tier assessment for this feature (locate via [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md))
+  - **Tier assessment** - The tier assessment for this feature (locate via [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md))
   - **Current Database Schema** - Existing schema documentation and structure:
     - Current schema: `/data`
     - Database reference: `/doc/technical/architecture/database-reference.md`
@@ -88,14 +92,9 @@ Systematic data model planning before implementation to prevent data integrity i
     - Architecture documentation: `/doc/technical/architecture`
     - Database diagrams: `/doc/technical/database/diagrams`
   - **Security Policies** - Data security and privacy requirements
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
-> **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
->
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
@@ -114,8 +113,7 @@ Systematic data model planning before implementation to prevent data integrity i
 7. **Create Schema Design Document**: Use the schema design script to generate the main design document and automatically update feature tracking
    ```powershell
    # Generate schema design document with automatic feature tracking updates
-   Set-Location "doc/technical/database"
-   ../New-SchemaDesign.ps1 -FeatureName "Feature Name" -SchemaType "New|Modification|Optimization" -FeatureId "X.X.X"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-SchemaDesign.ps1 -FeatureName "Feature Name" -SchemaType "New|Modification|Optimization" -FeatureId "X.X.X"
    ```
 8. **Design Data Model**: Create entity-relationship diagrams and define data structures, relationships, and constraints
 9. **Plan Migration Strategy**: Design safe migration scripts with rollback procedures and data preservation strategies
@@ -183,7 +181,7 @@ DROP TABLE IF EXISTS public.user_profiles;
 The following state files are updated as part of this task:
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - **AUTOMATICALLY UPDATED** by the schema design script:
-  - Status: set to `🔌 Needs API Design` (if API design is required); else `📝 Needs TDD` (Tier 2+) or `🔧 Needs Impl Plan` (Tier 1, since Tier 1 skips TDD)
+  - Status: set to the next design-chain gate still flagged (`🔌 Needs API Design`, then `🎨 Needs UI Design`, then `📜 Needs Instruction Design`); with none left, `📝 Needs TDD` (Tier 2+) or `🔧 Needs Impl Plan` (Tier 1, since Tier 1 skips TDD)
 - Per-feature state file (`doc/state-tracking/features/<id>-implementation-state.md`) - **AUTOMATICALLY UPDATED**:
   - Schema Design row inserted into §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760)
 - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - **MANUAL UPDATE REQUIRED**: Add any schema optimization opportunities identified during design
@@ -191,9 +189,7 @@ The following state files are updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Schema design document created with comprehensive data model specification
@@ -206,13 +202,43 @@ Before considering this task finished:
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) row Status **AUTOMATICALLY UPDATED** to next design gate; Schema Design row **AUTOMATICALLY INSERTED** into per-feature state file's §4 Documentation Inventory (verify both automations worked correctly)
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) **MANUALLY UPDATED** with schema optimization opportunities identified during design
   - [ ] Database Schema Tracking updated with new schema changes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-021" and context "Database Schema Design Task"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-021`, context "Database Schema Design Task".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | `[feature-name]-schema-design.md` | `New-SchemaDesign.ps1` | Complete database schema design document with comprehensive data model specification |
+| **Creates** | Migration scripts (multiple) | `New-SchemaDesign.ps1` | Database migration files for schema changes with rollback procedures |
+| **Creates** | ERD diagrams (multiple) | `New-SchemaDesign.ps1` | Entity-relationship diagrams for visual schema representation |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | `New-SchemaDesign.ps1` | Status: `🗄️ Needs DB Design` → next design gate<br/>• Add schema design creation date to Notes |
+| **Updates** | Per-feature state file (`doc/state-tracking/features/<id>-implementation-state.md`) | `New-SchemaDesign.ps1` (via `Add-StateFileDocumentationInventoryRow`) | Insert Schema Design row into §4 Documentation Inventory (PF-PRO-002 / PF-IMP-760) |
+| **Updates** | [`technical-debt-tracking.md`](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | Manual | Add schema optimization opportunities identified during design |
 
 ## Next Tasks
 
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and implement the feature using the designed schema
 - [**API Design Task**](api-design-task.md) - Design APIs that work with the new data model (if applicable)
 - [**Code Review**](../06-maintenance/code-review-task.md) - Review the schema design before implementation begins
+
+<!-- merged from transition-registry entry: Database Schema Design -->
+### Prerequisites for Transition
+
+- [ ] Database schema design document created
+- [ ] Schema changes documented with migration plan
+- [ ] Data integrity constraints defined
+- [ ] Schema design linked in Feature Tracking
+
+### Next Task Selection
+
+- **Next design-chain gate** (recomputed feature Status; order DB → API → 🎨 UI → 📜 Instruction → TDD): → **API Design** (`🔌 Needs API Design`), **UI Design** (`🎨 Needs UI Design`) or **Instruction Design** (`📜 Needs Instruction Design`) if still flagged, otherwise → **TDD Creation** (`🔧 Needs Impl Plan` for Tier 1). Schema design informs the technical implementation that follows.
+
+### Preparation for Next Task
+
+1. Review schema design to understand data model requirements
+2. Ensure schema changes align with feature requirements
+3. Verify migration plan is feasible and safe
+4. Prepare database context for technical design decisions
 
 ## Related Resources
 

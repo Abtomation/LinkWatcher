@@ -9,9 +9,9 @@
     Creates a new UI/UX Design Document (PD-UIX-XXX).
 
 .DESCRIPTION
-    Generates a UI Design document, appends to PD-documentation-map.md, updates
-    master Status, and inserts a row into the feature state file's §4
-    Documentation Inventory.
+    Generates a UI Design document (carrying a description: frontmatter line rendered
+    by the generated PD map), updates master Status, and inserts a row into the
+    feature state file's §4 Documentation Inventory.
 
 .PARAMETER FeatureId
 .PARAMETER FeatureName
@@ -56,7 +56,17 @@ $customReplacements = @{
 $additionalMetadataFields = @{
     "feature_id"   = $FeatureId
     "feature_name" = $FeatureName
+    description    = "UI/UX Design Document for $FeatureName ($FeatureId)"
 }
+
+# Compute next master Status. UI Design is now a workflow gate (PF-IMP-1352):
+# after the UI design is created, advance to the next remaining design gate
+# (→ DB/API if somehow still pending, → "📜 Needs Instruction Design" when the
+# assessment flags the fourth dimension — the normal case for a Mixed-medium
+# feature, PF-PRO-064 — else "📝 Needs TDD" / "🔧 Needs Impl Plan").
+# Replaces the former terminal "🎨 UI Design Created" milestone (retired in the
+# same change). The creation itself is still recorded in the Notes column below.
+$nextStatus = Get-NextStatusAfterDesignArtifact -FeatureId $FeatureId -CurrentArtifact 'UIDesign'
 
 # ---- Delegate orchestration ----
 try {
@@ -72,14 +82,11 @@ try {
         FeatureName                = $FeatureName
         Replacements               = $customReplacements
         AdditionalMetadataFields   = $additionalMetadataFields
-        DocMapSectionHeader        = "### ``technical/design/ui-ux/features/``"
-        DocMapEntryFormatter       = { param($id) "- [UI Design: $FeatureName ($id)](technical/design/ui-ux/features/$customFileName) - $FeatureId UI/UX Design Document" }
-        NewMasterStatus            = "🎨 UI Design Created"
+        NewMasterStatus            = $nextStatus
         MasterStatusNotesFormatter = { param($id) "UI Design created: $id ($(Get-ProjectTimestamp -Format 'Date'))" }
         ArtifactRelativePath       = $uiRelativePath
         OpenInEditor               = $OpenInEditor
         DryRun                     = $DryRun
-        CallerCmdlet               = $PSCmdlet
     }
     $result = Invoke-DesignArtifactCreation @invokeArgs
 
@@ -94,8 +101,7 @@ try {
         ""
     )
     if ($Description -ne "") { $details += "Description: $Description" }
-    if (-not $OpenInEditor)  { $details += "Customization required — see process-framework/guides/02-design/ui-design-customization-guide.md" }
-    if ($result.DocMapUpdated)   { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
+    if (-not $OpenInEditor)  { $details += "Customization required — apply the ui-design craft skill (.claude/skills/ui-design/), activated by the UI Design task's Check Recommended Skills step" }
     if ($result.StateFileResult) {
         $sf = $result.StateFileResult
         $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"

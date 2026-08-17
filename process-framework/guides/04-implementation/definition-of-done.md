@@ -99,7 +99,7 @@ For security-sensitive features:
 
 Documentation must be updated:
 
-- [ ] Documentation tier reviewed and adjusted if needed (see [Process: Documentation Tier Assessment Guide](../01-planning/assessment-guide.md))
+- [ ] Documentation tier reviewed and adjusted if needed (scoring criteria: the `feature-request-evaluation` skill's [tier-assessment reference](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md))
 - [ ] Technical design document updated according to the (potentially adjusted) documentation tier
 - [ ] Feature tracking document updated with current status and documentation tier
 - [ ] README updated (if applicable)

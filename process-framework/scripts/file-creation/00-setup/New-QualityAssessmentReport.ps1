@@ -37,10 +37,10 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-QualityAssessmentReport.ps1 -FeatureName "Customer-Management" -FeatureId "1.1.0" -Tier 2 -CodeMaturity 1.4 -TestMaturity 1
+    New-QualityAssessmentReport.ps1 -FeatureName "Customer-Management" -FeatureId "1.1.0" -Tier 2 -CodeMaturity 1.4 -TestMaturity 1
 
 .EXAMPLE
-    .\New-QualityAssessmentReport.ps1 -FeatureName "Invoice-Generator" -FeatureId "1.3.0" -Tier 3 -CodeMaturity 0.8 -TestMaturity 0 -OpenInEditor
+    New-QualityAssessmentReport.ps1 -FeatureName "Invoice-Generator" -FeatureId "1.3.0" -Tier 3 -CodeMaturity 0.8 -TestMaturity 0 -OpenInEditor
 
 .NOTES
     - Output directory: doc/pre-framework/quality-assessments/
@@ -93,14 +93,9 @@ try {
     exit 1
 }
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the quality-assessment-specific data, and the success report.
 
 # Warn if Code Maturity >= 2.0 (Target-State QARs are only for Code Maturity < 2.0; Test Maturity does not gate this)
 if ($CodeMaturity -ge 2.0) {
@@ -159,38 +154,34 @@ $additionalMetadataFields = @{
 }
 
 # Create the document using standardized process
-try {
-    $documentId = New-StandardProjectDocument `
-        -TemplatePath $templatePath `
-        -IdPrefix "PD-QAR" `
-        -IdDescription "Quality Assessment Report for $FeatureName ($FeatureId)" `
-        -DocumentName $sanitizedName `
-        -DirectoryType "quality-assessments" `
-        -FileNamePattern $fileNamePattern `
-        -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
-        -OpenInEditor:$OpenInEditor
+$documentId = New-FrameworkDocument `
+    -TemplatePath $templatePath `
+    -IdPrefix "PD-QAR" `
+    -IdDescription "Quality Assessment Report for $FeatureName ($FeatureId)" `
+    -DocumentName $sanitizedName `
+    -DirectoryType "quality-assessments" `
+    -FileNamePattern $fileNamePattern `
+    -Replacements $customReplacements `
+    -Metadata $additionalMetadataFields `
+    -Label "Quality Assessment Report" `
+    -OpenInEditor:$OpenInEditor
 
-    $details = @(
-        "Feature: $FeatureName ($FeatureId)",
-        "Tier: $Tier",
-        "Code Maturity: $($CodeMaturity.ToString('F1')) / 3.0",
-        "Test Maturity: $TestMaturity / 3.0",
-        "Classification: Target-State",
-        "",
-        "📋 NEXT STEPS:",
-        "1. Fill in dimension scores with specific evidence (Section 2)",
-        "2. Write overall quality assessment narrative (Section 3)",
-        "3. Complete gap analysis linking to tech debt items (Section 4)",
-        "4. Define remediation sequence by priority (Section 5)",
-        "5. Add links to FDD/TDD and tech debt items (Section 6)",
-        "",
-        "📖 RELATED TASK:",
-        "process-framework/tasks/00-setup/retrospective-documentation-creation.md"
-    )
+$details = @(
+    "Feature: $FeatureName ($FeatureId)",
+    "Tier: $Tier",
+    "Code Maturity: $($CodeMaturity.ToString('F1')) / 3.0",
+    "Test Maturity: $TestMaturity / 3.0",
+    "Classification: Target-State",
+    "",
+    "📋 NEXT STEPS:",
+    "1. Fill in dimension scores with specific evidence (Section 2)",
+    "2. Write overall quality assessment narrative (Section 3)",
+    "3. Complete gap analysis linking to tech debt items (Section 4)",
+    "4. Define remediation sequence by priority (Section 5)",
+    "5. Add links to FDD/TDD and tech debt items (Section 6)",
+    "",
+    "📖 RELATED TASK:",
+    "process-framework/tasks/00-setup/retrospective-documentation-creation.md"
+)
 
-    Write-ProjectSuccess -Message "Created Quality Assessment Report with ID: $documentId" -Details $details
-}
-catch {
-    Write-ProjectError -Message "Failed to create Quality Assessment Report: $($_.Exception.Message)" -ExitCode 1
-}
+Write-ProjectSuccess -Message "Created Quality Assessment Report with ID: $documentId" -Details $details

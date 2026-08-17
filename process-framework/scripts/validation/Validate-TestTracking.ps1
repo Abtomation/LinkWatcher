@@ -8,32 +8,205 @@
     - Pytest markers in test files (via test_query.py --dump) and actual files on disk
     - test-tracking.md entries and marker-bearing test files
     - Feature IDs in markers against known features from feature-tracking.md
-    - Test counts from markers against pytest collection
+    - Test counts from markers against pytest collection (counts are unique test
+      functions — parametrized cases collapse to their owning function, PF-IMP-1074)
     - test_type marker vs directory convention (warning only — marker is authoritative)
-    - test-tracking.md "Test Cases Count" column against pytest collection (catches stale tracking rows; see PF-IMP-672)
+    - test-tracking.md "Test Cases Count" column against pytest collection (catches stale tracking rows; see PF-IMP-672) — pass -Fix to sync drifted counts in place (PF-IMP-1047)
 
     E2E entries (TE-E2G-*, TE-E2E-*) are tracked in e2e-test-tracking.md (IMP-210).
     E2E cross-reference check against test-registry.yaml is retained for historical validation
     but skips gracefully when the registry is absent.
 .PARAMETER ProjectRoot
     Path to the project root directory. Defaults to auto-detection.
+.PARAMETER Fix
+    Sync the test-tracking.md "Test Cases Count" column to the pytest collection counts for
+    any drifted rows (Check 8), instead of only reporting the drift. Opt-in; rewrites only the
+    count cell of each drifted row in place. No effect when pytest collection is unavailable
+    (e.g. PowerShell-tested projects, where Check 8 is skipped). PF-IMP-1047.
+.PARAMETER Path
+    Comma-separated list of file paths (relative to the project root). When supplied, every
+    per-file finding (Checks 1-6, 8) is scoped to these files so a post-edit "is my change
+    clean" check is not buried under standing repo-wide drift. A scoped run's error/warning
+    counts and exit code reflect the in-scope files ONLY — run unscoped for a full repo gate.
+    PF-IMP-1176.
+.PARAMETER ChangedOnly
+    Scope per-file findings to the project's git-changed files (working-tree changes vs HEAD
+    plus untracked files). Combine with -Path to widen the scope. Same scoped-verdict semantics
+    as -Path. PF-IMP-1176.
 .EXAMPLE
     Validate-TestTracking.ps1
 .EXAMPLE
+    Validate-TestTracking.ps1 -ChangedOnly
+    Reports only findings for files changed in the working tree — the post-edit consistency check.
+.EXAMPLE
+    Validate-TestTracking.ps1 -Path "test/automated/unit/test_foo.py,test/automated/unit/test_bar.py"
+    Scopes the report to the two named test files.
+.EXAMPLE
     Validate-TestTracking.ps1 -ProjectRoot "C:\Projects\MyProject"
+.EXAMPLE
+    Validate-TestTracking.ps1 -Fix
+    Runs all checks as usual, but for Check 8 syncs any drifted "Test Cases Count" cells to the
+    pytest collection count rather than only warning.
 #>
 
 param(
-    [string]$ProjectRoot = ""
+    [string]$ProjectRoot = "",
+    [switch]$Fix,
+    [switch]$ChangedOnly,
+    [string]$Path = ""
 )
+
+# --- Pure helpers (defined before the dot-source guard so Pester can load them) ---
+
+function Get-CollectedFunctionCounts {
+    <#
+    .SYNOPSIS
+        Counts unique test functions per file from test-discovery output.
+    .DESCRIPTION
+        Markers and tracking rows record AST-counted test FUNCTIONS, but discovery
+        output (pytest --collect-only) lists one node per expanded parametrized case.
+        Stripping the trailing [parameter] suffix and deduplicating node IDs collapses
+        parametrized cases to their owning function, so counts compare like-for-like
+        (PF-IMP-1074).
+    #>
+    param(
+        [object[]]$CollectOutput,
+        [string]$Pattern
+    )
+
+    $seen = @{}
+    foreach ($line in $CollectOutput) {
+        $lineStr = "$line".Trim()
+        if ($lineStr -match $Pattern) {
+            $filePath = $matches[1].Replace('\', '/')
+            $nodeId = $lineStr -replace '\[.*\]$', ''
+            if (-not $seen.ContainsKey($filePath)) {
+                $seen[$filePath] = [System.Collections.Generic.HashSet[string]]::new()
+            }
+            [void]$seen[$filePath].Add($nodeId)
+        }
+    }
+
+    $counts = @{}
+    foreach ($filePath in $seen.Keys) {
+        $counts[$filePath] = $seen[$filePath].Count
+    }
+    return $counts
+}
+
+function Get-TrackingCountFixes {
+    <#
+    .SYNOPSIS
+        Computes "Test Cases Count" column corrections for test-tracking.md rows whose tracked count differs from the pytest collection count.
+    .DESCRIPTION
+        Pure transform shared by Validate-TestTracking.ps1 Check 8 detection and its -Fix mode
+        (PF-IMP-1047). Given the tracking file's lines and a path→count map from pytest
+        collection, returns one descriptor per drifted row: 0-based line index, the rewritten
+        line (only the count cell's digits change; surrounding whitespace is preserved), the
+        resolved file path, and the old/new counts. Rows that are not count-bearing table rows,
+        lack a numeric count cell, or have no collection match are skipped — the same matching
+        as the original Check 8 (suffix match; ../../ → test/ path resolution).
+    #>
+    param(
+        [object[]]$TrackingContent,
+        [hashtable]$ActualCounts
+    )
+
+    $fixes = @()
+    for ($i = 0; $i -lt $TrackingContent.Count; $i++) {
+        $line = $TrackingContent[$i]
+        if ($line -notmatch '^\|') { continue }
+        if ($line -match '^\|[\s\-:|]+\|\s*$') { continue }   # header separator row
+
+        $cells = $line -split '\|'
+        if ($cells.Count -lt 7) { continue }
+
+        $fileCell = $cells[3].Trim()
+        if ($fileCell -notmatch '\[([^\]]+)\]\(([^)]+)\)') { continue }
+        $rawPath = $matches[2].Replace('\', '/')
+        $resolvedPath = if ($rawPath -match '^\.\./\.\./(.+)$') { "test/$($matches[1])" } else { $rawPath }
+
+        $countCell = $cells[5].Trim()
+        if ($countCell -notmatch '^\d+$') { continue }
+        $trackedCount = [int]$countCell
+
+        # Suffix-match against pytest collection results (same convention as Check 6)
+        $collectionCount = $null
+        foreach ($actualPath in $ActualCounts.Keys) {
+            if ($actualPath -eq $resolvedPath -or $actualPath.EndsWith($resolvedPath) -or $resolvedPath.EndsWith($actualPath)) {
+                $collectionCount = $ActualCounts[$actualPath]
+                break
+            }
+        }
+        if ($null -eq $collectionCount) { continue }
+        if ($trackedCount -eq $collectionCount) { continue }
+
+        # Rewrite only the digits of the count cell, preserving its surrounding whitespace.
+        $cells[5] = $cells[5] -replace '\d+', "$collectionCount"
+        $fixes += [PSCustomObject]@{
+            LineIndex       = $i
+            OldLine         = $line
+            NewLine         = ($cells -join '|')
+            FilePath        = $resolvedPath
+            TrackedCount    = $trackedCount
+            CollectionCount = $collectionCount
+        }
+    }
+
+    return $fixes
+}
+
+function ConvertTo-ScopePathList {
+    <#
+    .SYNOPSIS
+        Splits a comma-separated -Path value into normalized forward-slash relative paths (PF-IMP-1176).
+    #>
+    param([string]$PathCsv)
+    if ([string]::IsNullOrWhiteSpace($PathCsv)) { return @() }
+    return @($PathCsv -split ',' | ForEach-Object { $_.Trim().Replace('\', '/') } | Where-Object { $_ })
+}
+
+function Test-FileInScope {
+    <#
+    .SYNOPSIS
+        Returns whether a finding's file path falls within an active output scope set (PF-IMP-1176).
+    .DESCRIPTION
+        When $ScopeSet is $null, scoping is inactive and every path is in scope (the script's
+        default repo-wide behavior). Otherwise a file is in scope when its normalized
+        forward-slash path equals or suffix-matches any scope entry — the same suffix convention
+        the count checks use, so a tracking-relative path and a project-relative path for the
+        same file both match. An empty (non-null) scope set matches nothing.
+    #>
+    param(
+        [string]$FilePath,
+        $ScopeSet
+    )
+    if ($null -eq $ScopeSet) { return $true }
+    if ([string]::IsNullOrWhiteSpace($FilePath)) { return $false }
+    $p = $FilePath.Replace('\', '/')
+    foreach ($s in $ScopeSet) {
+        if ($p -eq $s -or $p.EndsWith($s) -or $s.EndsWith($p)) { return $true }
+    }
+    return $false
+}
+
+# Dot-source guard: `. <path>` loads the helpers above without running the validation.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
+# --- Import Common-ScriptHelpers (always) ---
+# Get-ProcessFrameworkPath / Get-ProjectRoot live here and are used on BOTH the -ProjectRoot
+# and auto-detect paths below, so the import must run unconditionally — not only in the
+# auto-detect branch, or a -ProjectRoot invocation in a fresh session crashes at the first
+# Get-ProcessFrameworkPath call (PF-IMP-1149). The walk-up keys off $PSScriptRoot, independent
+# of $ProjectRoot.
+$dir = $PSScriptRoot
+while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
+    $dir = Split-Path -Parent $dir
+}
+Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # --- Resolve project root ---
 if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-    $dir = $PSScriptRoot
-    while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
-        $dir = Split-Path -Parent $dir
-    }
-    Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
     $ProjectRoot = Get-ProjectRoot
 }
 
@@ -42,6 +215,32 @@ Write-Host "  Test Tracking Validation (SC-007)" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Project Root: $ProjectRoot" -ForegroundColor Gray
 Write-Host ""
+
+# --- Build output scope set (PF-IMP-1176) ---
+# -Path (comma-separated) and/or -ChangedOnly restrict every per-file finding to the named /
+# git-changed files, so a post-edit "is my change clean" check is not buried under standing
+# repo-wide drift. $scopeSet stays $null when neither is given — full repo-wide behavior,
+# byte-for-byte unchanged. A scoped run's error/warning counts and exit code reflect the
+# in-scope files ONLY; CI/release gates should run unscoped.
+$scopeSet = $null
+if ($ChangedOnly -or -not [string]::IsNullOrWhiteSpace($Path)) {
+    $scopePaths = [System.Collections.Generic.List[string]]::new()
+    foreach ($p in (ConvertTo-ScopePathList -PathCsv $Path)) { $scopePaths.Add($p) }
+    if ($ChangedOnly) {
+        try {
+            $gitChanged = @(& git -C $ProjectRoot diff --name-only HEAD 2>$null) +
+                          @(& git -C $ProjectRoot ls-files --others --exclude-standard 2>$null)
+            foreach ($c in $gitChanged) {
+                if (-not [string]::IsNullOrWhiteSpace($c)) { $scopePaths.Add($c.Trim().Replace('\', '/')) }
+            }
+        } catch {
+            Write-Host "WARNING: -ChangedOnly could not query git ($($_.Exception.Message)); using -Path scope only" -ForegroundColor Yellow
+        }
+    }
+    $scopeSet = @($scopePaths | Sort-Object -Unique)
+    Write-Host "Output scope: $($scopeSet.Count) file(s) (scoped run — verdict reflects these files only)" -ForegroundColor Gray
+    Write-Host ""
+}
 
 $errorCount = 0
 $warningCount = 0
@@ -107,6 +306,8 @@ foreach ($entry in $markerEntries) {
     }
 }
 
+$missingFiles = @($missingFiles | Where-Object { Test-FileInScope -FilePath $_.FilePath -ScopeSet $scopeSet })
+
 if ($missingFiles.Count -gt 0) {
     Write-Host "  ERROR: $($missingFiles.Count) marker entries have missing files:" -ForegroundColor Red
     foreach ($f in $missingFiles) {
@@ -145,6 +346,8 @@ if (-not $testFileExtension) {
         }
     }
 }
+
+$unmarkedFiles = @($unmarkedFiles | Where-Object { Test-FileInScope -FilePath $_.RelativePath -ScopeSet $scopeSet })
 
 if ($unmarkedFiles.Count -gt 0) {
     Write-Host "  WARNING: $($unmarkedFiles.Count) test files on disk have no pytestmark:" -ForegroundColor Yellow
@@ -187,6 +390,8 @@ if (-not (Test-Path $testTrackingPath)) {
             $missingInTracking += $entryPath
         }
     }
+
+    $missingInTracking = @($missingInTracking | Where-Object { Test-FileInScope -FilePath $_ -ScopeSet $scopeSet })
 
     if ($missingInTracking.Count -gt 0) {
         Write-Host "  WARNING: $($missingInTracking.Count) marker entries not found in test-tracking.md:" -ForegroundColor Yellow
@@ -239,6 +444,8 @@ foreach ($entry in $markerEntries) {
     }
 }
 
+$invalidFeatureRefs = @($invalidFeatureRefs | Where-Object { Test-FileInScope -FilePath $_.FilePath -ScopeSet $scopeSet })
+
 if ($invalidFeatureRefs.Count -gt 0) {
     Write-Host "  WARNING: $($invalidFeatureRefs.Count) references to unknown feature IDs:" -ForegroundColor Yellow
     foreach ($r in $invalidFeatureRefs) {
@@ -262,11 +469,11 @@ foreach ($entry in $markerEntries) {
 
     # Infer expected type from directory path
     $expectedType = $null
-    if ($filePath -match '/unit/') { $expectedType = "unit" }
-    elseif ($filePath -match '/integration/') { $expectedType = "integration" }
+    if ($filePath -match '/unit') { $expectedType = "unit" }
+    elseif ($filePath -match '/integration') { $expectedType = "integration" }
     elseif ($filePath -match '/parsers?/') { $expectedType = "parser" }
-    elseif ($filePath -match '/performance/') { $expectedType = "performance" }
-    elseif ($filePath -match '/e2e/') { $expectedType = "e2e" }
+    elseif ($filePath -match '/performance') { $expectedType = "performance" }
+    elseif ($filePath -match '/e2e') { $expectedType = "e2e" }
 
     if ($expectedType -and $testType -ne $expectedType) {
         $typeMismatches += [PSCustomObject]@{
@@ -276,6 +483,8 @@ foreach ($entry in $markerEntries) {
         }
     }
 }
+
+$typeMismatches = @($typeMismatches | Where-Object { Test-FileInScope -FilePath $_.FilePath -ScopeSet $scopeSet })
 
 if ($typeMismatches.Count -gt 0) {
     Write-Host "  WARNING: $($typeMismatches.Count) test_type marker/directory mismatch(es) (marker is authoritative):" -ForegroundColor Yellow
@@ -315,17 +524,11 @@ if (-not $testCountCommand) {
             } elseif (-not $discoveryOutputPattern) {
                 Write-Host "  SKIPPED: No discoveryOutputPattern in language config" -ForegroundColor Gray
             } else {
-                # Parse discovery output (populates script-scoped $actualCounts)
-                foreach ($line in $collectOutput) {
-                    $lineStr = "$line".Trim()
-                    if ($lineStr -match $discoveryOutputPattern) {
-                        $filePath = $matches[1].Replace('\', '/')
-                        if (-not $actualCounts.ContainsKey($filePath)) {
-                            $actualCounts[$filePath] = 0
-                        }
-                        $actualCounts[$filePath]++
-                    }
-                }
+                # Parse discovery output into unique-test-function counts (script-scoped
+                # $actualCounts, reused by Check 8). Parametrized cases collapse to their
+                # owning function so counts compare like-for-like with the AST function
+                # counts in markers and tracking rows (PF-IMP-1074).
+                $actualCounts = Get-CollectedFunctionCounts -CollectOutput $collectOutput -Pattern $discoveryOutputPattern
 
                 # Compare with marker test_count
                 $countMismatches = @()
@@ -351,10 +554,12 @@ if (-not $testCountCommand) {
                     }
                 }
 
+                $countMismatches = @($countMismatches | Where-Object { Test-FileInScope -FilePath $_.FilePath -ScopeSet $scopeSet })
+
                 if ($countMismatches.Count -gt 0) {
                     Write-Host "  WARNING: $($countMismatches.Count) test count mismatch(es):" -ForegroundColor Yellow
                     foreach ($m in $countMismatches) {
-                        Write-Host "    - $($m.FilePath): marker=$($m.MarkerCount), actual=$($m.ActualCount)" -ForegroundColor Yellow
+                        Write-Host "    - $($m.FilePath): marker=$($m.MarkerCount), collected functions=$($m.ActualCount)" -ForegroundColor Yellow
                     }
                     $warningCount += $countMismatches.Count
                 } else {
@@ -374,7 +579,9 @@ Write-Host ""
 Write-Host "7. Checking E2E entries cross-reference..." -ForegroundColor Yellow
 
 $registryPath = Join-Path $ProjectRoot "test/test-registry.yaml"
-if (Test-Path $registryPath) {
+if ($null -ne $scopeSet) {
+    Write-Host "  SKIPPED: scoped run (-Path/-ChangedOnly) — Check 7 (E2E ID cross-reference) is not file-scoped" -ForegroundColor Gray
+} elseif (Test-Path $registryPath) {
     # Parse E2E entries from registry
     $e2eRegistryIds = @()
     $currentEntry = $null
@@ -448,55 +655,32 @@ if ($actualCounts.Count -eq 0) {
 } elseif (-not (Test-Path $testTrackingPath)) {
     Write-Host "  SKIPPED: test-tracking.md not found" -ForegroundColor Gray
 } else {
-    $rowCountMismatches = @()
+    # Detection + fix share one pure transform (PF-IMP-1047). Each fix descriptor carries the
+    # rewritten line; tracking-row cell layout is: [0]=empty, [1]=feature, [2]=type, [3]=file,
+    # [4]=status, [5]=count, [6]=last_run, [7]=last_updated, [8]=notes, [9]=empty.
+    $countFixes = @(Get-TrackingCountFixes -TrackingContent $trackingContent -ActualCounts $actualCounts)
+    $countFixes = @($countFixes | Where-Object { Test-FileInScope -FilePath $_.FilePath -ScopeSet $scopeSet })
 
-    foreach ($line in $trackingContent) {
-        if ($line -notmatch '^\|') { continue }
-        # Skip header separator rows (|---|---|)
-        if ($line -match '^\|[\s\-:|]+\|\s*$') { continue }
-
-        $cells = $line -split '\|'
-        # Expected: cells[0]=empty, [1]=feature, [2]=type, [3]=file, [4]=status, [5]=count, [6]=last_run, [7]=last_updated, [8]=notes, [9]=empty
-        if ($cells.Count -lt 7) { continue }
-
-        $fileCell = $cells[3].Trim()
-        if ($fileCell -notmatch '\[([^\]]+)\]\(([^)]+)\)') { continue }
-        $rawPath = $matches[2].Replace('\', '/')
-
-        # Resolve tracking-relative path (../../X) to project-root-relative (test/X)
-        $resolvedPath = if ($rawPath -match '^\.\./\.\./(.+)$') { "test/$($matches[1])" } else { $rawPath }
-
-        $countCell = $cells[5].Trim()
-        if ($countCell -notmatch '^\d+$') { continue }
-        $trackedCount = [int]$countCell
-
-        # Suffix-match against pytest collection results (same convention as Check 6)
-        $collectionCount = $null
-        foreach ($actualPath in $actualCounts.Keys) {
-            if ($actualPath -eq $resolvedPath -or $actualPath.EndsWith($resolvedPath) -or $resolvedPath.EndsWith($actualPath)) {
-                $collectionCount = $actualCounts[$actualPath]
-                break
-            }
-        }
-        if ($null -eq $collectionCount) { continue }
-
-        if ($trackedCount -ne $collectionCount) {
-            $rowCountMismatches += [PSCustomObject]@{
-                FilePath = $resolvedPath
-                TrackedCount = $trackedCount
-                CollectionCount = $collectionCount
-            }
-        }
-    }
-
-    if ($rowCountMismatches.Count -gt 0) {
-        Write-Host "  WARNING: $($rowCountMismatches.Count) tracking-row count mismatch(es):" -ForegroundColor Yellow
-        foreach ($m in $rowCountMismatches) {
-            Write-Host "    - $($m.FilePath): tracked=$($m.TrackedCount), collection=$($m.CollectionCount)" -ForegroundColor Yellow
-        }
-        $warningCount += $rowCountMismatches.Count
-    } else {
+    if ($countFixes.Count -eq 0) {
         Write-Host "  OK: All test-tracking.md row counts match pytest collection" -ForegroundColor Green
+    } elseif ($Fix) {
+        # -Fix: sync the drifted count cells in place. Read raw to preserve formatting and line
+        # endings, replace each drifted row line, write back once.
+        $rawTracking = Get-Content $testTrackingPath -Raw -Encoding UTF8
+        foreach ($f in $countFixes) {
+            $rawTracking = $rawTracking.Replace($f.OldLine, $f.NewLine)
+        }
+        Set-Content -Path $testTrackingPath -Value $rawTracking -NoNewline -Encoding UTF8
+        Write-Host "  FIXED: synced $($countFixes.Count) tracking-row count(s) to pytest collection:" -ForegroundColor Green
+        foreach ($f in $countFixes) {
+            Write-Host "    - $($f.FilePath): $($f.TrackedCount) -> $($f.CollectionCount)" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  WARNING: $($countFixes.Count) tracking-row count mismatch(es) (re-run with -Fix to sync):" -ForegroundColor Yellow
+        foreach ($f in $countFixes) {
+            Write-Host "    - $($f.FilePath): tracked=$($f.TrackedCount), collected functions=$($f.CollectionCount)" -ForegroundColor Yellow
+        }
+        $warningCount += $countFixes.Count
     }
 }
 Write-Host ""
@@ -506,6 +690,9 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  Validation Summary" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  Marker entries: $($markerEntries.Count)" -ForegroundColor Gray
+if ($null -ne $scopeSet) {
+    Write-Host "  Scope: $($scopeSet.Count) file(s) — counts/verdict reflect scoped files only" -ForegroundColor Gray
+}
 Write-Host "  Errors:   $errorCount" -ForegroundColor $(if ($errorCount -eq 0) { "Green" } else { "Red" })
 Write-Host "  Warnings: $warningCount" -ForegroundColor $(if ($warningCount -eq 0) { "Green" } else { "Yellow" })
 

@@ -5,6 +5,7 @@ category: Guide
 version: 1.2
 created: 2026-04-09
 updated: 2026-05-14
+related_task: PF-TSK-086,PF-TSK-084,PF-TSK-085,PF-TSK-030
 description: "4-level performance testing methodology with baselines, trend tracking, and decision matrix"
 ---
 
@@ -21,7 +22,7 @@ Performance testing is a **cross-cutting concern** — tests are not owned by in
 Consult this guide when:
 
 - **Creating new performance tests** — use the test level definitions and measurement methodology
-- **Deciding whether a feature needs performance tests** — see the [Performance & E2E Test Scoping Guide](performance-and-e2e-test-scoping-guide.md) (decision matrix lives there)
+- **Deciding whether a feature needs performance tests** — see the [`perf-e2e-scoping` craft skill](../../../.claude/skills/perf-e2e-scoping/SKILL.md) (decision matrix lives there)
 - **Setting or updating baselines** — follow the baseline management process
 - **Interpreting trend data** — use the trend analysis section to understand regressions vs. noise
 
@@ -137,7 +138,7 @@ def test_bm_001_parsing_throughput(self, tmp_path):
 
 ## Decision Matrix
 
-> **Migrated**: The performance test decision matrix has moved to the [Performance & E2E Test Scoping Guide](performance-and-e2e-test-scoping-guide.md#performance-test-decision-matrix), which is the authoritative reference for "when to create performance tests." This guide focuses on "how to test" — levels, baselines, and trends.
+> **Migrated**: The performance test decision matrix has moved to the [`perf-e2e-scoping` craft skill](../../../.claude/skills/perf-e2e-scoping/SKILL.md#performance-test-decision-matrix), which is the authoritative reference for "when to create performance tests." This guide focuses on "how to test" — levels, baselines, and trends.
 
 ### Trigger Points in the Workflow
 
@@ -164,6 +165,33 @@ Performance tests live under `test/automated/performance/`, organized into four 
 The blueprint provides these four directories with `.gitkeep` markers; `New-TestInfrastructure.ps1 -Update` recreates them if deleted. Within each level dir, name the test file by the subsystem or scenario being measured (e.g., `level1-component/test_parser_throughput.py`, `level3-scale/test_large_projects.py`).
 
 **Audit mirror**: Audit reports for performance tests are routed by path transformation — a test at `test/automated/performance/level{N}-{name}/test_foo.py` audits to `test/audits/performance/level{N}-{name}/`. The four audit-side level directories are blueprint-provided and maintained by the same recovery path in `New-TestInfrastructure.ps1 -Update`.
+
+#### Sharing helpers across level dirs
+
+The level directory names are hyphenated (`level1-component`), which are **not valid Python package names** — so a shared helper cannot be imported across level dirs (`from level1_component.helpers import …` does not resolve), and under pytest's `--import-mode=importlib` each test file is imported standalone with no shared package path. Put shared setup/helper logic in a **`conftest.py` factory-fixture** at a common ancestor instead of a helper module: pytest discovers `conftest.py` by path (no import needed), and a fixture that returns a callable lets each test build what it needs on demand.
+
+Place the `conftest.py` at `test/automated/performance` so its fixtures are visible to all four level dirs:
+
+```python
+# test/automated/performance/conftest.py  — visible to all four level dirs
+import pytest
+
+@pytest.fixture
+def make_corpus(tmp_path):
+    """Factory fixture: build a sized file corpus on demand."""
+    def _make(file_count):
+        for i in range(file_count):
+            (tmp_path / f"f{i}.txt").write_text("x")
+        return tmp_path
+    return _make
+```
+
+```python
+# test/automated/performance/level1-component/test_parser_throughput.py
+def test_parse_throughput(make_corpus):
+    corpus = make_corpus(100)   # shared helper — no cross-level-dir import
+    ...
+```
 
 ### Test ID Conventions
 
@@ -205,6 +233,8 @@ Every performance test must have:
 ```
 
 Add `@pytest.mark.slow` for tests taking >10 seconds.
+
+> **`-m performance` keys on the bare `@pytest.mark.performance` marker** — not on `@pytest.mark.test_type("performance")`, which is a separate marker named `test_type` whose `"performance"` argument is classification metadata; `-m performance` does not match it. All four levels (including level3-scale / level4-resource) must therefore carry the bare `@pytest.mark.performance` marker, or `-m performance` silently deselects them and they are never baselined. To run **every** performance test independent of marker conformance, select by directory (`test/automated/performance`); reserve `-m performance` for verifying conformance (e.g. the Test Audit Baseline-Readiness gate, PF-TSK-030).
 
 ### Measurement Best Practices
 
@@ -302,8 +332,9 @@ A baseline is a recorded measurement of a performance test on a specific commit.
 Use the Performance Baseline Capture task (Session 2+) or run manually:
 
 ```bash
-# Run performance tests
-python -m pytest test/automated/performance/ -v -s -m performance
+# Run performance tests — directory form selects every level (see Required Markers above on
+# why -m performance is a conformance filter, not the run-all selector)
+python -m pytest test/automated/performance -v -s
 
 # Record results in the trend database (git commit auto-captured from HEAD)
 python process-framework/scripts/test/performance_db.py record --test-id BM-NNN --value 144.0 --unit "files/sec"
@@ -429,7 +460,7 @@ Stores historical measurements for trend analysis. Each record includes test ID,
 
 ## Related Resources
 
-- [Performance & E2E Test Scoping Guide](performance-and-e2e-test-scoping-guide.md) — Decision matrix for "when to test" (companion to this guide's "how to test")
+- [`perf-e2e-scoping` craft skill](../../../.claude/skills/perf-e2e-scoping/SKILL.md) — Decision matrix for "when to test" (companion to this guide's "how to test")
 - [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Registry of all performance tests with baselines
 - [Performance Results Database](../../scripts/test/performance_db.py) — Trend storage and query tool
 - [Test Infrastructure Guide](test-infrastructure-guide.md) — How test/ connects to the framework

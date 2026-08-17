@@ -1,6 +1,8 @@
 ---
 id: TE-E2G-002
-type: E2E Acceptance Test Group
+description: "E2E acceptance test (WF-001): powershell-parser-patterns."
+type: Testing
+category: E2E Acceptance Test Group
 feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
 workflow: WF-001
 test_cases_count: 2

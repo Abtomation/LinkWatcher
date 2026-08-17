@@ -33,6 +33,16 @@
     Optional hashtable of language-specific values. Keys are language names (matching config file prefixes),
     values are the field values. Languages not in this hashtable get the DefaultValue.
 
+    Invocation form: a hashtable cannot bind through `pwsh -File`, which passes literal string
+    tokens — the run fails with "Cannot convert the "@{" value of type "System.String" to type
+    "System.Collections.Hashtable"". Pass -LanguageValues via in-session parsing only:
+    pwsh -Command with the & call operator (from bash, wrap the whole -Command argument in
+    single quotes). Under -Command, note that an escaped double quote inside ANY sibling
+    string argument (e.g. -TemplateComment) terminates that string early and misreports as a
+    binder error naming the wrong argument ("A positional parameter cannot be found that
+    accepts argument ...") — keep sibling arguments free of embedded quotes, or read the
+    quote-heavy value from a file with (Get-Content <path> -Raw).
+
 .PARAMETER List
     List all fields across all language configs and the template, showing drift.
 
@@ -41,6 +51,10 @@
 
 .EXAMPLE
     Update-LanguageConfig.ps1 -Section "testing" -FieldName "formatCommand" -DefaultValue "[format command]" -TemplateComment "OPTIONAL. Command to format test files." -LanguageValues @{ "python" = "python -m black {testDir}" }
+
+    -LanguageValues requires in-session parsing (see its parameter help). From bash, run this
+    example as:
+    pwsh.exe -ExecutionPolicy Bypass -Command '& process-framework/scripts/update/Update-LanguageConfig.ps1 -Section "testing" -FieldName "formatCommand" -DefaultValue "[format command]" -TemplateComment "OPTIONAL. Command to format test files." -LanguageValues @{ "python" = "python -m black {testDir}" }'
 
 .EXAMPLE
     Update-LanguageConfig.ps1 -List

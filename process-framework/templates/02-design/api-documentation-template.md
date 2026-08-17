@@ -11,7 +11,7 @@ creates_document_category: API Documentation
 creates_document_version: 1.0
 description: Template for creating user-facing API documentation
 usage_context: Process Framework - API Documentation Creation
-creates_document_type: Process Framework
+creates_document_type: Product Documentation
 ---
 # API Documentation Template Template
 
@@ -319,7 +319,7 @@ Identify where and how the template can be extended for specific needs.
 Link to related documentation, examples, or other resources.
 -->
 
-- [Template Development Guide](../../guides/support/template-development-guide.md)
+- [`template-development` craft skill](../../../.claude/skills/template-development/SKILL.md)
 - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md)
 
 ---

@@ -1,8 +1,8 @@
 ---
-id: [TE-TAR-XXX]
+id: PF-TEM-090
 type: Process Framework
 category: Test Audit Report
-variant: lightweight
+mode: lightweight
 version: 1.0
 created: [CREATION_DATE]
 updated: [CREATION_DATE]
@@ -15,6 +15,8 @@ variant_siblings:
   - test-audit-report-template.md
   - performance-test-audit-report-template.md
   - e2e-test-audit-report-template.md
+creates_document_type: Testing
+creates_document_category: Test Audit Report
 description: "Lightweight template for test audit reports"
 ---
 

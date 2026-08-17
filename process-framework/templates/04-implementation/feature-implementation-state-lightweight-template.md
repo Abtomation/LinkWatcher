@@ -2,9 +2,9 @@
 id: PF-TEM-068
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.4
 created: 2026-04-04
-updated: 2026-04-04
+updated: 2026-08-04
 creates_document_prefix: PD-FIS
 creates_document_version: 1.0
 description: Lightweight template for Tier 1 feature implementation state tracking — fewer sections, optimized for simple features and retrospective analysis
@@ -19,7 +19,9 @@ variant_siblings:
 
 # [Feature Name] - Implementation State
 
-> **📖 Usage guide**: [Feature Implementation State Tracking Guide (PF-GDE-043)](../../guides/04-implementation/feature-implementation-state-tracking-guide.md)
+> **📖 Craft home**: the [`feature-implementation-planning` skill](../../../.claude/skills/feature-implementation-planning/SKILL.md) — initialization and living-document maintenance craft, activated from Feature Implementation Planning's Check Recommended Skills step.
+>
+> **🚨 NEVER archived**: instances of this template are permanent feature documentation for the feature's entire lifecycle — finalization sets status `COMPLETE` in place.
 >
 > **Lightweight variant** — used for Tier 1 features and retrospective analysis. For Tier 2/3 features, use the [full template](feature-implementation-state-template.md).
 
@@ -54,8 +56,11 @@ variant_siblings:
 ## 2. Current State Summary
 
 **Last Updated**: [YYYY-MM-DD HH:MM]
+**Medium**: [code | instruction | mixed]
 **Current Status**: [PLANNING | IN_PROGRESS | TESTING | COMPLETE | DEPLOYED | MAINTAINED]
 **Current Task**: [PF-TSK-XXX: Task Name]
+
+> **Medium** is seeded from this feature's tier assessment — the determination record — and carried here for the implementation, review and verification tasks to read. It is never declared on an individual artifact; artifacts inherit it from the feature. Absent means `code`.
 
 ### What's Working
 
@@ -78,7 +83,6 @@ variant_siblings:
 
 | Document   | Type        | Status   | Location | Last Updated |
 | ---------- | ----------- | -------- | -------- | ------------ |
-| [Doc name] | Design Spec | [STATUS] | [path]   | YYYY-MM-DD   |
 
 ### User Documentation
 
@@ -90,9 +94,7 @@ variant_siblings:
 
 ### Existing Project Documentation
 
-> Records pre-existing project documentation identified during onboarding audit (PF-TSK-064 step 3b). Content relevance is confirmed during analysis (PF-TSK-065). Confirmed entries guide documentation creation (PF-TSK-066) to extract rather than re-derive.
->
-> For new projects: _No pre-existing project documentation identified._
+> Records pre-existing project documentation identified during onboarding audit (PF-TSK-064 step 3b). Content relevance is confirmed during analysis (PF-TSK-065). Confirmed entries guide documentation creation (PF-TSK-066) to extract rather than re-derive. This subsection is present only in onboarding/retrospective state files — `New-FeatureImplementationState.ps1` omits it for greenfield features.
 
 | Document | Type | Relevant Content | Confirmed | Notes |
 | -------- | ---- | ---------------- | --------- | ----- |

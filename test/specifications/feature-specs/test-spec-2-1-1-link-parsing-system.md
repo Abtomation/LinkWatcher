@@ -1,5 +1,6 @@
 ---
 id: TE-TSP-039
+description: "2.1.1 Tier 2 — Parser registry with 6 format-specific parsers"
 type: Process Framework
 category: Test Specification
 version: 1.0

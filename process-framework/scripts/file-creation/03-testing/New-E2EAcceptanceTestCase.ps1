@@ -1,4 +1,4 @@
-# New-E2EAcceptanceTestCase.ps1
+﻿# New-E2EAcceptanceTestCase.ps1
 # Creates a new E2E acceptance test case directory structure with an automatically assigned E2E-NNN ID
 # Creates test-case.md from template, project/ and expected/ subdirectories
 # Optionally creates run.ps1 skeleton for scripted (automatable) test cases
@@ -43,7 +43,7 @@
     Test case priority: P0, P1, P2, or P3 (default: P1)
 
 .PARAMETER Source
-    What triggered this test case creation (e.g., "Test Spec PF-TSP-038", "Bug Report PD-BUG-025")
+    What triggered this test case creation (e.g., "Test Spec TE-TSP-038", "Bug Report PD-BUG-025")
 
 .PARAMETER Description
     Brief description of what the test case validates
@@ -66,13 +66,13 @@
     If specified, opens the created test-case.md in the default editor
 
 .EXAMPLE
-    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -Source "Test Spec TE-TSP-038" -Description "Verify single file rename updates all references"
 
 .EXAMPLE
-    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -NewMaster -Source "Test Spec PF-TSP-038" -Description "Verify single file rename updates all references"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "single-file-rename" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -NewMaster -Source "Test Spec TE-TSP-038" -Description "Verify single file rename updates all references"
 
 .EXAMPLE
-    New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme-to-archive" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -Scripted -Source "Test Spec PF-TSP-038" -Description "Move readme.md and verify link updates"
+    New-E2EAcceptanceTestCase.ps1 -TestCaseName "move-readme-to-archive" -Workflow "user-login" -FeatureIds "1.1.1" -FeatureName "File System Monitoring" -Scripted -Source "Test Spec TE-TSP-038" -Description "Move readme.md and verify link updates"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -89,8 +89,19 @@
                         `-Workflow` is now required; `-NewGroup` renamed to `-NewMaster` (creates the
                         workflow's master test, since the templates/ dir is pre-scaffolded by Phase 3c1);
                         test cases live at `<workflow>/templates/<case>/` (Group layer collapsed))
-    Version: 1.2
-    Task: E2E Acceptance Test Case Creation (PF-TSK-069), PF-IMP-871
+    Updated: 2026-06-23 (PF-IMP-1232 — e2e-test-tracking.md row generation: corrected the test-case/master
+                        relative link depth (../../, was ../../../../test/); the Workflow column and the
+                        milestone-row match now carry the resolved WF-NNN via Resolve-WorkflowIdFromSlug,
+                        not the slug; the "If Failed table updated" summary line is gated on the master
+                        test actually existing)
+    Updated: 2026-07-22 (PF-IMP-1525 — master-test creation parity with the test-case path: leading
+                        instructional comments are now stripped, and [WF-NNN] is replaced with the
+                        resolved workflow ID (resolution hoisted to step 2b and shared with the
+                        tracking writes, replacing a duplicate block at step 7))
+    Updated: 2026-07-22 (PF-IMP-1699 — test-case [WF-NNN] now resolves to the WF-NNN ID like the
+                        master path, instead of substituting the workflow directory slug)
+    Version: 1.5
+    Task: E2E Acceptance Test Case Creation (PF-TSK-069), PF-IMP-871, PF-IMP-1232, PF-IMP-1525, PF-IMP-1699
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -133,6 +144,44 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+
+function Resolve-WorkflowIdFromSlug {
+    <#
+    .SYNOPSIS
+        Resolves a workflow directory slug to its WF-NNN ID via user-workflow-tracking.md.
+    .DESCRIPTION
+        The per-workflow e2e directory is named ConvertTo-FeatureSlug(<workflow name>)
+        (see New-TestInfrastructure.ps1), while every e2e-test-tracking.md row and the
+        Workflow Milestone table carry the WF-NNN ID. This helper bridges the two: it
+        slugifies each Workflows-table row's name with the same canonical helper and returns
+        the WF-NNN whose slug matches $Slug. A value already in WF-NNN form is returned
+        unchanged; an unresolvable slug returns $null so the caller can fall back and warn.
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Slug,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]$WorkflowTrackingContent
+    )
+
+    # Already a WF-NNN ID — pass through unchanged
+    if ($Slug -match '^WF-\d+$') { return $Slug }
+
+    # Match each Workflows-table row "| WF-NNN | <name> | ..." and compare slug(<name>) to $Slug
+    foreach ($line in ($WorkflowTrackingContent -split '\r?\n')) {
+        if ($line -match '^\|\s*(WF-\d+)\s*\|\s*([^|]+?)\s*\|') {
+            $rowSlug = ConvertTo-FeatureSlug -Name ($matches[2].Trim()) -Convention 'kebab-case'
+            if ($rowSlug -eq $Slug) { return $matches[1] }
+        }
+    }
+    return $null
+}
+
+# Dot-source guard: when this file is dot-sourced (e.g. by Pester to exercise the helper
+# above), define the functions but skip the side-effecting body below.
+if ($MyInvocation.InvocationName -eq '.') { return }
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
@@ -179,6 +228,24 @@ try {
     $testCaseFile = Join-Path $testCaseDir "test-case.md"
     $masterTestFile = Join-Path $templatesDir "master-test-$Workflow.md"
 
+    # --- 2b. Resolve the workflow's WF-NNN ID ---
+    # The e2e directory is slug-named, but the master test's `workflow:` frontmatter field and
+    # every e2e-test-tracking.md row carry the WF-NNN. Resolved here (ahead of master creation)
+    # so both consumers use one value — previously resolved only at step 7, leaving the master
+    # test's [WF-NNN] placeholder unreplaced (PF-IMP-1525).
+    $resolvedWorkflowId = $Workflow
+    $workflowTrackingPath = Resolve-TrackingFilePath -File "user-workflow-tracking.md"
+    if (Test-Path $workflowTrackingPath) {
+        $resolved = Resolve-WorkflowIdFromSlug -Slug $Workflow -WorkflowTrackingContent (Get-Content $workflowTrackingPath -Raw -Encoding UTF8)
+        if ($resolved) {
+            $resolvedWorkflowId = $resolved
+        } else {
+            Write-Warning "Could not resolve workflow '$Workflow' to a WF-NNN ID in user-workflow-tracking.md; using '$Workflow' where a WF-NNN is expected."
+        }
+    } else {
+        Write-Warning "user-workflow-tracking.md not found; using '$Workflow' where a WF-NNN is expected."
+    }
+
     # --- 3. Verify workflow's templates/ exists; create master test if -NewMaster ---
     # The workflow's templates/ dir is scaffolded by Phase 3c1's New-WorkflowEntry.ps1 →
     # New-TestInfrastructure.ps1 -Update chain. If it doesn't exist, the workflow hasn't
@@ -216,9 +283,16 @@ try {
                 # Remove remaining instruction comments
                 $masterContent = $masterContent -replace '<!-- Copy everything below into.*?-->\s*', ''
 
+                # Strip any remaining leading instructional comments so the created file begins with
+                # its frontmatter — same rule the test-case path applies (PF-IMP-1173 Phase 3b); the
+                # master path previously kept them, so live master tests opened with template
+                # boilerplate instead of `---` (PF-IMP-1525).
+                $masterContent = $masterContent -replace '(?s)^\s*(?:<!--.*?-->\s*)+', ''
+
                 # Apply replacements — the workflow slug fills both [GROUP-NAME] and [WORKFLOW-NAME]
                 # template slots since master test = workflow master under the per-workflow layout
                 $masterContent = $masterContent -replace '\[GROUP-NAME\]', $Workflow
+                $masterContent = $masterContent -replace '\[WF-NNN\]', $resolvedWorkflowId
                 $masterContent = $masterContent -replace '\[GROUP-ID\]', $grpId
                 $masterContent = $masterContent -replace '\[FEATURE-ID\]', $featureIdsDisplay
                 $masterContent = $masterContent -replace '\[FEATURE-NAME\]', $FeatureName
@@ -306,6 +380,12 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         # Remove copy instruction comment
         $testCaseContent = $testCaseContent -replace '<!-- Copy everything below into.*?-->\s*', ''
 
+        # Strip any remaining leading instructional comments so the created file begins with its
+        # frontmatter — the template says "Remove all instructional comments when creating the
+        # actual file", and Build-DocumentationMap.ps1 only reads a description: when line 1 is the
+        # opening '---' (PF-IMP-1173 Phase 3b).
+        $testCaseContent = $testCaseContent -replace '(?s)^\s*(?:<!--.*?-->\s*)+', ''
+
         # Apply replacements — the workflow slug fills [GROUP-NAME] since the workflow is the
         # grouping under Layout A (PF-IMP-871 Phase 3c2)
         $testCaseContent = $testCaseContent -replace '\[E2E-NNN\]', $e2eId
@@ -316,7 +396,10 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         $testCaseContent = $testCaseContent -replace '\[FEATURE-IDS-YAML\]', $featureIdsYaml
         $testCaseContent = $testCaseContent -replace '\[FEATURE-ID\]', $featureIdsDisplay
         $testCaseContent = $testCaseContent -replace '\[FEATURE-NAME\]', $FeatureName
-        $testCaseContent = $testCaseContent -replace '\[WF-NNN\]', $Workflow
+        # The workflow: field holds the WF-NNN ID (the join key to user-workflow-tracking.md and
+        # the e2e-test-tracking.md rows), not the directory slug — which the directory name
+        # already carries. Master tests use the same resolved value (PF-IMP-1699).
+        $testCaseContent = $testCaseContent -replace '\[WF-NNN\]', $resolvedWorkflowId
         $testCaseContent = $testCaseContent -replace '\[P0 / P1 / P2 / P3\]', $Priority
         $testCaseContent = $testCaseContent -replace '\[YYYY-MM-DD\]', $timestamp
         if ($Source) {
@@ -341,11 +424,19 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     }
 
     # --- 6. Update master test "If Failed" table ---
+    $masterUpdated = $false
     if (Test-Path $masterTestFile) {
+        $masterUpdated = $true
         $masterContent = Get-Content $masterTestFile -Raw -Encoding UTF8
         $testCaseRelPath = "$e2eId-$TestCaseName/test-case.md"
         $displayDescription = if ($Description) { $Description } else { ($TestCaseName -replace '-', ' ') }
-        $newRow = "| $e2eId | [$testCaseRelPath]($testCaseRelPath) | $displayDescription |"
+        # Header-driven (PF-IMP-1599): cells are ordered by the If Failed table's own header, so a
+        # schema change lands in the correct position instead of silently shifting cells.
+        $newRow = New-HeaderDrivenTableRow -Content $masterContent -SectionHeading '## If Failed' -ValueMap @{
+            'Test Case'   = $e2eId
+            'Path'        = "[$testCaseRelPath]($testCaseRelPath)"
+            'Description' = $displayDescription
+        }
 
         # Find the "If Failed" table and add the row
         $lines = $masterContent -split '\r?\n'
@@ -407,7 +498,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             Write-Verbose "Updated master test: $masterTestFile"
 
             # Verify deterministic post-condition: test case row was added (PF-PRO-028 v2.0)
-            Assert-LineInFile -Path $masterTestFile -Pattern "\| $e2eId \|" -Context "test case row for $e2eId in $masterTestFile"
+            Assert-TableRowInFile -Path $masterTestFile -Pattern "\| $e2eId \|" -Context "test case row for $e2eId in $masterTestFile"
         }
     } else {
         Write-Warning "Master test file not found: $masterTestFile. Skipping master test update."
@@ -418,23 +509,45 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
     if (Test-Path $testTrackingPath) {
         $trackingContent = Get-Content $testTrackingPath -Raw -Encoding UTF8
 
+        # Workflow WF-NNN resolved at step 2b — reused here for the tracking columns.
+
         # Build relative path from e2e-test-tracking.md to the test case (per-workflow layout)
-        $testCaseRelativePath = "../../../../test/e2e-acceptance-testing/$Workflow/templates/$e2eId-$TestCaseName/test-case.md"
+        $testCaseRelativePath = "../../e2e-acceptance-testing/$Workflow/templates/$e2eId-$TestCaseName/test-case.md"
         $trackingNotes = if ($Description) { $Description } else { ($TestCaseName -replace '-', ' ') }
-        $workflowCol = $Workflow
+        $workflowCol = $resolvedWorkflowId
         $testCaseLink = "[$e2eId-$TestCaseName]($testCaseRelativePath)"
 
-        # Build the new row for the dedicated E2E Test Cases table
-        # Columns: Test ID | Workflow | Feature IDs | Test Type | Test File/Case | Status | Last Executed | Last Updated | Audit Status | Audit Report | Notes
-        $newRow = "| $e2eId | $workflowCol | $featureIdsDisplay | E2E Case | $testCaseLink | 📋 Needs Execution | — | $timestamp | — | — | $trackingNotes |"
+        # Build the new row for the dedicated E2E Test Cases table — header-driven (PF-IMP-1599):
+        # cells are ordered by the live table's own header, so a schema change lands as "—" in the
+        # correct position instead of silently shifting cells. Last Executed / Audit Status /
+        # Audit Report take the default — a new case has no execution or audit yet.
+        $newRow = New-HeaderDrivenTableRow -Content $trackingContent -SectionHeading '## E2E Test Cases' -ValueMap @{
+            'Test ID'        = $e2eId
+            'Workflow'       = $workflowCol
+            'Feature IDs'    = $featureIdsDisplay
+            'Test Type'      = 'E2E Case'
+            'Test File/Case' = $testCaseLink
+            'Status'         = '📋 Needs Execution'
+            'Last Updated'   = $timestamp
+            'Notes'          = $trackingNotes
+        }
 
         # Build TE-E2G master row if -NewMaster (inserted before the test case row)
         $newGroupRow = $null
         if ($NewMaster) {
-            $masterTestRelativePath = "../../../../test/e2e-acceptance-testing/$Workflow/templates/master-test-$Workflow.md"
+            $masterTestRelativePath = "../../e2e-acceptance-testing/$Workflow/templates/master-test-$Workflow.md"
             $masterTestLink = "[master-test-$Workflow.md]($masterTestRelativePath)"
             $masterNotes = "$Workflow workflow master test"
-            $newGroupRow = "| $grpIdForRegistry | $workflowCol | $featureIdsDisplay | E2E Group | $masterTestLink | 📋 Needs Execution | — | $timestamp | — | — | $masterNotes |"
+            $newGroupRow = New-HeaderDrivenTableRow -Content $trackingContent -SectionHeading '## E2E Test Cases' -ValueMap @{
+                'Test ID'        = $grpIdForRegistry
+                'Workflow'       = $workflowCol
+                'Feature IDs'    = $featureIdsDisplay
+                'Test Type'      = 'E2E Group'
+                'Test File/Case' = $masterTestLink
+                'Status'         = '📋 Needs Execution'
+                'Last Updated'   = $timestamp
+                'Notes'          = $masterNotes
+            }
         }
 
         # Find the E2E Test Cases table and append the row(s) before the --- separator
@@ -489,7 +602,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             $milestoneFound = $false
 
             foreach ($mLine in $milestoneLines) {
-                if (-not $milestoneFound -and $mLine -match "^\|.*$([regex]::Escape($Workflow)).*\|") {
+                if (-not $milestoneFound -and $mLine -match "^\|\s*$([regex]::Escape($resolvedWorkflowId))\s*\|") {
                     # Parse the row columns and append the group ID to the E2E Cases column (index 5)
                     $cols = Split-MarkdownTableRow $mLine
                     if ($cols -and $cols.Count -ge 7) {
@@ -506,14 +619,14 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
                         # Rebuild the row
                         $mLine = ConvertTo-MarkdownTableRow -Cells $cols
                         $milestoneFound = $true
-                        Write-Verbose "Updated Workflow Milestone Tracking: $Workflow += $grpIdForRegistry"
+                        Write-Verbose "Updated Workflow Milestone Tracking: $resolvedWorkflowId += $grpIdForRegistry"
                     }
                 }
                 $milestoneUpdated += $mLine
             }
 
             if (-not $milestoneFound) {
-                Write-Warning "Workflow $Workflow not found in Workflow Milestone Tracking table"
+                Write-Warning "Workflow $resolvedWorkflowId not found in Workflow Milestone Tracking table"
             }
 
             $updatedContent = $milestoneUpdated -join "`n"
@@ -524,7 +637,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             Write-Verbose "Updated e2e-test-tracking.md with $e2eId"
 
             # Verify deterministic post-condition: test case row was added (PF-PRO-028 v2.0)
-            Assert-LineInFile -Path $testTrackingPath -Pattern "\| $e2eId \|" -Context "E2E test row for $e2eId in $testTrackingPath"
+            Assert-TableRowInFile -Path $testTrackingPath -Pattern "\| $e2eId \|" -Context "E2E test row for $e2eId in $testTrackingPath"
         }
     } else {
         Write-Warning "Test tracking file not found: $testTrackingPath"
@@ -586,17 +699,17 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             $details += "  - e2e-test-tracking.md: Workflow Milestone Tracking — no row for $Workflow (create via PF-TSK-086 to enable milestone tracking)"
         }
     }
-    $details += @(
-        "  - feature-tracking.md: Test Status updated for $featureIdsDisplay",
-        "  - master-test-$Workflow.md: If Failed table updated"
-    )
+    $details += "  - feature-tracking.md: Test Status updated for $featureIdsDisplay"
+    if ($masterUpdated) {
+        $details += "  - master-test-$Workflow.md: If Failed table updated"
+    }
 
     if (-not $OpenInEditor) {
         $details += @(
             "",
             "🚨 NEXT STEPS: Customize test-case.md with exact steps, preconditions,",
             "   expected results, and populate project/ and expected/ with test fixtures.",
-            "See: process-framework/guides/03-testing/e2e-acceptance-test-case-customization-guide.md"
+            "Apply the e2e-test-case-creation craft skill (.claude/skills/e2e-test-case-creation/), activated by the E2E Acceptance Test Case Creation task's Check Recommended Skills step"
         )
     }
 

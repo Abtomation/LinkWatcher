@@ -85,7 +85,7 @@ foreach ($file in $stateFiles) {
         $depsBlock = $Matches[1]
 
         # Extract feature IDs from dependency links like:
-        # - **[PF-FEA-046: Core Architecture](./0.1.1-core-architecture-implementation-state.md)**
+        # - **[PF-FEA-046: Core Architecture](0.1.1-core-architecture-implementation-state.md)**
         $linkPattern = '\(\.?/?(\d+\.\d+\.\d+)-[^)]+implementation-state\.md\)'
         $linkMatches = [regex]::Matches($depsBlock, $linkPattern)
         foreach ($m in $linkMatches) {
@@ -221,6 +221,7 @@ $edgeCount = ($dependsOn.Values | ForEach-Object { $_.Count } | Measure-Object -
 $output = @"
 ---
 id: PD-ARC-002
+description: "Auto-generated map of inter-feature dependencies derived from per-feature state files."
 type: Product Documentation
 category: Architecture
 version: 2.0

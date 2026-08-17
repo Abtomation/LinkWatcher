@@ -4,11 +4,28 @@ type: Process Framework
 category: Task Definition
 version: 1.2
 created: 2025-12-13
-updated: 2026-05-16
+updated: 2026-06-12
 description: "Build user interface components and layouts for feature"
+complexity: medium
+use_when: >-
+  Build user interface components and layouts for feature
+automation: semi
+scripts:
+  - ../../scripts/file-creation/03-testing/New-TestFile.ps1
+trigger_status:
+  - raw: "Feature impl state file → prior task (PF-TSK-056) = `completed`"
+output_status:
+  - raw: "Feature impl state file → task = `completed`"
+next_tasks:
+  - task: integration-and-testing.md
+    condition: "Verify UI layer integrates correctly with state and data layers through comprehensive testing"
+  - task: core-logic-implementation.md
+    condition: "If using integrated mode, continue with general-purpose implementation"
 ---
 
 # UI Implementation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -25,8 +42,6 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/04-implementation/ui-implementation-map.md)
-
 - **Critical (Must Read):**
 
   - **Feature Implementation State File** - The permanent state tracking document at `/doc/state-tracking/features/[feature-id]-implementation-state.md` containing implementation progress and context
@@ -38,15 +53,12 @@ Build UI components and screen layouts for a feature. This task creates the user
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
   - [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) - Consult for correct file placement within feature directories
 - **Reference Only (Access When Needed):**
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **Existing UI Examples** - Similar UI implementations in codebase for pattern consistency
   - **Theme Configuration** - App-wide theme settings and style constants
   - **Framework Documentation** - Official documentation for the UI framework specified in the TDD
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Update Feature Implementation State File throughout implementation.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -68,7 +80,7 @@ Build UI components and screen layouts for a feature. This task creates the user
 7. **Create UI Components**: Build reusable UI components following single responsibility principle
    - Create presentational components for display-only elements
    - Create stateful components for elements that need state management access
-   - Extract common UI elements into shared components
+   - Extract common UI elements into shared components; when a component becomes shared across ≥2 features, promote it into the Design Guidelines (PD-UIX-001) Component Library so the design system reflects it
 8. **Implement Screens**: Build complete screen layouts with navigation
    - Design responsive layouts appropriate to the target platform
    - Integrate navigation following the patterns specified in the TDD
@@ -82,9 +94,8 @@ Build UI components and screen layouts for a feature. This task creates the user
 
     ```powershell
     # Create test files using automation script (writes pytest markers)
-    cd process-framework/scripts/file-creation/03-testing
-    New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "UIComponents"
-    New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Screens"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "UIComponents"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Screens"
 
     # Script automatically:
     # - Writes pytest markers (feature, priority, test_type)
@@ -128,9 +139,7 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] UI components created following single responsibility principle
@@ -151,15 +160,43 @@ Before considering this task finished:
   - [ ] Navigation flows function correctly
   - [ ] Component naming follows project conventions
   - [ ] Code follows framework best practices as specified in TDD
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-052" and context "UI Implementation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-052`, context "UI Implementation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | UI components, screens, navigation | Manual | Reusable components, layouts, route definitions |
+| **Creates** | UI tests | `New-TestFile.ps1` | Component and screen tests with pytest markers |
+| **Updates** | Feature Implementation State File | Manual | Code Inventory and Implementation Progress sections |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` (auto) | Automated test file registration |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` (auto) | Automated test status update |
 
 ## Next Tasks
 
 - [**Integration & Testing (PF-TSK-053)**](integration-and-testing.md) - Verify UI layer integrates correctly with state and data layers through comprehensive testing
-- [**Quality Validation (PF-TSK-054)**](quality-validation.md) - Validate UI implementation against quality standards and business requirements
 - [**Core Logic Implementation (PF-TSK-078)**](core-logic-implementation.md) - If using integrated mode, continue with general-purpose implementation
+
+<!-- merged from transition-registry entry: Implementation Tasks (group entry) -->
+### Prerequisites for Transition
+
+- [ ] Implementation complete according to design/requirements
+- [ ] Unit tests written and passing
+- [ ] Documentation updated
+- [ ] Feature Tracking updated with implementation status
+
+### Next Task Selection
+
+- **Always**: → Code Review
+
+### Preparation for Next Task
+
+1. Prepare code for review (clean commits, clear comments)
+2. Document any deviations from original design
+3. Ensure all tests are passing
+4. Prepare summary of implementation approach
 
 ## Related Resources
 
-- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
+- [Living-document maintenance craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/living-document-maintenance.md) - Maintaining the feature state file (replaces the retired Feature Implementation State Tracking Guide)
 - **TDD UI/UX Design Section** - Technology-specific patterns, framework references, and component conventions for the feature

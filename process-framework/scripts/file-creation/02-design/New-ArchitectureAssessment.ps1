@@ -29,10 +29,10 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-ArchitectureAssessment.ps1 -FeatureName "User Authentication" -FeatureId "1.1.1" -AssessmentType "Impact"
+    New-ArchitectureAssessment.ps1 -FeatureName "User Authentication" -FeatureId "1.1.1" -AssessmentType "Impact"
 
 .EXAMPLE
-    .\New-ArchitectureAssessment.ps1 -FeatureName "Payment Integration" -FeatureId "4.2.1" -AssessmentType "Integration" -Description "Assessment of payment gateway integration impact" -OpenInEditor
+    New-ArchitectureAssessment.ps1 -FeatureName "Payment Integration" -FeatureId "4.2.1" -AssessmentType "Integration" -Description "Assessment of payment gateway integration impact" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -71,14 +71,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script keeps
+# its data, its bespoke post-creation state/architecture-tracking writes, and its own report — inline.
 
 # Function to update per-feature state file §4 Documentation Inventory with architecture assessment
 function Update-FeatureStateWithArchReview {
@@ -156,6 +151,7 @@ $additionalMetadataFields = @{
     "feature_name"    = $FeatureName
     "feature_id"      = $FeatureId
     "assessment_type" = $AssessmentType
+    description        = "Architecture impact assessment for $FeatureName ($FeatureId)"
 }
 
 # Prepare custom replacements
@@ -168,13 +164,12 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $projectRoot = Get-ProjectRoot
     $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/architecture-impact-assessment-template.md"
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-AIA" -IdDescription "Architecture Impact Assessment: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/technical/architecture/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $creation = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PD-AIA" -IdDescription "Architecture Impact Assessment: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/technical/architecture/assessments" -Replacements $customReplacements -Metadata $additionalMetadataFields -Label "Architecture Impact Assessment" -OpenInEditor:$OpenInEditor -PassThru
 
-    # Get the created document path for state updates (use the actual filename created by New-StandardProjectDocument).
-    # Slug via the canonical helper from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
-    $documentPath = Join-Path -Path $projectRoot -ChildPath "doc/technical/architecture/assessments/$(ConvertTo-FeatureSlug -Name $FeatureName -Convention 'kebab-case').md"
+    # The writer's own ID + path (-PassThru, PF-IMP-1678) — no filename re-derivation.
+    $documentId = $creation.Id
+    $documentPath = $creation.Path
 
     # Update state tracking files
     Write-Host "🔄 Updating state tracking files..." -ForegroundColor Cyan
@@ -196,7 +191,7 @@ try {
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
         $details += @(
-            "Customization required — see process-framework/guides/02-design/architecture-assessment-creation-guide.md",
+            "Customization required — complete the impact analysis per the System Architecture Review task (process-framework/tasks/01-planning/system-architecture-review.md)",
             "",
             "✅ AUTOMATED STATE UPDATES COMPLETED:",
             "   • Feature state file §4 Documentation Inventory updated with assessment row",

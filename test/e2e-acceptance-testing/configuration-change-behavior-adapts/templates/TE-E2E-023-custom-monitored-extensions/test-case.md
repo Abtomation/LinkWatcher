@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-023
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-006): TE-E2E-023 Custom Monitored Extensions."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-012
 feature_ids: ["0.1.3", "1.1.1", "3.1.1"]
 workflow: WF-006

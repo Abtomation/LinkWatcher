@@ -11,7 +11,7 @@ Updates the following files (defaults; override with -TrackingFile / -ArchiveFil
 - appdev/process-framework-central/state-tracking/permanent/process-improvement-tracking.md (live sections 1–5, resolved via .framework-central-pointer)
 - appdev/process-framework-central/state-tracking/permanent/archive/process-improvement-tracking-archive.md (Sections 6 Completed + 7 Rejected; archive-split 2026-05-13)
 
-Supports two parameter sets:
+Supports three parameter sets:
 
 1. StatusUpdate (default; existing behavior):
    - Status-only update: changes Status and Last Updated columns in the Current table
@@ -21,12 +21,18 @@ Supports two parameter sets:
      to Section 7 — Rejected with Rejection Reason = "Superseded by <SupersededBy>". Keeps
      supersession distinct from implementation in trend analysis (per PF-IMP-803 rationale).
    - Pilot lifecycle (Active/Resolved): see PF-PRO-030
-   - Annotation (PF-IMP-832 (a)): -AppendNotes (idempotent) and -SetRespTask edit Notes /
-     Resp Task columns. Available alone (pure annotation, no status change — at least one
-     of -NewStatus / -AppendNotes / -SetRespTask must be supplied) or alongside -NewStatus
-     (annotation applied to source row before the status transition).
+   - Annotation (PF-IMP-832 (a)): -AppendNotes (idempotent), -SetRespTask and -SetPriority
+     (PF-IMP-1885) edit Notes / Resp Task / Priority columns. Available alone (pure
+     annotation, no status change — at least one
+     of -NewStatus / -AppendNotes / -SetRespTask / -SetPriority must be supplied) or alongside
+     -NewStatus (annotation applied to source row before the status transition). Annotation-only
+     -AppendNotes covers every section — every live one incl. Intake / Active Pilots
+     (PF-IMP-1570) and both archive ones, Completed / Rejected (PF-IMP-1719), where it
+     writes $ArchiveFile and leaves the terminal Resolution / Rejection Date untouched;
+     -SetRespTask / -SetPriority / -EditNotes / -EditDescription stay triaged-sections-only
+     (Intake, Active Pilots and the archive sections carry no Resp Task / Priority column).
    - Tool-change logging (PF-IMP-832 (b)): -LogToolChanges (JSON, same shape as
-     feedback_db.py log-change --batch - stdin) folds the PF-TSK-009 Step 12 manual
+     feedback_db.py log-change --batch - stdin) folds the PF-TSK-009's tool-change-logging step manual
      feedback_db invocation into the Completed transition. Log-change failure is reported
      as WARN; the IMP move is preserved (caller can retry log-change manually).
 
@@ -36,7 +42,10 @@ Supports two parameter sets:
      (ActivePilots and Completed are excluded — they have specialized flows)
    - Handles column-schema transformation between source and destination sections
    - On re-routes (source != Intake), auto-prepends [REROUTED YYYY-MM-DD by PF-TSK-NNN: <reason>]
-     to the Notes column for an audit trail. Initial sort from Intake produces no prefix.
+     to the Notes column for an audit trail. Initial sort from Intake produces no prefix, so
+     -Reason is ignored on Intake-source moves (PF-IMP-1238) — pass -AppendNotes in the same
+     call to attach a note to the moved row (PF-IMP-1393 (c); idempotent, applied after the
+     re-route prefix, and to every row of an -AlsoMoveIds batch).
 
    Batch mode (PF-IMP-982): pass -AlsoMoveIds to move several IMPs to the SAME section
    with the SAME options in one call. Each ID's source section is resolved independently;
@@ -44,8 +53,11 @@ Supports two parameter sets:
 
    Smart defaults — typical invocations only need -ImprovementId, -MoveToSection, -Priority
    (and -RejectionReason when target is Rejected, plus -Reason on re-routes for the audit trail):
-   - -Status defaults to "Needs Prioritization" on triaged-section moves; accepts either the
-     display spelling ("In Progress") or the -NewStatus token spelling ("InProgress") (PF-IMP-1006).
+   - -Status resolves per row on triaged-section moves (PF-IMP-1831): explicit -Status wins;
+     otherwise a triaged-source row keeps its current Status (a live "In Progress" claim
+     survives the move), and only a row with none (Intake source, blank cell) takes the
+     "Needs Prioritization" default. Accepts either the display spelling ("In Progress") or
+     the -NewStatus token spelling ("InProgress") (PF-IMP-1006).
    - -RejectionReason also seeds the re-route audit-trail -Reason when moving to Rejected (PF-IMP-1005).
    - -RespTask defaults to the destination section's conventional owner
      (PF-TSK-009 / PF-TSK-026 / PF-TSK-014 for Improvements / Extensions / StructuralChanges).
@@ -57,8 +69,28 @@ Supports two parameter sets:
      from those sections). Override only for the rare case where Triage re-evaluates
      a triaged-section row in a follow-up session.
 
-   Requires the centralized 7-section tracking file. Pass -TrackingFile <central-path>
-   until PF-PRO-029 Phase 7 cuts over the default.
+   Requires the centralized 7-section tracking file, which is the default (resolved via
+   Get-CentralFrameworkPath). -TrackingFile overrides it only for tests or legacy layouts.
+
+3. Escalate (PF-PRO-068 WI-5 — Contract 6 federation):
+   - Moves an IMP OUT of this workspace's tracker and into the Section 1 — Intake of another
+     workspace's tracker on the parent-pointer chain, preserving the ID.
+   - Use when triage finds that the artifact a finding targets is owned by a different
+     workspace: the owner holds the canonical artifact, so the owner triages and fixes it.
+   - -EscalateTo names the owning workspace by its declared project_id (e.g. 'FWK-FB').
+     Resolution walks the parent-pointer chain (Resolve-WorkspaceRootById) and REFUSES an ID
+     that is not on it, rather than guessing a destination.
+   - Destination is always Intake — the receiving workspace owns the classification, so
+     escalation hands over a finding, not a routing decision made on its behalf.
+   - The ID is preserved because PF-IMP mints from ONE portfolio-global counter at the chain
+     root (P-3); a duplicate ID already present in the target is a hard refusal.
+   - Notes gain an "[ESCALATED YYYY-MM-DD from <origin> by PF-TSK-NNN: <reason>]" prefix
+     (sibling of [REROUTED ...]) and the Source cell records the origin workspace — the
+     receiving triage needs to know whose tree the finding came from to reproduce it.
+   - Writes the target tracker BEFORE removing the source row: an interruption then leaves the
+     row in both trackers (visible and reconcilable) rather than in neither.
+   - This is the framework's one sanctioned cross-workspace write, and it is append-into-Intake
+     only. Every other cross-workspace change goes through a migration entry (N-5 ownership).
 
 When transitioning to Completed:
 - Removes the row from the source section (Improvements / Extensions / Structural Changes) in $TrackingFile
@@ -85,7 +117,7 @@ PARAMETER REQUIREMENTS BY STATUS:
   Delegated             (none beyond ImprovementId, NewStatus)
   Completed             -Impact (HIGH|MEDIUM|LOW), -ValidationNotes (description of what was done);
                         -LogToolChanges (PF-IMP-832 (b), JSON payload — optional, folds the
-                        PF-TSK-009 Step 12 feedback_db log-change into the same call)
+                        PF-TSK-009's tool-change-logging step feedback_db log-change into the same call)
   Rejected              (PF-IMP-852) -ValidationNotes (rejection rationale — used as the
                         Rejection Reason column value). Moves the row to Section 7 — Rejected.
                         -Impact is ignored (Section 7 schema has no Impact column); a WARN is
@@ -99,13 +131,18 @@ PARAMETER REQUIREMENTS BY STATUS:
   Resolved              pilots only — IMP must be in Active Pilots section; -Impact (HIGH|MEDIUM|LOW), -ValidationNotes (decision summary; required for Active→Resolved transition, optional for re-invocation/migration); triggers concept doc archive and moves pilot row to Completed Improvements (PF-IMP-729)
 
 ANNOTATION (PF-IMP-832 (a), PF-IMP-863) — available alongside any non-pilot -NewStatus,
-or alone (annotation-only mode):
+alone (annotation-only mode), or (-AppendNotes only, PF-IMP-1393 (c)) alongside -MoveToSection:
   -AppendNotes <text>       Idempotently append text to the Notes column. Skipped if the
                             same literal substring is already present in Notes. Date stamp
                             is the caller's responsibility (the script does not prefix
                             anything — caller controls wording).
   -SetRespTask <PF-TSK-NNN> Replace the Resp Task column value (validated against
-                            ^PF-TSK-\d+$). Skipped if already equal.
+                            ^[A-Z]{2,4}-TSK-\d+$). Skipped if already equal.
+  -SetPriority <High|Medium|Low>
+                            PF-IMP-1885. Replace the Priority column value on a triaged-section
+                            row without a section move (a same-section -MoveToSection is refused
+                            as a no-op, so this is the only re-prioritization path). Skipped if
+                            already equal.
   -EditDescription <text>   PF-IMP-1007. Replace the Description column value. Idempotent —
                             skipped if already equal.
   -EditNotes <text>         PF-IMP-1007. Replace the Notes column value (vs -AppendNotes,
@@ -131,23 +168,40 @@ Optional within StatusUpdate set since PF-IMP-832 (a) — omit when running pure
 via -AppendNotes / -SetRespTask alone.
 
 .PARAMETER AppendNotes
-PF-IMP-832 (a). Append text to the Notes column on a row in one of the 10-col triaged sections
-(Improvements / Extensions / Structural Changes). Idempotent — does not duplicate if the same
+PF-IMP-832 (a). Append text to the Notes column. In annotation-only mode this covers every
+section — the 10-col triaged sections (Improvements / Extensions / Structural Changes), the
+7-col Intake and Active Pilots sections (PF-IMP-1570), and the archive sections Completed
+(8-col) and Rejected (7-col) (PF-IMP-1719). An archived row is edited in $ArchiveFile, and its
+Resolution / Rejection Date is left as written — that date records when the row terminated, not
+when it was last annotated. Idempotent — does not duplicate if the same
 literal substring is already present in Notes. Date stamp is the caller's responsibility
 (the script does not prefix anything). Available alongside any non-pilot -NewStatus or alone
 (when used alone, the script writes the annotation without any status transition).
+PF-IMP-1393 (c): also valid with -MoveToSection, so a route-with-coordination-note lands in
+one call — the text is appended to each moved row's Notes after the [REROUTED ...] prefix
+logic (every row of an -AlsoMoveIds batch gets the same note).
 
 .PARAMETER SetRespTask
 PF-IMP-832 (a). Replace the Resp Task column value on a row in one of the 10-col triaged
-sections (validated against ^PF-TSK-\d+$). Idempotent — skipped if Resp Task already equals
+sections (validated against ^[A-Z]{2,4}-TSK-\d+$). Idempotent — skipped if Resp Task already equals
 the supplied value. Available alongside any non-pilot -NewStatus or alone.
+
+.PARAMETER SetPriority
+PF-IMP-1885. Replace the Priority column value (High | Medium | Low) on a row in one of the
+10-col triaged sections without a section move — a same-section -MoveToSection is refused as
+a no-op, so this is the only path to re-prioritize an existing row (e.g. raising a merged
+umbrella to High). Sibling of -SetRespTask: idempotent (skipped if Priority already equals
+the supplied value), available alongside any non-pilot -NewStatus or alone.
 
 .PARAMETER LogToolChanges
 PF-IMP-832 (b). JSON payload (array, same shape as `feedback_db.py log-change --batch -`
 accepts via stdin) of tool-change entries to log when the Completed transition runs. Folds
-the PF-TSK-009 Step 12 manual feedback_db invocation into the same call that flips the
-status. Only valid with -NewStatus Completed. On log-change failure the IMP move is
-preserved (already written before the log call) and a WARN is emitted.
+the PF-TSK-009's tool-change-logging step manual feedback_db invocation into the same call that flips the
+status. Only valid with -NewStatus Completed. PF-IMP-1393 (b): the payload is validated
+(JSON shape + tool_doc_ids, via log-change --validate-only) BEFORE the terminal move — a
+bad tool_doc_id aborts the whole call with nothing written, so it can be fixed up front.
+On a runtime log-change failure after the move, the IMP move is preserved (already written
+before the log call) and a WARN is emitted.
 
 First-time tool registration in mixed batches (PF-IMP-866 / supersedes PF-IMP-862):
 the JSON pass-through carries arbitrary fields, so per-entry `"new_tool": true` opts
@@ -163,6 +217,14 @@ PF-IMP-1019: PF-PRO IDs are accepted so a cluster of IMPs subsumed by a proposal
 extension concept can be recorded. The Superseded transition moves the row to
 Section 7 — Rejected with Rejection Reason = "Superseded by <SupersededBy>".
 
+.PARAMETER ArchiveConcept
+PF-IMP-1688. The extension concept (PF-PRO-NNN) to move to proposals/old/ as part of this
+transition — the full-rollout counterpart of the pilot path, which discovers its concept
+from the Active Pilots row's Concept column instead (so this is rejected with
+-NewStatus Resolved). Used by PF-TSK-026 Step 21 to close out a non-pilot extension.
+Safe to re-run: an already-archived concept or an occupied destination WARNs rather than
+failing the transition.
+
 .PARAMETER Impact
 Impact level. Valid values: HIGH, MEDIUM, LOW, "—" (em-dash placeholder).
 - Required when NewStatus is Completed (use HIGH/MEDIUM/LOW).
@@ -175,8 +237,33 @@ Description of what was done or rationale for the lifecycle transition.
   Section 6 — Completed (folded with Impact prefix).
 - Required when NewStatus is Rejected — populates the Rejection Reason column in
   Section 7 — Rejected verbatim (PF-IMP-852). Caller is responsible for wording
-  (e.g., embedding "Rejecting per <task> on <date>" if desired).
+  (e.g., embedding "Rejecting per <task> on <date>" if desired). This is the
+  rejection-reason carrier for the -NewStatus Rejected path; since PF-IMP-1343 the
+  -RejectionReason alias is also accepted on this path (folded into -ValidationNotes).
 - Ignored for other statuses.
+
+.PARAMETER RejectionReason
+The rejection reason. Serves two paths:
+- SectionMove triage path (-MoveToSection Rejected): the Rejection Reason column value
+  (and seeds the re-route audit-trail -Reason, PF-IMP-1005).
+- StatusUpdate reject path (-NewStatus Rejected): PF-IMP-1343 accepts it as an alias for
+  -ValidationNotes so `-NewStatus Rejected -RejectionReason "<reason>"` binds and works as
+  agents expect. Folded into -ValidationNotes in Main. Supplying both -RejectionReason and
+  -ValidationNotes, or -RejectionReason with a non-Rejected status, is a targeted error.
+
+.PARAMETER EscalateTo
+PF-PRO-068 WI-5. Declared project_id of the workspace that owns the artifact this IMP targets
+(e.g. 'FWK-FB'). The row moves out of this workspace's tracker into that workspace's
+Section 1 — Intake, ID-preserving. Resolution walks the parent-pointer chain and refuses an
+ID that is not on it.
+
+.PARAMETER TargetTrackingFile
+Escape hatch for tests and two-level sandbox fixtures: the destination tracker path, bypassing
+chain resolution of -EscalateTo. Production callers pass only -EscalateTo.
+
+.PARAMETER EscalatedBy
+Task ID credited in the "[ESCALATED ... by PF-TSK-NNN: ...]" audit-trail prefix. Defaults to
+PF-TSK-089 (IMP Triage), which owns the escalation decision.
 
 .PARAMETER TrackingFile
 Path to the main process-improvement-tracking.md (live sections 1–5). Defaults to the
@@ -187,6 +274,74 @@ layouts.
 Path to the sibling archive file containing Section 6 — Completed and Section 7 — Rejected
 (archive-split 2026-05-13). Defaults to `archive/process-improvement-tracking-archive.md`
 next to -TrackingFile. Override only for tests or non-default layouts.
+
+.PARAMETER ImplementingTask
+Task ID credited with the work in the Completed/Resolved row's Implementing Task column.
+Optional override: for pilots it is otherwise extracted from the Pilot Description's
+"(from PF-TSK-NNN)" pattern and defaults to PF-TSK-026; for regular IMPs it is sourced from the
+row's Resp Task column.
+
+.PARAMETER EditDescription
+PF-IMP-1007. Replaces the Description column value (10-col triaged sections only). Idempotent —
+skipped when already equal.
+
+.PARAMETER EditNotes
+PF-IMP-1007. Replaces the Notes column value outright, where -AppendNotes adds to it. Mutually
+exclusive with -AppendNotes; 10-col triaged sections only. Idempotent — skipped when already
+equal.
+
+.PARAMETER AnnotateAsRolledInto
+PF-IMP-863. Thin specialization of -AppendNotes for cluster consolidation: folds a canonical
+"[rolled-into PF-IMP-NNN YYYY-MM-DD]" note into the Notes of the SURVIVING cluster owner named by
+-ImprovementId. Accepts IMP-NNN or PF-IMP-NNN. Re-invocation with the same source ID and date is a
+no-op. The absorbed duplicate's own lifecycle is the caller's job — typically a separate
+-NewStatus Superseded -SupersededBy on that row.
+
+.PARAMETER MoveToSection
+SectionMove parameter set. Destination section for a triage move. Valid values: Intake,
+Improvements, Extensions, StructuralChanges, Rejected — ActivePilots and Completed are excluded
+because they have specialized flows. Column schemas are transformed between source and
+destination automatically.
+
+.PARAMETER AlsoMoveIds
+SectionMove batch mode (PF-IMP-982). Additional improvement IDs to move to the same section with
+the same options in one call. Each ID's source section is resolved independently; an ID that is
+not found or fails is reported and skipped without aborting the rest of the batch. Accepts a real
+array (-Command callers) or a comma-separated string — split per the framework CSV-string
+convention so the list survives pwsh -File's literal-token binding (PF-IMP-1830 / PF-IMP-1542):
+-AlsoMoveIds "PF-IMP-811,PF-IMP-812" works from -File.
+
+.PARAMETER Priority
+SectionMove parameter set. Priority written into the destination row (the triaged sections carry a
+Priority column).
+
+.PARAMETER Status
+SectionMove parameter set. Status written into the destination row. When omitted, resolved per
+row (PF-IMP-1831): a triaged-source row keeps its current Status across the move; a row with no
+preservable Status (Intake source, blank cell) takes "Needs Prioritization". Accepts either the
+display spelling ("In Progress") or the -NewStatus token spelling ("InProgress") (PF-IMP-1006).
+
+.PARAMETER RespTask
+SectionMove parameter set. Owning task written into the destination row's Resp Task column.
+Defaults to the destination section's conventional owner — PF-TSK-009 for Improvements,
+PF-TSK-026 for Extensions, PF-TSK-014 for Structural Changes.
+
+.PARAMETER RoutedBy
+SectionMove parameter set. Task credited in the [REROUTED ...] audit-trail prefix. Defaults from
+the source section's conventional routing task: PF-TSK-089 for Intake-source initial sorts;
+PF-TSK-009 / PF-TSK-026 / PF-TSK-014 for re-routes out of those sections. Override only when
+Triage re-evaluates a triaged-section row in a follow-up session — see -Retriage.
+
+.PARAMETER Retriage
+SectionMove parameter set (PF-IMP-857). Sugar for "IMP Triage is re-evaluating a triaged-section
+row": forces -RoutedBy to PF-TSK-089, overriding the source-section default. Errors on
+Intake-source moves, where PF-TSK-089 is already the default.
+
+.PARAMETER Reason
+SectionMove parameter set. Reason text embedded in the [REROUTED YYYY-MM-DD by PF-TSK-NNN: ...]
+Notes prefix on a re-route. Ignored on Intake-source moves, which produce no prefix (PF-IMP-1238)
+— pass -AppendNotes in the same call to attach a note there. Seeded from -RejectionReason when
+moving to Rejected (PF-IMP-1005).
 
 BASH GOTCHA: When invoking from bash, use single-quoted -ValidationNotes
 (e.g., -ValidationNotes 'text with `code` references') because bash interprets
@@ -212,6 +367,10 @@ Update-ProcessImprovement.ps1 -ImprovementId "IMP-063" -NewStatus "Completed" -I
 Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -ValidationNotes "Evaluated and determined not beneficial. Rejecting per PF-TSK-009 session 2026-05-12."
 
 .EXAMPLE
+# Reject using the -RejectionReason alias (PF-IMP-1343): identical effect to the -ValidationNotes form above
+Update-ProcessImprovement.ps1 -ImprovementId "IMP-061" -NewStatus "Rejected" -RejectionReason "Evaluated and determined not beneficial. Rejecting per PF-TSK-009 session 2026-05-12."
+
+.EXAMPLE
 # Defer an improvement
 Update-ProcessImprovement.ps1 -ImprovementId "IMP-037" -NewStatus "Deferred"
 
@@ -232,7 +391,7 @@ Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-832" -SetRespTask "PF-TSK-0
 Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-832" -NewStatus "InProgress" -AppendNotes "[Claimed 2026-05-12 by PF-TSK-009 session]" -SetRespTask "PF-TSK-009"
 
 .EXAMPLE
-# Complete with tool-change logging (PF-IMP-832 (b)): folds PF-TSK-009 Step 12 into the same call
+# Complete with tool-change logging (PF-IMP-832 (b)): folds PF-TSK-009's tool-change-logging step into the same call
 Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-832" -NewStatus "Completed" -Impact "MEDIUM" -ValidationNotes "Added params (a), (b), (c), (d)." -LogToolChanges '[{"tool":"Update-ProcessImprovement.ps1","date":"2026-05-12","imp":"PF-IMP-832","description":"Added -AppendNotes, -SetRespTask, -LogToolChanges, -SupersededBy params; new Superseded status; improved Resolved error message"}]'
 
 .EXAMPLE
@@ -257,8 +416,19 @@ Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-802" -MoveToSection "Struct
 .EXAMPLE
 # Batch sort (PF-IMP-982): move several Intake rows to Improvements in one call.
 # Each ID's source section is detected independently; a not-found/failed ID is reported
-# and skipped without aborting the rest of the batch.
-Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-810" -AlsoMoveIds "PF-IMP-811","PF-IMP-812" -MoveToSection "Improvements" -Priority "Medium" -TrackingFile "<central path>"
+# and skipped without aborting the rest of the batch. The CSV form shown works from
+# pwsh -File (PF-IMP-1830); -Command callers may pass a real array instead.
+Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-810" -AlsoMoveIds "PF-IMP-811,PF-IMP-812" -MoveToSection "Improvements" -Priority "Medium" -TrackingFile "<central path>"
+
+.EXAMPLE
+# Escalate a finding whose target artifact is owned by another workspace (PF-PRO-068 WI-5).
+# The row leaves this tracker and lands in FWK-FB's Intake with its ID intact.
+Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-900" -EscalateTo "FWK-FB" -Reason "Defect in the shared substrate helper Core.psm1, owned by FWK-FB"
+
+.EXAMPLE
+# Route-with-coordination-note in ONE call (PF-IMP-1393 (c)): sort an Intake row and attach
+# the triage note to the moved row's Notes in the same invocation (no follow-up -AppendNotes call).
+Update-ProcessImprovement.ps1 -ImprovementId "PF-IMP-820" -MoveToSection "Improvements" -Priority "Medium" -AppendNotes "[TRIAGE 2026-07-13] Coordinate: PF-IMP-821 edits the same file - one implementing session can take both."
 
 .NOTES
 This script is part of the Process Improvement automation system and integrates with:
@@ -301,12 +471,12 @@ param(
     # from the Pilot Description (falling back to PF-TSK-026). Pass -ImplementingTask
     # explicitly when the actual implementing task differs from those defaults.
     [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
-    [ValidatePattern('^PF-TSK-\d+$')]
+    [ValidatePattern('^[A-Z]{2,4}-TSK-\d+$')]
     [string]$ImplementingTask,
 
     # PF-IMP-832 (b): JSON payload (array, same shape as feedback_db.py log-change --batch -
     # accepts via stdin) of tool-change entries to log when the Completed transition runs.
-    # Folds the PF-TSK-009 Step 12 manual feedback_db log-change invocation into the same
+    # Folds the PF-TSK-009's tool-change-logging step manual feedback_db log-change invocation into the same
     # call that flips the status, keeping the change log atomic with the status transition.
     # Only valid with -NewStatus Completed. On log-change failure, the IMP move is preserved
     # (already written before the log call) and a WARN is emitted — the caller can retry the
@@ -325,6 +495,16 @@ param(
     [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
     [ValidatePattern('^(IMP|PF-IMP|PF-PRO)-\d+$')]
     [string]$SupersededBy,
+
+    # PF-IMP-1688: the extension concept (PF-PRO-NNN) to archive alongside this transition.
+    # The pilot path (-NewStatus Resolved) discovers its concept from the Active Pilots
+    # row's Concept column; sections 2-4 carry no such column, so a full-rollout extension
+    # closing at PF-TSK-026 Step 21 names the concept explicitly here. Same archive
+    # semantics either way (Move-ConceptToArchive): warns and continues when the concept
+    # is already archived or a destination file exists, so a re-run is safe.
+    [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
+    [ValidatePattern('^PF-PRO-\d+$')]
+    [string]$ArchiveConcept,
 
     # --- Annotate parameter set (PF-IMP-832 (a)) ---
     # Pure annotation: edits Notes and/or Resp Task on a row in one of the 10-col
@@ -351,8 +531,14 @@ param(
     # section is detected independently (so -RoutedBy / re-route prefix resolve per-ID);
     # a not-found or failed ID is reported and skipped without aborting the rest of the
     # batch. The accumulated result is written once at the end.
+    # PF-IMP-1830: each element may itself be a comma-separated ID list, split in the batch
+    # build — pwsh -File binds 'a,b,c' as ONE literal element (no in-session array parsing),
+    # so without the CSV form the batch mode is unreachable from the framework's prescribed
+    # -File invocation (split-in-place pattern: PF-IMP-1428, implementation copied from
+    # Run-Tests -TestFile, PF-IMP-1542). The pattern validates every ID in the element at
+    # binding, so a malformed ID still fails fast.
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
-    [ValidatePattern('^(IMP|PF-IMP)-\d+$')]
+    [ValidatePattern('^\s*(IMP|PF-IMP)-\d+(\s*,\s*(IMP|PF-IMP)-\d+)*\s*$')]
     [string[]]$AlsoMoveIds,
 
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
@@ -369,11 +555,11 @@ param(
     [string]$Status,
 
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
-    [ValidatePattern('^PF-TSK-\d+$')]
+    [ValidatePattern('^[A-Z]{2,4}-TSK-\d+$')]
     [string]$RespTask,
 
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
-    [ValidatePattern('^PF-TSK-\d+$')]
+    [ValidatePattern('^[A-Z]{2,4}-TSK-\d+$')]
     [string]$RoutedBy,
 
     # PF-IMP-857: -Retriage is sugar over the existing -RoutedBy auto-default. When a
@@ -387,9 +573,18 @@ param(
     [switch]$Retriage,
 
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
+    [Parameter(Mandatory = $false, ParameterSetName = "Escalate")]
     [string]$Reason,
 
+    # PF-IMP-1343: also valid in the StatusUpdate set so the status-path reject call
+    # `-NewStatus Rejected -RejectionReason "<reason>"` binds cleanly. Without the second
+    # set membership that call mixes the StatusUpdate-only -NewStatus with this otherwise
+    # SectionMove-only param and dies at parameter-set resolution — before the body's
+    # targeted "use -ValidationNotes" error can ever fire (a binder error can't be caught
+    # in-body). On the StatusUpdate path it is folded into -ValidationNotes (the reject-reason
+    # carrier) in Main; on the SectionMove path it keeps its -MoveToSection Rejected meaning.
     [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
+    [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
     [string]$RejectionReason,
 
     # --- Annotation params (PF-IMP-832 (a)) — optional within StatusUpdate ---
@@ -397,12 +592,26 @@ param(
     # (apply annotation, then perform the status transition). Pilot statuses are not
     # supported (7-col Active Pilots schema has no Resp Task column).
 
+    # PF-IMP-1393 (c): also valid in the SectionMove set so a route-with-coordination-note
+    # lands in one call — the text is appended to each moved row's Notes after the
+    # [REROUTED ...] prefix logic, with the same idempotent substring semantics as the
+    # StatusUpdate-set annotation. In an -AlsoMoveIds batch, every moved row gets the note.
     [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
+    [Parameter(Mandatory = $false, ParameterSetName = "SectionMove")]
     [string]$AppendNotes,
 
     [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
-    [ValidatePattern('^PF-TSK-\d+$')]
+    [ValidatePattern('^[A-Z]{2,4}-TSK-\d+$')]
     [string]$SetRespTask,
+
+    # PF-IMP-1885: replace the Priority column on a row in one of the 10-col triaged
+    # sections without a section move. -Priority lives in the SectionMove set and a
+    # same-section -MoveToSection is refused as a no-op, so before this param a row's
+    # priority could not be changed in place. Sibling of -SetRespTask: available alone
+    # (pure annotation) or alongside any non-pilot -NewStatus; idempotent.
+    [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
+    [ValidateSet("High", "Medium", "Low")]
+    [string]$SetPriority,
 
     # PF-IMP-1007: replace (not append) the Description / Notes column on a row in
     # one of the 10-col triaged sections (Improvements / Extensions / Structural
@@ -427,6 +636,30 @@ param(
     [Parameter(Mandatory = $false, ParameterSetName = "StatusUpdate")]
     [ValidatePattern('^(IMP|PF-IMP)-\d+$')]
     [string]$AnnotateAsRolledInto,
+
+    # --- Escalate parameter set (PF-PRO-068 WI-5 — Contract 6 federation) ---
+    # Moves an IMP from THIS workspace's tracker into the Intake of the tracker owned by
+    # another workspace on the parent-pointer chain, preserving the ID.
+    #
+    # Why a distinct operation rather than a -MoveToSection destination: every SectionMove
+    # destination is a section of the SAME file, and its whole contract (source-section
+    # resolution, re-route prefixes, no-op refusal) is written in those terms. Escalation
+    # crosses a workspace boundary, which changes what "where is this row" even means — and it
+    # is the ONE sanctioned cross-workspace write in the framework, so it is worth being
+    # unmissable at the call site rather than hidden behind a section name.
+
+    [Parameter(Mandatory = $true, ParameterSetName = "Escalate")]
+    [ValidatePattern('^[A-Z][A-Z0-9]*-[A-Z0-9]+$')]
+    [string]$EscalateTo,
+
+    # Escape hatch for tests and two-level sandbox fixtures: the destination tracker path,
+    # bypassing chain resolution of -EscalateTo. Production callers pass only -EscalateTo.
+    [Parameter(Mandatory = $false, ParameterSetName = "Escalate")]
+    [string]$TargetTrackingFile,
+
+    [Parameter(Mandatory = $false, ParameterSetName = "Escalate")]
+    [ValidatePattern('^[A-Z]{2,4}-TSK-\d+$')]
+    [string]$EscalatedBy,
 
     # --- Common: optional override for tracking file path ---
     # Phase 7 (2026-05-11): default is now the central process-improvement-tracking.md, resolved
@@ -494,54 +727,35 @@ $StatusDisplayNames = @{
 # Pilot-only statuses (PF-PRO-030)
 $PilotStatuses = @("Active", "Resolved")
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 function Test-Prerequisites {
-    Write-Log "Checking prerequisites..."
+    Write-ProjectLog "Checking prerequisites..."
 
     if (-not (Test-Path $TrackingFile)) {
-        Write-Log "Tracking file not found: $TrackingFile" -Level "ERROR"
+        Write-ProjectLog "Tracking file not found: $TrackingFile" -Level "ERROR"
         return $false
     }
 
     # Validate required parameters for completion/rejection
     if ($NewStatus -in @("Completed", "Rejected")) {
         if (-not $ValidationNotes) {
-            Write-Log "ValidationNotes is required when transitioning to $NewStatus" -Level "ERROR"
+            if ($NewStatus -eq "Rejected") {
+                # PF-IMP-1164 / PF-IMP-1343: the -NewStatus Rejected flow takes the rejection
+                # reason via -ValidationNotes or its alias -RejectionReason (PF-IMP-1343 folds
+                # the latter into the former in Main). Reaching here means neither was supplied.
+                Write-ProjectLog "A rejection reason is required when transitioning to Rejected: pass it via -ValidationNotes or -RejectionReason (it becomes the Rejection Reason)." -Level "ERROR"
+            } else {
+                Write-ProjectLog "ValidationNotes is required when transitioning to $NewStatus" -Level "ERROR"
+            }
             return $false
         }
         if ($NewStatus -eq "Completed" -and -not $Impact) {
-            Write-Log "Impact is required when transitioning to Completed (use HIGH/MEDIUM/LOW)" -Level "ERROR"
+            Write-ProjectLog "Impact is required when transitioning to Completed (use HIGH/MEDIUM/LOW)" -Level "ERROR"
             return $false
         }
         # PF-IMP-852: Rejected routes to Section 7 — Rejected (7-col schema, no Impact column).
         # -Impact is silently ignored if supplied; emit WARN so callers can drop it from invocations.
         if ($NewStatus -eq "Rejected" -and $Impact) {
-            Write-Log "-Impact is ignored when transitioning to Rejected (Section 7 schema has no Impact column)" -Level "WARN"
+            Write-ProjectLog "-Impact is ignored when transitioning to Rejected (Section 7 schema has no Impact column)" -Level "WARN"
         }
     }
 
@@ -550,28 +764,35 @@ function Test-Prerequisites {
     # transitions (decision summary) but allowed to be empty for re-invocation/migration of already-resolved pilots
     # whose Notes column already contains the resolution narrative.
     if ($NewStatus -eq "Resolved" -and -not $Impact) {
-        Write-Log "Impact is required when transitioning a pilot to Resolved (use HIGH/MEDIUM/LOW)" -Level "ERROR"
+        Write-ProjectLog "Impact is required when transitioning a pilot to Resolved (use HIGH/MEDIUM/LOW)" -Level "ERROR"
         return $false
     }
 
     # PF-IMP-832 (b): -LogToolChanges only valid with -NewStatus Completed
     if ($LogToolChanges -and $NewStatus -ne "Completed") {
-        Write-Log "-LogToolChanges is only valid with -NewStatus Completed (got '$NewStatus'). The log-change call is bundled with the completion transition." -Level "ERROR"
+        Write-ProjectLog "-LogToolChanges is only valid with -NewStatus Completed (got '$NewStatus'). The log-change call is bundled with the completion transition." -Level "ERROR"
+        return $false
+    }
+
+    # PF-IMP-1688: -ArchiveConcept is the full-rollout counterpart of the pilot path's
+    # automatic concept discovery; on Resolved the Concept column already supplies it.
+    if ($ArchiveConcept -and $NewStatus -eq "Resolved") {
+        Write-ProjectLog "-ArchiveConcept is not used with -NewStatus Resolved — the pilot path reads the concept from the Active Pilots row's Concept column." -Level "ERROR"
         return $false
     }
 
     # PF-IMP-832 (c): -NewStatus Superseded requires -SupersededBy
     if ($NewStatus -eq "Superseded" -and -not $SupersededBy) {
-        Write-Log "-SupersededBy is required when transitioning to Superseded (pattern: IMP-NNN, PF-IMP-NNN, or PF-PRO-NNN)" -Level "ERROR"
+        Write-ProjectLog "-SupersededBy is required when transitioning to Superseded (pattern: IMP-NNN, PF-IMP-NNN, or PF-PRO-NNN)" -Level "ERROR"
         return $false
     }
     # And -SupersededBy is only meaningful with -NewStatus Superseded
     if ($SupersededBy -and $NewStatus -ne "Superseded") {
-        Write-Log "-SupersededBy is only valid with -NewStatus Superseded (got '$NewStatus')" -Level "ERROR"
+        Write-ProjectLog "-SupersededBy is only valid with -NewStatus Superseded (got '$NewStatus')" -Level "ERROR"
         return $false
     }
 
-    Write-Log "Prerequisites check passed" -Level "SUCCESS"
+    Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
     return $true
 }
 
@@ -631,20 +852,21 @@ function Update-PilotStatusInPlace {
     $rows = ConvertFrom-MarkdownTable -Content $Content -Section "## Section 5 — Active Pilots" -IncludeRawLine
     $row = $rows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
     if (-not $row) {
-        Write-Log "Pilot $ImprovementId not found in Active Pilots section" -Level "ERROR"
+        Write-ProjectLog "Pilot $ImprovementId not found in Active Pilots section" -Level "ERROR"
         return $null
     }
 
     $currentEntry = $row._RawLine
-    Write-Log "Found pilot entry for $ImprovementId"
+    Write-ProjectLog "Found pilot entry for $ImprovementId"
 
     # Phase 7 pilot schema (central): | ID | Concept | Pilot Description | Project | Framework Version | Status | Notes |
     # Indices:                            0    1         2                    3         4                   5        6
     $columns = Split-MarkdownTableRow $currentEntry
     if ($null -eq $columns -or $columns.Count -ne 7) {
         $actualCount = if ($null -eq $columns) { 0 } else { $columns.Count }
-        Write-Log "Malformed pilot row for $ImprovementId`: expected 7 columns (Phase 7 central schema), found $actualCount." -Level "ERROR"
-        Write-Log "Raw row: $currentEntry" -Level "ERROR"
+        Write-ProjectLog "Malformed pilot row for $ImprovementId`: expected 7 columns (Phase 7 central schema), found $actualCount. $script:MalformedRowEscapeHint" -Level "ERROR"
+        Write-ProjectLog "Cells as parsed:`n$(Get-MalformedRowDiagnostic -Columns $columns -ExpectedCount 7)" -Level "ERROR"
+        Write-ProjectLog "Raw row: $currentEntry" -Level "ERROR"
         return $null
     }
 
@@ -665,7 +887,7 @@ function Update-PilotStatusInPlace {
     $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Updated pilot $ImprovementId status to: $displayName" -Level "SUCCESS"
+    Write-ProjectLog "Updated pilot $ImprovementId status to: $displayName" -Level "SUCCESS"
     return $result
 }
 
@@ -693,7 +915,7 @@ function Move-ConceptToArchive {
     # regardless of cwd. Resolved via Get-CentralFrameworkPath.
     $proposalsDir = Join-Path -Path (Get-CentralFrameworkPath) -ChildPath "proposals"
     if (-not (Test-Path $proposalsDir)) {
-        Write-Log "Proposals directory not found: $proposalsDir" -Level "WARN"
+        Write-ProjectLog "Proposals directory not found: $proposalsDir" -Level "WARN"
         return $false
     }
 
@@ -708,7 +930,7 @@ function Move-ConceptToArchive {
     }
 
     if (-not $sourcePath) {
-        Write-Log "Concept $ConceptId not found in $proposalsDir (may already be archived). Skipping concept archive." -Level "WARN"
+        Write-ProjectLog "Concept $ConceptId not found in $proposalsDir (may already be archived). Skipping concept archive." -Level "WARN"
         return $true
     }
 
@@ -719,13 +941,13 @@ function Move-ConceptToArchive {
 
     $destPath = Join-Path $oldDir (Split-Path $sourcePath -Leaf)
     if (Test-Path $destPath) {
-        Write-Log "Concept $ConceptId already exists at archive destination: $destPath. Manual cleanup required." -Level "WARN"
+        Write-ProjectLog "Concept $ConceptId already exists at archive destination: $destPath. Manual cleanup required." -Level "WARN"
         return $false
     }
 
     if ($PSCmdlet.ShouldProcess($sourcePath, "Move concept $ConceptId to proposals/old/")) {
         Move-Item -Path $sourcePath -Destination $destPath -Force
-        Write-SummaryLine "Archived concept $ConceptId to $destPath"
+        Write-ProjectSummary "Archived concept $ConceptId to $destPath"
     }
     return $true
 }
@@ -751,7 +973,7 @@ function Move-PilotToCompletedSection {
     $rows = ConvertFrom-MarkdownTable -Content $Content -Section "## Section 5 — Active Pilots"
     $row = $rows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
     if (-not $row) {
-        Write-Log "Pilot $ImprovementId not found in Active Pilots section for move" -Level "ERROR"
+        Write-ProjectLog "Pilot $ImprovementId not found in Active Pilots section for move" -Level "ERROR"
         return $null
     }
 
@@ -763,7 +985,7 @@ function Move-PilotToCompletedSection {
     # Pilot Description text (New-ProcessImprovement.ps1 -AsPilot embeds the originating task
     # as "Pilot of <PF-PRO-NNN> (from <PF-TSK-NNN>)"); fall back to PF-TSK-026 (typical owner).
     if (-not $ImplementingTask) {
-        if ($pilotDescription -match '\(from\s+(PF-TSK-\d+)\)') {
+        if ($pilotDescription -match '\(from\s+([A-Z]{2,4}-TSK-\d+)\)') {
             $ImplementingTask = $matches[1]
         } else {
             $ImplementingTask = 'PF-TSK-026'
@@ -815,12 +1037,12 @@ function Move-PilotToCompletedSection {
         -SectionEndPattern '^---\s*$'
 
     if ($null -eq $result.Content -or $null -eq $result.DestinationContent) {
-        Write-Log "Failed to move pilot $ImprovementId to Completed section (archive)" -Level "ERROR"
+        Write-ProjectLog "Failed to move pilot $ImprovementId to Completed section (archive)" -Level "ERROR"
         return $null
     }
 
-    Write-Log "Removed $ImprovementId from Active Pilots"
-    Write-Log "Added $ImprovementId to archive § Section 6 — Completed (Resolved From: Active Pilot)" -Level "SUCCESS"
+    Write-ProjectLog "Removed $ImprovementId from Active Pilots"
+    Write-ProjectLog "Added $ImprovementId to archive § Section 6 — Completed (Resolved From: Active Pilot)" -Level "SUCCESS"
     return @{ Content = $result.Content; ArchiveContent = $result.DestinationContent }
 }
 
@@ -860,12 +1082,12 @@ function Update-StatusInPlace {
     if ($sectionShortName -notin @("Improvements", "Extensions", "StructuralChanges")) {
         switch ($sectionShortName) {
             { $_ -in @("Completed", "Rejected") } {
-                Write-Log "Improvement $ImprovementId is already in the $sectionShortName section (archive). To reopen, manually move the row from the archive file back to a live triaged section first." -Level "ERROR"
+                Write-ProjectLog "Improvement $ImprovementId is already in the $sectionShortName section (archive). To reopen, manually move the row from the archive file back to a live triaged section first." -Level "ERROR"
             }
-            "Intake"       { Write-Log "Improvement $ImprovementId is in the Intake section. Triage it first via -MoveToSection before applying status updates." -Level "ERROR" }
-            "ActivePilots" { Write-Log "Improvement $ImprovementId is in the Active Pilots section. Use the pilot statuses (-NewStatus Active|Resolved) instead." -Level "ERROR" }
-            "NotFound"     { Write-Log "Improvement entry not found in any section: $ImprovementId" -Level "ERROR" }
-            default        { Write-Log "Improvement $ImprovementId is in section '$sectionShortName'; in-place status flips apply only to Improvements / Extensions / Structural Changes." -Level "ERROR" }
+            "Intake"       { Write-ProjectLog "Improvement $ImprovementId is in the Intake section. Triage it first via -MoveToSection before applying status updates." -Level "ERROR" }
+            "ActivePilots" { Write-ProjectLog "Improvement $ImprovementId is in the Active Pilots section. Use the pilot statuses (-NewStatus Active|Resolved) instead." -Level "ERROR" }
+            "NotFound"     { Write-ProjectLog "Improvement entry not found in any section: $ImprovementId" -Level "ERROR" }
+            default        { Write-ProjectLog "Improvement $ImprovementId is in section '$sectionShortName'; in-place status flips apply only to Improvements / Extensions / Structural Changes." -Level "ERROR" }
         }
         return $null
     }
@@ -875,12 +1097,12 @@ function Update-StatusInPlace {
     $row = $rows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
 
     if (-not $row) {
-        Write-Log "Improvement entry not found in $sectionHeading (post-detect re-read failed): $ImprovementId" -Level "ERROR"
+        Write-ProjectLog "Improvement entry not found in $sectionHeading (post-detect re-read failed): $ImprovementId" -Level "ERROR"
         return $null
     }
 
     $currentEntry = $row._RawLine
-    Write-Log "Found improvement entry for $ImprovementId in section: $sectionShortName"
+    Write-ProjectLog "Found improvement entry for $ImprovementId in section: $sectionShortName"
 
     # Phase 7 (Session 11, 2026-05-11): all three triaged sections share the 10-col schema.
     # Parse columns: | ID | Source | Description | Project | Framework Version | Priority | Status | Resp Task | Last Updated | Notes |
@@ -888,8 +1110,9 @@ function Update-StatusInPlace {
     $columns = Split-MarkdownTableRow $currentEntry
     if ($null -eq $columns -or $columns.Count -ne 10) {
         $actualCount = if ($null -eq $columns) { 0 } else { $columns.Count }
-        Write-Log "Malformed table row for $ImprovementId`: expected 10 columns (Phase 7 central schema), found $actualCount. Check for unescaped pipe characters in cell content. Escape literal pipes as '\|' (preferred — markdown table escape, supported by Split-MarkdownTableRow per PF-IMP-603) or '&#124;' (HTML-entity fallback)." -Level "ERROR"
-        Write-Log "Raw row: $currentEntry" -Level "ERROR"
+        Write-ProjectLog "Malformed table row for $ImprovementId`: expected 10 columns (Phase 7 central schema), found $actualCount. $script:MalformedRowEscapeHint" -Level "ERROR"
+        Write-ProjectLog "Cells as parsed:`n$(Get-MalformedRowDiagnostic -Columns $columns -ExpectedCount 10)" -Level "ERROR"
+        Write-ProjectLog "Raw row: $currentEntry" -Level "ERROR"
         return $null
     }
 
@@ -901,7 +1124,7 @@ function Update-StatusInPlace {
     $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Updated $ImprovementId status to: $displayName (section: $sectionShortName)" -Level "SUCCESS"
+    Write-ProjectLog "Updated $ImprovementId status to: $displayName (section: $sectionShortName)" -Level "SUCCESS"
     return $result
 }
 
@@ -910,101 +1133,166 @@ function Update-AnnotationInPlace {
     # in one of the 10-col triaged sections (Improvements / Extensions / Structural Changes).
     # PF-IMP-1007 extends this with -EditDescription / -EditNotes (idempotent REPLACE of the
     # Description / Notes columns).
-    # Returns the modified $Content (or original $Content unchanged if every requested edit
-    # was a no-op per idempotency, or $null on failure). Last Updated is bumped only when
-    # at least one column actually changed.
+    # Returns @{ Content = <modified content of the row's own file>; IsArchive = <bool> } —
+    # Content is the original unchanged when every requested edit was a no-op per idempotency;
+    # $null is returned on failure. Last Updated is bumped only when at least one column
+    # actually changed, and only in sections that carry the column.
+    # PF-IMP-1719: with -AllowArchive, a row already relocated to Section 6 — Completed or
+    # Section 7 — Rejected is annotated in $ArchiveContent instead; IsArchive tells the caller
+    # which file to write back.
     param(
         [string]$Content,
         [string]$ArchiveContent,
         [string]$ImprovementId,
         [string]$AppendNotes,
         [string]$SetRespTask,
+        [string]$SetPriority,
         [string]$EditDescription,
-        [string]$EditNotes
+        [string]$EditNotes,
+        [switch]$AllowArchive
     )
 
     $sectionShortName = Get-IMPCurrentSection -Content $Content -ArchiveContent $ArchiveContent -ImprovementId $ImprovementId
-    if ($sectionShortName -notin @("Improvements", "Extensions", "StructuralChanges")) {
-        Write-Log "Annotation only applies to IMPs in Improvements/Extensions/Structural Changes sections. $ImprovementId is in: $sectionShortName" -Level "ERROR"
+    $schema = $script:AnnotationSchemas[$sectionShortName]
+    if ($null -eq $schema) {
+        Write-ProjectLog "Annotation target $ImprovementId was not found in any of the seven canonical sections (searched: $sectionShortName)" -Level "ERROR"
         return $null
     }
 
+    # PF-IMP-1719: annotating an archived row is annotation-only work. The status-transition
+    # caller does not pass -AllowArchive, so a terminal row keeps refusing there exactly as
+    # before — a transition on an already-archived row is its own error, not an annotation.
+    if ($schema.Archive -and -not $AllowArchive) {
+        Write-ProjectLog "$ImprovementId is in the archive ($sectionShortName). Annotating an archived row is supported in annotation-only mode — re-run with -AppendNotes and no -NewStatus." -Level "ERROR"
+        return $null
+    }
+
+    # PF-IMP-1570 (C1): -AppendNotes now covers the 7-col sections (Intake, Active Pilots)
+    # in annotation-only mode — previously refused outright, forcing hand-edits
+    # (precedents: PF-IMP-1390 stale cross-reference, PF-IMP-1373 pilot trial evidence).
+    # PF-IMP-1719 extends the same widening to the archive sections (Completed / Rejected),
+    # the last tracking-file mutation that had no script path (precedent: the PF-IMP-1527
+    # dead-premise marker and the PF-IMP-1605 change-ID correction, both hand-edited).
+    # The other annotation params address columns those sections do not carry.
+    if ($schema.ColumnCount -ne 10) {
+        $unsupported = @()
+        if ($SetRespTask)     { $unsupported += "-SetRespTask (no Resp Task column in $sectionShortName)" }
+        if ($SetPriority)     { $unsupported += "-SetPriority (no Priority column in $sectionShortName)" }
+        if ($EditDescription) { $unsupported += "-EditDescription (triaged sections only)" }
+        if ($EditNotes)       { $unsupported += "-EditNotes (triaged sections only)" }
+        if ($unsupported.Count -gt 0) {
+            $remedy = if ($schema.Archive) {
+                "An archived row takes -AppendNotes only; its other columns are the terminal record."
+            } else {
+                "Move the row to a triaged section first (-MoveToSection) if you need the others."
+            }
+            Write-ProjectLog "Unsupported annotation for $ImprovementId in $sectionShortName`: $($unsupported -join '; '). Only -AppendNotes applies to Intake / Active Pilots / archived rows. $remedy" -Level "ERROR"
+            return $null
+        }
+    }
+
+    # PF-IMP-1719: archived rows live in the sibling archive file, so every read, edit and
+    # write below runs against $ArchiveContent instead of $Content.
+    $targetContent = if ($schema.Archive) { $ArchiveContent } else { $Content }
+
     $sectionHeading = $script:CentralSectionHeadings[$sectionShortName]
-    $rows = ConvertFrom-MarkdownTable -Content $Content -Section $sectionHeading -IncludeRawLine
+    $rows = ConvertFrom-MarkdownTable -Content $targetContent -Section $sectionHeading -IncludeRawLine
     $row = $rows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
     if (-not $row) {
-        Write-Log "Annotation: $ImprovementId not found in section $sectionShortName (re-read failed)" -Level "ERROR"
+        Write-ProjectLog "Annotation: $ImprovementId not found in section $sectionShortName (re-read failed)" -Level "ERROR"
         return $null
     }
 
     $currentEntry = $row._RawLine
     $columns = Split-MarkdownTableRow $currentEntry
-    if ($null -eq $columns -or $columns.Count -ne 10) {
+    if ($null -eq $columns -or $columns.Count -ne $schema.ColumnCount) {
         $actualCount = if ($null -eq $columns) { 0 } else { $columns.Count }
-        Write-Log "Malformed table row for $ImprovementId in $sectionShortName`: expected 10 columns, found $actualCount." -Level "ERROR"
+        Write-ProjectLog "Malformed table row for $ImprovementId in $sectionShortName`: expected $($schema.ColumnCount) columns, found $actualCount. $script:MalformedRowEscapeHint" -Level "ERROR"
+        Write-ProjectLog "Cells as parsed:`n$(Get-MalformedRowDiagnostic -Columns $columns -ExpectedCount $schema.ColumnCount)" -Level "ERROR"
         return $null
     }
 
     $changed = $false
 
-    # -AppendNotes: idempotent append to Notes (idx 9). "Already present" = literal substring match.
+    # -AppendNotes: idempotent append to Notes. "Already present" = literal substring match.
+    # Notes index is section-dependent (idx 9 triaged, idx 6 Intake/Active Pilots) — PF-IMP-1570 (C1).
     if ($AppendNotes) {
-        $existingNotes = $columns[9].Trim()
+        $notesIdx = $schema.Notes
+        $existingNotes = $columns[$notesIdx].Trim()
         $isEmpty = (-not $existingNotes) -or ($existingNotes -eq "") -or ($existingNotes -eq "—")
         if ((-not $isEmpty) -and $existingNotes.Contains($AppendNotes)) {
-            Write-Log "AppendNotes: text already present in Notes for $ImprovementId — skipping (idempotent)" -Level "INFO"
+            Write-ProjectLog "AppendNotes: text already present in Notes for $ImprovementId — skipping (idempotent)" -Level "INFO"
         } else {
-            $columns[9] = if ($isEmpty) { $AppendNotes } else { "$existingNotes $AppendNotes" }
+            $columns[$notesIdx] = if ($isEmpty) { $AppendNotes } else { "$existingNotes $AppendNotes" }
             $changed = $true
-            Write-Log "Appended to Notes for $ImprovementId" -Level "SUCCESS"
+            Write-ProjectLog "Appended to Notes for $ImprovementId (section: $sectionShortName)" -Level "SUCCESS"
         }
     }
 
     # -SetRespTask: replace Resp Task (idx 7). Skip if already equal.
+    # Guarded above: unreachable for sections without a Resp Task column.
     if ($SetRespTask) {
         $currentRespTask = $columns[7].Trim()
         if ($currentRespTask -eq $SetRespTask) {
-            Write-Log "SetRespTask: Resp Task is already $SetRespTask for $ImprovementId — skipping (idempotent)" -Level "INFO"
+            Write-ProjectLog "SetRespTask: Resp Task is already $SetRespTask for $ImprovementId — skipping (idempotent)" -Level "INFO"
         } else {
             $columns[7] = $SetRespTask
             $changed = $true
-            Write-Log "Set Resp Task to $SetRespTask for $ImprovementId (was: $currentRespTask)" -Level "SUCCESS"
+            Write-ProjectLog "Set Resp Task to $SetRespTask for $ImprovementId (was: $currentRespTask)" -Level "SUCCESS"
+        }
+    }
+
+    # PF-IMP-1885 -SetPriority: replace Priority (idx 5). Skip if already equal.
+    # Guarded above: unreachable for sections without a Priority column.
+    if ($SetPriority) {
+        $currentPriority = $columns[5].Trim()
+        if ($currentPriority -eq $SetPriority) {
+            Write-ProjectLog "SetPriority: Priority is already $SetPriority for $ImprovementId — skipping (idempotent)" -Level "INFO"
+        } else {
+            $columns[5] = $SetPriority
+            $changed = $true
+            Write-ProjectLog "Set Priority to $SetPriority for $ImprovementId (was: $currentPriority)" -Level "SUCCESS"
         }
     }
 
     # PF-IMP-1007 -EditDescription: replace Description (idx 2). Skip if already equal.
     if ($EditDescription) {
         if ($columns[2].Trim() -eq $EditDescription) {
-            Write-Log "EditDescription: Description already equals the supplied value for $ImprovementId — skipping (idempotent)" -Level "INFO"
+            Write-ProjectLog "EditDescription: Description already equals the supplied value for $ImprovementId — skipping (idempotent)" -Level "INFO"
         } else {
             $columns[2] = $EditDescription
             $changed = $true
-            Write-Log "Replaced Description for $ImprovementId" -Level "SUCCESS"
+            Write-ProjectLog "Replaced Description for $ImprovementId" -Level "SUCCESS"
         }
     }
 
     # PF-IMP-1007 -EditNotes: replace Notes (idx 9). Skip if already equal.
     if ($EditNotes) {
         if ($columns[9].Trim() -eq $EditNotes) {
-            Write-Log "EditNotes: Notes already equals the supplied value for $ImprovementId — skipping (idempotent)" -Level "INFO"
+            Write-ProjectLog "EditNotes: Notes already equals the supplied value for $ImprovementId — skipping (idempotent)" -Level "INFO"
         } else {
             $columns[9] = $EditNotes
             $changed = $true
-            Write-Log "Replaced Notes for $ImprovementId" -Level "SUCCESS"
+            Write-ProjectLog "Replaced Notes for $ImprovementId" -Level "SUCCESS"
         }
     }
 
     if (-not $changed) {
         # All annotation operations were idempotent no-ops; return unchanged content.
-        return $Content
+        return @{ Content = $targetContent; IsArchive = [bool]$schema.Archive }
     }
 
-    # Bump Last Updated (idx 8) since at least one column changed.
-    $columns[8] = $CurrentDate
+    # Bump Last Updated since at least one column changed. Index is section-dependent
+    # (idx 8 triaged, idx 5 Intake); Active Pilots has no Last Updated column — PF-IMP-1570 (C1).
+    # The archive sections likewise have none: their Resolution / Rejection Date records when
+    # the row terminated, which a later annotation must not overwrite (PF-IMP-1719).
+    if ($null -ne $schema.LastUpdated) {
+        $columns[$schema.LastUpdated] = $CurrentDate
+    }
 
     $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
-    $result = $Content.Replace($currentEntry, $updatedEntry)
-    return $result
+    $result = $targetContent.Replace($currentEntry, $updatedEntry)
+    return @{ Content = $result; IsArchive = [bool]$schema.Archive }
 }
 
 function Move-ToCompletedSection {
@@ -1044,11 +1332,19 @@ function Move-ToCompletedSection {
     $row = $rows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
     if (-not $row) {
         if (Test-IsInCompletedSection -Content $Content -ArchiveContent $ArchiveContent -ImprovementId $ImprovementId) {
-            Write-Log "Improvement $ImprovementId is already in the Completed section (archive). The completion transition has already been applied — no action needed." -Level "ERROR"
+            Write-ProjectLog "Improvement $ImprovementId is already in the Completed section (archive). The completion transition has already been applied — no action needed." -Level "ERROR"
         } else {
-            Write-Log "Improvement $ImprovementId not found in $sourceHeading" -Level "ERROR"
+            Write-ProjectLog "Improvement $ImprovementId not found in $sourceHeading" -Level "ERROR"
         }
         return $null
+    }
+
+    # PF-IMP-1740 (c): completing a row whose Status never went In Progress (no claim
+    # recorded) is legitimate but must be visible for parallel-session forensics. WARN, not
+    # the source form's suggested INFO — this script logs default-quiet via Write-ProjectLog,
+    # so an INFO would never surface in normal use (PF-FEE-1665).
+    if ($row.Status -and $row.Status -ne "In Progress") {
+        Write-ProjectLog "Completing $ImprovementId whose current Status is '$($row.Status)', not 'In Progress' — no claim recorded on this row. The transition proceeds; check for an unclaimed or parallel-session flow if this is unexpected." -Level "WARN"
     }
 
     # Resolve Implementing Task: explicit parameter wins; otherwise source row's Resp Task.
@@ -1096,15 +1392,15 @@ function Move-ToCompletedSection {
         -SectionEndPattern '^---\s*$'
 
     if ($null -eq $result.Content -or $null -eq $result.DestinationContent) {
-        Write-Log "Failed to move $ImprovementId to Completed section (archive)" -Level "ERROR"
+        Write-ProjectLog "Failed to move $ImprovementId to Completed section (archive)" -Level "ERROR"
         if ($result.SourceRow) {
-            Write-Log "Source row found but insertion failed. Check archive § Section 6 — Completed exists." -Level "ERROR"
+            Write-ProjectLog "Source row found but insertion failed. Check archive § Section 6 — Completed exists." -Level "ERROR"
         }
         return $null
     }
 
-    Write-Log "Removed $ImprovementId from $sourceHeading"
-    Write-Log "Added $ImprovementId to archive § Section 6 — Completed (Resolved From: $resolvedFromLabel)" -Level "SUCCESS"
+    Write-ProjectLog "Removed $ImprovementId from $sourceHeading"
+    Write-ProjectLog "Added $ImprovementId to archive § Section 6 — Completed (Resolved From: $resolvedFromLabel)" -Level "SUCCESS"
     return @{ Content = $result.Content; ArchiveContent = $result.DestinationContent }
 }
 
@@ -1140,7 +1436,7 @@ function Move-ToRejectedAsSuperseded {
 
     $sourceShortName = Get-IMPCurrentSection -Content $Content -ArchiveContent $ArchiveContent -ImprovementId $ImprovementId
     if ($sourceShortName -notin @("Intake", "Improvements", "Extensions", "StructuralChanges")) {
-        Write-Log "Superseded status only applies to IMPs in Intake / Improvements / Extensions / Structural Changes. $ImprovementId is in: $sourceShortName" -Level "ERROR"
+        Write-ProjectLog "Superseded status only applies to IMPs in Intake / Improvements / Extensions / Structural Changes. $ImprovementId is in: $sourceShortName" -Level "ERROR"
         return $null
     }
 
@@ -1148,7 +1444,7 @@ function Move-ToRejectedAsSuperseded {
     $sourceRows = ConvertFrom-MarkdownTable -Content $Content -Section $sourceHeading
     $existingRow = $sourceRows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
     if (-not $existingRow) {
-        Write-Log "Superseded: $ImprovementId not found in section '$sourceShortName' (re-read failed)" -Level "ERROR"
+        Write-ProjectLog "Superseded: $ImprovementId not found in section '$sourceShortName' (re-read failed)" -Level "ERROR"
         return $null
     }
 
@@ -1191,11 +1487,11 @@ function Move-ToRejectedAsSuperseded {
         -SectionEndPattern '^---\s*$'
 
     if ($null -eq $result.Content -or $null -eq $result.DestinationContent) {
-        Write-Log "Failed to move $ImprovementId to archive § Section 7 — Rejected (Superseded)" -Level "ERROR"
+        Write-ProjectLog "Failed to move $ImprovementId to archive § Section 7 — Rejected (Superseded)" -Level "ERROR"
         return $null
     }
 
-    Write-Log "Moved $ImprovementId from '$sourceShortName' to archive § Section 7 — Rejected (Superseded by $SupersededBy)" -Level "SUCCESS"
+    Write-ProjectLog "Moved $ImprovementId from '$sourceShortName' to archive § Section 7 — Rejected (Superseded by $SupersededBy)" -Level "SUCCESS"
     return @{ Content = $result.Content; ArchiveContent = $result.DestinationContent }
 }
 
@@ -1230,7 +1526,7 @@ function Move-ToRejected {
 
     $sourceShortName = Get-IMPCurrentSection -Content $Content -ArchiveContent $ArchiveContent -ImprovementId $ImprovementId
     if ($sourceShortName -notin @("Intake", "Improvements", "Extensions", "StructuralChanges")) {
-        Write-Log "Rejected status only applies to IMPs in Intake / Improvements / Extensions / Structural Changes. $ImprovementId is in: $sourceShortName" -Level "ERROR"
+        Write-ProjectLog "Rejected status only applies to IMPs in Intake / Improvements / Extensions / Structural Changes. $ImprovementId is in: $sourceShortName" -Level "ERROR"
         return $null
     }
 
@@ -1238,7 +1534,7 @@ function Move-ToRejected {
     $sourceRows = ConvertFrom-MarkdownTable -Content $Content -Section $sourceHeading
     $existingRow = $sourceRows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
     if (-not $existingRow) {
-        Write-Log "Rejected: $ImprovementId not found in section '$sourceShortName' (re-read failed)" -Level "ERROR"
+        Write-ProjectLog "Rejected: $ImprovementId not found in section '$sourceShortName' (re-read failed)" -Level "ERROR"
         return $null
     }
 
@@ -1271,11 +1567,11 @@ function Move-ToRejected {
         -SectionEndPattern '^---\s*$'
 
     if ($null -eq $result.Content -or $null -eq $result.DestinationContent) {
-        Write-Log "Failed to move $ImprovementId to archive § Section 7 — Rejected" -Level "ERROR"
+        Write-ProjectLog "Failed to move $ImprovementId to archive § Section 7 — Rejected" -Level "ERROR"
         return $null
     }
 
-    Write-Log "Moved $ImprovementId from '$sourceShortName' to archive § Section 7 — Rejected" -Level "SUCCESS"
+    Write-ProjectLog "Moved $ImprovementId from '$sourceShortName' to archive § Section 7 — Rejected" -Level "SUCCESS"
     return @{ Content = $result.Content; ArchiveContent = $result.DestinationContent }
 }
 
@@ -1308,7 +1604,7 @@ function Update-SummaryCount {
     $newContent = $Content -replace '(?<=Show completed improvements \()\d+(?= items?\))', $count.ToString()
     $newArchive = $ArchiveContent -replace '(?<=Show completed improvements \()\d+(?= items?\))', $count.ToString()
 
-    Write-Log "Counted $count items in Completed section" -Level "SUCCESS"
+    Write-ProjectLog "Counted $count items in Completed section" -Level "SUCCESS"
     return @{ Content = $newContent; ArchiveContent = $newArchive }
 }
 
@@ -1319,26 +1615,61 @@ function Invoke-LogToolChanges {
     # in appdev (blueprint/process-framework/scripts/) and in rolled-out projects
     # (process-framework/scripts/).
     # Returns $true on success, $false on failure. Caller treats failure as a non-fatal WARN.
-    param([string]$JsonPayload)
+    # PF-IMP-1393 (b): -ValidateOnly runs the same feedback_db checks (JSON shape +
+    # unknown-tool block) via log-change --validate-only, writing nothing — used before
+    # the terminal move so a bad tool_doc_id aborts cleanly instead of needing a
+    # post-archive backfill. On validate failure the python stderr explains; the caller
+    # escalates to ERROR.
+    param([string]$JsonPayload, [switch]$ValidateOnly)
 
     $feedbackDb = Join-Path $PSScriptRoot ".." "feedback_db.py"
     try {
         $feedbackDb = (Resolve-Path -Path $feedbackDb -ErrorAction Stop).Path
     } catch {
-        Write-Log "Could not resolve feedback_db.py at expected location ($feedbackDb): $($_.Exception.Message)" -Level "WARN"
+        Write-ProjectLog "Could not resolve feedback_db.py at expected location ($feedbackDb): $($_.Exception.Message)" -Level "WARN"
         return $false
     }
 
-    Write-Log "Invoking feedback_db.py log-change --batch with supplied JSON payload"
+    $pyArgs = @("log-change", "--batch", "-")
+    if ($ValidateOnly) { $pyArgs += "--validate-only" }
+    $mode = if ($ValidateOnly) { " (validate-only)" } else { "" }
+    Write-ProjectLog "Invoking feedback_db.py log-change --batch$mode with supplied JSON payload"
     # Pipe JSON to python stdin. PowerShell forwards $JsonPayload as text to the process.
-    $JsonPayload | & python $feedbackDb log-change --batch -
+    $JsonPayload | & python $feedbackDb @pyArgs
     $exit = $LASTEXITCODE
     if ($exit -ne 0) {
-        Write-Log "feedback_db.py log-change exited with code $exit. IMP move was preserved; re-run log-change manually with the same JSON to backfill the entry." -Level "WARN"
+        if (-not $ValidateOnly) {
+            Write-ProjectLog "feedback_db.py log-change exited with code $exit. IMP move was preserved; re-run log-change manually with the same JSON to backfill the entry." -Level "WARN"
+        }
         return $false
     }
 
-    Write-Log "feedback_db.py log-change succeeded" -Level "SUCCESS"
+    Write-ProjectLog "feedback_db.py log-change$mode succeeded" -Level "SUCCESS"
+    return $true
+}
+
+function Test-ImpHasLoggedChanges {
+    # PF-IMP-1740 (b): returns $true when feedback_db holds at least one change row for the
+    # IMP, $false when it holds none, $null when the query is unavailable (python or
+    # feedback_db.py missing, or the query failed) — the caller treats $null as "don't know"
+    # and stays silent. Zero rows is detected textually via list-changes' no-match line
+    # ("No logged changes match ..."), the stable zero-rows signal (the subcommand exits 0
+    # either way); feedback_db.py's cmd_list_changes carries a comment noting this dependency.
+    param([string]$ImprovementId)
+
+    $feedbackDb = Join-Path $PSScriptRoot ".." "feedback_db.py"
+    try {
+        $feedbackDb = (Resolve-Path -Path $feedbackDb -ErrorAction Stop).Path
+    } catch {
+        return $null
+    }
+    try {
+        $output = & python $feedbackDb list-changes --imp $ImprovementId 2>&1
+    } catch {
+        return $null
+    }
+    if ($LASTEXITCODE -ne 0) { return $null }
+    if (($output | Out-String) -match 'No logged changes match') { return $false }
     return $true
 }
 
@@ -1356,6 +1687,57 @@ $script:CentralSectionHeadings = @{
     "Completed"          = "## Section 6 — Completed"
     "Rejected"           = "## Section 7 — Rejected"
 }
+
+# PF-IMP-1570 (C1): per-section column geometry for in-place annotation.
+# The live sections carry two different schemas:
+#   10-col triaged: | ID | Source | Description | Project | Framework Version | Priority | Status | Resp Task | Last Updated | Notes |
+#    7-col Intake:  | ID | Source | Description | Project | Framework Version | Last Updated | Notes |
+#    7-col Pilots:  | ID | Concept | Pilot Description | Project | Framework Version | Status | Notes |
+# PF-IMP-1719 adds the two archive sections, which live in $ArchiveFile:
+#    8-col Completed: | ID | Description | Project | Framework Version | Resolution Date | Implementing Task | Resolved From | Notes |
+#    7-col Rejected:  | ID | Description | Project | Framework Version | Rejection Date | Rejection Reason | Notes |
+# LastUpdated = $null means the section has no such column (Active Pilots; both archive
+# sections, whose dates record when the row terminated and must not be bumped) — skip the bump.
+# RespTask = $null means the section has no Resp Task column, so -SetRespTask cannot apply there.
+# Archive = $true means the row lives in $ArchiveFile rather than $TrackingFile.
+$script:AnnotationSchemas = [ordered]@{
+    "Improvements"      = @{ ColumnCount = 10; Notes = 9; LastUpdated = 8;    RespTask = 7;     Archive = $false }
+    "Extensions"        = @{ ColumnCount = 10; Notes = 9; LastUpdated = 8;    RespTask = 7;     Archive = $false }
+    "StructuralChanges" = @{ ColumnCount = 10; Notes = 9; LastUpdated = 8;    RespTask = 7;     Archive = $false }
+    "Intake"            = @{ ColumnCount = 7;  Notes = 6; LastUpdated = 5;    RespTask = $null; Archive = $false }
+    "ActivePilots"      = @{ ColumnCount = 7;  Notes = 6; LastUpdated = $null; RespTask = $null; Archive = $false }
+    "Completed"         = @{ ColumnCount = 8;  Notes = 7; LastUpdated = $null; RespTask = $null; Archive = $true }
+    "Rejected"          = @{ ColumnCount = 7;  Notes = 6; LastUpdated = $null; RespTask = $null; Archive = $true }
+}
+
+# Annotation parameters that require a 10-col triaged section (they address columns
+# that Intake / Active Pilots do not have, or whose semantics are triage-only).
+$script:TriagedOnlyAnnotationParams = @("SetRespTask", "SetPriority", "EditDescription", "EditNotes")
+
+function Get-MalformedRowDiagnostic {
+    # PF-IMP-1570 (C3): a column-count failure means an unescaped pipe split one cell in two —
+    # which shifts every later cell by one, so no single cell is identifiable as "the" divergent
+    # one. Emit the indexed cell list with truncated snippets instead, so the split is locatable
+    # by eye without external tooling (the malformed rows come from hand-appends; script-mode
+    # appends escape correctly).
+    param(
+        [string[]]$Columns,
+        [int]$ExpectedCount,
+        [int]$SnippetLength = 40
+    )
+    if ($null -eq $Columns -or $Columns.Count -eq 0) { return "  (row did not parse into any cells)" }
+    $lines = [System.Collections.Generic.List[string]]::new()
+    for ($i = 0; $i -lt $Columns.Count; $i++) {
+        $cell = "$($Columns[$i])".Trim()
+        $snippet = if ($cell.Length -gt $SnippetLength) { $cell.Substring(0, $SnippetLength) + "…" } else { $cell }
+        $marker = if ($i -ge $ExpectedCount) { "   <-- beyond the expected $ExpectedCount columns" } else { "" }
+        $lines.Add(("  [{0}] {1}{2}" -f $i, $snippet, $marker))
+    }
+    return ($lines -join "`n")
+}
+
+# PF-IMP-1570 (C3): shared remediation guidance for every column-count failure site.
+$script:MalformedRowEscapeHint = "Check for unescaped pipe characters in cell content. Escape literal pipes as '\|' (preferred — markdown table escape, supported by Split-MarkdownTableRow per PF-IMP-603) or '&#124;' (HTML-entity fallback)."
 
 function Test-IsCentralTrackingFile {
     # Validates the file has the canonical 7-section structure. Returns $true if
@@ -1411,13 +1793,13 @@ function Get-NotesWithReroutePrefix {
     if (-not $RoutedBy) {
         # Defensive: should never trigger now that -RoutedBy auto-defaults from
         # source section in Main, but keep as a safety net for future callers.
-        Write-Log "Re-route from $SourceSection has no -RoutedBy and no source-section default — skipping audit-trail prefix" -Level "WARN"
+        Write-ProjectLog "Re-route from $SourceSection has no -RoutedBy and no source-section default — skipping audit-trail prefix" -Level "WARN"
         return $ExistingNotes
     }
     # Reason is informational. If missing, still record the re-route (audit-trail
     # integrity matters more than narrative); mark the gap with a greppable marker.
     if (-not $Reason) {
-        Write-Log "Re-route from $SourceSection has no -Reason; recording prefix with '<no reason supplied>' marker (audit-trail preservation)" -Level "WARN"
+        Write-ProjectLog "Re-route from $SourceSection has no -Reason; recording prefix with '<no reason supplied>' marker (audit-trail preservation)" -Level "WARN"
         $reasonText = "<no reason supplied>"
     } else {
         $reasonText = $Reason
@@ -1506,30 +1888,139 @@ function Build-ColumnMappingForMove {
     return @{ ColumnMapping = $mapping; AdditionalColumns = $additional }
 }
 
+function Resolve-EscalationTargetTracker {
+    # Resolves -EscalateTo (a declared workspace ID, e.g. 'FWK-FB') to that workspace's
+    # process-improvement tracker (PF-PRO-068 WI-5). Chain membership is the search space:
+    # Resolve-WorkspaceRootById walks the parent-pointer chain and throws — loudly, naming the
+    # walked chain — when the ID is not on it. That refusal is the point: a typo'd workspace ID
+    # must never silently escalate a row into the wrong workspace's queue.
+    param([Parameter(Mandatory=$true)][string]$WorkspaceId)
+
+    $targetRoot = Resolve-WorkspaceRootById -WorkspaceId $WorkspaceId
+    $targetCentral = Join-Path -Path $targetRoot -ChildPath "process-framework-central"
+    if (-not (Test-Path $targetCentral)) {
+        throw "Escalation target '$WorkspaceId' resolves to workspace '$targetRoot', which has no process-framework-central directory ($targetCentral). Only a producer face can receive an escalation."
+    }
+    return (Join-Path -Path $targetCentral -ChildPath "state-tracking/permanent/process-improvement-tracking.md")
+}
+
+function Move-IMPToWorkspace {
+    # Cross-tracker escalation (PF-PRO-068 WI-5, Contract 6): removes the row from THIS
+    # workspace's tracker and appends it to the target workspace's Section 1 — Intake,
+    # ID-preserving.
+    #
+    # ID preservation is not a convenience — PF-IMP/PRO/FEE/REV/EVR mint from ONE portfolio-
+    # global counter at the chain root (P-3), so a row keeps its ID wherever it lands and every
+    # bare cross-reference in archives, ledgers and provenance keeps resolving. Renumbering on
+    # escalation would break exactly that.
+    #
+    # The destination is always Intake, never a triaged section: the receiving workspace owns
+    # the artifact, so it also owns the classification. Escalation hands over a finding, not a
+    # routing decision made on the owner's behalf.
+    #
+    # Returns @{ Content; TargetContent } on success, $null on failure.
+    param(
+        [string]$Content,
+        [string]$TargetContent,
+        [string]$ImprovementId,
+        [string]$SourceShortName,
+        [string]$TargetWorkspaceId,
+        [string]$SourceWorkspaceId,
+        [string]$EscalatedBy,
+        # Passed explicitly rather than read from the script scope by dynamic scoping: every
+        # sibling helper here takes what it uses, and an implicitly-inherited value is invisible
+        # at the call site (PF-EVR-035 F-6).
+        [string]$Reason,
+        [string]$AppendNotes
+    )
+
+    # Terminal and specialized-flow sections are refused: a Completed/Rejected row has already
+    # reached its outcome, and Active Pilots carries a lifecycle the receiving workspace has no
+    # context for. Escalation moves OPEN work.
+    if ($SourceShortName -in @("ActivePilots", "Completed", "Rejected")) {
+        Write-ProjectLog "$ImprovementId is in '$SourceShortName'. Escalation moves open work only — Completed / Rejected rows have reached their outcome, and Active Pilots rows carry a lifecycle the receiving workspace cannot continue." -Level "ERROR"
+        return $null
+    }
+
+    $sourceHeading = $script:CentralSectionHeadings[$SourceShortName]
+    $sourceRows = ConvertFrom-MarkdownTable -Content $Content -Section $sourceHeading
+    $existingRow = $sourceRows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
+    if (-not $existingRow) {
+        Write-ProjectLog "$ImprovementId not found in section '$SourceShortName' (re-read failed)" -Level "ERROR"
+        return $null
+    }
+    $existingNotes = if ($existingRow.PSObject.Properties.Name -contains "Notes") { $existingRow.Notes } else { "" }
+
+    # Audit-trail prefix, sibling of [REROUTED ...]. It records the ORIGIN workspace, which the
+    # destination row otherwise loses entirely — the receiving triage needs to know whose tree
+    # the finding came from to reproduce it.
+    $reasonText = if ($Reason) { $Reason } else { "<no reason supplied>" }
+    if (-not $Reason) {
+        Write-ProjectLog "Escalation of $ImprovementId has no -Reason; recording the prefix with a '<no reason supplied>' marker (audit-trail preservation)" -Level "WARN"
+    }
+    $prefix = "[ESCALATED $CurrentDate from $SourceWorkspaceId by ${EscalatedBy}: $reasonText]"
+    $newNotes = if ([string]::IsNullOrWhiteSpace($existingNotes) -or $existingNotes.Trim() -eq "—") {
+        $prefix
+    } else {
+        "$prefix $($existingNotes.Trim())"
+    }
+    if ($AppendNotes) {
+        if (-not $newNotes.Contains($AppendNotes)) { $newNotes = "$newNotes $AppendNotes" }
+    }
+
+    $colSpec = Build-ColumnMappingForMove `
+        -SourceShortName $SourceShortName `
+        -DestShortName "Intake" `
+        -NewNotes $newNotes
+
+    # Overwrite the Source cell so the receiving workspace's Intake reads as what it is — an
+    # escalation from a named workspace — rather than inheriting the origin's own upstream
+    # source label, which means nothing over there.
+    $colSpec.AdditionalColumns["Source"] = "$EscalatedBy escalation from $SourceWorkspaceId"
+
+    $result = Move-MarkdownTableRow `
+        -Content $Content `
+        -DestinationContent $TargetContent `
+        -RowIdPattern ([regex]::Escape($ImprovementId)) `
+        -SourceSection $sourceHeading `
+        -DestinationSection $script:CentralSectionHeadings["Intake"] `
+        -ColumnMapping $colSpec.ColumnMapping `
+        -AdditionalColumns $colSpec.AdditionalColumns `
+        -SectionEndPattern '^---\s*$'
+
+    if ($null -eq $result.Content -or $null -eq $result.DestinationContent) {
+        Write-ProjectLog "Failed to escalate $ImprovementId from '$SourceShortName' to $TargetWorkspaceId" -Level "ERROR"
+        return $null
+    }
+
+    Write-ProjectLog "Escalated $ImprovementId from '$SourceShortName' to $TargetWorkspaceId Intake" -Level "SUCCESS"
+    return @{ Content = $result.Content; TargetContent = $result.DestinationContent }
+}
+
 function Test-PrerequisitesForMove {
     # Validates SectionMove parameter combinations and the tracking-file structure.
     param([string]$Content)
 
     if (-not (Test-Path $TrackingFile)) {
-        Write-Log "Tracking file not found: $TrackingFile" -Level "ERROR"
+        Write-ProjectLog "Tracking file not found: $TrackingFile" -Level "ERROR"
         return $false
     }
 
     # Archive-split (2026-05-13): the SectionMove path may target Rejected,
     # which lives in the sibling archive file. Validate its existence up-front.
     if (-not (Test-Path $ArchiveFile)) {
-        Write-Log "Archive file not found: $ArchiveFile. Sections 6 (Completed) and 7 (Rejected) live in this sibling file post-split." -Level "ERROR"
+        Write-ProjectLog "Archive file not found: $ArchiveFile. Sections 6 (Completed) and 7 (Rejected) live in this sibling file post-split." -Level "ERROR"
         return $false
     }
 
     if (-not (Test-IsCentralTrackingFile -Content $Content)) {
-        Write-Log "Tracking file does not have the central 7-section structure ('## Section 1 — Intake' heading missing): $TrackingFile" -Level "ERROR"
-        Write-Log "SectionMove operations require the centralized process-improvement-tracking.md (created in PF-PRO-029 Phase 2). Pass -TrackingFile <central-path> if running before Phase 7 cutover." -Level "ERROR"
+        Write-ProjectLog "Tracking file does not have the central 7-section structure ('## Section 1 — Intake' heading missing): $TrackingFile" -Level "ERROR"
+        Write-ProjectLog "SectionMove operations require the centralized 7-section process-improvement-tracking.md (the resolved default). If you passed -TrackingFile, point it at the central tracker." -Level "ERROR"
         return $false
     }
 
     if ($MoveToSection -eq "Rejected" -and -not $RejectionReason) {
-        Write-Log "-RejectionReason is required when -MoveToSection is 'Rejected'" -Level "ERROR"
+        Write-ProjectLog "-RejectionReason is required when -MoveToSection is 'Rejected'" -Level "ERROR"
         return $false
     }
 
@@ -1539,14 +2030,15 @@ function Test-PrerequisitesForMove {
     # marker. No-op for Intake-source rejections (initial sort gets no prefix).
     if ($MoveToSection -eq "Rejected" -and -not $Reason -and $RejectionReason) {
         $script:Reason = $RejectionReason
-        Write-Log "Defaulted -Reason to -RejectionReason for the re-route audit trail (PF-IMP-1005)" -Level "INFO"
+        Write-ProjectLog "Defaulted -Reason to -RejectionReason for the re-route audit trail (PF-IMP-1005)" -Level "INFO"
     }
 
     if ($MoveToSection -in @("Improvements", "Extensions", "StructuralChanges")) {
-        if (-not $Status) {
-            $script:Status = "Needs Prioritization"  # default for triaged-section moves
-            Write-Log "Defaulted -Status to 'Needs Prioritization' for triaged-section move" -Level "INFO"
-        }
+        # PF-IMP-1831: no blanket -Status default here — the destination Status is resolved
+        # PER ROW in Move-IMPBetweenSections (explicit -Status > source row's current Status
+        # > "Needs Prioritization"), because batch rows can mix Intake sources (no Status
+        # column, default applies) with triaged sources (current Status preserved — the old
+        # unconditional default silently overwrote e.g. an In Progress claim).
         if (-not $RespTask) {
             # Auto-derive Resp Task from destination section (the conventional owner).
             $script:RespTask = switch ($MoveToSection) {
@@ -1554,7 +2046,7 @@ function Test-PrerequisitesForMove {
                 "Extensions"        { "PF-TSK-026" }
                 "StructuralChanges" { "PF-TSK-014" }
             }
-            Write-Log "Defaulted -RespTask to '$RespTask' (conventional owner of $MoveToSection section)" -Level "INFO"
+            Write-ProjectLog "Defaulted -RespTask to '$RespTask' (conventional owner of $MoveToSection section)" -Level "INFO"
         }
     }
 
@@ -1583,13 +2075,13 @@ function Move-IMPBetweenSections {
 
     # Refuse no-op moves (source == destination).
     if ($SourceShortName -eq $DestShortName) {
-        Write-Log "$ImprovementId is already in section '$DestShortName' — no move performed" -Level "WARN"
+        Write-ProjectLog "$ImprovementId is already in section '$DestShortName' — no move performed" -Level "WARN"
         return @{ Content = $Content; ArchiveContent = $ArchiveContent }  # caller treats unchanged content as a non-failure no-op
     }
 
     # Refuse moves involving Active Pilots / Completed (specialized flows handle those).
     if ($SourceShortName -in @("ActivePilots", "Completed")) {
-        Write-Log "$ImprovementId is in '$SourceShortName' section. SectionMove does not support sources of ActivePilots or Completed — those have specialized flows (use -NewStatus Active/Resolved for pilots; row stays in Completed once resolved)." -Level "ERROR"
+        Write-ProjectLog "$ImprovementId is in '$SourceShortName' section. SectionMove does not support sources of ActivePilots or Completed — those have specialized flows (use -NewStatus Active/Resolved for pilots; row stays in Completed once resolved)." -Level "ERROR"
         return $null
     }
 
@@ -1606,10 +2098,19 @@ function Move-IMPBetweenSections {
     $sourceRows = ConvertFrom-MarkdownTable -Content $sourceFileContent -Section $sourceHeading
     $existingRow = $sourceRows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
     if (-not $existingRow) {
-        Write-Log "$ImprovementId not found in section '$SourceShortName' (re-read failed)" -Level "ERROR"
+        Write-ProjectLog "$ImprovementId not found in section '$SourceShortName' (re-read failed)" -Level "ERROR"
         return $null
     }
     $existingNotes = if ($existingRow.PSObject.Properties.Name -contains "Notes") { $existingRow.Notes } else { "" }
+
+    # PF-IMP-1238: -Reason feeds only the [REROUTED ...] audit-trail prefix, which is
+    # suppressed on initial sorts out of Intake. A caller passing -Reason on an
+    # Intake → triaged-section move would have it silently dropped; warn and point at
+    # -AppendNotes. Excludes Rejected, where -Reason is legitimately auto-seeded from
+    # -RejectionReason (PF-IMP-1005) and carried by the Rejection Reason column, not Notes.
+    if ($SourceShortName -eq "Intake" -and $DestShortName -in @("Improvements", "Extensions", "StructuralChanges") -and $Reason) {
+        Write-ProjectLog "-Reason is ignored on Intake-source initial sorts to $DestShortName (no re-route audit trail to record). Pass -AppendNotes in the same call to attach a note to the sorted row." -Level "WARN"
+    }
 
     $newNotes = Get-NotesWithReroutePrefix `
         -ExistingNotes $existingNotes `
@@ -1617,11 +2118,44 @@ function Move-IMPBetweenSections {
         -RoutedBy $RoutedBy `
         -Reason $Reason
 
+    # PF-IMP-1393 (c): -AppendNotes rides the move in the same call — appended after the
+    # [REROUTED ...] prefix logic with the StatusUpdate-set annotation's idempotent
+    # semantics (skip when the literal text is already present).
+    if ($AppendNotes) {
+        $newNotesTrim = if ($newNotes) { $newNotes.Trim() } else { "" }
+        $notesEmpty = (-not $newNotesTrim) -or ($newNotesTrim -eq "—")
+        if ((-not $notesEmpty) -and $newNotesTrim.Contains($AppendNotes)) {
+            Write-ProjectLog "AppendNotes: text already present in Notes for $ImprovementId — skipping (idempotent)" -Level "INFO"
+        } else {
+            $newNotes = if ($notesEmpty) { $AppendNotes } else { "$newNotesTrim $AppendNotes" }
+            Write-ProjectLog "Appended to Notes for $ImprovementId (rides the section move)" -Level "SUCCESS"
+        }
+    }
+
+    # PF-IMP-1831: per-row destination Status. Explicit -Status wins; otherwise a triaged-
+    # source row KEEPS its current Status — the former unconditional pre-move default
+    # silently overwrote a live value (e.g. an In Progress claim set minutes earlier),
+    # announced only at default-quiet INFO. Only a row with no preservable Status (Intake
+    # source — 7-col schema, no Status column — or a blank/placeholder cell) takes the
+    # "Needs Prioritization" default. All triaged sections share one status legend, so a
+    # preserved value is always valid in the destination.
+    $effStatus = $Status
+    if (-not $effStatus -and $DestShortName -in @("Improvements", "Extensions", "StructuralChanges")) {
+        $sourceStatus = if ($existingRow.PSObject.Properties.Name -contains "Status") { "$($existingRow.Status)".Trim() } else { "" }
+        if ($sourceStatus -and $sourceStatus -notin @("—", "-")) {
+            $effStatus = $sourceStatus
+            Write-ProjectLog "Preserving current Status '$sourceStatus' for $ImprovementId across the move to $DestShortName (PF-IMP-1831)" -Level "INFO"
+        } else {
+            $effStatus = "Needs Prioritization"
+            Write-ProjectLog "Defaulted Status to 'Needs Prioritization' for $ImprovementId (no preservable source Status)" -Level "INFO"
+        }
+    }
+
     $colSpec = Build-ColumnMappingForMove `
         -SourceShortName $SourceShortName `
         -DestShortName $DestShortName `
         -Priority $Priority `
-        -Status $Status `
+        -Status $effStatus `
         -RespTask $RespTask `
         -RejectionReason $RejectionReason `
         -NewNotes $newNotes
@@ -1645,7 +2179,7 @@ function Move-IMPBetweenSections {
             -AdditionalColumns $colSpec.AdditionalColumns `
             -SectionEndPattern '^---\s*$'
         if ($null -eq $result.Content) {
-            Write-Log "Failed to move $ImprovementId from '$SourceShortName' to '$DestShortName'" -Level "ERROR"
+            Write-ProjectLog "Failed to move $ImprovementId from '$SourceShortName' to '$DestShortName'" -Level "ERROR"
             return $null
         }
         $newMain    = if ($sourceInArchive) { $Content }         else { $result.Content }
@@ -1665,7 +2199,7 @@ function Move-IMPBetweenSections {
             -AdditionalColumns $colSpec.AdditionalColumns `
             -SectionEndPattern '^---\s*$'
         if ($null -eq $result.Content -or $null -eq $result.DestinationContent) {
-            Write-Log "Failed to move $ImprovementId from '$SourceShortName' to '$DestShortName' (two-file)" -Level "ERROR"
+            Write-ProjectLog "Failed to move $ImprovementId from '$SourceShortName' to '$DestShortName' (two-file)" -Level "ERROR"
             return $null
         }
         # Map the two-file results back to (main, archive) regardless of direction.
@@ -1673,7 +2207,7 @@ function Move-IMPBetweenSections {
         $newArchive = if ($sourceInArchive) { $result.Content }            else { $result.DestinationContent }
     }
 
-    Write-Log "Moved $ImprovementId from '$SourceShortName' to '$DestShortName'" -Level "SUCCESS"
+    Write-ProjectLog "Moved $ImprovementId from '$SourceShortName' to '$DestShortName'" -Level "SUCCESS"
     return @{ Content = $newMain; ArchiveContent = $newArchive }
 }
 
@@ -1685,14 +2219,119 @@ function Main {
         $script:ImprovementId = "PF-$ImprovementId"
     }
 
-    Write-Log "Starting Process Improvement Update - $ScriptName"
-    Write-Log "Improvement ID: $ImprovementId"
+    Write-ProjectLog "Starting Process Improvement Update - $ScriptName"
+    Write-ProjectLog "Improvement ID: $ImprovementId"
+
+    # PF-IMP-1740 (a): a supplied -LogToolChanges that resolved to empty/whitespace is a hard
+    # error before anything else runs. The classic shape is -LogToolChanges (Get-Content
+    # <missing file>): Get-Content's non-terminating error leaves an empty argument, and the
+    # falsy isCompletion-and-LogToolChanges guards would then skip validation AND the log call
+    # — archiving the row with its change history silently lost (PF-FEE-1660). Checked in
+    # Main, not Test-Prerequisites, so every dispatch path is covered.
+    if ($script:LogToolChangesBoundEmpty) {
+        Write-ProjectLog "-LogToolChanges was supplied but its value resolved to empty/whitespace — likely a failed file read (e.g. -LogToolChanges (Get-Content <path>) on a missing file). Nothing was changed; fix the payload source and re-run the same call." -Level "ERROR"
+        exit 1
+    }
 
     # --- SectionMove parameter set dispatch (PF-TSK-089 IMP Triage) ---
+    if ($PSCmdlet.ParameterSetName -eq "Escalate") {
+        # --- Escalate parameter set (PF-PRO-068 WI-5 — Contract 6 federation) ---
+        $effEscalatedBy = if ($EscalatedBy) { $EscalatedBy } else { "PF-TSK-089" }
+        $sourceWorkspaceId = try { (Get-ProjectConfig).project_id } catch { $null }
+        if (-not $sourceWorkspaceId) {
+            Write-ProjectLog "Cannot read this workspace's project_id from doc/project-config.json — the escalation audit trail records the ORIGIN workspace, so an unidentifiable origin is a hard stop rather than an anonymous row in someone else's queue." -Level "ERROR"
+            exit 1
+        }
+
+        if (-not $TargetTrackingFile) {
+            try {
+                $TargetTrackingFile = Resolve-EscalationTargetTracker -WorkspaceId $EscalateTo
+            } catch {
+                Write-ProjectLog $_.Exception.Message -Level "ERROR"
+                exit 1
+            }
+        }
+        if ($TargetTrackingFile -eq $TrackingFile) {
+            Write-ProjectLog "Escalation target resolves to this workspace's own tracker ($TrackingFile). '$EscalateTo' is this workspace — use -MoveToSection for moves within one tracker." -Level "ERROR"
+            exit 1
+        }
+        if (-not (Test-Path $TargetTrackingFile)) {
+            Write-ProjectLog "Escalation target tracker not found: $TargetTrackingFile" -Level "ERROR"
+            exit 1
+        }
+
+        Write-ProjectLog "Escalate To:   $EscalateTo"
+        Write-ProjectLog "Tracking File: $TrackingFile"
+        Write-ProjectLog "Target File:   $TargetTrackingFile"
+
+        $content = Get-Content $TrackingFile -Raw
+        $archiveContent = Get-Content $ArchiveFile -Raw
+        $targetContent = Get-Content $TargetTrackingFile -Raw
+
+        if (-not (Test-IsCentralTrackingFile -Content $content)) {
+            Write-ProjectLog "Tracking file does not have the central 7-section structure: $TrackingFile" -Level "ERROR"
+            exit 1
+        }
+        if (-not (Test-IsCentralTrackingFile -Content $targetContent)) {
+            Write-ProjectLog "Escalation target does not have the central 7-section structure ('## Section 1 — Intake' heading missing): $TargetTrackingFile" -Level "ERROR"
+            exit 1
+        }
+
+        $sourceShortName = Get-IMPCurrentSection -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId
+        Write-ProjectLog "Located $ImprovementId in section: $sourceShortName"
+        if ($sourceShortName -eq "NotFound") {
+            Write-ProjectLog "$ImprovementId not found in any section of $TrackingFile / $ArchiveFile" -Level "ERROR"
+            exit 1
+        }
+
+        # An ID already present in the target tracker would produce two rows with one
+        # portfolio-global ID — the exact breakage P-3's single counter exists to prevent.
+        if ($targetContent -match ("(?m)^\|\s*" + [regex]::Escape($ImprovementId) + "\s*\|")) {
+            Write-ProjectLog "$ImprovementId already exists in the target tracker $TargetTrackingFile. IDs are portfolio-global (P-3), so escalating would create two rows sharing one ID. Reconcile the existing row first." -Level "ERROR"
+            exit 1
+        }
+
+        if (-not $PSCmdlet.ShouldProcess($TargetTrackingFile, "Escalate $ImprovementId from $sourceShortName to $EscalateTo Intake")) {
+            return
+        }
+
+        $escResult = Move-IMPToWorkspace `
+            -Content $content `
+            -TargetContent $targetContent `
+            -ImprovementId $ImprovementId `
+            -SourceShortName $sourceShortName `
+            -TargetWorkspaceId $EscalateTo `
+            -SourceWorkspaceId $sourceWorkspaceId `
+            -EscalatedBy $effEscalatedBy `
+            -Reason $Reason `
+            -AppendNotes $AppendNotes
+
+        if ($null -eq $escResult) { exit 1 }
+
+        $newContent = Update-FrontmatterDate -Content $escResult.Content
+        $newTarget  = Update-FrontmatterDate -Content $escResult.TargetContent
+
+        # Write the TARGET first: a failure after the source row is already gone would lose the
+        # row outright, whereas a failure after the target write leaves it in both trackers —
+        # visible, reconcilable, and caught by the duplicate-ID guard above on the next attempt.
+        Invoke-FileWriteWithRetry -Context (Split-Path $TargetTrackingFile -Leaf) -ScriptBlock {
+            Set-Content -Path $TargetTrackingFile -Value $newTarget -NoNewline
+        }
+        Invoke-FileWriteWithRetry -Context (Split-Path $TrackingFile -Leaf) -ScriptBlock {
+            Set-Content -Path $TrackingFile -Value $newContent -NoNewline
+        }
+
+        $rowPattern = "\|\s*" + [regex]::Escape($ImprovementId) + "\s*\|"
+        Assert-TableRowInFile -Path $TargetTrackingFile -Pattern $rowPattern -Context "escalated row for $ImprovementId in $TargetTrackingFile"
+
+        Write-ProjectSummary "$ImprovementId escalated: $sourceWorkspaceId/$sourceShortName → $EscalateTo/Intake"
+        return
+    }
+
     if ($PSCmdlet.ParameterSetName -eq "SectionMove") {
-        Write-Log "Move To Section: $MoveToSection"
-        Write-Log "Tracking File: $TrackingFile"
-        Write-Log "Archive File:  $ArchiveFile"
+        Write-ProjectLog "Move To Section: $MoveToSection"
+        Write-ProjectLog "Tracking File: $TrackingFile"
+        Write-ProjectLog "Archive File:  $ArchiveFile"
 
         $content = Get-Content $TrackingFile -Raw
         $archiveContent = Get-Content $ArchiveFile -Raw
@@ -1706,15 +2345,18 @@ function Main {
         # use either the -NewStatus token spelling or the display spelling interchangeably.
         if ($Status -and $StatusDisplayNames.ContainsKey($Status)) {
             $script:Status = $StatusDisplayNames[$Status]
-            Write-Log "Normalized -Status token to display form '$Status' (PF-IMP-1006)" -Level "INFO"
+            Write-ProjectLog "Normalized -Status token to display form '$Status' (PF-IMP-1006)" -Level "INFO"
         }
 
         # PF-IMP-982: batch mode. Build the full ID list (-ImprovementId + -AlsoMoveIds),
         # normalize short IMP-NNN → PF-IMP-NNN, and de-dup. ($ImprovementId is already
         # normalized at the top of Main; $AlsoMoveIds are normalized here.)
+        # PF-IMP-1830: split each element on commas first — pwsh -File binds a CSV list as
+        # ONE element, and the split makes that element and a real -Command array yield the
+        # same ID list (split-in-place pattern, PF-IMP-1428 / PF-IMP-1542).
         $batchIds = @($ImprovementId)
         if ($AlsoMoveIds) {
-            foreach ($extra in $AlsoMoveIds) {
+            foreach ($extra in @($AlsoMoveIds -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })) {
                 $batchIds += if ($extra -match '^IMP-\d+$') { "PF-$extra" } else { $extra }
             }
         }
@@ -1722,7 +2364,7 @@ function Main {
 
         # -Retriage / explicit -RoutedBy conflict is a global param error (check once).
         if ($Retriage -and $RoutedBy -and $RoutedBy -ne "PF-TSK-089") {
-            Write-Log "-Retriage implies -RoutedBy 'PF-TSK-089' but you supplied '$RoutedBy'. Choose one." -Level "ERROR"
+            Write-ProjectLog "-Retriage implies -RoutedBy 'PF-TSK-089' but you supplied '$RoutedBy'. Choose one." -Level "ERROR"
             exit 1
         }
         # Capture the explicitly-supplied -RoutedBy before the loop mutates $script:RoutedBy
@@ -1737,10 +2379,10 @@ function Main {
 
         foreach ($id in $batchIds) {
             $sourceShortName = Get-IMPCurrentSection -Content $content -ArchiveContent $archiveContent -ImprovementId $id
-            Write-Log "Located $id in section: $sourceShortName"
+            Write-ProjectLog "Located $id in section: $sourceShortName"
 
             if ($sourceShortName -eq "NotFound") {
-                Write-Log "$id not found in any section of $TrackingFile / $ArchiveFile" -Level "ERROR"
+                Write-ProjectLog "$id not found in any section of $TrackingFile / $ArchiveFile" -Level "ERROR"
                 $failed += [pscustomobject]@{ Id = $id; Reason = "not found in any section" }
                 continue
             }
@@ -1748,7 +2390,7 @@ function Main {
             # PF-IMP-857: -Retriage is invalid for Intake-source moves (initial triage is
             # already attributed to PF-TSK-089). In a mixed batch this is a per-ID skip.
             if ($Retriage -and $sourceShortName -eq "Intake") {
-                Write-Log "-Retriage is invalid for Intake-source moves ($id). The default Intake → triaged-section flow is already attributed to PF-TSK-089." -Level "ERROR"
+                Write-ProjectLog "-Retriage is invalid for Intake-source moves ($id). The default Intake → triaged-section flow is already attributed to PF-TSK-089." -Level "ERROR"
                 $failed += [pscustomobject]@{ Id = $id; Reason = "-Retriage invalid for Intake-source" }
                 continue
             }
@@ -1770,7 +2412,7 @@ function Main {
                     }
                 }
             if ($effRoutedBy) {
-                Write-Log "Resolved -RoutedBy to '$effRoutedBy' for $id (source '$sourceShortName')" -Level "INFO"
+                Write-ProjectLog "Resolved -RoutedBy to '$effRoutedBy' for $id (source '$sourceShortName')" -Level "INFO"
             }
 
             if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Move $id from $sourceShortName to $MoveToSection")) {
@@ -1805,10 +2447,10 @@ function Main {
         # since ShouldProcess returned false for every ID and no content changed).
         if ($moved.Count -eq 0) {
             if ($noop.Count -gt 0) {
-                Write-SummaryLine "$($noop -join ', ') already in '$MoveToSection' — no change" -Level "WARN"
+                Write-ProjectSummary "$($noop -join ', ') already in '$MoveToSection' — no change" -Level "WARN"
             }
             if ($failed.Count -gt 0) {
-                Write-SummaryLine "Batch move failed: $($failed.Count) ID(s) not moved ($(($failed | ForEach-Object { $_.Id }) -join ', '))" -Level "ERROR"
+                Write-ProjectSummary "Batch move failed: $($failed.Count) ID(s) not moved ($(($failed | ForEach-Object { $_.Id }) -join ', '))" -Level "ERROR"
                 exit 1
             }
             return
@@ -1840,19 +2482,19 @@ function Main {
             $verifyFile = if ($MoveToSection -eq "Rejected") { $ArchiveFile } else { $TrackingFile }
             foreach ($m in $moved) {
                 $rowPattern = "\|\s*" + [regex]::Escape($m.Id) + "\s*\|"
-                Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "row for $($m.Id) in $verifyFile"
+                Assert-TableRowInFile -Path $verifyFile -Pattern $rowPattern -Context "row for $($m.Id) in $verifyFile"
             }
         }
 
         if ($moved.Count -eq 1 -and $noop.Count -eq 0 -and $failed.Count -eq 0) {
             # Preserve the single-ID summary form.
-            Write-SummaryLine "$($moved[0].Id) moved: $($moved[0].Src) → $MoveToSection"
+            Write-ProjectSummary "$($moved[0].Id) moved: $($moved[0].Src) → $MoveToSection"
         } else {
             $summary = "$(($moved | ForEach-Object { $_.Id }) -join ', ') moved → $MoveToSection ($($moved.Count) moved"
             if ($noop.Count -gt 0)   { $summary += "; $($noop.Count) no-op" }
             if ($failed.Count -gt 0) { $summary += "; $($failed.Count) failed" }
             $summary += ")"
-            Write-SummaryLine $summary -Level $(if ($failed.Count -gt 0) { "WARN" } else { "SUCCESS" })
+            Write-ProjectSummary $summary -Level $(if ($failed.Count -gt 0) { "WARN" } else { "SUCCESS" })
         }
 
         if ($failed.Count -gt 0) { exit 1 }
@@ -1886,32 +2528,49 @@ function Main {
     # PF-IMP-1007: -AppendNotes and -EditNotes both target the Notes cell with opposite
     # semantics (append vs replace) — combining them is ambiguous. Reject up front.
     if ($AppendNotes -and $EditNotes) {
-        Write-Log "-AppendNotes and -EditNotes are mutually exclusive (one appends to Notes, the other replaces it). Supply only one." -Level "ERROR"
+        Write-ProjectLog "-AppendNotes and -EditNotes are mutually exclusive (one appends to Notes, the other replaces it). Supply only one." -Level "ERROR"
         exit 1
     }
 
+    # PF-IMP-1343: accept -RejectionReason on the status-path reject as an alias for the
+    # reject-reason carrier -ValidationNotes (the SectionMove branch returned above, so any
+    # -RejectionReason still bound here came in via the StatusUpdate set). It is meaningful
+    # only for the Rejected status — fold it into $ValidationNotes, and reject the ambiguous
+    # both-supplied case and the wrong-status / no-status misuses with a targeted error.
+    if ($RejectionReason) {
+        if ($NewStatus -ne "Rejected") {
+            Write-ProjectLog "-RejectionReason is only valid with -NewStatus Rejected. For other statuses pass the rationale via -ValidationNotes; for the triage move use -MoveToSection Rejected -RejectionReason." -Level "ERROR"
+            exit 1
+        }
+        if ($ValidationNotes) {
+            Write-ProjectLog "Supply the rejection reason via exactly one of -RejectionReason or -ValidationNotes, not both." -Level "ERROR"
+            exit 1
+        }
+        $script:ValidationNotes = $RejectionReason
+    }
+
     # PF-IMP-832 (a): annotation-only mode. When -NewStatus is omitted but at least one of
-    # -AppendNotes / -SetRespTask / -EditDescription / -EditNotes / -AnnotateAsRolledInto is
-    # bound, run the annotation as a standalone edit (no status transition, no completion
-    # move). At least one must be supplied.
+    # -AppendNotes / -SetRespTask / -SetPriority / -EditDescription / -EditNotes /
+    # -AnnotateAsRolledInto is bound, run the annotation as a standalone edit (no status
+    # transition, no completion move). At least one must be supplied.
     if (-not $NewStatus) {
-        if (-not $AppendNotes -and -not $SetRespTask -and -not $EditDescription -and -not $EditNotes) {
+        if (-not $AppendNotes -and -not $SetRespTask -and -not $SetPriority -and -not $EditDescription -and -not $EditNotes) {
             # -AnnotateAsRolledInto already folded into $AppendNotes above; if that fold
             # populated nothing (it can't, given the ValidatePattern), the user-visible
             # error still reads naturally.
-            Write-Log "Must supply at least one of -NewStatus, -AppendNotes, -SetRespTask, -EditDescription, -EditNotes, or -AnnotateAsRolledInto" -Level "ERROR"
+            Write-ProjectLog "Must supply at least one of -NewStatus, -AppendNotes, -SetRespTask, -SetPriority, -EditDescription, -EditNotes, or -AnnotateAsRolledInto" -Level "ERROR"
             exit 1
         }
 
-        Write-Log "Tracking File: $TrackingFile"
-        Write-Log "Archive File:  $ArchiveFile"
+        Write-ProjectLog "Tracking File: $TrackingFile"
+        Write-ProjectLog "Archive File:  $ArchiveFile"
 
         if (-not (Test-Path $TrackingFile)) {
-            Write-Log "Tracking file not found: $TrackingFile" -Level "ERROR"
+            Write-ProjectLog "Tracking file not found: $TrackingFile" -Level "ERROR"
             exit 1
         }
         if (-not (Test-Path $ArchiveFile)) {
-            Write-Log "Archive file not found: $ArchiveFile" -Level "ERROR"
+            Write-ProjectLog "Archive file not found: $ArchiveFile" -Level "ERROR"
             exit 1
         }
 
@@ -1919,7 +2578,7 @@ function Main {
         $archiveContent = Get-Content $ArchiveFile -Raw
 
         if (-not (Test-IsCentralTrackingFile -Content $content)) {
-            Write-Log "Tracking file does not have the central 7-section structure: $TrackingFile" -Level "ERROR"
+            Write-ProjectLog "Tracking file does not have the central 7-section structure: $TrackingFile" -Level "ERROR"
             exit 1
         }
 
@@ -1927,26 +2586,30 @@ function Main {
             return
         }
 
-        # Annotation operates on §2-§4 rows only — never touches the archive.
-        # We pass $archiveContent so Get-IMPCurrentSection can produce a precise
-        # error message when the IMP turns out to be in the archive.
-        $newContent = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask -EditDescription $EditDescription -EditNotes $EditNotes
-        if ($null -eq $newContent) { exit 1 }
+        # Annotation covers every live section plus — since PF-IMP-1719 — the two archive
+        # sections. $archiveContent is both the search space for Get-IMPCurrentSection and the
+        # edit target when the row turns out to be archived; the result says which file to write.
+        $annotation = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask -SetPriority $SetPriority -EditDescription $EditDescription -EditNotes $EditNotes -AllowArchive
+        if ($null -eq $annotation) { exit 1 }
 
-        if ($newContent -eq $content) {
-            Write-SummaryLine "$ImprovementId annotation — no change (idempotent)" -Level "WARN"
+        $targetFile = if ($annotation.IsArchive) { $ArchiveFile } else { $TrackingFile }
+        $originalContent = if ($annotation.IsArchive) { $archiveContent } else { $content }
+        $newContent = $annotation.Content
+
+        if ($newContent -eq $originalContent) {
+            Write-ProjectSummary "$ImprovementId annotation — no change (idempotent)" -Level "WARN"
             return
         }
 
         $newContent = Update-FrontmatterDate -Content $newContent
 
-        Invoke-FileWriteWithRetry -Context (Split-Path $TrackingFile -Leaf) -ScriptBlock {
-            Set-Content -Path $TrackingFile -Value $newContent -NoNewline
+        Invoke-FileWriteWithRetry -Context (Split-Path $targetFile -Leaf) -ScriptBlock {
+            Set-Content -Path $targetFile -Value $newContent -NoNewline
         }
 
         if (-not $WhatIfPreference) {
             $rowPattern = "\|\s*" + [regex]::Escape($ImprovementId) + "\s*\|"
-            Assert-LineInFile -Path $TrackingFile -Pattern $rowPattern -Context "row for $ImprovementId in $TrackingFile"
+            Assert-TableRowInFile -Path $targetFile -Pattern $rowPattern -Context "row for $ImprovementId in $targetFile"
         }
 
         $annotations = @()
@@ -1954,11 +2617,12 @@ function Main {
         if ($EditNotes)       { $annotations += "Notes(replace)" }
         if ($EditDescription) { $annotations += "Description(replace)" }
         if ($SetRespTask)     { $annotations += "Resp Task=$SetRespTask" }
-        Write-SummaryLine "$ImprovementId annotated: $($annotations -join ', ')"
+        if ($SetPriority)     { $annotations += "Priority=$SetPriority" }
+        Write-ProjectSummary "$ImprovementId annotated: $($annotations -join ', ')"
         return
     }
 
-    Write-Log "New Status: $NewStatus"
+    Write-ProjectLog "New Status: $NewStatus"
 
     if (-not (Test-Prerequisites)) {
         exit 1
@@ -1974,13 +2638,13 @@ function Main {
     # Detect which section the IMP lives in (read once, reuse for routing).
     # Archive-split (2026-05-13): §6/§7 live in $archiveContent. Read both.
     if (-not (Test-Path $ArchiveFile)) {
-        Write-Log "Archive file not found: $ArchiveFile" -Level "ERROR"
+        Write-ProjectLog "Archive file not found: $ArchiveFile" -Level "ERROR"
         exit 1
     }
     $content = Get-Content $TrackingFile -Raw
     $archiveContent = Get-Content $ArchiveFile -Raw
     $location = Test-ImprovementLocation -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId
-    Write-Log "Located $ImprovementId in section: $location"
+    Write-ProjectLog "Located $ImprovementId in section: $location"
 
     # Validate status / location compatibility
     if ($isPilotStatus) {
@@ -1988,12 +2652,12 @@ function Main {
             # PF-IMP-832 (d): surface the canonical non-pilot alternatives so the caller
             # knows what to retry with. Previously the error told them what was invalid
             # but not what to use instead (PF-IMP-804 friction).
-            Write-Log "Pilot status '$NewStatus' is only valid for IMPs in the Active Pilots section. $ImprovementId is in: $location. For regular IMPs, use -NewStatus Completed (or Rejected/Deferred/Superseded)." -Level "ERROR"
+            Write-ProjectLog "Pilot status '$NewStatus' is only valid for IMPs in the Active Pilots section. $ImprovementId is in: $location. For regular IMPs, use -NewStatus Completed (or Rejected/Deferred/Superseded)." -Level "ERROR"
             exit 1
         }
     } else {
         if ($location -eq "ActivePilots") {
-            Write-Log "Status '$NewStatus' is not valid for pilots. Use Active or Resolved for IMPs in the Active Pilots section." -Level "ERROR"
+            Write-ProjectLog "Status '$NewStatus' is not valid for pilots. Use Active or Resolved for IMPs in the Active Pilots section." -Level "ERROR"
             exit 1
         }
         if ($location -eq "Intake") {
@@ -2004,12 +2668,23 @@ function Main {
             # Rejection (triage outright rejection). Status flips on Intake rows must triage
             # the row first via -MoveToSection.
             if (-not $isSupersedure -and -not $isRejection) {
-                Write-Log "$ImprovementId is in Section 1 — Intake. Triage it first via -MoveToSection before applying status updates. (Supersession/Rejection are the only Intake-source operations.)" -Level "ERROR"
+                Write-ProjectLog "$ImprovementId is in Section 1 — Intake. Triage it first via -MoveToSection before applying status updates. (Supersession/Rejection are the only Intake-source operations.)" -Level "ERROR"
                 exit 1
             }
         }
         if ($location -eq "NotFound") {
-            Write-Log "$ImprovementId not found in any section of $TrackingFile" -Level "ERROR"
+            Write-ProjectLog "$ImprovementId not found in any section of $TrackingFile / $ArchiveFile" -Level "ERROR"
+            exit 1
+        }
+    }
+
+    # PF-IMP-1393 (b): validate the -LogToolChanges payload (JSON shape + tool_doc_ids)
+    # BEFORE the terminal move, so a bad ID is fixed up front instead of backfilled after
+    # the row is already archived. Runtime failures of the real post-move log call keep
+    # their preserve-move-on-WARN semantics.
+    if ($isCompletion -and $LogToolChanges) {
+        if (-not (Invoke-LogToolChanges -JsonPayload $LogToolChanges -ValidateOnly)) {
+            Write-ProjectLog "-LogToolChanges validation failed — nothing was written. Fix the payload (see message above) and re-run the same completion call." -Level "ERROR"
             exit 1
         }
     }
@@ -2019,18 +2694,22 @@ function Main {
     }
 
     # --- Annotation alongside status update (PF-IMP-832 (a)) ---
-    # If -AppendNotes or -SetRespTask was supplied alongside -NewStatus, apply the annotation
-    # to the source row BEFORE the status update / move. This ensures (a) in-place updates see
-    # the new Notes/Resp Task in the same write cycle, and (b) Completed-transition moves fold
-    # the new Notes into the synthesized destination row and use the new Resp Task as the
-    # default Implementing Task. Pilots (7-col schema, no Resp Task column) are not supported.
-    if ($AppendNotes -or $SetRespTask -or $EditDescription -or $EditNotes) {
+    # If -AppendNotes / -SetRespTask / -SetPriority was supplied alongside -NewStatus, apply the
+    # annotation to the source row BEFORE the status update / move. This ensures (a) in-place
+    # updates see the new Notes/Resp Task/Priority in the same write cycle, and (b)
+    # Completed-transition moves fold the new Notes into the synthesized destination row and use
+    # the new Resp Task as the default Implementing Task. Pilots (7-col schema, no Resp Task or
+    # Priority column) are not supported.
+    if ($AppendNotes -or $SetRespTask -or $SetPriority -or $EditDescription -or $EditNotes) {
         if ($isPilotStatus) {
-            Write-Log "-AppendNotes / -SetRespTask / -EditDescription / -EditNotes / -AnnotateAsRolledInto are not supported for pilot statuses (Active Pilots rows have no Resp Task column and use a different schema)" -Level "ERROR"
+            Write-ProjectLog "-AppendNotes / -SetRespTask / -SetPriority / -EditDescription / -EditNotes / -AnnotateAsRolledInto are not supported for pilot statuses (Active Pilots rows have no Resp Task or Priority column and use a different schema)" -Level "ERROR"
             exit 1
         }
-        $content = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask -EditDescription $EditDescription -EditNotes $EditNotes
-        if ($null -eq $content) { exit 1 }
+        # No -AllowArchive here: a status transition targets a live row, so an already-archived
+        # IMP still fails rather than being annotated in place (PF-IMP-1719).
+        $annotation = Update-AnnotationInPlace -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -AppendNotes $AppendNotes -SetRespTask $SetRespTask -SetPriority $SetPriority -EditDescription $EditDescription -EditNotes $EditNotes
+        if ($null -eq $annotation) { exit 1 }
+        $content = $annotation.Content
     }
 
     # --- Pilot path (PF-PRO-030) ---
@@ -2044,7 +2723,7 @@ function Main {
             $existingRow = $existingPilotRows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
             if ($existingRow -and $existingRow.Status -eq "Resolved") {
                 $alreadyResolved = $true
-                Write-Log "Pilot $ImprovementId already in Resolved status — skipping in-place update (migration path)" -Level "INFO"
+                Write-ProjectLog "Pilot $ImprovementId already in Resolved status — skipping in-place update (migration path)" -Level "INFO"
             }
         }
 
@@ -2065,9 +2744,9 @@ function Main {
                 $pilotRows = ConvertFrom-MarkdownTable -Content $content -Section "## Section 5 — Active Pilots"
                 $pilotRow = $pilotRows | Where-Object { $_.ID -eq $ImprovementId } | Select-Object -First 1
                 if ($pilotRow -and $pilotRow.Concept -match '^PF-IMP-\d+$') {
-                    Write-Log "Pilot $ImprovementId is improvement-origin (Concept = $($pilotRow.Concept)); no concept doc to archive — skipping archival step." -Level "INFO"
+                    Write-ProjectLog "Pilot $ImprovementId is improvement-origin (Concept = $($pilotRow.Concept)); no concept doc to archive — skipping archival step." -Level "INFO"
                 } else {
-                    Write-Log "Could not extract concept ID from pilot row Concept column. Manual concept archive may be required." -Level "WARN"
+                    Write-ProjectLog "Could not extract concept ID from pilot row Concept column. Manual concept archive may be required." -Level "WARN"
                 }
             }
 
@@ -2106,22 +2785,22 @@ function Main {
         if (-not $WhatIfPreference) {
             $verifyFile = if ($NewStatus -eq "Resolved") { $ArchiveFile } else { $TrackingFile }
             $rowPattern = "\|\s*" + [regex]::Escape($ImprovementId) + "\s*\|"
-            Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "row for $ImprovementId in $verifyFile"
+            Assert-TableRowInFile -Path $verifyFile -Pattern $rowPattern -Context "row for $ImprovementId in $verifyFile"
         }
 
         # Archive concept doc on Resolved (after tracking file is written, so a failure here doesn't leave inconsistent state)
         if ($NewStatus -eq "Resolved" -and $conceptId) {
             $archived = Move-ConceptToArchive -ConceptId $conceptId
             if (-not $archived) {
-                Write-Log "Concept archive step had issues — manual review required" -Level "WARN"
+                Write-ProjectLog "Concept archive step had issues — manual review required" -Level "WARN"
             }
         }
 
         $pilotDisplay = $StatusDisplayNames[$NewStatus]
         if ($NewStatus -eq "Resolved") {
-            Write-SummaryLine "$ImprovementId pilot → $pilotDisplay (moved to Completed Improvements)"
+            Write-ProjectSummary "$ImprovementId pilot → $pilotDisplay (moved to Completed Improvements)"
         } else {
-            Write-SummaryLine "$ImprovementId pilot → $pilotDisplay"
+            Write-ProjectSummary "$ImprovementId pilot → $pilotDisplay"
         }
         return
     }
@@ -2138,9 +2817,22 @@ function Main {
         # selection so Section 3/4 IMPs complete correctly (was hardcoded to Section 2 —
         # PF-IMP-760 note).
         if ($location -notin @("Current", "Extensions", "StructuralChanges")) {
-            Write-Log "Completion transition not valid for $ImprovementId — found in section: $location. Expected one of: Current (Improvements) / Extensions / StructuralChanges." -Level "ERROR"
+            Write-ProjectLog "Completion transition not valid for $ImprovementId — found in section: $location. Expected one of: Current (Improvements) / Extensions / StructuralChanges." -Level "ERROR"
             exit 1
         }
+
+        # PF-IMP-1740 (b): a Completed IMP normally carries feedback_db change rows — via this
+        # call's -LogToolChanges fold or an earlier standalone log-change. A rejected standalone
+        # batch otherwise leaves a Completed IMP with no change record and no signal
+        # (PF-FEE-1648: twice in one session). Detection needs the DB, not a payload check.
+        # Advisory only: zero-change completions can be legitimate, and the query returns $null
+        # (stay silent) when python/feedback_db.py is unavailable.
+        if (-not $LogToolChanges) {
+            if ((Test-ImpHasLoggedChanges -ImprovementId $ImprovementId) -eq $false) {
+                Write-ProjectLog "Completing $ImprovementId with no -LogToolChanges payload and no feedback_db change rows logged for it. If this session changed tools/artifacts, log them (feedback_db.py log-change) and verify with: feedback_db.py list-changes --imp $ImprovementId" -Level "WARN"
+            }
+        }
+
         $moveResult = Move-ToCompletedSection -Content $content -ArchiveContent $archiveContent -ImprovementId $ImprovementId -Impact $Impact -ValidationNotes $ValidationNotes -ImplementingTask $ImplementingTask -SourceLocation $location
         if ($null -eq $moveResult) { exit 1 }
         $content        = $moveResult.Content
@@ -2196,10 +2888,16 @@ function Main {
 
     # Read-after-write verification: confirm the IMP row landed in the right file.
     # Completion/Rejection/Supersedure land in the archive; in-place stays in main.
+    # PF-IMP-1875: Assert-TableRowInFile, not the presence-only Assert-LineInFile — it also
+    # resolves the row's governing header and compares cell counts, so a row that is not a
+    # well-formed table row (missing terminator, cells shifted by an unescaped pipe) fails
+    # loudly at the moment of the bad write instead of sitting unparseable in the tracker.
+    # PF-IMP-1563 shipped that assert but wired it into only one of this script's four
+    # verification sites; two archived rows reached the tree unparseable through this one.
     if (-not $WhatIfPreference) {
         $verifyFile = if ($archiveTouched) { $ArchiveFile } else { $TrackingFile }
         $rowPattern = "\|\s*" + [regex]::Escape($ImprovementId) + "\s*\|"
-        Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "IMP row for $ImprovementId in $verifyFile"
+        Assert-TableRowInFile -Path $verifyFile -Pattern $rowPattern -Context "IMP row for $ImprovementId in $verifyFile"
     }
 
     # PF-IMP-832 (b): on Completed transition with -LogToolChanges, invoke feedback_db.py
@@ -2207,6 +2905,15 @@ function Main {
     # transition intact (caller can retry log-change manually).
     if ($isCompletion -and $LogToolChanges -and $NewStatus -eq "Completed") {
         Invoke-LogToolChanges -JsonPayload $LogToolChanges | Out-Null
+    }
+
+    # PF-IMP-1688: archive the named extension concept (PF-TSK-026 Step 21, full-rollout
+    # path). Runs after the write for the same reason as the pilot path above — a concept
+    # move failure leaves the status transition intact and is recoverable by hand.
+    if ($ArchiveConcept) {
+        if (-not (Move-ConceptToArchive -ConceptId $ArchiveConcept)) {
+            Write-ProjectLog "Concept archive step had issues — manual review required" -Level "WARN"
+        }
     }
 
     $outcome = if ($isCompletion) {
@@ -2218,8 +2925,14 @@ function Main {
     } else {
         $StatusDisplayNames[$NewStatus]
     }
-    Write-SummaryLine "$ImprovementId → $outcome"
+    Write-ProjectSummary "$ImprovementId → $outcome"
 }
+
+# PF-IMP-1740 (a): captured in the script body because $PSBoundParameters inside Main is
+# Main's own (empty) set — only the script scope can tell "supplied but resolved empty"
+# (e.g. -LogToolChanges (Get-Content <missing file>)) apart from "not supplied".
+$script:LogToolChangesBoundEmpty = $PSBoundParameters.ContainsKey('LogToolChanges') -and
+    [string]::IsNullOrWhiteSpace($LogToolChanges)
 
 # Execute main function
 try {

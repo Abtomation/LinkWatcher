@@ -367,7 +367,10 @@ class LinkDatabase(LinkDatabaseInterface):
                     "references_removed", file_path=file_path, removed_count=removed_count
                 )
             else:
-                self.logger.warning("no_references_to_remove", file_path=file_path)
+                # PD-BUG-117: a link-free file is the normal case here — this method
+                # runs on every re-index and every move — so the no-op is DEBUG
+                # bookkeeping, not a WARNING-level anomaly.
+                self.logger.debug("no_references_to_remove", file_path=file_path)
 
     def get_references_to_file(self, file_path: str) -> List[LinkReference]:
         """Get all references pointing to a specific file."""

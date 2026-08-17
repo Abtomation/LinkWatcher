@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-098
-type: Process Framework
+description: "Session 17"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-04-09

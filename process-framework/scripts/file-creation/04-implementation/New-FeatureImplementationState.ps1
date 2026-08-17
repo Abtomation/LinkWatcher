@@ -48,6 +48,12 @@
     Dimensions marked N/A go to the "Not Applicable" table; others go to "Applicable Dimensions".
     Core dimensions (AC, CQ, ID, DA) default to Relevant if not specified.
 
+.PARAMETER Workflows
+    Optional comma-separated WF-IDs this feature participates in (e.g. "WF-001, WF-003"),
+    derived from User Workflow Tracking. Written to the state file's workflows: frontmatter
+    as an inline list. Omitted or empty yields workflows: [] (no user workflow). Set this at
+    creation instead of hand-editing the frontmatter afterward.
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
@@ -66,6 +72,9 @@
 .EXAMPLE
     New-FeatureImplementationState.ps1 -FeatureName "file-processor" -FeatureId "2.1.1" -Dims @{ "SE" = "Critical|Validate user paths"; "PE" = "Critical|Batch I/O"; "UX" = "N/A|CLI tool" }
 
+.EXAMPLE
+    New-FeatureImplementationState.ps1 -FeatureName "checkout-flow" -FeatureId "3.2.0" -Workflows "WF-001, WF-003" -Description "Checkout participates in two user workflows"
+
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
@@ -78,7 +87,7 @@
     Script Metadata:
     - Script Type: Document Creation Script
     - Created: 2025-10-30
-    - Updated: 2026-02-17
+    - Updated: 2026-06-30
     - For: Creating feature implementation state tracking files
 #>
 
@@ -103,6 +112,9 @@ param(
     [hashtable]$Dims = @{},
 
     [Parameter(Mandatory = $false)]
+    [string]$Workflows = "",
+
+    [Parameter(Mandatory = $false)]
     [switch]$OpenInEditor
 )
 
@@ -118,19 +130,21 @@ try {
     exit 1
 }
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
+# Remove-MarkdownSection (TableOperations) is not surfaced through the Common-ScriptHelpers
+# facade; import it directly for the greenfield subsection strip (PF-IMP-1359).
+Import-Module (Join-Path $dir "Common-ScriptHelpers/TableOperations.psm1") -Force
 
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path
+# are owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script
+# keeps its data, its bespoke post-creation writes (Feature Tracking link, Dimension Profile,
+# source-structure + test-infra updates), and its own report — all inline under the outer
+# try/catch (which now guards the post-creation writes).
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "feature_name" = $FeatureName
     "status"       = $ImplementationMode
+    description    = "Feature implementation state for $FeatureName"
 }
 
 # Add implementation_mode if Retrospective Analysis
@@ -142,6 +156,11 @@ if ($ImplementationMode -eq "Retrospective Analysis") {
 if ($FeatureId -ne "") {
     $additionalMetadataFields["feature_id"] = $FeatureId
 }
+
+# Set workflows frontmatter (PF-IMP-1362). Comma-separated WF-IDs become an inline YAML
+# flow sequence; empty/omitted yields [] (feature participates in no user workflow).
+$wfTokens = @($Workflows -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+$additionalMetadataFields["workflows"] = if ($wfTokens.Count -gt 0) { '[' + ($wfTokens -join ', ') + ']' } else { '[]' }
 
 # Prepare custom replacements
 $customReplacements = @{
@@ -175,7 +194,7 @@ try {
     $docName = if ($FeatureId -ne "") { "$FeatureId-$sanitizedName-implementation-state" } else { "$sanitizedName-implementation-state" }
 
     # Use FileNamePattern to preserve dots in feature ID (ConvertTo-KebabCase would replace dots with hyphens)
-    $documentId = New-StandardProjectDocument `
+    $documentId = New-FrameworkDocument `
         -TemplatePath $templatePath `
         -IdPrefix "PD-FIS" `
         -IdDescription "$FeatureName feature implementation state" `
@@ -183,7 +202,8 @@ try {
         -DirectoryType "features" `
         -FileNamePattern "$docName.md" `
         -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
+        -Metadata $additionalMetadataFields `
+        -Label "Feature Implementation State file" `
         -OpenInEditor:$OpenInEditor
 
     # Link in Feature Tracking if FeatureId was provided
@@ -282,6 +302,32 @@ try {
         }
     }
 
+    # --- Post-action: greenfield omits the onboarding-only "Existing Project Documentation"
+    # subsection (PF-IMP-1359) and the "Retrospective Analysis mode" note (PF-IMP-1562).
+    # Both are consumed only during onboarding (PF-TSK-064/065/066); in a greenfield state
+    # file the subsection is inert scaffolding and the mode note actively misdescribes the
+    # file (it says Section 3 tracks analysis progress and content is descriptive). ---
+    if ($ImplementationMode -ne "Retrospective Analysis") {
+        $stateFilePath = Join-Path $projectRoot "doc/state-tracking/features/$docName.md"
+        if (Test-Path $stateFilePath) {
+            $stripResult = Remove-MarkdownSection -Content (Get-Content $stateFilePath -Raw) -SectionHeading "### Existing Project Documentation"
+            if ($stripResult.Action -eq 'Removed') {
+                if ($PSCmdlet.ShouldProcess($stateFilePath, "Omit onboarding-only 'Existing Project Documentation' subsection")) {
+                    Set-Content $stateFilePath $stripResult.Content -Encoding UTF8 -NoNewline
+                    Write-Host "  Omitted onboarding-only 'Existing Project Documentation' subsection (greenfield)" -ForegroundColor Green
+                }
+            }
+
+            $noteResult = Remove-BlockquoteBlock -Content (Get-Content $stateFilePath -Raw) -AnchorPrefix "> **Retrospective Analysis mode**"
+            if ($noteResult.Action -eq 'Removed') {
+                if ($PSCmdlet.ShouldProcess($stateFilePath, "Omit onboarding-only 'Retrospective Analysis mode' note")) {
+                    Set-Content $stateFilePath $noteResult.Content -Encoding UTF8 -NoNewline
+                    Write-Host "  Omitted onboarding-only 'Retrospective Analysis mode' note (greenfield)" -ForegroundColor Green
+                }
+            }
+        }
+    }
+
     # --- Post-action: Update source structure if source-code-layout.md exists ---
     $layoutDocPath = Join-Path $projectRoot "doc/technical/architecture/source-code-layout.md"
     if ((Test-Path $layoutDocPath) -and $FeatureName -ne "") {
@@ -337,9 +383,9 @@ try {
             "5. Document dependencies and integration points",
             "6. Specify next steps (which task definition to use for implementation)",
             "",
-            "📖 COMPREHENSIVE GUIDE:",
-            "process-framework/guides/04-implementation/feature-implementation-state-tracking-guide.md",
-            "🎯 KEY SECTIONS: Creating and Initializing State Files, Maintenance During Implementation",
+            "📖 CRAFT SKILL (initialization + maintenance craft):",
+            ".claude/skills/feature-implementation-planning/SKILL.md",
+            "🎯 KEY REFERENCES: living-document-maintenance, bidirectional-markers, onboarding-sections",
             "",
             "⚠️  This is a PERMANENT living document - maintain it throughout the feature lifecycle!",
             "✅ The file provides structure - YOU provide the contextual information."

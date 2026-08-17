@@ -2,13 +2,41 @@
 id: PF-TSK-019
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.4
 created: 2025-07-18
-updated: 2026-05-16
+updated: 2026-08-04
+change_notes: "v1.3 - Check Recommended Skills wiring: architecture-decision craft skill replaces the retired Architecture Decision Creation Guide (Craft-as-Skill BL-5 batch 1)"
 description: "Evaluate how new features fit into existing system architecture before implementation"
+complexity: medium
+use_when: >-
+  Evaluating how new features fit into existing system architecture before implementation
+automation: full
+scripts:
+  - ../../scripts/file-creation/02-design/New-ArchitectureAssessment.ps1
+trigger_status:
+  - raw: "`feature-tracking.md` → Tier 2+ after FDD"
+output_status:
+  - raw: "per-feature implementation state file §4 Documentation Inventory → Architecture Impact Assessment row (no `feature-tracking.md` change; PF-PRO-002 / PF-IMP-760)"
+next_tasks:
+  - task: ../04-implementation/foundation-feature-implementation-task.md
+    condition: "If foundation feature (0.x.x) needed, implement architectural work first"
+  - task: ../02-design/api-design-task.md
+    condition: "If API design requirements identified during assessment, design API contracts before TDD Creation"
+  - task: ../02-design/database-schema-design-task.md
+    condition: "If database design requirements identified during assessment, design schema before TDD Creation"
+  - task: ../02-design/ui-design-task.md
+    condition: "If UI design requirements identified during assessment, design the UI before TDD Creation"
+  - task: ../02-design/instruction-design-task.md
+    condition: "If instruction design requirements identified during assessment, design the procedure before TDD Creation"
+  - task: ../02-design/tdd-creation-task.md
+    condition: "Create Technical Design Documents based on architectural guidance and FDD requirements (if no foundation feature needed)"
+  - task: ../04-implementation/feature-implementation-planning-task.md
+    condition: "Plan and execute feature implementation following architectural constraints and integration strategy"
 ---
 
 # System Architecture Review
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -25,64 +53,59 @@ Evaluate how new features fit into existing system architecture before implement
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/01-planning/system-architecture-review-map.md)
-
 - **Critical (Must Read):**
 
   - **Functional Design Document (FDD)** - For Tier 2+ features, the FDD containing functional requirements and user flows that inform architectural decisions
   - [Feature Discovery Document](feature-discovery-task.md) - Understanding of the feature requirements and scope
-  - [Feature Tier Assessment](feature-tier-assessment-task.md) - Complexity evaluation of the feature being reviewed
+  - [Tier assessment criteria (`feature-request-evaluation` skill)](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md) - Complexity evaluation of the feature being reviewed (produced via Feature Request Evaluation)
   - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Current architectural state and cross-cutting decisions
   - [Architecture Decision Records](../../../doc/technical/adr) - Existing architectural decisions and context
 
 - **Important (Load If Space):**
 
   - [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) - **ESSENTIAL**: Guide for managing architectural work and context packages
+  - [`architecture-decision` craft skill](../../../.claude/skills/architecture-decision/SKILL.md) — the ADR customization craft (when an ADR is warranted, section content, structured alternatives), activated in Preparation Step 1 (Check Recommended Skills). Replaces the former Architecture Decision Creation Guide and drives ADR content at the Finalization ADR step.
   - [Technical Design Documents](../../../doc/technical/tdd) - Existing TDDs for related components
 
 - **Reference Only (Access When Needed):**
   - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) - Known architectural issues
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
-> **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
->
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Preparation
 
-1. **Gather Feature Context**: Review Feature Discovery document and Feature Tier Assessment to understand feature requirements and complexity
-2. **Load Current Architecture**: Examine existing system architecture documentation, ADRs, and component relationships
-3. **Load Architectural State**: Review Architecture Tracking file to understand current architectural state and ongoing work
-4. **Identify Relevant Context Packages**: Determine which architectural context packages are relevant to the feature
-5. **Identify Impact Areas**: Determine which system components may be affected by the feature implementation
-6. **Prepare Analysis Framework**: Set up structured approach for architectural evaluation using assessment template
-7. **🚨 CHECKPOINT**: Present feature context, identified impact areas, and relevant context packages to human partner
+1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `system-architecture-review`. If the `architecture-decision` craft skill is available in the session, activate it — it owns the **ADR customization craft** this task delegates to at its ADR-creation step. If it is not listed in the session, read [`SKILL.md`](../../../.claude/skills/architecture-decision/SKILL.md) directly and apply it — that file is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. The customization craft is unavailable for this run only if the skill file itself is absent (the retired procedural creation guide has no successor).
+2. **Gather Feature Context**: Review Feature Discovery document and the feature's tier assessment to understand feature requirements and complexity
+3. **Load Current Architecture**: Examine existing system architecture documentation, ADRs, and component relationships
+4. **Load Architectural State**: Review Architecture Tracking file to understand current architectural state and ongoing work
+5. **Identify Relevant Context Packages**: Determine which architectural context packages are relevant to the feature
+6. **Identify Impact Areas**: Determine which system components may be affected by the feature implementation
+7. **Prepare Analysis Framework**: Set up structured approach for architectural evaluation using assessment template
+8. **🚨 CHECKPOINT**: Present feature context, identified impact areas, and relevant context packages to human partner
 
 ### Execution
 
-8. **Component Impact Analysis**:
+9. **Component Impact Analysis**:
    - Evaluate how the feature affects existing components
    - Identify new components that need to be created
    - Assess component relationship changes and dependencies
-9. **Integration Point Assessment**:
+10. **Integration Point Assessment**:
    - Analyze API integration requirements and potential changes
    - Evaluate database schema impact and data flow implications
    - Assess external system integration needs
-10. **Architectural Consistency Review**:
+11. **Architectural Consistency Review**:
    - Verify feature aligns with existing architectural patterns and ADRs
    - Identify potential architectural conflicts or violations
    - Evaluate adherence to established architectural principles
-11. **Architectural Slice Identification**:
+12. **Architectural Slice Identification**:
    - Determine if feature requires new architectural work
    - Identify bounded architectural contexts needed
    - Assess if existing context packages need updates
-12. **Foundation Feature Decision Tree**:
+13. **Foundation Feature Decision Tree**:
    ```
    Does feature require new architectural work?
    ├─ Yes → Is architecture work cross-cutting (affects multiple features)?
@@ -92,38 +115,37 @@ Evaluate how new features fit into existing system architecture before implement
    │  └─ No → Include architectural work in feature TDD
    └─ No → Continue to existing workflow (TDD Creation, etc.)
    ```
-13. **🚨 CHECKPOINT**: Present component impact analysis, integration points, and foundation feature decision to human partner for approval
-14. **Create Architecture Impact Assessment**: Document findings using assessment template
+14. **🚨 CHECKPOINT**: Present component impact analysis, integration points, and foundation feature decision to human partner for approval
+15. **Create Architecture Impact Assessment**: Document findings using assessment template
     ```powershell
     # Create architecture assessment document (when script is available)
-    cd doc/technical/architecture/assessments
-    ../../scripts/file-creation/02-design/New-ArchitectureAssessment.ps1 -FeatureName "Feature Name" -AssessmentType "Impact"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-ArchitectureAssessment.ps1 -FeatureName "Feature Name" -AssessmentType "Impact"
     ```
-15. **Risk Assessment**: Identify architectural risks, complexity factors, and potential integration issues
+16. **Risk Assessment**: Identify architectural risks, complexity factors, and potential integration issues
 
 ### Finalization
 
-16. **Define Integration Strategy**: Outline approach for integrating the feature into existing architecture
-17. **Create Architectural Decisions**: If new architectural decisions were made, create ADRs using the script and guide:
+17. **Define Integration Strategy**: Outline approach for integrating the feature into existing architecture
+18. **Create Architectural Decisions**: If new architectural decisions were made, create ADRs using the script:
     ```powershell
     # Create ADR if architectural decisions are required
     process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed"
     ```
-    Follow the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) for content customization.
-18. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis
+    Drive the content customization with the `architecture-decision` craft skill (activated in Preparation, Step 1) — it is the canonical home for the ADR customization craft.
+19. **Update Architecture Context Packages**: Update or create context packages based on architectural analysis
     - Update existing context packages with new information
     - Create new context packages if new architectural areas identified
     - Ensure context packages reflect current architectural state
-19. **Update Architecture Tracking**: Record architectural analysis outcomes and next steps
+20. **Update Architecture Tracking**: Record architectural analysis outcomes and next steps
     - Update Current Architecture State table
     - Add session summary with key outcomes
     - Update ADR index if new decisions were made
-20. **🚨 CHECKPOINT**: Present complete assessment, integration strategy, and implementation guidance to human partner for final approval
-21. **Provide Implementation Guidance**: Document architectural constraints and recommendations for next steps
+21. **🚨 CHECKPOINT**: Present complete assessment, integration strategy, and implementation guidance to human partner for final approval
+22. **Provide Implementation Guidance**: Document architectural constraints and recommendations for next steps
     - If Foundation Feature needed: Provide guidance for foundation feature implementation
     - If regular feature: Provide guidance for TDD Creation
     - Include architectural context loading instructions for next agent
-22. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+23. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -148,9 +170,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Architecture Impact Assessment document created and comprehensive
@@ -165,17 +185,85 @@ Before considering this task finished:
   - [ ] Per-feature implementation state file §4 Documentation Inventory updated with Architecture Impact Assessment row (via `Add-StateFileDocumentationInventoryRow`); [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) is not mutated by this task
   - [ ] [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) updated with any identified architectural debt
   - [ ] [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) updated with architectural decisions made
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-019" and context "System Architecture Review"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-019`, context "System Architecture Review".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | `[PD-AIA-XXX]-[feature-name]-architecture-impact-assessment.md` | `New-ArchitectureAssessment.ps1` | Architecture Impact Assessment document with system integration analysis |
+| **Updates** | per-feature implementation state file §4 Documentation Inventory | `Add-StateFileDocumentationInventoryRow` (in `StateFileInventory.psm1`) | Add Architecture Impact Assessment row (PF-PRO-002 / PF-IMP-760 — design artifact links live in per-feature state files, not in feature-tracking.md). `New-ArchitectureAssessment.ps1`'s historical `feature-tracking.md` write is defective post-PF-PRO-002 — see PF-IMP-890. |
+| **Updates** | [`architecture-tracking.md`](../../../doc/state-tracking/permanent/architecture-tracking.md) | `New-ArchitectureAssessment.ps1` | Add new architecture impact entry with assessment details and cross-references |
+| **Updates** | [`technical-debt-tracking.md`](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | Manual (conditional) | Architectural debt items identified during review |
+| **Updates** | [`process-improvement-tracking.md`](../../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | Manual (conditional) | Architectural decisions made during review |
 
 ## Next Tasks
 
 - [**Foundation Feature Implementation**](../04-implementation/foundation-feature-implementation-task.md) - If foundation feature (0.x.x) needed, implement architectural work first
 - [**API Design**](../02-design/api-design-task.md) - If API design requirements identified during assessment, design API contracts before TDD Creation
 - [**Database Schema Design**](../02-design/database-schema-design-task.md) - If database design requirements identified during assessment, design schema before TDD Creation
+- [**UI Design**](../02-design/ui-design-task.md) - If UI design requirements identified during assessment, design the UI before TDD Creation
+- [**Instruction Design**](../02-design/instruction-design-task.md) - If instruction design requirements identified during assessment, design the procedure before TDD Creation
 - [**TDD Creation Task**](../02-design/tdd-creation-task.md) - Create Technical Design Documents based on architectural guidance and FDD requirements (if no foundation feature needed)
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Plan and execute feature implementation following architectural constraints and integration strategy
+
+<!-- merged from transition-registry entry: System Architecture Review -->
+### Prerequisites for Transition
+
+- [ ] Architecture impact assessment completed
+- [ ] Architectural decisions documented
+- [ ] System constraints and patterns identified
+- [ ] Architecture Impact Assessment document linked in the per-feature state file §4 Documentation Inventory (per PF-PRO-002 / PF-IMP-760; not in feature-tracking.md)
+
+### Next Task Selection
+
+**Foundation Feature Decision Tree:**
+
+```
+Does feature require new architectural work?
+├─ Yes → Is architecture work cross-cutting (affects multiple features)?
+│  ├─ Yes → Create Foundation Feature (0.x.x) for architectural work
+│  │       → Update/Create Architecture Context Package
+│  │       → Update Architecture Tracking
+│  │       → Foundation Feature Implementation
+│  └─ No → Include architectural work in feature TDD
+│          → Which design dimensions did the tier assessment flag?
+│          ├─ Any → design chain in order: DB Design → API Design → UI Design → Instruction Design → TDD Creation
+│          └─ None → TDD Creation
+└─ No → Continue to existing workflow
+        → Which design dimensions did the tier assessment flag?
+        ├─ Any → design chain in order: DB Design → API Design → UI Design → Instruction Design → TDD Creation
+        └─ None → TDD Creation
+```
+
+**Decision Criteria for Foundation Features:**
+
+**✅ Create Foundation Feature (0.x.x) when:**
+
+- Architectural work affects multiple current or future features
+- New architectural patterns need to be established
+- Cross-cutting concerns require dedicated implementation
+- Architectural foundations are missing for feature implementation
+- System-wide changes to existing architectural patterns
+
+**❌ Include in Feature TDD when:**
+
+- Architectural work is specific to this feature only
+- Minor architectural adjustments within existing patterns
+- Feature-specific implementation details
+- No cross-cutting impact expected
+
+### Preparation for Next Task
+
+1. **For Foundation Features**: Load Architecture Context Package for focused architectural work
+2. **Review the Architectural Integration Framework reference**: [Architectural Framework Usage Guide](../../guides/01-planning/architectural-framework-usage-guide.md) for the framework's components and context-loading priority order
+3. Review architectural decisions that impact design
+4. Identify system patterns and constraints to follow
+5. Understand integration points with existing architecture
+6. Prepare architectural context for design decisions
 
 ## Related Resources
 
 - [Architecture Decision Records System](../../../doc/technical/adr) - For creating architectural decisions
-- [Feature Tier Assessment Task](feature-tier-assessment-task.md) - Prerequisite task for complexity evaluation
+- [`architecture-decision` craft skill](../../../.claude/skills/architecture-decision/SKILL.md) - the ADR customization craft (replaces the retired Architecture Decision Creation Guide); activated by the Check Recommended Skills step
+- [Feature Request Evaluation](feature-request-evaluation.md) - Performs the prerequisite tier assessment (embedded)

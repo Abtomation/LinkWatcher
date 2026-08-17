@@ -1,5 +1,6 @@
 ---
 id: TE-TSP-036
+description: "0.1.2 Tier 2 — Database thread-safety and CRUD operations"
 type: Process Framework
 category: Test Specification
 version: 1.0

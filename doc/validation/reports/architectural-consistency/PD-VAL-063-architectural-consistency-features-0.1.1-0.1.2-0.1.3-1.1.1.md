@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-063
-type: Process Framework
+description: "Architectural Consistency validation report for features 0.1.1, 0.1.2, 0.1.3, 1.1.1."
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-04-01

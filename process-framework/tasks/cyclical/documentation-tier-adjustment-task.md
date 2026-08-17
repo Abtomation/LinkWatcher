@@ -4,11 +4,26 @@ type: Process Framework
 category: Task Definition
 version: 1.2
 created: 2023-06-15
-updated: 2026-05-16
+updated: 2026-07-22
 description: "Adjust documentation requirements"
+use_when: >-
+  Complexity changes during implementation
+frequency: "As needed"
+automation: manual
+trigger_status:
+  - raw: "_(user recognition)_ — complexity change during implementation"
+output_status:
+  - raw: "`feature-tracking.md` → tier emoji updated (🔵/🟠/🔴)"
+next_tasks:
+  - task: ../04-implementation/feature-implementation-planning-task.md
+    condition: "Continue with implementation planning using updated requirements"
+  - task: ../support/tools-review-task.md
+    condition: "If assessment tools need improvement based on findings"
 ---
 
 # Documentation Tier Adjustment Task
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -23,21 +38,16 @@ Ensure documentation requirements remain aligned with the true complexity of fea
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/cyclical/documentation-tier-adjustment-map.md)
-
 - **Critical (Must Read):**
 
   - [Original Assessment Document](../../../doc/documentation-tiers/assessments) - Initial complexity assessment
   - [Normalized Scoring System](../../../doc/documentation-tiers/README.md#normalized-scoring-system) - Guide for scoring complexity
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Reference Only (Access When Needed):**
   - [Feature Tracking Document](../../../doc/state-tracking/permanent/feature-tracking.md) - Current documentation tier assignment
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Always document adjustment rationale for future reference and process improvement.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -119,9 +129,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Updated assessment document with new tier assignment
@@ -132,18 +140,49 @@ Before considering this task finished:
   - [ ] Feature tracking document shows the new documentation tier
   - [ ] Project timeline reflects any changes to documentation schedule
   - [ ] Adjustment date and rationale are recorded
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-011" and context "Documentation Tier Adjustment"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-011`, context "Documentation Tier Adjustment".
 - [ ] **Communicate Changes**: Ensure all stakeholders are aware of the tier adjustment and its implications
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Adjust tier classification when complexity changes during implementation |
 
 ## Next Tasks
 
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - Continue with implementation planning using updated requirements
 - [**Tools Review**](../support/tools-review-task.md) - If assessment tools need improvement based on findings
 
+<!-- merged from transition-registry entry: Documentation Tier Adjustment -->
+### Prerequisites for Transition
+
+- [ ] Tier adjustment assessment completed
+- [ ] New tier assigned and documented
+- [ ] Feature Tracking updated with new tier
+- [ ] Rationale for tier change documented
+
+### Next Task Selection
+
+```
+What is the new tier assignment?
+├─ Tier increased (more complex) → Add required documentation tasks
+│   └─ Example: Tier 1→2 may require TDD Creation
+├─ Tier decreased (less complex) → Remove unnecessary documentation
+│   └─ Example: Tier 3→2 may skip Test Specification Creation
+└─ Tier unchanged → Continue with current task
+```
+
+### Preparation for Next Task
+
+1. Review new tier requirements and adjust task sequence
+2. Update project timeline based on tier change
+3. Communicate tier change to stakeholders
+4. Prepare context for adjusted documentation requirements
+
 ## Related Resources
 
-- [Assessment Guide](../../guides/01-planning/assessment-guide.md) - Guide for assessing feature complexity
-- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks
+- [Tier-assessment criteria (`feature-request-evaluation` skill)](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md) - Scoring criteria and reassessment triggers for feature complexity
 
 ## Metrics and Evaluation
 

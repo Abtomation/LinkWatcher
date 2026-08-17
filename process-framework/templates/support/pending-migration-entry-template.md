@@ -2,10 +2,10 @@
 id: PF-TEM-079
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.5
 created: 2026-05-10
-updated: 2026-05-10
-description: Template for one entry in appdev/process-framework-central/per-project-migrations/PRJ-NNN/pending-migrations.md. Each entry is one project working-doc migration written by Structure Change (PF-TSK-014) and applied by Framework Rollout Mode C (PF-TSK-088).
+updated: 2026-08-10
+description: Template for one entry in appdev/process-framework-central/per-project-migrations/<project-id>/pending-migrations.md. Each entry is one project working-doc migration written by Structure Change (PF-TSK-014) and applied by Framework Rollout Mode C (PF-TSK-088).
 template_for: Template
 usage_context: Process Framework - Template Creation
 creates_document_prefix: PF-TEM
@@ -18,24 +18,24 @@ creates_document_type: Process Framework
 
 ## Purpose
 
-Defines the structure of a single entry in a project's `pending-migrations.md` ledger. Each entry describes one project working-document migration that needs to be applied to a specific project's `doc/`, `test/`, `CLAUDE.md`, or other working-tree files (any project file outside the Push-mirrored `process-framework/` subtree).
+Defines the structure of a single entry in a project's `pending-migrations.md` ledger. Each entry describes one project working-document migration that needs to be applied to a specific project's `doc`, `test`, `CLAUDE.md`, or other working-tree files (any project file outside the Push-mirrored `process-framework` subtree).
 
-> **🚨 Negative scope — when entries are NOT needed**: Entries are **only** for changes to project files **outside** the rolled-out subtree. Intra-`blueprint/process-framework/` changes (additions, moves within the subtree, deletions, moves *out* of the subtree) propagate automatically via `Push-FrameworkUpdate.ps1`'s `robocopy /MIR` mirror. Do not write entries for those — the mirror handles them. See [Framework Rollout Task — Pending Migrations Ledger](../../tasks/support/framework-rollout-task.md) and [Structure Change Step 14.5](../../tasks/support/structure-change-task.md) Scope Boundary for the authoritative explanation.
+> **🚨 Negative scope — when entries are NOT needed**: Entries are **only** for changes to project files **outside** the rolled-out subtree. Intra-`blueprint/process-framework` changes (additions, moves within the subtree, deletions, moves *out* of the subtree) propagate automatically via `Push-FrameworkUpdate.ps1`'s `robocopy /MIR` mirror. Do not write entries for those — the mirror handles them. See the [Framework Rollout Usage Guide — When you do NOT need a migration entry](../../guides/support/framework-rollout-usage-guide.md#when-you-do-not-need-a-migration-entry) for the canonical scope-boundary table.
 
 **Lifecycle**:
 1. **Written by** [Structure Change (PF-TSK-014)](../../tasks/support/structure-change-task.md) — when a structural change in `appdev/process-framework/` requires a corresponding edit to project working documents.
 2. **Read and applied by** [Framework Rollout Mode C (PF-TSK-088)](../../tasks/support/framework-rollout-task.md#mode-c-phase-2-per-project-migrations) — drained per-project, one entry per checkpoint.
-3. **Scanned by** [Framework Rollout Mode D (PF-TSK-088)](../../tasks/support/framework-rollout-task.md#mode-d-rollback) — pre-flight scan of resolved entries between rollback target and current version, looking for non-backward-compatible "Rollback Implications" that require manual project-side reversal.
+3. **Scanned by** [Framework Rollout Mode D (PF-TSK-088)](../../tasks/support/framework-rollout-task.md#mode-d-rollback) — pre-flight scan of the ledger's Summary table (Status + Resolved + Backward-compatible columns) for entries resolved between the rollback target and current version; for non-backward-compatible hits, the "Rollback Implications" reversal steps are read from the relocated detail block in the per-project archive.
 
-**Container file**: `appdev/process-framework-central/per-project-migrations/<PRJ-NNN>/pending-migrations.md`. The full ledger has a TOC + summary table + per-entry sections matching this template.
+**Container files** (PF-IMP-983 archive split): the ledger `appdev/process-framework-central/per-project-migrations/<PROJECT-ID>/pending-migrations.md` holds the Summary table (all entries, all statuses) plus the detail sections of **Open** entries under `## Pending entries`. When an entry is resolved or skipped, [Update-PendingMigration.ps1](../../scripts/update/Update-PendingMigration.ps1) relocates its detail section to the sibling archive `<PROJECT-ID>/archive/pending-migrations-archive.md` (`## Resolved entries` / `## Skipped entries`), so the ledger reads as open work only.
 
 ## Entry ID Convention
 
-Each entry has a stable ID of the form `MIG-<NNN>` scoped per project (i.e., MIG-001 in PRJ-001's ledger is unrelated to MIG-001 in PRJ-002's ledger). IDs are assigned sequentially by the Structure Change task at write time. Once assigned, IDs do not change — even if the entry is later rejected, status changes don't reassign.
+Each entry has a stable ID of the form `MIG-<NNN>` scoped per project (i.e., MIG-001 in APP-001's ledger is unrelated to MIG-001 in APP-002's ledger). IDs are assigned sequentially by the Structure Change task at write time. Once assigned, IDs do not change — even if the entry is later rejected, status changes don't reassign.
 
 ## Entry Structure
 
-> **Lighter alternative**: for no-data-motion migrations (empty-dir removal, placeholder relocation, or a single config/registry-key cleanup), use the trimmed [Pending Migration Entry Cleanup Template (PF-TEM-080)](pending-migration-entry-cleanup-template.md) instead of the full structure below — it keeps the audit-trail spine but drops the dual-branch Rollback scaffolding and separate Validation section.
+> **Lighter alternative**: for no-data-motion migrations (empty-dir removal, placeholder relocation, a single config/registry-key cleanup, an in-place text substitution, or an additive section append copied from a canonical blueprint source), use the trimmed [Pending Migration Entry Cleanup Template (PF-TEM-080)](pending-migration-entry-cleanup-template.md) instead of the full structure below — it keeps the audit-trail spine but drops the dual-branch Rollback scaffolding and separate Validation section.
 
 Each entry MUST include all required fields below. Optional fields are flagged as such.
 
@@ -46,10 +46,11 @@ Each entry MUST include all required fields below. Optional fields are flagged a
 |---|---|
 | **Status** | Open / Resolved / Skipped |
 | **Source** | [<source-link>](relative-path-to-Structure-Change-state-file-or-task-session) |
-| **Source Framework Version** | YYYY-MM-DD-NNN (the version containing this migration) |
+| **Source Framework Version** | YYYY-MM-DD-NNN (the framework version this migration was authored against) |
 | **Created** | YYYY-MM-DD |
 | **Resolved** | YYYY-MM-DD (only when Status=Resolved; otherwise omit row or write `—`) |
 | **Resolved By** | <session-id, agent-action note, or operator name> (only when Status=Resolved) |
+| **Skip Reason** | *(optional)* rationale and/or audit link — only when Status=Skipped (stamped by `Update-PendingMigration.ps1 -SkipReason`). Omit row otherwise. |
 | **Supersedes** | *(optional)* MIG-NNN — one-line explanation of why this entry subsumes the earlier one. Omit row entirely when not applicable. |
 
 #### Target Files
@@ -61,13 +62,23 @@ Each entry MUST include all required fields below. Optional fields are flagged a
 
 <2–5 sentences explaining what the migration does, framed from the perspective of the operator who will apply it. Reference the structural change in appdev that motivates it. Avoid implementation prescriptions here — they go in Migration Steps.>
 
+> **Declare cross-entry / bootstrap dependencies here.** If this entry only applies correctly after another migration entry (`MIG-NNN`) or a framework bootstrap that may not yet have reached the project (e.g. a `recommended_skills` block, a legend value another entry adds), state that dependency explicitly in the Description so the applier's pre-check can detect a missing prerequisite and **stop and reconcile** rather than apply against an unprepared tree. Do not assume a prior state that the project ledger doesn't record.
+
 #### Migration Steps
 
-1. <Concrete edit step, e.g., "Add a new column 'priority' between 'tier' and 'status' in the table at line 42 of doc/state-tracking/permanent/feature-tracking.md">
+1. <Concrete edit step — e.g., "Add an optional `Notes` bullet under each feature's §4 Documentation Inventory in the per-feature state files under doc/state-tracking/features/">
 2. <Step 2>
 3. <Step 3>
 
+> **🚨 Script-owned state files — mutate row data through the owning script.** Some state files carry a **derived block** recomputed by their mutation scripts — canonically `feature-tracking.md`, whose Progress Summary (status counts + tier distribution) is recomputed by the mutation helpers; see the [Feature Tracking Mutation Guide](../../guides/support/feature-tracking-mutation-guide.md). When a step changes **row data** in such a file (a feature's Status, Doc Tier, Notes cell), it invokes the matching script/helper — e.g. `Update-FeatureTrackingStatus -FeatureId <Id> -Status "<value>"` — **never** a hand-rolled `-replace` on the row: a raw edit bypasses the recompute, so the derived counts silently drift (a status flip decrements one count and increments another).
+>
+> A **uniform relabel** is the exception: renaming a legend value across *every* occurrence (e.g. swapping a status/tier emoji) leaves the counts unchanged and has no owning script, so a whole-file in-place substitution is correct — just ensure it also rewrites the occurrences inside the legend and the derived block, which a whole-file `-replace` does by construction.
+
 If the migration is mechanical and Structure Change provides a script, reference it: `process-framework/scripts/update/Apply-Migration-MIG-NNN.ps1` (and document its parameters here).
+
+Phrase preconditions and no-op conditions as **apply-time checks** the Mode C operator runs against the live tree (e.g., "If `test/audits/` does not exist (`Test-Path test/audits` returns `False`), mark this entry Skipped"), not as predictions about the project's current state. Concrete specifics (line numbers, file lists, counts) are illustrative at authoring time — the operator re-derives them at apply time.
+
+A mutation via the owning script can still leave **prose** stale that no script fixes — a status flip may strand a now-contradictory parenthetical in the same row's Notes cell. When the mutation is semantic, add a step to check and correct such prose (via the same mutation helper's Notes path — e.g. `Update-FeatureTrackingStatus … -StatusColumn "Notes"`).
 
 #### Expected Outcome
 
@@ -114,9 +125,9 @@ Document what breaks: <one sentence — e.g., "Renamed column 'state' to 'status
 
 ### Status
 
-- **Open** — entry is awaiting application. Mode C sessions read open entries.
-- **Resolved** — entry has been applied; Resolved date and Resolved By recorded.
-- **Skipped** — entry was deemed not applicable to this project (e.g., the structural change targets a feature that doesn't exist in this project). Skipped is permanent; if the situation changes, write a new entry rather than re-opening a Skipped one.
+- **Open** — entry is awaiting application. Mode C sessions read open entries. Detail section lives in the ledger.
+- **Resolved** — entry has been applied; Resolved date and Resolved By recorded, and the detail section relocates to the per-project archive (`Update-PendingMigration.ps1` does both in one operation).
+- **Skipped** — entry was deemed not applicable to this project (e.g., the structural change targets a feature that doesn't exist in this project). An optional **Skip Reason** row (rationale and/or audit link) may be recorded via `Update-PendingMigration.ps1 -SkipReason`; Skipped entries carry no resolution date. Skipped is permanent; if the situation changes, write a new entry rather than re-opening a Skipped one. Detail section relocates to the archive's `## Skipped entries`.
 
 ### Source
 
@@ -124,7 +135,7 @@ A link back to the Structure Change task session or state file that produced thi
 
 ### Source Framework Version
 
-The framework version (`YYYY-MM-DD-NNN`) in which this migration entry was written. Used by Mode D's pre-flight scan: when rolling back from version A to version B, Mode D scans entries with Source Framework Version > B to find non-backward-compatible migrations that may have been applied since version B.
+The appdev framework version (`YYYY-MM-DD-NNN`) this migration entry was authored against — the "source" version, distinct from any later version that revises it. `New-PendingMigration.ps1` stamps it automatically at creation from `<framework-root>/.framework-version`; pass `-SourceFrameworkVersion` to override. It is provenance metadata: Mode D's rollback pre-flight identifies applied migrations from the **Resolved** date and **Backward-compatible** columns.
 
 ### Rollback Implications
 
@@ -157,10 +168,10 @@ The container `pending-migrations.md` file SHOULD have a summary table at the to
 | MIG-002 | Rename 'state' to 'status' in feature-tracking | Open | 2026-05-20-001 | no | — |
 ```
 
-Then per-entry sections following this template appear below the summary table.
+The summary table is the ledger's permanent full index — rows keep all statuses. Per-entry sections following this template appear below it under `## Pending entries` while Open; on resolve/skip the section relocates to the per-project archive (see Container files above), leaving only the summary row behind.
 
 ## Related Resources
 
 - [Framework Rollout Task (PF-TSK-088)](../../tasks/support/framework-rollout-task.md) — Defines Mode C (apply) and Mode D (rollback) workflows that consume entries
 - [Structure Change Task (PF-TSK-014)](../../tasks/support/structure-change-task.md) — Writes entries; responsible for filling Rollback Implications correctly
-- [Centralized Framework Management Proposal §3.5](../../../../process-framework-central/proposals/centralized-framework-management.md) — Source design for per-project migrations (post-migration moves to `proposals/old/`)
+- [Centralized Framework Management Proposal §3.5](../../../../process-framework-central/proposals/old/centralized-framework-management.md) — Source design for per-project migrations (post-migration moves to `proposals/old/`)

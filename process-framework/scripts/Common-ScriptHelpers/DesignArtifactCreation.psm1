@@ -1,5 +1,10 @@
 # DesignArtifactCreation.psm1
 # Shared orchestration core for the per-feature design artifact creation pipeline.
+
+<#
+.SYNOPSIS
+Shared orchestration core for the per-feature design artifact creation pipeline.
+#>
 #
 # Created 2026-05-08 for PF-PRO-002 / PF-IMP-028 Phase 2 (Feature Tracking
 # Lightweight Index). Replaces ~70-100 lines of orchestration boilerplate
@@ -8,7 +13,6 @@
 #
 # What this module owns:
 #   - Calling New-StandardProjectDocument (template processing + ID assignment + file creation)
-#   - Appending an entry to PD-documentation-map.md
 #   - Updating the master Status column on feature-tracking.md (no per-feature artifact column writes)
 #   - Inserting/updating the per-feature state file's §4 ▸ Design Documentation table row
 #   - Reporting structured results back to the caller for display
@@ -40,20 +44,18 @@ function Invoke-DesignArtifactCreation {
     Orchestration core for the 7 design-creator wrapper scripts.
 
     .DESCRIPTION
-    Creates a new design document from a template, appends an entry to the
-    documentation map, updates the master feature row Status (Status only — no
-    per-feature artifact column writes per PF-PRO-002), and inserts/updates the
-    feature state file's §4 ▸ Design Documentation row via Phase 1's
-    Add-StateFileDocumentationInventoryRow helper.
+    Creates a new design document from a template, updates the master feature row
+    Status (Status only — no per-feature artifact column writes per PF-PRO-002),
+    and inserts/updates the feature state file's §4 ▸ Design Documentation row via
+    Phase 1's Add-StateFileDocumentationInventoryRow helper.
 
     Splat-friendly: callers build a config hashtable and pass it via @config.
 
     -DryRun and -WhatIf are unified — either flag short-circuits the entire
-    pipeline (doc creation, docmap append, master Status update, state-file
-    §4 row). Prior split semantics (where -DryRun gated only tracking writes
-    while doc + docmap proceeded) caused agent confusion: scoping invocations
-    silently created files and bumped ID counters against caller expectations.
-    Unified per PF-IMP-785 (2026-05-27).
+    pipeline (doc creation, master Status update, state-file §4 row). Prior split
+    semantics (where -DryRun gated only tracking writes while doc creation
+    proceeded) caused agent confusion: scoping invocations silently created files
+    and bumped ID counters against caller expectations. Unified per PF-IMP-785 (2026-05-27).
 
     .PARAMETER ArtifactType
     Short label for the artifact, used for the §4 row Type cell and display
@@ -91,27 +93,13 @@ function Invoke-DesignArtifactCreation {
     and state-file §4 row write are both skipped.
 
     .PARAMETER FeatureName
-    Feature human-readable name. Used in the docmap entry.
+    Feature human-readable name. Used for display/logging.
 
     .PARAMETER Replacements
     Per-type custom template-string replacements (caller's hashtable).
 
     .PARAMETER AdditionalMetadataFields
     Per-type metadata frontmatter additions (caller's hashtable).
-
-    .PARAMETER DocMapSectionHeader
-    Exact docmap section header line under which to insert the new entry
-    (e.g. "### `functional-design/fdds/`"). Matches the project's existing
-    Add-DocumentationMapEntry contract.
-
-    .PARAMETER DocMapEntryFormatter
-    ScriptBlock invoked AFTER the document is created to compose the docmap
-    entry line. Receives one positional argument: the assigned $documentId.
-    Must return the complete markdown list entry as a string. Caller-supplied
-    because the entry format varies per artifact type and depends on the new ID.
-
-    Example:
-        -DocMapEntryFormatter { param($id) "- [FDD: $FeatureName ($id)](functional-design/fdds/$customFileName) - $FeatureId description" }
 
     .PARAMETER NewMasterStatus
     The next master Status value (e.g. "📝 Needs TDD"). When empty (or when
@@ -122,11 +110,6 @@ function Invoke-DesignArtifactCreation {
     `New-TestSpecification.ps1` overrides to "Test Status" because Test Spec
     creation transitions the test-tracking column rather than the main Status
     column.
-
-    .PARAMETER DocMapPath
-    Optional override for the documentation-map file. Defaults to the project's
-    `doc/PD-documentation-map.md`. `New-TestSpecification.ps1` overrides to
-    `test/TE-documentation-map.md` because test artifacts live in the TE map.
 
     .PARAMETER MasterStatusNotes
     Optional Notes-column append text for the master row update. Static string;
@@ -153,19 +136,13 @@ function Invoke-DesignArtifactCreation {
 
     .PARAMETER DryRun
     Preview the entire pipeline without performing any writes. Equivalent to
-    -WhatIf; either flag short-circuits doc creation, docmap append, master
-    Status update, and state-file §4 row write.
-
-    .PARAMETER CallerCmdlet
-    The wrapper's $PSCmdlet, used for Add-DocumentationMapEntry's ShouldProcess
-    contract. Required so -WhatIf flows from the wrapper through to the docmap
-    update.
+    -WhatIf; either flag short-circuits doc creation, master Status update, and
+    state-file §4 row write.
 
     .OUTPUTS
     Hashtable with keys:
       DocumentId          - assigned ID (or $null in -WhatIf)
       DocumentRelativePath- project-root-relative path of the created doc
-      DocMapUpdated       - $true / $false
       MasterStatusResult  - $true / $false / $null (skipped)
       StateFileResult     - hashtable from Add-StateFileDocumentationInventoryRow, or $null
       Action              - 'Created' | 'WhatIfPreviewed'
@@ -195,18 +172,11 @@ function Invoke-DesignArtifactCreation {
         [hashtable]$Replacements = @{},
         [hashtable]$AdditionalMetadataFields = @{},
 
-        # ---- Documentation map append ----
-        [Parameter(Mandatory=$true)] [string]$DocMapSectionHeader,
-        [Parameter(Mandatory=$true)] [scriptblock]$DocMapEntryFormatter,
-
         # ---- Master Status transition ----
         [string]$NewMasterStatus = "",
         [string]$MasterStatusColumn = "Status",
         [string]$MasterStatusNotes = "",
         [scriptblock]$MasterStatusNotesFormatter,
-
-        # ---- Documentation map override (defaults to PD map) ----
-        [string]$DocMapPath = "",
 
         # ---- State file §4 Documentation Inventory write ----
         [string]$StateFileArtifactStatus = "✅ Created",
@@ -214,10 +184,7 @@ function Invoke-DesignArtifactCreation {
 
         # ---- Behavior switches ----
         [switch]$OpenInEditor,
-        [switch]$DryRun,
-
-        # ---- ShouldProcess pass-through ----
-        [Parameter(Mandatory=$true)] [System.Management.Automation.PSCmdlet]$CallerCmdlet
+        [switch]$DryRun
     )
 
     if ($DirectoryType -and $OutputDirectory) {
@@ -235,9 +202,7 @@ function Invoke-DesignArtifactCreation {
 
     # PF-IMP-785 (2026-05-27): unified preview flag. Either -DryRun or -WhatIf
     # short-circuits the entire pipeline. Passed as -WhatIf:$isPreview to
-    # child functions that gate on their own ShouldProcess; explicitly
-    # branched around for Add-DocumentationMapEntry (which gates on the
-    # wrapper's $CallerCmdlet.ShouldProcess, not its own).
+    # child functions that gate on their own ShouldProcess.
     #
     # $WhatIfPreference may not cross module session-state boundaries even when
     # the wrapper script was called with -WhatIf, so Get-EffectiveWhatIf (PF-IMP-939,
@@ -250,14 +215,13 @@ function Invoke-DesignArtifactCreation {
     # Orchestration-layer ShouldProcess gate. Emits a single human-readable
     # message under -WhatIf describing the whole pipeline.
     $opTarget = if ($FeatureId) {
-        "feature $FeatureId (doc + docmap + master Status + state file §4 row)"
-    } else { "docmap entry" }
+        "feature $FeatureId (doc + master Status + state file §4 row)"
+    } else { "design document" }
     [void]$PSCmdlet.ShouldProcess($opTarget, "Create $ArtifactType artifact ($IdPrefix)")
 
     $result = @{
         DocumentId           = $null
         DocumentRelativePath = $ArtifactRelativePath
-        DocMapUpdated        = $false
         MasterStatusResult   = $null
         StateFileResult      = $null
         Action               = if ($isPreview) { 'Previewed' } else { 'Created' }
@@ -280,40 +244,23 @@ function Invoke-DesignArtifactCreation {
     # Pass -WhatIf:$isPreview so the child sees a bound WhatIf parameter
     # (it walks the call stack for BoundParameters['WhatIf'] rather than
     # inheriting $WhatIfPreference across module session-state boundaries).
-    $documentId = New-StandardProjectDocument @createSplat -WhatIf:$isPreview
+    # The inner core returns {Id, Path, RelativePath} on success (PF-IMP-1678);
+    # this pipeline already composes its own relative path from -FileNamePattern,
+    # so only the ID is consumed here.
+    $createResult = New-StandardProjectDocument @createSplat -WhatIf:$isPreview
+    $documentId = if ($createResult -and $createResult.PSObject.Properties['Id']) {
+        $createResult.Id
+    } else {
+        $createResult
+    }
     $result.DocumentId = $documentId
 
-    # ---- Step 2: Append to PD-documentation-map.md ----
-    # Composed via a caller-supplied script block so the entry line can
-    # reference the just-assigned $documentId. Under -DryRun/-WhatIf we
-    # emit a preview message and skip the call — Add-DocumentationMapEntry
-    # gates on $CallerCmdlet.ShouldProcess (the wrapper's PSCmdlet), which
-    # does not see -DryRun.
-    if ($documentId -or $isPreview) {
-        $idForFormatter = if ($documentId) { $documentId } else { "$IdPrefix-XXX (preview)" }
-        $docMapEntryLine = & $DocMapEntryFormatter $idForFormatter
+    # PD/TE documentation maps are generated from each artifact's frontmatter
+    # `description:` (PF-PRO-050, Build-DocumentationMap.ps1 -Tree PD/TE) — no
+    # per-creation append. The instance `description:` is supplied by each wrapper
+    # via -AdditionalMetadataFields (PF-IMP-1173 Phase 3b).
 
-        if ($isPreview) {
-            Write-Host "DRY RUN: Would append to documentation map under '$DocMapSectionHeader':" -ForegroundColor Yellow
-            Write-Host "  $docMapEntryLine" -ForegroundColor Cyan
-            $result.DocMapUpdated = $false
-        }
-        else {
-            $resolvedDocMapPath = if ($DocMapPath) {
-                if ([System.IO.Path]::IsPathRooted($DocMapPath)) { $DocMapPath }
-                else { Join-Path -Path (Get-ProjectRoot) -ChildPath $DocMapPath }
-            } else {
-                Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/PD-documentation-map.md"
-            }
-            $result.DocMapUpdated = Add-DocumentationMapEntry `
-                -DocMapPath $resolvedDocMapPath `
-                -SectionHeader $DocMapSectionHeader `
-                -EntryLine $docMapEntryLine `
-                -CallerCmdlet $CallerCmdlet
-        }
-    }
-
-    # ---- Step 3: Master Status update + state-file §4 row write ----
+    # ---- Step 2: Master Status update + state-file §4 row write ----
     # Both are skipped when no FeatureId. Both honor $isPreview (preview only).
     if (-not $FeatureId) { return $result }
     if (-not $documentId -and -not $isPreview) { return $result }   # doc creation failed; don't touch tracking
@@ -321,7 +268,7 @@ function Invoke-DesignArtifactCreation {
     Write-Host ""
     Write-Host "🤖 Updating Feature Tracking..." -ForegroundColor Yellow
 
-    # ---- 3a: Master Status (Status only — no per-feature artifact column writes) ----
+    # ---- 2a: Master Status (Status only — no per-feature artifact column writes) ----
     if ($NewMasterStatus) {
         # Resolve final Notes string: prefer formatter when supplied (so $documentId can be embedded).
         $resolvedNotes = if ($MasterStatusNotesFormatter) {
@@ -349,7 +296,7 @@ function Invoke-DesignArtifactCreation {
         }
     }
 
-    # ---- 3b: State file §4 Documentation Inventory row insert/update ----
+    # ---- 2b: State file §4 Documentation Inventory row insert/update ----
     # Use placeholder ArtifactId when $documentId is empty (i.e. -WhatIf created
     # no real ID) so the helper has a non-empty value to preview against.
     try {

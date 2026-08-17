@@ -1,6 +1,26 @@
-# Validate-FeedbackForms.ps1
-# Validates feedback forms for completeness and identifies forms with template placeholders
-# Helps prevent incomplete forms from wasting tools review analysis time
+<#
+.SYNOPSIS
+Validates feedback forms for completeness and flags forms still containing template placeholders.
+
+.DESCRIPTION
+Helps prevent incomplete forms from wasting tools review analysis time.
+
+.PARAMETER FeedbackFormsPath
+Directory of feedback forms to validate. Omitted reads the central feedback/feedback-forms
+directory (resolved via Get-CentralFrameworkPath), so the default works from any cwd.
+
+.PARAMETER ShowComplete
+Also lists the forms that passed, instead of reporting only the incomplete ones.
+
+.PARAMETER FixIncomplete
+Moves incomplete forms into feedback/archive/incomplete/, creating that directory if needed.
+Without this switch the script only reports. Subject to the -GraceMinutes recency guard.
+
+.PARAMETER GraceMinutes
+Recency guard for -FixIncomplete: forms modified within this many minutes are left in place,
+because a freshly created blank form may be mid-fill in another session. Defaults to 120; set to
+0 for a deliberate full sweep when nothing is known to be in flight.
+#>
 
 [CmdletBinding()]
 param(
@@ -11,7 +31,14 @@ param(
     [switch]$ShowComplete,
 
     [Parameter(Mandatory=$false)]
-    [switch]$FixIncomplete
+    [switch]$FixIncomplete,
+
+    # PF-IMP-1305: recency guard for -FixIncomplete. Forms modified within this many minutes are
+    # left in place — a freshly created blank form may be mid-fill in another session, and sweeping
+    # it triggers a confusing "missing form" investigation (PF-FEE-1414). Set to 0 for a deliberate
+    # full sweep when nothing is known to be in flight.
+    [Parameter(Mandatory=$false)]
+    [int]$GraceMinutes = 120
 )
 
 # Import the common helpers with walk-up path resolution
@@ -55,7 +82,7 @@ Write-Host ""
 # Define template placeholders that indicate incomplete forms
 $templatePlaceholders = @(
     "[Rating]",
-    "[Tool Name ([PREFIX]-XXX-XXX)]",
+    "[Tool display name]",
     "[How this tool was used in the task]",
     "[Detailed comments about",
     "[Brief comments]",
@@ -63,8 +90,7 @@ $templatePlaceholders = @(
     "[Assessment of process",
     "[FEEDBACK_TYPE]",
     "[DOCUMENT_ID]",
-    "[TASK_CONTEXT]",
-    "[REQUIRED: Start: HH:MM, End: HH:MM, Total: X minutes]"
+    "[TASK_CONTEXT]"
 )
 
 $incompleteFiles = @()
@@ -85,6 +111,13 @@ foreach ($file in $feedbackFiles) {
     # Remove content in blockquotes that contain instruction text
     $contentToCheck = $contentToCheck -replace '(?s)> \*\*CRITICAL\*\*.*?(?=\n[^>]|\n$)', ''
 
+    # Remove fenced code blocks, then inline code spans (PF-IMP-1607): a code-quoted MENTION
+    # of a placeholder token (e.g. a suggestion about `[DOCUMENT_ID]`) is not an unfilled
+    # placeholder. The template's real placeholders never sit inside code, so a genuinely
+    # unfilled form still matches after the strip.
+    $contentToCheck = $contentToCheck -replace '(?s)```.*?```', ''
+    $contentToCheck = $contentToCheck -replace '`[^`\r\n]+`', ''
+
     # Check for template placeholders in the cleaned content
     foreach ($placeholder in $templatePlaceholders) {
         if ($contentToCheck -match [regex]::Escape($placeholder)) {
@@ -95,6 +128,7 @@ foreach ($file in $feedbackFiles) {
     $result = [PSCustomObject]@{
         FileName = $file.Name
         FilePath = $file.FullName
+        LastWriteTime = $file.LastWriteTime
         IsComplete = $placeholdersFound.Count -eq 0
         PlaceholdersFound = $placeholdersFound
         PlaceholderCount = $placeholdersFound.Count
@@ -181,15 +215,30 @@ if ($incompleteFiles.Count -gt 0) {
             Write-Host "📁 Created incomplete archive directory: $incompleteArchiveDir" -ForegroundColor Green
         }
 
-        # Move incomplete forms to archive
+        # Move incomplete forms to archive, but never sweep one modified within the grace window
+        # (PF-IMP-1305): a freshly created blank form may still be mid-fill in another session.
+        $cutoff = (Get-Date).AddMinutes(-$GraceMinutes)
+        $movedCount = 0
+        $skippedRecent = @()
         foreach ($incomplete in $incompleteFiles) {
+            if ($GraceMinutes -gt 0 -and $incomplete.LastWriteTime -gt $cutoff) {
+                $skippedRecent += $incomplete
+                continue
+            }
             $destinationPath = Join-Path $incompleteArchiveDir $incomplete.FileName
             Move-Item -Path $incomplete.FilePath -Destination $destinationPath -Force
             Write-Host "📦 Moved $($incomplete.FileName) to incomplete archive" -ForegroundColor Yellow
+            $movedCount++
         }
 
         Write-Host ""
-        Write-Host "✅ Moved $($incompleteFiles.Count) incomplete forms to archive" -ForegroundColor Green
+        Write-Host "✅ Moved $movedCount incomplete form(s) to archive" -ForegroundColor Green
+        if ($skippedRecent.Count -gt 0) {
+            Write-Host "⏳ Skipped $($skippedRecent.Count) recently-modified form(s) (within the ${GraceMinutes}-min grace window) — may still be in flight:" -ForegroundColor Yellow
+            foreach ($s in $skippedRecent) {
+                Write-Host "   - $($s.FileName)" -ForegroundColor Gray
+            }
+        }
     }
 }
 

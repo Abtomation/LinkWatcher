@@ -15,7 +15,7 @@
     pwsh.exe -File script.ps1
 
     Usage from PowerShell (normal):
-    .\script.ps1 -ParamName "Value with spaces"
+    script.ps1 -ParamName "Value with spaces"
 
 .EXAMPLE
     # In your script, modify parameter declarations and add fallback:

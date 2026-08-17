@@ -62,13 +62,24 @@ class LinkUpdater:
     Delegates path resolution to PathResolver.
     """
 
-    def __init__(self, project_root: str = ".", python_source_root: str = ""):
+    def __init__(
+        self,
+        project_root: str = ".",
+        python_source_root: str = "",
+        path_resolution_overrides=None,
+    ):
         self.backup_enabled = True
         self.dry_run = False
         self.project_root = Path(project_root).resolve()
         self.logger = get_logger()
+        # path_resolution_overrides is a passthrough to PathResolver only —
+        # LinkUpdater does not interpret it (blueprint-aware reference
+        # updating, PD-TDD-026 "Override-Aware Path Resolution").
         self.path_resolver = PathResolver(
-            project_root, self.logger, python_source_root=python_source_root
+            project_root,
+            self.logger,
+            python_source_root=python_source_root,
+            path_resolution_overrides=path_resolution_overrides,
         )
         self._regex_cache: Dict[str, re.Pattern] = {}
         self._REGEX_CACHE_MAX_SIZE = 1024

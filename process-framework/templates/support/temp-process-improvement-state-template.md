@@ -2,10 +2,12 @@
 id: PF-TEM-063
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.4
 created: 2026-03-23
-updated: 2026-04-08
+updated: 2026-07-30
 task_name: [TASK-NAME]
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Template for tracking multi-session process improvement implementation (via New-TempTaskState.ps1 -Variant ProcessImprovement)"
 ---
 
@@ -21,6 +23,8 @@ description: "Template for tracking multi-session process improvement implementa
 - **Scope**: [Brief description of what will change]
 
 ## Affected Components
+
+> Write this table by diffing against the source IMP row(s): every component a row names appears here, and a deliberately excluded one keeps a row marked "out of scope — \<rationale\>" so the exclusion is visible at handover rather than discovered by the next session.
 
 | Component Type | Name | Current State | Planned Change | Priority |
 | -------------- | ---- | ------------- | -------------- | -------- |
@@ -82,16 +86,13 @@ description: "Template for tracking multi-session process improvement implementa
 
 - [ ] **Log tool change**: Record modification in feedback database
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-  - **Convention for `<TOOL_DOC_ID>`**: task definitions (file with `id: PF-TSK-NNN` frontmatter) → `PF-TSK-NNN`; everything else (templates, guides, scripts, context maps, handbooks, companion task files) → filename (e.g., `New-FeedbackForm.ps1`)
+  - **Convention for `<TOOL_DOC_ID>`**: the portable framework ID of the `blueprint/` artifact (`PF-TSK-009`, `PF-GDE-068`, `PF-TEM-033`, `PF-FST-003`); filename only for ID-less artifacts (scripts, craft skills, companion path files) — e.g. `New-FeedbackForm.ps1`. Never an instance ID (`PD-*`/`TE-*`/`PF-STA`) — rate the generating template instead. See [TOOL_DOC_ID convention](../../guides/support/process-improvement-task-reference-guide.md#tool_doc_id-convention).
   - **Verify canonical ID first**: `python process-framework/scripts/feedback_db.py list-tools --filter <substring>`
-  - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --date <YYYY-MM-DD> --imp <IMP-XXX> --description "<what changed>"` (add `--new-tool` if it's a first-time tool registration; for `--batch` mixed batches, prefer per-entry `"new_tool": true` in JSON so typo detection stays armed on the other entries — PF-IMP-866)
+  - **Command**: `python process-framework/scripts/feedback_db.py log-change --tool <TOOL_DOC_ID> --imp <IMP-XXX> --description "<what changed>"` (`--date` defaults to today — pass it only for retroactive logging; add `--new-tool` if it's a first-time tool registration; for `--batch` mixed batches, prefer per-entry `"new_tool": true` in JSON so typo detection stays armed on the other entries — PF-IMP-866)
 
 - [ ] **Update process-improvement-tracking.md**: Mark improvement as Completed
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
   - **Command**: `Update-ProcessImprovement.ps1 -ImprovementId "IMP-XXX" -NewStatus "Completed" -Impact "HIGH|MEDIUM|LOW" -ValidationNotes "What was done."`
-
-- [ ] **Complete feedback form**: Submit feedback for PF-TSK-009
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
 ## Session Tracking
 
@@ -133,7 +134,7 @@ This temporary state file can be moved to `process-framework-central/state-track
 - [ ] All affected components are updated and tested
 - [ ] Process improvement tracking is updated (Completed status)
 - [ ] Linked documents are updated
-- [ ] Feedback form is completed
+- [ ] Feedback form completed for every calendar session (one per session — ai-tasks.md), including the final one
 
 ## Notes and Decisions
 

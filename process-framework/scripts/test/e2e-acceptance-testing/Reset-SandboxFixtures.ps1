@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Reset per-test sandbox state for a framework-self-test E2E case (PRJ-T01 sandbox only).
+Reset per-test sandbox state for a framework-self-test E2E case (APP-T01 sandbox only).
 
 .DESCRIPTION
 For the given -TestId (TE-E2E-NNN), reads the per-test reset path lists from
@@ -14,7 +14,7 @@ git repository:
 
 This script intentionally invokes `git checkout HEAD -- <path>`, which is forbidden by
 the global "Prohibited Git Commands" rule in CLAUDE.md. The exception is scoped to
-PRJ-T01 sandbox only, per PF-TSK-070 §"Sandbox Execution (PRJ-T01 only)" — sandbox state
+APP-T01 sandbox only, per PF-TSK-070 §"Sandbox Execution (APP-T01 only)" — sandbox state
 is rollout-pipeline-owned with no uncommitted ad-hoc work to lose, and the reset is
 bound to an explicit per-test path list (not blanket).
 

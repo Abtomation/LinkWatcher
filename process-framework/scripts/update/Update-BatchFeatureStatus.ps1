@@ -25,18 +25,14 @@ Updates the following files atomically:
 Array of feature IDs to update (e.g., @("1.2.1", "1.2.2", "1.2.3"))
 
 .PARAMETER Status
-The new status to apply to all features:
-- "⬜ Needs Assessment"
-- "📋 Needs FDD"
-- "📝 Needs TDD"
-- "🧪 Needs Test Spec"
-- "🔧 Needs Impl Plan"
-- "🟡 In Progress"
-- "👀 Needs Review"
-- "🔄 Needs Enhancement"
-- "🟢 Completed"
-- "🔴 Blocked"
-- "⏸️ On Hold"
+The new status to apply to all features, as a plain word (PF-IMP-1585 — the fleet convention
+keeps emoji off the command line, where shell encoding can mangle them):
+NeedsAssessment, NeedsFDD, NeedsDBDesign, NeedsAPIDesign, NeedsUIDesign,
+NeedsInstructionDesign, NeedsTDD,
+NeedsTestSpec, NeedsImplPlan, InProgress, NeedsReview, NeedsTestScoping, NeedsUserDocs,
+NeedsEnhancement, NeedsTechnicalExploration, Completed, Blocked, OnHold.
+The script normalizes the word to the tracker's emoji legend value. The emoji legend literals
+(e.g. "🟢 Completed") remain accepted for backward compatibility.
 
 .PARAMETER UpdateType
 Type of batch update:
@@ -62,40 +58,45 @@ Date for the updates (optional - uses current date if not specified)
 Notes to add to all updated features (optional)
 
 .PARAMETER DryRun
-If specified, shows what would be updated without making changes
+Backward-compatible alias for -WhatIf (PF-IMP-1051): shows what would be updated without
+writing any tracking files. Prefer -WhatIf in new callers.
 
 .PARAMETER Force
-If specified, bypasses confirmation prompts for bulk operations
+Deprecated no-op, retained for backward compatibility (PF-IMP-1583). The interactive Read-Host
+bulk-confirmation it used to bypass has been removed; the standard ShouldProcess gate
+(-WhatIf/-Confirm) is the script's only confirm mechanism. Existing callers passing -Force
+continue to work unchanged.
 
 .PARAMETER ContinueOnError
 If specified, continues processing remaining features if one fails
 
 .EXAMPLE
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.2.1", "1.2.2", "1.2.3") -Status "🟢 Completed" -UpdateType "StatusOnly"
+Update-BatchFeatureStatus.ps1 -FeatureIds @("1.2.1", "1.2.2", "1.2.3") -Status "Completed" -UpdateType "StatusOnly"
 
 .EXAMPLE
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("2.1.1", "2.1.2", "2.1.3") -Status "🟢 Completed" -UpdateType "Sprint" -SprintId "Sprint-2025-08" -UpdateNotes "Sprint 8 completion"
+Update-BatchFeatureStatus.ps1 -FeatureIds @("2.1.1", "2.1.2", "2.1.3") -Status "Completed" -UpdateType "Sprint" -SprintId "Sprint-2025-08" -UpdateNotes "Sprint 8 completion"
 
 .EXAMPLE
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("1.1.1", "1.1.2", "1.1.3", "1.1.4") -Status "🟢 Completed" -UpdateType "Release" -ReleaseVersion "v1.1.0" -DryRun
+Update-BatchFeatureStatus.ps1 -FeatureIds @("1.1.1", "1.1.2", "1.1.3", "1.1.4") -Status "Completed" -UpdateType "Release" -ReleaseVersion "v1.1.0" -DryRun
 
 .EXAMPLE
-.\Update-BatchFeatureStatus.ps1 -FeatureIds @("3.1.1", "3.1.2") -Status "🔴 Blocked" -UpdateType "Full" -UpdateNotes "Blocked pending API changes" -Force
+Update-BatchFeatureStatus.ps1 -FeatureIds @("3.1.1", "3.1.2") -Status "Blocked" -UpdateType "Full" -UpdateNotes "Blocked pending API changes"
 
 .NOTES
-Version: 1.0
+Version: 1.3
 Created: 2025-08-23
+Updated: 2026-07-20 (PF-IMP-1583: interactive Read-Host bulk-confirm removed — ShouldProcess is the sole gate; -Force retained as a deprecated no-op. PF-IMP-1585: plain-word -Status form accepted and normalized to the emoji legend; emoji literals retained for backward compatibility)
 Part of: Process Framework Automation Phase 3A
 Addresses: IMP-052 (Automated status synchronization across tracking files)
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Mandatory = $true)]
     [string[]]$FeatureIds,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔎 Needs Test Scoping", "📖 Needs User Docs", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
+    [ValidateSet("NeedsAssessment", "NeedsFDD", "NeedsDBDesign", "NeedsAPIDesign", "NeedsUIDesign", "NeedsInstructionDesign", "NeedsTDD", "NeedsTestSpec", "NeedsImplPlan", "InProgress", "NeedsReview", "NeedsTestScoping", "NeedsUserDocs", "NeedsEnhancement", "NeedsTechnicalExploration", "Completed", "Blocked", "OnHold", "⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "🎨 Needs UI Design", "📜 Needs Instruction Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔎 Needs Test Scoping", "📖 Needs User Docs", "🔄 Needs Enhancement", "🔬 Needs Technical Exploration", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
     [string]$Status,
 
     [Parameter(Mandatory = $true)]
@@ -138,6 +139,36 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 # Soak verification (PF-PRO-028 v2.0 Pattern A; caller-aware no-arg form)
 Register-SoakScript
 $soakInSoak = Test-ScriptInSoak
+
+# PF-IMP-1051: -DryRun is a backward-compatible alias for -WhatIf; make the two equivalent so the
+# existing dry-run preview path serves -WhatIf unchanged (behavior-preserving).
+if ($DryRun) { $WhatIfPreference = $true }
+if ($WhatIfPreference) { $DryRun = $true }
+
+# PF-IMP-1585: plain-word -Status form (fleet convention — emoji stays off the command line, where
+# shell encoding can mangle it); normalize to the emoji legend value the tracking files store.
+# Emoji literals remain accepted for backward compatibility and pass through unchanged.
+$StatusWordMap = @{
+    "NeedsAssessment"           = "⬜ Needs Assessment"
+    "NeedsFDD"                  = "📋 Needs FDD"
+    "NeedsDBDesign"             = "🗄️ Needs DB Design"
+    "NeedsAPIDesign"            = "🔌 Needs API Design"
+    "NeedsUIDesign"             = "🎨 Needs UI Design"
+    "NeedsInstructionDesign"    = "📜 Needs Instruction Design"
+    "NeedsTDD"                  = "📝 Needs TDD"
+    "NeedsTestSpec"             = "🧪 Needs Test Spec"
+    "NeedsImplPlan"             = "🔧 Needs Impl Plan"
+    "InProgress"                = "🟡 In Progress"
+    "NeedsReview"               = "👀 Needs Review"
+    "NeedsTestScoping"          = "🔎 Needs Test Scoping"
+    "NeedsUserDocs"             = "📖 Needs User Docs"
+    "NeedsEnhancement"          = "🔄 Needs Enhancement"
+    "NeedsTechnicalExploration" = "🔬 Needs Technical Exploration"
+    "Completed"                 = "🟢 Completed"
+    "Blocked"                   = "🔴 Blocked"
+    "OnHold"                    = "⏸️ On Hold"
+}
+if ($StatusWordMap.ContainsKey($Status)) { $Status = $StatusWordMap[$Status] }
 
 # Initialize script with dependency validation
 if (-not (Test-ScriptDependencies -RequiredModules @("Common-ScriptHelpers"))) {
@@ -193,15 +224,13 @@ $trackingFiles = @(
     (Resolve-TrackingFilePath -File "test-tracking.md")
 )
 
-# Confirmation prompt for bulk operations (unless Force is specified)
-if (-not $Force -and -not $DryRun) {
-    Write-Host "⚠️ You are about to update $($FeatureIds.Count) features with status '$Status'" -ForegroundColor Yellow
-    Write-Host "   This will modify $($trackingFiles.Count) tracking files" -ForegroundColor Yellow
-    $confirmation = Read-Host "Do you want to continue? (y/N)"
-    if ($confirmation -ne 'y' -and $confirmation -ne 'Y') {
-        Write-Host "❌ Operation cancelled by user" -ForegroundColor Red
-        exit 0
-    }
+# ShouldProcess gate (PF-IMP-1051; sole confirm mechanism since PF-IMP-1583 — the interactive
+# Read-Host bulk-confirm was removed so non-interactive/detached hosts never error or hang).
+# Real-run path only: -WhatIf/-DryRun set $DryRun=$true above and take the preview branch;
+# under an explicit -Confirm this gate prompts, and a decline aborts before writes.
+if (-not $DryRun -and -not $PSCmdlet.ShouldProcess("$($FeatureIds.Count) feature(s)", "Batch-update status to '$Status'")) {
+    Write-Host "❌ Operation cancelled - ShouldProcess declined." -ForegroundColor Red
+    exit 0
 }
 
 # Create comprehensive backup before making changes

@@ -1,5 +1,6 @@
 ---
 id: PD-FDD-025
+description: "3.1.1 Tier 2 — Structured logging with colored output, stats, progress"
 type: Product Documentation
 category: Functional Design Document
 version: 1.0

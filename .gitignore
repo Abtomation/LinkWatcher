@@ -140,6 +140,11 @@ test_output/
 temp/
 .linkwatcher/dependency_graph.png
 .linkwatcher.lock
+# Control Panel single-instance port file (feature 7.1.1). In the dev repo the
+# install dir IS the repo root, so a panel run from source publishes it here.
+panel.port
 # Phase 5/7: LinkWatcher runtime logs relocated to project-root logs/linkwatcher/
 logs/linkwatcher/
+# Runtime/log area — LinkWatcher runtime logs and other framework-generated runtime artifacts. Never tracked.
+logs/
 test/state-tracking/permanent/performance-results.db

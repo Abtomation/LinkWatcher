@@ -1,5 +1,6 @@
 ---
 id: PD-INT-009
+description: "WF-006 configuration change: how Configuration System, Core Architecture, File System Monitoring, Parser Framework, Link Updater, and Logging Framework collaborate at startup so values from YAML/JSON files, `LINKWATCHER_*` env vars, and CLI flags cascade into per-component constructor arguments, post-`__init__` setters, and the logging singleton — one-shot propagation with no hot-reload"
 type: Product Documentation
 category: Integration Narrative
 version: 1.1

@@ -1,10 +1,11 @@
 ---
 id: PD-FDD-027
+description: "2.2.1 Tier 2 — Atomic file updates, relative path calculation, dry-run"
 type: Product Documentation
 category: Functional Design Document
-version: 1.0
+version: 1.1
 created: 2026-02-19
-updated: 2026-02-20
+updated: 2026-06-29
 feature_id: 2.2.1
 feature_name: Link Updating
 consolidates: [2.2.1, 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), 2.2.5 (Backup Creation)]
@@ -86,7 +87,28 @@ retrospective: true
 - **2.2.1-AC-5**: Given `backup_enabled=True`, a `.bak` file exists alongside each modified file
 - **2.2.1-AC-6**: Given a reference with an anchor (`#section`), the anchor is preserved in the updated path
 
-### Edge Cases and Error Handling
+### Override-Folder Reference Maintenance
+
+> **Added in v1.1 (2026-06-29)** — blueprint-aware reference updating enhancement (PF-STA-110). Mechanics are specified in the TDD ([PD-TDD-026](../../technical/tdd/tdd-2-2-1-link-updater-t2.md)).
+
+Some folders hold files whose host-absolute (`/…`) references are written against a *virtual* root rather than the project root — most importantly the `process-framework/` blueprint, whose links target the rollout-destination layout, not the blueprint's on-disk location. The `path_resolution_overrides` configuration declares such folders and their resolution base. Until v1.1 this override was honoured only by validation (`--validate`); the live move/update path treated a `/…` link as already-absolute and could not match it, so moving or renaming a file inside an override folder left its sibling references broken.
+
+- **2.2.1-FR-8**: When a source file lives under a folder configured in `path_resolution_overrides`, the system SHALL resolve that file's host-absolute (`/…`) references against `<project_root>/<base>/` when matching them to a moved file, so references expressed in virtual-root form are detected.
+- **2.2.1-FR-9**: When rewriting a matched host-absolute reference from an override-folder source, the system SHALL reconstruct it in the same virtual-root style — stripping the resolution base back off so the result remains a `/…` link, not a full on-disk path.
+- **2.2.1-BR-8**: Override resolution applies only to host-absolute (`/…`) references from override-folder sources. Relative references, and references from files outside every configured override folder, resolve exactly as before (backward-compatible no-op).
+- **2.2.1-BR-9**: The existing disk-existence guards (PD-BUG-095 / PD-BUG-112) and project-root containment guard are retained on the override path — a `/…` reference whose resolved target does not exist on disk is left unchanged.
+- **2.2.1-AC-7**: Given a file renamed inside the configured blueprint folder, all sibling files referencing it via `/…` links have those links rewritten to the new name, preserving the leading-slash virtual-root style; identical references from a non-override file are left untouched.
+
+### Simultaneous-Move Link Repair
+
+> **Added 2026-08-10** — PD-BUG-114 fix. Mechanics are specified in the TDD ([PD-TDD-026](../../technical/tdd/tdd-2-2-1-link-updater-t2.md), "Simultaneous-Move Repair" section).
+
+When two files that reference each other move in the same operation (e.g. two quick `mv` commands), both vacate their old disk locations before either move event is processed. Previously the moved file's link to its co-moved target was silently skipped by the disk-existence guard and never repaired.
+
+- **2.2.1-FR-10**: When a moved file's outgoing relative link resolves (against the file's old directory) to a path that a move processed within the recent-move window vacated, the system SHALL rewrite the link to the target's new location, re-depthed for the moved file's new directory, preserving any `#fragment`.
+- **2.2.1-FR-11**: When such a link's target move has not yet been processed, the system SHALL defer the repair and complete it when the explaining move event arrives.
+- **2.2.1-BR-10**: A deferred or memory-based repair only fires when the mapped new target exists on disk; link-shaped strings whose resolved target was never a real path remain unchanged (PD-BUG-033 behavior preserved).
+- **2.2.1-AC-8**: Given file A linking to file B, with both moved to new directories before either move event is processed, A's link to B ends up pointing at B's new location re-depthed for A's new location — in either event-processing order.
 
 - **2.2.1-EC-1**: File read failure (permissions, encoding) is caught and logged; error count incremented; other files continue processing
 - **2.2.1-EC-2**: If a containing file has been deleted between parse and update, the error is logged and skipped

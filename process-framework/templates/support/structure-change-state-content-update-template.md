@@ -1,5 +1,5 @@
 ---
-id: [DOCUMENT-ID]
+id: PF-TEM-102
 type: Process Framework
 category: Template
 version: 1.0
@@ -12,6 +12,8 @@ variant_siblings:
   - structure-change-state-framework-extension-template.md
   - structure-change-state-from-proposal-template.md
   - structure-change-state-rename-template.md
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)"
 ---
 
@@ -21,7 +23,7 @@ description: "Lightweight template for content-only structure changes (no pilot/
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]
-- **Change ID**: [To be assigned - SC-XXX format]
+- **Change ID**: [The PF-STA-NNN ID assigned to this state file]
 - **Change Type**: Content Update
 - **Scope**: [Brief description of what's being changed]
 

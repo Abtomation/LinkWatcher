@@ -65,6 +65,7 @@ $additionalMetadataFields = @{
     "api_type" = $APIType
 }
 if ($FeatureId -ne "") { $additionalMetadataFields["feature_id"] = $FeatureId }
+$additionalMetadataFields["description"] = "API specification for $APIName ($APIType)"
 
 $customReplacements = @{
     "[API_NAME]"        = $APIName
@@ -108,11 +109,8 @@ try {
         FeatureName                = $APIName
         Replacements               = $customReplacements
         AdditionalMetadataFields   = $additionalMetadataFields
-        DocMapSectionHeader        = "### ``technical/api/specifications/``"
-        DocMapEntryFormatter       = { param($id) "- [API Spec: $APIName ($id)](technical/api/specifications/$customFileName) - $APIType API for $APIName" }
         OpenInEditor               = $OpenInEditor
         DryRun                     = $DryRun
-        CallerCmdlet               = $PSCmdlet
     }
     if ($FeatureId -ne "") {
         $invokeArgs['FeatureId']                  = $FeatureId
@@ -130,7 +128,7 @@ try {
     if ($APIDescription -ne "") { $details += "Description: $APIDescription" }
     if (-not $OpenInEditor) {
         $details += @(
-            "Customization required — see process-framework/guides/02-design/api-specification-creation-guide.md",
+            "Customization required — apply the api-design craft skill (.claude/skills/api-design/, references/api-specification.md), activated by the API Design task's Check Recommended Skills step",
             "",
             "Next steps:",
             "1. Complete the API specification with endpoint definitions",
@@ -140,7 +138,6 @@ try {
             "5. Create API documentation for consumers"
         )
     }
-    if ($result.DocMapUpdated)   { $details += "Documentation Map: Updated (PD-documentation-map.md)" }
     if ($result.StateFileResult) {
         $sf = $result.StateFileResult
         $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"

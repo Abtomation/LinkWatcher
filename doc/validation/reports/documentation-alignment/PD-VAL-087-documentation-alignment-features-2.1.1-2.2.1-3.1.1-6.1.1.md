@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-087
-type: Process Framework
+description: "Session 8 (Score: 2.75/3.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-04-09

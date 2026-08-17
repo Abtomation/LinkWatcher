@@ -17,7 +17,9 @@
     The title of the guide (e.g., "User Authentication Setup", "Database Migration")
 
 .PARAMETER GuideDescription
-    Brief description of what the guide helps accomplish
+    Brief description of what the guide helps accomplish. Stamped into the `description:`
+    frontmatter (which drives PF-documentation-map.md) and the body Overview. When omitted,
+    the frontmatter still carries an empty `description: ""` so every guide shares one structure.
 
 .PARAMETER GuideCategory
     Optional category for the guide (e.g., "Development Process", "Technical", "Documentation")
@@ -42,13 +44,13 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-Guide.ps1 -GuideTitle "API Integration Setup" -SubDirectory "02-design" -GuideDescription "Step-by-step guide for integrating third-party APIs"
+    New-Guide.ps1 -GuideTitle "API Integration Setup" -SubDirectory "02-design" -GuideDescription "Step-by-step guide for integrating third-party APIs"
 
 .EXAMPLE
-    .\New-Guide.ps1 -GuideTitle "Testing Best Practices" -SubDirectory "03-testing" -GuideDescription "Comprehensive guide for writing effective tests" -GuideCategory "Development Process" -OpenInEditor
+    New-Guide.ps1 -GuideTitle "Testing Best Practices" -SubDirectory "03-testing" -GuideDescription "Comprehensive guide for writing effective tests" -GuideCategory "Development Process" -OpenInEditor
 
 .EXAMPLE
-    .\New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -SubDirectory "cyclical" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
+    New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -SubDirectory "cyclical" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -99,27 +101,23 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the success/error
+# report are all owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This
+# script keeps only its param block (above), the guide-specific data, and the report hint.
 
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
-
-# Prepare additional metadata fields (IMP-376: removed redundant guide_* fields)
-$additionalMetadataFields = @{}
-
-# Add related script if provided
-if ($RelatedScript -ne "") {
-    $additionalMetadataFields["related_script"] = $RelatedScript
+# Prepare additional metadata fields (IMP-376: removed redundant guide_* fields).
+# Values are passed raw — the shared frontmatter writer makes every string metadata value
+# YAML-safe itself (ConvertTo-YamlSafeScalar, PF-IMP-1413; caller-side pre-quoting removed
+# per PF-IMP-1524).
+# `description` is always emitted — the supplied text, or "" when none was given — so every
+# guide's frontmatter carries the same structure and Build-DocumentationMap.ps1 indexes the
+# guide with its real one-line description (PF-IMP-1193). An empty value still registers as
+# "missing" in the doc map's -ReportMissing gate. The related_* fields stay optional/omitted.
+$additionalMetadataFields = @{
+    description = $GuideDescription
 }
-
-# Add related task if provided (singular, per metadata schema)
-if ($RelatedTasks -ne "") {
-    $additionalMetadataFields["related_task"] = $RelatedTasks
-}
+if ($RelatedScript -ne "") { $additionalMetadataFields["related_script"] = $RelatedScript }
+if ($RelatedTasks -ne "")  { $additionalMetadataFields["related_task"]  = $RelatedTasks }
 
 # Prepare custom replacements based on the guide template
 $customReplacements = @{
@@ -131,48 +129,35 @@ $customReplacements = @{
     "[Author name or team]"                                                                                                                    = "AI Agent & Human Partner"
 }
 
-# Create the document using standardized process
-try {
-    # IMP-407: Auto-append "-guide" suffix with double-suffix guard
-    $guideDocName = $GuideTitle
-    if ($guideDocName -notmatch '(?i)[-\s]guide$') {
-        $guideDocName = "$guideDocName-guide"
-    }
-    # IMP-568: Use -DirectoryType with -Subdirectory instead of manually constructed -OutputDirectory
-    $documentId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/support/guide-template.md") -IdPrefix "PF-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $guideDocName -DirectoryType "main" -Subdirectory $SubDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
-
-    # Provide success details
-    $details = @(
-        "Guide Title: $GuideTitle"
-    )
-
-    # Add conditional details
-    if ($GuideDescription -ne "") {
-        $details += "Description: $GuideDescription"
-    }
-
-    if ($GuideCategory -ne "") {
-        $details += "Category: $GuideCategory"
-    }
-
-    if ($RelatedScript -ne "") {
-        $details += "Related Script: $RelatedScript"
-    }
-
-    if ($RelatedTasks -ne "") {
-        $details += "Related Tasks: $RelatedTasks"
-    }
-
-    # Add mandatory guide consultation if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/support/guide-creation-best-practices-guide.md"
-    }
-
-    # PF-documentation-map.md is generated from each artifact's `description:` frontmatter
-    # by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
-
-    Write-ProjectSuccess -Message "Created guide with ID: $documentId" -Details $details
+# IMP-407: Auto-append "-guide" suffix with double-suffix guard
+$guideDocName = $GuideTitle
+if ($guideDocName -notmatch '(?i)[-\s]guide$') {
+    $guideDocName = "$guideDocName-guide"
 }
-catch {
-    Write-ProjectError -Message "Failed to create guide: $($_.Exception.Message)" -ExitCode 1
+
+# Success-report detail lines (preserves the legacy reporting verbatim)
+$details = @("Guide Title: $GuideTitle")
+if ($GuideDescription -ne "") { $details += "Description: $GuideDescription" }
+if ($GuideCategory -ne "")    { $details += "Category: $GuideCategory" }
+if ($RelatedScript -ne "")    { $details += "Related Script: $RelatedScript" }
+if ($RelatedTasks -ne "")     { $details += "Related Tasks: $RelatedTasks" }
+# Add mandatory guide consultation if not opening in editor
+if (-not $OpenInEditor) {
+    $details += "Customization required — see process-framework/guides/support/guide-creation-best-practices-guide.md"
 }
+
+# PF-documentation-map.md is generated from each artifact's `description:` frontmatter
+# by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
+
+# IMP-568: -DirectoryType "main" + -Subdirectory (not a hand-built -OutputDirectory)
+# P-12a (PF-PRO-068): the shipped-pool family comes from the workspace's declared
+# artifact_prefix ('PF' at appdev, 'FB' at FB); a leaf role throws by contract.
+$artifactFamily = Get-ArtifactPrefix
+$documentId = New-FrameworkDocument `
+    -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/support/guide-template.md") `
+    -IdPrefix "$artifactFamily-GDE" -IdDescription "Guide: $GuideTitle" -DocumentName $guideDocName `
+    -DirectoryType "main" -Subdirectory $SubDirectory `
+    -Replacements $customReplacements -Metadata $additionalMetadataFields `
+    -Label "guide" -OpenInEditor:$OpenInEditor
+
+Write-ProjectSuccess -Message "Created guide with ID: $documentId" -Details $details

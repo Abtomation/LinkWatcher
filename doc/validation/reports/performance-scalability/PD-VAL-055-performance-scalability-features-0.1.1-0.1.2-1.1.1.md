@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-055
-type: Process Framework
+description: "Session 14 (Score: 2.5/3.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-03-26

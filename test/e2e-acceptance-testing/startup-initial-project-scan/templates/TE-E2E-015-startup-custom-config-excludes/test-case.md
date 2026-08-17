@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-015
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-003): TE-E2E-015 Startup with Custom Config Excludes."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-006
 feature_ids: ["0.1.1", "0.1.3", "0.1.2", "2.1.1", "1.1.1"]
 workflow: WF-003

@@ -3,13 +3,32 @@ id: PF-TSK-065
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.10
+version: 1.11
 created: 2026-02-17
-updated: 2026-05-16
+updated: 2026-07-13
+change_notes: "v1.11 - Check Recommended Skills wiring (Step 0, no renumber - step numbers externally load-bearing via Update-QualityClassification.ps1's 'PF-TSK-065 Step 9' citations): onboarding-edge-cases craft skill replaces the retired Onboarding Edge Cases Guide (Craft-as-Skill BL-5 batch 5)"
 description: "Analyze implementation patterns, dependencies, and design decisions"
+complexity: medium
+use_when: >-
+  After feature discovery - analyze patterns, dependencies, and design decisions
+automation: partial
+scripts:
+  - ../../scripts/file-creation/03-testing/New-TestFile.ps1
+  - ../../scripts/update/Update-RetrospectiveMasterState.ps1
+  - ../../scripts/update/Update-TechDebt.ps1
+  - ../../scripts/update/Update-QualityClassification.ps1
+trigger_status:
+  - raw: "`retrospective-master-state.md` → `Phase 1.5` = complete (Source Migration done; Status = `ANALYSIS`)"
+output_status:
+  - raw: "`retrospective-master-state.md` → Phase 2 = `100%`"
+next_tasks:
+  - task: retrospective-documentation-creation.md
+    condition: "Create tier assessments and required design documentation for all analyzed features"
 ---
 
 # Codebase Feature Analysis
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -26,17 +45,16 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/00-setup/codebase-feature-analysis-map.md)
-
 - **Critical (Must Read):**
 
   - [Retrospective Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md) — Read current state, verify Phase 1 and Phase 1.5 (Source Migration) complete
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Feature list and current status
   - [Feature Implementation State Files](../../../doc/state-tracking/features) — All files created during PF-TSK-064
-  - [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
+  - [Onboarding-sections craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/onboarding-sections.md) - Populating the analysis sections (Quality Assessment scoring, Existing Project Documentation confirmation); replaces the retired Feature Implementation State Tracking Guide
 
 - **Important (Load If Space):**
-  - [Feature Tier Assessment Task](../01-planning/feature-tier-assessment-task.md) - Understanding what analysis feeds into tier assessment
+  - [Tier-assessment criteria (`feature-request-evaluation` skill)](../../../.claude/skills/feature-request-evaluation/references/tier-assessment.md) - Understanding what analysis feeds into tier assessment
+  - [`onboarding-edge-cases` craft skill](../../../.claude/skills/onboarding-edge-cases/SKILL.md) — cross-cutting-pattern and assignment-refinement craft, activated in Step 0 (Check Recommended Skills)
 
 - **Reference Only (Access When Needed):**
   - [Documentation Tiers README](../../../doc/documentation-tiers/README.md) - Understanding tier documentation requirements
@@ -57,6 +75,8 @@ This task produces enriched Feature Implementation State files that serve as the
 > **🚨 All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint. Never proceed past a checkpoint without approval.**
 
 ### Preparation
+
+> **Step 0 — Check Recommended Skills** *(numbered 0 so the numbered step sequence below stays stable)*: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `codebase-feature-analysis`. If the `onboarding-edge-cases` craft skill is available in the session, activate it — it owns the **cross-cutting-pattern and assignment-refinement craft** this task delegates to (shared-utility handling, refining provisional file assignments, tracking cross-cutting patterns for later ADRs). If it is not listed in the session, read [`SKILL.md`](../../../.claude/skills/onboarding-edge-cases/SKILL.md) directly and apply it — that file is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. The craft is unavailable for this run only if the skill file itself is absent (the retired procedural guide has no successor).
 
 1. **Read [Master State File](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)**:
    - Verify Phase 1 is complete
@@ -107,7 +127,7 @@ This task produces enriched Feature Implementation State files that serve as the
    - **Code Dependencies**: Shared utilities, base classes, interfaces
    - **User-Facing Workflows**: Note which user workflows this feature participates in (e.g., "file move → links updated" requires detection + parsing + updating) in the feature state file's Dependencies section _(shared file update deferred to finalization)_
    - Document in [Feature Implementation State file](../../../doc/state-tracking/features) → Dependencies section
-   - **Format for Feature Dependency references**: Use `[feature_id Feature Name](./feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](./0.1.2-data-models-implementation-state.md)**` (these are example paths within the feature state directory, not links to actual files). Do NOT use PF-FEA IDs in dependency entries.
+   - **Format for Feature Dependency references**: Use `[feature_id Feature Name](feature_id-feature-name-implementation-state.md)` — e.g., `**[0.1.2 Data Models](0.1.2-data-models-implementation-state.md)**` (these are example paths within the feature state directory, not links to actual files). Do NOT use PF-FEA IDs in dependency entries.
 
 6. **🚨 CHECKPOINT**: Present analysis findings for the feature for review before continuing
    > **T1 fast path**: For Tier 1 features with ≤5 source files, you may defer this checkpoint and instead present analysis findings together with test coverage at Step 8 as a single combined checkpoint.
@@ -234,7 +254,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] Implementation patterns analyzed and documented for every feature
 - [ ] Dependencies identified and documented for every feature
@@ -253,12 +273,43 @@ This task produces enriched Feature Implementation State files that serve as the
   - [ ] Workflow map validated — all features mapped to workflows, no orphan workflows, Impl Status column updated
 - [ ] All features show ✅ in "Analyzed" column of [master state file](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)
 - [ ] Phase 2 marked complete in master state file
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-065" and context "Codebase Feature Analysis"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-065`, context "Codebase Feature Analysis".
   - **⚠️ IMPORTANT**: Evaluate the Codebase Feature Analysis task (PF-TSK-065) and its tools (feature implementation state files, analysis process), not the features you analyzed.
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Updates** | Feature Implementation State Files | Manual + `Update-QualityClassification.ps1` | Enriched with design decisions, dependencies, test coverage analysis (manual); Quality Assessment Classification + Code Maturity + Test Maturity lines computed and written by script (Step 9, dual-score model per PF-IMP-019/032) |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Register existing test files with pytest markers (finalization session) |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update Test Status column (finalization session). Quality Assessment Classification (As-Built / Target-State) lives in each per-feature state file's Quality Assessment section, computed by `Update-QualityClassification.ps1` — not in feature-tracking.md. |
+| **Updates** | Retrospective Master State File | `Update-RetrospectiveMasterState.ps1` | Claim/complete features (FeatureInventory mode), bulk-flip Unassigned Files Status via `-FilePaths` (MarkProcessed mode, PF-IMP-759), recalculate Progress Overview counters and Coverage Metrics |
+| **Updates** | [`user-workflow-tracking.md`](../../../doc/state-tracking/permanent/user-workflow-tracking.md) | Manual | Workflow definitions updated (finalization session) |
+| **Updates** | [`technical-debt-tracking.md`](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1 -Add` | Debt items from feature state files registered in central registry (finalization session) |
 
 ## Next Tasks
 
 - [**Retrospective Documentation Creation (PF-TSK-066)**](retrospective-documentation-creation.md) — Create tier assessments and required design documentation for all analyzed features
+
+<!-- merged from transition-registry entry: Codebase Feature Analysis (PF-TSK-065) -->
+### Prerequisites for Transition
+
+- [ ] Implementation patterns analyzed and documented for every feature
+- [ ] Dependencies identified and documented for every feature
+- [ ] Test coverage mapped for every feature
+- [ ] Complexity factors noted for features without tier assessments
+- [ ] Phase 2 marked complete in [master state file](../../../doc/state-tracking/temporary/old/retrospective-master-state.md)
+
+### Next Task Selection
+
+- **Always**: → [Retrospective Documentation Creation (PF-TSK-066)](retrospective-documentation-creation.md)
+
+### Preparation for Next Task
+
+1. Verify master state shows Phase 2 complete with all features analyzed
+2. Review complexity factors to plan tier assessment order (Foundation first → Tier 3 → Tier 2)
+3. Identify features that already have tier assessments vs. those that need new ones
+4. Set master state status to "ASSESSMENT_AND_DOCUMENTATION"
 
 ## Metrics and Evaluation
 
@@ -270,7 +321,7 @@ This task produces enriched Feature Implementation State files that serve as the
 
 - [Codebase Feature Discovery (PF-TSK-064)](codebase-feature-discovery.md) - Prerequisite task
 - [Feature Implementation State Template](../../templates/04-implementation/feature-implementation-state-template.md) - Template structure reference
-- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for populating analysis sections
+- [Onboarding-sections craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/onboarding-sections.md) - Populating the analysis sections (replaces the retired Feature Implementation State Tracking Guide)
 - [Test Query Tool](../../scripts/test/test_query.py) - Query test files by feature, priority, and markers
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Test implementation status tracking
-- [Onboarding Edge Cases Guide](../../guides/00-setup/onboarding-edge-cases.md) - Edge-case guidance for ambiguous file assignment, shared utilities, and confidence tagging
+- [`onboarding-edge-cases` craft skill](../../../.claude/skills/onboarding-edge-cases/SKILL.md) - Edge-case craft for ambiguous file assignment, shared utilities, and confidence tagging (replaces the retired Onboarding Edge Cases Guide); activated at Step 0

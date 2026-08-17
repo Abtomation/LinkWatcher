@@ -39,8 +39,8 @@
     or paths relative to the project root.
 
 .PARAMETER DryRunGenerate
-    Creates the report file for inspection but skips ID registry increment, validation
-    tracking updates, and documentation map updates. Uses placeholder ID "PD-VAL-DRY".
+    Creates the report file for inspection but skips ID registry increment and validation
+    tracking updates. Uses placeholder ID "PD-VAL-DRY".
     Useful for testing the script without consuming real IDs or modifying tracking state.
 
 .EXAMPLE
@@ -239,7 +239,7 @@ $ValidationTypeMap = @{
 function Get-NextValidationId {
     <#
     .SYNOPSIS
-        Gets the next available PF-VAL ID from the registry
+        Gets the next available PD-VAL ID from the registry
     #>
     try {
         # Use the script-level $IdRegistryFile variable (computed from $ProjectRoot)
@@ -497,7 +497,7 @@ function New-ValidationReportFromTemplate {
         $featureList = $Features -join ', '
 
         $reportContent = $documentTemplate
-        $reportContent = $reportContent -replace '\[PF-VAL-XXX - will be assigned from ID registry\]', $ValidationId
+        $reportContent = $reportContent -replace '\[PD-VAL-XXX - will be assigned from ID registry\]', $ValidationId
         $reportContent = $reportContent -replace '\[YYYY-MM-DD\]', $currentDate
         $reportContent = $reportContent -replace '\[validation-type\]', $ValidationConfig.ShortName
         $reportContent = $reportContent -replace '\[Validation Type\]', $ValidationConfig.DisplayName
@@ -766,23 +766,8 @@ try {
         }
         Write-Host ""
 
-        # Auto-append entry to PD-documentation-map.md under the correct Round section
-        if ($DryRunGenerate) {
-            Write-Host "📄 Skipping PD-documentation-map.md update (dry-run mode)" -ForegroundColor Yellow
-        } else {
-            $pdDocMapPath = Join-Path $ProjectRoot "doc/PD-documentation-map.md"
-            if (Test-Path $pdDocMapPath) {
-                $sectionHeader = "### Round $roundNumber Validation Reports"
-                $featureList = ($features | Sort-Object) -join ', '
-                $relPath = "validation/reports/$($validationConfig.Directory)/$fileName"
-                $entryLine = "- [Validation: $($validationConfig.DisplayName) — $featureList ($validationId)]($relPath) - Session $SessionNumber"
-
-                $updated = Add-DocumentationMapEntry -DocMapPath $pdDocMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-                if ($updated) {
-                    Write-Host "   📄 Updated: PD-documentation-map.md (section: $sectionHeader)" -ForegroundColor Gray
-                }
-            }
-        }
+        # PD documentation map is generated from each report's frontmatter `description:`
+        # (PF-PRO-050, Build-DocumentationMap.ps1 -Tree PD) — no per-creation append.
 
         Write-Host "🎉 Validation report created successfully!" -ForegroundColor Green
         Write-Verbose "Next Steps: Open the report file: $outputPath"

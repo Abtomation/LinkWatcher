@@ -4,11 +4,23 @@ type: Process Framework
 category: Task Definition
 version: 1.2
 created: 2025-12-11
-updated: 2026-05-16
+updated: 2026-06-12
 description: "Implement data models, repositories, and database integration for feature"
+complexity: medium
+use_when: >-
+  Implement data models, repositories, and database integration for feature
+automation: semi
+scripts:
+  - ../../scripts/file-creation/03-testing/New-TestFile.ps1
+trigger_status:
+  - raw: "`feature-tracking.md` + Feature impl state file → `🟡 In Progress` + task = `not_started` in sequence"
+output_status:
+  - raw: "Feature impl state file → task = `completed`"
 ---
 
 # Data Layer Implementation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -22,8 +34,6 @@ Implement data models, repositories, and database integration for feature
 **Communication Style**: Present data model options with trade-offs, highlight data integrity concerns, ask about performance requirements and caching strategies
 
 ## Context Requirements
-
-[View Context Map for this task](../../visualization/context-maps/04-implementation/data-layer-implementation-map.md)
 
 - **Critical (Must Read):**
 
@@ -42,12 +52,9 @@ Implement data models, repositories, and database integration for feature
 - **Reference Only (Access When Needed):**
   - **Database Documentation** - For understanding database client API patterns
   - **Language Best Practices** - For data class and repository implementation standards
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Update the Feature Implementation State file throughout this task.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -96,9 +103,8 @@ Implement data models, repositories, and database integration for feature
    ```powershell
    # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
-   cd process-framework/scripts/file-creation/03-testing
-   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "DataModel"
-   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Repository"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "DataModel"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Repository"
 
    # Script automatically:
    # - Writes pytest markers (feature, priority, test_type)
@@ -152,9 +158,7 @@ Implement data models, repositories, and database integration for feature
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Data model classes created in the source directory with complete serialization
@@ -169,11 +173,43 @@ Before considering this task finished:
     - [ ] Code inventory with new models and repositories
     - [ ] Implementation notes documenting any deviations or decisions
     - [ ] Issues log if any problems were encountered
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-051" and context "Data Layer Implementation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-051`, context "Data Layer Implementation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | Data model classes | Manual | Model classes in source data directory with serialization, validation |
+| **Creates** | Repository interface | Manual | Repository contract in source repositories directory |
+| **Creates** | Repository implementation | Manual | Concrete repository implementation |
+| **Creates** | Unit tests | `New-TestFile.ps1` | Test files in `/test/unit/data/[feature]/` for models and repositories |
+| **Executes** | Database migrations | Manual | Run database migration scripts to create database schema |
+| **Updates** | [Feature Implementation State File](../../state-tracking/permanent/feature-[feature-id]-implementation.md) | Manual | Update task sequence tracking, code inventory, implementation notes, issues log |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` (auto) | Automated test file registration |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` (auto) | Automated test status update |
 
 ## Next Tasks
 
 - **[Integration & Testing](integration-and-testing.md)** (PF-TSK-053) - Perform integration testing once data layer is connected
+
+<!-- merged from transition-registry entry: Implementation Tasks (group entry) -->
+### Prerequisites for Transition
+
+- [ ] Implementation complete according to design/requirements
+- [ ] Unit tests written and passing
+- [ ] Documentation updated
+- [ ] Feature Tracking updated with implementation status
+
+### Next Task Selection
+
+- **Always**: → Code Review
+
+### Preparation for Next Task
+
+1. Prepare code for review (clean commits, clear comments)
+2. Document any deviations from original design
+3. Ensure all tests are passing
+4. Prepare summary of implementation approach
 
 ## Related Resources
 

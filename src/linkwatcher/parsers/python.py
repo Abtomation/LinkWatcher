@@ -294,70 +294,87 @@ class PythonParser(BaseParser):
 
             for line_num, line in enumerate(lines, 1):
                 # --- Docstring state tracking (PD-BUG-062) ---
-                # Count triple-quote occurrences to toggle in/out of docstring
+                # Toggle in/out of docstring on triple quotes, and record the
+                # docstring content as (start, end) spans *of this line*.
+                #
+                # PD-BUG-118: spans, not an extracted substring.  This block used
+                # to build a separate `inner` string from _TRIPLE_QUOTE_RE.split()
+                # and then store match offsets *into that string* as the
+                # reference's line columns.  On any line containing triple quotes
+                # the columns were short by the length of the text preceding the
+                # docstring content (e.g. len('    \"\"\"') == 7), and the updater
+                # sliced the physical line at those stale columns — consuming and
+                # duplicating characters adjacent to the real path.  Scanning the
+                # line itself and adding the span offset makes the columns
+                # line-absolute by construction, the same way the comment branch
+                # below adds `comment_start` and every sibling parser adds its own
+                # segment offset.
                 tq_matches = list(self._TRIPLE_QUOTE_RE.finditer(line))
+                docstring_spans = []
+                seg_start = 0 if in_docstring else None
                 for tq in tq_matches:
                     q = tq.group(0)
                     if not in_docstring:
                         in_docstring = True
                         docstring_quote = q
+                        seg_start = tq.end()
                     elif q == docstring_quote:
                         in_docstring = False
                         docstring_quote = None
+                        if seg_start is not None:
+                            docstring_spans.append((seg_start, tq.start()))
+                        seg_start = None
+                    # A different triple-quote style inside an open docstring is
+                    # literal content, not a delimiter — leave the state alone.
+                if in_docstring and seg_start is not None:
+                    docstring_spans.append((seg_start, len(line)))
 
-                # Determine if this line has docstring content to scan.
-                # Pure body lines (no triple-quotes) are always scanned.
-                # Lines with triple-quotes: extract the text between/around them.
-                is_docstring_line = False
-                docstring_text = None
-                if in_docstring and not tq_matches:
-                    is_docstring_line = True
-                    docstring_text = line
-                elif tq_matches:
-                    # Extract content between/around triple-quotes on this line
-                    # e.g. '"""Templates in doc/foo/"""' → 'Templates in doc/foo/'
-                    parts = self._TRIPLE_QUOTE_RE.split(line)
-                    # parts between triple-quotes contain docstring content
-                    inner = " ".join(parts[i] for i in range(1, len(parts), 2) if i < len(parts))
-                    if inner.strip():
-                        is_docstring_line = True
-                        docstring_text = inner
-
-                if is_docstring_line and docstring_text:
-                    # Reuse comment_pattern for bare file paths (with extension)
-                    for match in self.comment_pattern.finditer(docstring_text):
-                        potential_file = match.group(1)
-                        if self._looks_like_file_path(potential_file):
-                            references.append(
-                                LinkReference(
-                                    file_path=file_path,
-                                    line_number=line_num,
-                                    column_start=match.start(1),
-                                    column_end=match.end(1),
-                                    link_text=potential_file,
-                                    link_target=potential_file,
-                                    link_type=LinkType.PYTHON_DOCSTRING,
-                                )
-                            )
-                    # Bare directory paths (no extension, with path separator)
-                    for match in self._BARE_DIR_RE.finditer(docstring_text):
-                        potential_dir = match.group(0)
-                        # Skip if already captured as a file path (has extension)
-                        _, ext = os.path.splitext(potential_dir)
-                        if ext:
+                if any(line[s:e].strip() for s, e in docstring_spans):
+                    for seg_start, seg_end in docstring_spans:
+                        segment = line[seg_start:seg_end]
+                        if not segment.strip():
                             continue
-                        if self._looks_like_directory_path(potential_dir):
-                            references.append(
-                                LinkReference(
-                                    file_path=file_path,
-                                    line_number=line_num,
-                                    column_start=match.start(0),
-                                    column_end=match.end(0),
-                                    link_text=potential_dir,
-                                    link_target=potential_dir,
-                                    link_type=LinkType.PYTHON_DOCSTRING_DIR,
+                        # Reuse comment_pattern for bare file paths (with extension)
+                        for match in self.comment_pattern.finditer(segment):
+                            potential_file = match.group(1)
+                            if self._looks_like_file_path(potential_file):
+                                references.append(
+                                    LinkReference(
+                                        file_path=file_path,
+                                        line_number=line_num,
+                                        column_start=seg_start + match.start(1),
+                                        column_end=seg_start + match.end(1),
+                                        link_text=potential_file,
+                                        link_target=potential_file,
+                                        link_type=LinkType.PYTHON_DOCSTRING,
+                                    )
                                 )
-                            )
+                        # Bare directory paths (no extension, with path separator)
+                        for match in self._BARE_DIR_RE.finditer(segment):
+                            potential_dir = match.group(0)
+                            # PD-BUG-118: _BARE_DIR_RE's character class includes
+                            # '.', so a sentence-ending period is swallowed into
+                            # the "path" and then eaten by the rewrite.
+                            trimmed = self._trim_trailing_punctuation(potential_dir)
+                            if not trimmed or ("/" not in trimmed and "\\" not in trimmed):
+                                continue
+                            potential_dir = trimmed
+                            # Skip if already captured as a file path (has extension)
+                            _, ext = os.path.splitext(potential_dir)
+                            if ext:
+                                continue
+                            if self._looks_like_directory_path(potential_dir):
+                                references.append(
+                                    LinkReference(
+                                        file_path=file_path,
+                                        line_number=line_num,
+                                        column_start=seg_start + match.start(0),
+                                        column_end=seg_start + match.start(0) + len(potential_dir),
+                                        link_text=potential_dir,
+                                        link_target=potential_dir,
+                                        link_type=LinkType.PYTHON_DOCSTRING_DIR,
+                                    )
+                                )
                     if not tq_matches:
                         continue  # skip normal parsing for pure docstring body lines
 

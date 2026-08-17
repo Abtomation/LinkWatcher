@@ -7,14 +7,14 @@ description: "Process steps and checklist for medium/complex refactorings (multi
 
 # Code Refactoring — Standard Path
 
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
+
 > **Parent task**: [Code Refactoring Task](code-refactoring-task.md) (PF-TSK-022)
 >
 > **Scope**: Medium/complex refactorings (> 15 min, multiple files, or architectural impact).
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Use the appropriate automation tools where indicated.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -23,12 +23,11 @@ description: "Process steps and checklist for medium/complex refactorings (multi
 
 ### Preparation
 
-1. **Create Refactoring Plan**: Use automation script to create structured refactoring plan document
+1. **Create Refactoring Plan**: Use the automation script to create the structured refactoring plan document, applying the [`refactoring-planning` craft skill](../../../.claude/skills/refactoring-planning/SKILL.md) (activated at the parent task's Step 1) to select the mode and fill the plan
 
    ```powershell
-   cd process-framework/scripts/file-creation/06-maintenance
-   New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
-   # Add -DocumentationOnly for doc-only changes (no code metrics/test sections)
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1 -RefactoringScope "Brief description" -TargetArea "Component/Module name"
+   # Select the mode switch (default Standard / -DocumentationOnly / -Performance) per the refactoring-planning skill's mode-selection table
    # Add -DebtItemId "TDXXX" to auto-populate debt item reference
    ```
 
@@ -38,11 +37,8 @@ description: "Process steps and checklist for medium/complex refactorings (multi
    - **≥ 5 items or multi-session (3+)**: Create a separate temp state file:
 
    ```powershell
-   # Navigate to state tracking directory
-   Set-Location "doc/state-tracking"
-
    # Create temporary tracking file for refactoring work
-   ../../scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "[Refactoring Scope] Refactoring" -Variant Refactoring -Description "Refactoring work for [specific component/feature]"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-TempTaskState.ps1 -TaskName "[Refactoring Scope] Refactoring" -Variant Refactoring -Description "Refactoring work for [specific component/feature]"
    ```
 
    > **Variant note**: Pass `-Variant Refactoring` to instantiate the refactoring-specific template ([temp-refactoring-state-template.md](../../templates/support/temp-refactoring-state-template.md) — PF-TEM-076). It includes the mandatory Test Baseline anchor (Step 5), Phase 0/A/B/C/D structure, bug-discovery log, and the 3-phase state-file-update closure. Omitting the flag gets the generic TaskCreation template, which is built for new framework infrastructure (task definitions, ID registries, context maps) and is ~80% misfit for refactor work.
@@ -65,11 +61,10 @@ description: "Process steps and checklist for medium/complex refactorings (multi
    - **Sufficient coverage**: Existing tests exercise the specific code paths being refactored (both happy paths and error/edge cases touched by the change). Proceed to Step 6.
    - **Insufficient coverage**: No tests exist for the target method/class, or tests only cover happy paths while the refactoring touches error handling or edge cases. Write characterization tests first:
      ```powershell
-     cd process-framework/scripts/file-creation/03-testing
-     New-TestFile.ps1 -FeatureId "X.Y.Z" -TestType "unit" -Component "ComponentName"
+     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "ComponentNameCharacterization" -TestType "unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
      ```
    - Characterization tests capture *current* behavior (even if imperfect) — they are a safety net, not a quality judgment.
-   - After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+   - After creating or modifying tests, complete the documentation steps in the [Test Infrastructure Guide — Test Documentation Completeness](../../guides/03-testing/test-infrastructure-guide.md#test-documentation-completeness) section.
 7. **Create Baseline Measurements**: Record current performance metrics and code quality indicators
 8. **🚨 CHECKPOINT**: Present analysis findings, baseline metrics, and test coverage status to human partner
 
@@ -87,7 +82,7 @@ description: "Process steps and checklist for medium/complex refactorings (multi
    process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "[Decision Title]" -Context "[Refactoring context and need for decision]"
    ```
 
-   Follow the [Architecture Decision Creation Guide](../../guides/02-design/architecture-decision-creation-guide.md) for content customization.
+   Drive the content customization with the [`architecture-decision` craft skill](../../../.claude/skills/architecture-decision/SKILL.md) — the ADR customization craft home (replaces the retired Architecture Decision Creation Guide).
 
    **When to Create ADRs During Refactoring**:
 
@@ -110,7 +105,7 @@ description: "Process steps and checklist for medium/complex refactorings (multi
       # Find tests that import from or mock the changed module
       grep -rn "from old_module\|import old_module\|@patch.*old_module" test/
       ```
-      Update mock paths (`@patch("module.Class")`), import statements, and any hardcoded module references to match the new structure. Consult [test-tracking.md](../../../test/state-tracking/permanent/test-tracking.md) to identify which test files cover the affected feature.
+      Update mock paths (`@patch("module.Class")`), import statements, and any hardcoded module references to match the new structure. Consult [test-tracking.md](../../../test/state-tracking/permanent/test-tracking.md) to identify which test files cover the affected feature. For renames/moves, LinkWatcher auto-updates path references in monitored file types — what's automatic vs. manual: `<LinkWatcher install>/doc/user/handbooks/linkwatcher-capabilities-reference.md` (install default `%USERPROFILE%\bin`, override via `LINKWATCHER_INSTALL_DIR`).
     - **🚨 CHECKPOINT**: For each significant change, present the change and get approval before proceeding
 13. **Monitor Quality Improvements**: Track code complexity, maintainability, and quality metrics during refactoring
 14. **Update Product Documentation**: When refactoring changes module boundaries, interfaces, or design patterns, update the affected product documentation:
@@ -174,13 +169,12 @@ When bugs are discovered during refactoring, follow this decision process:
 
    If gaps are found, create tests:
    ```powershell
-   cd process-framework/scripts/file-creation/03-testing
-   New-TestFile.ps1 -FeatureId "X.Y.Z" -TestType "unit" -Component "ComponentName"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "ComponentNameCharacterization" -TestType "unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
    ```
 
    > **Scope check**: If test gaps are systemic (spanning multiple components or features beyond the refactoring scope), document the gap and recommend [Test Specification Creation (PF-TSK-012)](../03-testing/test-specification-creation-task.md) as a follow-up rather than addressing it inline.
 
-   After creating or modifying tests, complete the documentation steps in the [Test File Creation Guide — Test Documentation Completeness](../../guides/03-testing/test-file-creation-guide.md#5-complete-test-documentation) section.
+   After creating or modifying tests, complete the documentation steps in the [Test Infrastructure Guide — Test Documentation Completeness](../../guides/03-testing/test-infrastructure-guide.md#test-documentation-completeness) section.
 
 17. **Report Discovered Bugs**: If bugs are identified during refactoring:
 
@@ -194,11 +188,8 @@ When bugs are discovered during refactoring, follow this decision process:
     **Example Bug Report Command**:
 
     ```powershell
-    # Navigate to the scripts directory from project root
-    Set-Location "process-framework/scripts/file-creation"
-
     # Create bug report for issues found during refactoring
-    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Refactoring" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: process_async_batch() in src/services/data_processor.py (near lines 89-102 as of 2025-01-15)"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Race condition in async data processing" -Description "Refactoring revealed race condition in async data processing that causes intermittent data corruption" -DiscoveredBy "Refactoring" -Severity "High" -Component "Data Processing" -Environment "Development" -Evidence "Code analysis during refactoring: process_async_batch() in src/services/data_processor.py (near lines 89-102 as of 2025-01-15)"
     ```
 
 18. **Validate Behavior Preservation & Diff Against Baseline**: Run full test suite (`Run-Tests.ps1 -All`) and compare results against the Step 5 baseline. If E2E acceptance tests exist for the affected features in [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md), mark them for re-execution via `Update-TestExecutionStatus.ps1` (see Phase 2 checklist item below).
@@ -223,7 +214,7 @@ When bugs are discovered during refactoring, follow this decision process:
 - [ ] **Audit-flagged TD closure** (only if the resolved TD's Source column or resolution notes reference a `TE-TAR-*` audit report): after `Update-TechDebt.ps1` completes, close the audit status loop — otherwise `test-tracking.md` and `feature-tracking.md` retain the stale audit status from the original audit report (the gap that caused feature 0.1.2 to sit in split-brain state for ~2 weeks).
     - **If the resolution closes ALL findings from that audit** — run:
       ```powershell
-      Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
+      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
       ```
     - **If findings are only partially addressed** — do NOT mark as "Audit Approved". Route to [Test Audit (PF-TSK-030)](../03-testing/test-audit-task.md) for a re-audit instead.
 - [ ] **Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)**: Improve feature status (e.g., "🔄 Needs Enhancement" → "🟡 In Progress")
@@ -233,14 +224,14 @@ When bugs are discovered during refactoring, follow this decision process:
 
 ##### Phase 3: Post-Completion
 
-- [ ] **Archive Temporary State** (if created in Step 2): Move temporary state tracking to [archive](../../state-tracking/temporary/old) or delete if no longer needed
+- [ ] **Archive Temporary State** (if created in Step 2): Move temporary state tracking to [archive](../../../doc/state-tracking/temporary/old) or delete if no longer needed
 - [ ] **Update [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md)**: For architectural refactoring, update relevant context packages
 
 23. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Refactoring Plan Document created and completed with results
@@ -263,6 +254,6 @@ When bugs are discovered during refactoring, follow this decision process:
   - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) updated
   - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
   - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 13)
-  - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../state-tracking/temporary/old), [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated for architectural changes, refactoring plan archived to `doc/refactoring/plans/archive`
+  - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../../doc/state-tracking/temporary/old), [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated for architectural changes, refactoring plan archived to `doc/refactoring/plans/archive`
   - [ ] If file moves changed the source directory structure: run `New-SourceStructure.ps1 -Update` to refresh the [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) directory tree
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-022" and context "Code Refactoring Task"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-022`, context "Code Refactoring Task".

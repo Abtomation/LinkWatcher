@@ -1,5 +1,6 @@
 ---
 id: TE-TAR-025
+description: "Test audit report for feature 1.1.1 — test-suite quality assessment."
 type: Document
 category: General
 version: 2.0

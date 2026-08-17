@@ -1,5 +1,5 @@
 ---
-id: [Document ID - will be automatically assigned]
+id: PF-TEM-095
 type: Process Framework
 category: Assessment
 version: 1.0
@@ -8,6 +8,8 @@ updated: [Identification Date]
 debt_dim: [Dimension]
 debt_priority: [Initial Priority]
 debt_location: [Location/Component]
+creates_document_type: Product Documentation
+creates_document_category: Technical Debt Item
 description: "Template for individual debt item records"
 ---
 
@@ -168,7 +170,7 @@ description: "Template for individual debt item records"
 
 ### Assessment Reference
 
-- **Source Assessment**: [PF-TDA-XXX reference]
+- **Source Assessment**: [PD-TDA-XXX reference]
 - **Assessment Date**: [Date when this was identified]
 
 ### Registry Integration

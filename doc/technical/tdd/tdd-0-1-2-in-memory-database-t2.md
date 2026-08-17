@@ -1,5 +1,6 @@
 ---
 id: PD-TDD-022
+description: "0.1.2 Tier 2 — Target-indexed storage design"
 type: Technical Design Document
 category: TDD Tier 2
 version: 1.0
@@ -300,7 +301,8 @@ def remove_file_links(self, file_path: str):
         if removed_count > 0:
             self.logger.info("references_removed", file_path=file_path, removed_count=removed_count)
         else:
-            self.logger.warning("no_references_to_remove", file_path=file_path)
+            # PD-BUG-117: normal for any link-free file — DEBUG, not WARNING
+            self.logger.debug("no_references_to_remove", file_path=file_path)
 ```
 
 **Source path update (when a source file moves):**

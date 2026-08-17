@@ -97,16 +97,16 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed via DocumentManagement.psm1)
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path
+# are owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script
+# keeps its data and its own report — all inline under the outer try/catch. (The PD-documentation-map
+# is generated from frontmatter per PF-PRO-037, so this script no longer appends to it — PF-IMP-1151.)
 
 # Prepare additional metadata fields for frontmatter
 $additionalMetadataFields = @{
     "handbook_name"         = $HandbookName
     "handbook_content_type" = $ContentType
+    description             = $Description
 }
 if ($Topic) {
     $additionalMetadataFields["handbook_topic"] = $Topic
@@ -125,18 +125,19 @@ try {
     $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/07-deployment/handbook-template.md"
 
     $newDocParams = @{
-        TemplatePath             = $templatePath
-        IdPrefix                 = "PD-UGD"
-        IdDescription            = "User Handbook: $HandbookName"
-        DocumentName             = $HandbookName
-        DirectoryType            = "handbooks"
-        Subdirectory             = $ContentType
-        Replacements             = $customReplacements
-        AdditionalMetadataFields = $additionalMetadataFields
-        OpenInEditor             = $OpenInEditor
+        TemplatePath  = $templatePath
+        IdPrefix      = "PD-UGD"
+        IdDescription = "User Handbook: $HandbookName"
+        DocumentName  = $HandbookName
+        DirectoryType = "handbooks"
+        Subdirectory  = $ContentType
+        Replacements  = $customReplacements
+        Metadata      = $additionalMetadataFields
+        Label         = "user handbook"
+        OpenInEditor  = $OpenInEditor
     }
     if ($Topic) { $newDocParams["Topic"] = $Topic }
-    $documentId = New-StandardProjectDocument @newDocParams
+    $documentId = New-FrameworkDocument @newDocParams
 
     # Provide success details
     $details = @(
@@ -145,24 +146,6 @@ try {
         "Description: $Description"
     )
     if ($Topic) { $details += "Topic: $Topic" }
-
-    # Auto-append entry to PD-documentation-map.md under User Handbooks section
-    if ($documentId -or $WhatIfPreference) {
-        $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = "### ``user/handbooks/``"
-        $kebabName = ConvertTo-KebabCase -InputString $HandbookName
-        $relativePath = if ($Topic) {
-            "user/handbooks/$ContentType/$Topic/$kebabName.md"
-        } else {
-            "user/handbooks/$ContentType/$kebabName.md"
-        }
-        $entryLine = "- [Product: $HandbookName ($documentId)]($relativePath) - $Description"
-
-        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-        if ($updated) {
-            $details += "Documentation Map: Updated (PD-documentation-map.md)"
-        }
-    }
 
     if (-not $OpenInEditor) {
         $details += @(

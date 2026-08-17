@@ -2,9 +2,9 @@
 id: PF-TEM-030
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2025-07-25
-updated: 2025-07-25
+updated: 2026-08-04
 usage_context: Process Framework - Task Creation
 description: Template for implementing foundation features (0.x.x) that provide architectural foundations for regular features
 creates_document_prefix: PF-TSK
@@ -31,9 +31,9 @@ This template guides the implementation of foundation features (0.x.x) that prov
 
 - **Critical (Must Read):**
 
-  - [Architecture Context Package](../../../doc/technical/architecture/context-packages/[architecture-area]-context.md) - Bounded architectural context for this work
+  - [Architecture Context Package](../../technical/architecture/context-packages/[architecture-area]-context.md) - Bounded architectural context for this work
   - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Current architectural state and decisions
-  - [Foundation Feature Specification](../../../doc/technical/architecture/assessments/[feature-name]-foundation-specification.md) - Detailed requirements from System Architecture Review
+  - [Foundation Feature Specification](../../technical/architecture/assessments/[feature-name]-foundation-specification.md) - Detailed requirements from System Architecture Review
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Foundation feature status and dependencies
 
 - **Important (Load If Space):**
@@ -100,7 +100,7 @@ The following state files must be updated as part of this task:
 
 - [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) - Update with foundation implementation outcomes
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - Mark foundation feature complete, update dependent features
-- [Architecture Context Package](../../../doc/technical/architecture/context-packages/[architecture-area]-context.md) - Update with implementation results
+- [Architecture Context Package](../../technical/architecture/context-packages/[architecture-area]-context.md) - Update with implementation results
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -118,7 +118,7 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated with outcomes
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) foundation feature marked complete
-  - [ ] [Architecture Context Package](../../../doc/technical/architecture/context-packages/[architecture-area]-context.md) updated with results
+  - [ ] [Architecture Context Package](../../technical/architecture/context-packages/[architecture-area]-context.md) updated with results
 - [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "Foundation Feature Implementation" and context "[Foundation Feature Name]"
 
 ## Next Tasks

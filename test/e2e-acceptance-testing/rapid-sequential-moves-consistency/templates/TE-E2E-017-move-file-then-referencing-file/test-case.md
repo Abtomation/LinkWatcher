@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-017
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-004): TE-E2E-017 Move File Then Move Referencing File."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-007
 feature_ids: ["1.1.1", "0.1.2", "2.2.1"]
 workflow: WF-004

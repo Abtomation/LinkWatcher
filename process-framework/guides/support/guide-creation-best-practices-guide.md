@@ -2,11 +2,10 @@
 id: PF-GDE-024
 type: Process Framework
 category: Guide
-version: 1.1
+version: 1.2
 created: 2025-07-27
-updated: 2025-07-29
-related_task: related_script: New-Guide.ps1
-guide_title: Guide Creation Best Practices Guide
+updated: 2026-07-13
+related_script: New-Guide.ps1
 description: "Best practices for creating effective guides within the task framework"
 ---
 
@@ -14,28 +13,29 @@ description: "Best practices for creating effective guides within the task frame
 
 ## Overview
 
-This guide provides comprehensive best practices for creating effective guides within the task framework. It covers both general guide creation principles and specialized approaches for template customization guides, ensuring consistency, quality, and framework integration.
+This guide provides best practices for creating effective guides within the task framework — choosing the right guide shape, customizing the guide template (PF-TEM-003), and meeting framework quality standards.
 
 ## When to Use
 
 Use this guide when you need to:
 
 - Create a new guide using the New-Guide.ps1 script
-- Customize the guide template for specific use cases
+- Customize the guide template for a specific use case
 - Ensure your guide meets framework quality standards
-- Create template customization guides for New-\* scripts
 - Review and improve existing guides
 
 > **🚨 CRITICAL**: All guides must follow the established guide template structure (PF-TEM-003) and use the New-Guide.ps1 script for creation to ensure proper ID assignment and metadata integration.
+
+> **Customization craft is not a guide.** Material teaching an agent *how to fill in* an artifact a `New-*` script creates belongs in a **craft skill**, not a guide — see the [Craft Skill Authoring Guide](craft-skill-authoring-guide.md) (PF-GDE-077). Guides carry procedures, conventions, and reference material.
 
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
 2. [Background](#background)
-3. [Template Structure Analysis](#template-structure-analysis) _(Optional - for template customization guides)_
-4. [Customization Decision Points](#customization-decision-points) _(Optional - for template customization guides)_
+3. [Template Structure Analysis](#template-structure-analysis)
+4. [Customization Decision Points](#customization-decision-points)
 5. [Step-by-Step Instructions](#step-by-step-instructions)
-6. [Quality Assurance](#quality-assurance) _(Optional - for template customization guides)_
+6. [Quality Assurance](#quality-assurance)
 7. [Examples](#examples)
 8. [Troubleshooting](#troubleshooting)
 9. [Related Resources](#related-resources)
@@ -52,15 +52,15 @@ Before creating guides, ensure you have:
 
 ## Background
 
-The project uses a structured approach to documentation through the task framework. Guides serve as instructional documents that help users accomplish specific objectives within this framework. There are two main types of guides:
+The project uses a structured approach to documentation through the task framework. Guides serve as instructional documents that help users accomplish specific objectives within this framework. Guides come in two shapes:
 
-### General Guides
+### Procedure Guides
 
-Standard instructional guides that help users complete processes, understand concepts, or use tools effectively.
+How-to guides that walk the reader through a process end-to-end: setup, migration, authoring, or operational procedures. They keep the step-by-step scaffolding — Prerequisites, Background, Step-by-Step Instructions, Examples, Troubleshooting.
 
-### Template Customization Guides
+### Convention / Reference Guides
 
-Specialized guides that help users customize templates created by New-\* scripts. These guides require additional sections and considerations to ensure effective template usage.
+Guides that carry a decision rule, a set of definitions, or a lookup table the reader consults rather than follows. They keep Overview and When to Use, then their own domain sections — the procedure scaffolding is deleted.
 
 ### Framework Integration
 
@@ -73,53 +73,49 @@ All guides must integrate properly with the task framework by:
 
 ## Template Structure Analysis
 
-The guide template (PF-TEM-003) provides a flexible structure that supports both general guides and template customization guides:
+The guide template (PF-TEM-003) scaffolds a **procedure guide** and expects a convention/reference guide to delete what it does not need.
 
 ### Core Template Sections
 
-**Required for all guides:**
+**Required for every guide:**
 
-- **Metadata**: ID, type, category, version, dates, status
+- **Metadata**: ID, type, category, version, dates, status, `description`
 - **Overview**: Brief description of guide purpose and outcome
-- **Prerequisites**: Required knowledge, tools, and access
-- **Step-by-Step Instructions**: Detailed procedural guidance
-- **Examples**: Real-world usage scenarios
-- **Troubleshooting**: Common issues and solutions
+- **When to Use**: The triggers and decision criteria that send a reader here
 - **Related Resources**: Links to relevant documentation
 
-**Optional for general guides:**
+**Procedure scaffolding — keep for a procedure guide, delete for a convention/reference guide:**
 
-- **When to Use**: Specific triggers and decision criteria
-- **Background**: Contextual information and concepts
+- **Table of Contents**: Worth keeping only for a long guide
+- **Prerequisites**: Required knowledge, tools, and access
+- **Background**: Context and concepts needed before the steps
+- **Step-by-Step Instructions**: The procedure, with an Expected Result per step
+- **Examples**: Real-world usage scenarios
+- **Troubleshooting**: Symptom / cause / solution entries
 
-### Enhanced Sections for Template Customization Guides
-
-**Additional optional sections:**
-
-- **Template Structure Analysis**: Breakdown of template anatomy
-- **Customization Decision Points**: Key choices and decision frameworks
-- **Quality Assurance**: Comprehensive QA guidance with checklists
-- **Validation and Testing**: Within Step-by-Step Instructions
+A convention or reference guide replaces that scaffolding with its own domain sections — the decision rule, the definitions, the lookup table.
 
 ### Enhanced Metadata Fields
 
-- **related_script**: Links guide to the script that creates templates
-- **related_tasks**: Connects guide to relevant task framework components
+- **related_script**: Links the guide to a related script
+- **related_task**: Names the owning task(s) as comma-separated `PF-TSK-NNN` IDs, so guide-to-task ownership queries are grep-complete; a framework-wide guide with no single owner leaves it unset
 
 ## Customization Decision Points
 
 When creating guides, you must make several key decisions that impact effectiveness and framework integration:
 
-### Guide Type Decision
+### Guide Shape Decision
 
-**Decision**: General guide vs. Template customization guide
+**Decision**: Procedure guide vs. convention/reference guide
 **Criteria**:
 
-- Does this guide help customize templates created by a script? → Template customization guide
-- Does this guide provide general instructional content? → General guide
-  **Impact**: Determines which optional sections to include
+- Does the reader **follow** this end-to-end to accomplish something? → Procedure guide (keep the step-by-step scaffolding)
+- Does the reader **consult** it to decide or look something up? → Convention/reference guide (delete the scaffolding, write your own domain sections)
+  **Impact**: Determines which template sections survive customization
 
-> **🚨 CRITICAL ANTI-PATTERN**: Never create "task usage guides" that focus on task workflow execution. All guides must focus on artifact customization or general instructional content. Task workflows are documented in the task definitions themselves.
+> **🚨 CRITICAL ANTI-PATTERN**: Never create "task usage guides" that restate a task's workflow. Task workflows are documented in the task definitions themselves.
+
+> **Not a guide at all**: craft that teaches an agent how to *fill in* an artifact created by a `New-*` script is authored as a **craft skill** — see the [Craft Skill Authoring Guide](craft-skill-authoring-guide.md). Guides carry procedures, conventions, and reference material; skills carry customization craft.
 
 ### Metadata Enhancement Decision
 
@@ -127,18 +123,8 @@ When creating guides, you must make several key decisions that impact effectiven
 **Criteria**:
 
 - Is there a related script? → Include `related_script`
-- Are there related tasks? → Include `related_tasks`
+- Does a task (or a small set of tasks) own this guide? → Include `related_task`
   **Impact**: Improves traceability and discoverability
-
-### Section Inclusion Decision
-
-**Decision**: Which optional sections to include
-**Criteria**:
-
-- Template customization guides: Include Template Structure Analysis, Customization Decision Points, Quality Assurance
-- Complex processes: Include Background section
-- Conditional usage: Include When to Use section
-  **Impact**: Affects guide completeness and usability
 
 ### Detail Level Decision
 
@@ -151,16 +137,17 @@ When creating guides, you must make several key decisions that impact effectiven
 
 ### Guide Focus Decision (CRITICAL)
 
-**Decision**: Artifact customization vs. Task workflow focus
+**Decision**: Procedure / convention content vs. task workflow focus
 **Criteria**:
 
-- ✅ **CORRECT**: Guide helps users customize documents/artifacts created by scripts
-- ✅ **CORRECT**: Guide provides general instructional content for processes
+- ✅ **CORRECT**: Guide walks the reader through a process the task definitions do not own
+- ✅ **CORRECT**: Guide states a convention, decision rule, or reference the reader consults
 - ❌ **INCORRECT**: Guide explains how to execute task workflows step-by-step
 - ❌ **INCORRECT**: Guide duplicates content already in task definitions
+- ↪️ **ROUTE ELSEWHERE**: Guide teaches how to fill in an artifact a `New-*` script creates → author a [craft skill](craft-skill-authoring-guide.md) instead
   **Impact**: Determines guide value and prevents framework redundancy
 
-> **Note**: "Task usage guides" that focus on task execution workflows are redundant with task definitions and create maintenance overhead. Always focus on artifact customization or general instruction instead.
+> **Note**: "Task usage guides" that restate task execution workflows are redundant with task definitions and create maintenance overhead.
 
 ## Step-by-Step Instructions
 
@@ -178,17 +165,17 @@ When creating guides, you must make several key decisions that impact effectiven
    - Identify related tasks and framework components
    - Research existing guides for consistency patterns
 
-3. **Determine guide type and structure**
+3. **Determine guide shape and structure**
 
-   - Decide between general guide or template customization guide
-   - Plan which optional sections to include
+   - Decide between a procedure guide and a convention/reference guide (see the Guide Shape Decision above)
+   - Plan which template sections survive and which get deleted
    - Identify required metadata fields
 
 4. **Validate guide focus (CRITICAL)**
-   - ✅ **VERIFY**: Guide focuses on artifact customization OR general instruction
+   - ✅ **VERIFY**: Guide carries a procedure, convention, or reference the framework does not already own
    - ❌ **REJECT**: Guide explains task workflow execution (this belongs in task definitions)
    - ❌ **REJECT**: Guide duplicates existing task documentation
-   - **Check**: Does a proper artifact customization guide already exist for this topic?
+   - ↪️ **REROUTE**: Content is artifact-customization craft → author a [craft skill](craft-skill-authoring-guide.md), not a guide
 
 **Expected Result:** Clear understanding of guide scope, structure, and requirements with validated focus
 
@@ -205,11 +192,11 @@ When creating guides, you must make several key decisions that impact effectiven
 2. **Execute the New-Guide.ps1 script with appropriate parameters**
 
    ```powershell
-   # For general guides (-SubDirectory controls placement within guides/)
-   .\New-Guide.ps1 -GuideTitle "Your Guide Title" -SubDirectory "support" -GuideDescription "Brief description of guide purpose"
+   # -SubDirectory controls placement within guides/
+   New-Guide.ps1 -GuideTitle "Your Guide Title" -SubDirectory "support" -GuideDescription "Brief description of guide purpose"
 
-   # For template customization guides
-   .\New-Guide.ps1 -GuideTitle "Template Creation Guide" -SubDirectory "02-design" -GuideDescription "Guide for customizing templates" -RelatedScript "New-ScriptName.ps1" -RelatedTasks "PF-TSK-XXX"
+   # With traceability to a related script and task
+   New-Guide.ps1 -GuideTitle "Schema Audit Procedure" -SubDirectory "support" -GuideDescription "How to reconcile template-frontmatter schema drift" -RelatedScript "Validate-StateTracking.ps1" -RelatedTasks "PF-TSK-009"
    ```
 
 3. **Verify structure generation and ID assignment**
@@ -228,9 +215,10 @@ When creating guides, you must make several key decisions that impact effectiven
 
 1. **Replace ALL placeholder content systematically**
 
-   - Replace `[Optional section...]` placeholders with actual content or remove sections
+   - Replace `[Optional section...]` placeholders with actual content or delete the section
    - Replace `[Prerequisite 1]` style placeholders with specific requirements
    - Replace `[Detailed instruction]` placeholders with step-by-step procedures
+   - Delete the procedure scaffolding your shape does not use (a convention/reference guide keeps Overview, When to Use, its own domain sections, and Related Resources)
    - Remove template guidance comments at the end of the file
 
 2. **Develop comprehensive core sections**
@@ -240,13 +228,12 @@ When creating guides, you must make several key decisions that impact effectiven
    - **Prerequisites**: List concrete requirements with links to resources
    - **Background**: Add context information if needed for understanding
 
-3. **Create detailed Step-by-Step Instructions**
+3. **Create detailed Step-by-Step Instructions** *(procedure guides)*
 
    - Break complex processes into logical, actionable steps
    - Include specific code examples, commands, or screenshots
    - When other documents are referenced, provide the actual links to those documents
    - Provide concrete expected results for each major step
-   - Add validation and testing procedures for template customization guides
 
 4. **Develop practical Examples**
 
@@ -287,15 +274,6 @@ When creating guides, you must make several key decisions that impact effectiven
 
 **Expected Result:** High-quality guide that meets framework standards and works correctly
 
-### Validation and Testing
-
-For template customization guides, include additional validation steps:
-
-- **Template Testing**: Verify that following the guide produces functional templates
-- **Script Integration**: Test that customized templates work with related scripts
-- **Framework Compatibility**: Ensure templates integrate properly with task workflows
-- **User Acceptance**: Validate that the guide helps users accomplish their objectives effectively
-
 ## Quality Assurance
 
 Comprehensive quality assurance ensures guides meet framework standards and serve users effectively:
@@ -305,11 +283,11 @@ Comprehensive quality assurance ensures guides meet framework standards and serv
 **Content Quality:**
 
 - [ ] Overview clearly explains guide purpose and outcome
-- [ ] Prerequisites list all required knowledge and tools
-- [ ] Step-by-step instructions are complete and accurate
+- [ ] When to Use states the triggers that send a reader here
+- [ ] Content matches the chosen shape — a procedure guide's steps are complete and accurate; a convention/reference guide's rule or lookup is unambiguous
 - [ ] Examples are relevant, working, and helpful
-- [ ] Troubleshooting addresses common issues
 - [ ] Related resources are current and accessible
+- [ ] Unused scaffolding sections were deleted, not left as placeholders
 
 **Framework Integration:**
 
@@ -318,13 +296,6 @@ Comprehensive quality assurance ensures guides meet framework standards and serv
 - [ ] Cross-references and links are correct and functional
 - [ ] Guide aligns with related task objectives
 - [ ] Structure follows the established template
-
-**Template Customization Guides (Additional):**
-
-- [ ] Template structure analysis is comprehensive
-- [ ] Customization decision points are clearly explained
-- [ ] Validation and testing procedures are included
-- [ ] Quality assurance section provides actionable guidance
 
 ### Validation Criteria
 
@@ -358,65 +329,44 @@ Comprehensive quality assurance ensures guides meet framework standards and serv
 
 ### Integration Testing Procedures
 
-**For All Guides:**
-
 - Test all instructions by following them step-by-step
 - Verify examples work in the actual project environment
 - Check that cross-references lead to correct resources
 - Confirm guide helps users achieve stated objectives
 
-**For Template Customization Guides:**
-
-- Test template creation using the related script
-- Verify customized templates work with related tools
-- Validate integration with task workflows
-- Confirm templates meet project standards
-
 ## Examples
 
-### Example 1: Creating a General Guide
+### Example 1: Creating a Procedure Guide
 
-Creating a guide for API integration best practices:
+Creating a guide for the schema-audit procedure:
 
 ```powershell
-# Navigate to guides directory
-cd process-framework/guides
-
-# Create the guide
-.\New-Guide.ps1 -GuideTitle "API Integration Best Practices" -SubDirectory "02-design" -GuideDescription "Comprehensive guide for integrating third-party APIs in the project"
+New-Guide.ps1 -GuideTitle "Schema Audit Procedure" -SubDirectory "support" -GuideDescription "How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1" -RelatedScript "Validate-StateTracking.ps1" -RelatedTasks "PF-TSK-009"
 ```
 
 **Customization approach:**
 
-- Include When to Use section for specific integration scenarios
-- Add Background section explaining API architecture concepts
-- Focus on Step-by-Step Instructions with code examples
-- Provide Examples for different API types (REST, GraphQL, etc.)
-- Include comprehensive Troubleshooting for common integration issues
+- Keep the full procedure scaffolding: Prerequisites, Background, Step-by-Step Instructions, Troubleshooting
+- Give every major step a concrete Expected Result
+- Provide Examples with real commands from the project
 
-**Result:** A general guide that helps developers integrate APIs effectively
+**Result:** A guide the reader follows end-to-end to complete the procedure
 
-### Example 2: Creating a Template Customization Guide
+### Example 2: Creating a Convention / Reference Guide
 
-Creating a guide for customizing debt item templates:
+Creating a guide that states where shared app-shell UI is documented:
 
 ```powershell
-# Navigate to guides directory
-cd process-framework/guides
-
-# Create the template customization guide
-.\New-Guide.ps1 -GuideTitle "Debt Item Creation Guide" -SubDirectory "cyclical" -GuideDescription "Guide for customizing technical debt item templates" -RelatedScript "New-DebtItem.ps1" -RelatedTasks "PF-TSK-023"
+New-Guide.ps1 -GuideTitle "App Shell vs Feature Views Convention" -SubDirectory "02-design" -GuideDescription "When shared app-shell UI belongs in a shared design doc vs. a feature's own UI Design"
 ```
 
 **Customization approach:**
 
-- Include Template Structure Analysis explaining debt item template sections
-- Add Customization Decision Points for debt categorization and prioritization
-- Develop Step-by-Step Instructions with Validation and Testing subsection
-- Include Quality Assurance section with debt item-specific checklists
-- Provide Examples for different types of technical debt
+- Keep Overview and When to Use; delete the Table of Contents, Prerequisites, Background, Step-by-Step Instructions and Troubleshooting scaffolding
+- Write the domain sections the reader actually consults: Definitions, The Decision Rule, Proportionality, a Worked Example
+- Keep Related Resources
 
-**Result:** A specialized guide that helps users create effective technical debt documentation
+**Result:** A guide the reader consults to make a decision, with no procedure scaffolding to wade through
 
 ### Example 3: Avoiding Task Usage Guide Anti-Pattern
 
@@ -424,31 +374,21 @@ cd process-framework/guides
 
 ```powershell
 # DON'T DO THIS
-.\New-Guide.ps1 -GuideTitle "Code Refactoring Task Usage Guide" -SubDirectory "06-maintenance" -GuideDescription "How to execute the code refactoring task step-by-step"
+New-Guide.ps1 -GuideTitle "Code Refactoring Task Usage Guide" -SubDirectory "06-maintenance" -GuideDescription "How to execute the code refactoring task step-by-step"
 ```
 
 **Problems with this approach:**
 
 - Duplicates content already in the task definition
-- Focuses on task workflow execution rather than artifact customization
+- Restates task workflow rather than carrying content the framework does not already own
 - Creates maintenance overhead when task processes change
 - Provides no additional value beyond the task definition
 
-**✅ CORRECT Approach - Artifact Customization Guide:**
+**✅ CORRECT Approach — carry content the task definition does not own:**
 
-```powershell
-# DO THIS INSTEAD
-.\New-Guide.ps1 -GuideTitle "Refactoring Plan Customization Guide" -SubDirectory "06-maintenance" -GuideDescription "Guide for customizing refactoring plan documents created by the Code Refactoring Task" -RelatedScript "New-RefactoringPlan.ps1" -RelatedTasks "PF-TSK-022"
-```
+A guide earns its place when it holds a procedure, convention, or reference that no task owns — and that several readers or tasks consult. If instead the content teaches an agent how to *fill in* an artifact a `New-*` script creates, it is craft: author a [craft skill](craft-skill-authoring-guide.md) and bind it to the owning task, rather than a guide.
 
-**Benefits of this approach:**
-
-- Focuses on customizing the refactoring plan document (artifact)
-- Provides value beyond the task definition
-- Helps users create better refactoring plans
-- Avoids duplication with task workflow documentation
-
-**Key Principle:** Always ask "Does this guide help users customize an artifact, or does it just repeat task workflow steps?" If it's the latter, either convert it to artifact customization focus or don't create it.
+**Key Principle:** Ask "does this carry a procedure, convention, or reference the framework does not already own?" If it just repeats task workflow steps, don't create it. If it is artifact-customization craft, make it a skill.
 
 ## Troubleshooting
 
@@ -475,7 +415,7 @@ cd process-framework/guides
 
 1. Verify parameter syntax: `-RelatedScript "ScriptName.ps1" -RelatedTasks "PF-TSK-XXX"`
 2. Check for typos in parameter names
-3. Ensure task IDs are comma-separated for multiple tasks: `"PF-TSK-001,PF-TSK-002"`
+3. Ensure task IDs are comma-separated for multiple tasks: `"PF-TSK-001,PF-TSK-009"`
 
 ### Guide Structure Inconsistencies
 
@@ -503,17 +443,17 @@ cd process-framework/guides
 3. Update links to reflect current file structure
 4. Test all links before finalizing guide
 
-### Guide Focuses on Task Workflow Instead of Artifact Customization
+### Guide Restates a Task Workflow
 
-**Symptom:** Guide explains how to execute task steps rather than how to customize artifacts
+**Symptom:** Guide explains how to execute task steps rather than carrying content of its own
 
-**Cause:** Misunderstanding of guide purpose - creating "task usage guide" instead of artifact customization guide
+**Cause:** Misunderstanding of guide purpose — a "task usage guide" duplicates the task definition
 
 **Solution:**
 
-1. **STOP**: Do not create task usage guides - they duplicate task definitions
-2. **CHECK**: Does a proper artifact customization guide already exist for this topic?
-3. **CONVERT**: If needed, focus on customizing documents/artifacts created by the task
+1. **STOP**: Do not create task usage guides — they duplicate task definitions
+2. **CHECK**: Is the real content a procedure, convention, or reference the framework does not own?
+3. **REROUTE**: If it is artifact-customization craft, author a [craft skill](craft-skill-authoring-guide.md) instead
 4. **REFERENCE**: Link to task definitions for workflow information instead of duplicating it
 
 **Prevention:** Always validate guide focus during planning phase using the Guide Focus Decision criteria
@@ -522,26 +462,5 @@ cd process-framework/guides
 
 - [Guide Template (PF-TEM-003)](../../templates/support/guide-template.md) - The base template for all guides
 - [New-Guide.ps1 Script](../../scripts/file-creation/support/New-Guide.ps1) - Script for creating new guides with proper ID assignment
-
-- [Visualization Creation Guide](visualization-creation-guide.md) - Example of enhanced metadata usage
+- [Craft Skill Authoring Guide (PF-GDE-077)](craft-skill-authoring-guide.md) - Where artifact-customization craft belongs instead of a guide
 - [Task Framework Overview](../../README.md) - Understanding the broader framework context
-
-<!--
-TEMPLATE USAGE GUIDANCE:
-
-ENHANCED METADATA:
-- related_script: Include if this guide helps customize templates created by a specific script
-- related_tasks: Include task IDs that this guide supports (comma-separated)
-- These fields enhance traceability and make guides easier to discover and maintain
-
-TEMPLATE CUSTOMIZATION GUIDE SECTIONS:
-For guides that help customize templates created by scripts, use these optional sections:
-- Template Structure Analysis: Break down the template structure and explain each section
-- Customization Decision Points: Guide users through key customization decisions
-- Validation and Testing: Include within Step-by-Step Instructions for testing procedures
-- Quality Assurance: Provide comprehensive QA guidance with checklists and validation criteria
-
-GENERAL GUIDE SECTIONS:
-All guides use the standard sections: Overview, When to Use, Prerequisites, Background,
-Step-by-Step Instructions, Examples, Troubleshooting, Related Resources
--->

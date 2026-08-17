@@ -1,5 +1,6 @@
 ---
 id: PD-UGD-001
+description: "Quick solutions for adding file type monitoring support"
 type: Product Documentation
 category: User Guide
 version: 1.0

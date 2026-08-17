@@ -559,8 +559,14 @@ class LinkWatcherLogger:
         )
 
     def file_deleted(self, file_path: str, references_count: int = 0):
-        """Log file deletion event."""
-        self.warning(
+        """Log file deletion event.
+
+        PD-BUG-117: INFO, not WARNING — the handler emits this for every delete,
+        including the DELETE half of every move.  The genuine anomaly (a deletion
+        that leaves dangling references) is reported separately by the handler's
+        ``broken_references_found`` warning, which fires only when refs exist.
+        """
+        self.info(
             "file_deleted",
             file_path=file_path,
             references_count=references_count,

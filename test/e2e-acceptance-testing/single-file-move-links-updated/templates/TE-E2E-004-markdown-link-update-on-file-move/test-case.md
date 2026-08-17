@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-004
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-001): TE-E2E-004 Markdown Link Update on File Move."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-003
 feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
 workflow: WF-001

@@ -74,6 +74,34 @@ class BaseParser(ABC):
         """Check if text looks like a directory path (PD-BUG-021)."""
         return looks_like_directory_path(text)
 
+    # Sentence punctuation a bare-path regex may swallow but which is prose,
+    # not part of the path (PD-BUG-118).
+    _TRAILING_PUNCTUATION = ".,;:!?"
+
+    @classmethod
+    def _trim_trailing_punctuation(cls, path: str) -> str:
+        """Strip trailing sentence punctuation captured into a bare path
+        (PD-BUG-118).
+
+        Bare-path character classes include ``.``, so a path written at the end
+        of a sentence ("templates live in doc/x/.") is captured *with* the
+        period.  Every character inside a reference's recorded span is replaced
+        when the target moves, so that punctuation was eaten from the prose —
+        one of the reported PD-BUG-118 symptoms.
+
+        This is the post-match form of the trailing-boundary lookahead the
+        markdown standalone pattern already uses (PD-BUG-080); the bare-path,
+        @-prefix and docstring-directory patterns never got one.
+
+        A genuine trailing parent-directory segment (``../../..``) is preserved
+        — only punctuation that is not exactly a ``..`` segment is trimmed.
+        """
+        trimmed = path.rstrip(cls._TRAILING_PUNCTUATION)
+        removed = path[len(trimmed) :]
+        if removed == ".." and trimmed.endswith(("/", "\\")):
+            return path
+        return trimmed
+
     def _safe_read_file(self, file_path: str) -> str:
         """Safely read file content."""
         return safe_file_read(file_path)

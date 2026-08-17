@@ -8,7 +8,7 @@ updated: 2026-04-04
 usage_context: Process Framework - Functional Design Document Creation
 creates_document_prefix: PD-FDD
 template_for: Functional Design Document
-creates_document_type: Process Framework
+creates_document_type: Product Documentation
 creates_document_category: Functional Design Document
 creates_document_version: 1.0
 description: Template for creating Functional Design Documents
@@ -20,102 +20,36 @@ documentation_mode: as-built
 
 ## Feature Overview
 
-- **Feature ID**: [Feature ID]
-- **Feature Name**: [Feature Name]
 - **Business Value**: [Why this feature matters to users and business]
 - **User Story**: As a [user type], I want [goal] so that [benefit]
 
 ## Related Documentation
 
-<!-- RETROSPECTIVE: For retrospective FDDs (documenting existing features), simplify this entire
-     Related Documentation section. Replace the 4 subsections below with a simple cross-reference
-     list linking to existing docs, e.g.:
-     - **TDD**: [PD-TDD-XXX](path) — Technical design
-     - **Test Spec**: [TE-TSP-XXX](path) — Test specification
-     Remove any subsections for documents that don't exist (API Spec, Schema Design).
-     The detailed "Primary Documentation / Owner" scaffolding is for forward planning. -->
-
-> **Note**: This section provides cross-references to related technical documentation. FDDs focus on **functional-level concerns** (what the system does from a user perspective), while technical details are documented in specialized tasks.
+> FDDs cover **functional-level concerns**; technical detail lives in the specialized tasks below. Mark a subsection **N/A** when that design isn't required for this feature (API and DB design are gated by the tier assessment). The `fdd-creation` craft skill (`.claude/skills/fdd-creation/`, activated by the FDD Creation task's Check Recommended Skills step) covers what each reference should and shouldn't contain under its Separation of concerns section.
 
 ### API Specification Reference
 
-> **📋 Primary Documentation**: API Design Task (PF-TSK-020)
-> **🔗 Link**: [API Specification Document - PD-API-XXX] > **👤 Owner**: API Design Task
->
-> **Purpose**: This section provides a brief functional-level perspective on API interactions. Detailed API contracts, endpoint specifications, request/response schemas, and authentication patterns are documented in the API Specification task.
+> Owner: API Design Task (PF-TSK-020) · Link: [API Specification Document - PD-API-XXX]. **N/A** if no API design required.
 
-<!-- Brief notes on functional-level API concerns only (2-5 sentences) -->
-<!-- Focus on: user-facing API behaviors, functional data requirements, user-level error handling -->
-<!-- Examples:
-  - "Users interact with feature through defined API endpoints"
-  - "Feature requires timely data updates for user-facing state changes"
-  - "Users receive clear error messages for invalid input"
--->
-
-**Functional API Requirements**:
-
-- [User-facing API behaviors and interactions]
-- [Functional data requirements from user perspective]
+- [Functional-level API notes (2–5 sentences): user-facing behaviors, data requirements, user-level error handling]
 
 ### Database Schema Reference
 
-> **📋 Primary Documentation**: Database Schema Design Task (PF-TSK-021)
-> **🔗 Link**: [Database Schema Design Document - PD-SCH-XXX] > **👤 Owner**: Database Schema Design Task
->
-> **Purpose**: This section provides a brief functional-level perspective on data requirements. Detailed database schema, table structures, relationships, constraints, and RLS policies are documented in the Database Schema Design task.
+> Owner: Database Schema Design Task (PF-TSK-021) · Link: [Database Schema Design Document - PD-SCH-XXX]. **N/A** if no DB design required.
 
-<!-- Brief notes on functional-level data concerns only (2-5 sentences) -->
-<!-- Focus on: user data requirements, functional data relationships, user-level data constraints -->
-<!-- Examples:
-  - "Users can create and manage multiple records"
-  - "Each record is associated with a specific user and category"
-  - "Users can only view their own data"
--->
-
-**Functional Data Requirements**:
-
-- [User data entities and relationships from functional perspective]
-- [User-level data constraints and validation rules]
+- [Functional-level data notes (2–5 sentences): user data entities, relationships, constraints]
 
 ### Technical Design Reference
 
-> **📋 Primary Documentation**: TDD Creation Task (PF-TSK-022)
-> **🔗 Link**: [Technical Design Document - PD-TDD-XXX] > **👤 Owner**: TDD Creation Task
->
-> **Purpose**: This section provides a brief functional-level perspective on technical implementation. Detailed component architecture, design patterns, service implementation, and technical decisions are documented in the TDD.
+> Owner: TDD Creation Task (PF-TSK-022) · Link: [Technical Design Document - PD-TDD-XXX].
 
-<!-- Brief notes on functional-level technical concerns only (2-5 sentences) -->
-<!-- Focus on: user-facing technical behaviors, functional performance requirements, user experience constraints -->
-<!-- Examples:
-  - "Feature provides responsive feedback to users within acceptable latency"
-  - "Feature handles expected data volumes without degradation"
-  - "Feature supports expected concurrent usage patterns"
--->
-
-**Functional Technical Requirements**:
-
-- [User-facing technical behaviors and performance expectations]
-- [Functional constraints affecting user experience]
+- [Functional-level technical notes (2–5 sentences): user-facing performance, UX constraints]
 
 ### Test Specification Reference
 
-> **📋 Primary Documentation**: Test Specification Creation Task (PF-TSK-012)
-> **🔗 Link**: [Test Specification Document - PD-TST-XXX] > **👤 Owner**: Test Specification Creation Task
->
-> **Purpose**: This section provides a brief functional-level perspective on testing requirements. Comprehensive test plans, test cases, test data, and testing procedures are documented in the Test Specification task.
+> Owner: Test Specification Creation Task (PF-TSK-012) · Link: [Test Specification Document - PD-TST-XXX].
 
-<!-- Brief notes on functional-level testing concerns only (2-5 sentences) -->
-<!-- Focus on: acceptance testing requirements, user scenario validation, functional test coverage -->
-<!-- Examples:
-  - "All acceptance criteria must be validated through user scenario tests"
-  - "Edge cases and error handling require functional testing"
-  - "Key user workflows must be tested end-to-end"
--->
-
-**Functional Testing Requirements**:
-
-- [Acceptance criteria validation needs]
-- [User scenario testing requirements]
+- [Functional-level testing notes (2–5 sentences): acceptance validation, key user scenarios]
 
 ## Functional Requirements
 
@@ -206,6 +140,4 @@ documentation_mode: as-built
 
 ---
 
-<!-- RETROSPECTIVE: Change the line below to: "This Functional Design Document was created
-     retrospectively to document the existing implementation of [Feature Name]." -->
 _This Functional Design Document should be reviewed and approved before technical design begins._

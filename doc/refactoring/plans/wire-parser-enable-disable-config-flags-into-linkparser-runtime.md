@@ -1,5 +1,6 @@
 ---
 id: PD-REF-069
+description: "Refactoring Plan: Wire parser enable/disable config flags into LinkParser runtime."
 type: Document
 category: General
 version: 1.0

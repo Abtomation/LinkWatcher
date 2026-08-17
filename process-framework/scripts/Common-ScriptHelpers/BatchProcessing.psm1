@@ -21,8 +21,8 @@ Created: 2025-08-26
 
 # Import dependencies
 $scriptPath = Split-Path -Parent $PSScriptRoot
-$coreModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\Core.psm1"
-$outputModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers\OutputFormatting.psm1"
+$coreModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/Core.psm1"
+$outputModule = Join-Path -Path $scriptPath -ChildPath "Common-ScriptHelpers/OutputFormatting.psm1"
 
 if (Test-Path $coreModule) { Import-Module $coreModule -Force }
 if (Test-Path $outputModule) { Import-Module $outputModule -Force }
@@ -200,12 +200,12 @@ function Invoke-ParallelFileOperation {
                         Error = $null
                     }
                 } else {
-                    $error = Receive-Job -Job $jobInfo.Job 2>&1
+                    $jobError = Receive-Job -Job $jobInfo.Job 2>&1
                     $results += @{
                         FilePath = $jobInfo.FilePath
                         Success = $false
                         Result = $null
-                        Error = $error
+                        Error = $jobError
                     }
                 }
             }

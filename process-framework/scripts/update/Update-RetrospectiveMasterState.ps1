@@ -143,32 +143,6 @@ $PhaseColumnMap = @{
     "Phase 3: Assessment & Documentation"  = "Assessed"
 }
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 function Test-Prerequisites {
     # Resolve state file path
     if (-not [System.IO.Path]::IsPathRooted($StateFile)) {
@@ -176,11 +150,11 @@ function Test-Prerequisites {
     }
 
     if (-not (Test-Path $StateFile)) {
-        Write-Log "State file not found: $StateFile" -Level "ERROR"
+        Write-ProjectLog "State file not found: $StateFile" -Level "ERROR"
         return $false
     }
 
-    Write-Log "Prerequisites check passed" -Level "SUCCESS"
+    Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
     return $true
 }
 
@@ -256,10 +230,10 @@ function Update-UnassignedFileStatus {
                 if ($headers[$j]) { $colIndices[$headers[$j]] = $j }
             }
             if (-not $colIndices.ContainsKey('File Path')) {
-                Write-Log "Unassigned Files table missing 'File Path' column" -Level "WARN"
+                Write-ProjectLog "Unassigned Files table missing 'File Path' column" -Level "WARN"
             }
             if (-not $colIndices.ContainsKey('Status')) {
-                Write-Log "Unassigned Files table missing 'Status' column" -Level "WARN"
+                Write-ProjectLog "Unassigned Files table missing 'Status' column" -Level "WARN"
             }
             $pathColIdx = if ($colIndices.ContainsKey('File Path')) { $colIndices['File Path'] } else { -1 }
             $statusColIdx = if ($colIndices.ContainsKey('Status')) { $colIndices['Status'] } else { -1 }
@@ -374,7 +348,7 @@ function Update-CoverageMetrics {
         $total = [int]$matches[1]
     }
     else {
-        Write-Log "Could not parse Total Project Source Files from Coverage Metrics — skipping Coverage % recalc" -Level "WARN"
+        Write-ProjectLog "Could not parse Total Project Source Files from Coverage Metrics — skipping Coverage % recalc" -Level "WARN"
     }
 
     $coveragePct = if ($total -gt 0) { [math]::Round(($assigned / $total) * 100, 1) } else { 0 }
@@ -386,7 +360,7 @@ function Update-CoverageMetrics {
         $Content = $Content -replace '(?m)^(\s*-\s+\*\*Coverage\*\*:\s*)\S+(.*)$', "`${1}$coveragePct%`$2"
     }
 
-    Write-Log "Coverage Metrics recalculated: Assigned=$assigned, Unassigned=$unassigned, Coverage=$coveragePct%" -Level "SUCCESS"
+    Write-ProjectLog "Coverage Metrics recalculated: Assigned=$assigned, Unassigned=$unassigned, Coverage=$coveragePct%" -Level "SUCCESS"
     return $Content
 }
 
@@ -401,7 +375,7 @@ function Update-ProgressOverviewCounters {
     $rows = ConvertFrom-MarkdownTable -Content $Content -Section "## Feature Inventory" -AllTables
 
     if ($rows.Count -eq 0) {
-        Write-Log "No feature rows found in Feature Inventory" -Level "WARN"
+        Write-ProjectLog "No feature rows found in Feature Inventory" -Level "WARN"
         return $Content
     }
 
@@ -411,7 +385,7 @@ function Update-ProgressOverviewCounters {
 
         # Check if column exists in parsed data
         if (-not ($rows[0].PSObject.Properties.Name -contains $columnName)) {
-            Write-Log "Column '$columnName' not found in Feature Inventory — skipping $phaseName counters" -Level "WARN"
+            Write-ProjectLog "Column '$columnName' not found in Feature Inventory — skipping $phaseName counters" -Level "WARN"
             continue
         }
 
@@ -437,10 +411,10 @@ function Update-ProgressOverviewCounters {
 
         if ($Content -match $rowPattern) {
             $Content = $Content -replace $rowPattern, $replacement
-            Write-Log "Updated $phaseName counters: NotStarted=$notStarted, InProgress=$inProgress, Complete=$complete" -Level "SUCCESS"
+            Write-ProjectLog "Updated $phaseName counters: NotStarted=$notStarted, InProgress=$inProgress, Complete=$complete" -Level "SUCCESS"
         }
         else {
-            Write-Log "Could not find Progress Overview row for '$phaseName'" -Level "WARN"
+            Write-ProjectLog "Could not find Progress Overview row for '$phaseName'" -Level "WARN"
         }
     }
 
@@ -450,9 +424,9 @@ function Update-ProgressOverviewCounters {
 # --- Main ---
 
 function Main {
-    Write-Log "Starting Retrospective Master State Update - $ScriptName"
-    Write-Log "State File: $StateFile"
-    Write-Log "Parameter Set: $($PSCmdlet.ParameterSetName)"
+    Write-ProjectLog "Starting Retrospective Master State Update - $ScriptName"
+    Write-ProjectLog "State File: $StateFile"
+    Write-ProjectLog "Parameter Set: $($PSCmdlet.ParameterSetName)"
 
     if (-not (Test-Prerequisites)) {
         exit 1
@@ -486,10 +460,10 @@ function Main {
 
             $content = Update-MarkdownTable @updateParams
             if ($null -eq $content) {
-                Write-Log "Failed to update Feature Inventory for $FeatureId" -Level "ERROR"
+                Write-ProjectLog "Failed to update Feature Inventory for $FeatureId" -Level "ERROR"
                 exit 1
             }
-            Write-Log "Updated $FeatureId '$Column' to $statusValue" -Level "SUCCESS"
+            Write-ProjectLog "Updated $FeatureId '$Column' to $statusValue" -Level "SUCCESS"
 
             # Step 2: Recalculate Progress Overview counters
             $content = Update-ProgressOverviewCounters -Content $content
@@ -498,7 +472,7 @@ function Main {
             $content = Update-FrontmatterDate -Content $content
 
             Set-Content -Path $StateFile -Value $content -NoNewline
-            Write-SummaryLine "$FeatureId '$Column' → $statusValue"
+            Write-ProjectSummary "$FeatureId '$Column' → $statusValue"
         }
 
         'MarkProcessed' {
@@ -506,7 +480,7 @@ function Main {
             $content = $result.Content
 
             if ($result.NotFound.Count -gt 0) {
-                Write-Log "Paths not found in Unassigned Files table: $($result.NotFound -join '; ')" -Level "WARN"
+                Write-ProjectLog "Paths not found in Unassigned Files table: $($result.NotFound -join '; ')" -Level "WARN"
             }
 
             # Recalculate Coverage Metrics + frontmatter
@@ -517,7 +491,7 @@ function Main {
 
             $summary = "MarkProcessed: $($result.Flipped) flipped, $($result.AlreadyDone) already done, $($result.NotFound.Count) not found"
             $level = if ($result.NotFound.Count -gt 0) { "WARN" } else { "SUCCESS" }
-            Write-SummaryLine $summary -Level $level
+            Write-ProjectSummary $summary -Level $level
         }
 
         'RecalculateMetrics' {
@@ -526,7 +500,7 @@ function Main {
             Set-Content -Path $StateFile -Value $content -NoNewline
 
             $counts = Get-UnassignedFileCounts -Content $content
-            Write-SummaryLine "Recalculated: Assigned=$($counts.Assigned), Unassigned=$($counts.Unassigned)"
+            Write-ProjectSummary "Recalculated: Assigned=$($counts.Assigned), Unassigned=$($counts.Unassigned)"
         }
     }
 }

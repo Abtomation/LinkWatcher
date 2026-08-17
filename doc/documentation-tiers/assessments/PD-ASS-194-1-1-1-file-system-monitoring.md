@@ -1,5 +1,6 @@
 ---
 id: PD-ASS-194
+description: "Documentation tier assessment for feature 1.1.1."
 type: Document
 category: General
 version: 1.0

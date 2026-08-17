@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-067
-type: Process Framework
+description: "Session 5 (Score: 2.85/3.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-04-01

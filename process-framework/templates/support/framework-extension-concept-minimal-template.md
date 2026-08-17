@@ -1,8 +1,8 @@
 ---
-id: [DOCUMENT_ID]
+id: PF-TEM-099
 type: Process Framework
 category: Proposal
-version: 1.0
+version: 1.1
 created: [Created Date]
 updated: [Created Date]
 extension_name: [Extension Name]
@@ -14,6 +14,9 @@ variant_siblings:
   - framework-extension-concept-template.md
   - framework-extension-concept-creation-template.md
   - framework-extension-concept-modification-template.md
+  - framework-extension-concept-pattern-template.md
+creates_document_type: Process Framework
+creates_document_category: Proposal
 description: "Minimal template for small-scope creation extensions (single artifact), used by New-FrameworkExtensionConcept.ps1 -Minimal"
 ---
 
@@ -93,11 +96,11 @@ description: "Minimal template for small-scope creation extensions (single artif
 ### Approval Decision
 - [ ] **APPROVED**: Concept is approved for implementation
 - [ ] **NEEDS REVISION**: Concept needs changes before approval
-- [ ] **REJECTED**: Concept is not suitable for framework extension
+- [ ] **NOT ADOPTED**: Declined on current evidence — record falsifiable re-open conditions in the concept and archive it to proposals/old/ as the evaluation record
 
 **Human Reviewer**: [Name]
 **Review Date**: [Date]
-**Decision**: [APPROVED/NEEDS REVISION/REJECTED]
+**Decision**: [APPROVED/NEEDS REVISION/NOT ADOPTED]
 **Comments**: [Review comments and feedback]
 
 ---

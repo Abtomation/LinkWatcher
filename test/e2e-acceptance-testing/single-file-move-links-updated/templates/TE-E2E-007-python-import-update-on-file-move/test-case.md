@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-007
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-001): TE-E2E-007 Python Import Update on File Move."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-004
 feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
 workflow: WF-001

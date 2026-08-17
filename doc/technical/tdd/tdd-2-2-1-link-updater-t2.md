@@ -1,10 +1,11 @@
 ---
 id: PD-TDD-026
+description: "2.2.1 Tier 2 — Bottom-to-top atomic write strategy"
 type: Product Documentation
 category: Technical Design Document
-version: 1.0
+version: 1.1
 created: 2026-02-20
-updated: 2026-03-13
+updated: 2026-07-06
 feature_id: 2.2.1
 feature_name: Link Updating
 consolidates: [2.2.1-2.2.5]
@@ -30,9 +31,9 @@ The `LinkUpdater` class orchestrates all file modifications when referenced file
 
 **Location**: `src/linkwatcher/updater.py`
 
-**Constructor**: `__init__(self, project_root: str = ".", python_source_root: str = "")`
+**Constructor**: `__init__(self, project_root: str = ".", python_source_root: str = "", path_resolution_overrides: Optional[Dict[str, str]] = None)`
 
-Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (not constructor parameters). Creates a `PathResolver` instance internally, passing `python_source_root` through for Python import path resolution (PD-BUG-078).
+Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (not constructor parameters). Creates a `PathResolver` instance internally, passing `python_source_root` through for Python import path resolution (PD-BUG-078) and `path_resolution_overrides` through for virtual-root resolution in override folders (v1.1 — see [Override-Aware Path Resolution](#override-aware-path-resolution-v11)). `path_resolution_overrides` is a passthrough only; `LinkUpdater` does not interpret it.
 
 **Public API**:
 - `update_references(references, old_path, new_path)` — Single-move entry point; returns statistics dict with keys `files_updated`, `references_updated`, `errors`, and `stale_files` (list of file paths where stale references were detected)
@@ -55,21 +56,35 @@ Initializes `backup_enabled = True`, `dry_run = False` as instance attributes (n
 
 **Location**: `src/linkwatcher/path_resolver.py`
 
-**Constructor**: `__init__(self, project_root, logger=None, python_source_root: str = "")`
+**Constructor**: `__init__(self, project_root, logger=None, python_source_root: str = "", path_resolution_overrides: Optional[Dict[str, str]] = None)`
+
+The constructor normalizes `path_resolution_overrides` once (via the shared `build_resolution_overrides` helper) into a length-sorted folder→base list held on the instance, mirroring how `Validator` holds `self._resolution_overrides`. When the dict is empty or absent, override resolution is a no-op and all behavior is identical to v1.0.
 
 **Public API**:
 - `calculate_new_target(ref, old_path, new_path)` — Computes new target path for a reference, preserving anchors and link style
 
 **Internal Methods**:
 - `_calculate_new_target_relative(original_target, old_path, new_path, source_file)` — Multi-strategy path matching and conversion
+- `_resolution_base_for(source_file)` — (v1.1) Returns the resolution base for *source_file*: the relative base prefix when the file lives under a configured override folder (longest-prefix match), else `""` (project-root-relative, the v1.0 behavior). Delegates the folder-match lookup to the shared helper.
 - `_match_direct(absolute_target_norm, old_path_norm)` — Direct path equality check
 - `_match_stripped(absolute_target_norm, old_path_norm)` — Match after stripping leading slashes
 - `_match_resolved(absolute_target_norm, old_path_norm, source_file, link_info)` — Resolve-relative and filename-only fallback match
 - `_analyze_link_type(target, source_file)` — Classify link as absolute, relative-explicit, or filename-only
-- `_resolve_to_absolute_path(target, source_file, link_info)` — Convert link target to absolute path for comparison
-- `_convert_to_original_link_type(new_absolute_path, source_file, link_info)` — Convert absolute path back to original link style
+- `_resolve_to_absolute_path(target, source_file, link_info)` — Convert link target to absolute path for comparison. (v1.1) For an `is_absolute` (`/…`) target from an override-folder source, resolves against the source file's resolution base instead of returning the target verbatim.
+- `_convert_to_original_link_type(new_absolute_path, source_file, link_info)` — Convert absolute path back to original link style. (v1.1) For an `is_absolute` target from an override-folder source, strips the resolution base prefix back off so the rebuilt link keeps its virtual-root `/…` style.
 - `_calculate_relative_path_between_files(source_file, target_file)` — Calculate relative path between two files
 - `_calculate_new_python_import(original_target, old_path, new_path)` — Python import path resolution
+
+### Shared Resolution-Override Helper (v1.1)
+
+**Location**: `src/linkwatcher/resolution_overrides.py` (new module)
+
+Extracted from `validator.py` so `Validator` and `PathResolver` share one virtual-root algorithm and cannot drift. Pure functions, no I/O:
+
+- `build_resolution_overrides(raw: Optional[Dict[str, str]]) -> List[Tuple[str, str]]` — Normalizes the configured folder→base map to forward slashes, strips leading/trailing slashes, drops empty folders, and sorts by descending folder length so the first prefix match is the most specific. (Lifted verbatim from `Validator._build_resolution_overrides`.)
+- `resolution_base_for_rel(overrides, source_rel: str) -> str` — Given a project-root-relative source path, returns the matching base (relative string, possibly `""`) via longest-prefix match, or `""` when no folder matches.
+
+`Validator` retains its thin `_resolution_base_for` wrapper (absolute-base form + its existing `validation_resolution_override_applied` log event); `PathResolver` adds its own thin `_resolution_base_for` wrapper (relative-base form + a new `update_resolution_override_applied` log event). The normalization and folder-match logic live once in the shared module — this is a behavior-preserving extraction for `validator.py` (verified by its existing validate suite).
 
 ### UpdateResult Enum
 
@@ -166,6 +181,55 @@ The `_replace_in_line()` method dispatches to type-specific replacement methods 
 
 This prevents incorrect modifications when the target string appears elsewhere in the line.
 
+## Override-Aware Path Resolution (v1.1)
+
+> **Added in v1.1 (2026-06-29)** — blueprint-aware reference updating enhancement (PF-STA-110). Extends `path_resolution_overrides` virtual-root resolution — previously honoured only by validation (`--validate`) — into the live move/update path. Functional behavior is in [PD-FDD-027 § Override-Folder Reference Maintenance](../../functional-design/fdds/fdd-2-2-1-link-updater.md).
+
+### Problem
+
+Files in an override folder (canonically the `process-framework/` blueprint) write host-absolute (`/…`) references against a *virtual* rollout-destination root, not their on-disk location. `path_resolution_overrides` maps such a folder to a resolution **base**: a `/…` link in a source under folder `F` resolves against `<project_root>/<base>/`. The validator honoured this; `PathResolver` did not. In `_calculate_new_target_relative`, an `is_absolute` target was returned **verbatim** by `_resolve_to_absolute_path` (e.g. `/process-framework/tasks/foo.md`), while the moved file's `old_path` arrives project-root-relative with the override-folder prefix (e.g. `process-framework/process-framework/tasks/foo.md` on disk). The match strategies therefore never fired, and references to a file moved/renamed inside an override folder were left broken — defeating LinkWatcher's founding blueprint-restructuring use case.
+
+### Resolution Base (per source file)
+
+`PathResolver._resolution_base_for(source_file)` returns the **relative** base for the source file via the shared helper: the configured base string when the file is under an override folder (longest-prefix match), else `""`. `""` means project-root-relative — identical to v1.0 — so files outside every configured folder are unaffected. The base is computed once per source file, not per reference (PE consideration).
+
+### Input: base-aware resolution (`_resolve_to_absolute_path`)
+
+For an `is_absolute` (`/…`) target whose source has a non-empty resolution base, resolve to the comparison form `"<base>/" + target.lstrip("/")` (normalized, forward-slash, root-relative) instead of returning the `/…` target verbatim. With base `process-framework`, `/process-framework/tasks/foo.md` → `process-framework/process-framework/tasks/foo.md`, which now equals the moved file's `old_path` so `_match_direct` / `_match_stripped` fire. An empty base leaves the v1.0 verbatim behavior intact.
+
+### Output: base-stripping reconstruction (`_convert_to_original_link_type`)
+
+On a match, the new absolute path is the moved file's new on-disk location (e.g. `process-framework/tasks/foo-renamed.md` carrying the base prefix). For an `is_absolute` target from an override source, strip the resolution base back off and re-prepend `/`: `"/" + new_path_norm.removeprefix(base + "/")` → `/process-framework/tasks/foo-renamed.md`. This preserves the virtual-root style rather than emitting a full on-disk `/…` path or a relative path. Separator-style reconstruction (the existing `\`-preservation) is unchanged.
+
+### Interaction with existing strategies and guards
+
+- **Early-exit branches skipped for virtual-root links (anti-hijack)**: The two early-exit branches in `_calculate_new_target_relative` (direct equality, directory-prefix) compare the *unresolved* normalized target against `old_path`. For an override-source `/…` link that comparison is semantically wrong — the link denotes `<base>/…`, so when a **real root-level path coincides with the virtual path** (e.g. a root `test/x.md` moves while a blueprint link says `/test/x.md`), the early exit would hijack the virtual-root link and rewrite it against the wrong file. v1.1 therefore skips both early-exit branches when the source has a non-empty resolution base and the target is host-absolute (`is_virtual_root_link`); together with the gated PD-BUG-045 suffix block (next bullet), Step-3 base-aware resolution is the only match path for virtual-root links. (Found by the Step-13 quality audit; regression-tested by the "not hijacked by coinciding root move/dir move" cases.)
+- **PD-BUG-045 suffix match (gated for virtual-root links)**: The inline suffix-match block compares the *unresolved* link form against `old_path`, exactly like the early exits — so it remained reachable for a virtual-root link whenever Step-3 base-aware resolution found no match (the link's true `<base>/…` target did not move) while an unrelated suffix-coinciding file did move, rewriting the link to the wrong target and dropping the virtual-root style (2026-07-06 code-review Major finding). The block is therefore gated on `not is_virtual_root_link`; it remains in place unchanged for the genuine nested-project case it was built for. Regression-tested by the "not hijacked by suffix-coinciding move" case.
+- **PD-BUG-095 / PD-BUG-112 disk-existence & separator guards (retained)**: The override match resolves through the `_match_* → _convert_to_original_link_type` path. A disk-existence containment check (`path_exists_under_root` on the resolved override target) is applied on this path so a `/…` reference whose base-resolved target does not exist on disk is left unchanged — the same protection the early-exit branches already give regex/glob-shaped strings. The match itself is anchored on equality with a real moved `old_path`, so it cannot fire on a non-existent target.
+- **SE / path-traversal containment**: The base is config-supplied. The shared helper normalizes it (forward slashes, stripped) and `os.path.normpath` collapses any `..`; the resolved base and resolved target are required to stay under `project_root` (`path_exists_under_root` containment). A crafted base or a `../`-bearing link cannot resolve outside the project root.
+
+### Scope boundary (intentionally unchanged)
+
+Override-awareness covers references **to** a moved file expressed as host-absolute `/…` links **from sibling files**. The separate path that fixes relative links **inside** a moved file (`reference_lookup._filter_relative_links`) is **not** changed — those are relative links resolved against the moved file's own directory, to which the virtual-root override does not apply.
+
+## Simultaneous-Move Repair (PD-BUG-114, 2026-08-10)
+
+The within-moved-file recalculation path (`reference_lookup.update_links_within_moved_file` → `_calculate_updated_relative_path`) carries a repair layer for links whose **target moved in the same operation** as the file containing them. Without it, the PD-BUG-033 existence guard — which resolves each outgoing link against the moved file's OLD directory and skips targets missing from disk — silently dropped such links, and the target's own move event could not repair them afterwards (either `find_references` missed the re-indexed stale link, or the updater hit the referencing file's already-vacated old path).
+
+- **Move memory**: `ReferenceLookup.record_move(old, new)` keeps a 300-second-TTL map of processed moves (TTL matches the `DirectoryMoveDetector` window; destination chains are followed for twice-moved files). The handler records every single-file move at the top of `_handle_file_moved` (covering self-links) and every per-file mapping plus the directory itself in `_handle_directory_moved` Phase 0.
+- **Guard consult**: when the existence guard finds the old-resolved target missing, it consults the move memory. On a hit whose new target exists on disk, the link is rewritten to the target's new location (fragment preserved) and `link_target_move_applied` is logged at info; a hit whose mapped target is also gone logs `link_target_move_stale` at warning and leaves the link unchanged.
+- **Pending recalcs**: a guard miss registers the skipped link under its resolved old target (`link_recalc_pending`, debug — non-path strings land here harmlessly and expire with the TTL). When a later move event's old path matches a pending key, `apply_pending_recalcs()` re-runs the moved-file recalculation for the recorded files (`pending_link_recalc_applied`, info) — the handler invokes it after single-file processing and as Phase 1.6 of directory moves.
+- **Same-directory renames** run the full recalculation (the former early return is removed) so a vanished target reaches this repair.
+- **Authored-form preservation (semantic, not textual, recalculation)**: before recalculating, `_calculate_updated_relative_path` resolves the link *as authored* against the file's new directory; if that already equals the intended target, the original string is returned untouched. This is what keeps unmoved targets from being rewritten. The guard is required because `os.path.relpath` returns a **canonical** path, so without it the removal of the same-directory early return would reformat every non-canonical link that was never wrong — `./x` → `x`, `..\x` → `../x`, `dir/` → `dir` — on every in-place rename. Rewrites therefore occur only when the as-authored link no longer resolves to its target from the new location. (Added by the PD-BUG-114 code review, 2026-08-10; an earlier draft of this section asserted the no-write property held without such a guard, which was incorrect.)
+
+### Wiring
+
+`path_resolution_overrides` threads from config through the existing constructor chain, mirroring `python_source_root`: `service.py` (`LinkUpdater(..., path_resolution_overrides=config.path_resolution_overrides)`) → `LinkUpdater.__init__` (passthrough) → `PathResolver.__init__` (normalize + hold). The `path_resolution_overrides` config key already exists (0.1.3 Configuration System); no schema change.
+
+### Observability
+
+`PathResolver` emits a distinct `update_resolution_override_applied` log event when override resolution rewrites a host-absolute reference, mirroring the validator's `validation_resolution_override_applied`, so blueprint rewrites are auditable and a misconfigured base is diagnosable.
+
 ## Dependencies
 
 ### Internal Dependencies
@@ -174,6 +238,7 @@ This prevents incorrect modifications when the target string appears elsewhere i
 |-----------|-------|--------|
 | `linkwatcher.models.LinkReference` | Input data type (line_number, column_start, link_type, link_target, link_text) | Direct import |
 | `linkwatcher.path_resolver.PathResolver` | Path resolution and new target calculation | Direct import |
+| `linkwatcher.resolution_overrides` | (v1.1) Shared virtual-root override normalization/lookup, consumed by both `PathResolver` and `Validator` | Direct import |
 | `linkwatcher.logging.get_logger` | Structured logging | Direct import |
 
 ### External Dependencies

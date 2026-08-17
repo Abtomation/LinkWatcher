@@ -11,7 +11,6 @@
     - Generating a unique document ID (PD-INT-XXX)
     - Creating a properly formatted Integration Narrative document file
     - Updating the ID tracker in the central ID registry
-    - Auto-updating PD-documentation-map.md with the new narrative entry
     - Auto-updating user-workflow-tracking.md "Integration Doc" column for the specified workflow
 
 .PARAMETER WorkflowName
@@ -27,15 +26,15 @@
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    .\New-IntegrationNarrative.ps1 -WorkflowName "Directory Move Detection" -WorkflowId "WF-002" -Description "How filesystem events flow through detection, database, and link updating"
+    New-IntegrationNarrative.ps1 -WorkflowName "Directory Move Detection" -WorkflowId "WF-002" -Description "How filesystem events flow through detection, database, and link updating"
 
 .EXAMPLE
-    .\New-IntegrationNarrative.ps1 -WorkflowName "Link Parsing Pipeline" -WorkflowId "WF-005" -OpenInEditor
+    New-IntegrationNarrative.ps1 -WorkflowName "Link Parsing Pipeline" -WorkflowId "WF-005" -OpenInEditor
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
-    - Auto-updates PD-documentation-map.md and user-workflow-tracking.md
+    - Auto-updates user-workflow-tracking.md
     - Creates the output directory if it doesn't exist
 
     Template Metadata:
@@ -72,16 +71,17 @@ try {
     exit 1
 }
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed via DocumentManagement.psm1)
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path
+# are owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script
+# keeps its data, its bespoke post-creation write (the user-workflow-tracking "Integration Doc"
+# update), and its own report — all inline under the outer try/catch. (The PD-documentation-map
+# is generated from frontmatter per PF-PRO-037, so this script no longer appends to it — PF-IMP-1151.)
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "workflow_id" = $WorkflowId
     "workflow_name" = $WorkflowName
+    description = "Integration narrative for the $WorkflowName workflow"
 }
 
 # Prepare custom replacements for the template
@@ -102,15 +102,16 @@ try {
     $workflowNameForFilename = ConvertTo-FeatureSlug -Name $WorkflowName -Convention 'kebab-case'
     $customFileName = "$workflowNameForFilename-integration-narrative.md"
 
-    $documentId = New-StandardProjectDocument `
+    $documentId = New-FrameworkDocument `
         -TemplatePath $templatePath `
         -IdPrefix "PD-INT" `
         -IdDescription "$workflowNameForFilename-integration-narrative" `
         -DocumentName $WorkflowName `
         -DirectoryType "main" `
         -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
+        -Metadata $additionalMetadataFields `
         -FileNamePattern $customFileName `
+        -Label "Integration Narrative" `
         -OpenInEditor:$OpenInEditor
 
     # Provide success details
@@ -123,24 +124,9 @@ try {
         $details += "Description: $Description"
     }
 
-    # Pointer to customization guide
+    # Pointer to the customization craft skill
     if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/02-design/integration-narrative-customization-guide.md"
-    }
-
-    # Auto-append entry to PD-documentation-map.md under Integration Narratives section
-    if ($documentId -or $WhatIfPreference) {
-        $docMapPath = Join-Path -Path $projectRoot -ChildPath "doc/PD-documentation-map.md"
-        $sectionHeader = "### ``technical/integration/`` — Integration Narratives"
-        $descriptionText = if ($Description -ne "") { $Description } else { "Integration narrative for $WorkflowName workflow" }
-        $entryLine = "- [Integration Narrative: $WorkflowName ($documentId)](technical/integration/$customFileName) - $WorkflowId — $descriptionText"
-
-        $updated = Add-DocumentationMapEntry -DocMapPath $docMapPath -SectionHeader $sectionHeader -EntryLine $entryLine -CallerCmdlet $PSCmdlet
-        if ($updated) {
-            $details += "Documentation Map: Updated (PD-documentation-map.md)"
-        } else {
-            $details += "Documentation Map: Section '$sectionHeader' not found — add entry manually"
-        }
+        $details += "Customization required — apply the integration-narrative craft skill (.claude/skills/integration-narrative/), activated by the Integration Narrative Creation task's Check Recommended Skills step"
     }
 
     # Auto-update user-workflow-tracking.md "Integration Doc" column
@@ -233,16 +219,14 @@ Before considering this script complete, test the following:
 2. ✅ Template replacements work correctly (WorkflowName, WorkflowId, Description)
 3. ✅ Directory structure is created if missing
 4. ✅ ID registry is updated properly (PD-INT counter incremented)
-5. ✅ PD-documentation-map.md auto-updated with narrative entry
-6. ✅ user-workflow-tracking.md auto-updated with Integration Doc column value
-7. ✅ Error handling works for invalid inputs
-8. ✅ Graceful fallback when Integration Doc column doesn't exist yet
-9. ✅ OpenInEditor parameter functions correctly
-10. ✅ Generated filename format: [workflow-name]-integration-narrative.md
+5. ✅ user-workflow-tracking.md auto-updated with Integration Doc column value
+6. ✅ Error handling works for invalid inputs
+7. ✅ Graceful fallback when Integration Doc column doesn't exist yet
+8. ✅ OpenInEditor parameter functions correctly
+9. ✅ Generated filename format: [workflow-name]-integration-narrative.md
 
 CUSTOMIZATION REQUIREMENTS:
 - Ensure integration-narrative-template.md exists in process-framework/templates/02-design/
-- Ensure "### `technical/integration/` — Integration Narratives" section exists in PD-documentation-map.md
 - Ensure "Integration Doc" column exists in user-workflow-tracking.md (added in Phase 4)
-- Verify process-framework/guides/02-design/integration-narrative-customization-guide.md exists
+- Customization craft lives in the integration-narrative craft skill (.claude/skills/integration-narrative/)
 #>

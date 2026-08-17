@@ -1,5 +1,5 @@
 {
-  "$schema_comment": "Per-test reset path lists for framework-self-test E2E cases against PRJ-T01 sandbox. Each TE-E2E-NNN entry declares the files the test mutates (reverted via 'git checkout HEAD -- <path>') and creates (deleted via Remove-Item). Paths are relative to the sandbox root. See PF-TSK-070 §Sandbox Execution and PF-TSK-088 §Sandbox Baseline Maintenance. Authored Session 22 of Framework Self-Testing extension (PF-PRO-035 Phase 3.5).",
+  "$schema_comment": "Per-test reset path lists for framework-self-test E2E cases against APP-T01 sandbox. Each TE-E2E-NNN entry declares the files the test mutates (reverted via 'git checkout HEAD -- <path>') and creates (deleted via Remove-Item). Paths are relative to the sandbox root. See PF-TSK-070 §Sandbox Execution and PF-TSK-088 §Sandbox Baseline Maintenance. Authored Session 22 of Framework Self-Testing extension (PF-PRO-035 Phase 3.5).",
   "tests": {
     "TE-E2E-002": {
       "description": "Update-TechDebt -Add against sandbox technical-debt-tracking.md (WF-002 state-tracking-update reference case)",
@@ -10,17 +10,9 @@
       "creates": []
     },
     "TE-E2E-003": {
-      "description": "New-Task against sandbox process-framework/tasks/01-planning/ (WF-001 artifact-creation reference case)",
-      "mutates": [
-        "process-framework/PF-id-registry.json",
-        "process-framework/ai-tasks.md",
-        "process-framework/PF-documentation-map.md",
-        "process-framework/infrastructure/process-framework-task-registry.md",
-        "process-framework/tasks/README.md"
-      ],
-      "creates": [
-        "process-framework/tasks/01-planning/framework-self-test-sentinel-three-task.md"
-      ]
+      "description": "Hermetic-producer task creation via New-Task.ps1 against a synthetic producer built in the per-test workspace, with FRAMEWORK_PROJECT_ROOT_OVERRIDE + FRAMEWORK_CENTRAL_OVERRIDE active (WF-001 artifact-creation reference case). Re-homed to FrameworkBuilder and hermeticized at PF-PRO-068 S3 E4-f; it touches no child sandbox, so both arrays are empty by design. The entry is retained because every TE-E2E-NNN must have one.",
+      "mutates": [],
+      "creates": []
     },
     "TE-E2E-004": {
       "description": "New-WorkflowEntry against sandbox user-workflow-tracking.md plus chained New-TestInfrastructure -Update scaffolding (WF-009 workflow-tracking reference case)",
@@ -71,6 +63,7 @@
       "mutates": [],
       "creates": [
         "logs/linkwatcher",
+        "tools/linkwatcher/.linkwatcher-ignore",
         ".linkwatcher.lock"
       ]
     },
@@ -91,6 +84,11 @@
     },
     "TE-E2E-013": {
       "description": "Synthetic-appdev Restore-FrameworkVersion.ps1 -Project PRJ-X01 full real-mode rollback against a per-test fixture with git init + 2 commits + 2 tags (rollout-2026-05-19-001 = v0, rollout-2026-05-19-002 = v1). Invoked as subprocess with cwd=<workspace>/synthetic-appdev/. Asserts exit=0, ROLLBACK (Mode D) banner, Mirrored marker w/ v0 tag, Central registry updated marker, project's .framework-version flipped to v0, .framework-version-previous swapped to v1, .framework-central-pointer points at synthetic appdev, file-v0.md added, file-v1.md removed, common-file.md content reverted to v0 bytes, synthetic registry's PRJ-X01.current_framework_version updated to v0, +1 ROLLBACK entry in synthetic rollout-log, no leftover .rollback-worktree-* dirs (cleanup proof), real central rollout-log SHA256 unchanged (WF-006 framework-rollback reference case, second synthetic-appdev test). All mutations land in <workspace>/synthetic-appdev/; the sandbox tree itself is read-only for this test. Restore has no -Check mode (verified Session 33 recon) so full real-mode coverage is required for meaningful contract validation.",
+      "mutates": [],
+      "creates": []
+    },
+    "TE-E2E-014": {
+      "description": "Level 3 instruction-execution reference case (PF-PRO-064 Work Item 10): an AGENT executes the Soak Re-Sync procedure from the Script Development Quick Reference against a fixture whose soak row carries a stale hash and counter 1; the shipped assert.ps1 oracle - never authored by the executing agent - checks the resulting hash, counter (2), the sentinel's ran.txt marker, and that the real central soak file stayed untouched. Like TE-E2E-011 it is hermetic: every mutation lands in <workspace>/project/sandbox-central/ via $env:FRAMEWORK_CENTRAL_OVERRIDE, so the APP-T01 sandbox tree is read-only for this test.",
       "mutates": [],
       "creates": []
     }

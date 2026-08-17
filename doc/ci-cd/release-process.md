@@ -1,5 +1,6 @@
 ---
 id: PD-CIC-003
+description: "Project-specific release process guide — deploy, version, and distribute mechanics with a release checklist."
 type: Documentation
 category: CI-CD
 version: 2.3

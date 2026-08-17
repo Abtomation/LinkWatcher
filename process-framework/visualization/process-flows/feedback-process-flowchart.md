@@ -1,9 +1,9 @@
 ---
 id: PF-VIS-001
 type: Documentation
-version: 1.0
+version: 1.1
 created: 2025-06-03
-updated: 2026-04-14
+updated: 2026-08-10
 description: "Visual guide to the feedback collection and processing workflow (Tools Review → IMP Triage → owning task), referenced from ai-tasks.md."
 ---
 
@@ -74,7 +74,7 @@ flowchart TD
 appdev/process-framework-central/feedback/                  # Phase 7 central (post-2026-05-11)
 ├── archive/                           # Processed forms (by review cycle)
 └── feedback-forms/                    # Active feedback files
-    ├── YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-002_feedback.md     # Phase 7 underscore-separated
+    ├── YYYYMMDD-HHMMSS_<PROJECT-ID>_PF-TSK-009_feedback.md     # Phase 7 underscore-separated
     └── ...
 ```
 
@@ -82,7 +82,7 @@ ID tracking is managed by `appdev/process-framework-central/PF-id-registry-centr
 
 ### Naming Convention
 
-- **File name** (Phase 7, 2026-05-11+): `YYYYMMDD-HHMMSS_<PRJ-ID>_<document-id>_feedback.md` — underscore-separated with PRJ-ID segment identifying the project of origin
+- **File name** (Phase 7, 2026-05-11+): `YYYYMMDD-HHMMSS_<PROJECT-ID>_<document-id>_feedback.md` — underscore-separated with PRJ-ID segment identifying the project of origin
 - **Metadata ID**: `PF-FEE-XXX` (automatically assigned by script from the central pool)
 
 ## Integration Points

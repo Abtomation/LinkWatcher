@@ -1,13 +1,15 @@
 ---
-id: PD-IMP-XXX
+id: PF-TEM-094
 type: Process Framework
 category: Technical - Implementation Plans
-version: 1.0
+version: 1.1
 created: [CREATION_DATE]
 updated: [LAST_UPDATE_DATE]
 feature_name: [Feature Name]
 feature_id: [Feature ID if available]
 tier: 1
+creates_document_type: Product Documentation
+creates_document_category: Implementation
 description: "Lightweight implementation plan template for Tier 1 features"
 ---
 
@@ -92,7 +94,7 @@ description: "Lightweight implementation plan template for Tier 1 features"
 
 ## Related Documentation
 
-- [Feature Implementation State](../../../doc/state-tracking/features/[feature-id]-implementation-state.md)
+- [Feature Implementation State](../../state-tracking/features/[feature-id]-implementation-state.md)
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
 - [Task: Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md)
 

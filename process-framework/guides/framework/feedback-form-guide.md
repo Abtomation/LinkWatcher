@@ -2,9 +2,9 @@
 id: PF-GDE-012
 type: Process Framework
 category: Guide
-version: 1.1
+version: 1.3
 created: 2025-06-05
-updated: 2026-04-14
+updated: 2026-07-21
 description: "Comprehensive guide for completing feedback forms effectively (referenced by all tasks)"
 ---
 
@@ -24,29 +24,6 @@ This guide provides comprehensive instructions for completing feedback forms eff
 2. **Manual creation**: Copy the template and follow the naming convention: `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
 3. **File placement**: Save in `appdev/process-framework-central/feedback/feedback-forms/`
-
-## Time Tracking Requirements
-
-**CRITICAL**: Use actual measured time, not estimates.
-
-### How to Track Time Accurately
-1. **Record start time** when beginning the task (format: HH:MM)
-2. **Record end time** when completing the task (format: HH:MM)
-3. **Calculate total duration** in minutes
-4. **Format**: "Start: 14:30, End: 15:45, Total: 75 minutes"
-
-### Examples
-- ✅ **Good**: "Start: 09:15, End: 10:30, Total: 75 minutes"
-- ✅ **Good**: "Start: 14:00, End: 14:45, Total: 45 minutes"
-- ❌ **Bad**: "About an hour"
-- ❌ **Bad**: "45-60 minutes"
-- ❌ **Bad**: "Not sure, maybe 30 minutes"
-
-### Why Accurate Time Matters
-- Enables process efficiency improvements
-- Validates tool enhancement effectiveness
-- Supports data-driven optimization decisions
-- Tracks trends in task completion times
 
 ## Rating Scale Guidelines
 
@@ -92,7 +69,6 @@ All ratings use a 1-5 scale. Here's how to interpret each level:
 ### Basic Information
 - **Task Evaluated**: Use the exact task name and document ID
 - **Task Context**: Brief description of what was accomplished (1-2 sentences)
-- **Session Duration**: Use the time tracking format described above
 - **Feedback Type**: Choose Single Tool, Multiple Tools, or Task-Level
 
 ### Task-Level Evaluation
@@ -119,12 +95,7 @@ Complete one section per tool used.
 - Explain your rating reasoning
 - Mention both positives and negatives
 - Focus on actionable observations
-
-### Integration Assessment
-Complete when using multiple tools.
-
-**Tool Synergy**: How well did tools work together? Look for conflicts, gaps, or smooth handoffs.
-**Workflow Efficiency**: Was the sequence logical? Were there unnecessary back-and-forth steps?
+- **If a comment contains an actionable suggestion, repeat it in "Specific suggestions"** — comments are not machine-extracted, so a suggestion that lives only in a comment never reaches the review pipeline
 
 ### Improvement Suggestions
 
@@ -139,9 +110,12 @@ Complete when using multiple tools.
 - Mention confusing or inefficient aspects
 
 #### Specific Suggestions
+This is the **single canonical suggestion list** in the form — Tools Review drains improvement candidates from here.
 - Provide actionable recommendations
 - Be specific about what should change
 - Consider implementation feasibility
+- Repeat here any actionable suggestion that appears in a rating Comments field
+- Document only — do not register PF-IMP entries or run `New-ProcessImprovement.ps1` for suggestions. The one exception: an issue meeting the [Issue Classification and Routing Guide](issue-classification-and-routing-guide.md)'s file-now conditions is filed directly during the session and listed here as `[ALREADY FILED — PF-IMP-NNNN, do not re-file]` so Tools Review does not file it twice
 
 ### Additional Context
 Use this section for:
@@ -152,14 +126,12 @@ Use this section for:
 
 ### Follow-up Actions
 This section helps prioritize improvements:
-- **Tools Needing Detailed Feedback**: Any tool scoring ≤3 in any criteria
-- **Process Improvements**: Specific workflow enhancements to consider (document only — do not register PF-IMP entries; that is handled by PF-TSK-009/PF-TSK-010)
 - **Documentation Streamlining**: Areas where documentation could be more concise
 
 ### Human Intervention Log
-Use this section to capture each instance where the human partner corrected or redirected the AI agent during the task. The goal is **documentation gap detection**, not blame — each intervention is a signal that a task definition, guide, or template may be missing information.
+Use this section to capture each instance where the human partner **countered or redirected the AI agent's current course** during the task — corrections, reversals, rejected proposals, missing information the agent should have had. Checkpoint approvals and option selections ("proceed", "approve", "Option B") are the workflow operating as designed and are **not** interventions — do not log them. The goal is **documentation gap detection**, not blame — each genuine intervention is a signal that a task definition, guide, or template may be missing information.
 
-**When to fill**: After completing the task work, as part of session finalization. Review the session and identify moments where the human partner stepped in.
+**When to fill**: After completing the task work, as part of session finalization. Review the session and identify moments where the human partner countered or redirected the work.
 
 **How to fill each column**:
 - **What Human Said**: The correction, redirection, or information the human provided (paraphrase, keep brief)
@@ -171,13 +143,7 @@ Use this section to capture each instance where the human partner corrected or r
 
 **Key principle**: Not every intervention is a doc gap. Some corrections reflect situational judgment, personal preference, or novel circumstances that no documentation could anticipate. Use the "N/A" and "None" options honestly — inflating doc-gap counts undermines the signal.
 
-### Human User Feedback
-This section is **reserved for the human partner** to fill independently after the session ends. The AI agent must leave it empty.
-
-**Do not**:
-- Solicit human feedback during the session
-- Fill this section with assumed or inferred feedback
-- Skip creating the section (it must be present in the template for the human to fill)
+**Post-session human rows**: the Human Intervention Log doubles as the human partner's feedback channel. After the session ends, the human appends any further feedback — corrections the agent missed, observations about the session — as additional rows in the same table. The AI agent must not solicit this feedback during the session or write rows on the human's behalf.
 
 ## Feedback Handling Rules
 
@@ -191,7 +157,7 @@ When you discover issues or improvements during finalization, **record them in t
 
 ### Keep Feedback in the Form
 
-If a finding can be resolved by updating a task definition, guide, or template, **leave it in the feedback form only**. Do not save it to persistent memory or external tracking — the feedback form is the intake mechanism. Once the Tools Review processes the form and the relevant document is updated, memory entries about it become stale and misleading.
+If a finding can be resolved by updating a task definition, guide, or template, **leave it in the feedback form only**. Do not save it to persistent memory or external tracking — the feedback form is the intake mechanism (an IMP filed directly under the [routing guide](issue-classification-and-routing-guide.md)'s file-now conditions is the exception, cross-referenced in the form as already filed). Once the Tools Review processes the form and the relevant document is updated, memory entries about it become stale and misleading.
 
 ## Common Pitfalls to Avoid
 
@@ -207,12 +173,6 @@ If a finding can be resolved by updating a task definition, guide, or template, 
 - **No examples**: Specific examples make feedback actionable
 - **Personal preferences**: Focus on objective effectiveness
 
-### Time Tracking Pitfalls
-- **Estimates**: Always use actual measured time
-- **Interruptions**: Note if timing was affected by interruptions
-- **Scope creep**: Track only the time for the specific task
-- **Rounding**: Be precise with start/end times
-
 ## Examples of Good vs. Poor Feedback
 
 ### Good Effectiveness Comment
@@ -227,21 +187,15 @@ If a finding can be resolved by updating a task definition, guide, or template, 
 ### Poor Improvement Suggestion
 "Make it better."
 
-### Good Time Tracking
-"Start: 14:15, End: 15:30, Total: 75 minutes (includes 5-minute interruption for urgent email)"
-
-### Poor Time Tracking
-"Around an hour or so"
-
 ## Quality Checklist
 
 Before submitting your feedback form, verify:
 
 - [ ] All required fields are completed
-- [ ] Time tracking uses actual measured time with start/end times
 - [ ] Ratings are justified with specific comments
 - [ ] Improvement suggestions are actionable and specific
-- [ ] Human user feedback has been actively solicited and documented
+- [ ] Comment-borne actionable suggestions are repeated in "Specific suggestions"
+- [ ] Intervention log contains only counter-flow interventions (no checkpoint approvals)
 - [ ] File is saved with correct naming convention in correct location
 - [ ] Metadata ID is properly assigned (PF-FEE-XXX format)
 
@@ -250,7 +204,6 @@ Before submitting your feedback form, verify:
 If you need assistance with feedback forms:
 1. Review this guide thoroughly
 2. Check existing feedback forms for examples
-3. Consult the [Assessment Guide](../01-planning/assessment-guide.md) for evaluation criteria
-4. Ask for clarification on specific rating scenarios
+3. Ask for clarification on specific rating scenarios
 
 Remember: Good feedback drives process improvement. Take the time to provide thoughtful, specific, and actionable feedback.

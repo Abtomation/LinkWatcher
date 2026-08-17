@@ -1,5 +1,6 @@
 ---
 id: PD-UGD-006
+description: "Guide to configuring logging output, file logging, log rotation, and the real-time monitoring dashboard"
 type: Product Documentation
 category: User Guide
 version: 1.0
@@ -87,9 +88,9 @@ By default, LinkWatcher displays colored console output with emoji icons indicat
 
 | Level | Color | Icon | When Used |
 |-------|-------|------|-----------|
-| DEBUG | Cyan | 🔍 | Internal operations, scan progress, timing details |
-| INFO | Green | ℹ️ | File moves detected, links updated, configuration loaded |
-| WARNING | Yellow | ⚠️ | File deletions, invalid configurations, missing files |
+| DEBUG | Cyan | 🔍 | Internal operations, scan progress, timing details, database bookkeeping |
+| INFO | Green | ℹ️ | File moves detected, file and directory deletions, links updated, configuration loaded |
+| WARNING | Yellow | ⚠️ | Anomalies needing attention: references left broken by a deletion, parse failures, invalid configurations, missing files, move-detection timeouts |
 | ERROR | Red | ❌ | Failed operations, file access errors |
 | CRITICAL | Magenta (bright) | 🚨 | Fatal errors preventing operation |
 
@@ -100,8 +101,11 @@ Example output:
 ```
 ℹ️ 09:15:23.456 INFO     linkwatcher          logging_configured level=INFO
 ℹ️ 09:15:24.012 INFO     linkwatcher          file_moved old_path=doc/old.md new_path=doc/new.md references_count=3
-⚠️ 09:15:25.789 WARNING  linkwatcher          file_deleted file_path=doc/removed.md
+ℹ️ 09:15:25.789 INFO     linkwatcher          file_deleted file_path=doc/removed.md
+⚠️ 09:15:25.802 WARNING  linkwatcher          broken_references_found deleted_file=doc/removed.md broken_references_count=2
 ```
+
+> **Levels reflect actionability**: a deletion or move is a normal event and logs at INFO. WARNING is reserved for conditions that need attention — such as `broken_references_found` above, which fires only when a deletion actually leaves references dangling. Filtering on WARNING therefore surfaces real problems rather than routine activity.
 
 To disable colors (e.g., for piping to a file): set `colored_output: false` in config.
 To disable icons: set `show_log_icons: false` in config.

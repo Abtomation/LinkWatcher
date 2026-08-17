@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-044
-type: Process Framework
+description: "All 9 features (Score: 3.044/4.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-03-16

@@ -2,9 +2,9 @@
 id: PF-TEM-031
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.2
 created: 2025-07-25
-updated: 2026-04-02
+updated: 2026-07-22
 automation: manual
 automation_rationale: Instructional template showing HOW to update context packages, not a document creation template
 creates_document_category: Guide
@@ -76,7 +76,7 @@ This template provides a structured approach for updating Architecture Context P
 ```markdown
 ## 🎯 Quality Attribute Focus
 
-> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this architectural area
+> **Reference**: Define quality attributes relevant to this architectural area
 
 **Primary Quality Concerns**: [Top 3 quality attributes for this architectural area]
 - **[Quality Attribute 1]**: [Current status and focus]
@@ -187,7 +187,7 @@ When creating a new Architecture Context Package, include these quality attribut
 ```markdown
 ## 🎯 Quality Attribute Focus
 
-> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this architectural area
+> **Reference**: Define quality attributes relevant to this architectural area
 
 **Primary Quality Concerns**: [Top 3 quality attributes for this architectural area]
 - **Performance**: [How this area impacts system performance]

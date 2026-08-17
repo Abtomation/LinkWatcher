@@ -1,5 +1,6 @@
 ---
 id: PD-FDD-022
+description: "0.1.1 Tier 3 — Orchestrator/Facade service, data models, path utilities"
 type: Process Framework
 category: Functional Design Document
 version: 1.0

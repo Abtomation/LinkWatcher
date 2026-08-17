@@ -1,5 +1,6 @@
 ---
 id: PD-FDD-023
+description: "0.1.2 Tier 2 — Thread-safe link storage with O(1) lookups"
 type: Process Framework
 category: Functional Design Document
 version: 1.0

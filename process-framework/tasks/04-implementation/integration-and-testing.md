@@ -3,14 +3,35 @@ id: PF-TSK-053
 type: Process Framework
 category: Task Definition
 domain: development
-version: 2.3
+version: 2.4
 created: 2025-12-13
-updated: 2026-05-16
-change_notes: "v2.2 - Added Tier 1/tech-debt guidance box and conditional qualifiers for steps assuming TDD/Test Spec exist (IMP-022). Added (if applicable) to checklist items for unit-test-only sessions (IMP-023)"
+updated: 2026-07-30
+change_notes: "v2.4 - Fixed duplicate step 24 (PF-IMP-1741 symptom fix): Validate Test Tracking and the two closing steps renumbered +1 (now 1–27)"
 description: "Integrate components and establish comprehensive test coverage"
+complexity: medium
+use_when: >-
+  Integrate components and establish comprehensive test coverage
+automation: semi
+scripts:
+  - ../../scripts/file-creation/03-testing/New-TestFile.ps1
+  - ../../scripts/validation/Validate-TestTracking.ps1
+  - ../../scripts/file-creation/06-maintenance/New-BugReport.ps1
+trigger_status:
+  - raw: "Feature impl state file → all impl tasks = `completed`"
+output_status:
+  - raw: "`test-tracking.md` → `✅ Audit Approved`; Feature impl state file → task = `completed`"
+next_tasks:
+  - task: ../03-testing/test-audit-task.md
+    condition: "Systematic quality assessment of the test implementation (standard workflow)"
+  - task: implementation-finalization.md
+    condition: "Complete remaining items and close out the feature (decomposed workflow)"
+  - task: ../06-maintenance/code-review-task.md
+    condition: "Review implemented tests for quality and completeness"
 ---
 
 # Integration and Testing
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -26,8 +47,6 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/04-implementation/integration-and-testing-map.md)
-
 - **Critical (Must Read):**
 
   - **Test Specification Document** (if exists) - The test specification for the feature (located in `/test/specifications/feature-specs`), serving as the checklist for required test scenarios
@@ -35,7 +54,6 @@ Verify unit test completeness, implement integration and cross-component tests, 
   - **Completed Implementation Code** - All implemented feature code to be tested
   - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Current test implementation status
   - [Test Query Tool](../../scripts/test/test_query.py) - Query test files by feature, priority, and markers
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -49,8 +67,6 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Use automation scripts for test file creation. Update state files throughout implementation.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -75,9 +91,8 @@ Verify unit test completeness, implement integration and cross-component tests, 
    ```powershell
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
    # Test types depend on project language (auto-detected from project-config.json)
-   cd process-framework/scripts/file-creation
-   New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName" -Priority "Critical"
-   New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName" -Priority "Critical"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
 
    # -Priority: Critical (must pass before release), Standard (default), Extended (not blocking)
    # Use Critical for foundation features, parsers, core data models
@@ -153,9 +168,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
     **Example Bug Report Command**:
 
     ```powershell
-    Set-Location "process-framework/scripts/file-creation"
-
-    New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Testing" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "Service throws exception on empty input" -Description "Method fails with exception when passed empty string instead of returning proper error" -DiscoveredBy "Testing" -Severity "High" -Component "Component Name" -Environment "Development" -Evidence "Test case: test_method_empty_input_returns_error"
     ```
 
 23. **Mark manual test groups for re-execution**: If the feature has manual test cases, implementation changes may have invalidated previous results. Run `Update-TestExecutionStatus.ps1` to mark affected groups:
@@ -163,13 +176,13 @@ Verify unit test completeness, implement integration and cross-component tests, 
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1 -FeatureId "X.Y.Z" -Status "Needs Re-execution" -Reason "Implementation changes during Integration & Testing" -Confirm:\$false
     ```
 24. **Update Test Status**: Update test implementation status to reflect completion (automation handles initial tracking)
-24. **Validate Test Tracking**: Run validation scripts to ensure consistency
+25. **Validate Test Tracking**: Run validation scripts to ensure consistency
     ```powershell
     # Validate test tracking consistency
     process-framework/scripts/validation/Validate-TestTracking.ps1
     ```
-25. **Update Code Inventory**: Document all test files and coverage metrics in Feature Implementation State File (if applicable)
-26. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+26. **Update Code Inventory**: Document all test files and coverage metrics in Feature Implementation State File (if applicable)
+27. **MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -194,15 +207,13 @@ The following state files are automatically updated by the `New-TestFile.ps1` sc
 - Updating Feature Implementation State File (if applicable) with test metrics and notes
 - **Closing audit-flagged gaps**: if this session added tests that close findings from a prior `TE-TAR-*` audit report (gap-filling rather than net-new test file creation), the existing test file's audit status in `test-tracking.md` retains the stale status from the original audit. After tests pass and the associated TD is resolved, update the audit status via:
   ```powershell
-  Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
+  pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-TestFileAuditState.ps1 -TestFilePath <test file> -AuditStatus "Audit Approved" -AuditReportPath <original TE-TAR report>
   ```
   Only use `Audit Approved` if ALL findings from the audit are now addressed — otherwise route to [Test Audit (PF-TSK-030)](../03-testing/test-audit-task.md) for a re-audit.
 
 ## MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Unit test completeness verified against Test Specification or implementation code (gaps filled via `New-TestFile.ps1`)
@@ -234,21 +245,55 @@ Before considering this task finished:
   - [ ] Code Inventory section updated with test files and metrics
   - [ ] Implementation Progress section reflects testing completion
   - [ ] Testing patterns and challenges documented in Implementation Notes
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-053" and context "Integration & Testing"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-053`, context "Integration & Testing".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | Test files (multiple) | `New-TestFile.ps1` | Test files in appropriate test directories with pytest markers (feature, priority, test_type) |
+| **Updates** | [`bug-tracking.md`](../../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
+| **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` | Status: "📝 Needs Implementation" → "🟡 Implementation In Progress"<br/>• Add test file links with correct relative paths<br/>• Use filename as display name<br/>• Update test cases count, last updated date, notes |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | `New-TestFile.ps1` | Update Test Status based on implementation progress<br/>• Automatic status mapping from test implementation to feature tracking<br/>• Coordinate status across multiple state files |
+| **Updates** | Feature Implementation State File (if applicable) | Manual | Test implementation details, coverage metrics, and testing notes |
 
 ## Next Tasks
 
 - [**Test Audit (PF-TSK-030)**](../03-testing/test-audit-task.md) - Systematic quality assessment of the test implementation (standard workflow)
-- [**Quality Validation (PF-TSK-054)**](quality-validation.md) - Validate complete implementation against quality standards and business requirements (decomposed workflow)
-- [**Implementation Finalization (PF-TSK-055)**](implementation-finalization.md) - Complete remaining items and prepare feature for production (decomposed workflow)
+- [**Implementation Finalization (PF-TSK-055)**](implementation-finalization.md) - Complete remaining items and close out the feature (decomposed workflow)
 - [**Code Review**](../06-maintenance/code-review-task.md) - Review implemented tests for quality and completeness
+
+<!-- merged from transition-registry entry: Integration & Testing -->
+### Prerequisites for Transition
+
+- [ ] Test cases implemented according to test specifications
+- [ ] Test implementation status updated to "🔄 Needs Audit"
+- [ ] Test tracking files updated with test file links and status
+- [ ] Test environment and data setup complete
+
+### Next Task Selection
+
+```
+Is systematic test quality assessment needed?
+├─ Yes → Test Audit → Feature Implementation → 👀 Needs Review → Code Review
+│   └─ Reason: Quality gate to ensure test implementation meets standards
+└─ No → Feature Implementation → 👀 Needs Review → Code Review
+    └─ Reason: Proceed directly to feature implementation (for simple tests or when quality is assured)
+```
+
+### Preparation for Next Task
+
+1. **For Test Audit**: Ensure test files are accessible and specifications are available
+2. **For Feature Implementation**: Review implemented test cases to understand expected behavior
+3. Ensure test environment is properly configured
+4. Verify test data and fixtures are available
 
 ## Related Resources
 
 - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation progress
-- [Test File Creation Guide](../../guides/03-testing/test-file-creation-guide.md) - Guide for customizing test file templates
+- [Test-file customization craft (`test-specification` skill)](../../../.claude/skills/test-specification/references/test-file-customization.md) - Craft for customizing test files (replaces the retired Test File Creation Guide)
 - [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
-- [Feature Implementation State Tracking Guide](../../guides/04-implementation/feature-implementation-state-tracking-guide.md) - Guide for maintaining feature state file
+- [Living-document maintenance craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/living-document-maintenance.md) - Maintaining the feature state file (replaces the retired Feature Implementation State Tracking Guide)
 - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for cross-feature test specs
 - [Development Guide](../../guides/04-implementation/development-guide.md) - Testing standards and practices

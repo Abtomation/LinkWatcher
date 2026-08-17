@@ -484,12 +484,20 @@ class TestLinkWatcherLogger:
                 event_type="file_move",
             )
 
-        with patch.object(logger.struct_logger, "warning") as mock_warning:
+        # PD-BUG-117: file_deleted is a normal domain event — the handler emits it
+        # on every delete, including the DELETE half of every move — so it belongs
+        # at INFO alongside file_moved/file_created.  The genuine "this deletion
+        # broke links" anomaly is signalled separately by the handler's
+        # broken_references_found WARNING, which fires only when refs exist.
+        with patch.object(logger.struct_logger, "info") as mock_info, patch.object(
+            logger.struct_logger, "warning"
+        ) as mock_warning:
             logger.file_deleted("deleted.md", 2)
 
-            mock_warning.assert_called_once_with(
+            mock_info.assert_called_once_with(
                 "file_deleted", file_path="deleted.md", references_count=2, event_type="file_delete"
             )
+            mock_warning.assert_not_called()
 
     def test_context_management(self):
         """Test context setting and clearing."""

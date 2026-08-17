@@ -18,6 +18,14 @@
 .PARAMETER Category
     Run tests in one or more subdirectory categories of the test directory.
 
+.PARAMETER TestFile
+    Run one or more specific test files in isolation, bypassing category resolution. For the
+    iterate-after-fix loop — far faster than re-running a whole -Category. Takes precedence over
+    -Category. Accepts a path relative to the project root or the current directory, a bare
+    filename (resolved by searching the test directory; must match exactly one file), or a
+    comma-separated list of either (split per the framework CSV-string convention, so the list
+    survives pwsh -File's literal-token binding; PF-IMP-1542).
+
 .PARAMETER Quick
     Quick subset: categories defined in project-config.json testing.quickCategories.
 
@@ -48,6 +56,14 @@
 .PARAMETER UpdateTracking
     After running tests, parse results and update test-tracking.md.
 
+.PARAMETER SaveBaseline
+    Save this run's failed-test fingerprints as a baseline for a later -Baseline delta
+    (PF-IMP-1308). PowerShell runner only. See Run-Tests.powershell.ps1 for full semantics.
+
+.PARAMETER Baseline
+    Path to a saved baseline; makes the verdict delta-based (fails only on NEW failures vs the
+    baseline). PowerShell runner only. See Run-Tests.powershell.ps1 for full semantics.
+
 .EXAMPLE
     Run-Tests.ps1 -Quick
 
@@ -56,13 +72,16 @@
 
 .NOTES
     Per-language runners may implement only a subset of these flags in their first iteration.
-    Run-Tests.powershell.ps1 v1 (Phase 3a) supports: -Category / -Quick / -All / -Coverage / -ListCategories / -VerboseOutput.
-    Advanced flags (-Discover / -Lint / -Critical / -Performance / -UpdateTracking) are scheduled for Phase 3c.
+    Run-Tests.powershell.ps1 supports: -Category / -TestFile / -Quick / -All / -Coverage / -ListCategories / -VerboseOutput.
+    Not yet implemented in the PowerShell runner: -Discover / -Lint / -Critical / -Performance / -UpdateTracking (the Python runner implements these).
+    -SaveBaseline / -Baseline (PF-IMP-1308) are PowerShell-runner only (Pester-specific), like -TestFile;
+    the Python runner does not implement them.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [string[]]$Category,
+    [string[]]$TestFile,
     [switch]$Quick,
     [switch]$All,
     [switch]$Coverage,
@@ -72,8 +91,36 @@ param(
     [switch]$Performance,
     [switch]$ListCategories,
     [switch]$VerboseOutput,
-    [switch]$UpdateTracking
+    [switch]$UpdateTracking,
+    [switch]$SaveBaseline,
+    [string]$Baseline
 )
+
+# --- PF-IMP-1107: guarantee a non-interactive host for the test run ---
+# A Pester test that hits an interactive prompt (classically a missing mandatory parameter in a
+# Should-Throw case) blocks forever in an interactive-capable host. Under -NonInteractive that
+# same prompt becomes an immediate terminating error instead. Relaunch self under -NonInteractive
+# whenever the current process was not started with it — covering every launch path (pre-commit
+# hook, agent shell, human terminal) without each caller having to remember the flag.
+$startedNonInteractive = (@([Environment]::GetCommandLineArgs()) -join ' ') -match '(?i)(^|\s)-noni'
+if (-not $startedNonInteractive -and $env:PF_RUNTESTS_RELAUNCHED -ne '1') {
+    # Re-exec this exact invocation with -NonInteractive prepended. Replaying the original argv
+    # verbatim (rather than reconstructing from $PSBoundParameters) guarantees the relaunched
+    # parameter binding is identical to the original — no array/quoting mangling, no per-parameter
+    # maintenance. [Environment]::GetCommandLineArgs()[0] is the host executable/dll; the rest are
+    # the original arguments. The env-var guard backstops the command-line detection against an
+    # infinite relaunch loop.
+    $origArgs = @([Environment]::GetCommandLineArgs())
+    $rest = if ($origArgs.Count -gt 1) { $origArgs[1..($origArgs.Count - 1)] } else { @() }
+    $env:PF_RUNTESTS_RELAUNCHED = '1'
+    & (Get-Process -Id $PID).Path -NonInteractive @rest
+    exit $LASTEXITCODE
+}
+
+# --- PF-IMP-1107 / PF-IMP-1083: pin UTF-8 console encoding for the run ---
+# Subprocess-output assertions that match non-ASCII glyphs (em-dash, arrows, emoji) flake under
+# OEM consoles. Guarded — assigning Console encoding can throw in some headless/redirected hosts.
+try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
 # --- Import Common-ScriptHelpers for standardized utilities ---
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }

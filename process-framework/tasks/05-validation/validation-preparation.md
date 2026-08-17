@@ -5,11 +5,30 @@ category: Task Definition
 domain: agnostic
 version: 1.2
 created: 2026-03-23
-updated: 2026-05-16
+updated: 2026-06-12
 description: "Plan validation rounds by selecting features and applicable dimensions, create tracking state file"
+complexity: simple
+use_when: >-
+  **ENTRY POINT for validation rounds** — select features, evaluate dimension applicability, create tracking state file, plan session sequence. Triggers: 'start a validation round', 'plan validation', 'prepare for validation'.
+triggers:
+  - "start a validation round"
+  - "plan validation"
+  - "prepare for validation"
+automation: semi
+scripts:
+  - ../../scripts/file-creation/05-validation/New-ValidationTracking.ps1
+trigger_status:
+  - raw: "_(user request)_"
+output_status:
+  - raw: "Validation tracking state file → feature × dimension matrix created"
+next_tasks:
+  - task: dimension-validation-task.md
+    condition: "Run once per planned dimension; the dispatcher's table maps each dimension to its path file"
 ---
 
 # Validation Preparation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -23,8 +42,6 @@ Plans a validation round by selecting features to validate, evaluating which val
 **Communication Style**: Present dimension selection rationale per feature, ask about project-specific quality priorities, recommend validation sequence based on dependencies between dimensions
 
 ## Context Requirements
-
-[View Context Map for this task](../../visualization/context-maps/05-validation/validation-preparation-map.md)
 
 - **Critical (Must Read):**
 
@@ -41,13 +58,10 @@ Plans a validation round by selecting features to validate, evaluating which val
 
 - **Reference Only (Access When Needed):**
   - **Dimension Task Definitions** - [05-validation tasks](../05-validation/) - Individual dimension task definitions for understanding validation criteria
-  - **Visual Notation Guide** - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
   - **ID Registry** - [PD ID Registry](../../PF-id-registry.json) - For understanding document ID assignments
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
@@ -87,7 +101,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 
    Mark dimensions as **N/A** for features where they don't apply, with brief rationale.
 
-   > **Note**: AI Agent Continuity is a standalone validation task (PF-TSK-036) — it is not a development dimension and does not appear in feature Dimension Profiles. Include it in validation rounds for projects using AI-assisted development workflows.
+   > **Note**: AI Agent Continuity is a standalone validation task (run via [Dimension Validation](dimension-validation-task.md), the [ai-agent-continuity path](ai-agent-continuity-validation-path.md)) — it is not a development dimension and does not appear in feature Dimension Profiles. Include it in validation rounds for projects using AI-assisted development workflows.
 
    > **Re-validation shortcut**: When running a subsequent round on the same feature set and dimension applicability is unchanged (no new features added, no feature scope changes, no new dimensions adopted by the framework), reference the prior round's validated matrix instead of re-evaluating from scratch. State "Dimension applicability unchanged from Round N — see [prior tracking file]" and skip to Step 7.
 
@@ -96,8 +110,7 @@ Plans a validation round by selecting features to validate, evaluating which val
 7. **🤖 AUTOMATED - Create Validation Tracking State File**: Use the automation script to generate the tracking file:
 
    ```powershell
-   cd process-framework/scripts/file-creation/05-validation
-   New-ValidationTracking.ps1 -RoundNumber [N] -Description "[Round focus]" -ArchivePriorRound
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/05-validation/New-ValidationTracking.ps1 -RoundNumber [N] -Description "[Round focus]" -ArchivePriorRound
    ```
 
    The script auto-populates:
@@ -141,13 +154,11 @@ Plans a validation round by selecting features to validate, evaluating which val
 The following state files must be updated as part of this task:
 
 - **Validation Tracking State File** - Create new file in `state-tracking/temporary/` from [Validation Tracking Template](../../templates/05-validation/validation-tracking-template.md)
-- [Product Documentation Map](../../../doc/PD-documentation-map.md) - Add new validation tracking state file if it will be referenced long-term
+- [Product Documentation Map](../../../doc/PD-documentation-map.md) - Generated, DO-NOT-EDIT (`Build-DocumentationMap.ps1 -Tree PD`, PF-PRO-050); no manual entry — regeneration picks up any indexed doc's `description:`
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Validation tracking state file created with feature×dimension matrix
@@ -155,23 +166,21 @@ Before considering this task finished:
   - [ ] Session sequence planned with feature batches per dimension
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Validation tracking state file created in `state-tracking/temporary/`
-  - [ ] [Product Documentation Map](../../../doc/PD-documentation-map.md) updated if applicable
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-077" and context "Validation Preparation"
+  - [ ] [Product Documentation Map](../../../doc/PD-documentation-map.md) regenerated via `Build-DocumentationMap.ps1 -Tree PD` if a PD-map-indexed doc was added (generated DO-NOT-EDIT projection)
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-077`, context "Validation Preparation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | Validation Tracking State File | 🤖 Automated | Created via `New-ValidationTracking.ps1 -RoundNumber [N] -ArchivePriorRound` |
+| **Moves** | Prior round tracking file | 🤖 Automated | Moved to `archive/` when `-ArchivePriorRound` is specified |
+| **Updates** | [`PD-documentation-map.md`](../../../doc/PD-documentation-map.md) | Generated by [`Build-DocumentationMap.ps1 -Tree PD`](../../scripts/validation/Build-DocumentationMap.ps1) | Regenerate if a PD-map-indexed doc was added (DO-NOT-EDIT projection, PF-PRO-050) |
 
 ## Next Tasks
 
-- **Dimension Validation Tasks** — Execute the planned dimension tasks in sequence:
-  - [Architectural Consistency Validation](architectural-consistency-validation.md) (PF-TSK-031)
-  - [Code Quality Standards Validation](code-quality-standards-validation.md) (PF-TSK-032)
-  - [Integration Dependencies Validation](integration-dependencies-validation.md) (PF-TSK-033)
-  - [Documentation Alignment Validation](documentation-alignment-validation.md) (PF-TSK-034)
-  - [Extensibility Maintainability Validation](extensibility-maintainability-validation.md) (PF-TSK-035)
-  - [AI Agent Continuity Validation](ai-agent-continuity-validation.md) (PF-TSK-036)
-  - [Security & Data Protection Validation](security-data-protection-validation.md) (PF-TSK-072)
-  - [Performance & Scalability Validation](performance-scalability-validation.md) (PF-TSK-073)
-  - [Observability Validation](observability-validation.md) (PF-TSK-074)
-  - [Accessibility / UX Compliance Validation](accessibility-ux-compliance-validation.md) (PF-TSK-075)
-  - [Data Integrity Validation](data-integrity-validation.md) (PF-TSK-076)
+- **[Dimension Validation](dimension-validation-task.md) (PF-TSK-092)** — execute once per planned dimension in the round (one dimension per session). The task's dispatch table maps each dimension to its path file (where that dimension's role, analysis steps, and criteria live):
+  - [Architectural Consistency](architectural-consistency-validation-path.md) · [Code Quality & Standards](code-quality-standards-validation-path.md) · [Integration & Dependencies](integration-dependencies-validation-path.md) · [Documentation Alignment](documentation-alignment-validation-path.md) · [Extensibility & Maintainability](extensibility-maintainability-validation-path.md) · [AI Agent Continuity](ai-agent-continuity-validation-path.md) · [Security & Data Protection](security-data-protection-validation-path.md) · [Performance & Scalability](performance-scalability-validation-path.md) · [Observability](observability-validation-path.md) · [Accessibility / UX Compliance](accessibility-ux-compliance-validation-path.md) · [Data Integrity](data-integrity-validation-path.md)
 
 ## Related Resources
 

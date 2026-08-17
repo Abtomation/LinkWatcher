@@ -8,7 +8,7 @@ updated: 2026-04-30
 template_for: Performance Test Audit Report
 creates_document_prefix: TE-TAR
 creates_document_category: Test Audit Report
-creates_document_type: Performance Test Audit
+creates_document_type: Testing
 description: Template for performance test audit reports with 4 criteria
 usage_context: Used by New-TestAuditReport.ps1 -TestType Performance during PF-TSK-030
 variant_group: test-audit-report-templates

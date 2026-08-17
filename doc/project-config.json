@@ -13,7 +13,6 @@
     "description": "Project-specific directory paths relative to root or absolute",
     "documentation_root": "doc",
     "process_framework": "process-framework",
-    "product_docs": "doc",
     "source_code": "src/linkwatcher",
     "tests": "test",
     "test_tracking_dir": "test/state-tracking/permanent",
@@ -30,7 +29,13 @@
       "unit"
     ]
   },
+  "documentation_map": {
+    "description": "Per-project opt-outs for the Source Code Documentation Map (Build-DocumentationMap.ps1 -Tree SC, PF-IMP-1955). src_exclude_dirs: directory NAMES (matched at any depth under paths.source_code) excluded from indexing, in addition to the framework-wide invariants (archive/old and dependency/build caches, pruned in-script). src_extra_extensions: extensions (with dot) indexed beyond the default set - e.g. '.json', which is deliberately not indexed by default. Absent block or empty arrays = defaults; no configuration is required for the SC map to work.",
+    "src_exclude_dirs": [],
+    "src_extra_extensions": []
+  },
   "project_metadata": {
+    "role": "project",
     "primary_language": "Python",
     "framework": "N/A",
     "platform": "Windows",
@@ -50,8 +55,70 @@
     "code_hosting": "GitHub",
     "documentation_hosting": "Repository"
   },
+  "recommended_skills": {
+    "description": "Claude Code skills recommended for specific tasks in this project. Each key is a task slug (task definition filename without .md); value is an array of skill objects. Language-bound skills go in languages-config instead. Populated during Project Initiation (PF-TSK-059 Step 10).",
+    "_example_entry": { "skill": "playwright", "note": "Browser automation for E2E acceptance testing" },
+    "tasks": {
+      "ui-design-task": [
+        { "skill": "ui-design", "note": "UI/UX Design-document customization craft (framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate). Activated by the UI Design task's Check Recommended Skills step. Craft-as-Skill pilot (PF-PRO-051)." }
+      ],
+      "fdd-creation-task": [
+        { "skill": "fdd-creation", "kind": "craft", "note": "FDD customization craft (requirement-prefix convention, granularity decisions, separation of concerns). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the FDD Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 1 (PF-PRO-051)." }
+      ],
+      "tdd-creation-task": [
+        { "skill": "tdd-creation", "kind": "craft", "note": "TDD customization craft (tier selection, D10 dimension-informed quality-attribute depth, handoff-notes quality). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the TDD Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 1 (PF-PRO-051)." }
+      ],
+      "integration-narrative-creation": [
+        { "skill": "integration-narrative", "kind": "craft", "note": "Integration Narrative customization craft (workflow scoping, diagram detail, source-code-verification discipline). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Integration Narrative Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 1 (PF-PRO-051)." }
+      ],
+      "api-design-task": [
+        { "skill": "api-design", "kind": "craft", "note": "API specification + data-model customization craft (-APIType template selection, auth/error decisions, model structure/validation/versioning). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the API Design task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 1 (PF-PRO-051)." }
+      ],
+      "system-architecture-review": [
+        { "skill": "architecture-decision", "kind": "craft", "note": "ADR customization craft (when-warranted, section content, structured alternatives). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the System Architecture Review task's Check Recommended Skills step; also the craft home referenced at other tasks' conditional ADR-trigger moments. Craft-as-Skill BL-5 batch 1 (PF-PRO-051)." }
+      ],
+      "retrospective-documentation-creation": [
+        { "skill": "architecture-decision", "kind": "craft", "note": "ADR customization craft, incl. retrospective mode (mark unknowns clearly). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Retrospective Documentation Creation task's Step 0 Check Recommended Skills. Craft-as-Skill BL-5 batch 1 (PF-PRO-051)." },
+        { "skill": "onboarding-edge-cases", "kind": "craft", "note": "Confidence-tagging craft for retroactive documentation (tag levels, section-level application, flag-Low-for-review). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Retrospective Documentation Creation task's Step 0 Check Recommended Skills. Craft-as-Skill BL-5 batch 5 (PF-PRO-051)." }
+      ],
+      "project-initiation-task": [
+        { "skill": "source-layout", "kind": "craft", "note": "Source-organization craft (feature-first principle, layer dependency rules, placement decision tree) informing paths.source_code configuration. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Project Initiation task's Step 0 Check Recommended Skills. Craft-as-Skill BL-5 batch 5 (PF-PRO-051)." }
+      ],
+      "codebase-feature-discovery": [
+        { "skill": "onboarding-edge-cases", "kind": "craft", "note": "Ambiguous file-to-feature assignment craft (decision tree, shared-utility handling, 100%-coverage principle). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Codebase Feature Discovery task's Step 0 Check Recommended Skills. Craft-as-Skill BL-5 batch 5 (PF-PRO-051)." },
+        { "skill": "source-layout", "kind": "craft", "note": "Source-organization craft for the source-structure step (scaffolding, dependency flow, adapting the placement decision tree). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Codebase Feature Discovery task's Step 0 Check Recommended Skills. Craft-as-Skill BL-5 batch 5 (PF-PRO-051)." }
+      ],
+      "codebase-source-migration-task": [
+        { "skill": "source-migration", "kind": "craft", "note": "Migration judgment craft (action classification, split boundaries, verification stack, both-direction import rewriting, residual-risk honesty). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Codebase Source Migration task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 5 (PF-PRO-051)." }
+      ],
+      "codebase-feature-analysis": [
+        { "skill": "onboarding-edge-cases", "kind": "craft", "note": "Cross-cutting-pattern and assignment-refinement craft during per-feature analysis. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Codebase Feature Analysis task's Step 0 Check Recommended Skills. Craft-as-Skill BL-5 batch 5 (PF-PRO-051)." }
+      ],
+      "test-specification-creation-task": [
+        { "skill": "test-specification", "kind": "craft", "note": "Test Specification customization craft (tier-appropriate depth, TDD-to-category mapping, Implementation Coverage line); its test-file reference is also the customization craft for tasks that create test files. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Test Specification Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 2 (PF-PRO-051)." }
+      ],
+      "e2e-acceptance-test-case-creation-task": [
+        { "skill": "e2e-test-case-creation", "kind": "craft", "note": "E2E acceptance test-case customization craft (test-case.md fields, fixture population, run.ps1 recipe, hermetic-central pattern). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the E2E Acceptance Test Case Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 2 (PF-PRO-051)." }
+      ],
+      "performance-and-e2e-test-scoping-task": [
+        { "skill": "perf-e2e-scoping", "kind": "craft", "note": "Performance & E2E scoping craft (performance test decision matrix, E2E milestone-readiness evaluation, recording conventions). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Performance & E2E Test Scoping task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 2 (PF-PRO-051)." }
+      ],
+      "code-refactoring-task": [
+        { "skill": "refactoring-planning", "kind": "craft", "note": "Refactoring Plan customization craft (mode/template selection, scope-delta recording, measurable baselines/goals, workflow- and dimension-aware patterns). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Code Refactoring task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 3 (PF-PRO-051)." }
+      ],
+      "technical-debt-assessment-task": [
+        { "skill": "technical-debt-assessment", "kind": "craft", "note": "Technical-debt assessment judgment craft (what-counts-as-debt test, per-category identification criteria, impact/effort prioritization, debt-item customization). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Technical Debt Assessment task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 3 (PF-PRO-051)." }
+      ],
+      "feature-request-evaluation": [
+        { "skill": "feature-request-evaluation", "kind": "craft", "note": "Change-request evaluation craft (tier-assessment scoring + Design Requirements Evaluation; Enhancement State Tracking File customization). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Feature Request Evaluation task's Check Recommended Skills step; its tier-assessment reference is also consulted inline by the onboarding tasks and Documentation Tier Adjustment. Craft-as-Skill BL-5 batch 3 (PF-PRO-051)." }
+      ],
+      "feature-implementation-planning-task": [
+        { "skill": "feature-implementation-planning", "kind": "craft", "note": "Feature Implementation State file initialization + living-document maintenance craft (section-ownership boundary, variant awareness, section-by-section judgment, bidirectional markers, onboarding sections). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Feature Implementation Planning task's Check Recommended Skills step; its maintenance and onboarding references are also consulted inline by the decomposed implementation tasks and the onboarding tasks. Craft-as-Skill BL-5 batch 4 (PF-PRO-051)." }
+      ]
+    }
+  },
   "layering_rules": {
-    "description": "Per-project layer dependency rules. Source of truth for layer-boundary checks at PF-TSK-032 Code Quality Standards Validation. See process-framework/guides/00-setup/source-code-layout-guide.md for narrative documentation and process-framework/guides/05-validation/feature-validation-guide.md (Layer-Boundary Validation) for usage. Empty 'layers' = no enforcement (backward-compatible default). Populate during PF-TSK-064/066 onboarding or after ADRs codify layer-boundary invariants.",
+    "description": "Per-project layer dependency rules. Source of truth for layer-boundary checks at PF-TSK-032 Code Quality Standards Validation. Narrative companion: the source-layout craft skill (.claude/skills/source-layout/SKILL.md, Layer Dependency Rules); usage: process-framework/guides/05-validation/feature-validation-guide.md (Layer-Boundary Validation). Empty 'layers' = no enforcement (backward-compatible default). Populate during PF-TSK-064/066 onboarding or after ADRs codify layer-boundary invariants.",
     "layers": [],
     "_layer_schema_example": {
       "_comment": "Reference schema for a populated layer entry. Remove the leading underscore on the key when adopting. 'name' is the layer's identifier referenced by 'may_import_from' in other layers; 'directory_glob' identifies source files belonging to this layer; 'may_import_from' is the allowlist (importing from a layer not listed here is a finding).",
@@ -64,5 +131,5 @@
       "enabled": false
     }
   },
-  "project_id": "PRJ-001"
+  "project_id": "APP-001"
 }

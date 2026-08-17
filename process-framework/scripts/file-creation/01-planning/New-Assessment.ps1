@@ -12,8 +12,6 @@
     - Creating a properly formatted assessment file
     - Updating the ID tracker in the central ID registry
     - Providing a complete template for complexity assessment
-    - Automatically updating feature tracking with assessment completion status
-    - Linking the assessment document in the feature tracking table
 
 .PARAMETER FeatureId
     The feature ID in format X.X.X (e.g., 1.2.3)
@@ -27,22 +25,18 @@
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
-.PARAMETER DryRun
-    If specified, shows what would be updated in feature tracking without making changes
-
 .EXAMPLE
     ../New-Assessment.ps1 -FeatureId "2.1.5" -FeatureName "User Authentication" -FeatureDescription "Implement OAuth2 login system"
 
 .EXAMPLE
     ../New-Assessment.ps1 -FeatureId "1.3.2" -FeatureName "Data Export" -FeatureDescription "Export user data to CSV" -OpenInEditor
 
-.EXAMPLE
-    ../New-Assessment.ps1 -FeatureId "1.4.1" -FeatureName "Payment Processing" -FeatureDescription "Stripe integration for payments" -DryRun
-
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
     - Creates the assessments subdirectory if it doesn't exist
+    - Does not touch feature-tracking.md: status, tier emoji, and assessment link are
+      written by Update-FeatureTrackingFromAssessment.ps1 after the assessment is filled in
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -57,10 +51,7 @@ param(
     [string]$FeatureDescription,
 
     [Parameter(Mandatory=$false)]
-    [switch]$OpenInEditor,
-
-    [Parameter(Mandatory=$false)]
-    [switch]$DryRun
+    [switch]$OpenInEditor
 )
 
 # Import the common helpers
@@ -70,18 +61,15 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path
+# are owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script
+# keeps its data, its bespoke post-creation write (ID-stamped file rename), and its own
+# report — all inline under the outer try/catch.
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "feature_id" = $FeatureId
+    description  = "Documentation tier assessment for $FeatureName ($FeatureId)"
 }
 
 # Prepare custom replacements
@@ -92,7 +80,7 @@ $customReplacements = @{
 
 # Create the document using standardized process
 try {
-    $assessmentId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/01-planning/assessment-template.md") -IdPrefix "PD-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/documentation-tiers/assessments" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+    $assessmentId = New-FrameworkDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/01-planning/assessment-template.md") -IdPrefix "PD-ASS" -IdDescription "Assessment for feature ${FeatureId}: ${FeatureName}" -DocumentName $FeatureName -OutputDirectory "doc/documentation-tiers/assessments" -Replacements $customReplacements -Metadata $additionalMetadataFields -Label "assessment" -OpenInEditor:$OpenInEditor
 
     # Rename the file to include the ID and feature ID in the filename
     $assessmentsDir = Join-Path -Path (Get-ProjectRoot) -ChildPath "doc/documentation-tiers/assessments"
@@ -113,60 +101,15 @@ try {
 
     # Add next steps if not opening in editor
     if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/01-planning/assessment-guide.md"
+        $details += "Customization required — apply the feature-request-evaluation craft skill (.claude/skills/feature-request-evaluation/references/tier-assessment.md)"
     }
+
+    # Feature tracking is deliberately untouched here: status, tier emoji, and the
+    # assessment link are all written by Update-FeatureTrackingFromAssessment.ps1,
+    # which the task flow runs after the assessment is filled in (PF-IMP-1392)
+    $details += "Next: run Update-FeatureTrackingFromAssessment.ps1 after filling in the assessment to set status, tier, and assessment link"
 
     Write-ProjectSuccess -Message "Created assessment with ID: $assessmentId" -Details $details
-
-    # 🚀 AUTOMATION ENHANCEMENT: Update feature tracking with assessment completion
-    Write-Host ""
-    Write-Host "🤖 Updating Feature Tracking..." -ForegroundColor Yellow
-
-    try {
-        # Validate dependencies for automation
-        $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
-            "Update-FeatureTrackingStatus"
-        )
-
-        if (-not $dependencyCheck.AllDependenciesMet) {
-            Write-Warning "Automation dependencies not available. Feature tracking must be updated manually."
-            Write-Host "Manual Update Required:" -ForegroundColor Yellow
-            Write-Host "  - Update Status: Assessment link added (status updated by Update-FeatureTrackingFromAssessment.ps1 after tier determination)" -ForegroundColor Cyan
-            Write-Host "  - Add assessment link to feature tracking" -ForegroundColor Cyan
-        } else {
-            # Prepare assessment document link
-            $assessmentLink = "doc/documentation-tiers/assessments/$newFileName)"
-
-            # Prepare additional updates for feature tracking
-            $additionalUpdates = @{
-                "Assessment" = $assessmentLink
-            }
-
-            # Add notes about assessment creation
-            $automationNotes = "Assessment created: $assessmentId ($(Get-ProjectTimestamp -Format 'Date'))"
-
-            if ($DryRun) {
-                Write-Host "DRY RUN: Would update feature tracking for $FeatureId" -ForegroundColor Yellow
-                Write-Host "  Status: Assessment link added (status updated by Update-FeatureTrackingFromAssessment.ps1 after tier determination)" -ForegroundColor Cyan
-                Write-Host "  Assessment Link: $assessmentLink" -ForegroundColor Cyan
-                Write-Host "  Notes: $automationNotes" -ForegroundColor Cyan
-            } else {
-                # Link assessment in feature tracking without changing primary status
-                # Status will be set by Update-FeatureTrackingFromAssessment.ps1 after tier is determined
-                $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -AdditionalUpdates $additionalUpdates -Notes $automationNotes
-
-                Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
-                Write-Host "  🔗 Assessment linked in feature tracking" -ForegroundColor Green
-                Write-Host "  ℹ️  Run Update-FeatureTrackingFromAssessment.ps1 after filling in the assessment to set the next-action status" -ForegroundColor Yellow
-            }
-        }
-    }
-    catch {
-        Write-Warning "Failed to update feature tracking automatically: $($_.Exception.Message)"
-        Write-Host "Manual Update Required:" -ForegroundColor Yellow
-        Write-Host "  - Run Update-FeatureTrackingFromAssessment.ps1 after completing assessment" -ForegroundColor Cyan
-        Write-Host "  - Add assessment link: [$assessmentId](/doc/documentation-tiers/assessments/$newFileName)" -ForegroundColor Cyan
-    }
 }
 catch {
     Write-ProjectError -Message "Failed to create assessment: $($_.Exception.Message)" -ExitCode 1

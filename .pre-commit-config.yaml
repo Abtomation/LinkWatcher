@@ -51,11 +51,40 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-        stages: [commit]
+        stages: [pre-commit]
       - id: no-git-objects-literal
         name: Detect .git/objects/ literal paths (corruption guard, PF-IMP-615)
         entry: pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Check-GitObjectsLiteral.ps1
         language: system
         pass_filenames: false
         always_run: true
-        stages: [commit]
+        stages: [pre-commit]
+      - id: documentation-map-pd-in-sync
+        name: Product documentation map in sync (regenerate with Build-DocumentationMap.ps1 -Tree PD)
+        entry: pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Build-DocumentationMap.ps1 -Tree PD -Check
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+      - id: documentation-map-te-in-sync
+        name: Test documentation map in sync (regenerate with Build-DocumentationMap.ps1 -Tree TE)
+        entry: pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Build-DocumentationMap.ps1 -Tree TE -Check
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+      - id: state-tracking-validate
+        name: State tracking validation (warn-first; promote with Run-StateTrackingGate.ps1 -Blocking)
+        entry: pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Run-StateTrackingGate.ps1
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true
+        stages: [pre-commit]
+      - id: no-nul-bytes
+        name: Detect NUL-byte corruption in tracked text files
+        entry: pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/validation/Check-NulBytes.ps1
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]

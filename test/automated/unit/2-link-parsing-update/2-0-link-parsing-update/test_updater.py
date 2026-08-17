@@ -1148,3 +1148,398 @@ class TestOverlappingReferenceCorruption:
         ), f"TD252: ambiguous-fallback skip not surfaced in errors, got {stats!r}"
         # No unbounded replacement leaked through (regression guard).
         assert test_file.read_text().count("new-config.json") <= 1
+
+
+class TestOverrideAwareResolution:
+    """Unit tests for override-aware virtual-root resolution (v1.1).
+
+    ``path_resolution_overrides`` maps a folder to a resolution base: files
+    under that folder write host-absolute (``/...``) references against a
+    *virtual* root (the blueprint-restructuring use case).  v1.1 extends the
+    previously validate-only override into the live move/update path
+    (PD-TDD-026 "Override-Aware Path Resolution").  Scenarios (a)-(d) from
+    TE-TSP-040 "Override-Aware Resolution Tests"; scenario (e) is the
+    directory-restructure integration test in test_link_updates.py.
+    """
+
+    OVERRIDES = {"appdev/blueprint": "appdev/blueprint"}
+
+    @staticmethod
+    def _resolver(temp_project_dir, overrides=None, logger=None):
+        from linkwatcher.path_resolver import PathResolver
+
+        return PathResolver(
+            str(temp_project_dir), logger=logger, path_resolution_overrides=overrides
+        )
+
+    @staticmethod
+    def _blueprint_ref(target="/process-framework/tasks/foo.md"):
+        return LinkReference(
+            file_path="appdev/blueprint/process-framework/ai-tasks.md",
+            line_number=1,
+            column_start=0,
+            column_end=40,
+            link_text="Foo",
+            link_target=target,
+            link_type="markdown",
+        )
+
+    @staticmethod
+    def _make_moved_file(
+        temp_project_dir, rel="appdev/blueprint/process-framework/tasks/foo-task.md"
+    ):
+        """Create the post-move target on disk (containment guard requires it)."""
+        p = temp_project_dir / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("content")
+        return p
+
+    OLD = "appdev/blueprint/process-framework/tasks/foo.md"
+    NEW = "appdev/blueprint/process-framework/tasks/foo-task.md"
+
+    def test_override_source_absolute_ref_rewritten(self, temp_project_dir):
+        """(a) A /... reference from an override-folder source is matched and
+        rewritten, preserving the leading-slash virtual-root style."""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        result = resolver.calculate_new_target(self._blueprint_ref(), self.OLD, self.NEW)
+
+        assert result == "/process-framework/tasks/foo-task.md"
+
+    def test_override_rewrite_preserves_anchor(self, temp_project_dir):
+        """(a) Anchor fragments survive an override-aware rewrite."""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        ref = self._blueprint_ref("/process-framework/tasks/foo.md#section")
+        result = resolver.calculate_new_target(ref, self.OLD, self.NEW)
+
+        assert result == "/process-framework/tasks/foo-task.md#section"
+
+    def test_non_override_source_unchanged(self, temp_project_dir):
+        """(b) The same /... reference from a source OUTSIDE every override
+        folder is left byte-for-byte unchanged."""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        ref = LinkReference(
+            file_path="doc/notes.md",
+            line_number=1,
+            column_start=0,
+            column_end=40,
+            link_text="Foo",
+            link_target="/process-framework/tasks/foo.md",
+            link_type="markdown",
+        )
+        result = resolver.calculate_new_target(ref, self.OLD, self.NEW)
+
+        assert result == "/process-framework/tasks/foo.md"
+
+    def test_no_override_config_keeps_v1_0_behavior(self, temp_project_dir):
+        """(b) Without path_resolution_overrides configured, resolution is
+        byte-for-byte the v1.0 behavior — including the lossy PD-BUG-045
+        suffix-match fallback this enhancement supersedes when configured."""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, overrides=None)
+
+        result = resolver.calculate_new_target(self._blueprint_ref(), self.OLD, self.NEW)
+
+        # v1.0: the PD-BUG-045 suffix match fires (source under the subtree)
+        # and returns a slash-stripped, non-virtual-root form.  Locked in as a
+        # regression anchor: no-config behavior must not change.
+        assert result == "process-framework/tasks/foo-task.md"
+
+    def test_override_relative_links_unaffected(self, temp_project_dir):
+        """(b) Relative references from an override-folder source are not
+        touched by override resolution — they resolve against the source
+        file's own directory exactly as before."""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        ref = LinkReference(
+            file_path="appdev/blueprint/process-framework/tasks/index.md",
+            line_number=1,
+            column_start=0,
+            column_end=20,
+            link_text="Foo",
+            link_target="foo.md",
+            link_type="markdown",
+        )
+        result = resolver.calculate_new_target(ref, self.OLD, self.NEW)
+
+        assert result == "foo-task.md"
+
+    def test_override_guard_nonexistent_target_unchanged(self, temp_project_dir):
+        """(c) An override match whose proposed new target does not exist on
+        disk is left unchanged (containment guard, mirrors PD-BUG-095)."""
+        # NOTE: deliberately no file created on disk.
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        result = resolver.calculate_new_target(self._blueprint_ref(), self.OLD, self.NEW)
+
+        assert result == "/process-framework/tasks/foo.md"
+
+    def test_override_ref_to_unmoved_path_unchanged(self, temp_project_dir):
+        """(c) A /... reference that does not resolve to the moved file is
+        left unchanged."""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        ref = self._blueprint_ref("/process-framework/guides/other.md")
+        result = resolver.calculate_new_target(ref, self.OLD, self.NEW)
+
+        assert result == "/process-framework/guides/other.md"
+
+    def test_override_backslash_separator_preserved(self, temp_project_dir):
+        """(d) An override-source reference written with backslash separators
+        keeps them on rewrite (PD-BUG-112 regression class)."""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        ref = self._blueprint_ref("\\process-framework\\tasks\\foo.md")
+        result = resolver.calculate_new_target(ref, self.OLD, self.NEW)
+
+        assert result == "\\process-framework\\tasks\\foo-task.md"
+
+    def test_override_link_not_hijacked_by_coinciding_root_move(self, temp_project_dir):
+        """(c) A virtual-root link must NOT be rewritten when a REAL root-level
+        path that coincides with its virtual path moves.  E.g. root test/x.md
+        moves while a blueprint link says /test/x.md — the blueprint link means
+        <base>/test/x.md, not the root file, and must stay unchanged.
+        (Found by the Step-13 quality audit: the early-exit equality/prefix
+        branches compared the unresolved form and would have hijacked it.)"""
+        # Real root-level file that moves
+        moved = self._make_moved_file(temp_project_dir, rel="test/x-renamed.md")
+        assert moved.exists()
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        # Override-source link whose VIRTUAL path coincides with the root path
+        ref = self._blueprint_ref("/test/x.md")
+        result = resolver.calculate_new_target(ref, "test/x.md", "test/x-renamed.md")
+
+        assert result == "/test/x.md", "virtual-root link hijacked by coinciding root move"
+
+    def test_override_link_not_hijacked_by_coinciding_root_dir_move(self, temp_project_dir):
+        """(c) Same protection for the directory-prefix early exit: a root-level
+        DIRECTORY move must not relocate a virtual-root link under the same
+        virtual prefix."""
+        self._make_moved_file(temp_project_dir, rel="test2/sub/x.md")
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        ref = self._blueprint_ref("/test/sub/x.md")
+        result = resolver.calculate_new_target(ref, "test", "test2")
+
+        assert result == "/test/sub/x.md", "virtual-root link hijacked by coinciding dir move"
+
+    def test_override_link_not_hijacked_by_suffix_coinciding_move(self, temp_project_dir):
+        """(c) The PD-BUG-045 suffix-match fallback must not fire for
+        virtual-root links: a blueprint link /tasks/foo.md whose TRUE virtual
+        target (<base>/tasks/foo.md) did not move must stay unchanged when an
+        unrelated suffix-coinciding file (<override>/.../tasks/foo.md) is
+        renamed.  Without the gate the link was rewritten to
+        "tasks/foo-task.md" — wrong target AND virtual-root style lost.
+        (2026-07-06 code-review Major finding: residual suffix hijack.)"""
+        self._make_moved_file(temp_project_dir)
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES)
+
+        # Virtual path /tasks/foo.md == <base>/tasks/foo.md, which is NOT the
+        # moved file — but it is a path-suffix of the moved file's old path.
+        ref = self._blueprint_ref("/tasks/foo.md")
+        result = resolver.calculate_new_target(ref, self.OLD, self.NEW)
+
+        assert result != "tasks/foo-task.md", "virtual-root link hijacked via suffix match"
+        assert result == "/tasks/foo.md"
+
+    def test_override_rewrite_emits_observability_event(self, temp_project_dir):
+        """The override rewrite emits update_resolution_override_applied so
+        blueprint rewrites are auditable (OB dimension)."""
+        from unittest.mock import MagicMock
+
+        self._make_moved_file(temp_project_dir)
+        logger = MagicMock()
+        resolver = self._resolver(temp_project_dir, self.OVERRIDES, logger=logger)
+
+        resolver.calculate_new_target(self._blueprint_ref(), self.OLD, self.NEW)
+
+        events = [call.args[0] for call in logger.debug.call_args_list]
+        assert "update_resolution_override_applied" in events
+
+
+class TestDocstringColumnCorruption:
+    """PD-BUG-118 (Defect A) regression, end-to-end through parser + updater.
+
+    The defect lives in the seam: the Python parser emits columns relative to
+    the extracted docstring text, and the updater slices the physical line at
+    them.  Neither component is wrong in isolation, so this test drives the
+    real parser output into the real updater rather than hand-building refs.
+
+    The corruption signature from the bug report is asserted ABSENT, not merely
+    the correct string present -- a permissive positive assertion would pass
+    even if the mangled text were emitted alongside the right one.
+    """
+
+    def test_docstring_line_replacement_has_no_character_duplication(self, temp_project_dir):
+        """The literal PD-BUG-118 evidence case, reproduced through both layers."""
+        from linkwatcher.parsers.python import PythonParser
+
+        source_line = '    """Resolve database path to test/state-tracking/permanent/."""'
+        py_file = temp_project_dir / "performance_db.py"
+        py_file.write_text("def _resolve_db_path():\n" + source_line + "\n", encoding="utf-8")
+
+        refs = PythonParser().parse_content(py_file.read_text(encoding="utf-8"), str(py_file))
+        target = "test/state-tracking/permanent/"
+        doc_refs = [r for r in refs if r.link_target == target]
+        assert doc_refs, "parser must still find the docstring directory reference"
+
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_backup_enabled(False)
+        updater._apply_replacements(
+            str(py_file), str(py_file), [(doc_refs[0], "test/state-tracking/archive")]
+        )
+        updated = py_file.read_text(encoding="utf-8")
+
+        # Negative assertions: the documented corruption signatures must be gone.
+        assert "ptest/" not in updated, "PD-BUG-118 doubled-letter corruption in: {!r}".format(
+            updated
+        )
+        assert "anent/." not in updated, "PD-BUG-118 chopped-tail corruption in: {!r}".format(
+            updated
+        )
+        assert "permanentanent" not in updated, "PD-BUG-118 corruption in: {!r}".format(updated)
+        # Surrounding prose and the docstring delimiters must survive intact.
+        assert "Resolve database path to " in updated
+        assert updated.rstrip().endswith('"""')
+
+    def test_docstring_replacement_leaves_prose_byte_identical(self, temp_project_dir):
+        """Nothing outside the matched path span may change (the bug's Expected)."""
+        from linkwatcher.parsers.python import PythonParser
+
+        prefix = '    """Templates in '
+        suffix = ' for reuse."""'
+        old_dir = "process-framework/templates/support/"
+        new_dir = "process-framework/templates/shared/"
+        py_file = temp_project_dir / "mod.py"
+        py_file.write_text("def f():\n" + prefix + old_dir + suffix + "\n", encoding="utf-8")
+
+        refs = PythonParser().parse_content(py_file.read_text(encoding="utf-8"), str(py_file))
+        doc_refs = [r for r in refs if r.link_target == old_dir]
+        assert doc_refs, "parser must find the docstring directory reference"
+
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_backup_enabled(False)
+        updater._apply_replacements(str(py_file), str(py_file), [(doc_refs[0], new_dir)])
+        updated = py_file.read_text(encoding="utf-8")
+
+        expected = "def f():\n" + prefix + new_dir + suffix + "\n"
+        assert updated == expected, "characters outside the matched span were altered: {!r}".format(
+            updated
+        )
+
+
+class TestTrailingSlashPreservation:
+    """PD-BUG-118 (Defect B) regression: a directory reference authored with a
+    trailing slash was rewritten without it.
+
+    Every rewrite in ``PathResolver._calculate_new_target_relative`` returns
+    ``normalize_path()`` output, and ``os.path.normpath`` strips the trailing
+    separator.  The rewrite therefore differed from the authored target even
+    when the path itself was right, which both damaged the authored form and
+    caused files to be written for a difference that carried no meaning.
+
+    The sibling write path already solved this: ``reference_lookup``'s
+    authored-form guard names the ``"dir/" to "dir"`` case explicitly.  These
+    tests hold ``path_resolver`` to the same contract.
+    """
+
+    def _dir_ref(self, source_file, target):
+        return LinkReference(
+            file_path=source_file,
+            line_number=1,
+            column_start=0,
+            column_end=len(target),
+            link_text=target,
+            link_target=target,
+            link_type=LinkType.MARKDOWN_BACKTICK_DIR,
+        )
+
+    def test_exact_directory_match_preserves_trailing_slash(self, temp_project_dir):
+        """`doc/state-tracking/` moving to doc/moved-tracking keeps its slash."""
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._dir_ref("README.md", "doc/state-tracking/")
+
+        result = updater._calculate_new_target(ref, "doc/state-tracking", "doc/moved-tracking")
+
+        assert result == "doc/moved-tracking/", "authored trailing slash lost: {!r}".format(result)
+
+    def test_slashless_target_stays_slashless(self, temp_project_dir):
+        """Control: a target authored WITHOUT a slash must not gain one."""
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._dir_ref("README.md", "doc/state-tracking")
+
+        result = updater._calculate_new_target(ref, "doc/state-tracking", "doc/moved-tracking")
+
+        assert result == "doc/moved-tracking", "unexpected trailing slash added: {!r}".format(
+            result
+        )
+
+    def test_subdirectory_prefix_match_preserves_trailing_slash(self, temp_project_dir):
+        """The directory-prefix branch must preserve the slash too."""
+        (temp_project_dir / "doc" / "moved-tracking" / "permanent").mkdir(parents=True)
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._dir_ref("README.md", "doc/state-tracking/permanent/")
+
+        result = updater._calculate_new_target(ref, "doc/state-tracking", "doc/moved-tracking")
+
+        assert result == "doc/moved-tracking/permanent/", "trailing slash lost: {!r}".format(result)
+
+    def test_leading_slash_form_preserves_trailing_slash(self, temp_project_dir):
+        """Root-absolute authored form keeps BOTH its leading and trailing slash."""
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._dir_ref("README.md", "/doc/state-tracking/")
+
+        result = updater._calculate_new_target(ref, "doc/state-tracking", "doc/moved-tracking")
+
+        assert result == "/doc/moved-tracking/", "authored form damaged: {!r}".format(result)
+
+    def test_backslash_target_preserves_trailing_backslash(self, temp_project_dir):
+        """Separator style and trailing separator must both survive (PD-BUG-112 sibling)."""
+        (temp_project_dir / "doc" / "moved-tracking").mkdir(parents=True)
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._dir_ref("README.md", "doc\\state-tracking\\")
+
+        result = updater._calculate_new_target(ref, "doc/state-tracking", "doc/moved-tracking")
+
+        assert result == "doc\\moved-tracking\\", "authored form damaged: {!r}".format(result)
+
+    def test_no_op_move_does_not_rewrite_file(self, temp_project_dir):
+        """PD-BUG-118 (Defect B, safety net): a move whose old and new paths are
+        the same must never write the file.
+
+        Before the fix the trailing-slash difference alone made ``new_target !=
+        link_target``, so the file was rewritten -- losing the authored slash --
+        for a move that relocated nothing.  ``update_references`` is public API;
+        it must be inert for a no-op move regardless of what upstream produced
+        it.
+        """
+        md_file = temp_project_dir / "README.md"
+        original = "See the `doc/state-tracking/` tracker.\n"
+        md_file.write_text(original, encoding="utf-8")
+
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_backup_enabled(False)
+        target = "doc/state-tracking/"
+        ref = LinkReference(
+            file_path=str(md_file),
+            line_number=1,
+            column_start=original.index(target),
+            column_end=original.index(target) + len(target),
+            link_text=target,
+            link_target=target,
+            link_type=LinkType.MARKDOWN_BACKTICK_DIR,
+        )
+
+        stats = updater.update_references([ref], "doc/state-tracking", "doc/state-tracking")
+
+        assert md_file.read_text(encoding="utf-8") == original, "no-op move rewrote the file"
+        assert stats["files_updated"] == 0

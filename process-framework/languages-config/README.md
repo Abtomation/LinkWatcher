@@ -12,6 +12,8 @@ languages-config/
 │   └── python-config.json
 ├── powershell/
 │   └── powershell-config.json
+├── dart/
+│   └── dart-config.json
 ├── README.md
 ```
 
@@ -29,7 +31,8 @@ Run-Tests.ps1 (dispatcher, ~50 lines)
   ├─ Reads testing.language from doc/project-config.json
   └─ Dispatches via Resolve-TestLanguageRunner (TestRunner.psm1) to:
        ├─ scripts/language-specific-scripts/python/Run-Tests.python.ps1     (pytest)
-       └─ scripts/language-specific-scripts/powershell/Run-Tests.powershell.ps1  (Pester)
+       ├─ scripts/language-specific-scripts/powershell/Run-Tests.powershell.ps1  (Pester)
+       └─ scripts/language-specific-scripts/dart/Run-Tests.dart.ps1         (flutter test)
 ```
 
 This pattern lets each language own its parsing/output conventions (e.g., pytest's per-test result regex vs. Pester's PesterResult object) without leaking those into a "language-agnostic" core that's actually language-specific.
@@ -40,16 +43,17 @@ This pattern lets each language own its parsing/output conventions (e.g., pytest
 |-----------|----------|-------------|--------------------|
 | `python/` | Python | pytest | `scripts/language-specific-scripts/python/Run-Tests.python.ps1` |
 | `powershell/` | PowerShell | Pester 5+ | `scripts/language-specific-scripts/powershell/Run-Tests.powershell.ps1` |
+| `dart/` | Dart (Flutter) | flutter test | `scripts/language-specific-scripts/dart/Run-Tests.dart.ps1` |
 
 ## Adding a New Language
 
-When introducing a new language to a project, **both** a language-config AND a per-language runner must be created:
+When introducing a language new to the framework, **both** a language-config AND a per-language runner must be created — **in the appdev blueprint's `process-framework/` tree, not in a project's copy** (the rollout mirror deletes project-local additions under `process-framework/`; projects receive the pack via bootstrap/rollout):
 
-1. **Language config**: create a subdirectory matching the language name (e.g., `javascript/`); copy the [language config template](../templates/support/language-config-template.json) to `{language}/{language}-config.json`; fill in the values (remove `_comment_*` fields when done).
-2. **Per-language runner**: copy [`Run-Tests-runner-template.ps1`](../templates/support/Run-Tests-runner-template.ps1) to `scripts/language-specific-scripts/{language}/Run-Tests.{language}.ps1`; customize the marked sections (framework availability check, category discovery, test invocation).
+1. **Language config**: create a subdirectory matching the language name (e.g., `javascript/`); copy the [language config template](../templates/support/language-config-template.json) to `{language}/{language}-config.json`; fill in the values (remove `_comment_*` fields when done). Include the optional `doc_extraction` block so the language's source files join the Source Code Documentation Map (`Build-DocumentationMap.ps1 -Tree SC`) — the declared markers drive the generic extractor, no framework-script edit needed; only a convention that doesn't fit the marker model needs a bespoke function in `DescriptionExtraction.psm1`.
+2. **Per-language runner**: copy [`Run-Tests-runner-template.ps1`](../templates/support/Run-Tests-runner-template.ps1) to `scripts/language-specific-scripts/{language}/Run-Tests.{language}.ps1`; customize the marked sections (category discovery, framework availability check, test invocation).
 3. **Set `testing.language`** in the adopting project's `project-config.json` to match the directory name.
 
-> [Project Initiation (PF-TSK-059)](../tasks/00-setup/project-initiation-task.md) handles steps 1+2 automatically when a project's language is new to the framework.
+> [Project Initiation (PF-TSK-059)](../tasks/00-setup/project-initiation-task.md)'s language-configuration step routes this blueprint-side authoring when a project's language is new to the framework.
 
 ### Required Fields
 
@@ -72,10 +76,12 @@ When introducing a new language to a project, **both** a language-config AND a p
 Scripts replace these tokens at runtime:
 - `{module}` — project module name (from `project-config.json` → `project.name`)
 - `{testDir}` — test directory path (from `project-config.json` → `testing.testDirectory`)
+- `{srcDir}` — source directory path (from `project-config.json` → `paths.source_code`)
 
 ### Optional Fields
 
-- `testing.lintCommand` — linting command (omit if language has no lint tool configured)
+- `testing.lintCommand` — lint command for **test files**, run by `Run-Tests.<language>.ps1 -Lint` (omit if language has no lint tool configured)
+- `testing.staticAnalysisCommand` — static analyzer for **source code**, run by `Quick-ValidationCheck.ps1` CodeQuality checks (omit to skip that check instead of failing it)
 - `testing.coverageFullArgs` — extended coverage flags (XML output, term-missing, etc.)
 - `testing.markers` — test marker/tag syntax for filtering (e.g., pytest markers, go build tags)
 

@@ -33,7 +33,7 @@
     if a fuller analysis is needed, link to a test specification via -SpecRef.
 
 .PARAMETER SpecRef
-    Optional link to a test specification (e.g., "PF-TSP-039"). Defaults to rationale text.
+    Optional link to a test specification (e.g., "TE-TSP-039"). Defaults to rationale text.
 
 .EXAMPLE
     New-PerformanceTestEntry.ps1 -Level 1 -Operation "YAML parser throughput (50 files)" -RelatedFeatures "2.1.1" -Tolerance ">30 files/sec" -Rationale "Feature modifies YAML parser hot path"
@@ -44,7 +44,7 @@
 .NOTES
     - Test IDs are auto-assigned via the central ID registry (TE-id-registry.json)
     - BM-xxx prefix for Levels 1-2 (benchmarks), PH-xxx for Levels 3-4 (scale/resource)
-    - New entries are created with status "⬜ Needs Creation" — Baseline, Last Result, Last Run, Test File, Audit Status, and Audit Report are set to "—"
+    - New entries are created with status "⬜ Needs Creation" — Metric, Baseline, Last Result, Last Run, Test File, Audit Status, and Audit Report are set to "—"
     - The Summary table is automatically updated with new counts
 #>
 
@@ -129,9 +129,21 @@ Write-Host "Related Features: $RelatedFeatures" -ForegroundColor Cyan
 Write-Host "Tolerance: $Tolerance" -ForegroundColor Cyan
 
 # --- Step 2: Build the table row ---
-# Columns: Test ID | Operation | Related Features | Status | Baseline | Tolerance | Last Result | Last Run | Test File | Audit Status | Audit Report | Spec Ref
+# Header-driven (PF-IMP-1599 — no hardcoded column count): cells are ordered by the live table's
+# own header, so a column added to performance-test-tracking.md lands as "—" in the right position
+# instead of shifting every following value one column left (the PF-IMP-1534 defect). Columns absent
+# from the map — Metric, Baseline, Last Result, Last Run, Test File, Audit Status, Audit Report —
+# take the "—" default: a new entry has no measurements or audit yet, and Metric is named later,
+# when the baseline is captured (multi-metric tests only).
 $specRefValue = if ($SpecRef -ne "") { $SpecRef } else { $Rationale }
-$tableRow = "| $testId | $Operation | $RelatedFeatures | ⬜ Needs Creation | — | $Tolerance | — | — | — | — | — | $specRefValue |"
+$tableRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading $config.Section -ValueMap @{
+    'Test ID'          = $testId
+    'Operation'        = $Operation
+    'Related Features' = $RelatedFeatures
+    'Status'           = '⬜ Needs Creation'
+    'Tolerance'        = $Tolerance
+    'Spec Ref'         = $specRefValue
+}
 
 # --- Step 3: Find the correct section and insert after the last data row ---
 if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Add performance test entry '$testId' to Level $Level section")) {
@@ -220,8 +232,8 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
 $updatedContent = $lines -join "`r`n"
 Set-Content -Path $TrackingFile -Value $updatedContent -NoNewline -Encoding UTF8
 
-# Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
-Assert-LineInFile -Path $TrackingFile -Pattern "\| $testId \|" -Context "performance test row for $testId in $TrackingFile"
+# Verify deterministic post-condition: row was inserted and matches the table schema (PF-PRO-028 v2.0 / PF-IMP-1563)
+Assert-TableRowInFile -Path $TrackingFile -Pattern "\| $testId \|" -Context "performance test row for $testId in $TrackingFile"
 
 # --- Output ---
 $details = @(

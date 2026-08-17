@@ -3,9 +3,9 @@
 # automatically assigned ID.
 #
 # Refactored 2026-05-08 (PF-PRO-002 Phase 2 / option B): orchestration delegated
-# to Invoke-DesignArtifactCreation. Notable per-type config: writes to the
-# *test* documentation map (TE-documentation-map.md) and updates the *Test Status*
-# master column rather than the main Status column.
+# to Invoke-DesignArtifactCreation. Notable per-type config: targets the *Test Status*
+# master column rather than the main Status column; its created doc carries a
+# description: frontmatter line the generated TE map renders (Build-DocumentationMap -Tree TE).
 
 <#
 .SYNOPSIS
@@ -93,17 +93,17 @@ if ($CrossCutting) {
     $featureIdArray = @($FeatureId)
 }
 
-# ---- Per-mode: template, output dir, doc-map section, replacements, file slug ----
+# ---- Per-mode: template, output dir, replacements, file slug ----
 if ($CrossCutting) {
     $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/cross-cutting-test-specification-template.md"
     $outputDirectory = "test/specifications/cross-cutting-specs"
     $documentName = "cross-cutting-spec-$FeatureName"
-    $docMapSection = "### ``specifications/cross-cutting-specs/``"
     $featureIdsYaml = ($featureIdArray | ForEach-Object { "`"$_`"" }) -join ', '
     $additionalMetadataFields = @{
         "feature_ids" = "[$featureIdsYaml]"
         "test_name"   = $FeatureName
         "test_type"   = "cross-cutting"
+        description   = "Cross-cutting test specification for $FeatureName"
     }
     $customReplacements = @{
         "[FEATURE-ID-1, FEATURE-ID-2, ...]" = $featureIdArray -join ', '
@@ -116,11 +116,11 @@ if ($CrossCutting) {
     $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/test-specification-template.md"
     $outputDirectory = "test/specifications/feature-specs"
     $documentName = "test-spec-$FeatureId-$FeatureName"
-    $docMapSection = "### ``specifications/feature-specs/``"
     $additionalMetadataFields = @{
         "feature_id"   = $FeatureId
         "feature_name" = $FeatureName
         "tdd_path"     = $TddPath
+        description    = "Test specification for $FeatureName ($FeatureId)"
     }
     $customReplacements = @{
         "[FEATURE-ID]"    = $FeatureId
@@ -140,8 +140,8 @@ $customFileName = "$kebabDocName.md"
 $specRelativePath = "$outputDirectory/$customFileName"
 
 # ---- Delegate orchestration ----
-# Test Spec retargets to "Test Status" master column (not "Status") and
-# writes to TE-documentation-map.md (not PD-).
+# Test Spec retargets to "Test Status" master column (not "Status"); its created
+# doc carries a description: frontmatter the generated TE map renders (not PD-).
 try {
     $invokeArgs = @{
         ArtifactType               = "Test Specification"
@@ -155,20 +155,12 @@ try {
         FeatureName                = $FeatureName
         Replacements               = $customReplacements
         AdditionalMetadataFields   = $additionalMetadataFields
-        DocMapPath                 = "test/TE-documentation-map.md"
-        DocMapSectionHeader        = $docMapSection
-        DocMapEntryFormatter       = if ($CrossCutting) {
-            { param($id) "- [Cross-Cutting Test Spec: $FeatureName ($id)]($specRelativePath) - Cross-cutting — $FeatureName" }
-        } else {
-            { param($id) "- [Test Spec: $FeatureName ($id)]($specRelativePath) - $FeatureId — $FeatureName" }
-        }
         NewMasterStatus            = "📋 Specs Created"
         MasterStatusColumn         = "Test Status"
         MasterStatusNotesFormatter = { param($id) "Test specification created: $id ($(Get-ProjectTimestamp -Format 'Date'))" }
         ArtifactRelativePath       = $specRelativePath
         OpenInEditor               = $OpenInEditor
         DryRun                     = $DryRun
-        CallerCmdlet               = $PSCmdlet
     }
     $result = Invoke-DesignArtifactCreation @invokeArgs
 
@@ -186,9 +178,8 @@ try {
     }
     if ($TddPath -ne "") { $details += "TDD Path: $TddPath" }
     if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/03-testing/test-specification-creation-guide.md"
+        $details += "Customization required — apply the test-specification craft skill (.claude/skills/test-specification/), activated by the Test Specification Creation task's Check Recommended Skills step"
     }
-    if ($result.DocMapUpdated)   { $details += "Documentation Map: Updated (TE-documentation-map.md)" }
     if ($result.StateFileResult) {
         $sf = $result.StateFileResult
         $details += "State file §4 Documentation Inventory: $($sf.Action) at line $($sf.LineNumber)"

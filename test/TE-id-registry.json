@@ -6,7 +6,8 @@
     "updated": "2026-06-04",
     "description": "Test Artifacts ID Registry - test specifications, audit reports, E2E tests, and state tracking",
     "format": "semantic",
-    "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
+    "axis_note": "Prefix entries store category = documentation tree and type = document kind — transposed relative to document frontmatter, which stores type = tree and category = kind. Never copy values across without swapping the axes.",
+    "id_gaps_policy": "Gaps in ID sequences are expected and never backfilled: an ID stays with its artifact for life — never reassign, renumber, or reuse a deleted artifact's ID (archives and history may still reference it). This constrains IDs, not the pool's nextAvailable counter, which must stay above every ID issued in this tree and never drops just because artifacts were deleted — EXCEPT reset it to 1 when the pool holds zero artifacts and none of its IDs are still referenced here (population migrated, retired, or blueprint seed only), or the vacated range is burned here and, for blueprint copies, in every project bootstrapped later. Projects that already grew their counter keep it."
   },
   "prefixes": {
     "TE-MAI": {
@@ -27,7 +28,7 @@
         "templates": "test/e2e-acceptance-testing",
         "default": "templates"
       },
-      "nextAvailable": 14
+      "nextAvailable": 15
     },
     "TE-E2E": {
       "description": "E2E Acceptance Testing - Test Cases",
@@ -37,7 +38,7 @@
         "templates": "test/e2e-acceptance-testing",
         "default": "templates"
       },
-      "nextAvailable": 30
+      "nextAvailable": 34
     },
     "TE-TSP": {
       "description": "Test - Test Specifications",
@@ -48,7 +49,7 @@
         "cross-cutting-specs": "test/specifications/cross-cutting-specs",
         "default": "feature-specs"
       },
-      "nextAvailable": 45
+      "nextAvailable": 47
     },
     "TE-TAR": {
       "description": "Test - Test Audit Reports",
@@ -61,7 +62,7 @@
         "main": "test/audits",
         "default": "unit"
       },
-      "nextAvailable": 77
+      "nextAvailable": 98
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -83,7 +84,7 @@
         "unit": "test/automated/unit",
         "default": "unit"
       },
-      "nextAvailable": 141
+      "nextAvailable": 152
     },
     "BM": {
       "description": "Performance - Benchmark Tests (Component Level 1, Operation Level 2)",
@@ -93,7 +94,7 @@
         "performance": "test/automated/performance",
         "default": "performance"
       },
-      "nextAvailable": 9
+      "nextAvailable": 10
     },
     "PH": {
       "description": "Performance - Scale and Resource Tests (Scale Level 3, Resource Level 4)",

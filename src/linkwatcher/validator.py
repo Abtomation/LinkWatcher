@@ -38,6 +38,7 @@ from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
 from .parser import LinkParser
+from .resolution_overrides import build_resolution_overrides, resolution_base_for_rel
 from .utils import looks_like_file_path, should_monitor_file
 
 
@@ -644,49 +645,39 @@ class LinkValidator:
     def _build_resolution_overrides(raw: Optional[Dict[str, str]]) -> List[Tuple[str, str]]:
         """Normalise the configured folder→base path-resolution overrides.
 
-        Keys (folders) and values (bases) are normalised to forward slashes
-        with leading/trailing slashes stripped.  The result is sorted by
-        descending folder length so the **first** prefix match in
-        ``_resolution_base_for`` is the longest (most specific) one.  Folders
-        that normalise to empty are dropped.
+        Thin wrapper over the shared ``resolution_overrides.build_resolution_overrides``
+        helper (extracted so ``PathResolver`` shares the same virtual-root
+        algorithm — see PD-TDD-026, "Override-Aware Path Resolution").
         """
-        items: List[Tuple[str, str]] = []
-        for folder, base in (raw or {}).items():
-            norm_folder = folder.replace("\\", "/").strip("/")
-            norm_base = base.replace("\\", "/").strip("/")
-            if not norm_folder:
-                continue
-            items.append((norm_folder, norm_base))
-        items.sort(key=lambda fb: len(fb[0]), reverse=True)
-        return items
+        return build_resolution_overrides(raw)
 
     def _resolution_base_for(self, source_file: str) -> str:
         """Return the resolution base for absolute-from-host links in *source_file*.
 
         Files under a folder configured in ``path_resolution_overrides`` resolve
         their ``/...`` links against ``<project_root>/<base>/`` — longest-prefix
-        match wins when folders nest.  Files outside every configured folder
+        match wins when folders nest (delegated to the shared
+        ``resolution_overrides`` helper).  Files outside every configured folder
         return ``self.project_root``, so their ``/...`` links resolve against the
         project root exactly as before (backward-compatible no-op).
         """
         if not self._resolution_overrides:
             return self.project_root
         rel = os.path.relpath(source_file, self.project_root).replace("\\", "/")
-        for folder, base in self._resolution_overrides:  # longest folder first
-            if rel == folder or rel.startswith(folder + "/"):
-                resolved_base = (
-                    os.path.normpath(os.path.join(self.project_root, base))
-                    if base
-                    else self.project_root
-                )
-                self.logger.debug(
-                    "validation_resolution_override_applied",
-                    source_file=rel,
-                    override_folder=folder,
-                    resolution_base=base or ".",
-                )
-                return resolved_base
-        return self.project_root
+        match = resolution_base_for_rel(self._resolution_overrides, rel)
+        if match is None:
+            return self.project_root
+        folder, base = match
+        resolved_base = (
+            os.path.normpath(os.path.join(self.project_root, base)) if base else self.project_root
+        )
+        self.logger.debug(
+            "validation_resolution_override_applied",
+            source_file=rel,
+            override_folder=folder,
+            resolution_base=base or ".",
+        )
+        return resolved_base
 
     def _target_exists_at_root(self, target: str, resolution_base: Optional[str] = None) -> bool:
         """Check whether *target* exists when resolved against the resolution base.

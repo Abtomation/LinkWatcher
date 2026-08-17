@@ -24,22 +24,29 @@
     Path to the assessment file (optional - will be auto-detected from AssessmentId if not provided)
 
 .PARAMETER Status
-    Override the status to set (optional - will be determined from assessment tier if not provided)
+    Override the status to set (optional - will be determined from assessment tier if not provided).
+    Pass a plain word (PF-IMP-1585 — the fleet convention keeps emoji off the command line):
+    NeedsAssessment, NeedsFDD, NeedsDBDesign, NeedsAPIDesign, NeedsUIDesign,
+    NeedsInstructionDesign, NeedsTDD,
+    NeedsTestSpec, NeedsImplPlan, InProgress, NeedsReview, NeedsTestScoping, NeedsUserDocs,
+    NeedsEnhancement, NeedsTechnicalExploration, Completed, Blocked, OnHold. The script
+    normalizes the word to the tracker's emoji legend value; emoji legend literals
+    (e.g. "🔎 Needs Test Scoping") remain accepted for backward compatibility.
 
 .PARAMETER DryRun
     If specified, shows what would be updated without making changes
 
 .PARAMETER Force
-    If specified, bypasses confirmation prompts
+    If specified, bypasses confirmation prompts (equivalent to -Confirm:$false)
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-001"
+    Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-001"
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-002" -FeatureId "2.1.5" -DryRun
+    Update-FeatureTrackingFromAssessment.ps1 -AssessmentId "PD-ASS-002" -FeatureId "2.1.5" -DryRun
 
 .EXAMPLE
-    .\Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "doc/documentation-tiers/assessments/PD-ASS-003-1.4.1-payment-processing.md" -Force
+    Update-FeatureTrackingFromAssessment.ps1 -AssessmentFile "doc/documentation-tiers/assessments/PD-ASS-003-1.4.1-payment-processing.md" -Force
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -60,7 +67,7 @@ param(
     [string]$AssessmentFile,
 
     [Parameter(Mandatory=$false)]
-    [ValidateSet("⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔎 Needs Test Scoping", "📖 Needs User Docs", "🔄 Needs Enhancement", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
+    [ValidateSet("NeedsAssessment", "NeedsFDD", "NeedsDBDesign", "NeedsAPIDesign", "NeedsUIDesign", "NeedsInstructionDesign", "NeedsTDD", "NeedsTestSpec", "NeedsImplPlan", "InProgress", "NeedsReview", "NeedsTestScoping", "NeedsUserDocs", "NeedsEnhancement", "NeedsTechnicalExploration", "Completed", "Blocked", "OnHold", "⬜ Needs Assessment", "📋 Needs FDD", "🗄️ Needs DB Design", "🔌 Needs API Design", "🎨 Needs UI Design", "📜 Needs Instruction Design", "📝 Needs TDD", "🧪 Needs Test Spec", "🔧 Needs Impl Plan", "🟡 In Progress", "👀 Needs Review", "🔎 Needs Test Scoping", "📖 Needs User Docs", "🔄 Needs Enhancement", "🔬 Needs Technical Exploration", "🟢 Completed", "🔴 Blocked", "⏸️ On Hold")]
     [string]$Status,
 
     [Parameter(Mandatory=$false)]
@@ -79,6 +86,31 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
 # Perform standard initialization
 Invoke-StandardScriptInitialization
+
+# PF-IMP-1585: plain-word -Status form (fleet convention — emoji stays off the command line, where
+# shell encoding can mangle it); normalize to the emoji legend value the tracking files store.
+# Emoji literals remain accepted for backward compatibility and pass through unchanged.
+$StatusWordMap = @{
+    "NeedsAssessment"           = "⬜ Needs Assessment"
+    "NeedsFDD"                  = "📋 Needs FDD"
+    "NeedsDBDesign"             = "🗄️ Needs DB Design"
+    "NeedsAPIDesign"            = "🔌 Needs API Design"
+    "NeedsUIDesign"             = "🎨 Needs UI Design"
+    "NeedsInstructionDesign"    = "📜 Needs Instruction Design"
+    "NeedsTDD"                  = "📝 Needs TDD"
+    "NeedsTestSpec"             = "🧪 Needs Test Spec"
+    "NeedsImplPlan"             = "🔧 Needs Impl Plan"
+    "InProgress"                = "🟡 In Progress"
+    "NeedsReview"               = "👀 Needs Review"
+    "NeedsTestScoping"          = "🔎 Needs Test Scoping"
+    "NeedsUserDocs"             = "📖 Needs User Docs"
+    "NeedsEnhancement"          = "🔄 Needs Enhancement"
+    "NeedsTechnicalExploration" = "🔬 Needs Technical Exploration"
+    "Completed"                 = "🟢 Completed"
+    "Blocked"                   = "🔴 Blocked"
+    "OnHold"                    = "⏸️ On Hold"
+}
+if ($Status -and $StatusWordMap.ContainsKey($Status)) { $Status = $StatusWordMap[$Status] }
 
 try {
     # Validate input parameters
@@ -147,8 +179,9 @@ try {
     }
 
     # Parse assessment results via the shared helper (PF-IMP-766).
-    # Get-FeatureDesignRequirements returns Tier (int) + UI/API/DB Design Required flags
-    # in one call, replacing the inline regex block that previously lived here.
+    # Get-FeatureDesignRequirements returns Tier (int) + the four Design Required
+    # flags (UI / API / DB / Instruction) + the declared Medium in one call,
+    # replacing the inline regex block that previously lived here.
     Write-Host "🔍 Analyzing assessment results..." -ForegroundColor Yellow
 
     $requirements = Get-FeatureDesignRequirements -AssessmentFilePath $AssessmentFile
@@ -156,35 +189,24 @@ try {
     $uiDesignRequired  = $requirements.UIDesignRequired
     $apiDesignRequired = $requirements.APIDesignRequired
     $dbDesignRequired  = $requirements.DBDesignRequired
+    $instructionDesignRequired = $requirements.InstructionDesignRequired
 
     # Map tier integer to the display string with emoji.
     $tierEmojis = @{
         1 = "🔵 Tier 1"
-        2 = "🟡 Tier 2"
+        2 = "🟠 Tier 2"
         3 = "🔴 Tier 3"
     }
     $recommendedTier = if ($tierEmojis.ContainsKey($requirements.Tier)) { $tierEmojis[$requirements.Tier] } else { "Tier $($requirements.Tier)" }
 
-    # Determine appropriate next-action status if not provided
-    # Tier 2+ features need FDD next
-    # Tier 1 features skip FDD/TDD/Test Spec — next status depends on DB/API Design columns:
-    #   DB Design needed → 🗄️ Needs DB Design
-    #   API Design needed (no DB) → 🔌 Needs API Design
-    #   Neither → 🔧 Needs Impl Plan (Tier 1 has no TDD; Impl Plan is the next workflow step)
+    # Determine appropriate next-action status if not provided. The precedence
+    # chain (Tier 2+ → 📋 Needs FDD first; Tier 1 skips FDD → DB → API → UI →
+    # Instruction → 🔧 Needs Impl Plan) lives in Get-NextStatusAfterDesignArtifact —
+    # CurrentArtifact 'Assessment' is the no-artifact-yet entry point (PF-IMP-1425).
     # Retrospective onboarding: pass -Status "🔎 Needs Test Scoping" to override
     # (code already exists, so Impl Plan is irrelevant)
     if (-not $Status) {
-        if ($recommendedTier -match 'Tier 1|🔵') {
-            if ($dbDesignRequired) {
-                $Status = "🗄️ Needs DB Design"
-            } elseif ($apiDesignRequired) {
-                $Status = "🔌 Needs API Design"
-            } else {
-                $Status = "🔧 Needs Impl Plan"
-            }
-        } else {
-            $Status = "📋 Needs FDD"
-        }
+        $Status = Get-NextStatusAfterDesignArtifact -AssessmentFilePath $AssessmentFile -CurrentArtifact 'Assessment'
     }
 
     # Prepare additional updates
@@ -209,9 +231,10 @@ try {
         # $additionalUpdates["ADR"] = "TBD"
     }
 
-    # Design requirements ($uiDesignRequired / $apiDesignRequired / $dbDesignRequired)
-    # drive the next-action Status above (Tier 1 branches to "🗄️ Needs DB Design" or
-    # "🔌 Needs API Design") and are recorded in the assessment Notes below for
+    # Design requirements ($uiDesignRequired / $apiDesignRequired / $dbDesignRequired /
+    # $instructionDesignRequired) drive the next-action Status above (Tier 1 branches to
+    # "🗄️ Needs DB Design", "🔌 Needs API Design", "🎨 Needs UI Design" or
+    # "📜 Needs Instruction Design") and are recorded in the assessment Notes below for
     # human visibility. The design-creator wrappers consume the same flags via
     # Get-FeatureDesignRequirements when computing their post-creation next-status.
 
@@ -229,6 +252,10 @@ try {
 
     if ($dbDesignRequired) {
         $assessmentNotes += "Database Design: Required"
+    }
+
+    if ($instructionDesignRequired) {
+        $assessmentNotes += "Instruction Design: Required"
     }
 
     $notesString = $assessmentNotes -join "; "
@@ -252,6 +279,7 @@ try {
     Write-Host "  UI Design Required: $uiDesignRequired" -ForegroundColor White
     Write-Host "  API Design Required: $apiDesignRequired" -ForegroundColor White
     Write-Host "  Database Design Required: $dbDesignRequired" -ForegroundColor White
+    Write-Host "  Instruction Design Required: $instructionDesignRequired" -ForegroundColor White
     Write-Host "  New Status: $Status" -ForegroundColor White
     Write-Host ""
 
@@ -272,13 +300,12 @@ try {
         return
     }
 
-    # Confirm update unless Force is specified
-    if (-not $Force) {
-        $confirmation = Read-Host "Update feature tracking for $FeatureId with assessment results? (Y/n)"
-        if ($confirmation -and $confirmation -ne 'Y' -and $confirmation -ne 'y' -and $confirmation -ne '') {
-            Write-Host "Update cancelled by user." -ForegroundColor Yellow
-            return
-        }
+    # Standard ShouldProcess gate (PF-IMP-1461): -WhatIf previews, -Confirm prompts,
+    # -Force keeps its documented bypass semantics (equivalent to -Confirm:$false).
+    if ($Force) { $ConfirmPreference = 'None' }
+    if (-not $PSCmdlet.ShouldProcess("feature $FeatureId in feature-tracking.md", "Update status/tier from assessment $AssessmentId")) {
+        Write-Host "Update cancelled by user." -ForegroundColor Yellow
+        return
     }
 
     # Validate dependencies for automation
@@ -308,9 +335,11 @@ try {
         "Assessment: $AssessmentId"
     )
 
-    # Provide next steps based on tier (verbose-only — restore with -Verbose)
-    switch ($recommendedTier) {
-        "Tier 1" {
+    # Provide next steps based on tier (verbose-only — restore with -Verbose).
+    # Switch on the tier integer — $recommendedTier is the emoji-prefixed display
+    # string, so string cases like "Tier 2" would never match.
+    switch ($requirements.Tier) {
+        1 {
             Write-Verbose "Next Steps: Begin implementation planning (Tier 1 skips FDD/TDD/Test Spec)"
             if ($apiDesignRequired) {
                 Write-Verbose "Next Steps: Complete API Design Task before implementation planning"
@@ -319,7 +348,7 @@ try {
                 Write-Verbose "Next Steps: Complete Database Schema Design Task before implementation planning"
             }
         }
-        "Tier 2" {
+        2 {
             Write-Verbose "Next Steps: Create Functional Design Document (FDD)"
             Write-Verbose "Next Steps: Create Technical Design Document (TDD) after FDD approval"
             if ($apiDesignRequired) {
@@ -329,7 +358,7 @@ try {
                 Write-Verbose "Next Steps: Complete Database Schema Design Task"
             }
         }
-        "Tier 3" {
+        3 {
             Write-Verbose "Next Steps: Create Functional Design Document (FDD)"
             Write-Verbose "Next Steps: Conduct Architecture Review"
             Write-Verbose "Next Steps: Create Technical Design Document (TDD)"

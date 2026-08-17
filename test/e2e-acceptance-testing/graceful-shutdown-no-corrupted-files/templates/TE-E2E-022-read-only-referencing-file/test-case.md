@@ -1,9 +1,11 @@
 ---
 id: TE-E2E-022
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-008): TE-E2E-022 Read-Only Referencing File."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-011
 feature_ids: ["0.1.1", "2.2.1", "3.1.1"]
-workflow: —
+workflow: WF-008
 priority: P2
 execution_mode: scripted
 estimated_duration: 5 minutes

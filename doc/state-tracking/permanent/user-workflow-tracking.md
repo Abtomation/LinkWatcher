@@ -1,10 +1,11 @@
 ---
-id: PD-STA-066
+id: PF-FST-008
+description: "Maps user-facing workflows to their constituent features and E2E test readiness."
 type: Product Documentation
 category: State Tracking
 version: 2.0
 created: 2026-03-18
-updated: 2026-06-22
+updated: 2026-08-10
 previous_id: PD-DES-002
 previous_location: doc/technical/design/user-workflow-map.md
 ---
@@ -29,15 +30,17 @@ This document maps user-facing workflows to the features that enable them and tr
 
 | ID | Workflow | User Action | Required Features | Priority | Impl Status | E2E Status | Integration Doc |
 |----|----------|-------------|-------------------|----------|-------------|------------|-----------------|
-| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | ✅ Covered | [PD-INT-002](/doc/technical/integration/single-file-move-integration-narrative.md) |
-| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | ✅ Covered | [PD-INT-006](/doc/technical/integration/directory-move-integration-narrative.md) |
-| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | All Implemented | ✅ Covered | [PD-INT-001](/doc/technical/integration/startup-integration-narrative.md) |
-| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | ✅ Covered | [PD-INT-007](/doc/technical/integration/rapid-sequential-moves-integration-narrative.md) |
-| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | ✅ Covered | [PD-INT-004](/doc/technical/integration/multi-format-file-move-integration-narrative.md) |
+| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed | [PD-INT-002](/doc/technical/integration/single-file-move-integration-narrative.md) |
+| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed | [PD-INT-006](/doc/technical/integration/directory-move-integration-narrative.md) |
+| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | All Implemented | 🔄 Re-execution Needed | [PD-INT-001](/doc/technical/integration/startup-integration-narrative.md) |
+| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | 🔄 Re-execution Needed | [PD-INT-007](/doc/technical/integration/rapid-sequential-moves-integration-narrative.md) |
+| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | 🔄 Re-execution Needed | [PD-INT-004](/doc/technical/integration/multi-format-file-move-integration-narrative.md) |
 | WF-006 | Configuration change → behavior adapts | Edit config file or pass CLI arguments | 0.1.3, 1.1.1, 3.1.1 | P3 | All Implemented | ✅ Covered | [PD-INT-009](/doc/technical/integration/configuration-change-integration-narrative.md) |
-| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | All Implemented | ✅ Covered | [PD-INT-003](/doc/technical/integration/dry-run-mode-integration-narrative.md) |
-| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | All Implemented | ✅ Covered | [PD-INT-008](/doc/technical/integration/graceful-shutdown-integration-narrative.md) |
+| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | All Implemented | 🔄 Re-execution Needed | [PD-INT-003](/doc/technical/integration/dry-run-mode-integration-narrative.md) |
+| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | All Implemented | 🔄 Re-execution Needed | [PD-INT-008](/doc/technical/integration/graceful-shutdown-integration-narrative.md) |
 | WF-009 | Link health audit → broken link report | Run python main.py --validate | 0.1.1, 2.1.1, 6.1.1 | P2 | All Implemented | ✅ Covered | [PD-INT-005](/doc/technical/integration/link-health-audit-integration-narrative.md) |
+| WF-010 | Manage running LinkWatcher instances via Control Panel | Open the Control Panel to view, start, or stop running LinkWatcher daemons | 7.1.1 | P3 | Pending: 7.1.1 | Not Tested | — |
+| WF-011 | Override-folder move → virtual-root links updated | Move/rename a file or directory inside a path_resolution_overrides folder (blueprint restructuring) | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P2 | All Implemented | 🔄 Re-execution Needed | — |
 
 ## Workflow Details
 
@@ -93,4 +96,16 @@ User stops LinkWatcher while file moves may be in progress. No files should be l
 <summary><strong>WF-009: Link health audit</strong></summary>
 
 User runs validation mode to scan all workspace files for broken file references. The system walks all monitored files, extracts links using format-specific parsers, resolves paths (source-relative then root-relative), checks targets on disk, and writes a report of broken links with source file, line number, and target path to logs/linkwatcher/LinkWatcherBrokenLinks.txt.
+</details>
+
+<details>
+<summary><strong>WF-010: Manage running LinkWatcher instances via Control Panel</strong></summary>
+
+User uses the Control Panel (desktop window) to see running LinkWatcher daemons across all registered projects, start or stop them, view their logs, view/edit each project's configuration, and trigger link validation. The window auto-opens when a daemon is started by the `SessionStart` hook, and closing the window gracefully drains and terminates all managed daemons (the deliberate stop action). Defined functionally in [PD-FDD-034](/doc/functional-design/fdds/fdd-7-1-1-linkwatcher-control-panel.md).
+</details>
+
+<details>
+<summary><strong>WF-011: Override-folder move</strong></summary>
+
+User restructures a folder configured in path_resolution_overrides (e.g. the process-framework blueprint): files or directories inside the folder are moved or renamed, and host-absolute /... references to them from other files in the same folder are matched against the folder's virtual root and rewritten to the new location, preserving their virtual-root style. References from files outside every override folder are never affected, and non-override resolution stays byte-for-byte v1.0. Introduced by the blueprint-aware reference updating enhancement (PF-STA-110); previously override resolution applied only to validation mode (WF-009).
 </details>

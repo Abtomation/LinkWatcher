@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-039
-type: Process Framework
+description: "Batch 1 (Score: 3.200/4.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-03-03

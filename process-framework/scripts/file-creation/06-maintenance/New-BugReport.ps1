@@ -14,7 +14,8 @@
     - Providing a complete template for bug tracking
 
 .PARAMETER Title
-    The title/summary of the bug
+    The title/summary of the bug (5-100 chars; this is the table-row summary —
+    keep it concise and put detail in -Description, -ReproductionSteps, or -Evidence).
 
 .PARAMETER Description
     Detailed description of the bug (10-500 chars; this is the table-row summary —
@@ -22,13 +23,16 @@
     -ExpectedBehavior, -ActualBehavior, or -Evidence).
 
 .PARAMETER DiscoveredBy
-    How the bug was discovered (TestAudit, CodeReview, UserReport, Testing, E2ETesting, Monitoring, Development, FeatureImplementation, Refactoring)
+    How the bug was discovered. Mirrors the bug-tracking.md Source Types table:
+    TestAudit, Testing, TestDevelopment, E2ETesting, CodeReview, UserReport,
+    FeatureImplementation, FoundationDevelopment, Refactoring, Deployment, Monitoring, Development.
 
 .PARAMETER Severity
     Bug severity level (Critical, High, Medium, Low)
 
 .PARAMETER Component
-    The component/area where the bug was found
+    The component/area where the bug was found (3-50 chars; concise area name —
+    put detail in -Description).
 
 .PARAMETER ReproductionSteps
     Steps to reproduce the bug (optional)
@@ -40,7 +44,7 @@
     What actually happens (optional)
 
 .PARAMETER Environment
-    Environment where bug was found (Development, Testing, Production)
+    Environment where bug was found (Development, Testing, Staging, Production)
 
 .PARAMETER Evidence
     Evidence or logs related to the bug (optional)
@@ -55,6 +59,15 @@
 
 .PARAMETER Scope
     Bug scope description (e.g., "Single file", "Multi-module"). Required when -PreTriaged is set.
+
+.PARAMETER Dims
+    Development dimension abbreviations relevant to the bug (e.g. "SE DI"). Valid abbreviations:
+    AC, CQ, ID, DA, EM, SE, PE, OB, UX, DI - see the Development Dimensions Guide. Written to the
+    report's Dims field; left empty when omitted.
+
+.PARAMETER Workflows
+    User workflow IDs the bug affects (e.g. "WF-001, WF-003"). Written to the report's Workflows
+    field; left empty when omitted.
 
 .EXAMPLE
     New-BugReport.ps1 -Title "Login fails with special characters" -Description "Users cannot login when password contains special characters" -DiscoveredBy "TestAudit" -Severity "High" -Component "Authentication"
@@ -75,7 +88,16 @@
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateLength(5, 100)]
+    [ValidateScript({
+        if ($_.Length -lt 5) {
+            throw "Title is too short ($($_.Length) chars; minimum 5). Provide a more descriptive title."
+        }
+        if ($_.Length -gt 100) {
+            $over = $_.Length - 100
+            throw "Title is too long ($($_.Length) chars; maximum 100, $over over). This is the table-row summary — shorten the title and put detail in -Description, -ReproductionSteps, or -Evidence."
+        }
+        $true
+    })]
     [Alias("BugTitle")]
     [string]$Title,
 
@@ -93,7 +115,7 @@ param(
     [string]$Description,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("TestAudit", "Testing", "E2ETesting", "CodeReview", "UserReport", "Monitoring", "Development", "FeatureImplementation", "Refactoring")]
+    [ValidateSet("TestAudit", "Testing", "TestDevelopment", "E2ETesting", "CodeReview", "UserReport", "FeatureImplementation", "FoundationDevelopment", "Refactoring", "Deployment", "Monitoring", "Development")]
     [string]$DiscoveredBy,
 
     [Parameter(Mandatory = $true)]
@@ -102,7 +124,16 @@ param(
     [string]$Severity,
 
     [Parameter(Mandatory = $true)]
-    [ValidateLength(3, 50)]
+    [ValidateScript({
+        if ($_.Length -lt 3) {
+            throw "Component is too short ($($_.Length) chars; minimum 3). Name the component/area where the bug was found."
+        }
+        if ($_.Length -gt 50) {
+            $over = $_.Length - 50
+            throw "Component is too long ($($_.Length) chars; maximum 50, $over over). Use a concise component/area name and put detail in -Description."
+        }
+        $true
+    })]
     [string]$Component,
 
     [Parameter(Mandatory = $false)]
@@ -220,8 +251,22 @@ $DimsField = if ($Dims -ne "") { $Dims } else { "" }
 $BugStatus = if ($PreTriaged) { "🔍 Needs Fix" } else { "🆕 Needs Triage" }
 $ScopeField = if ($Scope -ne "") { $Scope -replace '\|', '\|' } else { "" }
 
-# Create table row — 11-column format: ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes
-$TableRow = "| $BugId | $Title | $BugStatus | $PriorityText | $ScopeField | $currentDate | $Description | $RelatedFeatureField | $WorkflowsField | $DimsField | $NotesField |"
+# Create table row — header-driven (PF-IMP-1599): cells are ordered by the severity section's
+# own table header, so a column added to bug-tracking.md lands as "—" in the correct position
+# instead of silently shifting every following cell.
+$TableRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading $TableSection -ValueMap @{
+    'ID'              = $BugId
+    'Title'           = $Title
+    'Status'          = $BugStatus
+    'Priority'        = $PriorityText
+    'Scope'           = $ScopeField
+    'Reported'        = $currentDate
+    'Description'     = $Description
+    'Related Feature' = $RelatedFeatureField
+    'Workflows'       = $WorkflowsField
+    'Dims'            = $DimsField
+    'Notes'           = $NotesField
+}
 
 # Find the appropriate table and replace the "No bugs" message
 $NobugsPattern = switch ($Severity) {
@@ -289,13 +334,16 @@ $UpdatedContent = [regex]::Replace($UpdatedContent, '(\*\*Low\*\*: )\d+', "`${1}
 $SourceMap = @{
     "TestAudit"             = "Test Audit"
     "Testing"               = "Testing"
+    "TestDevelopment"       = "Test Development"
     "E2ETesting"            = "E2E Testing"
     "CodeReview"            = "Code Review"
     "FeatureImplementation" = "Development"
+    "FoundationDevelopment" = "Foundation Development"
     "Development"           = "Development"
     "UserReport"            = "User Reports"
     "Monitoring"            = "Monitoring"
     "Refactoring"           = "Code Refactoring"
+    "Deployment"            = "Deployment"
 }
 
 $SourceCategory = $SourceMap[$DiscoveredBy]
@@ -310,7 +358,7 @@ try {
     Set-Content -Path $BugTrackingFile -Value $UpdatedContent -NoNewline -Encoding UTF8
 
     # Verify deterministic post-condition: row was inserted (PF-PRO-028 v2.0)
-    Assert-LineInFile -Path $BugTrackingFile -Pattern "\| $BugId \|" -Context "bug row for $BugId in $BugTrackingFile"
+    Assert-TableRowInFile -Path $BugTrackingFile -Pattern "\| $BugId \|" -Context "bug row for $BugId in $BugTrackingFile"
 
     $details = @(
         "Severity: $Severity",

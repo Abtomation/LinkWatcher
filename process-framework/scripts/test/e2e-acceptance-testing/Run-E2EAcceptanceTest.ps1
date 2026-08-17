@@ -12,10 +12,14 @@
     4. Verify-TestResult.ps1 — compares workspace against expected state
 
     Test cases without a run.ps1 are skipped with a message suggesting direct execution.
+    Cases that have not passed audit (Lifecycle Status 'Needs Execution' without an
+    'Audit Approved' Audit Status in e2e-test-tracking.md) are also skipped with a message —
+    the audit gate (PF-TSK-070's audit-gate verification step) is enforced here in the runner, not only in the task.
 
 .PARAMETER TestCase
     Optional: Run a single test case by ID (e.g., "E2E-001").
-    Requires -Workflow to be specified.
+    Requires -Workflow — the script errors if -TestCase is given without it, rather than
+    silently falling through to running every case in every workflow.
 
 .PARAMETER Workflow
     Optional: Run all scripted test cases in a workflow (e.g., "user-login").
@@ -29,7 +33,8 @@
     whose actions produce async side-effects.
 
 .PARAMETER Detailed
-    Show line-by-line diff for mismatched files (passed to Verify-TestResult.ps1).
+    Pass -Detailed to Verify-TestResult.ps1 for the full (uncapped) diff on mismatched files.
+    A capped line-by-line diff prints by default even without this switch.
 
 .PARAMETER Clean
     Remove existing workspace before setup (passed to Setup-TestEnvironment.ps1).
@@ -98,6 +103,38 @@ try {
 } catch {
     Write-Error "Failed to import Common-ScriptHelpers: $($_.Exception.Message)"
     exit 1
+}
+
+# --- Guard: -TestCase requires -Workflow (PF-IMP-1228 part 1) ---
+# Without -Workflow, the case-collection logic below silently falls through to the run-all
+# branch and executes EVERY scripted case in EVERY workflow — a high-blast-radius footgun
+# (mass run.ps1 execution + tracking writes). The .PARAMETER contract already requires
+# -Workflow; enforce it instead of silently ignoring -TestCase.
+if ($TestCase -and -not $Workflow) {
+    Write-ProjectError -Message "-TestCase '$TestCase' requires -Workflow. Specify the case's workflow (e.g. -Workflow 'feedback-collection') — without it the runner would execute ALL scripted cases in ALL workflows." -ExitCode 1
+}
+
+# --- Audit-gate helper (PF-IMP-1228 part 2) ---
+function Get-E2EAuditGateMap {
+    # Builds a map of bare CaseId -> @{ Status; Audit } from the E2E Test Cases table of
+    # e2e-test-tracking.md (columns 0:Test ID, 5:Status, 8:Audit Status). Returns $null when
+    # the tracking file is absent so the caller can fall open (cannot enforce the gate).
+    param([string]$TrackingPath)
+    if (-not (Test-Path $TrackingPath)) { return $null }
+    $map = @{}
+    $lines = (Get-Content $TrackingPath -Raw -Encoding UTF8) -split '\r?\n'
+    $inE2e = $false
+    foreach ($line in $lines) {
+        if ($line -match '^## E2E (Acceptance Tests|Test Cases)') { $inE2e = $true; continue }
+        if ($inE2e -and $line -match '^## [^#]' -and $line -notmatch '^## E2E (Acceptance Tests|Test Cases)') { $inE2e = $false }
+        if (-not $inE2e -or $line -notmatch '^\|') { continue }
+        $cells = Split-MarkdownTableRow $line
+        if ($cells.Count -lt 9) { continue }
+        if ($cells[0] -match '(TE-E2[EG]-\d+)') {
+            $map[$Matches[1]] = @{ Status = $cells[5].Trim(); Audit = $cells[8].Trim() }
+        }
+    }
+    return $map
 }
 
 # --- Resolve project root ---
@@ -191,6 +228,47 @@ if ($manualCases.Count -gt 0) {
 
 if ($scriptedCases.Count -eq 0) {
     Write-Warning "No scripted test cases found. All test cases require direct execution."
+    exit 0
+}
+
+# --- Audit gate (PF-IMP-1228 part 2): never execute a case that has not passed audit ---
+# A case is blocked only in the documented hole: Lifecycle Status 'Needs Execution' without
+# 'Audit Approved' in the Audit Status column. Passed / Failed / Needs Re-execution cases are
+# already-audited or audit-exempt per the e2e-test-tracking.md audit gate. A case with no
+# tracking row (or when the tracking file is absent) runs with a warning — the gate enforces
+# the documented rule, it does not invent a broader "must be tracked" policy.
+$trackingPath = Join-Path $ProjectRoot "test/state-tracking/permanent/e2e-test-tracking.md"
+$auditMap = Get-E2EAuditGateMap -TrackingPath $trackingPath
+if ($null -eq $auditMap) {
+    Write-Host ""
+    Write-Host "⚠️  Audit gate not enforced: e2e-test-tracking.md not found at $trackingPath — running all scripted cases." -ForegroundColor Yellow
+} else {
+    $gatedCases  = @()
+    $blockedCases = @()
+    foreach ($tc in $scriptedCases) {
+        $info = $auditMap[$tc.CaseId]
+        if ($null -eq $info) {
+            Write-Host "  ⚠️  $($tc.CaseId) ($($tc.Workflow)) — no row in e2e-test-tracking.md; audit status unknown, running anyway." -ForegroundColor Yellow
+            $gatedCases += $tc
+        } elseif ($info.Status -match 'Needs Execution' -and $info.Audit -notmatch 'Audit Approved') {
+            $blockedCases += [pscustomobject]@{ Case = $tc; Audit = $info.Audit }
+        } else {
+            $gatedCases += $tc
+        }
+    }
+    if (@($blockedCases).Count -gt 0) {
+        Write-Host ""
+        Write-Host "⛔ Audit gate: skipping $(@($blockedCases).Count) case(s) in 'Needs Execution' without 'Audit Approved' — run Test Audit (PF-TSK-030 -TestType E2E) first:" -ForegroundColor Red
+        foreach ($b in $blockedCases) {
+            $auditShown = if ($b.Audit) { $b.Audit } else { '— (not yet audited)' }
+            Write-Host "   ⛔ $($b.Case.CaseId) ($($b.Case.Workflow)) — audit status: $auditShown" -ForegroundColor Red
+        }
+    }
+    $scriptedCases = @($gatedCases)
+}
+
+if ($scriptedCases.Count -eq 0) {
+    Write-Warning "No audit-approved scripted test cases to run."
     exit 0
 }
 

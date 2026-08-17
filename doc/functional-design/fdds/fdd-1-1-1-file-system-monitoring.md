@@ -1,5 +1,6 @@
 ---
 id: PD-FDD-024
+description: "1.1.1 Tier 2 — Watchdog event handling, move detection, file filtering"
 type: Product Documentation
 category: Functional Design Document
 version: 1.0

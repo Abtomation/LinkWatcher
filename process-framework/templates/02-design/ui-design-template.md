@@ -2,9 +2,9 @@
 id: PF-TEM-044
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2025-01-18
-updated: 2025-01-18
+updated: 2026-07-15
 usage_context: Process Framework - UI/UX Design Document Creation
 creates_document_prefix: PD-UIX
 template_for: UI/UX Design Document
@@ -21,7 +21,7 @@ description: Template for creating UI/UX Design Documents for UI features
 - **Feature ID**: [Feature ID]
 - **Feature Name**: [Feature Name]
 - **Design Scope**: [Brief description of the UI/UX design scope]
-- **Target Platforms**: [ ] iOS • [ ] Android • [ ] Web
+- **Target Platforms**: [ ] iOS • [ ] Android • [ ] Web • [ ] Desktop
 - **Design Status**: 🎨 Draft / 👀 Review / ✅ Approved
 
 ## Related Documentation
@@ -129,6 +129,7 @@ description: Template for creating UI/UX Design Documents for UI features
 - [iOS-specific constraint - e.g., "Follows iOS Human Interface Guidelines"]
 - [Android-specific constraint - e.g., "Material Design 3 components"]
 - [Web-specific constraint - e.g., "Responsive down to 320px width"]
+- [Desktop-specific constraint - e.g., "Minimum window size 1024x640; resizable"]
 
 **Business Constraints**:
 
@@ -415,7 +416,7 @@ flowchart TD
 - [Layout adjustments]
 - [Component changes]
 
-**Desktop**: 1440px+
+**Desktop**: 1440px+ — for a desktop app, state the minimum window size and how the layout reflows as the window is resized
 
 - [Layout adjustments]
 - [Component changes]
@@ -488,6 +489,28 @@ flowchart TD
 
 - [Web component 1]
 - [Web component 2]
+
+### 7.4 Desktop Design
+
+**OS Conventions**:
+
+- [Menu bar / window chrome / title-bar treatment]
+- [Platform conventions honored (Windows / macOS / Linux)]
+
+**Keyboard & Pointer Interactions**:
+
+- [Keyboard shortcuts and focus/tab order]
+- [Hover, right-click / context menu, drag-and-drop behaviors]
+
+**Window Behavior**:
+
+- [Minimum window size; resize and reflow behavior]
+- [Multi-window / dialog behavior, if any]
+
+**Desktop Components**:
+
+- [Desktop component 1]
+- [Desktop component 2]
 
 ---
 

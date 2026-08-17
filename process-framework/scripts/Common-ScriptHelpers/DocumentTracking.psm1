@@ -34,7 +34,7 @@ function Update-DocumentTrackingFiles {
     Updates multiple tracking files when a new document is created (Test Specifications, ADRs, etc.)
 
     .PARAMETER DocumentId
-    The ID of the document being created (e.g., PF-TSP-013)
+    The ID of the document being created (e.g., TE-TSP-013)
 
     .PARAMETER DocumentType
     The type of document (TestSpecification, ADR, ValidationReport, etc.)
@@ -50,7 +50,7 @@ function Update-DocumentTrackingFiles {
 
     .EXAMPLE
     $metadata = @{ "feature_id" = "1.2.3"; "feature_name" = "user-auth"; "tdd_path" = "path/to/tdd.md" }
-    Update-DocumentTrackingFiles -DocumentId "PF-TSP-013" -DocumentType "TestSpecification" -DocumentPath "test/specs/test-spec-1-2-3-user-auth.md" -Metadata $metadata
+    Update-DocumentTrackingFiles -DocumentId "TE-TSP-013" -DocumentType "TestSpecification" -DocumentPath "test/specs/test-spec-1-2-3-user-auth.md" -Metadata $metadata
     #>
 
     [CmdletBinding()]
@@ -99,23 +99,14 @@ function Update-DocumentTrackingFiles {
                         Write-Host "DRY RUN: Would update feature-tracking.md" -ForegroundColor Yellow
                         Write-Host "  Feature ID: $featureId" -ForegroundColor Cyan
                         Write-Host "  Test Status: $specsCreatedStatus" -ForegroundColor Cyan
-                        Write-Host "  Test Spec Link: $DocumentPath" -ForegroundColor Cyan
                     } else {
-                        # Calculate relative path from feature-tracking.md to the test specification
-                        $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
-                        $featureTrackingDir = Split-Path $featureTrackingPath -Parent
-                        $relativePath = [System.IO.Path]::GetRelativePath($featureTrackingDir, $DocumentPath)
-                        $relativePath = $relativePath -replace '\\', '/'  # Convert to forward slashes for markdown
-
+                        # feature-tracking.md has no "Test Spec" column — the spec link lives in
+                        # the Notes cell; only the Test Status column is updated (PF-IMP-1531).
                         $specsCreatedStatus = "📋 Specs Created"
-                        $additionalUpdates = @{
-                            "Test Status" = $specsCreatedStatus
-                            "Test Spec" = "[$DocumentId]($relativePath)"
-                        }
 
                         $notes = "Test specification created: $DocumentId ($timestamp)"
 
-                        Update-FeatureTrackingStatus -FeatureId $featureId -Status $specsCreatedStatus -StatusColumn "Test Status" -AdditionalUpdates $additionalUpdates -Notes $notes
+                        Update-FeatureTrackingStatus -FeatureId $featureId -Status $specsCreatedStatus -StatusColumn "Test Status" -Notes $notes
                         Write-Verbose "Updated feature-tracking.md"
                     }
 

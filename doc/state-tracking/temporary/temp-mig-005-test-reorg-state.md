@@ -1,4 +1,5 @@
 ---
+description: "MIG-005 Test/Audit Tree Reorganization — Execution State."
 title: "Temp State — MIG-005 Test/Audit Tree Reorganization (PRJ-001)"
 type: Temporary task state (Framework Rollout PF-TSK-088 Mode C — MIG-005)
 created: 2026-06-04

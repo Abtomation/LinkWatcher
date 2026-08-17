@@ -5,7 +5,7 @@ category: Template
 version: 1.1
 created: 2025-07-21
 updated: 2025-10-12
-creates_document_type: Process Framework
+creates_document_type: Product Documentation
 creates_document_category: Schema Design
 usage_context: Process Framework - Schema Design Creation
 creates_document_version: 1.0

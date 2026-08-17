@@ -2,10 +2,12 @@
 id: PF-TEM-071
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.2
 created: 2026-04-09
-updated: 2026-04-09
+updated: 2026-07-21
 task_name: [TASK-NAME]
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Template for tracking multi-session framework extension implementation with artifact tracking and task impact analysis (via New-TempTaskState.ps1 -Variant FrameworkExtension)"
 ---
 
@@ -23,15 +25,16 @@ description: "Template for tracking multi-session framework extension implementa
 
 ## Artifact Tracking
 
-| Artifact | Type | Location | Creator Task | Updater Task(s) | Status |
-|----------|------|----------|-------------|-----------------|--------|
-| [artifact-name.md] | Template | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
-| [script-name.ps1] | Script | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
-| [guide-name.md] | Guide | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
-| [task-name.md] | Task Def | [target path] | PF-TSK-001 | [tasks that update it] | NOT_STARTED |
-| [context-map.md] | Context Map | [target path] | PF-TSK-026 | [tasks that update it] | NOT_STARTED |
+| Artifact | Type | Location | Creator Task | Updater Task(s) | Verified How | Status |
+|----------|------|----------|-------------|-----------------|--------------|--------|
+| [artifact-name.md] | Template | [target path] | PF-TSK-026 | [tasks that update it] | — | NOT_STARTED |
+| [script-name.ps1] | Script | [target path] | PF-TSK-026 | [tasks that update it] | — | NOT_STARTED |
+| [guide-name.md] | Guide | [target path] | PF-TSK-026 | [tasks that update it] | — | NOT_STARTED |
+| [task-name.md] | Task Def | [target path] | PF-TSK-001 | [tasks that update it] | — | NOT_STARTED |
+| [context-map.md] | Context Map | [target path] | PF-TSK-026 | [tasks that update it] | — | NOT_STARTED |
 
 **Status Legend**: NOT_STARTED | IN_PROGRESS | COMPLETED | DEFERRED
+**Verified How values**: unit test | sandbox run | real run | read-only review | — (not verified)
 
 ## Task Impact
 
@@ -43,12 +46,14 @@ Existing tasks affected by this extension:
 
 ## Implementation Roadmap
 
-> **Default cadence: one phase per calendar session.** By default Phase 2 / Phase 3 /
-> mid-flight migrations each get a fresh session; running a second phase in one session is
-> allowed only under the documented waiver conditions. See
-> [framework-extension-task.md Phase 3](../../tasks/support/framework-extension-task.md#phase-3-multi-session-implementation)
-> for the waiver conditions, the phase-resumption naming convention, and the
-> calendar-vs-roadmap session terminology.
+> **Session cadence**: one sitting = one `### Session N` entry, however many phases it covers.
+> After each phase's checkpoint and phase-closure work, decide explicitly with the human
+> partner whether to continue with the next phase in the same sitting or end the session.
+> **Roadmap lines do not override framework rules** — where a line restates one (feedback-form
+> cadence, a gate, an ID), the rule's canonical source governs; verify inherited text against
+> it. See
+> [framework-extension-task.md task Phase 3](../../tasks/support/framework-extension-task.md#phase-3-multi-session-implementation)
+> for the phase-resumption naming convention and the calendar-vs-roadmap session terminology.
 
 ### Phase 1: Concept & Approval
 
@@ -91,7 +96,7 @@ Existing tasks affected by this extension:
 - [ ] [Describe task/registry update]
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
-- [ ] **Update documentation maps**: Add new artifacts to PF-documentation-map.md and/or PD-documentation-map.md
+- [ ] **Regenerate documentation maps**: run `Build-DocumentationMap.ps1` (PF) / `-Tree PD` / `-Tree TE` for each tree the extension touched (generated, DO-NOT-EDIT projections)
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
 - [ ] **Update ID registries**: Add new prefixes to PF-id-registry.json or PD-id-registry.json
@@ -113,9 +118,6 @@ Existing tasks affected by this extension:
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
 - [ ] **Log tool changes**: Record modifications in feedback database
-  - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-
-- [ ] **Complete feedback form**: Submit feedback for PF-TSK-026
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
 
 ## Session Tracking
@@ -174,7 +176,7 @@ This temporary state file can be moved to `process-framework-central/state-track
 - [ ] Documentation maps and ID registries are updated
 - [ ] Automation scripts are tested and working
 - [ ] Process improvement tracking is updated (if applicable)
-- [ ] Feedback form is completed
+- [ ] Feedback form completed for every calendar session (one per session — ai-tasks.md), including the final one
 
 ## Notes and Decisions
 

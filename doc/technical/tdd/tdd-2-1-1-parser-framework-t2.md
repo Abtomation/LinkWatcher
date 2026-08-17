@@ -1,5 +1,6 @@
 ---
 id: PD-TDD-025
+description: "2.1.1 Tier 2 — Registry + Facade parser system"
 type: Technical Design Document
 category: TDD Tier 2
 version: 1.0

@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-096
-type: Process Framework
+description: "Session 14"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-04-09

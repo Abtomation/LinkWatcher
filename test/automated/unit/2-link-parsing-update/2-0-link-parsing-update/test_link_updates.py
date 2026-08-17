@@ -2159,3 +2159,108 @@ class TestBug078PythonSourceRootImport:
         assert (
             "from core.helpers import greet" in updated
         ), f"Import should update to 'core.helpers', got: {updated!r}"
+
+
+class TestOverrideAwareBlueprintUpdates:
+    """Integration tests for blueprint-aware reference updating (v1.1).
+
+    With ``path_resolution_overrides`` configured, host-absolute (/...)
+    references between files inside an override folder (the blueprint use
+    case) are matched and rewritten on move/rename, preserving their
+    virtual-root style.  End-to-end through service + handler + updater.
+    Scenarios (a)/(b) single-file rename and (e) directory restructure from
+    TE-TSP-040 "Override-Aware Resolution Tests" (PD-TDD-026 design).
+    """
+
+    @staticmethod
+    def _make_service(temp_project_dir):
+        from linkwatcher.config.settings import LinkWatcherConfig
+
+        config = LinkWatcherConfig()
+        config.path_resolution_overrides = {"appdev/blueprint": "appdev/blueprint"}
+        return LinkWatcherService(str(temp_project_dir), config=config)
+
+    def test_override_single_file_rename_rewrites_virtual_root_links(self, temp_project_dir):
+        """(a)+(b) Renaming a file inside the override folder rewrites sibling
+        /... references in virtual-root style; an identical reference from a
+        file OUTSIDE the override folder is left unchanged."""
+        # Blueprint tree: links written against the blueprint's virtual root
+        tasks_dir = temp_project_dir / "appdev" / "blueprint" / "process-framework" / "tasks"
+        tasks_dir.mkdir(parents=True)
+        target = tasks_dir / "foo.md"
+        target.write_text("# Foo task\n")
+
+        index = temp_project_dir / "appdev" / "blueprint" / "process-framework" / "ai-tasks.md"
+        index.write_text(
+            "# Tasks\n\n- [Foo](/process-framework/tasks/foo.md)\n"
+            "- [Foo section](/process-framework/tasks/foo.md#steps)\n"
+        )
+
+        # Identical link text outside the override folder — must stay unchanged
+        outside = temp_project_dir / "doc"
+        outside.mkdir()
+        outside_file = outside / "notes.md"
+        outside_file.write_text("See [Foo](/process-framework/tasks/foo.md) for details.\n")
+
+        service = self._make_service(temp_project_dir)
+        service._initial_scan()
+
+        # Rename foo.md -> foo-task.md (the '-task' suffix restructure case)
+        new_target = tasks_dir / "foo-task.md"
+        target.rename(new_target)
+        service.handler.on_moved(FileMovedEvent(str(target), str(new_target)))
+
+        updated = index.read_text()
+        assert (
+            "/process-framework/tasks/foo-task.md)" in updated
+        ), f"virtual-root link not rewritten: {updated!r}"
+        assert (
+            "/process-framework/tasks/foo-task.md#steps" in updated
+        ), f"anchored virtual-root link not rewritten: {updated!r}"
+        # Style preserved: still a /... link, not the on-disk path
+        assert "appdev/blueprint" not in updated, f"on-disk path leaked into link: {updated!r}"
+
+        # (b) Non-override source byte-for-byte unchanged
+        assert (
+            outside_file.read_text() == "See [Foo](/process-framework/tasks/foo.md) for details.\n"
+        )
+
+    def test_override_directory_move_rewrites_all_virtual_root_links(self, temp_project_dir):
+        """(e) Restructuring a directory inside the override folder rewrites
+        all affected /... references, preserving virtual-root style."""
+        bp = temp_project_dir / "appdev" / "blueprint" / "process-framework"
+        tasks_dir = bp / "tasks"
+        tasks_dir.mkdir(parents=True)
+        (tasks_dir / "a.md").write_text("# A\n")
+        (tasks_dir / "b.md").write_text("# B\n")
+
+        index = bp / "ai-tasks.md"
+        index.write_text(
+            "# Tasks\n\n"
+            "- [A](/process-framework/tasks/a.md)\n"
+            "- [B](/process-framework/tasks/b.md)\n"
+        )
+        guide = bp / "guide.md"
+        guide.write_text("Start with [A](/process-framework/tasks/a.md).\n")
+
+        service = self._make_service(temp_project_dir)
+        service._initial_scan()
+
+        # Restructure: tasks/ -> task-definitions/
+        new_dir = bp / "task-definitions"
+        tasks_dir.rename(new_dir)
+        service.handler.on_moved(DirMovedEvent(str(tasks_dir), str(new_dir)))
+
+        updated_index = index.read_text()
+        assert (
+            "/process-framework/task-definitions/a.md" in updated_index
+        ), f"dir-move rewrite missing for a.md: {updated_index!r}"
+        assert (
+            "/process-framework/task-definitions/b.md" in updated_index
+        ), f"dir-move rewrite missing for b.md: {updated_index!r}"
+        assert "appdev/blueprint" not in updated_index, "on-disk path leaked into link"
+
+        updated_guide = guide.read_text()
+        assert (
+            "/process-framework/task-definitions/a.md" in updated_guide
+        ), f"dir-move rewrite missing in second source: {updated_guide!r}"

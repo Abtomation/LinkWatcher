@@ -1,20 +1,21 @@
 ---
 id: PD-ARC-002
+description: "Auto-generated map of inter-feature dependencies derived from per-feature state files."
 type: Product Documentation
 category: Architecture
 version: 2.0
 created: 2023-06-15
-updated: 2026-06-10
+updated: 2026-08-17
 generated: true
 ---
 
 # Feature Dependencies Map
 
-> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-06-10.
+> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-08-17.
 > Source: feature state files in doc/state-tracking/features/.
 > Do not edit manually — changes will be overwritten on next generation.
 
-This document maps the dependencies between features (8 features, 18 dependency edges).
+This document maps the dependencies between features (9 features, 18 dependency edges).
 
 ## Dependency Visualization
 
@@ -37,6 +38,7 @@ graph TD
     F2_2_1["2.2.1 Link Updating"]
     F3_1_1["3.1.1 Logging System"]
     F6_1_1["6.1.1 Link Validation"]
+    F7_1_1["7.1.1 LinkWatcher Control Panel"]
 
     F0_1_1 --> F0_1_2
     F0_1_1 --> F0_1_3
@@ -65,6 +67,7 @@ graph TD
     class F2_2_1 linkprocessing
     class F3_1_1 monitoring
     class F6_1_1 validation
+    class F7_1_1 other
 ```
 
 **Legend**: Solid arrows (`-->`) = direct dependency. Dashed arrows (`-.->`) = broad dependency (e.g., test suite exercises all components).
@@ -90,6 +93,7 @@ graph TD
 | 2.2.1 | Link Updating | Link Processing | 0.1.1, 0.1.2, 3.1.1 | P1 | 🟠 Tier 2 | 🟢 Completed |
 | 3.1.1 | Logging System | Monitoring | 0.1.3 | P1 | 🟠 Tier 2 | 🟢 Completed |
 | 6.1.1 | Link Validation | Validation | 0.1.1, 2.1.1 | P2 | 🔵 Tier 1 | 🟢 Completed |
+| 7.1.1 | LinkWatcher Control Panel | Other | — | P3 | 🟠 Tier 2 | 👀 Needs Review |
 
 ## Dependency Summary
 
@@ -99,10 +103,11 @@ graph TD
 - **0.1.2 In-Memory Link Database**: 3 features depend on this
 - **2.1.1 Link Parsing System**: 3 features depend on this
 - **0.1.3 Configuration System**: 2 features depend on this
-- **2.2.1 Link Updating**: 2 features depend on this
 - **3.1.1 Logging System**: 2 features depend on this
+- **2.2.1 Link Updating**: 2 features depend on this
 - **1.1.1 File System Monitoring**: 1 features depend on this
 
 ### Features With No Dependencies (root nodes)
 
 - **0.1.3 Configuration System**
+- **7.1.1 LinkWatcher Control Panel**

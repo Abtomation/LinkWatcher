@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-008
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-001): TE-E2E-008 File Create and Move."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-005
 feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
 workflow: WF-001
@@ -75,7 +77,7 @@ See `expected/` directory for complete post-test file state.
 
 ## Verification Method
 
-- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-008` — compares workspace against `expected/`
+- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-008 -Workflow single-file-move-links-updated` — compares workspace against `expected/`
 - [ ] **Log check**: Check LinkWatcher log for move detection and update messages without errors
 
 ## Pass Criteria
@@ -87,7 +89,7 @@ See `expected/` directory for complete post-test file state.
 
 ## Fail Actions
 
-- Record the failure in test-tracking.md with status `🔴 Failed`
+- Record the failure in e2e-test-tracking.md with status `🔴 Failed`
 - Note which pass criterion failed and any observed error messages
 - Create a bug report using `New-BugReport.ps1` if the failure indicates a genuine defect
 - Save LinkWatcher log output as evidence

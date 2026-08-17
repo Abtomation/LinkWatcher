@@ -1,6 +1,7 @@
 ---
 id: PD-VAL-073
-type: Process Framework
+description: "Session 2 (Score: 2.85/3.0 PASS)"
+type: Product Documentation
 category: Validation Report
 version: 1.0
 created: 2026-04-01

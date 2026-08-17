@@ -30,6 +30,15 @@ dependencies = [
     "PyYAML>=6.0",
     "colorama>=0.4.6",
     "structlog>=21.0.0",
+    # Imported by main.py for repository detection. Undeclared until now: the
+    # installed venv only carried it by historical accident, so a venv built
+    # from this list alone failed `main.py --help` with "No module named 'git'".
+    "GitPython>=3.1.0",
+    # Runtime dependency of the Control Panel (feature 7.1.1): process
+    # enumeration, three-way daemon identity, and termination. Previously
+    # declared only under the [test] extra, which left the installed venv
+    # without it and the shipped panel unable to discover any daemon.
+    "psutil>=5.9.0",
 ]
 
 [project.optional-dependencies]
@@ -43,7 +52,6 @@ test = [
     "factory-boy>=3.2.0",
     "freezegun>=1.2.0",
     "responses>=0.23.0",
-    "psutil>=5.9.0",
 ]
 dev = [
     "black>=23.0.0",

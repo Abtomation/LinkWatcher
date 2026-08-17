@@ -6,7 +6,8 @@
     "updated": "2026-03-24",
     "description": "Process Framework ID Registry - framework-level document IDs portable across projects",
     "format": "semantic",
-    "id_gaps_policy": "Gaps in ID sequences are expected. IDs are consumed by scripts at creation time; if the script fails or the output is discarded, the ID is not reclaimed. Do not manually reassign or fill gaps."
+    "axis_note": "Prefix entries store category = documentation tree and type = document kind — transposed relative to document frontmatter, which stores type = tree and category = kind. Never copy values across without swapping the axes.",
+    "id_gaps_policy": "Gaps in ID sequences are expected and never backfilled: an ID stays with its artifact for life — never reassign, renumber, or reuse a deleted artifact's ID (archives and history may still reference it). This constrains IDs, not the pool's nextAvailable counter, which must stay above every ID issued in this tree and never drops just because artifacts were deleted — EXCEPT reset it to 1 when the pool holds zero artifacts and none of its IDs are still referenced here (population migrated, retired, or blueprint seed only), or the vacated range is burned here and, for blueprint copies, in every project bootstrapped later. Projects that already grew their counter keep it."
   },
   "prefixes": {
     "PF-TSK": {
@@ -27,7 +28,7 @@
         "cyclical": "process-framework/tasks/cyclical",
         "default": "01-planning"
       },
-      "nextAvailable": 92
+      "nextAvailable": 95
     },
     "PF-GDE": {
       "description": "Process Framework - Guides",
@@ -37,7 +38,7 @@
         "main": "process-framework/guides",
         "default": "main"
       },
-      "nextAvailable": 71
+      "nextAvailable": 79
     },
     "PF-TEM": {
       "description": "Process Framework - Templates",
@@ -47,7 +48,7 @@
         "main": "process-framework/templates",
         "default": "main"
       },
-      "nextAvailable": 83
+      "nextAvailable": 109
     },
     "PF-DOC": {
       "description": "Process Framework - Documentation",
@@ -74,9 +75,8 @@
       "category": "Process Framework",
       "type": "Visualization",
       "directories": {
-        "context-maps": "process-framework/visualization/context-maps",
         "process-flows": "process-framework/visualization/process-flows",
-        "default": "context-maps"
+        "default": "process-flows"
       },
       "nextAvailable": 70
     },
@@ -99,6 +99,16 @@
         "default": "guides"
       },
       "nextAvailable": 2
+    },
+    "PF-FST": {
+      "description": "COPIES: one per registered project, all carrying the same ID. LOCATION: that project's own doc/state-tracking/permanent/. WHO MAY MINT: appdev only, from its producer face, via New-PermanentState.ps1 -Shipped; a project RECEIVES these IDs at bootstrap and never allocates one. -- Process Framework - Framework-Shipped State Trackers. Permanent state-tracking files shipped in the blueprint (present in every project from initiation) whose SCHEMA the framework owns; row content is per-project. Allocated once from this rolled-out pool, so the IDs are identical across projects and never collide with project-grown PD-STA. Contrast PF-STA (one copy, the owning workspace's own state, minted locally by that workspace) and PF-SST (one copy portfolio-wide, held in central, minted by the workspace that owns the shared artifact - e.g. script-soak-tracking.md). Read 'SST' as Shareable, NOT as framework-Shipped: this pool is the shipped one.",
+      "category": "Process Framework",
+      "type": "Framework-Shipped State",
+      "directories": {
+        "permanent": "doc/state-tracking/permanent",
+        "default": "permanent"
+      },
+      "nextAvailable": 10
     }
   }
 }

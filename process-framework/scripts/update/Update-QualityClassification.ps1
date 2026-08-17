@@ -2,10 +2,10 @@
 
 <#
 .SYNOPSIS
-Computes and writes the Quality Assessment classification in a feature implementation state file (PF-TSK-065 Step 9).
+Computes and writes the Quality Assessment classification in a feature implementation state file (PF-TSK-065's quality-assessment step).
 
 .DESCRIPTION
-This script automates the scoring + classification step of PF-TSK-065 Step 9
+This script automates the scoring + classification step of PF-TSK-065's quality-assessment step
 (Codebase Feature Analysis — Evaluate Implementation Quality). The agent fills
 in the 5 dimension scores in Section "Quality Assessment" of the feature
 implementation state file; this script computes Code Maturity + Test Maturity
@@ -48,11 +48,11 @@ Show the computed classification and the proposed file changes without writing.
 
 .EXAMPLE
 # Compute and write classification for one feature
-.\Update-QualityClassification.ps1 -StateFile "doc/state-tracking/features/1.1.4-Reporting-implementation-state.md"
+Update-QualityClassification.ps1 -StateFile "doc/state-tracking/features/1.1.4-Reporting-implementation-state.md"
 
 .EXAMPLE
 # Preview without writing
-.\Update-QualityClassification.ps1 -StateFile "doc/state-tracking/features/1.1.4-Reporting-implementation-state.md" -WhatIf
+Update-QualityClassification.ps1 -StateFile "doc/state-tracking/features/1.1.4-Reporting-implementation-state.md" -WhatIf
 
 .NOTES
 Resolves PF-IMP-033 (auto-classify) and PF-IMP-019/032 (dual-score model).
@@ -138,7 +138,7 @@ if ($tableHeaderIdx -lt 0) {
 # Skip header + separator
 $dataStartIdx = $tableHeaderIdx + 2
 
-# Expected dimension names (must appear in this order; spec: PF-TSK-065 Step 9)
+# Expected dimension names (must appear in this order; spec: PF-TSK-065's quality-assessment step)
 $expectedDimensions = @(
     'Structural clarity',
     'Error handling',

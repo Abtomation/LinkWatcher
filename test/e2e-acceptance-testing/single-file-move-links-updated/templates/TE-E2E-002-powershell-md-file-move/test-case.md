@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-002
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-001): TE-E2E-002 PowerShell Markdown File Move."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-002
 feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
 workflow: WF-001

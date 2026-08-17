@@ -1,8 +1,8 @@
 ---
-id: [DOCUMENT_ID]
+id: PF-TEM-100
 type: Process Framework
 category: Proposal
-version: 1.1
+version: 1.2
 created: [Created Date]
 updated: [Created Date]
 extension_name: [Extension Name]
@@ -13,6 +13,9 @@ variant_siblings:
   - framework-extension-concept-template.md
   - framework-extension-concept-creation-template.md
   - framework-extension-concept-minimal-template.md
+  - framework-extension-concept-pattern-template.md
+creates_document_type: Process Framework
+creates_document_category: Proposal
 description: "Modification-type template for extensions that modify existing artifacts"
 ---
 
@@ -170,8 +173,8 @@ This framework extension should be used when:
 | [Point 3] | [Component 3] | [Method 3] |
 
 > **Framework integration reminder** — after implementation, update these core framework files:
-> - **ai-tasks.md**: Register new tasks in the main task registry
-> - **Documentation maps**: Add new artifacts to the appropriate map (`PF-documentation-map.md` for process framework, `doc/PD-documentation-map.md` for product, `test/TE-documentation-map.md` for test)
+> - **ai-tasks.md / both registries / tasks/README**: generated projections (PF-PRO-042) — register a new task by filling its frontmatter + `## File Operations` + `## Next Tasks` subsections and running `Build-TaskMetadata.ps1`, not by hand-editing these views
+> - **Documentation maps**: Regenerate the appropriate map — all generated, DO-NOT-EDIT projections (PF-PRO-037 / PF-PRO-050): `Build-DocumentationMap.ps1` (process framework, `PF-documentation-map.md`), `… -Tree PD` (product, `doc/PD-documentation-map.md`), `… -Tree TE` (test, `test/TE-documentation-map.md`); never hand-edit. New artifacts appear once they carry a `.SYNOPSIS` / `description:` frontmatter / `metadata.description`
 > - **ID registries**: Add new ID prefixes to the appropriate registry (PF/PD/TE-id-registry.json) if the extension creates new file types
 
 ## 🎯 Success Criteria
@@ -227,11 +230,11 @@ This framework extension should be used when:
 ### Approval Decision
 - [ ] **APPROVED**: Concept is approved for implementation
 - [ ] **NEEDS REVISION**: Concept needs changes before approval
-- [ ] **REJECTED**: Concept is not suitable for framework extension
+- [ ] **NOT ADOPTED**: Declined on current evidence — record falsifiable re-open conditions in the concept and archive it to proposals/old/ as the evaluation record
 
 **Human Reviewer**: [Name]
 **Review Date**: [Date]
-**Decision**: [APPROVED/NEEDS REVISION/REJECTED]
+**Decision**: [APPROVED/NEEDS REVISION/NOT ADOPTED]
 **Comments**: [Review comments and feedback]
 
 ---

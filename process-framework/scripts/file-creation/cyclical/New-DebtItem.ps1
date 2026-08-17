@@ -8,7 +8,7 @@
 
 .DESCRIPTION
     This PowerShell script generates Technical Debt Item records by:
-    - Generating a unique document ID (PF-TDI-XXX)
+    - Generating a unique document ID (PD-TDI-XXX)
     - Creating a properly formatted debt item record
     - Updating the ID tracker in the central ID registry
     - Providing a complete template for documenting individual debt items
@@ -30,19 +30,19 @@
     Location/component where the debt exists (e.g., "lib/auth/", "UI Components", "Database Layer")
 
 .PARAMETER AssessmentId
-    ID of the assessment that identified this debt item (e.g., "PF-TDA-001"). Optional for manually identified items.
+    ID of the assessment that identified this debt item (e.g., "PD-TDA-001"). Optional for manually identified items.
 
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
 .EXAMPLE
-    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Dim "SE" -Priority "High" -Location "lib/auth/"
+    New-DebtItem.ps1 -ItemTitle "Outdated Authentication Library" -Dim "SE" -Priority "High" -Location "lib/auth"
 
 .EXAMPLE
-    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Dim "CQ" -Priority "Medium" -Location "UI Components" -OpenInEditor
+    New-DebtItem.ps1 -ItemTitle "Duplicated Validation Logic" -Dim "CQ" -Priority "Medium" -Location "UI Components" -OpenInEditor
 
 .EXAMPLE
-    ../../../../../../../../../../../assessments/New-DebtItem.ps1 -ItemTitle "Missing Error Handling" -Dim "CQ" -Priority "High" -Location "lib/services/" -AssessmentId "PF-TDA-001"
+    New-DebtItem.ps1 -ItemTitle "Missing Error Handling" -Dim "CQ" -Priority "High" -Location "lib/services" -AssessmentId "PD-TDA-001"
 
 .NOTES
     - Requires PowerShell execution policy to allow script execution
@@ -85,14 +85,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the debt-item-specific data, and the success report.
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
@@ -113,40 +108,35 @@ $customReplacements = @{
 }
 
 # Create the document using standardized process
-try {
-    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/debt-item-template.md"
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-TDI" -IdDescription "Technical Debt Item: $ItemTitle" -DocumentName $ItemTitle -DirectoryType "debt-items" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/cyclical/debt-item-template.md"
+$documentId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PD-TDI" -IdDescription "Technical Debt Item: $ItemTitle" -DocumentName $ItemTitle -DirectoryType "debt-items" -Replacements $customReplacements -Metadata $additionalMetadataFields -Label "Technical Debt Item" -OpenInEditor:$OpenInEditor
 
-    # Provide success details
-    $details = @(
-        "Item Title: $ItemTitle",
-        "Dimension: $Dim",
-        "Priority: $Priority",
-        "Location: $Location",
+# Provide success details
+$details = @(
+    "Item Title: $ItemTitle",
+    "Dimension: $Dim",
+    "Priority: $Priority",
+    "Location: $Location",
+    "",
+    "🤖 AUTOMATION AVAILABLE:",
+    "To automatically add this item to technical-debt-tracking.md, run:",
+    "process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description '$ItemTitle' -Dims '$Dim' -Location '$Location' -Priority '$Priority' -EstimatedEffort '[SPECIFY_EFFORT]' -DebtItemId '$documentId' -AssessmentId '$AssessmentId' -Confirm:`$false",
+    "",
+    "Manual steps (if not using automation):",
+    "1. Complete the debt item details using the provided template",
+    "2. Assess impact and effort required for remediation",
+    "3. Link to related assessment using the assessment ID",
+    "4. Update technical-debt-tracking.md with this item"
+)
+
+# Add next steps if not opening in editor
+if (-not $OpenInEditor) {
+    $details += @(
+        "Customization required — apply the technical-debt-assessment craft skill (.claude/skills/technical-debt-assessment/references/debt-item-creation.md)",
         "",
-        "🤖 AUTOMATION AVAILABLE:",
-        "To automatically add this item to technical-debt-tracking.md, run:",
-        "process-framework/scripts/update/Update-TechDebt.ps1 -Add -Description '$ItemTitle' -Dims '$Dim' -Location '$Location' -Priority '$Priority' -EstimatedEffort '[SPECIFY_EFFORT]' -DebtItemId '$documentId' -AssessmentId '$AssessmentId' -Confirm:`$false",
-        "",
-        "Manual steps (if not using automation):",
-        "1. Complete the debt item details using the provided template",
-        "2. Assess impact and effort required for remediation",
-        "3. Link to related assessment using the assessment ID",
-        "4. Update technical-debt-tracking.md with this item"
+        "To edit the debt item:",
+        "code `"$(Join-Path $PWD.Path "doc/technical-debt/debt-items")/$documentId-*.md`""
     )
-
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += @(
-            "Customization required — see process-framework/guides/cyclical/debt-item-creation-guide.md",
-            "",
-            "To edit the debt item:",
-            "code `"$(Join-Path $PWD.Path "process-framework/assessments/technical-debt/debt-items")/$documentId-*.md`""
-        )
-    }
-
-    Write-ProjectSuccess -Message "Created Technical Debt Item with ID: $documentId" -Details $details
 }
-catch {
-    Write-ProjectError -Message "Failed to create Technical Debt Item: $($_.Exception.Message)" -ExitCode 1
-}
+
+Write-ProjectSuccess -Message "Created Technical Debt Item with ID: $documentId" -Details $details

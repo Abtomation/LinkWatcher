@@ -1,5 +1,6 @@
 ---
 id: TE-TSP-038
+description: "1.1.1 Tier 2 — Move detection, file filtering, monitoring"
 type: Process Framework
 category: Test Specification
 version: 1.0

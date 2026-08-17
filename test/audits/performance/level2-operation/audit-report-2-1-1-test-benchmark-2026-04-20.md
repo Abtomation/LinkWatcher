@@ -1,5 +1,6 @@
 ---
 id: TE-TAR-066
+description: "Test audit report for feature 2.1.1 — test-suite quality assessment."
 type: Performance Test Audit
 category: Test Audit Report
 version: 1.0

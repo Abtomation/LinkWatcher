@@ -2,9 +2,9 @@
 id: PF-TEM-045
 type: Process Framework
 category: Template
-version: 2.0
+version: 2.1
 created: 2026-02-19
-updated: 2026-02-19
+updated: 2026-07-14
 creates_document_prefix: PF-STA
 creates_document_version: 1.0
 description: Template for tracking enhancement work on existing features, produced by Feature Request Evaluation and consumed by Feature Enhancement
@@ -48,7 +48,7 @@ template_for: Enhancement State Tracking
 | FDD | [PD-FDD-XXX or N/A] | [Link or "None exists"] | [Amend / Create / No change] |
 | TDD | [PD-TDD-XXX or N/A] | [Link or "None exists"] | [Amend / Create / No change] |
 | ADR | [PD-ADR-XXX or N/A] | [Link or "None exists"] | [Amend / Create / No change] |
-| Test Specification | [PF-TSP-XXX or N/A] | [Link or "None exists"] | [Amend / Create / No change] |
+| Test Specification | [TE-TSP-XXX or N/A] | [Link or "None exists"] | [Amend / Create / No change] |
 
 ## Dimension Impact Assessment
 
@@ -84,7 +84,7 @@ template_for: Enhancement State Tracking
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — required for Tier 2+ features with functional changes]
-- **Referenced Task Doc**: [FDD Creation (PF-TSK-010)](../../tasks/02-design/fdd-creation-task.md)
+- **Referenced Task Doc**: [FDD Creation (PF-TSK-027)](../../tasks/02-design/fdd-creation-task.md)
 - **Rationale**: [Why FDD amendment is or is not needed — e.g., "Enhancement changes user-facing behavior" or "Not applicable — no functional specification exists and enhancement is internal only"]
 - **Adaptation Notes**: [Amend existing FDD sections rather than creating a new FDD. Specify which sections need updating — e.g., "Update user flow section to include new validation step"]
 - **Deliverable**: [Updated FDD with amended sections, or N/A]
@@ -132,7 +132,7 @@ template_for: Enhancement State Tracking
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — required for Tier 2+ features with technical changes]
-- **Referenced Task Doc**: [TDD Creation (PF-TSK-022)](../../tasks/02-design/tdd-creation-task.md)
+- **Referenced Task Doc**: [TDD Creation (PF-TSK-015)](../../tasks/02-design/tdd-creation-task.md)
 - **Rationale**: [Why TDD amendment is or is not needed — e.g., "Enhancement changes component architecture" or "Not applicable — no technical design document exists and enhancement is simple"]
 - **Adaptation Notes**: [Amend existing TDD sections rather than creating a new TDD. Specify which sections need updating — e.g., "Add retry logic subsection to Error Handling section"]
 - **Deliverable**: [Updated TDD with amended sections, or N/A]
@@ -180,7 +180,7 @@ template_for: Enhancement State Tracking
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — required when enhancement changes state management, providers, or notifiers]
-- **Referenced Task Doc**: [State Management Implementation (PF-TSK-052)](../../tasks/04-implementation/state-management-implementation.md)
+- **Referenced Task Doc**: [State Management Implementation (PF-TSK-056)](../../tasks/04-implementation/state-management-implementation.md)
 - **Rationale**: [Why state management changes are or are not needed — e.g., "Enhancement adds new provider for reactive state" or "Not applicable — no state management layer in this project"]
 - **Adaptation Notes**: [Extend existing state management rather than creating new patterns. Specify which providers, stores, or notifiers are affected.]
 - **Deliverable**: [Updated state management layer, or N/A]
@@ -192,7 +192,7 @@ template_for: Enhancement State Tracking
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — required when enhancement changes user interface components, widgets, or screens]
-- **Referenced Task Doc**: [UI Implementation (PF-TSK-050)](../../tasks/04-implementation/ui-implementation.md)
+- **Referenced Task Doc**: [UI Implementation (PF-TSK-052)](../../tasks/04-implementation/ui-implementation.md)
 - **Rationale**: [Why UI changes are or are not needed — e.g., "Enhancement adds new settings screen" or "Not applicable — no UI in this project"]
 - **Adaptation Notes**: [Extend existing UI components rather than creating new patterns. Specify which screens, widgets, or layouts are affected.]
 - **Deliverable**: [Updated UI components, or N/A]
@@ -212,31 +212,19 @@ template_for: Enhancement State Tracking
 
 ---
 
-### Step 13: Quality Validation
-
-- **Status**: [ ] Not started
-- **Applicable**: [Yes / No — required for significant enhancements that need quality auditing]
-- **Referenced Task Doc**: [Quality Validation (PF-TSK-054)](../../tasks/04-implementation/quality-validation.md)
-- **Rationale**: [Why quality validation is or is not needed — e.g., "Enhancement modifies core logic and needs quality audit" or "Not applicable — minor change, code review suffices"]
-- **Adaptation Notes**: [Validate enhancement against quality standards. Focus on the changed areas and their impact.]
-- **Deliverable**: [Quality validation report, or N/A]
-- **Session**: [1 / 2 / ...]
-
----
-
-### Step 14: Implementation Finalization
+### Step 13: Implementation Finalization
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — required for multi-session enhancements or those needing final cleanup]
 - **Referenced Task Doc**: [Implementation Finalization (PF-TSK-055)](../../tasks/04-implementation/implementation-finalization.md)
 - **Rationale**: [Why finalization is or is not needed — e.g., "Multi-session enhancement needs final cleanup and preparation" or "Not applicable — single-session enhancement, finalization handled inline"]
-- **Adaptation Notes**: [Complete remaining items and prepare enhancement for production.]
-- **Deliverable**: [Finalized implementation ready for production, or N/A]
+- **Adaptation Notes**: [Complete remaining items and close out the enhancement.]
+- **Deliverable**: [Finalized, closed-out implementation, or N/A]
 - **Session**: [1 / 2 / ...]
 
 ---
 
-### Step 15: Update Tests
+### Step 14: Update Tests
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — required when enhancement changes testable behavior]
@@ -248,31 +236,31 @@ template_for: Enhancement State Tracking
 
 ---
 
-### Step 16: Code Review
+### Step 15: Code Review
 
 - **Status**: [ ] Not started
-- **Applicable**: [Yes / No — recommended for all non-trivial enhancements]
-- **Referenced Task Doc**: [Code Review (PF-TSK-005)](../../tasks/06-maintenance/code-review-task.md)
+- **Applicable**: [Yes / No — Yes for all non-trivial enhancements]
+- **Referenced Task Doc**: [Code Review (PF-TSK-005)](../../tasks/06-maintenance/code-review-task.md) — runs as its own session *after* this enhancement is finalized
 - **Rationale**: [Why code review is or is not needed — e.g., "Enhancement modifies core logic" or "Not applicable — trivial change with no behavioral impact"]
-- **Adaptation Notes**: [Focus review on the changed areas and their interaction with existing code.]
-- **Deliverable**: [Code review completed and any issues resolved, or N/A]
+- **Adaptation Notes**: [This block is a routing decision, not work performed inside the enhancement session — that session never conducts the review of record. When applicable, finalize with `-RestoredStatus "👀 Needs Review"` so the feature enters the review queue, and name the areas the reviewer should focus on.]
+- **Deliverable**: [Feature routed to a standalone Code Review session (👀 Needs Review) at finalization, or N/A]
 - **Session**: [1 / 2 / ...]
 
 ---
 
-### Step 17: User Documentation
+### Step 16: User Documentation
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes / No — set by Feature Request Evaluation based on user-visible behavior]
 - **Referenced Task Doc**: [User Documentation Creation (PF-TSK-081)](../../tasks/07-deployment/user-documentation-creation.md)
 - **Rationale**: [Why user docs are or are not needed — e.g., "Enhancement adds new CLI option visible to users" or "Not applicable — internal refactoring with no user-facing change"]
-- **Adaptation Notes**: [Create or update handbooks in doc/user/handbooks A feature may have multiple handbook entries.]
+- **Adaptation Notes**: [The handbook is written in this session, to the referenced task's standards — create new ones with `New-Handbook.ps1` (hand-created files break PD-HBK ID tracking) and record them with `Update-UserDocumentationState.ps1`; a feature may have several handbook entries in `doc/user/handbooks`. If the work is deferred instead, set the target feature's state-file **User Documentation** section to `❌ Needed` so User Documentation Creation picks it up later.]
 - **Deliverable**: [New or updated handbook(s), or N/A]
 - **Session**: [1 / 2 / ...]
 
 ---
 
-### Step 18: Update Feature State
+### Step 17: Update Feature State
 
 - **Status**: [ ] Not started
 - **Applicable**: [Yes — always required]
@@ -295,7 +283,7 @@ template_for: Enhancement State Tracking
 
 ### Session 2: [Focus Area]
 
-**Planned Steps**: [Step numbers, e.g., Steps 9-18]
+**Planned Steps**: [Step numbers, e.g., Steps 9-17]
 **Goal**: [What should be complete by end of session]
 
 ## Session Log

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Framework wrapper config for Dart/Flutter projects — used by Run-Tests.ps1. Dart-native test config (tags, platforms) stays in dart_test.yaml at project root once the Flutter scaffold exists.",
+  "language": "dart",
+  "version": "1.0",
+  "testing": {
+    "baseCommand": "flutter test",
+    "coverageArgs": "--coverage",
+    "coverageFullArgs": "--coverage",
+    "_comment_discoveryCommand": "flutter test has no collect-only/dry-run mode, so discovery is a filesystem scan for the *_test.dart naming convention (paths relative to {testDir}).",
+    "discoveryCommand": "pwsh -NoProfile -Command Get-ChildItem -Recurse -Filter *_test.dart {testDir} -Name",
+    "discoveryOutputPattern": "^(.+_test\\.dart)$",
+    "testFileExtension": ".dart",
+    "testFileNamePattern": "{name}_test",
+    "testFileExclusions": [
+      ".dart_tool",
+      "build"
+    ],
+    "lintCommand": "dart analyze {testDir}",
+    "_comment_stopOnFirstFailure": "package:test flag forwarded by flutter test; verify against the installed Flutter SDK when the app scaffold lands (0.x foundation work).",
+    "stopOnFirstFailure": "--fail-fast",
+    "verboseFlag": "--reporter=expanded",
+    "markers": {
+      "slow": "--tags slow",
+      "critical": "--tags critical",
+      "notSlow": "--exclude-tags slow",
+      "performance": "--tags performance"
+    },
+    "testSetup": {
+      "mechanism": "helper-imports",
+      "configFiles": [
+        "test/automated/helpers/test_helpers.dart"
+      ],
+      "discoveryCommand": null
+    },
+    "featureMarkerPattern": "",
+    "staticAnalysisCommand": "dart analyze {srcDir}"
+  },
+  "directoryStructure": {
+    "sourceRoot": "lib",
+    "sharedDirectory": "shared",
+    "directoryNaming": "snake_case",
+    "fileNaming": "snake_case",
+    "entryPoint": "main.dart",
+    "packageMarkers": [],
+    "layers": {
+      "data": {
+        "name": "data",
+        "purpose": "Models, repositories, and data-source access (e.g. Supabase clients)"
+      },
+      "services": {
+        "name": "services",
+        "purpose": "Business logic and state management services"
+      },
+      "ui": {
+        "name": "ui",
+        "purpose": "Widgets, screens, and presentation logic"
+      }
+    },
+    "sublayerThreshold": 8,
+    "sublayerThresholdDescription": "Add sublayers within a feature directory when it exceeds this many files",
+    "importRewriteTool": "manual"
+  },
+  "recommended_skills": [],
+  "doc_extraction": {
+    "_comment": "Doc-comment extraction spec for the Source Code Documentation Map (Build-DocumentationMap.ps1 -Tree SC, PF-IMP-1955). Declaring this block is all a language needs to join the SC map — the generic engine (Get-MarkerDocDescription in DescriptionExtraction.psm1) is driven by these markers; no framework-script edit required. The doc block must precede the first code line and only its first paragraph is indexed.",
+    "engine": "line-marker",
+    "extensions": [".dart"],
+    "line_marker": "///",
+    "block_start": "/**",
+    "block_end": "*/",
+    "ignore_prefixes": ["//", "#!"]
+  },
+  "headerComment": {
+    "open": "/*",
+    "close": " */",
+    "linePrefix": " * "
+  }
+}

@@ -24,115 +24,109 @@ The task-based approach helps to:
 
 ## Available Tasks
 
+<!-- BEGIN GENERATED: task-catalog -->
 ### 00 - Setup Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Codebase Source Migration](00-setup/codebase-source-migration-task.md) | Relocate legacy source into the scaffolded per-feature src/ directories during onboarding, file-by-file, with behavior-preserving per-item verification | When working on Codebase Source Migration |
-| [Codebase Feature Discovery](00-setup/codebase-feature-discovery.md) | Systematically discover all features in an existing codebase and assign every source file to at least one feature | When adopting the framework into an existing project |
-| [Codebase Feature Analysis](00-setup/codebase-feature-analysis.md) | Analyze implementation patterns, dependencies, and design decisions for each discovered feature | After feature discovery |
-| [Retrospective Documentation Creation](00-setup/retrospective-documentation-creation.md) | Create tier assessments and required design documentation for all analyzed features | After feature analysis |
-| [Project Initiation](00-setup/project-initiation-task.md) | Initial project setup including project-config.json creation | When starting a new project |
+| Task | Description |
+| ---- | ----------- |
+| [Codebase Feature Analysis](00-setup/codebase-feature-analysis.md) | Analyze implementation patterns, dependencies, and design decisions |
+| [Codebase Feature Discovery](00-setup/codebase-feature-discovery.md) | Discover all features in existing codebase and assign every source file |
+| [Codebase Source Migration](00-setup/codebase-source-migration-task.md) | Relocate legacy source into the scaffolded per-feature src/ directories during onboarding, file-by-file, with behavior-preserving per-item verification |
+| [Project Initiation](00-setup/project-initiation-task.md) | Initial project setup including ../doc/project-config.json creation |
+| [Retrospective Documentation Creation](00-setup/retrospective-documentation-creation.md) | Create tier assessments and required design documentation |
 
 ### 01 - Planning Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Feature Request Evaluation](01-planning/feature-request-evaluation.md) | Classify incoming change requests as new features or enhancements to existing features | Entry point for all change requests |
-| [Feature Tier Assessment](01-planning/feature-tier-assessment-task.md) | Assess the complexity tier of features | When new features need complexity assessment |
-| [Feature Discovery](01-planning/feature-discovery-task.md) | Identify and document potential new features | When planning new features or exploring product opportunities |
-| [System Architecture Review](01-planning/system-architecture-review.md) | Evaluate how new features fit into existing system architecture before implementation | Before implementing features with architectural impact |
+| Task | Description |
+| ---- | ----------- |
+| [Feature Discovery](01-planning/feature-discovery-task.md) | Identify and document potential new features |
+| [Feature Request Evaluation](01-planning/feature-request-evaluation.md) | Classify change requests as new features or enhancements, assess new-feature complexity tier, scope enhancements, and create Enhancement State Tracking Files |
+| [System Architecture Review](01-planning/system-architecture-review.md) | Evaluate how new features fit into existing system architecture before implementation |
+| [Technical Exploration](01-planning/technical-exploration-task.md) | Execute a technical exploration spike: bounded research that must resolve before a feature can proceed to design/implementation |
 
 ### 02 - Design Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [UI Design](02-design/ui-design-task.md) | Systematic UI/UX design planning before implementation: translate functional requirements into wireframes, visual specifications, component definitions, accessibility requirements, and platform adaptations as a PD-UIX design document. | When working on UI Design |
-| [Integration Narrative Creation](02-design/integration-narrative-creation.md) | Create Integration Narratives for cross-feature workflows | When all workflow features reach Implemented status, or reactively during bug fixes requiring cross-feature understanding |
-| [FDD Creation](02-design/fdd-creation-task.md) | Create Functional Design Documents for features requiring functional specification | When Tier 2+ features need functional design |
-| [TDD Creation](02-design/tdd-creation-task.md) | Create Technical Design Documents | When assessed features need technical design |
-| [API Design Task](02-design/api-design-task.md) | Design comprehensive API contracts and specifications before implementation begins | When features require API contracts |
-| [Database Schema Design Task](02-design/database-schema-design-task.md) | Systematic data model planning before implementation to prevent data integrity issues | When features require data model changes |
+| Task | Description |
+| ---- | ----------- |
+| [API Design Task](02-design/api-design-task.md) | Design comprehensive API contracts and specifications before implementation begins |
+| [Database Schema Design Task](02-design/database-schema-design-task.md) | Plan data model changes before coding to prevent data integrity issues |
+| [FDD Creation](02-design/fdd-creation-task.md) | Create Functional Design Documents for Tier 2+ features |
+| [Instruction Design](02-design/instruction-design-task.md) | Design the instruction-medium parts of a feature: the executable procedure, its artifact inventory with declared kinds, its instruction contract, and its verification plan, captured as a PD-IND design document |
+| [Integration Narrative Creation](02-design/integration-narrative-creation.md) | Create Integration Narratives explaining how 2+ features collaborate in cross-cutting workflows |
+| [Technical Design Document (TDD) Creation](02-design/tdd-creation-task.md) | Create Technical Design Documents |
+| [UI Design](02-design/ui-design-task.md) | Systematic UI/UX design planning before implementation: translate functional requirements into wireframes, visual specifications, component definitions, accessibility requirements, and platform adaptations as a PD-UIX design document. |
 
 ### 03 - Testing Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Performance and E2E Test Scoping](03-testing/performance-and-e2e-test-scoping-task.md) | Identify per-feature performance and E2E test needs after code review | When working on Performance and E2E Test Scoping |
-| [Performance Baseline Capture](03-testing/performance-baseline-capture-task.md) | Run performance tests, record results in trend database, update tracking, flag regressions | When working on Performance Baseline Capture |
-| [Performance Test Creation](03-testing/performance-test-creation-task.md) | Implement performance tests from specifications, register in tracking, capture initial measurements | When working on Performance Test Creation |
-| [Test Specification Creation](03-testing/test-specification-creation-task.md) | Create comprehensive test specifications from existing Technical Design Documents | When TDDs are ready for test planning |
-| [E2E Acceptance Test Case Creation](03-testing/e2e-acceptance-test-case-creation-task.md) | Create concrete, reproducible E2E acceptance test cases from test specifications | When test specifications are ready for E2E cases |
-| [E2E Acceptance Test Execution](03-testing/e2e-acceptance-test-execution-task.md) | Execute E2E acceptance test cases systematically, record results, and report issues | When E2E test cases are ready for execution |
-| [Test Audit](03-testing/test-audit-task.md) | Quality assurance task for evaluating implemented test suites against effectiveness criteria | When evaluating test suite quality |
+| Task | Description |
+| ---- | ----------- |
+| [E2E Acceptance Test Case Creation](03-testing/e2e-acceptance-test-case-creation-task.md) | Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes |
+| [E2E Acceptance Test Execution](03-testing/e2e-acceptance-test-execution-task.md) | Execute E2E acceptance test cases systematically, record results, and report issues through human interaction with the running system |
+| [Performance & E2E Test Scoping](03-testing/performance-and-e2e-test-scoping-task.md) | Identify per-feature performance and E2E test needs after code review |
+| [Performance Baseline Capture](03-testing/performance-baseline-capture-task.md) | Run performance tests, record results in trend database, update tracking, flag regressions |
+| [Performance Test Creation](03-testing/performance-test-creation-task.md) | Implement performance tests from specifications, register in tracking, capture initial measurements |
+| [Test Audit](03-testing/test-audit-task.md) | Systematic quality assessment of test implementations using six evaluation criteria |
+| [Test Specification Creation](03-testing/test-specification-creation-task.md) | Create comprehensive test specifications from TDDs |
 
 ### 04 - Implementation Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Feature Implementation Planning](04-implementation/feature-implementation-planning-task.md) | Analyze design documentation and create detailed implementation plan with task sequencing | When features have completed TDDs |
-| [Foundation Feature Implementation](04-implementation/foundation-feature-implementation-task.md) | Implement foundation features (0.x.x) that provide architectural foundations | When implementing foundation features |
-| [Core Logic Implementation](04-implementation/core-logic-implementation.md) | Implement core business logic modules, wire integration points, and write unit tests | When implementing non-foundation features |
-| [Data Layer Implementation](04-implementation/data-layer-implementation.md) | Implement data models, repositories, and database integration for feature | When implementing data layer components |
-| [Integration and Testing](04-implementation/integration-and-testing.md) | Integrate components and establish comprehensive test coverage | When integrating components |
-| [Quality Validation](04-implementation/quality-validation.md) | Validate implementation against quality standards and business requirements | When validating implementation quality |
-| [Implementation Finalization](04-implementation/implementation-finalization.md) | Complete remaining items and prepare feature for production | When finalizing implementation |
-| [Feature Enhancement](04-implementation/feature-enhancement.md) | Execute enhancement steps from the Enhancement State Tracking File | When enhancing existing features |
+| Task | Description |
+| ---- | ----------- |
+| [Core Logic Implementation](04-implementation/core-logic-implementation.md) | General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests |
+| [Data Layer Implementation](04-implementation/data-layer-implementation.md) | Implement data models, repositories, and database integration for feature |
+| [Feature Enhancement](04-implementation/feature-enhancement.md) | Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context |
+| [Feature Implementation Planning Task](04-implementation/feature-implementation-planning-task.md) | Analyze design documentation and create detailed implementation plan with task sequencing and dependency mapping |
+| [Foundation Feature Implementation Task](04-implementation/foundation-feature-implementation-task.md) | Implement foundation features (0.x.x) that provide architectural foundations for the application |
+| [Implementation Finalization](04-implementation/implementation-finalization.md) | Complete remaining items and close out the feature |
+| [Integration and Testing](04-implementation/integration-and-testing.md) | Integrate components and establish comprehensive test coverage |
+| [State Management Implementation](04-implementation/state-management-implementation.md) | Implement state management layer connecting data layer to UI layer |
+| [UI Implementation](04-implementation/ui-implementation.md) | Build user interface components and layouts for feature |
 
 ### 05 - Validation Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Validation Preparation](05-validation/validation-preparation.md) | Plan a validation round by selecting features and applicable dimensions | Entry point for validation rounds |
-| [Architectural Consistency Validation](05-validation/architectural-consistency-validation.md) | Validate selected features for architectural pattern adherence, ADR compliance, and interface consistency | During validation rounds |
-| [Code Quality Standards Validation](05-validation/code-quality-standards-validation.md) | Validate selected features for code quality standards, SOLID principles, and best practices adherence | During validation rounds |
-| [Integration Dependencies Validation](05-validation/integration-dependencies-validation.md) | Validate selected features for dependency health, interface contracts, and data flow integrity | During validation rounds |
-| [Documentation Alignment Validation](05-validation/documentation-alignment-validation.md) | Validate selected features for TDD alignment, ADR compliance, and API documentation accuracy | During validation rounds |
-| [Extensibility Maintainability Validation](05-validation/extensibility-maintainability-validation.md) | Validate selected features for extension points, configuration flexibility, and testing support | During validation rounds |
-| [AI Agent Continuity Validation](05-validation/ai-agent-continuity-validation.md) | Validate selected features for context clarity, modular structure, and documentation quality | During validation rounds |
-| [Security Data Protection Validation](05-validation/security-data-protection-validation.md) | Validate selected features for security best practices, data protection, input validation | During validation rounds |
-| [Performance Scalability Validation](05-validation/performance-scalability-validation.md) | Validate selected features for performance characteristics, resource efficiency, and scalability | During validation rounds |
-| [Observability Validation](05-validation/observability-validation.md) | Validate selected features for logging coverage, monitoring instrumentation, and diagnostic traceability | During validation rounds |
-| [Accessibility UX Compliance Validation](05-validation/accessibility-ux-compliance-validation.md) | Validate selected features for accessibility standards, UX compliance, and inclusive design patterns | During validation rounds |
-| [Data Integrity Validation](05-validation/data-integrity-validation.md) | Validate selected features for data consistency, constraint enforcement, and backup/recovery patterns | During validation rounds |
+| Task | Description |
+| ---- | ----------- |
+| [Dimension Validation](05-validation/dimension-validation-task.md) | Execute a single validation dimension against selected features using the shared validation process plus the dimension's path file. |
+| [Validation Preparation](05-validation/validation-preparation.md) | Plan validation rounds by selecting features and applicable dimensions, create tracking state file |
 
 ### 06 - Maintenance Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Code Review](06-maintenance/code-review-task.md) | Review implemented code | When feature implementation is complete |
-| [Code Refactoring Task](06-maintenance/code-refactoring-task.md) | Systematic code improvement and technical debt reduction without changing external behavior | When addressing assessed technical debt |
-| [Bug Triage](06-maintenance/bug-triage-task.md) | Systematically evaluate, prioritize, and assign reported bugs | When new bugs need evaluation and prioritization |
-| [Bug Fixing](06-maintenance/bug-fixing-task.md) | Fix reported bugs | When addressing issues in existing functionality |
+| Task | Description |
+| ---- | ----------- |
+| [Bug Fixing](06-maintenance/bug-fixing-task.md) | Diagnose and fix bugs |
+| [Bug Triage](06-maintenance/bug-triage-task.md) | Systematically evaluate, prioritize, and assign reported bugs |
+| [Code Refactoring Task](06-maintenance/code-refactoring-task.md) | Systematic code improvement and technical debt reduction without changing external behavior |
+| [Code Review](06-maintenance/code-review-task.md) | Review code for quality and correctness |
 
 ### 07 - Deployment Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Git Commit and Push](07-deployment/git-commit-and-push.md) | Commit current working directory changes and push to remote repository | When working on Git Commit and Push |
-| [Release & Deployment](07-deployment/release-deployment-task.md) | Manage releases and deployments | When preparing and deploying releases |
-| [User Documentation Creation](07-deployment/user-documentation-creation.md) | Create or update user-facing product documentation | When features introduce or change user-visible behavior |
+| Task | Description |
+| ---- | ----------- |
+| [Git Commit and Push](07-deployment/git-commit-and-push.md) | Commit work in the current working directory and push it — a session's own paths (Mode A) or the uncommitted remainder (Mode B) |
+| [Release & Deployment](07-deployment/release-deployment-task.md) | Manage releases and deployments |
+| [User Documentation Creation](07-deployment/user-documentation-creation.md) | Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates |
 
 ### Cyclical Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [Documentation Tier Adjustment](cyclical/documentation-tier-adjustment-task.md) | Adjust documentation tiers during implementation | When actual complexity differs from assessment |
-| [Technical Debt Assessment](cyclical/technical-debt-assessment-task.md) | Systematic approach to identifying, categorizing, and prioritizing technical debt | Quarterly or as needed |
+| Task | Description |
+| ---- | ----------- |
+| [Documentation Tier Adjustment Task](cyclical/documentation-tier-adjustment-task.md) | Adjust documentation requirements |
+| [Technical Debt Assessment Task](cyclical/technical-debt-assessment-task.md) | Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase |
 
 ### Support Tasks
 
-| Task | Description | When to Use |
-| ---- | ----------- | ----------- |
-| [IMP Triage](support/imp-triage-task.md) | Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected. Detect duplicate-topic clusters across open sections and consolidate them into new Extension IMPs. | When working on IMP Triage |
-| [Framework Rollout](support/framework-rollout-task.md) | Deploy framework code from canonical appdev to registered projects. Phase 1 (cwd=appdev): commit + tag appdev, push to GitHub remote, mirror process-framework to projects. Phase 2 (cwd=Project): apply per-project working-doc migrations from the central pending-migrations ledger. | When working on Framework Rollout |
-| [framework-blueprint-sync](support/framework-blueprint-sync-task.md) | Propagate framework improvements made within real working projects back to the corresponding FrameworkBuilder blueprint, ensuring blueprints stay current with battle-tested evolutions. Covers all top-level framework directories (process-framework, doc, test, src, root files) — not limited to any one subdir. User specifies the target framework variant; sync flows project to blueprint only. | When working on framework-blueprint-sync |
-| [New Task Creation Process](support/new-task-creation-process.md) | Complete process for creating new tasks | When the framework needs a new task definition |
-| [Process Improvement](support/process-improvement-task.md) | Implement specific process improvements | When a process needs enhancement |
-| [Structure Change](support/structure-change-task.md) | Manage systematic changes to documentation structures | When updating templates or document structures |
-| [Framework Extension Task](support/framework-extension-task.md) | Fundamentally extend the framework with new capabilities | When adding new framework functionalities |
-| [Tools Review](support/tools-review-task.md) | Review and improve development tools | After completing 5 tasks or monthly |
-| [Framework Evaluation](support/framework-evaluation.md) | Evaluate the process framework for completeness, consistency, and effectiveness | When assessing framework quality |
+| Task | Description |
+| ---- | ----------- |
+| [Framework Domain Adaptation](support/framework-domain-adaptation.md) | Systematically adapt the process framework from one business domain to another while preserving core structure |
+| [Framework Evaluation](support/framework-evaluation.md) | Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability |
+| [Framework Extension Task](support/framework-extension-task.md) | Support task for fundamentally extending the framework with new functionalities and capabilities |
+| [Framework Rollout](support/framework-rollout-task.md) | Deploy framework code from a producer face's canonical blueprint tree to its registered children. |
+| [IMP Triage](support/imp-triage-task.md) | Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected. |
+| [New Task Creation Process](support/new-task-creation-process.md) | Complete process for creating new tasks from concept to implementation-ready definition |
+| [Process Improvement](support/process-improvement-task.md) | Improve development processes |
+| [Structure Change Task](support/structure-change-task.md) | Manage structural changes to documentation |
+| [Tools Review Task](support/tools-review-task.md) | Review and improve project tools and templates |
+<!-- END GENERATED: task-catalog -->
 
 ## Task Structure
 
@@ -160,7 +154,7 @@ Additional sections for specific task types:
 At the end of each task, feedback should be collected on the tools used during the task:
 
 1. **Create Feedback Form**: Use the [feedback form template](../templates/support/feedback-form-template.md)
-2. **Evaluate Tools**: Rate and provide comments on each tool's effectiveness, clarity, completeness, and efficiency
+2. **Evaluate Tools**: Rate and provide comments on each tool across all five dimensions: effectiveness, clarity, completeness, efficiency, and conciseness
 3. **Suggest Improvements**: Document what worked well and what could be improved
 4. **Save Feedback**: Store the feedback form (artifact) in the `appdev/process-framework-central/feedback/feedback-forms/` directory with the naming convention `YYYYMMDD-HHMMSS_<PRJ-ID>_PF-TSK-XXX_feedback.md`
 
@@ -197,13 +191,13 @@ To create a new task:
 6. Ensure state tracking is properly defined
 7. Add the task to this index
 
-For detailed guidance on creating and improving tasks, refer to the [Task Creation and Improvement Guide](../guides/support/task-creation-guide.md).
+For detailed guidance on creating and improving tasks, apply the [`task-creation` craft skill](../../.claude/skills/task-creation/SKILL.md).
 
 ## Task Flow
 
 Tasks naturally flow from one to another based on their inputs and outputs:
 
-1. **Feature Discovery** → **Feature Tier Assessment** → **TDD Creation** → **Test Specification Creation** → **Feature Implementation** → **Code Review**
+1. **Feature Discovery** → **Feature Request Evaluation** (assess tier) → **TDD Creation** → **Test Specification Creation** → **Feature Implementation** → **Code Review**
 2. **Bug Fixing** can occur at any point when issues are identified
 3. **Cyclical Tasks** are triggered by events or schedules and integrate with the main workflow
 4. **Support Tasks** are used to improve the framework itself

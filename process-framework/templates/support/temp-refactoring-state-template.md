@@ -6,6 +6,8 @@ version: 1.0
 created: 2026-05-07
 updated: 2026-05-07
 task_name: [TASK-NAME]
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Multi-session state tracking for code refactoring work (PF-TSK-022 Standard Path) — includes Test Baseline anchor (Step 5), Phase 0/A/B/C/D structure, bug-discovery log, and 3-phase closure (via New-TempTaskState.ps1 -Variant Refactoring)"
 ---
 

@@ -2,13 +2,15 @@
 id: PF-TEM-077
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.4
 created: 2026-05-07
-updated: 2026-05-07
+updated: 2026-08-04
 task_name: [TASK-NAME]
 parent_state: [PF-STA-XXX — retrospective master state file]
 feature_id: [X.Y.Z]
-description: "Multi-session per-feature state tracking for retrospective documentation creation (PF-TSK-066 Phase 3) — includes Feature Overview, Required Phase 3 Deliverables table (Steps 5–13), Per-Feature Closure Updates table (Steps 15–17), Session Plan (via New-TempTaskState.ps1 -Variant RetrospectiveDocumentation)"
+creates_document_type: Process Framework
+creates_document_category: State Tracking
+description: "Multi-session per-feature state tracking for retrospective documentation creation (PF-TSK-066 Phase 3) — includes Feature Overview, Required Phase 3 Deliverables table, Per-Feature Closure Updates table, Session Plan (via New-TempTaskState.ps1 -Variant RetrospectiveDocumentation)"
 ---
 
 # Temporary State: PF-TSK-066 Phase 3 — Feature [X.Y.Z] [Feature Name]
@@ -24,39 +26,40 @@ description: "Multi-session per-feature state tracking for retrospective documen
 - **Feature**: [X.Y.Z] [Feature Name]
 - **Tier**: [1 / 2 / 3] [color emoji] — normalized score [N.NN]
 - **Classification**: [As-Built / Target-State] (avg [N.N] / 3.0)
-- **Tier validation status (Step 3)**: [⬜ Not started / ✅ Confirmed YYYY-MM-DD — rationale]
-- **Feature Implementation State**: [PD-FIS-XXX](../../../doc/state-tracking/features/X.Y.Z-Feature-Name-implementation-state.md)
-- **Tier Assessment**: [PD-ASS-XXX](../../../doc/documentation-tiers/assessments/PD-ASS-XXX-X.Y.Z-feature-name.md)
+- **Tier validation status (tier-validation step)**: [⬜ Not started / ✅ Confirmed YYYY-MM-DD — rationale]
+- **Feature Implementation State**: [PD-FIS-XXX](../features/X.Y.Z-Feature-Name-implementation-state.md)
+- **Tier Assessment**: [PD-ASS-XXX](../../documentation-tiers/assessments/PD-ASS-XXX-X.Y.Z-feature-name.md)
 - **Headline risks**: [TDXXX (severity), TDXXX (severity)]
 
 ## Required Phase 3 Deliverables
 
 > Status legend: ⬜ Not started | 🟡 In progress | ✅ Complete | ⏭️ Deferred to later session | N/A — Not required
+>
+> Each deliverable maps to the like-named PF-TSK-066 Phase 3 step. Two mappings are not one-to-one: the four conditional documents (Database Schema / API Design / UI Design / Instruction Design) are all created by the task's Conditional Documents step, and the User Documentation Coverage audit spans its four audit steps (decision matrix → assess coverage → populate state file → flag feature).
 
-| # | Deliverable | PF-TSK-066 Step | Required by | Status | Doc ID | Session |
-| - | ----------- | --------------- | ----------- | ------ | ------ | ------- |
-| 1 | FDD ([As-Built / Target-State + Gap Analysis]) | 5 | Tier 2+ | ⬜ | [PD-FDD-XXX] | — |
-| 2 | TDD ([Tier N] [As-Built / Target-State + Gap Analysis]) | 6 | Tier 2+ | ⬜ | [PD-TDD-XXX] | — |
-| 3 | Test Specification | 7 | Tier 2+ | ⬜ | [TE-TSP-XXX] | — |
-| 4 | (Test Migration) | 8 | Tier 2+ with pre-existing tests | [N/A or status] | — | — |
-| 5 | ADR(s) — [decision title(s) if any] | 9 (generalized) | When architectural decisions exist | [⬜ / N/A] | [PD-ADR-XXX] | — |
-| 6 | UI Design Document | 10 | When PD-ASS says required | [⬜ / N/A] | [PD-UIX-XXX] | — |
-| 7 | Database Schema Design | 10 | When PD-ASS says required | [⬜ / N/A] | [PD-SCH-XXX] | — |
-| 8 | API Design | 10 | When PD-ASS says required | [⬜ / N/A] | [PD-API-XXX] | — |
-| 9 | Tech debt items from gap analysis | 11 | Target-State | ⬜ | TDXXX–TDXXX | — |
-| 10 | Quality Assessment Report (PD-QAR) | 12 | Target-State only | [⬜ / N/A] | [PD-QAR-XXX] | — |
-| 11 | User Documentation Coverage audit | 13 | All features | ⬜ | [4 ❌/✅ result + flag] | — |
-
-> **Step 9 ADR scope note**: Although PF-TSK-066 Step 9 wording mentions foundation features only, ADRs apply to any feature with genuine architectural decisions. Create ADRs whenever the design warrants them, regardless of feature category.
+| # | Deliverable | Required by | Status | Doc ID | Session |
+| - | ----------- | ----------- | ------ | ------ | ------- |
+| 1 | FDD ([As-Built / Target-State + Gap Analysis]) | Tier 2+ | ⬜ | [PD-FDD-XXX] | — |
+| 2 | TDD ([Tier N] [As-Built / Target-State + Gap Analysis]) | Tier 2+ | ⬜ | [PD-TDD-XXX] | — |
+| 3 | Test Specification | Tier 2+ | ⬜ | [TE-TSP-XXX] | — |
+| 4 | (Test Migration) | Tier 2+ with pre-existing tests | [N/A or status] | — | — |
+| 5 | ADR(s) — [decision title(s) if any] | When architectural decisions exist | [⬜ / N/A] | [PD-ADR-XXX] | — |
+| 6 | UI Design Document | When PD-ASS says required | [⬜ / N/A] | [PD-UIX-XXX] | — |
+| 7 | Database Schema Design | When PD-ASS says required | [⬜ / N/A] | [PD-SCH-XXX] | — |
+| 8 | API Design | When PD-ASS says required | [⬜ / N/A] | [PD-API-XXX] | — |
+| 8b | Instruction Design | When PD-ASS says required (medium `instruction` / `mixed`) | [⬜ / N/A] | [PD-IND-XXX] | — |
+| 9 | Tech debt items from gap analysis | Target-State | ⬜ | TDXXX–TDXXX | — |
+| 10 | Quality Assessment Report (PD-QAR) | Target-State only | [⬜ / N/A] | [PD-QAR-XXX] | — |
+| 11 | User Documentation Coverage audit | All features | ⬜ | [4 ❌/✅ result + flag] | — |
 
 ## Per-Feature Closure Updates (also Phase 3)
 
-| # | Update | PF-TSK-066 Step | Status | Session |
-| - | ------ | --------------- | ------ | ------- |
-| C1 | Update PD-FIS-XXX (Section 4 Doc Inventory + Quick Links + User Documentation; Section 8 QAR; Section 10 Next Steps) | 15 | ⬜ | — |
-| C2 | Update [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) — Status flip + Description rewrite + Update History row | 16 | ⬜ | — |
-| C3 | Update [retrospective master state](parent_state) — Phase 3 row for [X.Y.Z] + Session log entry | 17 | ⬜ | — |
-| C4 | Complete feedback form for session(s) | Final | ⬜ | — |
+| # | Update | Status | Session |
+| - | ------ | ------ | ------- |
+| C1 | Update PD-FIS-XXX (Section 4 Doc Inventory + Quick Links + User Documentation; Section 8 QAR; Section 10 Next Steps) | ⬜ | — |
+| C2 | Update [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) — Status flip + Description rewrite + Update History row | ⬜ | — |
+| C3 | Update [retrospective master state](parent_state) — Phase 3 row for [X.Y.Z] + Session log entry | ⬜ | — |
+| C4 | Complete feedback form for session(s) | ⬜ | — |
 
 ## Session Plan
 

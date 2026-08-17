@@ -2,19 +2,46 @@
 id: PF-TSK-086
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.4
 created: 2026-04-12
-updated: 2026-05-16
+updated: 2026-07-20
+change_notes: "v1.4 - PF-IMP-1592 BL-5 residue removal: Step 10's untracked-interaction indicator bullets collapsed to a perf-e2e-scoping skill pointer"
 description: "Identify per-feature performance and E2E test needs after code review"
+complexity: medium
+use_when: >-
+  Identify per-feature performance and E2E test needs after code review
+automation: semi
+scripts:
+  - ../../scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1
+  - ../../scripts/file-creation/03-testing/New-WorkflowEntry.ps1
+  - ../../scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1
+  - ../../scripts/update/Update-BatchFeatureStatus.ps1
+  - ../../scripts/update/Update-WorkflowTracking.ps1
+trigger_status:
+  - file: feature-tracking.md
+    status: "🔎 Needs Test Scoping"
+output_status:
+  - raw: "`feature-tracking.md` → `🟢 Completed`; `performance-test-tracking.md` → `⬜ Needs Creation` (if perf tests needed); `e2e-test-tracking.md` → milestone entries (if workflow E2E-ready); `user-workflow-tracking.md` → untracked workflows added"
+next_tasks:
+  - task: performance-test-creation-task.md
+    condition: "If performance tests were identified, implement them from the `⬜ Needs Creation` entries in performance-test-tracking.md. Full downstream lifecycle: `⬜ Needs Creation → 📋 Needs Baseline → ✅ Audit Approved → ✅ Baselined`"
+  - task: e2e-acceptance-test-case-creation-task.md
+    condition: "If E2E tests were identified for newly E2E-ready workflows. Full downstream lifecycle: `📋 Needs Execution → ✅ Audit Approved → ✅ Passed`"
+  - task: ../07-deployment/user-documentation-creation.md
+    condition: "If user documentation is needed (feature status set to `📖 Needs User Docs`). Creates handbooks, then sets feature to `🟢 Completed`"
+  - task: ../07-deployment/release-deployment-task.md
+    condition: "If no tests are needed and the feature is ready for release"
 ---
 
 # Performance & E2E Test Scoping
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
 Systematically identify which performance tests and E2E acceptance tests are needed for a specific feature after it passes code review. This task closes the workflow gap between Code Review and Completed by ensuring test needs are explicitly evaluated — not left to ad-hoc judgment or forgotten entirely.
 
-The task uses a decision matrix (in the scoping guide) to determine performance test levels, and evaluates E2E needs by checking both tracked workflows in user-workflow-tracking.md and discovering untracked cross-feature interactions from the feature's dependencies and integration points. When untracked E2E-worthy scenarios are found, they are added to user-workflow-tracking.md first — keeping it as the single source of truth — then evaluated for milestone readiness. Outputs go to existing tracking files — no new document types are created.
+The task uses a decision matrix (in the `perf-e2e-scoping` craft skill) to determine performance test levels, and evaluates E2E needs by checking both tracked workflows in user-workflow-tracking.md and discovering untracked cross-feature interactions from the feature's dependencies and integration points. When untracked E2E-worthy scenarios are found, they are added to user-workflow-tracking.md first — keeping it as the single source of truth — then evaluated for milestone readiness. Outputs go to existing tracking files — no new document types are created.
 
 ## AI Agent Role
 
@@ -25,14 +52,11 @@ The task uses a decision matrix (in the scoping guide) to determine performance 
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/03-testing/performance-e2e-test-scoping-map.md)
-
 - **Critical (Must Read):**
 
   - [Feature implementation state file](../../../doc/state-tracking/features) - The specific feature's state file to understand what code was changed and which modules were affected
-  - [Performance & E2E Test Scoping Guide](../../guides/03-testing/performance-e2e-test-scoping-guide.md) - Decision matrix for performance test levels, E2E milestone evaluation process, and worked examples
+  - [`perf-e2e-scoping` craft skill](../../../.claude/skills/perf-e2e-scoping/SKILL.md) - the scoping craft (performance test decision matrix, E2E milestone-readiness evaluation, recording conventions, worked examples), activated in Step 1 (Check Recommended Skills). Replaces the former scoping guide and drives the scoping judgment in Phases 2–3.
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) - To identify features at `🔎 Needs Test Scoping` status
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -48,30 +72,29 @@ The task uses a decision matrix (in the scoping guide) to determine performance 
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
 
 ### Phase 1: Context Gathering
 
-1. **Select feature**: Read [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) and identify the next feature at `🔎 Needs Test Scoping` status
-2. **Read feature state file**: Load the feature's implementation state file from `/doc/state-tracking/features/` to understand:
+1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `performance-and-e2e-test-scoping-task`. If the `perf-e2e-scoping` craft skill is available in the session, activate it — it owns the **scoping craft** this task delegates to (the performance test decision matrix and E2E milestone-readiness judgment). If it is not listed in the session, read [`SKILL.md`](../../../.claude/skills/perf-e2e-scoping/SKILL.md) directly and apply it — that file is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. The scoping craft is unavailable for this run only if the skill file itself is absent (the retired scoping guide has no successor).
+2. **Select feature**: Read [feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) and identify the next feature at `🔎 Needs Test Scoping` status
+3. **Read feature state file**: Load the feature's implementation state file from `/doc/state-tracking/features/` to understand:
    - Which source files were created or modified
    - Which modules/subsystems were affected
    - What type of changes were made (new parser, database change, algorithm change, configuration, UI, etc.)
-3. **Read feature dependencies**: Check [feature-dependencies.md](../../../doc/technical/architecture/feature-dependencies.md) to understand which other features depend on or are depended upon by this feature
-4. **🚨 CHECKPOINT**: Present feature selection and summary of code changes to human partner before proceeding with scoping
+4. **Read feature dependencies**: Check [feature-dependencies.md](../../../doc/technical/architecture/feature-dependencies.md) to understand which other features depend on or are depended upon by this feature
+5. **🚨 CHECKPOINT**: Present feature selection and summary of code changes to human partner before proceeding with scoping
 
 ### Phase 2: Performance Test Scoping
 
-5. **Apply decision matrix**: Consult the [Performance & E2E Test Scoping Guide](../../guides/03-testing/performance-e2e-test-scoping-guide.md) decision matrix against the feature's code changes. For each question in the matrix:
+6. **Apply decision matrix**: Consult the [`perf-e2e-scoping` craft skill](../../../.claude/skills/perf-e2e-scoping/SKILL.md) decision matrix against the feature's code changes. For each question in the matrix:
    - Identify whether the feature's changes match the trigger condition
    - If yes, note the recommended performance test level(s)
    - Document the specific code change that triggers the recommendation
-6. **Check existing coverage**: Read [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md) to verify no existing tests already cover the identified needs
-7. **Record performance scoping decision**:
+7. **Check existing coverage**: Read [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md) to verify no existing tests already cover the identified needs
+8. **Record performance scoping decision**:
    - **If performance tests needed**: Use the automation script to add entries:
      ```bash
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1 -Level <1-4> -Operation "<description>" -RelatedFeatures "<feature IDs>" -Tolerance "<threshold>" -Rationale "<decision matrix trigger>"
@@ -81,18 +104,15 @@ The task uses a decision matrix (in the scoping guide) to determine performance 
 
 ### Phase 3: E2E Test Scoping
 
-8. **Check tracked workflow participation**: Read [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to determine which tracked user workflows this feature participates in
-9. **Discover untracked cross-feature interactions**: Using the feature's dependencies (from Step 3) and integration points (from Step 2), identify any cross-feature scenarios that would benefit from E2E testing but are **not yet tracked** in user-workflow-tracking.md. Common indicators:
-   - The feature introduces a new interaction path between two or more features (e.g., a new parser path that feeds differently into the updater)
-   - The feature changes an interface that other features depend on
-   - The feature creates a new user-facing capability that spans multiple modules
+9. **Check tracked workflow participation**: Read [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to determine which tracked user workflows this feature participates in
+10. **Discover untracked cross-feature interactions**: Using the feature's dependencies (from Step 4) and integration points (from Step 3), identify any cross-feature scenarios that would benefit from E2E testing but are **not yet tracked** in user-workflow-tracking.md, per the `perf-e2e-scoping` skill's untracked-interaction discovery indicators.
    If untracked scenarios are found: **add them to [user-workflow-tracking.md](../../../doc/state-tracking/permanent/user-workflow-tracking.md) first** using the automation script, then proceed with evaluation:
      ```bash
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-WorkflowEntry.ps1 -Workflow "<name>" -UserAction "<user action>" -RequiredFeatures "<feature IDs>" -Priority "<P1-P4>" -Description "<one-paragraph description>"
      ```
      This keeps user-workflow-tracking.md as the single source of truth for all E2E-worthy scenarios.
-10. **Evaluate E2E milestone readiness**: For each workflow this feature participates in (both previously tracked and newly added), check if completing this feature makes the workflow E2E-ready (all required features at `🔎 Needs Test Scoping` or `🟢 Completed`)
-11. **Record E2E scoping decision**:
+11. **Evaluate E2E milestone readiness**: For each workflow this feature participates in (both previously tracked and newly added), check if completing this feature makes the workflow E2E-ready (all required features at `🔎 Needs Test Scoping` or `🟢 Completed`)
+12. **Record E2E scoping decision**:
     - **If workflow now E2E-ready**: Add milestone entry using the automation script:
       ```bash
       pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1 -WorkflowId "<WF-xxx>"
@@ -103,28 +123,28 @@ The task uses a decision matrix (in the scoping guide) to determine performance 
 
 ### Phase 4: Finalization
 
-12. **🚨 CHECKPOINT**: Present complete scoping results to human partner:
+13. **🚨 CHECKPOINT**: Present complete scoping results to human partner:
     - Performance test decisions (needed/not needed, with rationale for each)
     - E2E test decisions (workflow readiness evaluation, with rationale)
-    - Any newly added workflows in user-workflow-tracking.md (from Step 9)
+    - Any newly added workflows in user-workflow-tracking.md (from Step 10)
     - Proposed entries for tracking files
-13. **Check user documentation needs**: Read the feature's implementation state file (`doc/state-tracking/features/`) and check the `### User Documentation` subsection under Documentation Inventory:
-    - If status is `❌ Needed` → the feature needs user documentation before completion. Set status to `📖 Needs User Docs` in Step 14.
-    - If status is `✅ Created` or `N/A` → no user documentation needed. Set status to `🟢 Completed` in Step 14.
+14. **Check user documentation needs**: Read the feature's implementation state file (`doc/state-tracking/features/`) and check the `### User Documentation` subsection under Documentation Inventory:
+    - If status is `❌ Needed` → the feature needs user documentation before completion. Set status to `📖 Needs User Docs` in Step 15.
+    - If status is `✅ Created` or `N/A` → no user documentation needed. Set status to `🟢 Completed` in Step 15.
     - If the `### User Documentation` subsection is missing → flag this to the human partner. The section should have been populated during implementation planning (PF-TSK-044). Add it now with the correct value before proceeding.
-14. **Update feature status**: Set the feature's status based on the user documentation check:
+15. **Update feature status**: Set the feature's status based on the user documentation check:
     ```bash
     # If user docs needed:
-    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "📖 Needs User Docs" -UpdateType "StatusOnly" -Force
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "NeedsUserDocs" -UpdateType "StatusOnly"
 
     # If user docs NOT needed (N/A or already created):
-    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "🟢 Completed" -UpdateType "StatusOnly" -Force
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "Completed" -UpdateType "StatusOnly"
     ```
-15. **Update workflow statuses**: Run the workflow tracking sync to propagate the status change:
+16. **Update workflow statuses**: Run the workflow tracking sync to propagate the status change:
     ```bash
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-WorkflowTracking.ps1
     ```
-16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+17. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
@@ -145,9 +165,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Scoping Completeness**: Confirm all scoping decisions are documented
   - [ ] Performance decision matrix fully evaluated against feature's code changes
@@ -162,21 +180,61 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) shows `📖 Needs User Docs` or `🟢 Completed` for the scoped feature (based on User Documentation status check)
   - [ ] [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) updated if applicable
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-086" and context "Performance & E2E Test Scoping"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-086`, context "Performance & E2E Test Scoping".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| Add perf test rows | test/state-tracking/permanent/performance-test-tracking.md | New-PerformanceTestEntry.ps1 | `⬜ Needs Creation` entries + summary update |
+| Add workflow rows | doc/state-tracking/permanent/user-workflow-tracking.md | New-WorkflowEntry.ps1 | New cross-feature workflows discovered during scoping |
+| Add E2E milestones | test/state-tracking/permanent/e2e-test-tracking.md | New-E2EMilestoneEntry.ps1 | Workflow Milestone Tracking table |
+| Update feature status | doc/state-tracking/permanent/feature-tracking.md | Update-BatchFeatureStatus.ps1 | `🔎 Needs Test Scoping` → `📖 Needs User Docs` or `🟢 Completed` (based on User Documentation status in state file) |
+| Sync workflow status | doc/state-tracking/permanent/user-workflow-tracking.md | Update-WorkflowTracking.ps1 | Derives Impl Status + E2E Status |
 
 ## Next Tasks
 
 - [**Performance Test Creation (PF-TSK-084)**](performance-test-creation-task.md) - If performance tests were identified, implement them from the `⬜ Needs Creation` entries in performance-test-tracking.md. Full downstream lifecycle: `⬜ Needs Creation → 📋 Needs Baseline → ✅ Audit Approved → ✅ Baselined`
 - [**E2E Acceptance Test Case Creation (PF-TSK-069)**](e2e-acceptance-test-case-creation-task.md) - If E2E tests were identified for newly E2E-ready workflows. Full downstream lifecycle: `📋 Needs Execution → ✅ Audit Approved → ✅ Passed`
 - [**User Documentation Creation (PF-TSK-081)**](../07-deployment/user-documentation-creation.md) - If user documentation is needed (feature status set to `📖 Needs User Docs`). Creates handbooks, then sets feature to `🟢 Completed`
-- [**Release & Deployment (PF-TSK-018)**](../07-deployment/release-deployment-task.md) - If no tests are needed and the feature is ready for release
+- [**Release & Deployment (PF-TSK-008)**](../07-deployment/release-deployment-task.md) - If no tests are needed and the feature is ready for release
 
 > **Audit gate**: Both performance tests and E2E test cases must pass [Test Audit (PF-TSK-030)](test-audit-task.md) before proceeding to baseline capture or execution respectively. The audit step is mandatory for newly created tests — see each downstream task's prerequisites for details.
+
+<!-- merged from transition-registry entry: Performance & E2E Test Scoping (PF-TSK-086) -->
+### Prerequisites for Transition
+
+- [ ] Performance decision matrix applied against feature's code changes
+- [ ] E2E milestone readiness evaluated for all relevant workflows
+- [ ] Any untracked cross-feature interactions added to user-workflow-tracking.md
+- [ ] User Documentation status checked in feature state file (Step 14)
+- [ ] Feature status updated to `📖 Needs User Docs` or `🟢 Completed` (based on User Documentation status)
+
+**Next Task Selection Decision:**
+
+```
+What did the scoping task identify?
+├─ Performance tests needed → Performance Test Creation (PF-TSK-084) → Test Audit (-TestType Performance) → Baseline Capture
+├─ Workflow now E2E-ready → E2E Test Case Creation (PF-TSK-069) → Test Audit (-TestType E2E) → E2E Execution
+│  (preceded by Integration Narrative Creation if none exists)
+├─ Both perf + E2E needed → Performance Test Creation first, then E2E (each with audit gate)
+├─ Neither needed → Check feature state file ### User Documentation status:
+│  ├─ ❌ Needed → Feature set to 📖 Needs User Docs → User Documentation Creation (PF-TSK-081)
+│  └─ N/A or ✅ Created → Feature set to 🟢 Completed → Release & Deployment
+└─ Tests already exist for identified needs → Check user documentation status (same as above)
+```
+
+### Preparation for Next Task
+
+1. Performance test entries at `⬜ Needs Creation` in performance-test-tracking.md (if applicable)
+2. E2E milestone entry added to e2e-test-tracking.md (if applicable)
+3. Rationale documented for all "no tests needed" decisions
+4. Feature status set to `📖 Needs User Docs` if user documentation needed (for PF-TSK-081 pickup)
 
 ## Related Resources
 
 - [Performance Testing Guide](../../guides/03-testing/performance-testing-guide.md) - 4-level methodology, baseline management, trend analysis (the "how to test" companion to this task's "when to test" scope)
-- [Performance & E2E Test Scoping Guide](../../guides/03-testing/performance-e2e-test-scoping-guide.md) - Decision matrix and worked examples for this task
+- [`perf-e2e-scoping` craft skill](../../../.claude/skills/perf-e2e-scoping/SKILL.md) - the scoping craft: decision matrix and worked examples for this task (replaces the retired scoping guide); activated by the Check Recommended Skills step
 - [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md) - How the test/ directory connects to the process framework
 - [Definition of Done](../../guides/04-implementation/definition-of-done.md) - Performance section (Section 8)
 - [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md) - PE dimension definition

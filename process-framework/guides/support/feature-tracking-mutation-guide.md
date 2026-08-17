@@ -2,9 +2,9 @@
 id: PF-GDE-069
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.2
 created: 2026-05-28
-updated: 2026-05-28
+updated: 2026-08-04
 description: "Canonical policy and script reference for mutating feature-tracking.md"
 ---
 
@@ -45,12 +45,15 @@ Do **not** open `feature-tracking.md` with the Edit/Write tool to make any of th
 
 | Mutation | Script | Typical caller |
 |---|---|---|
-| Assessment → next design status | [Update-FeatureTrackingFromAssessment.ps1](../../scripts/update/Update-FeatureTrackingFromAssessment.ps1) (auto-chained by `New-Assessment.ps1`) | Feature Tier Assessment |
+| Assessment → next design status | [Update-FeatureTrackingFromAssessment.ps1](../../scripts/update/Update-FeatureTrackingFromAssessment.ps1) (run explicitly after the assessment is filled in — `New-Assessment.ps1` does not touch feature-tracking) | Feature Request Evaluation |
 | FDD created → next status | [New-FDD.ps1](../../scripts/file-creation/02-design/New-FDD.ps1) (auto-updates) | FDD Creation |
 | TDD created → 🧪 Needs Test Spec | [New-TDD.ps1](../../scripts/file-creation/02-design/New-TDD.ps1) (auto-updates) | TDD Creation |
-| UI Design created → 🎨 UI Design Created | [New-UIDesign.ps1](../../scripts/file-creation/02-design/New-UIDesign.ps1) (auto-updates) | UI Design |
-| Implementation Status transitions (🟡 In Progress, 👀 Needs Review, etc.) | [Update-FeatureImplementationState.ps1](../../scripts/update/Update-FeatureImplementationState.ps1) | Implementation tasks |
-| Code Review column updates | [Update-CodeReviewState.ps1](../../scripts/update/Update-CodeReviewState.ps1) | Code Review |
+| Schema Design created → next design gate | [New-SchemaDesign.ps1](../../scripts/file-creation/02-design/New-SchemaDesign.ps1) (auto-updates) | Database Schema Design |
+| API Specification created → next design gate | [New-APISpecification.ps1](../../scripts/file-creation/02-design/New-APISpecification.ps1) (auto-updates) | API Design |
+| UI Design created → next design gate | [New-UIDesign.ps1](../../scripts/file-creation/02-design/New-UIDesign.ps1) (auto-updates) | UI Design |
+| Instruction Design created → next design gate | [New-InstructionDesign.ps1](../../scripts/file-creation/02-design/New-InstructionDesign.ps1) (auto-updates) | Instruction Design |
+| Implementation-status transitions on the Status cell (🟡 In Progress, 👀 Needs Review, etc.) | [Update-FeatureImplementationState.ps1](../../scripts/update/Update-FeatureImplementationState.ps1) | Implementation tasks |
+| Review verdict → Status flip (🔎 Needs Test Scoping / 🔄 Needs Enhancement) + Notes review-note append | [Update-CodeReviewState.ps1](../../scripts/update/Update-CodeReviewState.ps1) | Code Review |
 | Test Status (per-feature aggregation from test files) | [Update-TestFileAuditState.ps1](../../scripts/update/Update-TestFileAuditState.ps1) | Test audit; also written transitively by `New-TestFile.ps1` |
 | 🔄 Needs Enhancement (request closure → status flip) | [Update-FeatureRequest.ps1](../../scripts/update/Update-FeatureRequest.ps1) | Feature Request Evaluation |
 | Status restoration after enhancement | [Finalize-Enhancement.ps1](../../scripts/update/Finalize-Enhancement.ps1) | Feature Enhancement |
@@ -60,7 +63,7 @@ Do **not** open `feature-tracking.md` with the Edit/Write tool to make any of th
 
 The scripts above ultimately route through one of these helpers in [FeatureTracking.psm1](../../scripts/Common-ScriptHelpers/FeatureTracking.psm1). New automation should reuse them rather than writing the file directly:
 
-- `Update-FeatureTrackingStatus -FeatureId <Id> -Status <Symbol> -StatusColumn <Name>` — single-feature status/cell update; recomputes the summary.
+- `Update-FeatureTrackingStatus -FeatureId <Id> -Status <Value> -StatusColumn <Name>` — single-feature cell update; recomputes the summary. `-StatusColumn` names the cell to replace (default `Status`). To edit **Notes**: replace with `-StatusColumn "Notes" -Status "<text>"`, or append with the `-Notes` parameter — see the function's `Get-Help` for worked examples.
 - `Update-MultipleTrackingFiles` — multi-file batch helper; recomputes when the file is `Type = Feature`.
 - `Update-FeatureTrackingSummary -Content <text>` — pure-function recompute of the Progress Summary block. Call this after any custom mutation, then `Set-Content`.
 

@@ -65,7 +65,29 @@ if (-not (Test-Path $testPath)) { Write-ProjectError -Message "Test directory no
 $language = 'LANGUAGE_NAME'
 $langConfig = Get-TestRunnerLanguageConfig -Language $language -ProjectRoot $projectRoot
 
-# --- CUSTOMIZE: Verify your language's test framework is available ---
+# --- CUSTOMIZE: Category discovery (typically subdirs of testPath/automated/ or testPath) ---
+$categories = @()  # populate from filesystem scan
+
+# --- Metadata operations must work BEFORE the app scaffold / SDK exists ---
+# New projects run -ListCategories / -Discover during onboarding, before any app is
+# scaffolded or the language SDK is installed. Keep SDK/package-availability guards OUT of
+# these paths — guard only the test-invocation path below (see Run-Tests.dart.ps1, where the
+# guards live inside Invoke-TestCommand, not at the top of the script).
+if ($ListCategories) {
+    Write-Host "Available test categories:"
+    foreach ($cat in $categories) { Write-Host "  - $cat" }
+    exit 0
+}
+# CUSTOMIZE: if your runner supports -Discover (list test files), handle it here too — it is
+# metadata-only and must not be gated by the SDK guard below.
+
+# --- CUSTOMIZE: Default to Quick if nothing specified ---
+$anyFlag = ($Category -and $Category.Count -gt 0) -or $Quick -or $All -or $Coverage -or $Discover -or $Lint -or $Critical -or $Performance
+if (-not $anyFlag) { $Quick = $true }
+
+# --- CUSTOMIZE: Verify your language's test framework is available (GUARD HERE, not above the metadata handlers) ---
+# Guard SDK/package availability on the test-invocation path only, so -ListCategories / -Discover
+# stay usable before the SDK/scaffold exists.
 # Example for Pester (PowerShell):
 #   if (-not (Get-Module -ListAvailable Pester | Where-Object { $_.Version.Major -ge 5 })) {
 #       Write-ProjectError -Message "Pester 5.x not found. Install via: Install-Module Pester -MinimumVersion 5.0 -Scope CurrentUser" -ExitCode 1
@@ -74,19 +96,6 @@ $langConfig = Get-TestRunnerLanguageConfig -Language $language -ProjectRoot $pro
 #   if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
 #       Write-ProjectError -Message "go not found in PATH" -ExitCode 1
 #   }
-
-# --- CUSTOMIZE: Category discovery (typically subdirs of testPath/automated/ or testPath) ---
-$categories = @()  # populate from filesystem scan
-
-if ($ListCategories) {
-    Write-Host "Available test categories:"
-    foreach ($cat in $categories) { Write-Host "  - $cat" }
-    exit 0
-}
-
-# --- CUSTOMIZE: Default to Quick if nothing specified ---
-$anyFlag = ($Category -and $Category.Count -gt 0) -or $Quick -or $All -or $Coverage -or $Discover -or $Lint -or $Critical -or $Performance
-if (-not $anyFlag) { $Quick = $true }
 
 # --- CUSTOMIZE: Build and invoke test command ---
 # Use $langConfig.testing.baseCommand and $langConfig.testing.markers as starting points.

@@ -121,7 +121,7 @@ Identify where and how the template can be extended for specific needs.
 Link to related documentation, examples, or other resources.
 -->
 
-- [Template Development Guide](../../guides/support/template-development-guide.md)
+- [`template-development` craft skill](../../../.claude/skills/template-development/SKILL.md)
 - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md)
 
 ---

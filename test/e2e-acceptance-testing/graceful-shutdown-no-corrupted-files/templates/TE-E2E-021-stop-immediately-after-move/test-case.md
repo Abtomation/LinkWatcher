@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-021
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-008): TE-E2E-021 Stop Immediately After File Move."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-010
 feature_ids: ["0.1.1", "2.2.1", "0.1.2"]
 workflow: WF-008

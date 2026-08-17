@@ -1,5 +1,6 @@
 ---
 id: PD-INT-001
+description: "WF-003 startup and initial project scan: how Core Architecture, Configuration, Logging, Database, Parser, and File System Monitoring collaborate from `python main.py` to active monitoring"
 type: Product Documentation
 category: Integration Narrative
 version: 1.1

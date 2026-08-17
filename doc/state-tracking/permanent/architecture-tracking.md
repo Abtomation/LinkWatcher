@@ -1,5 +1,6 @@
 ---
-id: PD-STA-015
+id: PF-FST-007
+description: "Cross-cutting architectural decision (ADR) registry and AI-agent continuity anchor."
 type: Process Framework
 category: State File
 version: 2.0
@@ -46,7 +47,7 @@ ADRs are created **inline** during tasks where architectural decisions arise —
 pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/02-design/New-ArchitectureDecision.ps1 -Title "Decision Title" -Status "Proposed" -Confirm:\$false
 ```
 
-**Guide**: [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) — follow for content customization, quality assurance, and validation criteria.
+**Craft**: the `architecture-decision` craft skill (`.claude/skills/architecture-decision/`) is the customization-craft home — content decisions, quality assurance, and validation criteria (replaces the retired Architecture Decision Creation Guide).
 
 **When to create ADRs**:
 - During implementation when a significant architectural decision is made (pattern choice, technology selection, structural trade-off)
@@ -60,7 +61,7 @@ pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/0
 
 ### Essential Guides
 - [Architectural Framework Usage Guide](/process-framework/guides/01-planning/architectural-framework-usage-guide.md) - Comprehensive guide for using the architectural framework
-- [Architecture Decision Creation Guide](/process-framework/guides/02-design/architecture-decision-creation-guide.md) - Step-by-step guide for creating and customizing ADRs
+- `architecture-decision` craft skill (`.claude/skills/architecture-decision/`) - the ADR customization craft (replaces the retired Architecture Decision Creation Guide)
 
 ### Primary Tracking
 - [Feature Tracking](feature-tracking.md) - Primary tracking for all features including foundation (0.x.x)

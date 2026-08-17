@@ -1,4 +1,36 @@
-﻿param(
+﻿<#
+.SYNOPSIS
+Inserts a new column into a markdown feature table (optionally after a named column, with a default cell value).
+
+.DESCRIPTION
+Rewrites every table in the target file that carries the anchor column, keeping header, separator
+and body rows aligned. Use -WhatIf for a no-write preview.
+
+.PARAMETER FilePath
+Path to the markdown file to modify. The script errors and exits 1 if the file does not exist.
+
+.PARAMETER ColumnName
+Header text of the column to insert.
+
+.PARAMETER AfterColumn
+Header text of the existing column the new one is inserted after. Omitted appends the column at
+the end of the row.
+
+.PARAMETER DefaultValue
+Cell value written into every existing body row for the new column. Defaults to an empty cell.
+
+.PARAMETER BackupFile
+Whether to write a timestamped .backup.<yyyyMMdd-HHmmss> copy beside the file before modifying it.
+Defaults to $true. Note: as a [bool] (not a [switch]) this cannot be passed through `pwsh -File` —
+invoke via `pwsh -Command` when overriding it.
+
+.PARAMETER SkipIfExists
+Whether to leave a table untouched when it already has a column of this name, rather than adding a
+duplicate. Defaults to $true. Same [bool] invocation caveat as -BackupFile.
+#>
+
+[CmdletBinding(SupportsShouldProcess)]
+param(
     [Parameter(Mandatory = $true)]
     [string]$FilePath,
 
@@ -15,9 +47,6 @@
     [bool]$BackupFile = $true,
 
     [Parameter(Mandatory = $false)]
-    [bool]$DryRun = $false,
-
-    [Parameter(Mandatory = $false)]
     [bool]$SkipIfExists = $true
 )
 
@@ -26,6 +55,10 @@ if (-not (Test-Path $FilePath)) {
     Write-Error "File not found: $FilePath"
     exit 1
 }
+
+# -DryRun replaced by standard -WhatIf (SupportsShouldProcess): ShouldProcess returning
+# $false (under -WhatIf) drives the existing no-write preview path below.
+$DryRun = -not $PSCmdlet.ShouldProcess($FilePath, "Add column '$ColumnName' to markdown table")
 
 # Create backup if requested
 if ($BackupFile -and -not $DryRun) {
@@ -251,8 +284,8 @@ else {
 Write-Host "   Default value: '$DefaultValue'" -ForegroundColor White
 
 if ($DryRun) {
-    Write-Host "🔍 DRY RUN - No changes made to file" -ForegroundColor Yellow
-    Write-Host "   To apply changes, run without -DryRun parameter" -ForegroundColor Yellow
+    Write-Host "🔍 -WhatIf preview - No changes made to file" -ForegroundColor Yellow
+    Write-Host "   To apply changes, run without -WhatIf" -ForegroundColor Yellow
 }
 else {
     # Write the modified content back to the file

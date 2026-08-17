@@ -77,19 +77,15 @@ try {
     exit 1
 }
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the plan-specific data, and the success report.
 
 # Prepare additional metadata fields
 $additionalMetadataFields = @{
     "feature_name" = $FeatureName
     "status"       = "Planning"
+    description    = "Implementation plan for $FeatureName"
 }
 
 # Prepare custom replacements
@@ -100,53 +96,49 @@ $customReplacements = @{
     "[Author]"              = "AI Agent & Human Partner"
 }
 
+# Select template based on tier
+$fwDir = Get-ProcessFrameworkPath
+if ($Tier -eq 1) {
+    $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-tier1-template.md"
+} else {
+    $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-template.md"
+}
+
+if (-not (Test-Path $templatePath)) {
+    Write-Warning "Implementation plan template not found at: $templatePath"
+    Write-Warning "Please create the template using New-Template.ps1 before using this script."
+    Write-Error "Template file required: $(Split-Path $templatePath -Leaf)"
+    exit 1
+}
+
 # Create the document using standardized process
-try {
-    # Select template based on tier
-    $fwDir = Get-ProcessFrameworkPath
-    if ($Tier -eq 1) {
-        $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-tier1-template.md"
-    } else {
-        $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-template.md"
-    }
+$documentId = New-FrameworkDocument `
+    -TemplatePath $templatePath `
+    -IdPrefix "PD-IMP" `
+    -IdDescription "$FeatureName implementation plan" `
+    -DocumentName "$FeatureName-implementation-plan" `
+    -DirectoryType "implementation-plans" `
+    -Replacements $customReplacements `
+    -Metadata $additionalMetadataFields `
+    -Label "Implementation Plan" `
+    -OpenInEditor:$OpenInEditor
 
-    if (-not (Test-Path $templatePath)) {
-        Write-Warning "Implementation plan template not found at: $templatePath"
-        Write-Warning "Please create the template using New-Template.ps1 before using this script."
-        Write-Error "Template file required: $(Split-Path $templatePath -Leaf)"
-        exit 1
-    }
+# Provide success details
+$details = @(
+    "Feature: $FeatureName",
+    "Location: doc/technical/implementation-plans/$FeatureName-implementation-plan.md"
+)
 
-    $documentId = New-StandardProjectDocument `
-        -TemplatePath $templatePath `
-        -IdPrefix "PD-IMP" `
-        -IdDescription "$FeatureName implementation plan" `
-        -DocumentName "$FeatureName-implementation-plan" `
-        -DirectoryType "implementation-plans" `
-        -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
-        -OpenInEditor:$OpenInEditor
-
-    # Provide success details
-    $details = @(
-        "Feature: $FeatureName",
-        "Location: doc/technical/implementation-plans/$FeatureName-implementation-plan.md"
-    )
-
-    if ($Description -ne "") {
-        $details += "Description: $Description"
-    }
-
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/04-implementation/implementation-plan-customization-guide.md"
-    }
-
-    Write-ProjectSuccess -Message "Created Implementation Plan with ID: $documentId" -Details $details
+if ($Description -ne "") {
+    $details += "Description: $Description"
 }
-catch {
-    Write-ProjectError -Message "Failed to create Implementation Plan: $($_.Exception.Message)" -ExitCode 1
+
+# Add next steps if not opening in editor
+if (-not $OpenInEditor) {
+    $details += "Customization required — see process-framework/tasks/04-implementation/feature-implementation-planning-task.md"
 }
+
+Write-ProjectSuccess -Message "Created Implementation Plan with ID: $documentId" -Details $details
 
 <#
 .NOTES

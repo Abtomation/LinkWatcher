@@ -9,7 +9,7 @@
 .DESCRIPTION
     This PowerShell script generates Framework Extension Concept documents by:
     - Generating a unique document ID (PF-PRO-XXX)
-    - Selecting a type-specific template (Creation, Modification, or Hybrid)
+    - Selecting a template (Creation, Modification, Hybrid, -Minimal, or -Pattern)
     - Creating a properly formatted concept document file
     - Updating the ID tracker in the central ID registry
     - Providing a focused template for framework extension planning
@@ -34,6 +34,13 @@
     When set, -Type defaults to "Creation" if not specified. Mutually exclusive with
     -Type Modification and -Type Hybrid.
 
+.PARAMETER Pattern
+    Selects a cross-cutting pattern/architecture concept template — lighter than the full Hybrid
+    template, omitting the per-task Core Process numbered-step skeleton and the fixed multi-session
+    plan, which do not fit a pattern/convention extension. When set, -Type defaults to "Hybrid" if
+    not specified (any -Type is accepted and only stamps the Extension Type metadata). Mutually
+    exclusive with -Minimal.
+
 .PARAMETER OpenInEditor
     If specified, opens the created file in the default editor
 
@@ -46,18 +53,21 @@
 .EXAMPLE
     New-FrameworkExtensionConcept.ps1 -ExtensionName "Service Interface API Spec" -ExtensionDescription "Template variant for non-network API contracts" -Minimal
 
+.EXAMPLE
+    New-FrameworkExtensionConcept.ps1 -ExtensionName "Craft-as-Skill Architecture" -ExtensionDescription "Cross-cutting task-owns-process / skill-owns-craft pattern" -Pattern
+
 .NOTES
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
     - Creates the output directory if it doesn't exist
     - Uses standardized document creation process
-    - Template selection: Creation and Modification use dedicated templates; Hybrid uses the full template; -Minimal uses the slim creation template
+    - Template selection: Creation and Modification use dedicated templates; Hybrid uses the full template; -Minimal uses the slim creation template; -Pattern uses the cross-cutting pattern/architecture template
 
     Template Metadata:
     - Template ID: PF-TEM-020
     - Template Type: Document Creation Script
     - Created: 2025-07-28
-    - Updated: 2026-04-14
+    - Updated: 2026-06-30
     - For: Creating PowerShell scripts that generate framework extension concept documents
 #>
 
@@ -80,6 +90,9 @@ param(
     [switch]$Minimal,
 
     [Parameter(Mandatory=$false)]
+    [switch]$Pattern,
+
+    [Parameter(Mandatory=$false)]
     [switch]$OpenInEditor
 )
 
@@ -90,15 +103,14 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only its
+# param block, the type/template selection + data, and the success report.
 
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
-
+# -Minimal and -Pattern are mutually exclusive mode switches (each selects its own template).
+if ($Minimal -and $Pattern) {
+    throw "-Minimal and -Pattern are mutually exclusive. Use one, or -Type for the standard templates."
+}
 # -Minimal validation: mutually exclusive with Modification/Hybrid; defaults Type to Creation
 if ($Minimal) {
     if ($Type -and $Type -ne "Creation") {
@@ -106,8 +118,13 @@ if ($Minimal) {
     }
     if (-not $Type) { $Type = "Creation" }
 }
-if (-not $Minimal -and -not $Type) {
-    throw "-Type is required when -Minimal is not specified. Use -Type Creation|Modification|Hybrid."
+# -Pattern validation: cross-cutting pattern/architecture extension; defaults Type to Hybrid.
+# Any -Type is accepted (a pattern may be Creation, Modification, or Hybrid) — it only stamps the
+# Extension Type metadata; the pattern template is selected regardless.
+if ($Pattern -and -not $Type) { $Type = "Hybrid" }
+# -Type is required only for the standard (non-Minimal, non-Pattern) templates.
+if (-not $Minimal -and -not $Pattern -and -not $Type) {
+    throw "-Type is required unless -Minimal or -Pattern is specified. Use -Type Creation|Modification|Hybrid."
 }
 
 # Phase 7 (2026-05-11): write to appdev/process-framework-central/proposals/ regardless of cwd;
@@ -130,14 +147,22 @@ $additionalMetadataFields = @{
 if ($Minimal) {
     $additionalMetadataFields["mode"] = "minimal"
 }
+if ($Pattern) {
+    $additionalMetadataFields["mode"] = "pattern"
+}
 
 # Prepare custom replacements
 # IMPORTANT: Use exact bracket notation like "[Placeholder Name]" - do NOT escape brackets
-# The replacement keys must match exactly what appears in your template file
+# The replacement keys must match exactly what appears in your template file.
+# User-supplied values are pipe-escaped via ConvertTo-MarkdownTableCellValue: [Extension Name]
+# and [Extension Scope] land in the Document Metadata table cells, so a value containing '|'
+# (e.g. -ExtensionScope "PF|PD|TE") would otherwise break the table render (PF-IMP-1284).
+# Escaping is also safe in the heading/prose occurrences, where '\|' renders as a literal '|'.
+# Frontmatter is unaffected — it is rebuilt from -Metadata, not these replacements.
 $customReplacements = @{
-    "[Extension Name]" = $ExtensionName
-    "[Extension Description]" = if ($ExtensionDescription -ne "") { $ExtensionDescription } else { "Framework extension to be defined" }
-    "[Extension Scope]" = if ($ExtensionScope -ne "") { $ExtensionScope } else { "Multi-component" }
+    "[Extension Name]" = ConvertTo-MarkdownTableCellValue $ExtensionName
+    "[Extension Description]" = ConvertTo-MarkdownTableCellValue $(if ($ExtensionDescription -ne "") { $ExtensionDescription } else { "Framework extension to be defined" })
+    "[Extension Scope]" = ConvertTo-MarkdownTableCellValue $(if ($ExtensionScope -ne "") { $ExtensionScope } else { "Multi-component" })
     "[Created Date]" = Get-Date -Format "yyyy-MM-dd"
     "[Author]" = "AI Agent & Human Partner"
     "[Creation / Modification / Hybrid]" = $Type
@@ -147,9 +172,11 @@ $customReplacements = @{
 # paths.process_framework (Get-ProcessFrameworkPath) so the same script works in both the
 # appdev blueprint layout and rolled-out projects.
 $processFrameworkDir = Get-ProcessFrameworkPath
-$modeLabel = if ($Minimal) { "Minimal" } else { $Type }
+$modeLabel = if ($Minimal) { "Minimal" } elseif ($Pattern) { "Pattern" } else { $Type }
 $templatePath = if ($Minimal) {
     Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-extension-concept-minimal-template.md"
+} elseif ($Pattern) {
+    Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-extension-concept-pattern-template.md"
 } else {
     switch ($Type) {
         "Creation"     { Join-Path -Path $processFrameworkDir -ChildPath "templates/support/framework-extension-concept-creation-template.md" }
@@ -168,30 +195,25 @@ $kebabName = ConvertTo-KebabCase -InputString $ExtensionName
 $customFileName = "${prjPrefix}${kebabName}.md"
 
 # Create the document using standardized process
-try {
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -OutputDirectory $outputDir -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -FileNamePattern $customFileName -OpenInEditor:$OpenInEditor
+$documentId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PF-PRO" -IdDescription "Framework Extension Concept: ${ExtensionName}" -DocumentName $ExtensionName -OutputDirectory $outputDir -Replacements $customReplacements -Metadata $additionalMetadataFields -FileNamePattern $customFileName -Label "Framework Extension Concept" -OpenInEditor:$OpenInEditor
 
-    # Provide success details
-    $details = @(
-        "Extension Name: $ExtensionName",
-        "Extension Description: $ExtensionDescription"
-    )
+# Provide success details
+$details = @(
+    "Extension Name: $ExtensionName",
+    "Extension Description: $ExtensionDescription"
+)
 
-    # Add conditional details
-    if ($ExtensionScope -ne "") {
-        $details += "Extension Scope: $ExtensionScope"
-    }
-
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/support/framework-extension-customization-guide.md"
-    }
-
-    Write-ProjectSuccess -Message "Created Framework Extension Concept with ID: $documentId" -Details $details
+# Add conditional details
+if ($ExtensionScope -ne "") {
+    $details += "Extension Scope: $ExtensionScope"
 }
-catch {
-    Write-ProjectError -Message "Failed to create Framework Extension Concept: $($_.Exception.Message)" -ExitCode 1
+
+# Add next steps if not opening in editor
+if (-not $OpenInEditor) {
+    $details += "Customization required — apply the framework-extension-concept craft skill (.claude/skills/framework-extension-concept/), activated by the Framework Extension task's Step 0 Check Recommended Skills"
 }
+
+Write-ProjectSuccess -Message "Created Framework Extension Concept with ID: $documentId" -Details $details
 
 <#
 .NOTES

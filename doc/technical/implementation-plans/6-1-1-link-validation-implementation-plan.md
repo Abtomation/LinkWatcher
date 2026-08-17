@@ -1,5 +1,6 @@
 ---
 id: PD-IMP-002
+description: "Implementation plan: 6.1.1 Link Validation - Implementation Plan."
 type: Document
 category: General
 version: 1.0

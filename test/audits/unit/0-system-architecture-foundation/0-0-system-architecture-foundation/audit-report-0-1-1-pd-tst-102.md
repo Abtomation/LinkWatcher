@@ -1,5 +1,6 @@
 ---
 id: TE-TAR-011
+description: "Foundation feature test quality assessment"
 type: Document
 category: General
 version: 1.0

@@ -13,6 +13,8 @@ variant_siblings:
   - lightweight-refactoring-plan-template.md
   - documentation-refactoring-plan-template.md
   - performance-refactoring-plan-template.md
+creates_document_type: Product Documentation
+creates_document_category: Refactoring Plan
 description: "Template for code refactoring plans"
 ---
 

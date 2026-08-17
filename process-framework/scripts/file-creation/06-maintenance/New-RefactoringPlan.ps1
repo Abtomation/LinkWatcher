@@ -23,7 +23,7 @@
     Priority level of the refactoring (High, Medium, Low). Defaults to "Medium"
 
 .PARAMETER DebtItemId
-    Optional. The tech debt item ID that triggered this refactoring (e.g., "TD007", "PF-TDI-003").
+    Optional. The tech debt item ID that triggered this refactoring (e.g., "TD007", "PD-TDI-003").
     When provided, auto-populates the debt_item frontmatter field, a "Debt Item" line in the plan body,
     and (for the Lightweight template) the [Debt Item ID] placeholder in the Item 1 header.
     In batch mode (-ItemCount > 1), only Item 1's header is filled; Items 2..N keep the [Debt Item ID]
@@ -98,7 +98,7 @@
     New-RefactoringPlan.ps1 -RefactoringScope "Reduce file I/O in scan cycle (TD030)" -TargetArea "src/linkwatcher/service.py" -Performance -DebtItemId "TD030"
 
 .EXAMPLE
-    New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "src/linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PF-TDI-001)"
+    New-RefactoringPlan.ps1 -RefactoringScope "Decompose God Class (TD005)" -TargetArea "src/linkwatcher/handler.py" -Priority "High" -DebtItemId "TD005 (PD-TDI-001)"
 
 .EXAMPLE
     New-RefactoringPlan.ps1 -RefactoringScope "Tighten parser test (TD230)" -TargetArea "test/automated/parsers/test_dart.py" -Lightweight -DebtItemId "TD230"
@@ -170,14 +170,10 @@ try {
     exit 1
 }
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path
+# are owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps its
+# data, its bespoke batch-mode Item-expansion post-processing, and its own report — all inline
+# under the outer try/catch (which now guards the post-creation writes).
 
 # Validate mutually exclusive switches
 $modeCount = @($Lightweight, $DocumentationOnly, $Performance).Where({ $_ }).Count
@@ -255,6 +251,7 @@ $additionalMetadataFields = @{
     "refactoring_scope" = $RefactoringScope
     "target_area"       = $TargetArea
     "priority"          = $Priority
+    description         = "Refactoring plan: $RefactoringScope"
 }
 if ($Lightweight) {
     $additionalMetadataFields["mode"] = "lightweight"
@@ -315,7 +312,7 @@ try {
     $passOpenInEditor = if ($deferOpenInEditor) { $false } else { [bool]$OpenInEditor }
 
     # Use DirectoryType for ID registry-based directory resolution
-    $documentId = New-StandardProjectDocument -TemplatePath $templatePath -IdPrefix "PD-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $documentNameForFile -DirectoryType "plans" -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$passOpenInEditor
+    $documentId = New-FrameworkDocument -TemplatePath $templatePath -IdPrefix "PD-REF" -IdDescription "Refactoring Plan: $RefactoringScope" -DocumentName $documentNameForFile -DirectoryType "plans" -Replacements $customReplacements -Metadata $additionalMetadataFields -Label "Refactoring Plan" -OpenInEditor:$passOpenInEditor
 
     # Post-process to expand Item sections for batch mode (-ItemCount > 1).
     # Locates "## Item 1:" through (but not including) "<!-- BATCH MODE:", duplicates the
@@ -414,7 +411,7 @@ try {
                 "   Define 2-4 metrics relevant to your refactoring (I/O, timing, complexity class, etc.) and fill in baselines and targets."
             )
         } else {
-            $details += "Customization required — see process-framework/guides/06-maintenance/code-refactoring-task-usage-guide.md"
+            $details += "Customization required — apply the refactoring-planning craft skill (.claude/skills/refactoring-planning/)"
         }
     }
 

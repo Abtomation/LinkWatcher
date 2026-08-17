@@ -2,23 +2,23 @@
 id: PF-TEM-080
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.2
 created: 2026-05-29
-updated: 2026-05-29
+updated: 2026-07-21
 creates_document_type: Process Framework
 creates_document_version: 1.0
 creates_document_prefix: PF-TEM
 template_for: Template
 creates_document_category: Template
 usage_context: Process Framework - Template Creation
-description: Trimmed variant of the Pending Migration Entry Template (PF-TEM-079) for no-data-motion migrations (empty-dir or placeholder-only cleanup)
+description: Trimmed variant of the Pending Migration Entry Template (PF-TEM-079) for no-data-motion migrations (empty-dir/placeholder removal, config-key edit, in-place text substitution, or additive section append)
 ---
 
 # Pending Migration Entry Cleanup Template
 
 ## Purpose
 
-A trimmed variant of the [Pending Migration Entry Template (PF-TEM-079)](pending-migration-entry-template.md) for **no-data-motion migrations** — empty-directory removal, placeholder relocation, or config/registry-key cleanup where the change is mechanically `Remove-Item` / `New-Item` (or a single config edit) with nothing to preserve. It keeps the audit-trail spine (ID, Source, Source Framework Version, Target Files, Rollback Implications) while dropping the full template's dual-branch Rollback scaffolding and separate Validation section.
+A trimmed variant of the [Pending Migration Entry Template (PF-TEM-079)](pending-migration-entry-template.md) for **no-data-motion migrations** — empty-directory removal, placeholder relocation, config/registry-key cleanup, in-place text substitution (link/path repoint, single-line fix), or additive section append (insert a self-contained section copied verbatim from a canonical blueprint source) where the change is mechanically `Remove-Item` / `New-Item`, a single config edit, a string-replace, or an insert-after-heading append with nothing to preserve. It keeps the audit-trail spine (ID, Source, Source Framework Version, Target Files, Rollback Implications) while dropping the full template's dual-branch Rollback scaffolding and separate Validation section.
 
 PF-TEM-079 remains the canonical reference for all field semantics, the lifecycle (written by Structure Change, applied by Framework Rollout Mode C, scanned by Mode D), the container-file layout, and the summary table. This file defines only the trimmed entry form and when to use it.
 
@@ -26,11 +26,11 @@ PF-TEM-079 remains the canonical reference for all field semantics, the lifecycl
 
 Use the minimal form below when **all** of these hold:
 
-- The migration moves **no data** — it removes an empty/placeholder directory, creates a placeholder, or edits a config/registry key with no content to migrate.
-- The Migration Steps reduce to `Remove-Item` / `New-Item` (plus a "pre-check the target is empty/placeholder-only; if real content is found, stop and reconcile" guard).
-- The reversal, if any, is trivial — a single `New-Item` / `Remove-Item` to restore the prior placeholder.
+- The migration moves **no data** — it removes an empty/placeholder directory, creates a placeholder, edits a config/registry key, substitutes in-place text (link/path repoint, single-line fix), or appends a self-contained section copied verbatim from a canonical blueprint source, with no content to migrate.
+- The Migration Steps reduce to `Remove-Item` / `New-Item`, a single config/registry-key edit, a string-replace, or an insert-after-heading append (plus a "pre-check the target holds nothing that needs migrating — for a text substitution, that the old string is still present; for an additive append, that the target heading is absent; if real content is found, stop and reconcile" guard).
+- The reversal, if any, is trivial — a single `New-Item` / `Remove-Item` to restore the prior placeholder, an inverse string-replace, or deleting the appended section.
 
-Use the **full** [Pending Migration Entry Template (PF-TEM-079)](pending-migration-entry-template.md) when the migration moves or transforms real content, has multi-step reversal, ships its own apply script, or needs the expanded Description / Validation guidance.
+Use the **full** [Pending Migration Entry Template (PF-TEM-079)](pending-migration-entry-template.md) when the migration moves or transforms real content, has multi-step reversal, ships its own apply script, needs the expanded Description / Validation guidance, or targets real content whose data motion already happened (a **drain**): there the Full form's shape is verify-completeness-then-delete, with the re-verification as its own apply-time step.
 
 > **Backward-compatibility is NOT assumed by this variant.** A no-data-motion cleanup can still be `Backward-compatible: no` — e.g., older framework docs reference the removed path (see PF-TEM-079's MIG-002 precedent in any project ledger). The Rollback Implications field is kept below for exactly this reason; only the verbose dual-branch scaffolding is dropped.
 
@@ -59,22 +59,26 @@ Same as the full template: each entry has a per-project `MIG-<NNN>` ID assigned 
 
 #### Description
 
-<1–2 sentences: which empty-dir / placeholder / key is cleaned up, and the appdev structural change that motivates it. State explicitly that there is no data motion.>
+<1–2 sentences: which empty-dir / placeholder / key is removed, which in-place text is substituted (link/path repoint, single-line fix), or which section is appended (name its canonical blueprint source), and the appdev structural change that motivates it. State explicitly that there is no data motion.>
+
+> **Declare any cross-entry / bootstrap dependency here** — if this cleanup only applies correctly after another `MIG-NNN` or a framework bootstrap that may not have reached the project, say so explicitly so the applier's pre-check can stop and reconcile on a missing prerequisite.
 
 #### Migration Steps
 
-1. **Pre-check** the target is empty / placeholder-only (e.g., `Get-ChildItem <path> -Force` returns nothing or `.gitkeep` only). If real content is found, **stop and reconcile** — switch to the full PF-TEM-079 form.
-2. <The `Remove-Item` / `New-Item` (or single config/registry edit) step.>
+1. **Pre-check** the target holds nothing that needs migrating — an empty/placeholder directory (e.g., `Get-ChildItem <path> -Force` returns nothing or `.gitkeep` only), a config/registry key whose only value is the obsolete one being removed, for an in-place text substitution that the exact old string is still present (e.g., `Select-String '<old>' <file>`) so the replace no-ops if already applied, or — for an additive append — that the target heading/string is **absent** (e.g., `Select-String '<new-heading>' <file>` returns nothing) so the append no-ops if already applied. If real content needing migration is found, **stop and reconcile** — switch to the full PF-TEM-079 form.
+2. <The `Remove-Item` / `New-Item`, single config/registry edit, string-replace (e.g. `(Get-Content <file> -Raw) -replace '<old>','<new>' | Set-Content <file>`), or insert-the-section step (copy the section verbatim from its canonical blueprint source and insert it after the named anchor heading).>
+
+> **Script-owned state files**: a uniform relabel (e.g. renaming a legend value across every occurrence) is a legitimate whole-file substitution, but changing **row data** in a file with a recomputed derived block — e.g. a feature's Status/Doc Tier cell in `feature-tracking.md` — goes through the owning mutation script, never a string-replace. See the [full template's rule](pending-migration-entry-template.md#migration-steps).
 
 #### Expected Outcome (doubles as validation)
 
-<Verifiable post-condition — e.g., "`Test-Path <old>` returns `False`; `<new>` exists with `.gitkeep`." For a cleanup this single check serves as both expected outcome and validation.>
+<Verifiable post-condition — e.g., "`Test-Path <old>` returns `False`; `<new>` exists with `.gitkeep`", "`Select-String '<old>' <file>` returns nothing and the new string is present", or — for an additive append — "`Select-String '<new-heading>' <file>` returns the appended heading and any links in the section resolve in the project tree". For a cleanup this single check serves as both expected outcome and validation.>
 
 #### Rollback Implications
 
 **Backward-compatible**: `yes` | `no`
 
-<One line. If `yes`: why the prior framework version still parses the project cleanly. If `no`: the single trivial reversal step — e.g., "Before Mode D rollback, recreate `<old-path>` as an empty placeholder.">
+<One line. If `yes`: why the prior framework version still parses the project cleanly. If `no`: the single trivial reversal step — e.g., "Before Mode D rollback, recreate `<old-path>` as an empty placeholder," "re-run the inverse string-replace," or "delete the appended section.">
 ```
 
 ## What this variant drops (and why)

@@ -3,14 +3,14 @@
 id: PF-TEM-056
 type: Process Framework
 category: Template
-version: 1.3
+version: 1.7
 created: 2025-07-06
-updated: 2026-04-04
+updated: 2026-08-04
 
 # Document Creation Metadata
 template_for: TDD Tier 2 (Lightweight Technical Design Document)
-creates_document_type: Technical Design Document
-creates_document_category: TDD Tier 2
+creates_document_type: Product Documentation
+creates_document_category: Technical Design Document
 creates_document_prefix: PD-TDD
 creates_document_version: 1.0
 
@@ -28,6 +28,7 @@ variant_group: tdd-templates
 variant_siblings:
   - tdd-t1-template.md
   - tdd-t3-template.md
+  - tdd-instruction-template.md
 ---
 
 # Lightweight Technical Design Document: [Feature Name]
@@ -52,7 +53,7 @@ variant_siblings:
 
 ## 3. Quality Attribute Requirements
 
-> **Reference**: <!-- quality-attributes.md has been removed --> Define quality attributes relevant to this feature
+> **Reference**: Define quality attributes relevant to this feature
 
 ### 3.1 Performance Requirements
 
@@ -141,26 +142,43 @@ variant_siblings:
 
 ### 5.1 Functional Requirements Reference
 
-> **📋 Primary Documentation**: FDD Creation Task (PF-TSK-010)
+> **📋 Primary Documentation**: FDD Creation Task (PF-TSK-027)
 > **🔗 Link**: [Functional Design Document - PD-FDD-XXX] > **👤 Owner**: FDD Creation Task
 
 **Brief Summary**: [2-3 sentences on key functional requirements this design implements]
 
-### 5.2 API Specification Reference
-
-> **📋 Primary Documentation**: API Design Task (PF-TSK-020)
-> **🔗 Link**: [API Specification Document - PD-API-XXX] > **👤 Owner**: API Design Task
-
-**Brief Summary**: [2-3 sentences on API integration approach]
-
-### 5.3 Database Schema Reference
+### 5.2 Database Schema Reference
 
 > **📋 Primary Documentation**: Database Schema Design Task (PF-TSK-021)
 > **🔗 Link**: [Database Schema Design Document - PD-SCH-XXX] > **👤 Owner**: Database Schema Design Task
 
 **Brief Summary**: [2-3 sentences on data access patterns and repository design]
 
-### 5.4 Testing Reference
+### 5.3 API Specification Reference
+
+> **📋 Primary Documentation**: API Design Task (PF-TSK-020)
+> **🔗 Link**: [API Specification Document - PD-API-XXX] > **👤 Owner**: API Design Task
+
+**Brief Summary**: [2-3 sentences on API integration approach]
+
+### 5.4 UI Design Reference
+
+> **📋 Primary Documentation**: UI Design Task (PF-TSK-090)
+> **🔗 Link**: [UI/UX Design Document - PD-UIX-XXX] > **👤 Owner**: UI Design Task
+
+**Brief Summary**: [2-3 sentences on how the UI design's components and interactions map to this design]
+
+### 5.5 Instruction Design Reference
+
+<!-- Applies to a feature with an instruction dimension (medium `instruction` or `mixed`).
+Remove this subsection for a pure-code feature. -->
+
+> **📋 Primary Documentation**: Instruction Design Task (PF-TSK-094)
+> **🔗 Link**: [Instruction Design Document - PD-IND-XXX] > **👤 Owner**: Instruction Design Task
+
+**Brief Summary**: [2-3 sentences on the feature's instruction artifacts and the seam where they meet this code design — what the instructions invoke, and what code consumes their output]
+
+### 5.6 Testing Reference
 
 > **📋 Primary Documentation**: Test Specification Creation Task (PF-TSK-012)
 > **🔗 Link**: [Test Specification Document - PD-TST-XXX] > **👤 Owner**: Test Specification Creation Task

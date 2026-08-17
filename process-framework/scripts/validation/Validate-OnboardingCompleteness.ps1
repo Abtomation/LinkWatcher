@@ -18,14 +18,14 @@
     Show every checked file, not just failures.
 .PARAMETER SourceExclusions
     Additional directory names to exclude from source file scanning.
-    Built-in exclusions: doc, docs, process-framework, process-framework-local, .git,
+    Built-in exclusions: doc, docs, process-framework, .git,
     __pycache__, node_modules, .venv, venv, env, LinkWatcher, languages-config, test.
 .EXAMPLE
-    ./Validate-OnboardingCompleteness.ps1
+    Validate-OnboardingCompleteness.ps1
 .EXAMPLE
-    ./Validate-OnboardingCompleteness.ps1 -Detailed
+    Validate-OnboardingCompleteness.ps1 -Detailed
 .EXAMPLE
-    ./Validate-OnboardingCompleteness.ps1 -SourceExclusions "vendor","third_party"
+    Validate-OnboardingCompleteness.ps1 -SourceExclusions "vendor","third_party"
 #>
 
 param(
@@ -85,7 +85,7 @@ if (Test-Path $langCfgPath) {
 
 # --- Directories to exclude from source scanning ---
 $builtInExclusions = @(
-    "doc", "docs", "process-framework", "process-framework-local",
+    "doc", "docs", "process-framework",
     ".git", "__pycache__", "node_modules", ".venv", "venv", "env",
     "LinkWatcher", "languages-config", "test", ".claude"
 )

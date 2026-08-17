@@ -83,14 +83,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, try/catch, and the error report are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This script keeps only
+# its param block (above), the template-specific data, and the success report.
 
 # Get current date in YYYY-MM-DD format
 $currentDate = Get-Date -Format "yyyy-MM-dd"
@@ -130,38 +125,48 @@ $customReplacements = @{
     "**Last Updated:** 2025-07-15"                                                                                                                                       = "**Last Updated:** $currentDate"
 }
 
-# Separate var: reassigning $OutputDirectory would re-trigger ValidateSet against the long path (PF-IMP-789).
-$templateBase = Join-Path (Get-ProcessFrameworkPath) "templates"
-$resolvedOutputDirectory = Join-Path $templateBase $OutputDirectory
+# IMP-407: Auto-append "-template" suffix with double-suffix guard.
+# Slug via the canonical helper from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
+$templateDocName = ConvertTo-FeatureSlug -Name $TemplateName -Convention 'kebab-case'
+if ($templateDocName -notmatch '-template$') { $templateDocName = "$templateDocName-template" }
 
-# Create the template using standardized process
-try {
-    # IMP-407: Auto-append "-template" suffix with double-suffix guard.
-    # Slug via the canonical helper from Common-ScriptHelpers/Naming.psm1 (PF-IMP-008).
-    $templateDocName = ConvertTo-FeatureSlug -Name $TemplateName -Convention 'kebab-case'
-    if ($templateDocName -notmatch '-template$') { $templateDocName = "$templateDocName-template" }
-    $templateId = New-StandardProjectDocument -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/support/template-base-template.md") -IdPrefix "PF-TEM" -IdDescription "$TemplateName template" -DocumentName $templateDocName -OutputDirectory $resolvedOutputDirectory -Replacements $customReplacements -AdditionalMetadataFields $additionalMetadataFields -OpenInEditor:$OpenInEditor
+# P-12a (PF-PRO-068): the shipped-pool family comes from the workspace's declared
+# artifact_prefix ('PF' at appdev, 'FB' at FB); a leaf role throws by contract.
+$artifactFamily = Get-ArtifactPrefix
 
-    # Provide success details
-    $details = @(
-        "Template Name: $TemplateName",
-        "Template Description: $TemplateDescription",
-        "Document Prefix: $DocumentPrefix",
-        "Document Category: $DocumentCategory",
-        "",
-        "Template saved to: $resolvedOutputDirectory\$templateDocName.md"
-    )
+# Normalized onto the standard creation path (P-12a rider, owner-directed): the write target
+# resolves through the registry chain — the TEM pool's "main" directory type
+# ("process-framework/templates") plus -Subdirectory — the IMP-568 shape New-Guide uses.
+# This retires the interim call-site Get-BlueprintPath retarget (Session 7) and the absolute
+# -OutputDirectory that bypassed registry resolution. Producer-face correctness of
+# registry-resolved writes after the Session F cutover is owned by the registry-resolution
+# face decision (option (iii), owner-decided 2026-08-09), which fixes ALL -DirectoryType
+# mint sites in one place rather than per call site.
+# The template READ deliberately stays on Get-ProcessFrameworkPath: the base template is code
+# this session runs against, not something it ships.
+# PF-documentation-map.md is generated from each artifact's `description:` frontmatter
+# by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
+$templateResult = New-FrameworkDocument `
+    -TemplatePath (Join-Path (Get-ProcessFrameworkPath) "templates/support/template-base-template.md") `
+    -IdPrefix "$artifactFamily-TEM" -IdDescription "$TemplateName template" -DocumentName $templateDocName `
+    -DirectoryType "main" -Subdirectory $OutputDirectory `
+    -Replacements $customReplacements -Metadata $additionalMetadataFields `
+    -Label "template" -OpenInEditor:$OpenInEditor -PassThru
+$templateId = $templateResult.Id
 
-    # Add next steps if not opening in editor
-    if (-not $OpenInEditor) {
-        $details += "Customization required — see process-framework/guides/support/template-development-guide.md"
-    }
+# Provide success details
+$details = @(
+    "Template Name: $TemplateName",
+    "Template Description: $TemplateDescription",
+    "Document Prefix: $DocumentPrefix",
+    "Document Category: $DocumentCategory",
+    "",
+    "Template saved to: $($templateResult.Path)"
+)
 
-    # PF-documentation-map.md is generated from each artifact's `description:` frontmatter
-    # by Build-DocumentationMap.ps1 (PF-PRO-037) — no per-creation append needed.
-
-    Write-ProjectSuccess -Message "Created template with ID: $templateId" -Details $details
+# Add next steps if not opening in editor
+if (-not $OpenInEditor) {
+    $details += "Customization required — see .claude/skills/template-development/SKILL.md"
 }
-catch {
-    Write-ProjectError -Message "Failed to create template: $($_.Exception.Message)" -ExitCode 1
-}
+
+Write-ProjectSuccess -Message "Created template with ID: $templateId" -Details $details

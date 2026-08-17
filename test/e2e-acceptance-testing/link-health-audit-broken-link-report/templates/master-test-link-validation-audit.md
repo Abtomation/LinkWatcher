@@ -1,6 +1,8 @@
 ---
 id: TE-E2G-013
-type: E2E Acceptance Test Group
+description: "E2E acceptance test (WF-009): link-validation-audit."
+type: Testing
+category: E2E Acceptance Test Group
 feature_ids: ["0.1.1", "2.1.1", "6.1.1"]
 workflow: WF-009
 test_cases_count: 3

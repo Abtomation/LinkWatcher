@@ -2,13 +2,30 @@
 id: PF-TSK-008
 type: Process Framework
 category: Task Definition
-version: 1.3
+version: 1.4
 created: 2024-07-15
-updated: 2026-05-16
+updated: 2026-07-22
 description: "Manage releases and deployments"
+complexity: complex
+use_when: >-
+  Preparing and deploying releases. Runs the agnostic release gates, then **delegates project-specific deploy/version/distribute mechanics to the project's Release Process Guide** (`doc/ci-cd/release-process.md`) and gates on that guide's freshness.
+automation: manual
+scripts:
+  - ../../scripts/file-creation/06-maintenance/New-BugReport.ps1
+trigger_status:
+  - raw: "_(user request)_ — checks `e2e-test-tracking.md`, feature impl state files; reads the project's **Release Process Guide** (`doc/ci-cd/release-process.md`, `PD-CIC`) **Freshness Stamp** at the Step 3 freshness gate (blocks the release if the guide is stale/missing — detects but never authors)"
+output_status:
+  - raw: "`feature-tracking.md` → feature statuses updated for release; `bug-tracking.md` → included fixes updated; **deploy / version / distribute mechanics delegated to the Release Process Guide** (Step 16) rather than authored inline; deployed version asserted against the decided bump (Step 17 gate) before tagging"
+next_tasks:
+  - task: ../06-maintenance/bug-fixing-task.md
+    condition: "If issues are discovered during deployment"
+  - task: ../04-implementation/feature-implementation-planning-task.md
+    condition: "To begin work on the next release cycle"
 ---
 
 # Release & Deployment
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -23,12 +40,9 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/07-deployment/release-deployment-map.md)
-
 - **Critical (Must Read):**
 
   - [Release Process Guide](../../../doc/ci-cd/release-process.md) - Release process documentation
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) - For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -39,8 +53,6 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Always run the full test suite before deployment and verify application health afterward.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -57,7 +69,7 @@ Manage the process of preparing, versioning, and deploying releases of the appli
    - a path, script, or command the guide references no longer exists.
 
    If stale or missing, **stop and bring the guide current** — re-author its mechanics and re-set **both** Freshness-Stamp fields — before proceeding. This task **detects** staleness but **never authors** the guide; updating per-project release mechanics is a product-side responsibility. A fresh, accurate guide is a release gate, exactly like the user-documentation gate above.
-4. Update version numbers according to semantic versioning
+4. **Decide and apply the version bump**: Decide the semantic-version bump for this release (major / minor / patch, judged from what shipped since the last release) — the bump *decision* is owned by this task. Apply it per the **Version Management** section of your project's [Release Process Guide](../../../doc/ci-cd/release-process.md), which owns *where and how* the version is written (version source of truth, bump procedure, tagging convention). After applying, verify **every** version source reports the new version — projects can carry more than one (package metadata, a hardcoded `__version__`, an installer manifest); grep for the old version string to catch stragglers.
 5. Generate release notes from completed features and fixed bugs
 6. Create a release branch if needed
 7. Update any configuration files for the target environment(s)
@@ -65,15 +77,15 @@ Manage the process of preparing, versioning, and deploying releases of the appli
 
 ### Execution
 
-9. Run the full test suite on the release candidate
-10. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests (query via `test_query.py --summary` or `pytest -m 'priority("Critical")'`) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
-11. **Run performance baseline capture**: Execute [Performance Baseline Capture](../03-testing/performance-baseline-capture-task.md) (PF-TSK-085) to record current performance measurements and check for regressions against stored baselines. Use `python process-framework/scripts/test/performance_db.py regressions` to flag any degradations. Performance regressions are a release risk — investigate and document any flagged items before proceeding.
-12. **Verify E2E acceptance test status**: Check [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for any E2E groups marked `🔄 Needs Re-execution`. All groups must show `✅ Passed` before release. If any need re-execution, trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) first. Also check the **Workflow Milestone Tracking** — are all workflows in the release scope covered by E2E tests? Flag any workflow with `⬜ Not Created` status as a release risk.
-13. Verify all deployment prerequisites are met
-14. Complete the pre-deployment checklist
-15. Obtain necessary approvals
-16. **🚨 CHECKPOINT**: Present pre-deployment checklist results (including full test sweep results) and obtain explicit approval before deploying
-17. **Execute your project's Release Process Guide deploy steps** (delegation): Hand off to the per-project [Release Process Guide](../../../doc/ci-cd/release-process.md) (verified fresh in Step 3) and run its **Deploy / Distribute Steps**, its post-deploy verification, and any **Downstream-Impact / Announcement** actions it specifies. These mechanics are project-specific — global CLI install, packaged app, web service, library publish — and are **owned by the guide, not this task**: deployment, log/health monitoring, smoke tests, stakeholder notification, and post-deploy performance/error monitoring all live in the guide's deploy steps for your distribution model. This task orchestrates and gates the release; the guide supplies the concrete deploy / verify / notify / monitor actions. Carry the guide's verification results into the bug-discovery step below.
+9. **Run full pre-release test sweep**: Execute `Run-Tests.ps1 -All` to confirm all automated tests pass. This is a release gate — no deployment if tests fail. Pay special attention to **Critical** priority tests (query via `test_query.py --summary` or `pytest -m 'priority("Critical")'`) — these cover foundation features and must all pass. Extended priority tests (performance, edge cases) are informational but not release-blocking.
+10. **Performance regression gate — scaled to the release's change surface**: If the release changes code covered by a registered performance test (compare [performance-test-tracking.md](../../../test/state-tracking/permanent/performance-test-tracking.md) against the release scope from Step 1), execute [Performance Baseline Capture](../03-testing/performance-baseline-capture-task.md) (PF-TSK-085) and check for regressions via `python process-framework/scripts/test/performance_db.py regressions` — investigate and document any flagged items before proceeding. If nothing in the release touches a measured surface, or the project has no registered performance tests, the gate is satisfied by recording that one-line determination for the pre-deployment checkpoint.
+11. **E2E acceptance gate**: Check [e2e-test-tracking.md](../../../test/state-tracking/permanent/e2e-test-tracking.md) for E2E groups marked `🔄 Needs Re-execution` — all groups must show `✅ Passed` before release; trigger [E2E Acceptance Test Execution](../03-testing/e2e-acceptance-test-execution-task.md) for any that aren't. Check the **Workflow Milestone Tracking** — flag any release-scope workflow with `⬜ Not Created` status as a release risk. When nothing is flagged, this gate is a one-line confirmation; a project with no E2E tracking records that determination instead. When the release *itself* is the fix that re-enables E2E re-execution — the affected groups can only pass once the fixed artifact is deployed — the pre-deploy `✅ Passed` requirement is unsatisfiable; satisfy the gate with explicit human checkpoint approval (Step 15) plus a post-deploy E2E round scheduled against those groups.
+12. Verify all deployment prerequisites are met
+13. Complete the pre-deployment checklist
+14. Obtain necessary approvals
+15. **🚨 CHECKPOINT**: Present pre-deployment checklist results (including full test sweep results and any gate-scaling determinations from Steps 10–11) and obtain explicit approval before deploying
+16. **Execute your project's Release Process Guide deploy steps** (delegation): Hand off to the per-project [Release Process Guide](../../../doc/ci-cd/release-process.md) (verified fresh in Step 3) and run its **Deploy / Distribute Steps**, its post-deploy verification, and any **Downstream-Impact / Announcement** actions it specifies. These mechanics are project-specific — global CLI install, packaged app, web service, library publish — and are **owned by the guide, not this task**: deployment, log/health monitoring, smoke tests, stakeholder notification, and post-deploy performance/error monitoring all live in the guide's deploy steps for your distribution model. This task orchestrates and gates the release; the guide supplies the concrete deploy / verify / notify / monitor actions. Carry the guide's verification results into the bug-discovery step below.
+17. **🚨 Version-source agreement gate (before tagging)**: Run the deployed artifact's version report (e.g. the installed tool's `--version`) and confirm it reports the version decided in Step 4. A mismatch means a version source was missed — commonly a hardcoded version the deploy ships instead of package metadata. Treat it as a deploy failure: fix, redeploy, and re-verify **before** the release tag is created or pushed (tagging convention per the guide's Version Management section).
 
 ### Finalization
 
@@ -95,19 +107,10 @@ Manage the process of preparing, versioning, and deploying releases of the appli
     - Reference specific deployment logs or monitoring data
     - Note impact on deployment success and user experience
 
-    **Example Bug Report Command**:
+    For exact parameters and a worked example, run `Get-Help New-BugReport.ps1 -Full`; for its ValidateSet values, use the metadata one-liner in the [Script Development Quick Reference](../../guides/support/script-development-quick-reference.md#powershell-script-execution-ai-agents) (and see the [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md)) — pass the deployment context via `-DiscoveredBy`, `-Environment`, and `-Evidence`.
 
-    ```powershell
-    # Navigate to the scripts directory from project root
-    Set-Location "process-framework/scripts/file-creation"
-
-    # Create bug report for issues found during deployment
-    ../../scripts/file-creation/06-maintenance/New-BugReport.ps1 -Title "API timeout in production environment" -Description "User authentication API calls timeout after 30 seconds in production but work fine in staging" -DiscoveredBy "Development" -Severity "Critical" -Component "Authentication" -Environment "Production" -Evidence "Deployment logs: /logs/deployment-2025-01-15.log"
-    ```
-
-20. Update release status documentation
-21. Document any issues encountered during deployment
-22. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+20. Document any issues encountered during deployment
+21. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Outputs
 
@@ -123,9 +126,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Release notes are comprehensive and accurate
@@ -135,15 +136,47 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Feature tracking updated to reflect released features
   - [ ] Bug tracking updated for fixes included in release
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-008" and context "Release & Deployment"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-008`, context "Release & Deployment".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Updates** | [`bug-tracking.md`](../../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
+| **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Update deployment status for released features<br/>• Add release version and deployment date |
 
 ## Next Tasks
 
 - [**Bug Fixing**](../06-maintenance/bug-fixing-task.md) - If issues are discovered during deployment
 - [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - To begin work on the next release cycle
 
+<!-- merged from transition-registry entry: Release & Deployment (PF-TSK-008) -->
+### Prerequisites for Transition
+
+- [ ] Release notes created (version, features, bug fixes, known issues)
+- [ ] Release Process Guide freshness gate passed (guide present and accurate) and its deploy / version / distribute steps executed via delegation (PF-TSK-008 Steps 3 and 16); deployed version asserted against the decided bump before tagging (Step 17 gate)
+- [ ] All E2E test groups passed (verified in `e2e-test-tracking.md`)
+- [ ] Feature tracking updated with release version for included features
+- [ ] Bug reports created for any issues discovered during deployment validation
+
+### Next Task Selection
+
+```
+What happened during deployment?
+├─ Deployment successful, no issues → Begin next development cycle
+│   ├─ Features planned → Feature Request Evaluation or Feature Discovery
+│   └─ Tech debt to address → Technical Debt Assessment
+├─ Issues discovered during deployment → Bug Triage (PF-TSK-041)
+└─ Post-release monitoring reveals problems → Bug Triage (PF-TSK-041)
+```
+
+### Preparation for Next Task
+
+1. Close out completed feature state files if appropriate (feature implementation state files are never archived — [PF-TEM-037](../../templates/04-implementation/feature-implementation-state-template.md))
+2. Review Feature Request Tracking for the next batch of work
+3. Update Technical Debt Tracking with any debt introduced during the release
+
 ## Related Resources
 
 - [CI/CD Setup Guide](../../guides/07-deployment/ci-cd-setup-guide.md) - Guide for setting up CI/CD infrastructure
 - [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md) - Test directory structure, tracking, and scaffolding
-- [Task Creation and Improvement Guide](../../guides/support/task-creation-guide.md) - Guide for creating and improving tasks

@@ -1,6 +1,23 @@
-# New-StructureChangeProposal.ps1
-# Creates a new structure change proposal document
-# Uses the central ID registry system and standardized document creation
+<#
+.SYNOPSIS
+Creates a new Structure Change Proposal document with an automatically assigned ID.
+
+.DESCRIPTION
+Uses the central ID registry system and standardized document creation.
+
+.PARAMETER ChangeName
+Name of the proposed structure change. Drives the document title and the kebab-case filename.
+
+.PARAMETER Description
+Brief overview of the proposed change. Replaces the template's overview placeholder when
+supplied.
+
+.PARAMETER TargetDate
+Target implementation date, yyyy-MM-dd. Defaults to 30 days from creation.
+
+.PARAMETER OpenInEditor
+Opens the created proposal in the configured editor after creation.
+#>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -24,14 +41,9 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-# Perform standard initialization
-Invoke-StandardScriptInitialization
-
-
-# Soak verification opt-in (PF-PRO-028 v2.0 Pattern B; helper-routed armoring via DocumentManagement.psm1).
-# Caller-aware no-arg form: helper resolves this script's path via Get-PSCallStack.
-# Idempotent — silently no-ops if already registered.
-Register-SoakScript
+# Init, soak opt-in, the New-StandardProjectDocument call, and the create-failure error path are
+# owned by New-FrameworkDocument (PF-IMP-1135 / PF-PRO-043 Option 2). This Tier-3 script keeps
+# its data, its bespoke post-creation target-date rewrite, and its own report — inline.
 
 # Calculate target date (default: 30 days from now)
 if ($TargetDate -eq "") {
@@ -83,15 +95,16 @@ $additionalMetadataFields = @{
 }
 
 try {
-    $proposalId = New-StandardProjectDocument `
+    $proposalId = New-FrameworkDocument `
         -TemplatePath $templatePath `
         -IdPrefix "PF-PRO" `
         -IdDescription "Structure change proposal for: ${ChangeName}" `
         -DocumentName $ChangeName `
         -OutputDirectory $outputDir `
         -Replacements $customReplacements `
-        -AdditionalMetadataFields $additionalMetadataFields `
+        -Metadata $additionalMetadataFields `
         -FileNamePattern $customFileName `
+        -Label "structure change proposal" `
         -OpenInEditor:$OpenInEditor
 
     # Post-process: replace Target Implementation Date (the remaining YYYY-MM-DD after first replacement)

@@ -443,6 +443,11 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         self.logger.file_moved(old_path, new_path)
 
         try:
+            # PD-BUG-114: record the move up front so link recalculation —
+            # including this file's own outgoing links — can repair references
+            # to paths vacated by this or a concurrent same-operation move.
+            self._ref_lookup.record_move(old_path, new_path)
+
             # Get all references to the old file using all path format variations
             references = self._ref_lookup.find_references(old_path)
 
@@ -485,13 +490,22 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                 else:
                     self.logger.info("no_files_updated", old_path=old_path, new_path=new_path)
             else:
-                self.logger.warning("no_references_found", old_path=old_path, new_path=new_path)
+                # PD-BUG-117: nothing referencing the moved file is a normal
+                # outcome — same class as the no_files_updated branch above.
+                self.logger.info("no_references_found", old_path=old_path, new_path=new_path)
 
             # If the moved file contains links, update its entries and fix relative paths
             if self._should_monitor_file(event.dest_path):
                 # Update links within the moved file to reflect new relative paths
                 # This method handles both content updates and database updates
                 self._update_links_within_moved_file(old_path, new_path, event.dest_path)
+
+            # PD-BUG-114: repair links in OTHER moved files that were skipped
+            # earlier because they pointed at the path this move has just
+            # explained (their recalc ran before this move was processed).
+            pending_refs = self._ref_lookup.apply_pending_recalcs(old_path)
+            if pending_refs:
+                self._update_stat("links_updated", pending_refs)
 
             self._update_stat("files_moved")
 
@@ -540,8 +554,13 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             # lookups resolve to the NEW (existing) file locations.
             # Without this, the updater tries to open moved files at their
             # OLD paths, causing Errno 2 errors (PD-BUG-050).
+            # PD-BUG-114: also record each per-file move (and the directory
+            # itself) so link recalculation can repair references to paths
+            # vacated by this or a concurrent same-operation move.
             for old_file_path, new_file_path in moved_files:
                 self.link_db.update_source_path(old_file_path, new_file_path)
+                self._ref_lookup.record_move(old_file_path, new_file_path)
+            self._ref_lookup.record_move(old_dir, new_dir)
 
             # Phase 1: Collect all references across moved files (TD129).
             # Build move_groups for a single batched updater pass so each
@@ -582,6 +601,15 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
                     old_file_path, new_file_path, abs_new_path
                 )
             total_references_updated += phase_1_5_refs_updated
+
+            # Phase 1.6 (PD-BUG-114): repair links in files moved by earlier
+            # events that were skipped because they pointed at paths this
+            # directory move has just explained.
+            pending_refs_updated = 0
+            for old_file_path, _ in moved_files:
+                pending_refs_updated += self._ref_lookup.apply_pending_recalcs(old_file_path)
+            pending_refs_updated += self._ref_lookup.apply_pending_recalcs(old_dir)
+            total_references_updated += pending_refs_updated
 
             # Phase 2: Update references to the directory path itself
             dir_refs_updated = self._update_directory_path_references(old_dir, new_dir)
@@ -769,7 +797,10 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
     def _handle_directory_deleted(self, event: FileDeletedEvent):
         """Handle directory deletion with batch move detection."""
         deleted_dir = self._get_relative_path(event.src_path)
-        self.logger.warning("directory_deleted", deleted_dir=deleted_dir)
+        # PD-BUG-117: INFO — on Windows every directory *move* arrives here first
+        # as a DirDeleted.  Real deletions still surface as warnings downstream
+        # (dir_deletion_no_known_files / unmatched_file_truly_deleted).
+        self.logger.info("directory_deleted", deleted_dir=deleted_dir)
         self._dir_move_detector.handle_directory_deleted(deleted_dir)
 
     def _handle_file_created(self, event: FileCreatedEvent):

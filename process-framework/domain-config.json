@@ -5,7 +5,7 @@
   "domain": "application-development",
   "domain_description": "Application development process framework for software projects",
   "workflow_phases": {
-    "description": "Valid workflow phase identifiers for tasks and context maps",
+    "description": "Valid workflow phase identifiers for tasks",
     "values": [
       "00-setup",
       "01-planning",
@@ -58,7 +58,7 @@
     "description": "Maps ID prefix families to document type labels for script metadata inference",
     "PF": "Process Framework",
     "PD": "Product Documentation",
-    "TE": "Test"
+    "TE": "Testing"
   },
   "framework_metadata": {
     "description": "Domain-agnostic framework settings (rarely need updates)",
@@ -88,7 +88,17 @@
       ],
       "optional": [
         "domain",
-        "change_notes"
+        "change_notes",
+        "description",
+        "use_when",
+        "triggers",
+        "automation",
+        "scripts",
+        "complexity",
+        "frequency",
+        "trigger_status",
+        "output_status",
+        "next_tasks"
       ],
       "field_values": {
         "id_pattern": "^PF-TSK-\\d+$",
@@ -124,7 +134,38 @@
         "workflow_phase",
         "task_name",
         "parent_state",
-        "feature_id"
+        "feature_id",
+        "feature_ids",
+        "variant_group",
+        "variant_siblings",
+        "mode",
+        "extension_name",
+        "extension_description",
+        "extension_scope",
+        "change_name",
+        "documentation_mode",
+        "additional_fields",
+        "refactoring_scope",
+        "target_area",
+        "priority",
+        "automation",
+        "automation_rationale",
+        "feature_name",
+        "audit_date",
+        "auditor",
+        "test_file_id",
+        "tdd_path",
+        "test_tier",
+        "test_name",
+        "test_type",
+        "tier",
+        "handbook_name",
+        "handbook_category",
+        "debt_dim",
+        "debt_location",
+        "debt_priority",
+        "assessment_type",
+        "assessment_scope"
       ],
       "field_values": {
         "id_pattern": "^(PF-TEM-\\d+|TE-STA-\\d+)$",
@@ -139,7 +180,6 @@
           "Technical - Implementation Plans",
           "Refactoring Plan",
           "Assessment",
-          "Context Map",
           "Proposal",
           "Proposal Template",
           "Visualization"
@@ -157,7 +197,9 @@
       ],
       "optional": [
         "related_task",
-        "related_script"
+        "related_script",
+        "description",
+        "change_notes"
       ],
       "field_values": {
         "id_pattern": "^(PF-GDE-\\d+|PF-MTH-\\d+)$",
@@ -170,34 +212,7 @@
           "Template"
         ]
       }
-    },
-    "context_map": {
-      "required": [
-        "id",
-        "type",
-        "category",
-        "version",
-        "created",
-        "updated",
-        "related_task"
-      ],
-      "optional": [
-        "workflow_phase"
-      ],
-      "field_values": {
-        "id_pattern": "^PF-VIS-\\d+$",
-        "type": [
-          "Process Framework"
-        ],
-        "category": [
-          "Context Map"
-        ]
-      }
     }
-  },
-  "ratings_db_path": {
-    "description": "Absolute path to the central ratings database. When set, all projects share one ratings.db instead of maintaining per-project copies.",
-    "value": "C:/Users/ronny/VS_Code/FrameworkBuilder/appdev/ratings.db"
   },
   "validation_rules": {
     "description": "Rules for Test-ScriptDomainAlignment.ps1 validation",

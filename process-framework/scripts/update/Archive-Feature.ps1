@@ -31,10 +31,10 @@ Date of archival (optional — defaults to current date in yyyy-MM-dd format)
 If specified, shows what would be changed without modifying any files
 
 .EXAMPLE
-.\Archive-Feature.ps1 -FeatureId "4.1.1" -Rationale "Generalized into framework" -Replacement "[Testing Setup Guide](path)" -Confirm:$false
+Archive-Feature.ps1 -FeatureId "4.1.1" -Rationale "Generalized into framework" -Replacement "[Testing Setup Guide](path)" -Confirm:$false
 
 .EXAMPLE
-.\Archive-Feature.ps1 -FeatureId "4.1.1" -Rationale "Generalized into framework" -Replacement "[Guide](path)" -DryRun
+Archive-Feature.ps1 -FeatureId "4.1.1" -Rationale "Generalized into framework" -Replacement "[Guide](path)" -DryRun
 
 .NOTES
 Addresses: PF-IMP-178 (separate archived features from active features table)
@@ -86,32 +86,6 @@ $ProjectRoot = Get-ProjectRoot
 $TrackingFile = Join-Path -Path $ProjectRoot -ChildPath "doc/state-tracking/permanent/feature-tracking.md"
 $CurrentDate = if ($ArchiveDate) { $ArchiveDate } else { Get-Date -Format "yyyy-MM-dd" }
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 function Update-ArchivedSummaryCount {
     param([string]$Content)
 
@@ -127,7 +101,7 @@ function Update-ArchivedSummaryCount {
     # Update the <summary> tag
     $result = $Content -replace '(?<=Show archived features \()\d+(?= items?\))', $count.ToString()
 
-    Write-Log "Updated archived features summary count to $count items" -Level "SUCCESS"
+    Write-ProjectLog "Updated archived features summary count to $count items" -Level "SUCCESS"
     return $result
 }
 
@@ -162,14 +136,14 @@ function Add-UpdateHistoryEntry {
     }
 
     if ($insertAfterIndex -eq -1) {
-        Write-Log "Could not find Update History table" -Level "ERROR"
+        Write-ProjectLog "Could not find Update History table" -Level "ERROR"
         return $null
     }
 
     $historyRow = "| $CurrentDate | Archived feature ${FeatureId}: $Rationale | [Archive-Feature.ps1](../../../process-framework/scripts/update/Archive-Feature.ps1) |"
     $lines.Insert($insertAfterIndex + 1, $historyRow)
 
-    Write-Log "Added Update History entry" -Level "SUCCESS"
+    Write-ProjectLog "Added Update History entry" -Level "SUCCESS"
     return ($lines -join "`r`n")
 }
 
@@ -200,7 +174,7 @@ function Remove-EmptyCategorySection {
     }
 
     if ($featureCategoriesStart -eq -1) {
-        Write-Log "No '## Feature Categories' section found" -Level "INFO"
+        Write-ProjectLog "No '## Feature Categories' section found" -Level "INFO"
         return $Content
     }
     if ($featureCategoriesEnd -eq -1) { $featureCategoriesEnd = $lines.Count }
@@ -245,7 +219,7 @@ function Remove-EmptyCategorySection {
     }
 
     if ($blockStart -eq -1) {
-        Write-Log "No empty category section found to remove" -Level "INFO"
+        Write-ProjectLog "No empty category section found to remove" -Level "INFO"
         return $Content
     }
 
@@ -255,13 +229,13 @@ function Remove-EmptyCategorySection {
         $removeEnd++
     }
     $lines.RemoveRange($blockStart, $removeEnd - $blockStart + 1)
-    Write-Log "Removed empty category section: $sectionTitle" -Level "SUCCESS"
+    Write-ProjectLog "Removed empty category section: $sectionTitle" -Level "SUCCESS"
 
     # Remove the corresponding ToC entry
     for ($i = 0; $i -lt $lines.Count; $i++) {
         if ($lines[$i] -match '^\s*-\s*\[' -and $lines[$i] -match [regex]::Escape($sectionTitle)) {
             $lines.RemoveAt($i)
-            Write-Log "Removed ToC entry for: $sectionTitle" -Level "SUCCESS"
+            Write-ProjectLog "Removed ToC entry for: $sectionTitle" -Level "SUCCESS"
             break
         }
     }
@@ -272,17 +246,17 @@ function Remove-EmptyCategorySection {
 # --- Main ---
 
 function Main {
-    Write-Log "Starting Feature Archival - Archive-Feature.ps1"
-    Write-Log "Feature ID: $FeatureId"
-    Write-Log "Rationale: $Rationale"
+    Write-ProjectLog "Starting Feature Archival - Archive-Feature.ps1"
+    Write-ProjectLog "Feature ID: $FeatureId"
+    Write-ProjectLog "Rationale: $Rationale"
 
     if (-not (Test-Path $TrackingFile)) {
-        Write-Log "Feature tracking file not found: $TrackingFile" -Level "ERROR"
+        Write-ProjectLog "Feature tracking file not found: $TrackingFile" -Level "ERROR"
         exit 1
     }
 
     if ($DryRun) {
-        Write-Log "DRY RUN MODE - No files will be modified" -Level "WARN"
+        Write-ProjectLog "DRY RUN MODE - No files will be modified" -Level "WARN"
     }
 
     if (-not $DryRun -and -not $PSCmdlet.ShouldProcess($TrackingFile, "Archive feature $FeatureId")) {
@@ -317,23 +291,23 @@ function Main {
         -SectionEndPattern '^## Archived Features'
 
     if ($null -eq $result.Content) {
-        Write-Log "Failed to move feature $FeatureId to Archived Features section" -Level "ERROR"
+        Write-ProjectLog "Failed to move feature $FeatureId to Archived Features section" -Level "ERROR"
         if ($result.SourceRow) {
-            Write-Log "Source row was found but insertion failed. Check destination section exists." -Level "ERROR"
+            Write-ProjectLog "Source row was found but insertion failed. Check destination section exists." -Level "ERROR"
         }
         exit 1
     }
 
     $content = $result.Content
-    Write-Log "Moved feature $FeatureId from active table to Archived Features" -Level "SUCCESS"
-    Write-Log "  Source row: $($result.SourceRow)" -Level "INFO"
-    Write-Log "  Destination row: $($result.DestinationRow)" -Level "INFO"
+    Write-ProjectLog "Moved feature $FeatureId from active table to Archived Features" -Level "SUCCESS"
+    Write-ProjectLog "  Source row: $($result.SourceRow)" -Level "INFO"
+    Write-ProjectLog "  Destination row: $($result.DestinationRow)" -Level "INFO"
 
     # Step 2: Remove empty category section if the archived feature was the last one
     $content = Remove-EmptyCategorySection -Content $content -FeatureId $FeatureId
 
     if ($DryRun) {
-        Write-Log "DRY RUN complete. No files modified." -Level "WARN"
+        Write-ProjectLog "DRY RUN complete. No files modified." -Level "WARN"
         return
     }
 
@@ -342,22 +316,22 @@ function Main {
 
     # Step 4: Recalculate Progress Summary
     $content = Update-FeatureTrackingSummary -Content $content
-    Write-Log "Recalculated Progress Summary" -Level "SUCCESS"
+    Write-ProjectLog "Recalculated Progress Summary" -Level "SUCCESS"
 
     # Step 5: Add Update History entry
     $content = Add-UpdateHistoryEntry -Content $content -FeatureId $FeatureId -Rationale $Rationale
     if ($null -eq $content) {
-        Write-Log "Failed to add Update History entry" -Level "ERROR"
+        Write-ProjectLog "Failed to add Update History entry" -Level "ERROR"
         exit 1
     }
 
     # Step 6: Update frontmatter date
-    $content = $content -replace '(?m)(?<=^updated:\s*)\d{4}-\d{2}-\d{2}', $CurrentDate
-    Write-Log "Updated frontmatter date to $CurrentDate" -Level "SUCCESS"
+    $content = Update-FrontmatterDate -Content $content -CurrentDate $CurrentDate
+    Write-ProjectLog "Updated frontmatter date to $CurrentDate" -Level "SUCCESS"
 
     # Write
     Set-Content -Path $TrackingFile -Value $content -NoNewline
-    Write-SummaryLine "Feature $FeatureId → archived"
+    Write-ProjectSummary "Feature $FeatureId → archived"
 }
 
 # Execute main function with soak-verification wrapper (PF-PRO-028 v2.0)

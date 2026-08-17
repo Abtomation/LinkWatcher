@@ -196,9 +196,13 @@ function Get-DirectoryTreeString {
     $dirs = Get-ChildItem -Path $RootPath -Directory | Sort-Object Name
     $files = Get-ChildItem -Path $RootPath -File | Sort-Object Name
 
+    # Skip runtime/cache artifacts — shared exclusion via the canonical
+    # Get-NonFeatureTestDir helper so this source-tree skip cannot diverge from
+    # Validate-StateTracking Surface 14 / New-TestInfrastructure.ps1 (PF-IMP-1152).
+    $runtimeCacheDirs = Get-NonFeatureTestDir -Scope RuntimeCache
+
     foreach ($d in $dirs) {
-        # Skip __pycache__ and other common generated dirs
-        if ($d.Name -eq "__pycache__" -or $d.Name -eq ".git" -or $d.Name -eq "node_modules" -or $d.Name -eq ".venv" -or $d.Name -eq "venv") {
+        if ($runtimeCacheDirs -contains $d.Name) {
             continue
         }
         $output += "$prefix$($d.Name)/"
@@ -405,7 +409,7 @@ if ($Scaffold) {
             "1. Complete the Dependency Flow section in source-code-layout.md",
             "2. Complete the File Placement Decision Tree section",
             "3. Validate no application source files exist at repository root",
-            "4. See process-framework/guides/00-setup/source-code-layout-guide.md for guidance"
+            "4. See the source-layout craft skill (.claude/skills/source-layout/SKILL.md) for guidance"
         )
     }
     Write-ProjectSuccess -Message "Source structure scaffold complete" -Details $details

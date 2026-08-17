@@ -6,7 +6,6 @@ version: 1.0
 created: 2026-02-20
 updated: 2026-02-20
 related_task: PF-TSK-064,PF-TSK-013,PF-TSK-067
-guide_title: Feature Granularity Guide
 description: "Defines well-scoped features and provides practical tests for validating feature granularity"
 ---
 
@@ -33,6 +32,12 @@ Use this guide whenever you are:
 ## What Is a Feature?
 
 A feature is **a cohesive unit of functionality that you would plan, track, and discuss as a single item**. It represents a capability of the system, not an implementation detail.
+
+### Name by Capability, Not Interface
+
+Name a feature for the **capability it delivers**, not the interface technology that exposes it — "Authentication", "Search", "Notification Service", not "UI", "CLI", or "API". An interface is a *dimension* of a feature, not a feature (or category) in its own right: a feature's user interface belongs to that feature and is captured in its UI Design (PD-UIX-NNN), the same way its API or command-line surface is part of the feature it serves.
+
+A UI surface that is itself a distinct capability is the exception — a standalone screen or control surface that stands on its own (e.g. a control panel hosting several panes) *is* a feature, named for what it does ("Control Panel", "Settings"). For when shared UI infrastructure belongs to a feature versus the application shell, see the [App-Shell vs Feature-Views Convention](../02-design/app-shell-vs-feature-views-convention-guide.md).
 
 ### Three Validation Tests
 

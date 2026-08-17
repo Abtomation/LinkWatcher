@@ -36,7 +36,7 @@ The new lifecycle status for the test. Valid values:
 .PARAMETER TestFile
 Path to the test file (relative to project root, with markdown link format).
 Required when transitioning to Created.
-Example: "[test_benchmark.py](/test/automated/performance/test_benchmark.py)"
+Example: "[test_parser_throughput.py](/test/automated/performance/level1-component/test_parser_throughput.py)"
 
 .PARAMETER Baseline
 Baseline measurement value with units.
@@ -190,41 +190,15 @@ $ValidTransitions = @{
     "NeedsRebaseline" = @("Baselined")
 }
 
-function Write-Log {
-    # Default-quiet logger. INFO/SUCCESS go to Write-Verbose (visible only with -Verbose).
-    # WARN/ERROR are always emitted to host. The single per-invocation summary line
-    # is emitted directly via Write-SummaryLine, bypassing this gate.
-    param([string]$Message, [string]$Level = "INFO")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $line = "[$timestamp] [$Level] $Message"
-    switch ($Level) {
-        "ERROR"   { Write-Host $line -ForegroundColor Red }
-        "WARN"    { Write-Host $line -ForegroundColor Yellow }
-        default   { Write-Verbose $line }
-    }
-}
-
-function Write-SummaryLine {
-    # One-line visible outcome per invocation. Bypasses Write-Log's default-quiet gate.
-    param([string]$Message, [string]$Level = "SUCCESS")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $color = switch ($Level) {
-        "ERROR"   { "Red" }
-        "WARN"    { "Yellow" }
-        default   { "Green" }
-    }
-    Write-Host "[$timestamp] [$Level] $Message" -ForegroundColor $color
-}
-
 function Test-Prerequisites {
-    Write-Log "Checking prerequisites..."
+    Write-ProjectLog "Checking prerequisites..."
 
     if (-not (Test-Path $TrackingFile)) {
-        Write-Log "Performance test tracking file not found: $TrackingFile" -Level "ERROR"
+        Write-ProjectLog "Performance test tracking file not found: $TrackingFile" -Level "ERROR"
         return $false
     }
 
-    Write-Log "Prerequisites check passed" -Level "SUCCESS"
+    Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
     return $true
 }
 
@@ -252,7 +226,7 @@ function Resolve-TestRow {
 
     $candidates = @($Rows | Where-Object { $_.'Test ID' -eq $TestId })
     if ($candidates.Count -eq 0) {
-        Write-Log "Test entry not found: $TestId" -Level "ERROR"
+        Write-ProjectLog "Test entry not found: $TestId" -Level "ERROR"
         return $null
     }
 
@@ -260,7 +234,7 @@ function Resolve-TestRow {
         $exact = $candidates | Where-Object { $_.Metric -eq $Metric } | Select-Object -First 1
         if (-not $exact) {
             $available = ($candidates | ForEach-Object { $_.Metric } | Where-Object { $_ }) -join ', '
-            Write-Log "Test entry not found: $TestId [Metric=$Metric]. Available metrics: $available" -Level "ERROR"
+            Write-ProjectLog "Test entry not found: $TestId [Metric=$Metric]. Available metrics: $available" -Level "ERROR"
             return $null
         }
         return $exact
@@ -268,7 +242,7 @@ function Resolve-TestRow {
 
     if ($candidates.Count -gt 1) {
         $available = ($candidates | ForEach-Object { $_.Metric } | Where-Object { $_ }) -join ', '
-        Write-Log "Test $TestId has multiple metric rows ($available); specify -Metric to disambiguate" -Level "ERROR"
+        Write-ProjectLog "Test $TestId has multiple metric rows ($available); specify -Metric to disambiguate" -Level "ERROR"
         return $null
     }
 
@@ -292,30 +266,30 @@ function Update-TestEntryContent {
     }
 
     $rowLabel = if ($row.Metric -and $row.Metric -ne '—') { "$TestId [$($row.Metric)]" } else { $TestId }
-    Write-Log "Found test entry for $rowLabel"
+    Write-ProjectLog "Found test entry for $rowLabel"
     $currentEntry = $row._RawLine
 
     # Parse using Split-MarkdownTableRow
     $columns = Split-MarkdownTableRow -Line $currentEntry
     if ($null -eq $columns -or $columns.Count -lt 11) {
-        Write-Log "Failed to parse table row for $rowLabel (expected 12 columns, got $($columns.Count))" -Level "ERROR"
+        Write-ProjectLog "Failed to parse table row for $rowLabel (expected 12 columns, got $($columns.Count))" -Level "ERROR"
         return $null
     }
 
     # Determine current status and validate transition
     $currentStatus = Get-CurrentStatus -StatusCell $columns[4]
     if ($null -eq $currentStatus) {
-        Write-Log "Could not determine current status from cell: '$($columns[4])'" -Level "ERROR"
+        Write-ProjectLog "Could not determine current status from cell: '$($columns[4])'" -Level "ERROR"
         return $null
     }
 
     $allowedTargets = $ValidTransitions[$currentStatus]
     if ($NewStatus -notin $allowedTargets) {
-        Write-Log "Invalid transition: $currentStatus → $NewStatus. Allowed: $($allowedTargets -join ', ')" -Level "ERROR"
+        Write-ProjectLog "Invalid transition: $currentStatus → $NewStatus. Allowed: $($allowedTargets -join ', ')" -Level "ERROR"
         return $null
     }
 
-    Write-Log "Status transition: $($StatusEmojis[$currentStatus]) $($StatusDisplay[$currentStatus]) → $($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])"
+    Write-ProjectLog "Status transition: $($StatusEmojis[$currentStatus]) $($StatusDisplay[$currentStatus]) → $($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])"
 
     # Update status column
     $columns[4] = "$($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])"
@@ -334,7 +308,7 @@ function Update-TestEntryContent {
     $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
-    Write-Log "Updated ${rowLabel}: $($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])" -Level "SUCCESS"
+    Write-ProjectLog "Updated ${rowLabel}: $($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])" -Level "SUCCESS"
     return $result
 }
 
@@ -401,7 +375,7 @@ function Update-SummaryTableContent {
     # to inventory table headers that also contain the literal "Operation").
     $summaryStart = $Content.IndexOf("## Summary")
     if ($summaryStart -lt 0) {
-        Write-Log "Summary section not found in tracking file — skipping summary update" -Level "WARN"
+        Write-ProjectLog "Summary section not found in tracking file — skipping summary update" -Level "WARN"
         return $Content
     }
     $nextHeader = [regex]::Match($Content.Substring($summaryStart + 1), "(?m)^##\s")
@@ -427,15 +401,15 @@ function Update-SummaryTableContent {
 
     $Content = $preamble + $summary + $postamble
 
-    Write-Log "Updated Summary table: $($t.Total) total ($($t.Baselined) baselined, $($t.NeedsBaseline) needs baseline, $($t.NeedsCreation) needs creation, $($t.NeedsRebaseline) needs re-baseline)" -Level "SUCCESS"
+    Write-ProjectLog "Updated Summary table: $($t.Total) total ($($t.Baselined) baselined, $($t.NeedsBaseline) needs baseline, $($t.NeedsCreation) needs creation, $($t.NeedsRebaseline) needs re-baseline)" -Level "SUCCESS"
     return $Content
 }
 
 function Main {
-    Write-Log "Starting Performance Tracking Update - $ScriptName"
-    Write-Log "Test ID: $TestId"
-    if ($Metric) { Write-Log "Metric: $Metric" }
-    Write-Log "New Status: $NewStatus"
+    Write-ProjectLog "Starting Performance Tracking Update - $ScriptName"
+    Write-ProjectLog "Test ID: $TestId"
+    if ($Metric) { Write-ProjectLog "Metric: $Metric" }
+    Write-ProjectLog "New Status: $NewStatus"
 
     if (-not (Test-Prerequisites)) {
         exit 1
@@ -445,7 +419,7 @@ function Main {
     switch ($NewStatus) {
         "NeedsBaseline" {
             if (-not $TestFile) {
-                Write-Log "TestFile is required when transitioning to NeedsBaseline status" -Level "ERROR"
+                Write-ProjectLog "TestFile is required when transitioning to NeedsBaseline status" -Level "ERROR"
                 exit 1
             }
         }
@@ -459,12 +433,12 @@ function Main {
                 $currentStatus = Get-CurrentStatus -StatusCell $tempColumns[4]
                 # Baseline is required when transitioning FROM NeedsBaseline or NeedsRebaseline
                 if ($currentStatus -in @("NeedsBaseline", "NeedsRebaseline") -and -not $Baseline) {
-                    Write-Log "Baseline is required when transitioning from $($StatusDisplay[$currentStatus]) to Baselined" -Level "ERROR"
+                    Write-ProjectLog "Baseline is required when transitioning from $($StatusDisplay[$currentStatus]) to Baselined" -Level "ERROR"
                     exit 1
                 }
                 # When refreshing (Baselined → Baselined), LastResult is required
                 if ($currentStatus -eq "Baselined" -and -not $LastResult) {
-                    Write-Log "LastResult is required when refreshing a Baselined test" -Level "ERROR"
+                    Write-ProjectLog "LastResult is required when refreshing a Baselined test" -Level "ERROR"
                     exit 1
                 }
             }
@@ -492,7 +466,7 @@ function Main {
     # Step 1: Update the test entry row
     $content = Update-TestEntryContent -Content $content -TestId $TestId -Metric $Metric -NewStatus $NewStatus -UpdateData $updateData
     if ($null -eq $content) {
-        Write-Log "Performance tracking update failed" -Level "ERROR"
+        Write-ProjectLog "Performance tracking update failed" -Level "ERROR"
         exit 1
     }
 
@@ -503,9 +477,9 @@ function Main {
     $rowLabel = if ($Metric) { "$TestId [$Metric]" } else { $TestId }
     if ($PSCmdlet.ShouldProcess($TrackingFile, "Update $rowLabel to $NewStatus")) {
         Set-Content -Path $TrackingFile -Value $content -NoNewline
-        Write-SummaryLine "$rowLabel → $NewStatus"
+        Write-ProjectSummary "$rowLabel → $NewStatus"
     } else {
-        Write-Log "Dry-run complete — no file changes written" -Level "INFO"
+        Write-ProjectLog "Dry-run complete — no file changes written" -Level "INFO"
     }
     exit 0
 }

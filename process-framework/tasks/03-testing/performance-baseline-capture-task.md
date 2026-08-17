@@ -5,11 +5,23 @@ category: Task Definition
 domain: agnostic
 version: 1.3
 created: 2026-04-09
-updated: 2026-05-16
+updated: 2026-06-12
 description: "Run performance tests, record results in trend database, update tracking, flag regressions"
+complexity: simple
+use_when: >-
+  Run performance tests, record results in trend database, update tracking, flag regressions
+automation: semi
+scripts:
+  - ../../scripts/update/Update-PerformanceTracking.ps1
+trigger_status:
+  - raw: "`performance-test-tracking.md` → `📋 Needs Baseline` (with `✅ Audit Approved`) or `⚠️ Needs Re-baseline`"
+output_status:
+  - raw: "`performance-test-tracking.md` → `✅ Baselined`; `bug-tracking.md` → `🆕 Needs Triage` (if regression)"
 ---
 
 # Performance Baseline Capture
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -38,11 +50,8 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 - **Reference Only (Access When Needed):**
   - [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) — For filing degradation-related tech debt
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 ## Process
-
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
 
 ### Preparation
 
@@ -60,11 +69,17 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 
 4. **Run performance tests**:
    ```bash
-   # Run all performance tests
-   python -m pytest test/automated/performance/ -v -s -m performance
+   # Run all performance tests — select by directory (marker-independent: catches every level,
+   # including level3-scale / level4-resource, regardless of per-test marker conformance)
+   python -m pytest test/automated/performance -v -s
+
+   # The -m performance filter is a CONFORMANCE filter, not a location selector: it silently
+   # drops any test missing the bare @pytest.mark.performance marker (e.g. a level3-scale test
+   # carrying only test_type("performance")). Use it to verify conformance, not to "run all".
+   python -m pytest test/automated/performance -v -s -m performance
 
    # Or run specific tests by file
-   python -m pytest test/automated/performance/test_benchmark.py -v -s
+   python -m pytest test/automated/performance/level1-component/test_parser_throughput.py -v -s
 
    # Or run by Related Features (if filtering)
    python -m pytest test/automated/performance/ -v -s -k "bm_001 or bm_003"
@@ -109,7 +124,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
 9. **If regressions detected**:
    - Identify the likely cause (recent commits, environmental change)
    - Assess severity: tolerance breach vs. trend degradation
-   - **Tolerance breach** → file as bug via Bug Triage (PF-TSK-024)
+   - **Tolerance breach** → file as bug via Bug Triage (PF-TSK-041)
    - **Trend degradation (>5% over 3+ captures)** → file as tech debt item
    - Present regression analysis to human partner for decision
 
@@ -132,7 +147,7 @@ Unlike Performance Test Creation (which writes test code), this task **executes*
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Baselined" -Baseline "<new baseline>" -LastResult "<measured value>"
 
    # Mark as stale (code changed significantly since last capture)
-   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "Stale"
+   pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "NeedsRebaseline"
    ```
    The script handles status transitions, column updates, LastRun date (auto-populated), and Summary table recalculation automatically.
 
@@ -165,9 +180,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] All targeted tests were run successfully
@@ -177,13 +190,44 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Last Result, Last Run, Status columns updated
   - [ ] Summary table recalculated
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-085" and context "Performance Baseline Capture"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-085`, context "Performance Baseline Capture".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Updates** | [`performance-test-tracking.md`](../../../test/state-tracking/permanent/performance-test-tracking.md) | `Update-PerformanceTracking.ps1` | Status 📋 → ✅, Baseline/Last Result/Last Run columns, summary recalculation |
+| **Updates** | `performance-results.db` | `performance_db.py record` | Record measured values with timestamp for trend analysis |
+| **Updates** | [`bug-tracking.md`](../../../doc/state-tracking/permanent/bug-tracking.md) | Manual (conditional) | If regression detected and filed as bug |
+| **Updates** | [`technical-debt-tracking.md`](../../../doc/state-tracking/permanent/technical-debt-tracking.md) | Manual (conditional) | If trend degradation filed as tech debt |
 
 ## Next Tasks
 
 - **[Code Review](../06-maintenance/code-review-task.md)** — If regressions found, review the causing commits
 - **[Bug Fixing](../06-maintenance/bug-fixing-task.md)** — If regression filed as bug
 - **[Release & Deployment](../07-deployment/release-deployment-task.md)** — If this was a pre-release capture with no regressions
+
+<!-- merged from transition-registry entry: Performance Baseline Capture (PF-TSK-085) -->
+### Prerequisites for Transition
+
+- [ ] All targeted tests run successfully
+- [ ] Results recorded in performance-results.db
+- [ ] performance-test-tracking.md updated with results and status
+- [ ] Regression check completed
+
+### Next Task Selection
+
+```
+What were the results?
+├─ No regressions → Release & Deployment (if release-ready)
+├─ Tolerance breach → Bug Triage (PF-TSK-041)
+└─ Trend degradation → Technical Debt Assessment (or file debt item directly)
+```
+
+### Preparation for Next Task
+
+1. Verify Summary table recalculated in performance-test-tracking.md
+2. Review trend data for key tests
 
 ## Related Resources
 

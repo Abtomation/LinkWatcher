@@ -1,6 +1,8 @@
 ---
 id: TE-E2E-001
-type: E2E Acceptance Test Case
+description: "E2E acceptance test (WF-001): TE-E2E-001 regex preserved on file move."
+type: Testing
+category: E2E Acceptance Test Case
 group: TE-E2G-001
 feature_ids: ["1.1.1", "2.1.1", "2.2.1"]
 workflow: WF-001
@@ -16,7 +18,7 @@ updated: 2026-03-15
 
 ## Preconditions
 
-- [ ] LinkWatcher is running in background (`process-framework/tools/linkWatcher/start_linkwatcher_background.ps1`)
+- [ ] No LinkWatcher instance is watching the workspace — `run.ps1` starts and stops its own workspace-scoped instance via `_lib/lw-e2e-helpers.ps1` (do **not** use `start_linkwatcher_background.ps1`; it ignores `--project-root` and watches the repo root — PD-BUG-053)
 - [ ] Test environment set up via `Setup-TestEnvironment.ps1 -Workflow single-file-move-links-updated`
 - [ ] Workspace contains pristine copy of this test case's fixtures
 
@@ -31,21 +33,21 @@ updated: 2026-03-15
 
 1. **Set up workspace**: Run `Setup-TestEnvironment.ps1 -Workflow single-file-move-links-updated` to copy fixtures into the workspace
    - **Tool**: Command Line
-   - **Target**: `process-framework/scripts/testing/Setup-TestEnvironment.ps1`
+   - **Target**: `process-framework/scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1`
 
 2. **Move the script to a subdirectory**: Drag `Update-Tracking.ps1` from `scripts/update` into a new subdirectory `scripts/update/sub/`
    - **Tool**: File Explorer or VS Code
    - **Target**: `workspace/scripts/update/Update-Tracking.ps1` → `workspace/scripts/update/sub/Update-Tracking.ps1`
 
 3. **Wait**: Allow LinkWatcher to detect the move and process updates
-   - **Duration**: Wait 3–5 seconds for file system events to process
+   - **Duration**: Wait ~12 seconds — the move is detected by delete+create correlation, whose window (`move_detect_delay`) defaults to 10s; `Wait-LinkWatcherSettle` uses 12s
    - **Observe**: LinkWatcher log should show the file move detection
 
 4. **Verify the moved file**: Open `workspace/scripts/update/sub/Update-Tracking.ps1` in a text editor
    - **Tool**: VS Code or any text editor
    - **Target**: `workspace/scripts/update/sub/Update-Tracking.ps1`
 
-5. **Compare against expected state**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-001` or manually compare the file content against `expected/scripts/update/sub/Update-Tracking.ps1`
+5. **Compare against expected state**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-001 -Workflow single-file-move-links-updated` or manually compare the file content against `expected/scripts/update/sub/Update-Tracking.ps1`
    - **Tool**: Command Line or visual diff
    - **Target**: Compare workspace file with expected/ file
 
@@ -65,12 +67,12 @@ See `expected/` directory for complete post-test file state.
 ### Behavioral Outcomes
 
 - LinkWatcher log shows the file move was detected
-- Log shows "Updated 1 relative link(s) in moved file" (only the real path)
+- Log shows `moved_file_links_updated` for `Update-Tracking.ps1` with `links_updated=1` — only the real path was rewritten (regex targets do not exist on disk, so they are skipped)
 - No errors or warnings about regex pattern targets
 
 ## Verification Method
 
-- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-001` — compares workspace against `expected/`
+- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-001 -Workflow single-file-move-links-updated` — compares workspace against `expected/` (`-TestCase` without `-Workflow` is rejected)
 - [ ] **Visual inspection**: Open the moved file and confirm all three regex patterns are byte-identical to the original, and the real path gained an extra `../`
 
 ## Pass Criteria

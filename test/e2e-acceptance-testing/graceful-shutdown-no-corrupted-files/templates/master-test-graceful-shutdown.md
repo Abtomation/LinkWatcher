@@ -1,6 +1,8 @@
 ---
 id: TE-E2G-010
-type: E2E Acceptance Test Group
+description: "E2E acceptance test (WF-008): graceful-shutdown."
+type: Testing
+category: E2E Acceptance Test Group
 feature_ids: ["0.1.1", "2.2.1", "0.1.2"]
 workflow: WF-008
 test_cases_count: 2

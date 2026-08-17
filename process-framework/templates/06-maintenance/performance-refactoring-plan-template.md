@@ -8,7 +8,7 @@ updated: 2026-04-10
 usage_context: Process Framework - Refactoring Plan Creation
 description: Refactoring plan for performance-focused changes. Replaces code quality metrics with performance baselines (user-defined metrics such as I/O counts, timing, throughput, memory, or algorithmic complexity).
 creates_document_category: Refactoring Plan
-creates_document_type: Process Framework
+creates_document_type: Product Documentation
 creates_document_version: 1.0
 template_for: Refactoring Plan
 creates_document_prefix: PF-REF

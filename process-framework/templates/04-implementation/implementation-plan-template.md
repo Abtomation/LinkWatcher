@@ -1,12 +1,14 @@
 ---
-id: PD-IMP-XXX
+id: PF-TEM-093
 type: Process Framework
 category: Technical - Implementation Plans
-version: 1.0
+version: 1.1
 created: [CREATION_DATE]
 updated: [LAST_UPDATE_DATE]
 feature_name: [Feature Name]
 feature_id: [Feature ID if available]
+creates_document_type: Product Documentation
+creates_document_category: Implementation
 description: "Template for creating implementation plan documents that define sequenced execution strategies for feature implementation"
 ---
 
@@ -18,7 +20,6 @@ Provide a high-level overview of the feature being implemented, including its st
 
 **Key Metrics:**
 - Estimated implementation duration: [X hours/days]
-- Team size required: [X] engineers
 - Complexity level: [Low/Medium/High]
 - Risk level: [Low/Medium/High]
 
@@ -38,46 +39,25 @@ Summarize the key functional and non-functional requirements:
 - **Non-Functional Requirements**: Performance, security, scalability expectations
 - **Constraints**: Technical, time, or resource constraints
 
-### Stakeholders and Roles
+## Architecture Context
 
-Identify key stakeholders and their involvement:
-- **Product Owner**: [Name/Role]
-- **Tech Lead**: [Name/Role]
-- **QA Lead**: [Name/Role]
-- **Other stakeholders**: [List with roles]
+> This plan **sequences** the build; it does not restate the design. Technical design, API contracts, data model, and UI specifications are owned by their own documents — summarize only what changes the order, dependencies, or risk of the work, and link the rest.
 
-## Architecture and Design
+### Build Footprint
 
-### System Architecture
-
-Describe the overall architecture design including:
-- Layers affected (Data, State Management, UI)
+Describe what the implementation touches:
+- New components to create (module/file granularity)
+- Existing components to modify
 - Integration points with existing systems
-- New vs. modified components
+- Layers or subsystems affected — omit those the feature has none of
 
-### Data Layer Design
+### Design Inputs
 
-Detail the database and data model changes:
-- New tables/collections needed
-- Data migrations required
-- Schema changes and relationships
-- Data validation rules
+Link each design document that governs this implementation, with the sections the plan sequences against:
 
-### State Management Design
-
-Describe state management architecture:
-- Component structure and hierarchy
-- State management patterns
-- Dependency management between components
-- Side effect handling strategy
-
-### UI/UX Design
-
-Outline screen layouts and user interactions:
-- New screens/pages required
-- UI component hierarchy
-- Navigation flow
-- User interaction patterns
+| Design Document | ID | Governs |
+|---|---|---|
+| [Document name](path) | [PD-XXX-NNN] | [Which part of the build it specifies] |
 
 ## Implementation Approach
 
@@ -197,11 +177,8 @@ Define code quality expectations:
 
 ### Performance Requirements
 
-Specify performance expectations:
-- Screen load time targets: [X ms]
-- API response time targets: [X ms]
-- Memory usage limits: [X MB]
-- Database query performance: [Key queries and targets]
+Specify the performance expectations the design sets for *this* feature — latency, throughput, resource ceilings, or whatever the feature is actually measured on:
+- [Metric]: [Target]
 
 ### Security Requirements
 
@@ -215,9 +192,9 @@ Document security considerations:
 
 ### Deployment Strategy
 
-Describe deployment approach:
-- Deployment environment sequence (dev → test → prod)
-- Database migration approach
+Describe how the finished feature reaches users:
+- How it ships (install/package/environment sequence — whatever the project's release path is)
+- Data or state migration, if the feature persists anything
 - Feature flag strategy (if applicable)
 - Rollback criteria
 
@@ -226,19 +203,18 @@ Describe deployment approach:
 Document rollback strategy:
 - Rollback triggers
 - Rollback steps
-- Data consistency verification
+- State consistency after rollback (if the feature persists data)
 - Rollback testing approach
 
 ## Implementation Artifacts
 
 ### Code Deliverables
 
-List code components to be created:
-- **Data models**: [File locations]
-- **Repositories**: [File locations]
-- **State management**: [File locations]
-- **Widgets**: [File locations]
+Name the code artifacts this implementation produces, grouped the way the codebase is organized (modules, packages, services, screens — whatever fits):
+- **[Group]**: [File locations]
 - **Tests**: [File locations]
+
+> The per-phase file-to-task mapping lives in the feature state file's File and Component Context — list deliverables here, not that mapping.
 
 ### Documentation Deliverables
 
@@ -260,30 +236,25 @@ Document testing deliverables:
 
 ### Completion Criteria
 
-Define what "done" means:
-- All code written and reviewed
-- All tests passing
-- Code coverage at [X%]
-- Documentation complete
-- QA sign-off obtained
-- Performance benchmarks met
+Define what "done" means **for this feature** — the measurable outcomes, not the generic gates below:
+- [Acceptance criteria closed by passing tests]
+- [Critical-dimension gates met]
+- [Coverage / performance targets, where the design set them]
 
 ### Handoff Checklist
 
-Items to complete before handoff:
-- [ ] All code merged to main branch
-- [ ] All tests passing in CI/CD
-- [ ] Documentation reviewed and approved
-- [ ] Performance testing completed
-- [ ] Security review completed
-- [ ] Stakeholder sign-off obtained
+- [ ] All code written and reviewed (Code Review, PF-TSK-005)
+- [ ] All tests passing
+- [ ] Feature state file updated through implementation
+- [ ] Documentation deliverables complete
+- [ ] Human partner sign-off
 
 ## Related Documentation
 
-- [Feature Specification](../specifications/[feature-name]-specification.md)
-- [Feature Implementation State](../state-tracking/[feature-id]-state.md)
+- [Feature Specification](../../functional-design/fdds/[feature-name]-fdd.md)
+- [Feature Implementation State](../../state-tracking/features/[feature-id]-implementation-state.md)
 - [Task Definition: Feature Implementation Planning](../../tasks/04-implementation/feature-implementation-planning-task.md)
-- [Architecture Documentation](../technical/architecture/[feature-name]-architecture.md)
+- [Architecture Documentation](../architecture/[feature-name]-architecture.md)
 
 ---
 

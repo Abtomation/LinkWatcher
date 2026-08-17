@@ -1,5 +1,6 @@
 ---
 id: PD-INT-005
+description: "WF-009 validation mode: how Core Architecture, Configuration System, Parser Framework, and Link Validation collaborate when `python main.py --validate` performs a read-only workspace scan and writes `logs/linkwatcher/LinkWatcherBrokenLinks.txt` — standalone from the live-watching pipeline (no lock, no observer, no service, no database)"
 type: Product Documentation
 category: Integration Narrative
 version: 1.0

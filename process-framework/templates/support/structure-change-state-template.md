@@ -1,5 +1,5 @@
 ---
-id: [DOCUMENT-ID]
+id: PF-TEM-106
 type: Process Framework
 category: Template
 version: 1.0
@@ -12,6 +12,8 @@ variant_siblings:
   - structure-change-state-framework-extension-template.md
   - structure-change-state-from-proposal-template.md
   - structure-change-state-rename-template.md
+creates_document_type: Process Framework
+creates_document_category: State Tracking
 description: "Template for tracking multi-session structure change implementation"
 ---
 
@@ -21,7 +23,7 @@ description: "Template for tracking multi-session structure change implementatio
 
 ## Structure Change Overview
 - **Change Name**: [Change Name]
-- **Change ID**: [To be assigned - SC-XXX format]
+- **Change ID**: [The PF-STA-NNN ID assigned to this state file]
 - **Proposal Document**: [Link to structure-change-proposal document]
 - **Change Type**: [Template Update/Directory Reorganization/Metadata Structure/Documentation Architecture/Content Update]
 - **Scope**: [Brief description of what's being changed]
@@ -99,16 +101,16 @@ Document the before/after structure:
 
 - [ ] **Template Updates**: Update or create new templates using established processes
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-  - **Delegated To**: [Template Development Guide + New-Template.ps1 / PF-TSK-014 direct]
+  - **Delegated To**: [`template-development` craft skill + New-Template.ps1 / PF-TSK-014 direct]
   - **Dependencies**: Proposal approved, new structure defined
-  - **Process**: Use [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) for new templates, follow [Template Development Guide](../../guides/support/template-development-guide.md) for updates
+  - **Process**: Use [New-Template.ps1](../../scripts/file-creation/support/New-Template.ps1) for new templates, apply the [`template-development` craft skill](../../../.claude/skills/template-development/SKILL.md) for updates
   - **Notes**: Update templates before migrating content to ensure consistency
 
 - [ ] **Script Updates**: Update or create automation scripts
   - **Status**: [NOT_STARTED/IN_PROGRESS/COMPLETED]
-  - **Delegated To**: [Document Creation Script Development Guide / PF-TSK-014 direct]
+  - **Delegated To**: [`creation-script-development` craft skill / PF-TSK-014 direct]
   - **Dependencies**: Template updates completed
-  - **Process**: Use [Document Creation Script Development Guide](../../guides/support/document-creation-script-development-guide.md)
+  - **Process**: Apply the [`creation-script-development` craft skill](../../../.claude/skills/creation-script-development/SKILL.md)
   - **Notes**: Ensure scripts work with new structure before content migration
 
 - [ ] **Guide Updates**: Update documentation guides

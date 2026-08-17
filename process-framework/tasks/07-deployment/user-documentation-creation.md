@@ -5,17 +5,35 @@ category: Task Definition
 domain: agnostic
 version: 1.1
 created: 2026-03-27
-updated: 2026-05-16
+updated: 2026-06-12
 description: "Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates"
+complexity: medium
+use_when: >-
+  Feature introduces or changes user-visible behavior and needs handbook/quick-reference/README updates
+automation: partial
+scripts:
+  - ../../scripts/file-creation/07-deployment/New-Handbook.ps1
+  - ../../scripts/update/Update-UserDocumentationState.ps1
+trigger_status:
+  - raw: "Feature impl state file → User Documentation = `❌ Needed`"
+output_status:
+  - raw: "Feature impl state file → Documentation Inventory → handbook link added"
+next_tasks:
+  - task: release-deployment-task.md
+    condition: "User documentation should be complete before release"
+  - task: ../06-maintenance/code-review-task.md
+    condition: "Review documentation accuracy if changes are substantial"
 ---
 
 # User Documentation Creation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
 Create or update user-facing product documentation (handbooks, quick-reference guides, README sections) when features introduce or change user-visible behavior. This task ensures that implemented functionality is discoverable and usable by end users, closing the gap between feature implementation and user awareness.
 
-**Focus**: Produce clear, action-oriented documentation written from the user's perspective — not developer documentation or design docs (those are handled by implementation and design tasks).
+**Focus**: Produce clear, action-oriented documentation written from the user's perspective — describe the product **as the user encounters it once installed or deployed**: its commands, configuration files, and supported interfaces. This is not developer documentation or design docs (those are handled by implementation and design tasks); it documents the product's interfaces rather than how its source tree is organized.
 
 ## AI Agent Role
 
@@ -33,7 +51,6 @@ Create or update user-facing product documentation (handbooks, quick-reference g
   - **Feature implementation state file** (`doc/state-tracking/features`) — Understand what was implemented, key components, configuration options
   - **Existing handbooks directory** (`doc/user/handbooks`) — Understand current structure and content to avoid duplication
   - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Identify which features need user documentation
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
 
 - **Important (Load If Space):**
 
@@ -47,8 +64,6 @@ Create or update user-facing product documentation (handbooks, quick-reference g
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **⚠️ MANDATORY: Use the handbook creation script where indicated.**
 >
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
@@ -103,24 +118,23 @@ Create or update user-facing product documentation (handbooks, quick-reference g
    - **`how-to/`** — Task-oriented. Start with the goal, list the practical steps, finish with the result. Assume a competent user.
    - **`reference/`** — Information-oriented. Complete, accurate, minimal interpretation. Facts the user needs to look up: CLI options, config keys, defaults, error codes, schemas.
    - **`explanation/`** — Understanding-oriented. Background, context, architecture, trade-offs, "why." No step-by-step instructions.
-   - Verify all CLI options, config keys, and defaults against the actual source code regardless of content type
+   - Verify all CLI options, config keys, and defaults against the actual implementation, and confirm every path, command, and example matches the **installed/deployed** product a user actually runs — not a dev-checkout path or a source file
+   - **If the handbooks ship to a deploy location whose layout differs from the repo**: keep intra-handbook links **relative** (so they resolve in both the repo and the deployed copy), reference the install root via a placeholder / install-dir variable rather than a hard-coded absolute path, and anchor instructions to config keys / CLI rather than repo paths. Let the **project's own link-validation tooling** handle deploy-layout link resolution; don't rebase every handbook link onto the deployed shape, since the install root rarely maps uniformly onto the repo.
 8. **Update README.md** (if applicable): Add or update feature entries in the main README's documentation table or feature list
 9. **🚨 CHECKPOINT**: Present draft documentation to human partner for review — focus on accuracy, completeness, content-type fit (does each doc stay within its Diátaxis lane?), and clarity
 
 ### Finalization
 
-10. **Update state files** for each handbook created, using the automation script:
+10. **Update state files**. When this round is cross-handbook maintenance (de-duplication, drift fixes) with no owning feature, Steps 10–11 are N/A — there is no feature state file to update, and the deliverable is the edited handbooks plus their frontmatter version bumps. Otherwise, for each handbook created, use the automation script:
     ```bash
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-UserDocumentationState.ps1 -FeatureId "X.Y.Z" -HandbookName "Feature Name" -HandbookPath "doc/user/handbooks/how-to/filename.md" -HandbookId "PD-UGD-XXX" -ContentType "how-to" -Description "One-line description"
     ```
     This automates updates to:
     - Feature implementation state file (appends handbook row to `### User Documentation` table with Content Type column, updates per-type status)
-    > **Note**: PD-documentation-map.md is already updated by `New-Handbook.ps1` — no separate action needed.
-    >
     > **Multi-type features**: Run the update script once per created handbook. Feature status stays at `📖 Needs User Docs` until ALL identified content types are `✅ Created`.
 11. **Update feature status to Completed** — only when all identified content types for the feature are complete:
     ```bash
-    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "🟢 Completed" -UpdateType "StatusOnly" -Force
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-BatchFeatureStatus.ps1 -FeatureIds "<X.Y.Z>" -Status "Completed" -UpdateType "StatusOnly"
     ```
 12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
@@ -142,19 +156,13 @@ The following state files are updated by `Update-UserDocumentationState.ps1`:
 
 - **Feature implementation state files** (`doc/state-tracking/features`) — Handbook row appended to `### User Documentation` table, status updated to `✅ Created`
 
-Updated by `New-Handbook.ps1` (automated at creation time):
-
-- **[PD Documentation Map](../../../doc/PD-documentation-map.md)** — Handbook entry appended under User Handbooks section
-
 Updated manually (Step 11):
 
 - [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — Feature status set from `📖 Needs User Docs` to `🟢 Completed` via `Update-BatchFeatureStatus.ps1`
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Handbook(s) created or updated with accurate, user-focused content
@@ -163,14 +171,45 @@ Before considering this task finished:
   - [ ] README.md updated if applicable
 - [ ] **Update State Files**: Run `Update-UserDocumentationState.ps1` and verify
   - [ ] Feature implementation state file has handbook row in `### User Documentation` table with status `✅ Created`
-  - [ ] PD-documentation-map.md has handbook entry under User Handbooks (automated by `New-Handbook.ps1`)
   - [ ] Feature tracking updated from `📖 Needs User Docs` to `🟢 Completed` via `Update-BatchFeatureStatus.ps1`
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-081" and context "User Documentation Creation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-081`, context "User Documentation Creation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | `[handbook-name].md` in `doc/user/handbooks/<content-type>/[<topic>/]` | `New-Handbook.ps1` | User handbook document with auto-assigned PD-UGD-XXX ID, organized by Diátaxis content type (L1) and optional project topic (L2) — values declared in `PD-id-registry.json` |
+| **Updates** | Feature implementation state file | `Update-UserDocumentationState.ps1` | Appends handbook row to Documentation Inventory table |
+| **Updates** | [`README.md`](../../../doc/README.md) (if applicable) | Manual | Add handbook to documentation table |
 
 ## Next Tasks
 
 - [**Release & Deployment**](release-deployment-task.md) — User documentation should be complete before release
 - [**Code Review**](../06-maintenance/code-review-task.md) — Review documentation accuracy if changes are substantial
+
+<!-- merged from transition-registry entry: User Documentation Creation (PF-TSK-081) -->
+### Prerequisites for Transition
+
+- [ ] Handbook(s) created or updated via New-Handbook.ps1
+- [ ] Content customized and reviewed by human partner
+- [ ] Feature state file `### User Documentation` updated to `✅ Created` via Update-UserDocumentationState.ps1
+- [ ] Feature status set from `📖 Needs User Docs` to `🟢 Completed` via Update-BatchFeatureStatus.ps1
+- [ ] README.md updated if applicable
+
+**Next Task Selection Decision:**
+
+```
+Documentation complete?
+├─ Yes → Feature set to 🟢 Completed → Release & Deployment
+└─ Needs revision → Revise handbook content → Re-review
+```
+
+### Preparation for Next Task
+
+1. Verify all user-facing behavior changes are documented
+2. Feature status is `🟢 Completed` in feature-tracking.md
+2. Ensure handbook is linked from README.md documentation table if appropriate
+3. Proceed to Release & Deployment
 
 ## Related Resources
 

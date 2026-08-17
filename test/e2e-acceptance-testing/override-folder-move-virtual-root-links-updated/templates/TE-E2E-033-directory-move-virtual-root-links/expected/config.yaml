@@ -1,0 +1,5 @@
+# LinkWatcher config for TE-E2E-033 — override-folder virtual-root resolution.
+# Maps the blueprint/ folder to itself as resolution base: host-absolute /... links
+# in files under blueprint/ resolve against blueprint/ (the virtual root).
+path_resolution_overrides:
+  blueprint: blueprint

@@ -3,13 +3,36 @@ id: PF-TSK-079
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.8
+version: 1.13
 created: 2026-03-24
-updated: 2026-06-03
+updated: 2026-07-21
 description: "Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability"
+use_when: >-
+  Structurally evaluate the process framework or specific parts of it for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability. Triggers: 'evaluate the framework', 'audit the framework', 'review framework area X'.
+triggers:
+  - "evaluate the framework"
+  - "audit the framework"
+  - "review framework area X"
+automation: partial
+scripts:
+  - ../../scripts/file-creation/support/New-FrameworkEvaluationReport.ps1
+  - ../../scripts/file-creation/support/New-ProcessImprovement.ps1
+trigger_status:
+  - raw: "_(schedule / user request)_"
+output_status:
+  - raw: "`process-improvement-tracking.md` → new IMP items (triggers PF-TSK-009)"
+next_tasks:
+  - task: process-improvement-task.md
+    condition: "Implement the IMP entries identified by the evaluation"
+  - task: structure-change-task.md
+    condition: "If evaluation reveals structural reorganization needs"
+  - task: new-task-creation-process.md
+    condition: "If evaluation identifies missing tasks"
 ---
 
 # Framework Evaluation
+
+> **▶ Execute this task under the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md).** This file holds only this task's specific content; the universal contract every task shares lives once in the protocol and is mandatory here.
 
 ## Purpose & Context
 
@@ -26,8 +49,6 @@ This task is analogous to the code validation tasks (05-validation) but targets 
 
 ## Context Requirements
 
-[View Context Map for this task](../../visualization/context-maps/support/framework-evaluation-map.md)
-
 - **Critical (Must Read):**
 
   - **Evaluation Scope** — Human partner specifies what to evaluate: entire framework, a specific phase (e.g., "03-testing tasks"), a component type (e.g., "all templates"), or a workflow (e.g., "enhancement workflow end-to-end")
@@ -39,17 +60,14 @@ This task is analogous to the code validation tasks (05-validation) but targets 
   - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) — Automation status, script locations, file update patterns per task
   - [Process Framework Task Registry — Trigger & Output](../../infrastructure/process-framework-task-registry.md) — Task trigger conditions, output statuses, State File Trigger Index, and trigger chain diagrams
   - [PF ID Registry](../../PF-id-registry.json) — ID prefixes, directory mappings, counter state
-  - [Task Creation Guide](../../guides/support/task-creation-guide.md) — Defines expected task structure and quality standards
+  - [`task-creation` craft skill](../../../.claude/skills/task-creation/SKILL.md) — Defines expected task structure and quality standards
 
 - **Reference Only (Access When Needed):**
   - [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) — For registering new IMP entries
-  - [Visual Notation Guide](../../guides/support/visual-notation-guide.md) — For interpreting context map diagrams
   - Individual task definitions, templates, guides, scripts — loaded as needed during evaluation
 
 ## Process
 
-> **🚨 CRITICAL: This task is NOT complete until ALL steps including feedback forms are finished!**
->
 > **🚨 CRITICAL: All work MUST be implemented incrementally with explicit human feedback at EACH checkpoint.**
 >
 > **⚠️ MANDATORY: Never proceed past a checkpoint without presenting findings and getting explicit approval.**
@@ -83,7 +101,7 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    |---|-----------|-----------------|---------|
    | 1 | **Completeness** | Are all expected artifacts present? Do tasks have context maps, templates have guides, scripts have error handling? | Always |
    | 2 | **Consistency** | Do artifacts follow the same structure, naming conventions, metadata format, and cross-referencing patterns? | Always |
-   | 3 | **Redundancy** | Is there duplicated content, overlapping task responsibilities, or unnecessary artifacts? | Always |
+   | 3 | **Redundancy** | Does anything not carry its weight — duplicated *coverage* (removable/combinable), duplicated *machinery* (scaffolding to consolidate), or plain *superfluity* (an unnecessary step, instruction, or artifact to delete)? | Always |
    | 4 | **Accuracy** | Do cross-references resolve? Do ID registries match actual files? Do scripts reference existing templates? | Always |
    | 5 | **Effectiveness** | Are process steps clear and actionable? Are templates useful? Do guides answer the questions they should? | Always |
    | 6 | **Automation Coverage** | Are manual steps that could be scripted still manual? Do existing scripts cover the full workflow? | Always |
@@ -96,7 +114,8 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
 4. **Inventory Artifacts in Scope**: List all artifacts within the evaluation scope. For each, note:
    - File path and ID
    - Type (task, template, guide, script, context map, state file)
-   > **⚠️ Enumeration required**: Every count claimed in the evaluation report must be backed by a specific list of items in the "Artifacts in Scope" table. Do not use approximate counts (e.g., "~28 templates") — enumerate each item so downstream work can rely on accurate totals without re-auditing.
+   > **⚠️ Read in-scope task definitions in full first**: build the inventory from the task files themselves, not from the [Documentation Map](../../PF-documentation-map.md)'s one-line listing alone. The map is a flat index; a task's complete artifact set (every referenced template, guide, script, state file) and its full step inventory surface only by reading the task file, so a map-only inventory systematically under-counts the artifacts and steps actually in scope. For script-backed tasks and workflows, enumerate the **backing scripts** as first-class in-scope artifacts — both the `scripts:` declared in the task's frontmatter and any scripts its steps invoke — since Automation Coverage (Dimension 6) and Completeness (Dimension 1) assess those scripts directly.
+   > **⚠️ Enumeration required**: Every count claimed in the evaluation report must be backed by a specific list of items in the "Artifacts in Scope" table. Do not use approximate counts (e.g., "~28 templates") — enumerate each item so downstream work can rely on accurate totals without re-auditing. For a large homogeneous set (e.g. 1,300+ test cases), category-level enumeration with exact per-category counts satisfies this — the requirement is exact, verifiable totals, not per-filename listing.
 
 5. **Evaluate Each Dimension**: For each selected dimension, systematically assess the artifacts in scope:
 
@@ -112,11 +131,10 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    - Do all scripts follow the same import pattern, parameter naming, and error handling approach?
    - Are naming conventions consistent (e.g., `-task` suffix, kebab-case filenames)?
 
-   **Dimension 3 — Redundancy**:
-   - Are there tasks with overlapping responsibilities?
-   - Is the same guidance duplicated across multiple guides or task definitions?
-   - Are there templates that could be consolidated?
-   - Are there scripts that duplicate logic instead of sharing modules?
+   **Dimension 3 — Redundancy** — hunt for anything that doesn't carry its weight; the kind sets the fix:
+   - **Coverage (intent) redundancy** — the same content/cases duplicated: overlapping task responsibilities, guidance repeated across guides/tasks, consolidatable templates, duplicated test *cases*. Be conservative — deliberate defense-in-depth and descriptive repetition are legitimate, so *remove or combine* only where coverage is genuinely duplicated.
+   - **Machinery redundancy** — the same scaffolding copy-pasted: scripts duplicating logic instead of importing a shared module, or test files re-inventing fixtures/subprocess/path-resolution boilerplate. The fix is *consolidate into shared helpers*, leaving coverage unchanged.
+   - **Superfluity** — a single step, instruction, or artifact that adds nothing: not duplicated, just dead weight, over-specification, or a note restating what a step already says. Verify it is genuinely non-load-bearing, then *delete*.
 
    **Dimension 4 — Accuracy**:
    - Verify cross-references: Do links in task definitions resolve to existing files?
@@ -142,6 +160,8 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
    - Does the task/template complexity scale appropriately with project size?
    - Are there unnecessary overhead for simple projects or missing structure for complex ones?
 
+   > **Attribute validator findings correctly**: when a validation script (`Validate-IdRegistry.ps1`, `Validate-StateTracking.ps1`, `Build-DocumentationMap.ps1 -Check`, …) surfaces an issue, decide whether the defect lies in the **evaluated artifact** (a real problem in the thing under review) or in the **validator's own scope** (false positive, over-/under-report, or coverage gap). They route differently — an artifact defect is a finding against that artifact; a validator gap is a finding against the validator. Don't record a validator's coverage limitation as a defect of the artifact it scanned, or vice versa.
+
 6. **Conduct Industry Research**: For each dimension being evaluated, briefly research how comparable frameworks, industry standards, or recognized best practices address the same concern:
    - Search for relevant framework design patterns, process maturity models, or tooling approaches
    - Note where the evaluated artifacts align with or diverge from external norms
@@ -162,27 +182,29 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
 8. **Identify Improvements**: For each finding with score ≤ 3, draft an improvement entry with:
    - Description of the issue
    - Affected artifact(s)
-   - Suggested fix
+   - Suggested fix — for an accumulated/systemic finding, cover the adoption/detection gap that let it accumulate (missing authoring pointer, no validator/detector) and what makes the fix stick, not only the artifact repair
    - Estimated effort (Low / Medium / High)
    - Suggested priority (Low / Medium / High)
-   - Route to (see routing guidance below)
+   - Suggested route — a triage *hint*, not a routing decision (see routing guidance below)
 
-   **Verify each finding against the live artifact before it becomes an IMP**: a finding is a hypothesis until checked against the current files. For each, confirm the problem is still real and not already handled by an existing script, validator surface, blueprint-provided file, or config field, then open the target file to confirm the suggested fix fits what is actually there (the field, section, or behavior it assumes exists). Re-check findings carried over from another project's working tree against the framework source — project state drifts. Drop or rewrite any finding that fails either check rather than filing it.
+   **Verify each finding against the live artifact before it becomes an IMP**: a finding is a hypothesis until checked against the current files. For each, confirm the problem is still real and not already handled by an existing script, validator surface, blueprint-provided file, or config field, then open the target file to confirm the suggested fix fits what is actually there (the field, section, or behavior it assumes exists). For a fix targeting a rolled-out blueprint artifact, also confirm it stays project-agnostic — a reference to an appdev-local artifact would dangle in every rolled-out copy. Re-check findings carried over from another project's working tree against the framework source — project state drifts. Drop or rewrite any finding that fails either check rather than filing it, and record each dropped candidate in the report's Withdrawn During Verification table — the report should show its own false-positive rate, not only surviving findings.
 
-   > **Routing guidance**: Not all findings belong as standalone IMPs. Before listing improvements, group related findings that share a root cause or solution, then decide per finding/group:
-   > - **IMP** (default) — isolated, self-contained improvement executable via [Process Improvement](process-improvement-task.md) (PF-TSK-009)
-   > - **PF-TSK-026** — interconnected findings that together require a new framework capability (new task + template + script + guide). Register as IMP but mark for delegation to [Framework Extension](framework-extension-task.md)
-   > - **PF-TSK-014** — findings that require file moves, directory reorganization, or structural changes. Register as IMP but mark for delegation to [Structure Change](structure-change-task.md)
-   > - **PF-TSK-001** — findings that reveal a missing task definition. Register as IMP but mark for delegation to [New Task Creation Process](new-task-creation-process.md)
+   **Fix vs. route**: a finding whose fix is confined to artifacts this session or its parent extension created or modified (a designed-in case when the evaluation runs as the New-Task-Creation gate inside its own extension) may, on human approval at the Step 9 checkpoint, be fixed in-session instead of becoming an IMP — record it in the report's Findings Resolved In-Session table. Anything whose fix spreads beyond those artifacts routes as an IMP; an in-scope interim fix may still land alongside the routed clean-slate IMP.
+
+   > **Routing guidance**: Not all findings belong as standalone IMPs. Before listing improvements, group related findings that share a root cause or solution, then attach a **suggested route** to each finding/group. Post-Phase-7, every finding is registered into Section 1 — Intake regardless (Step 11); the suggested route is a triage hint recorded in Notes, and [IMP Triage (PF-TSK-089)](imp-triage-task.md) makes the actual routing decision. Suggest one of:
+   > - **Improvement** (default) — isolated, self-contained change executable via [Process Improvement](process-improvement-task.md) (PF-TSK-009)
+   > - **PF-TSK-026** — interconnected findings that together require a new framework capability (new task + template + script + guide); hint delegation to [Framework Extension](framework-extension-task.md)
+   > - **PF-TSK-014** — findings that require file moves, directory reorganization, or structural changes; hint delegation to [Structure Change](structure-change-task.md)
+   > - **PF-TSK-001** — findings that reveal a missing task definition; hint delegation to [New Task Creation Process](new-task-creation-process.md)
    >
-   > Present routing decisions at the Step 9 checkpoint for human approval.
+   > Present the suggested routes at the Step 9 checkpoint for human review.
 
-   **Multi-level solution thinking**: For significant findings (score ≤ 2 or high-priority), do not converge on a single fix immediately. Present at least three solution approaches at different ambition levels:
+   **Multi-level solution thinking**: For a significant finding (score ≤ 2 or high-priority) that questions a design decision or admits more than one defensible fix shape, do not converge on a single fix immediately. Present at least three solution approaches at different ambition levels:
    - **Incremental** — minimal change that improves the current setup without restructuring
    - **Moderate restructuring** — targeted reorganization of the affected area that improves structure without redesigning from scratch
    - **Clean-slate redesign** — how this area would look if built from scratch, unconstrained by the current implementation
 
-   This prevents premature convergence on the first viable strategy and ensures the human partner can weigh trade-offs across the full solution space before choosing a direction.
+   This prevents premature convergence on the first viable strategy and ensures the human partner can weigh trade-offs across the full solution space before choosing a direction. A finding with one obvious fix — however severe — records that single suggested fix directly.
 
    **Data-driven validation for removal/merge proposals**: When a finding proposes **removing, merging, or fundamentally restructuring** an existing framework mechanism (e.g., reducing feedback dimensions, merging templates, consolidating tasks), the proposal must be validated against historical data before it can become an IMP. This means:
    - Trace the mechanism's actual contribution by analyzing historical data (e.g., which feedback dimensions triggered which IMPs, how often a template section was used, which task steps prevented errors)
@@ -197,7 +219,8 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
 9. **🚨 CHECKPOINT**: Present evaluation findings summary to human partner:
    - Dimension scores with key evidence
    - Top findings (most impactful issues)
-   - Proposed improvement entries with routing decisions (IMP vs delegated task)
+   - **Cross-cutting findings**: a finding spanning 2+ dimensions gets a single **primary home** — list it once in the report's Cross-Cutting Findings section and reference it from each affected dimension, rather than repeating it under every dimension (which inflates finding counts and distorts dimension scores)
+   - Proposed improvement entries with **suggested routes** (triage hints for PF-TSK-089, not final routing — see Step 8)
    - Get approval before generating the report
    - If the human reframes scope at this checkpoint, choose: re-checkpoint after rescoring, or proceed and record the adjustment in the report's Scope Description (deliberate exclusions belong here, not as Rejected IMPs)
 
@@ -214,12 +237,14 @@ The quality of an evaluation depends on thoroughness, not speed. A multi-session
     # Single item
     # Phase 7 (2026-05-11): -Priority dropped from Single param set — all IMPs land in Section 1 — Intake;
     # Triage routes from there. Use Update-ProcessImprovement.ps1 -MoveToSection after Triage if needed.
+    # Length caps (single and batch): -Description 10–500 chars (-Notes is uncapped) — compose to length;
+    # pre-flight a borderline call with -WhatIf (validation fires before anything is created).
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -Description "Improvement description" -Source "Framework Evaluation PF-EVR-XXX" -SourceLink "appdev/process-framework-central/evaluation-reports/FILENAME.md" -Confirm:\$false
 
     # Batch mode (preferred for multiple improvements) — pass a JSON array file:
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/New-ProcessImprovement.ps1 -BatchFile "improvements.json" -Confirm:\$false
     ```
-    > **Routed findings**: IMPs marked for delegation in Step 8 should still be registered (for traceability), but include the target task in the Notes column (e.g., "Delegate to PF-TSK-026 — interconnected with IMP-XXX, IMP-YYY"). After registration, use [Update-ProcessImprovement.ps1](../../scripts/update/Update-ProcessImprovement.ps1) to set their status to `Deferred`.
+    > **Routed findings**: findings given a delegation-suggesting route in Step 8 are still registered (for traceability) into Section 1 — Intake like every other finding; record the suggested target task as a triage hint in the Notes column (e.g., "Suggested route: PF-TSK-026 — interconnected with IMP-XXX, IMP-YYY"). [IMP Triage (PF-TSK-089)](imp-triage-task.md) makes the actual routing call and moves the row from Intake to the owning section — this task neither sets a status beyond Intake nor moves rows itself.
 
 12. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
@@ -236,9 +261,7 @@ The following state files must be updated as part of this task:
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
-**TASK IS NOT COMPLETE UNTIL ALL ITEMS BELOW ARE CHECKED OFF**
-
-Before considering this task finished:
+> Completion discipline, output verification, and the feedback form are governed by the [Task Execution Protocol](../../guides/framework/task-execution-protocol-guide.md) (Phase C). The items below are the **task-specific** verifications that plug into it.
 
 - [ ] **Verify Outputs**: Confirm all required outputs have been produced
   - [ ] Framework Evaluation Report created in `appdev/process-framework-central/evaluation-reports` via script
@@ -247,7 +270,14 @@ Before considering this task finished:
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] IMP entries added to [Process Improvement Tracking](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) for each approved improvement
   - [ ] Each IMP entry links back to the evaluation report as source
-- [ ] **Complete Feedback Forms**: Follow the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md) for each tool used, using task ID "PF-TSK-079" and context "Framework Evaluation"
+- [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-079`, context "Framework Evaluation".
+
+## File Operations
+
+| Operation | File Path | Update Method | Details |
+|-----------|-----------|---------------|---------|
+| **Creates** | `appdev/process-framework-central/evaluation-reports/YYYYMMDD-framework-evaluation-{scope}.md` | Script | Evaluation report from template (PF-TEM-064) |
+| **Updates** | [`process-improvement-tracking.md`](../../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | Script | Adds improvement entries via New-ProcessImprovement.ps1 |
 
 ## Next Tasks
 
@@ -255,10 +285,25 @@ Before considering this task finished:
 - [**Structure Change**](structure-change-task.md) — If evaluation reveals structural reorganization needs
 - [**New Task Creation Process**](new-task-creation-process.md) — If evaluation identifies missing tasks
 
+<!-- merged from transition-registry entry: Framework Evaluation -->
+### Prerequisites for Transition
+
+- [ ] Evaluation scope defined and approved
+- [ ] All selected dimensions evaluated with scores and evidence
+- [ ] Evaluation report created via New-FrameworkEvaluationReport.ps1
+- [ ] IMP entries registered for actionable findings
+
+### Next Task Selection
+
+- **Improvements needed**: → Process Improvement (to address IMP entries from evaluation)
+- **Structural issues found**: → Structure Change (for reorganization needs)
+- **Missing tasks identified**: → New Task Creation Process (to fill gaps)
+- **No major issues**: → Return to development work
+
 ## Related Resources
 
 - [Documentation Map](../../PF-documentation-map.md) — Central index of all framework artifacts
 - [Process Framework Task Registry](../../infrastructure/process-framework-task-registry.md) — Task automation status overview
-- [Task Creation Guide](../../guides/support/task-creation-guide.md) — Expected task structure and quality standards
+- [`task-creation` craft skill](../../../.claude/skills/task-creation/SKILL.md) — Expected task structure and quality standards
 - [AI Tasks System](../../ai-tasks.md) — Task registry and workflow definitions
 - [Feature Validation Guide](../../guides/05-validation/feature-validation-guide.md) — Analogous approach for code validation (reference for evaluation methodology)
