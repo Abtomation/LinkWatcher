@@ -84,7 +84,7 @@
         "unit": "test/automated/unit",
         "default": "unit"
       },
-      "nextAvailable": 152
+      "nextAvailable": 155
     },
     "BM": {
       "description": "Performance - Benchmark Tests (Component Level 1, Operation Level 2)",

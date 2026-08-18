@@ -38,6 +38,7 @@ from __future__ import annotations
 import json
 import re
 import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Sequence, Set, Tuple
@@ -55,6 +56,17 @@ _LOG_DIR_RELPATH = Path("logs") / "linkwatcher"
 # The daemon entry point, as it appears in the command line.
 _ENTRY_SCRIPT = "main.py"
 _PROJECT_ROOT_FLAG = "--project-root"
+
+# Flags that make `main.py` do something and exit instead of running the watcher.
+# A process carrying one of these is NOT a daemon, however well its entry script
+# and project root match — `--validate` in particular is a routine, frequently
+# run scan of the very project whose daemon we are identifying (CR-4).
+_NON_DAEMON_MODE_FLAGS = frozenset({"--validate", "--version", "--help", "-h"})
+
+# TDD §7.1: a poll cycle slower than this is a responsiveness signal worth
+# surfacing above DEBUG. Cold start legitimately exceeds it (accepted Known
+# Limitation); steady-state polls were measured at ~100 ms.
+POLL_DURATION_BUDGET_MS = 500.0
 
 # Fallback extraction for a raw (unsplit) command-line string.
 _ROOT_FROM_RAW = re.compile(r'--project-root[=\s]+(?:"([^"]*)"|(\S+))', re.IGNORECASE)
@@ -132,10 +144,17 @@ def extract_project_root(cmdline: Sequence[str]) -> Optional[str]:
         if lowered.startswith(_PROJECT_ROOT_FLAG + "="):
             return token.split("=", 1)[1].strip('"')
 
-    # Not split into argv (raw command-line string) — fall back to a regex.
-    match = _ROOT_FROM_RAW.search(" ".join(argv))
-    if match:
-        return (match.group(1) or match.group(2)).strip('"')
+    # A single raw command-line string — fall back to a regex.  Restricted to
+    # the one-token case on purpose: psutil always returns a split argv, so
+    # re-joining a real argv only creates false positives.  It let a wrapper
+    # shell whose single quoted argument merely *mentions*
+    # `main.py … --project-root X` be claimed as this project's daemon — the
+    # shape of `bash.exe -c '…'` and the documented `pwsh -Command '& …'` form,
+    # which the panel would then be willing to terminate (CR-5).
+    if len(argv) == 1:
+        match = _ROOT_FROM_RAW.search(argv[0])
+        if match:
+            return (match.group(1) or match.group(2)).strip('"')
     return None
 
 
@@ -143,9 +162,20 @@ def is_daemon_for(entry: ProcessEntry, project_root) -> bool:
     """Three-way identity test (D-T5): entry is *project_root*'s LinkWatcher daemon.
 
     Requires the entry point (``main.py``) **and** an explicit ``--project-root``
-    naming this project.  Both must agree; either alone is not enough.
+    naming this project, **and** the absence of any flag that makes ``main.py``
+    exit instead of running the watcher.  All three must agree; any one alone is
+    not enough.
+
+    The run-mode clause is what keeps a ``main.py --validate`` scan from being
+    claimed (CR-4).  Such a scan carries the same entry script and the same
+    ``--project-root`` as the daemon, so without it a stopped project renders as
+    RUNNING, Start is disabled, and Stop or window-close terminates the in-flight
+    scan and truncates its report — while the module's own D-T5 invariant says a
+    process is never acted on unless it is verified to be this project's daemon.
     """
     if not entry.cmdline:
+        return False
+    if any(token.casefold() in _NON_DAEMON_MODE_FLAGS for token in entry.cmdline):
         return False
     if not any(_ENTRY_SCRIPT in token.casefold() for token in entry.cmdline):
         return False
@@ -333,6 +363,9 @@ class PollResult(NamedTuple):
 
     snapshots: List[DaemonSnapshot]
     error: Optional[str] = None
+    # Start-order stamp: assigned before the poll runs, so a slow poll that
+    # finishes after a faster later one is recognisable as stale (CR-7).
+    sequence: int = 0
 
 
 def poll_once(registry_path, process_table) -> PollResult:
@@ -377,10 +410,49 @@ class DiscoveryPoller:
         self._on_result = on_result
         self._stop = threading.Event()
         self._thread: Optional[threading.Thread] = None
+        # Last error written to the panel log, so a persistent registry problem
+        # is recorded once rather than every poll interval (CR-16).
+        self._last_logged_error: Optional[str] = None
+        # Monotonic poll counter shared by the periodic thread and manual
+        # Refresh, so their results can be ordered against each other (CR-7).
+        self._sequence = 0
+        self._sequence_lock = threading.Lock()
 
     def poll_once(self) -> PollResult:
-        """Run a single pass (also used directly by tests and manual Refresh)."""
-        return poll_once(self._registry_path, self._process_table)
+        """Run a single pass (also used directly by tests and manual Refresh).
+
+        The sequence is taken *before* the pass runs, so it orders polls by when
+        they observed reality rather than by when they happened to finish.
+
+        Duration is logged per TDD §7.1 — at DEBUG normally, and at WARNING once
+        it exceeds the §7.1 budget, because a poll that slow is the documented
+        early signal of a responsiveness problem and should be visible without
+        having to re-run under `--debug`.  Cold start is expected to breach it
+        (the first psutil pass was measured at 7.5–8.7 s on this machine, an
+        accepted Known Limitation), so the message names the duration rather
+        than asserting a fault.
+        """
+        sequence = self._next_sequence()
+        started = time.monotonic()
+        result = poll_once(self._registry_path, self._process_table)._replace(sequence=sequence)
+        elapsed_ms = (time.monotonic() - started) * 1000.0
+        if elapsed_ms > POLL_DURATION_BUDGET_MS:
+            get_panel_logger().warning(
+                "poll_cycle_slow duration_ms=%.0f budget_ms=%.0f projects=%d",
+                elapsed_ms,
+                POLL_DURATION_BUDGET_MS,
+                len(result.snapshots),
+            )
+        else:
+            get_panel_logger().debug(
+                "poll_cycle duration_ms=%.0f projects=%d", elapsed_ms, len(result.snapshots)
+            )
+        return result
+
+    def _next_sequence(self) -> int:
+        with self._sequence_lock:
+            self._sequence += 1
+            return self._sequence
 
     def start(self) -> None:
         if self._thread is not None:
@@ -397,8 +469,29 @@ class DiscoveryPoller:
     def _run(self) -> None:
         while not self._stop.is_set():
             result = self.poll_once()
+            self._log_error_change(result.error)
             try:
                 self._on_result(result)
             except Exception:  # noqa: BLE001 - a bad consumer must not kill the poller
                 get_panel_logger().exception("discovery_on_result_failed")
             self._stop.wait(self._interval)
+
+    def _log_error_change(self, error: Optional[str]) -> None:
+        """Record a *change* in discovery error state in the panel log (CR-16).
+
+        Registry-load problems (unreadable file, invalid JSON, no ``projects``
+        mapping) previously reached no log at all: only ``poll_once``'s catch-all
+        logged, and these return an error rather than raising.  The status bar
+        told the operator to consult a panel log that had nothing in it.
+
+        Logging on *change* rather than per poll keeps a persistent problem to a
+        single line instead of one every ``interval_seconds``, and records the
+        recovery too, so the log shows when the registry came back.
+        """
+        if error == self._last_logged_error:
+            return
+        if error:
+            get_panel_logger().warning("discovery_error error=%s", error)
+        else:
+            get_panel_logger().info("discovery_error_cleared")
+        self._last_logged_error = error

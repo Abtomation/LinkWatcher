@@ -16,11 +16,15 @@ Test Name: PD Bug 106 Installer Venv Daemon Stop
 # PD-BUG-106: install_global.py venv rebuild fails when another project's
 # daemon holds the shared venv.
 #
-# stop_running_linkwatcher() only stops the daemon of the source project (via
-# its .linkwatcher.lock). Daemons of other projects run from the same shared
+# The installer's only stop mechanism was stop_running_linkwatcher(), which
+# stopped the source project's daemon alone (via its .linkwatcher.lock).
+# Daemons of other projects run from the same shared
 # <install>/.linkwatcher-venv and lock its python.exe, so the venv recreation
 # step fails with Permission denied and the install exits 1 mid-flow (files
 # copied, but no venv/wrapper/smoke-test).
+# (That function was later removed outright under PD-BUG-121 — its lock-file
+# PID was unverifiable — leaving stop_daemons_using_venv() as the single,
+# executable-path-identified stop path. See TE-TST-154.)
 #
 # Fix under test:
 #   - stop_daemons_using_venv(install_dir): enumerate ALL processes whose
@@ -235,7 +239,6 @@ class TestMainFlowWiring:
 
             return _f
 
-        monkeypatch.setattr(install_global, "stop_running_linkwatcher", record("stop_project"))
         monkeypatch.setattr(install_global, "stop_daemons_using_venv", record("stop_venv_daemons"))
         monkeypatch.setattr(install_global, "venv_python_locked", record("lock_gate", False))
         monkeypatch.setattr(install_global, "check_python_version", record("pyver", True))

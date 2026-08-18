@@ -50,7 +50,7 @@ import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, NamedTuple, Optional, Sequence, Tuple
+from typing import Callable, List, Mapping, NamedTuple, Optional, Sequence, Tuple
 
 from .discovery import LOCK_FILE_NAME, is_daemon_for, read_lock_pid
 from .model import AppModel, DaemonStatus, ProjectInfo
@@ -65,16 +65,26 @@ _LAUNCHER_RELPATH = (
 # covers a slow spawn without letting a hung shell pin the row forever.
 LAUNCHER_TIMEOUT_SECONDS = 30.0
 
-# Pin TTLs (TDD §4.3): start = launcher timeout + 5 s; drain = grace + 5 s.
+# How long to wait for terminated processes to leave the process table.
+EXIT_WAIT_TIMEOUT_SECONDS = 10.0
+
+# Pin TTLs (TDD §4.3): a pin must outlive the worker that owns it, or the row
+# reverts to poll truth while its action is still running.
 START_PIN_MARGIN_SECONDS = 5.0
-DRAIN_PIN_MARGIN_SECONDS = 5.0
+
+# The stop worker's worst case is `watch_quiescence` (up to the full grace
+# period) followed by `wait_for_exit` (up to EXIT_WAIT_TIMEOUT_SECONDS), so the
+# drain margin must cover the exit wait plus slack — not the 5 s it used to
+# carry, which expired the pin at grace + 5 s while the worker could still be
+# working until grace + 10 s.  In that 5 s window the row flipped back to
+# Running, re-enabling a Stop button whose click the controller's busy guard
+# then swallowed (CR-8).  Same quantity, and deliberately the same value, as
+# WATCHDOG_MARGIN_SECONDS below.
+DRAIN_PIN_MARGIN_SECONDS = EXIT_WAIT_TIMEOUT_SECONDS + 5.0
 
 # Outcome surfacings (FORCE_STOPPED / START_FAILED) stay visible this long,
 # then poll truth wins again (checkpoint-approved 2026-08-10).
 OUTCOME_PIN_TTL_SECONDS = 30.0
-
-# How long to wait for terminated processes to leave the process table.
-EXIT_WAIT_TIMEOUT_SECONDS = 10.0
 
 # Cadence of drain / exit-wait checks (tests inject clock+sleep instead).
 CHECK_INTERVAL_SECONDS = 0.25
@@ -93,20 +103,64 @@ class RunResult:
     timed_out: bool = False
 
 
+# Prefixes for the launcher's stdout/stderr capture files, and the age after
+# which a leftover is considered abandoned by its daemon and safe to remove.
+_CAPTURE_OUT_PREFIX = "lw-panel-out-"
+_CAPTURE_ERR_PREFIX = "lw-panel-err-"
+_CAPTURE_MAX_AGE_SECONDS = 3600.0
+
+
+def _sweep_stale_captures(now: Optional[float] = None) -> int:
+    """Delete launcher capture files left behind by earlier runs (CR-12).
+
+    Best-effort and silent: a file still held by a live daemon simply fails to
+    unlink and is retried on a later run.  Only this module's own two prefixes
+    are considered, and only entries older than ``_CAPTURE_MAX_AGE_SECONDS``, so
+    a capture belonging to a start that is still in flight is never touched.
+    Returns the number removed (for tests).
+    """
+    removed = 0
+    reference = time.time() if now is None else now
+    try:
+        temp_dir = Path(tempfile.gettempdir())
+        entries = list(temp_dir.iterdir())
+    except OSError:
+        return 0
+    for entry in entries:
+        if not entry.name.startswith((_CAPTURE_OUT_PREFIX, _CAPTURE_ERR_PREFIX)):
+            continue
+        try:
+            if reference - entry.stat().st_mtime < _CAPTURE_MAX_AGE_SECONDS:
+                continue
+            entry.unlink()
+            removed += 1
+        except OSError:
+            continue  # still held by a running daemon, or already gone
+    return removed
+
+
 class SubprocessRunner:
     """Real launcher invocation: hidden window, temp-file capture, bounded wait.
 
     Capture MUST be via temp files, not pipes: the launcher's spawned daemon
     inherits this process's handles and holds them for its whole lifetime, so a
     pipe-capturing parent (``subprocess.run(capture_output=True)``) never sees
-    EOF and hangs.  The temp files are read after the bounded wait; deleting
-    them may fail while the daemon still holds an inherited handle, which is
-    tolerated (tiny files in %TEMP%, cleaned up by the OS).
+    EOF and hangs.  The temp files are read after the bounded wait.
+
+    Deleting them then usually *fails*, because the daemon still holds the
+    inherited handle and the CRT opens without ``FILE_SHARE_DELETE``.  The
+    previous justification for tolerating that — "cleaned up by the OS" — is
+    simply not true on Windows: every successful Start left a pair behind, and
+    files nearly eight days old were still present when this was measured
+    (CR-12).  Since the inheritance is the launcher's to fix and not reachable
+    from here, accumulation is instead *bounded*: each run first sweeps captures
+    left by earlier runs, which by then are closed and deletable.
     """
 
     def run(self, args: Sequence[str], timeout: float) -> RunResult:
-        out_fd, out_path = tempfile.mkstemp(prefix="lw-panel-out-", suffix=".txt")
-        err_fd, err_path = tempfile.mkstemp(prefix="lw-panel-err-", suffix=".txt")
+        _sweep_stale_captures()
+        out_fd, out_path = tempfile.mkstemp(prefix=_CAPTURE_OUT_PREFIX, suffix=".txt")
+        err_fd, err_path = tempfile.mkstemp(prefix=_CAPTURE_ERR_PREFIX, suffix=".txt")
         try:
             with os.fdopen(out_fd, "wb") as out_file, os.fdopen(err_fd, "wb") as err_file:
                 process = subprocess.Popen(
@@ -147,6 +201,33 @@ def launcher_path(project_root: Path) -> Path:
     return Path(project_root) / _LAUNCHER_RELPATH
 
 
+def resolve_shell(env: Optional[Mapping[str, str]] = None) -> str:
+    """Absolute path to ``pwsh.exe``, resolved so the *current directory* cannot win.
+
+    Windows ``CreateProcess`` searches the current directory before PATH, so
+    spawning a bare ``"pwsh.exe"`` runs whatever sits in the panel's working
+    directory (CR-9).  ``shutil.which`` is not a fix: on Windows it unconditionally
+    prepends ``os.curdir`` to the search path — measured returning a ``.``-relative
+    ``pwsh.exe``
+    for a decoy in the working directory *even when given an explicit* ``path=``.
+
+    So the PATH entries are walked directly and every relative one is skipped.
+    Falls back to the bare name only when nothing absolute matches, which keeps a
+    misconfigured machine working exactly as before rather than failing to start.
+    """
+    environ = os.environ if env is None else env
+    for directory in environ.get("PATH", "").split(os.pathsep):
+        directory = directory.strip().strip('"')
+        if not directory or not os.path.isabs(directory):
+            continue
+        for name in ("pwsh.exe", "pwsh"):
+            candidate = os.path.join(directory, name)
+            if os.path.isfile(candidate):
+                return candidate
+    get_panel_logger().warning("launcher_shell_unresolved falling_back_to=pwsh.exe")
+    return "pwsh.exe"
+
+
 def _failure_reason(result: RunResult) -> str:
     """Best available human-readable reason for a failed launcher run.
 
@@ -181,7 +262,7 @@ def run_launcher(
     if not script.is_file():
         return StartOutcome(False, f"Launcher script not found: {script}")
     result = runner.run(
-        ["pwsh.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
+        [resolve_shell(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
         timeout,
     )
     if result.timed_out:

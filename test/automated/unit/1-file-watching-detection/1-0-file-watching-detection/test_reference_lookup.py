@@ -551,6 +551,109 @@ class TestCalculateUpdatedRelativePath:
         assert result == "nonexistent/path.md#heading"
 
 
+class TestBug120TrailingSeparatorPreserved:
+    """Regression tests for PD-BUG-120: the authored trailing separator was
+    stripped from links recalculated inside a moved file.
+
+    ``os.path.relpath`` drops a trailing separator, so a directory reference
+    authored as ``doc/x/`` came back as ``../doc/x``. Sibling of PD-BUG-118,
+    which fixed the same loss on the *other* path (references in OTHER files,
+    via the shared ``utils.apply_trailing_separator_style`` at the
+    ``PathResolver.calculate_new_target`` choke point) — that choke point never
+    sees the links recalculated here.
+
+    A rewrite changes WHERE a target points, never HOW it was written. The
+    damaging case is a path authored as a concatenation prefix in a moved
+    ``.py``/``.ps1``/``.yaml`` (``logs/linkwatcher/`` → ``../logs/linkwatcher``),
+    which silently breaks every downstream concatenation.
+    """
+
+    @pytest.fixture
+    def dir_target(self, temp_dir):
+        """A real directory target, referenced from a file at the project root."""
+        d = temp_dir / "doc" / "state-tracking"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "keep.md").write_text("# keep")
+        return d
+
+    def test_bug120_main_branch_keeps_trailing_slash(self, lookup, dir_target):
+        """Main branch (target exists, containing file changed directory)."""
+        result = lookup._calculate_updated_relative_path(
+            "doc/state-tracking/", "notes.md", "sub/notes.md"
+        )
+        assert result == "../doc/state-tracking/"
+        assert result != "../doc/state-tracking", "PD-BUG-120: trailing separator was dropped"
+
+    def test_bug120_dot_slash_authored_form_keeps_trailing_slash(self, lookup, dir_target):
+        """The ``./dir/`` authored form loses its separator through the same path."""
+        result = lookup._calculate_updated_relative_path(
+            "./doc/state-tracking/", "notes.md", "sub/notes.md"
+        )
+        assert result.endswith("/"), "PD-BUG-120: trailing separator was dropped"
+        assert result == "../doc/state-tracking/"
+
+    def test_bug120_backslash_authored_form_keeps_a_trailing_separator(self, lookup, dir_target):
+        """A backslash-authored directory reference still ends in a separator.
+
+        The recalculated path is forward-slash form, so the restored separator
+        matches the result's own style rather than producing ``../doc/x\\``.
+        """
+        result = lookup._calculate_updated_relative_path(
+            "doc\\state-tracking\\", "notes.md", "sub/notes.md"
+        )
+        assert result == "../doc/state-tracking/"
+        assert not result.endswith("\\"), "must not mix separator styles in one path"
+
+    def test_bug120_move_memory_branch_keeps_trailing_slash(self, lookup, temp_dir):
+        """Move-memory branch: the target itself moved in the same operation."""
+        relocated = temp_dir / "doc" / "relocated"
+        relocated.mkdir(parents=True, exist_ok=True)
+        (relocated / "keep.md").write_text("# keep")
+        lookup.record_move("doc/vacated", "doc/relocated")
+
+        result = lookup._calculate_updated_relative_path("doc/vacated/", "notes.md", "sub/notes.md")
+        assert result == "../doc/relocated/"
+        assert result != "../doc/relocated", "PD-BUG-120: trailing separator was dropped"
+
+    def test_bug120_move_memory_to_root_keeps_trailing_slash(self, lookup, temp_dir):
+        """Move-memory branch with an empty new_dir (file moved to the root).
+
+        Distinct return site: the move-memory target is returned as-is instead
+        of going through ``os.path.relpath``.
+        """
+        relocated = temp_dir / "doc" / "relocated"
+        relocated.mkdir(parents=True, exist_ok=True)
+        (relocated / "keep.md").write_text("# keep")
+        lookup.record_move("doc/vacated", "doc/relocated")
+
+        result = lookup._calculate_updated_relative_path(
+            "../doc/vacated/", "sub/notes.md", "notes.md"
+        )
+        assert result == "doc/relocated/"
+        assert result != "doc/relocated", "PD-BUG-120: trailing separator was dropped"
+
+    def test_bug120_trailing_slash_with_anchor_keeps_both(self, lookup, dir_target):
+        """The separator belongs before the #fragment, not after it."""
+        result = lookup._calculate_updated_relative_path(
+            "doc/state-tracking/#top", "notes.md", "sub/notes.md"
+        )
+        assert result == "../doc/state-tracking/#top"
+
+    def test_bug120_no_separator_invented_when_none_authored(self, lookup, dir_target):
+        """Control: a directory reference authored WITHOUT a separator keeps none."""
+        result = lookup._calculate_updated_relative_path(
+            "doc/state-tracking", "notes.md", "sub/notes.md"
+        )
+        assert result == "../doc/state-tracking"
+
+    def test_bug120_file_target_unaffected(self, lookup, dir_target):
+        """Control: file references are untouched by the separator restoration."""
+        result = lookup._calculate_updated_relative_path(
+            "doc/state-tracking/keep.md", "notes.md", "sub/notes.md"
+        )
+        assert result == "../doc/state-tracking/keep.md"
+
+
 # ---------------------------------------------------------------------------
 # Update Links Within Moved File
 # ---------------------------------------------------------------------------

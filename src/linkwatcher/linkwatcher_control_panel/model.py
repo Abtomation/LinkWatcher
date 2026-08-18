@@ -132,6 +132,8 @@ class AppModel:
         self.validation: Dict[str, ValidationRun] = {}
         self.selected_project_id: Optional[str] = None
         self.last_refresh: Optional[datetime] = None
+        # Highest poll sequence applied so far; a lower one is stale (CR-7).
+        self._last_poll_sequence: Optional[int] = None
         self.shutting_down: bool = False
         self.discovery_error: Optional[str] = None
 
@@ -171,13 +173,41 @@ class AppModel:
         *,
         error: Optional[str] = None,
         refreshed_at: Optional[datetime] = None,
+        sequence: Optional[int] = None,
     ) -> None:
         """Replace poll truth with a full discovery result.
 
         Rows are keyed by ``project_id`` so selection and pins survive a refresh;
         projects no longer listed are dropped along with their pins, and a
         selection pointing at a dropped project is cleared.
+
+        **A failed poll is not evidence of an empty registry** (CR-14).  A poll
+        that raised returns no snapshots *and* an error, which this used to apply
+        as "there are zero projects": every row vanished, the selection cleared,
+        and the Configuration pane reloaded — discarding the operator's unsaved
+        edits on a transient registry read failure.  A no-rows-plus-error result
+        therefore records the error and keeps the last observed truth, including
+        ``last_refresh``, since nothing was actually observed.  This is the same
+        distinction the list pane already draws between a *pending* discovery and
+        an *empty* one, and it agrees with ``list_pane_display``'s precedence:
+        rows win, and an error alongside rows belongs in the status bar.  A poll
+        that did return rows is real truth and replaces state as before, even if
+        it also carries an error.
         """
+        if sequence is not None:
+            # Results are applied in completion order, so a slow poll can land
+            # after a faster later one and overwrite newer truth with older
+            # (CR-7). Sequences are stamped at poll start, so a lower one is
+            # strictly older and is dropped entirely — including its error.
+            if self._last_poll_sequence is not None and sequence < self._last_poll_sequence:
+                return
+            self._last_poll_sequence = sequence
+
+        if error is not None and not snapshots:
+            self.discovery_error = error
+            self._notify_if_changed()
+            return
+
         self._poll = {snapshot.project.project_id: snapshot for snapshot in snapshots}
         self.discovery_error = error
         self.last_refresh = datetime.now() if refreshed_at is None else refreshed_at

@@ -25,11 +25,14 @@ match alone must never make the panel believe it has found a daemon, because
 everything Phase C does to a "found" daemon is a termination.
 """
 
+import logging
 from pathlib import Path
 
 import pytest
 
 from linkwatcher.linkwatcher_control_panel.discovery import (
+    POLL_DURATION_BUDGET_MS,
+    DiscoveryPoller,
     ProcessEntry,
     classify_project,
     extract_project_root,
@@ -39,6 +42,7 @@ from linkwatcher.linkwatcher_control_panel.discovery import (
     read_lock_pid,
 )
 from linkwatcher.linkwatcher_control_panel.model import DaemonStatus, ProjectInfo
+from linkwatcher.linkwatcher_control_panel.panel_log import PANEL_LOGGER_NAME
 
 pytestmark = [
     pytest.mark.feature("7.1.1"),
@@ -450,3 +454,219 @@ def test_is_daemon_for_requires_both_entry_script_and_root(daemons):
     # A process whose command line psutil could not read is unidentifiable, so it
     # can never be claimed — the same conservative rule as a missing --project-root.
     assert not is_daemon_for(no_cmdline, root)
+
+
+# --------------------------------------------------------------------------- #
+# CR-4 / CR-5 — what may be *claimed* as this project's daemon
+# (Code Review 2026-08-17). Identity authorizes termination (D-T5), so a false
+# positive here is a wrong-process kill. Both gaps were verified against the
+# live process table on 2026-08-18: with the pre-fix logic a real
+# `main.py --validate` scan of this project was claimed alongside the genuine
+# daemon pair (three PIDs for one project); with the fix, only the pair.
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("mode_flag", ["--validate", "--version", "--help", "-h"])
+def test_non_daemon_run_modes_are_never_claimed(daemons, mode_flag):
+    """CR-4: a flag that makes main.py exit means the process is not a daemon.
+
+    `--validate` is the case that matters: the documented scan launcher builds
+    `main.py --project-root <root> --validate`, so the scan carries the *same*
+    entry script and the *same* project root as the daemon. Claiming it renders a
+    stopped project as RUNNING, disables Start, and lets Stop or window-close
+    terminate the scan mid-run and truncate its report.
+
+    Discriminating condition: drop the run-mode clause and every case here is
+    claimed, because each satisfies both of the remaining clauses.
+    """
+    root = r"C:\a\b"
+    scan = ProcessEntry(
+        pid=10,
+        cmdline=(daemons.VENV_PYTHON, "main.py", "--project-root", root, mode_flag),
+        create_time=1.0,
+    )
+
+    assert not is_daemon_for(scan, root)
+
+
+@pytest.mark.parametrize(
+    "flags",
+    [
+        ["--debug"],
+        ["--quiet"],
+        ["--no-initial-scan"],
+        ["--dry-run"],
+        ["--log-file", "run.txt"],
+    ],
+)
+def test_ordinary_daemon_flags_are_still_claimed(daemons, flags):
+    """CR-4 guard rail: only *exit* modes disqualify, not ordinary daemon flags.
+
+    Discriminating condition: a run-mode check written as "any unrecognized flag
+    disqualifies" would reject these real daemon command lines and make every
+    such daemon unstoppable from its only supervisor.
+    """
+    root = r"C:\a\b"
+    entry = ProcessEntry(
+        pid=11,
+        cmdline=(daemons.VENV_PYTHON, "main.py", "--project-root", root, *flags),
+        create_time=1.0,
+    )
+
+    assert is_daemon_for(entry, root)
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["bash.exe", "-c", r'python main.py --project-root "C:\a\b"'],
+        ["pwsh.exe", "-Command", r"& python main.py --project-root C:\a\b"],
+        ["cmd.exe", "/c", r"main.py --project-root C:\a\b"],
+    ],
+)
+def test_wrapper_shell_mentioning_the_daemon_is_not_claimed(argv):
+    """CR-5: a shell whose quoted argument merely *mentions* the daemon is not one.
+
+    The old fallback re-joined a real split argv and regex-searched the result, so
+    any wrapper carrying `main.py … --project-root X` in a single quoted argument
+    was claimed — the shape of `bash -c '…'` and the documented `pwsh -Command
+    '& …'` form. psutil always returns a split argv, so the fallback could never
+    help a real daemon; it could only invent targets.
+
+    Discriminating condition: restore the joined-argv search and all three are
+    claimed as this project's daemon.
+    """
+    entry = ProcessEntry(pid=12, cmdline=tuple(argv), create_time=1.0)
+
+    assert extract_project_root(argv) is None
+    assert not is_daemon_for(entry, r"C:\a\b")
+
+
+def test_raw_single_string_command_line_still_parses():
+    """CR-5 guard rail: the documented one-token raw form must keep working.
+
+    Discriminating condition: removing the fallback outright (rather than
+    restricting it to a genuine single token) breaks this documented input shape.
+    """
+    raw = [r'python main.py --project-root "C:\a b\c" --debug']
+
+    assert extract_project_root(raw) == r"C:\a b\c"
+
+
+# --------------------------------------------------------------------------- #
+# CR-7 / CR-16 — poll sequencing and discovery-error logging
+# (Code Review 2026-08-17, session 2)
+# --------------------------------------------------------------------------- #
+def test_poll_sequence_increases_per_pass(tmp_path, fake_process_table):
+    """CR-7: every pass carries a start-order stamp the model can compare.
+
+    Discriminating condition: return an unstamped result and consumers have
+    nothing to order by, which is the state that let a straggler win.
+    """
+    registry = tmp_path / "project-registry.json"
+    registry.write_text('{"projects": {}}', encoding="utf-8")
+    poller = DiscoveryPoller(
+        registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
+    )
+
+    sequences = [poller.poll_once().sequence for _ in range(3)]
+
+    assert sequences == sorted(sequences)
+    assert len(set(sequences)) == 3
+
+
+def test_registry_errors_reach_the_panel_log_once_per_change(tmp_path, fake_process_table, caplog):
+    """CR-16: registry-load problems must be recorded, and not once per poll.
+
+    `load_projects` *returns* its three errors rather than raising, so only
+    `poll_once`'s catch-all ever logged — the status bar told the operator to
+    consult a panel log that had nothing in it. Logging on change keeps a
+    persistent problem to one line instead of one every interval, and records
+    the recovery too.
+
+    Discriminating condition: log unconditionally and the repeat below produces
+    a second record; log not at all and the first assertion fails.
+    """
+    registry = tmp_path / "project-registry.json"
+    registry.write_text("{ not json", encoding="utf-8")
+    poller = DiscoveryPoller(
+        registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
+    )
+
+    with caplog.at_level(logging.WARNING, logger=PANEL_LOGGER_NAME):
+        first = poller.poll_once()
+        poller._log_error_change(first.error)
+        second = poller.poll_once()
+        poller._log_error_change(second.error)
+
+    assert first.error and "not valid JSON" in first.error
+    logged = [r for r in caplog.records if "discovery_error" in r.getMessage()]
+    assert len(logged) == 1, "a persistent error must not be logged on every poll"
+
+
+def test_discovery_error_recovery_is_logged(tmp_path, fake_process_table, caplog):
+    """CR-16: the log must show when the registry came back, not just when it broke."""
+    registry = tmp_path / "project-registry.json"
+    registry.write_text("{ not json", encoding="utf-8")
+    poller = DiscoveryPoller(
+        registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
+    )
+
+    with caplog.at_level(logging.INFO, logger=PANEL_LOGGER_NAME):
+        poller._log_error_change(poller.poll_once().error)
+        registry.write_text('{"projects": {}}', encoding="utf-8")
+        poller._log_error_change(poller.poll_once().error)
+
+    messages = [r.getMessage() for r in caplog.records]
+    assert any(
+        "discovery_error " in m or "discovery_error=" in m or "discovery_error" in m
+        for m in messages
+    )
+    assert any("discovery_error_cleared" in m for m in messages)
+
+
+def test_poll_cycle_duration_is_logged(tmp_path, fake_process_table, caplog):
+    """CR-13: poll-cycle duration reaches the panel log (TDD §7.1).
+
+    Discriminating condition: remove the instrumentation and no duration line is
+    emitted, leaving `--debug` advertising verbose logging the subpackage never
+    produced (exactly one .debug() call existed before this).
+    """
+    registry = tmp_path / "project-registry.json"
+    registry.write_text('{"projects": {}}', encoding="utf-8")
+    poller = DiscoveryPoller(
+        registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
+    )
+
+    # The level must be raised on the *panel* logger: other tests in this
+    # session call setup_panel_log(), which sets it to INFO, and a dropped
+    # record never reaches caplog no matter what the root logger allows.
+    with caplog.at_level(logging.DEBUG, logger=PANEL_LOGGER_NAME):
+        poller.poll_once()
+
+    assert [r for r in caplog.records if "poll_cycle" in r.getMessage()]
+
+
+def test_slow_poll_is_raised_above_debug(tmp_path, fake_process_table, caplog, monkeypatch):
+    """CR-13: a poll past the §7.1 budget is a WARNING, not a DEBUG line.
+
+    A responsiveness problem should be visible in the panel log without having to
+    reproduce it under `--debug`. Cold start legitimately breaches the budget, so
+    the message names the duration rather than asserting a fault.
+
+    Discriminating condition: log every duration at DEBUG and this fails.
+    """
+    registry = tmp_path / "project-registry.json"
+    registry.write_text('{"projects": {}}', encoding="utf-8")
+    poller = DiscoveryPoller(
+        registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
+    )
+    ticks = iter([0.0, (POLL_DURATION_BUDGET_MS + 250.0) / 1000.0])
+    monkeypatch.setattr(
+        "linkwatcher.linkwatcher_control_panel.discovery.time.monotonic", lambda: next(ticks)
+    )
+
+    with caplog.at_level(logging.DEBUG, logger=PANEL_LOGGER_NAME):
+        poller.poll_once()
+
+    slow = [r for r in caplog.records if "poll_cycle_slow" in r.getMessage()]
+    assert len(slow) == 1
+    assert slow[0].levelno == logging.WARNING

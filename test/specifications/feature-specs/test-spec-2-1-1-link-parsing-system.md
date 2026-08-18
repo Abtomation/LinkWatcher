@@ -150,13 +150,15 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Dotted stdlib filtering | `test_skip_dotted_stdlib_imports` | `from email.mime.text`, `from xml.etree.ElementTree`, `from logging.handlers` excluded (TD038) |
 | String literals | `test_parse_string_literals` | Double, single, triple, raw, f-strings |
 | Docstrings | `test_docstring_references` | Module and function docstrings |
+| Docstring column positions | `TestDocstringColumnPositions` (9 methods) | Columns on a line that *contains* triple quotes are line-absolute, not offsets into the extracted docstring text; covers indentation depth, two docstring segments on one line, code after the closing quotes, and a pure-body-line control (PD-BUG-118) |
+| Docstring trailing punctuation | `test_sentence_period_not_swallowed_into_directory_target`, `test_trailing_period_without_slash_trimmed`, `test_backticked_path_in_docstring_keeps_delimiters` | Sentence punctuation following a path is excluded from the link target, so the rewrite cannot consume it from the prose (PD-BUG-118) |
 | False positives | `test_avoid_false_positives` | Versions, emails, URLs, regex, SQL |
 | Complex file | `test_complex_python_file` | 12+ refs across constants, classes, dicts |
 | Line/column | `test_line_and_column_positions` | Position accuracy |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 | Directory paths | `test_quoted_directory_paths`, `test_quoted_directory_paths_no_false_positives` | Quoted strings with path separators but no file extension detected as directory path references (PD-BUG-056) |
 
-**Test File**: [`test/automated/parsers/test_python.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py) (10 methods)
+**Test File**: [`test/automated/parsers/test_python.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_python.py) (26 methods)
 
 ### Parser Tests — Dart
 

@@ -25,6 +25,22 @@ AI Context
 - The default skeleton (UNIT-C6) is modeled on the real per-project configs and
   round-trips through ``LinkWatcherConfig.from_file()`` — it is written through
   the same save pipeline as any other content.
+
+Raising contract
+----------------
+Neither public function raises for any state of the *content* it is given:
+``read_config`` returns ``missing``/``error`` and ``save_config`` returns a
+blocked ``SaveResult``.  This holds for the two cases that used to escape,
+because the exceptions involved are not ``OSError`` subclasses (CR-2 / CR-3):
+
+- a file that is not valid UTF-8 (``UnicodeDecodeError``), and
+- a well-formed YAML document with a wrongly typed value, which raises out of
+  ``LinkWatcherConfig`` rather than being reported by ``validate()``.
+
+Both are logged to the panel log before being returned, so a refused read or
+save always leaves a record.  Callers may therefore bind pane state to the
+result, but must still not assume a *successful* return: only ``status == "ok"``
+carries text, and only ``SaveResult.ok`` means the file changed.
 """
 
 from __future__ import annotations
@@ -38,6 +54,7 @@ from typing import Callable, Optional
 import yaml
 
 from ..config import LinkWatcherConfig
+from .panel_log import get_panel_logger
 
 # What "Create default config" writes: a commented, round-trippable skeleton
 # modeled on the real per-project configs (never overwrites an existing file).
@@ -84,13 +101,34 @@ class SaveResult:
 
 
 def read_config(config_path) -> ConfigReadResult:
-    """Load the raw config text for the editor; never raises (EC-10)."""
+    """Load the raw config text for the editor; never raises (EC-10).
+
+    "Never raises" includes a file that is not valid UTF-8: ``read_text`` raises
+    ``UnicodeDecodeError`` (a ``ValueError``, *not* an ``OSError``), which used to
+    escape this contract entirely and abort the caller mid-load (CR-2).  Such a
+    file is reported as ``error`` rather than decoded leniently: the panel would
+    have to write the text back on save, and replacement characters would silently
+    destroy the bytes it could not decode.
+    """
     path = Path(config_path)
     if not path.is_file():
         return ConfigReadResult("missing", error=f"No config file at {path}")
     try:
         return ConfigReadResult("ok", text=path.read_text(encoding="utf-8"))
+    except UnicodeDecodeError as exc:
+        get_panel_logger().warning(
+            "config_read_not_utf8 path=%s byte=%s reason=%s", path, exc.start, exc.reason
+        )
+        return ConfigReadResult(
+            "error",
+            error=(
+                f"{path} is not valid UTF-8 (byte {exc.start}: {exc.reason}). "
+                "Repair the file's encoding outside the panel — editing it here "
+                "could not round-trip its contents safely."
+            ),
+        )
     except OSError as exc:
+        get_panel_logger().warning("config_read_failed path=%s error=%s", path, exc)
         return ConfigReadResult("error", error=f"Could not read {path}: {exc}")
 
 
@@ -130,9 +168,35 @@ def save_config(config_path, text: str, *, replace: Callable = os.replace) -> Sa
             # The real loader parses the exact bytes to be persisted (D-T6).
             try:
                 config = LinkWatcherConfig.from_file(temp_path)
+                issues = config.validate()
             except yaml.YAMLError as exc:  # belt-and-braces; safe_load caught it above
                 return SaveResult(False, _yaml_error_message(exc))
-            issues = config.validate()
+            except OSError:
+                raise  # a real I/O failure on the temp file — the outer handler owns it
+            except Exception as exc:
+                # Neither `_from_dict` nor `validate()` coerces or type-checks
+                # values, so a well-formed YAML document carrying a wrongly typed
+                # value raises out of them instead of being reported as an issue —
+                # `log_level: 5` reaches `self.log_level.upper()` as an int, and
+                # `max_file_size_mb: 'big'` reaches a numeric comparison.  The
+                # content is invalid either way, so this refuses the save with an
+                # explanation rather than letting the exception escape and take
+                # the operator's unsaved edits with it (CR-3 / EC-11 / KR-05).
+                # The underlying loader defect belongs to the Configuration
+                # System feature and is filed separately.
+                get_panel_logger().warning(
+                    "config_save_blocked_invalid_value path=%s error_type=%s error=%s",
+                    path,
+                    type(exc).__name__,
+                    exc,
+                )
+                return SaveResult(
+                    False,
+                    "A setting has a value of the wrong type, so the configuration "
+                    "loader could not check it. Compare your changed keys against "
+                    "the documented types in the configuration guide. The loader "
+                    f"reported — {type(exc).__name__}: {exc}",
+                )
             if issues:
                 return SaveResult(False, "; ".join(issues))
         # data is None (empty / comments-only) = "all defaults" — valid by contract.

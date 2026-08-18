@@ -23,6 +23,7 @@ Unit tests for the Control Panel settings module
   three-source chain (recorded as a design decision in the feature state file).
 """
 
+import math
 from pathlib import Path
 
 import pytest
@@ -266,3 +267,87 @@ def test_registry_unresolved_when_no_source(tmp_path):
     assert res.path is None
     assert res.source == "unresolved"
     assert res.error  # operator guidance present
+
+
+# --------------------------------------------------------------------------- #
+# CR-10 / CR-11 — values and encodings that escaped the "never raises" contract
+# (Code Review 2026-08-17). UNIT-S3 above covers non-numeric, negative and zero
+# values plus malformed YAML, but never a non-finite number or a non-UTF-8 file:
+# `.inf`/`.nan` are `float` instances that also fail `value <= 0`, so they passed
+# every gate and reached the discovery thread, where `Event.wait(inf)` raises
+# OverflowError outside the caller's try and kills the poll loop silently.
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize(
+    "key, body, default",
+    [
+        ("poll_interval_seconds", "poll_interval_seconds: .inf\n", 2.5),
+        ("poll_interval_seconds", "poll_interval_seconds: .nan\n", 2.5),
+        ("grace_period_seconds", "grace_period_seconds: -.inf\n", 20.0),
+        ("log_idle_threshold_seconds", "log_idle_threshold_seconds: .inf\n", 3.0),
+    ],
+)
+def test_non_finite_values_default_with_warning(tmp_path, key, body, default):
+    """CR-10: `.inf`/`.nan` are rejected like any other invalid value.
+
+    Discriminating condition: without the finiteness check the value passes
+    through (it is a float, and neither `inf` nor `nan` satisfies `<= 0`), so the
+    setting comes back as inf/nan instead of the default and no warning is
+    recorded.
+    """
+    _write_config(tmp_path, body)
+
+    result = load_panel_settings(tmp_path)
+
+    assert math.isfinite(getattr(result.settings, key))
+    assert getattr(result.settings, key) == default
+    assert any(key in w for w in result.warnings)
+
+
+def test_out_of_range_integer_defaults_with_warning(tmp_path):
+    """CR-10: an integer too large to convert to float cannot escape as OverflowError.
+
+    Discriminating condition: `float(10**400)` raises, so without the guarded
+    conversion this call propagates OverflowError instead of returning settings.
+    """
+    _write_config(tmp_path, f"poll_interval_seconds: {'1' * 400}\n")
+
+    result = load_panel_settings(tmp_path)
+
+    assert result.settings.poll_interval_seconds == 2.5
+    assert any("poll_interval_seconds" in w for w in result.warnings)
+
+
+def test_non_utf8_panel_config_defaults_with_warning(tmp_path):
+    """CR-11: a non-UTF-8 panel config yields defaults, not an aborted startup.
+
+    `read_text` raises UnicodeDecodeError (a ValueError, not an OSError), which
+    used to escape `load_panel_settings` before any window existed — the panel
+    simply never opened and logged nothing. Discriminating condition: narrow the
+    handler back to OSError and this call raises.
+    """
+    (tmp_path / "panel-config.yaml").write_bytes(b"poll_interval_seconds: 3.0\n# caf\xe9\n")
+
+    result = load_panel_settings(tmp_path)
+
+    assert result.settings.poll_interval_seconds == 2.5  # the file was not applied
+    assert any("not valid UTF-8" in w for w in result.warnings)
+
+
+def test_valid_values_survive_the_new_guards(tmp_path):
+    """CR-10 guard rails must not reject legitimate values.
+
+    Discriminating condition: a finiteness/range check written too broadly (e.g.
+    rejecting ints, or comparing before conversion) would default these and emit
+    warnings.
+    """
+    _write_config(
+        tmp_path,
+        "poll_interval_seconds: 3.5\ngrace_period_seconds: 30\nlog_idle_threshold_seconds: 1\n",
+    )
+
+    result = load_panel_settings(tmp_path)
+
+    assert result.settings.poll_interval_seconds == 3.5
+    assert result.settings.grace_period_seconds == 30.0
+    assert result.settings.log_idle_threshold_seconds == 1.0
+    assert result.warnings == []

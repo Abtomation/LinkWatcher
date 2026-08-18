@@ -2,9 +2,9 @@
 id: PD-TDD-033
 type: Technical Design Document
 category: TDD Tier 2
-version: 1.5
+version: 1.7
 created: 2026-07-12
-updated: 2026-08-12
+updated: 2026-08-18
 description: "Technical Design Document (Tier 2) for LinkWatcher Control Panel (7.1.1)"
 feature_id: 7.1.1
 tier: 2
@@ -207,7 +207,7 @@ graph TD
 **Discovery (per poll)** — for each registry project:
 
 1. Read `<root>/.linkwatcher.lock` → candidate PID (absent → check for lockless orphans, below).
-2. Verify via psutil: process exists **and** command line contains `main.py` **and** its `--project-root` argument names this project. Three-way agreement or it isn't that project's daemon (KR-03). The root test compares the **value** of `--project-root` after case-folding and separator normalization — not a literal substring of the command line. Two reasons, both observed during Core Logic Implementation Phase B: the registry stores `C:\…\LinkWatcher` while the running daemon's command line carries `c:\…\LinkWatcher`, so a literal comparison (what the launcher's `Test-LinkWatcherAlreadyRunning` does) misses the project's own live daemon; and a bare substring test would let root `C:\proj\App` match a daemon belonging to `C:\proj\AppExtra`. A process whose command line carries no `--project-root` (the flag defaults to the working directory, which is invisible in the command line) is unidentifiable and is therefore **never** claimed — the panel must never act on a process it cannot attribute.
+2. Verify via psutil: process exists **and** command line contains `main.py` **and** its `--project-root` argument names this project. Three-way agreement or it isn't that project's daemon (KR-03). The root test compares the **value** of `--project-root` after case-folding and separator normalization — not a literal substring of the command line. Two reasons, both observed during Core Logic Implementation Phase B: the registry stores `C:\…\LinkWatcher` while the running daemon's command line carries `c:\…\LinkWatcher`, so a literal comparison (what the launcher's `Test-LinkWatcherAlreadyRunning` does) misses the project's own live daemon; and a bare substring test would let root `C:\proj\App` match a daemon belonging to `C:\proj\AppExtra`. A process whose command line carries no `--project-root` (the flag defaults to the working directory, which is invisible in the command line) is unidentifiable and is therefore **never** claimed — the panel must never act on a process it cannot attribute. Refined again during the Code Review gap closure (2026-08-18, CR-4/CR-5): agreement is now **four-way**, because entry script + project root alone are also satisfied by a `main.py --validate` broken-link scan of the same project — a routine, documented workflow. Any flag that makes `main.py` do something and exit rather than run the watcher (`--validate`, `--version`, `--help`) disqualifies the process. Measured against the live process table: before this clause a real scan was claimed alongside the genuine daemon pair, so a stopped project rendered RUNNING and Stop or window-close would have terminated the scan mid-run and truncated its report. Relatedly, root extraction no longer regex-searches a *re-joined* argv: psutil always returns a split argv, so joining it only created false positives — a wrapper shell whose single quoted argument merely mentions `main.py … --project-root X` (the shape of `bash -c '…'` and the documented `pwsh -Command '& …'` form) was claimed as the daemon and became eligible for termination. The regex fallback now applies only to a genuine one-token command line.
 3. Resolve the **process pair**: the daemon runs as venv-shim parent + base-interpreter child with near-identical command lines (established two-process pattern; the lock holds one of them). Discovery collects the verified process *plus* its parent/children that also match the command-line test — `pids` in the snapshot is the whole pair, and every lifecycle operation acts on the pair.
 4. Classify, in this precedence order — **the process table is truth, the lock is diagnostic**:
    1. Lock PID passes the identity test and its pair is alive → RUNNING (uptime = oldest `create_time` of the pair).
@@ -243,6 +243,8 @@ flowchart TD
 An incumbent is believed only when it **answers the handshake** with `LINKWATCHER-PANEL OK\n` (implementation refinement, Phase F): ephemeral ports are recycled, so a stale port file can name a port an unrelated process now owns, and treating a bare successful connect as "already running" would block the panel from ever opening again. The ack is what makes "connect failure ⇒ stale" trustworthy. Two further properties: bind failure is **fail-open** (the panel opens unguarded rather than not at all), and the port file is deleted on exit only when it still holds this instance's port — the self-owned-resource rule used for `.linkwatcher.lock` (§4.4). Simultaneous launches within the same few milliseconds can both acquire (two windows, never more); accepted as a Known Limitation rather than adding a second exclusion primitive.
 
 **Hook auto-open** (FR-8): `start_linkwatcher_hook_wrapper.ps1` gains one detached, non-blocking call that launches the panel via the install venv's `pythonw.exe` (no console window). Idempotent by construction — a running panel just gets surfaced. The hook must not wait on the panel process (session start latency unchanged).
+
+> **⚠️ Status (2026-08-18): NOT IMPLEMENTED.** The design above still stands, but the change does not exist. It was implemented and live-verified on 2026-08-10, never committed (feature 7.1.1 was untracked in git until 2026-08-17), and then reverted by the 2026-08-14 framework rollout. Verified at Code Review and again during the gap closure: `start_linkwatcher_hook_wrapper.ps1` carries no `pythonw` / `control_panel` / `Open-ControlPanel` reference in the working tree, at HEAD, or anywhere in git history. Re-implementation is tracked as **PF-IMP-2032** and must run through Process Improvement — the file is on the framework path, so a local edit is reverted by the next rollout. **FR-8, UI-7, BR-8 and the first clause of AC-11 are therefore UNMET**, and the panel's single-instance surfacing (the second clause) is what remains delivered.
 
 **Log tail** (FR-5/EC-5): on selection, seek to `max(0, size - 64 KB)` and render the tail; thereafter a 500 ms UI-timer tick reads only appended bytes. Rotation/truncation detection: current file missing or size shrank ⇒ reattach to the newest `LinkWatcherLog*.txt` from the start. Display buffer capped at 1,000 lines (trim from top). No-log ⇒ placeholder state, never an error dialog.
 
@@ -329,7 +331,7 @@ All runtime dependencies already exist — nothing must be implemented first:
 - Features 0.1.1 (CLI + lock), 0.1.3 (config loader/validator), 3.1.1 (log files), 6.1.1 (`--validate`) — all 🟢 Completed.
 - `psutil >= 5.9.0` — already in `pyproject.toml`; Tkinter — stdlib. **No new packages.**
 - Central `project-registry.json` (exists in appdev central) — consumed read-only.
-- `start_linkwatcher_hook_wrapper.ps1` — small additive change (panel auto-open call) inside this feature's scope.
+- `start_linkwatcher_hook_wrapper.ps1` — small additive change (panel auto-open call) inside this feature's scope. **Not delivered** — see the §4.5 status note; tracked as PF-IMP-2032 on the framework path.
 
 ### 6.2 Implementation Steps
 
@@ -391,7 +393,7 @@ Live state, per-phase progress, and implementation decisions are tracked in the 
 - **D-T2 — Grace period 20 s, configurable** via `panel-config.yaml` (checkpoint-approved): covers one 10 s move-correlation window + apply time; drain quiescence = newest log file silent ≥ 3 s.
 - **D-T3 — Localhost-socket single instance** with `panel.port` file (checkpoint-approved): one mechanism for both single-instance and hook auto-open surfacing. Refined in Phase F (checkpoint-approved 2026-08-10): an incumbent must answer a fixed banner handshake, since a recycled port would otherwise block the panel permanently; simultaneous-launch double-acquire accepted as a Known Limitation.
 - **D-T4 — Start via the existing launcher script**, never a direct daemon spawn — reuses singleton/stale-lock/crash-disposition logic.
-- **D-T5 — Termination requires three-way identity agreement** (lock PID + `main.py` in command line + project root) and always targets the two-process pair. The root leg compares the normalized *value* of `--project-root`, and an unattributable process is never claimed (§4.4 step 2, refined during Phase B).
+- **D-T5 — Termination requires four-way identity agreement** (lock PID + `main.py` in command line + project root + *not* a non-daemon run mode) and always targets the two-process pair. The root leg compares the normalized *value* of `--project-root`, an unattributable process is never claimed, and a process running an exit-mode flag (`--validate` / `--version` / `--help`) is never claimed however well the other legs match (§4.4 step 2; root-value leg refined during Phase B, run-mode leg and the raw-argv fallback restriction added 2026-08-18 for CR-4/CR-5).
 - **D-T6 — Config validation reuses `LinkWatcherConfig.validate()`** — no parallel validator to drift; saves are atomic (temp + `os.replace`).
 
 ### Known Issues

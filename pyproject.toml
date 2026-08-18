@@ -33,7 +33,10 @@ dependencies = [
     # Imported by main.py for repository detection. Undeclared until now: the
     # installed venv only carried it by historical accident, so a venv built
     # from this list alone failed `main.py --help` with "No module named 'git'".
-    "GitPython>=3.1.0",
+    # >=3.1.41: 3.1.0–3.1.40 carry CVE-2023-40590 (Windows untrusted search
+    # path for git.exe) and CVE-2023-41040. Reachable in shape here, since
+    # Repo() runs on Windows against user-supplied project roots (CR-18).
+    "GitPython>=3.1.41",
     # Runtime dependency of the Control Panel (feature 7.1.1): process
     # enumeration, three-way daemon identity, and termination. Previously
     # declared only under the [test] extra, which left the installed venv

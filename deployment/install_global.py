@@ -15,7 +15,6 @@ import argparse
 import platform
 import re
 import shutil
-import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -35,43 +34,6 @@ CORE_DIRS = [
     ("config-examples", "config-examples"),
     ("doc/user/handbooks", "doc/user/handbooks"),
 ]
-
-
-def stop_running_linkwatcher(project_root):
-    """Stop any running LinkWatcher instance before installation.
-
-    Reads .linkwatcher.lock to find the PID and terminates the process.
-    This prevents Permission denied errors when overwriting venv files.
-    """
-    lock_file = project_root / ".linkwatcher.lock"
-    if not lock_file.exists():
-        return
-
-    try:
-        pid = int(lock_file.read_text().strip())
-    except (ValueError, OSError):
-        return
-
-    import os
-    import platform
-
-    try:
-        if platform.system() == "Windows":
-            subprocess.run(
-                ["taskkill", "/F", "/PID", str(pid)],
-                capture_output=True,
-            )
-        else:
-            os.kill(pid, signal.SIGTERM)
-        print(f"OK: Stopped running LinkWatcher (PID: {pid})")
-    except (ProcessLookupError, PermissionError, OSError):
-        pass
-
-    # Clean up lock file
-    try:
-        lock_file.unlink(missing_ok=True)
-    except OSError:
-        pass
 
 
 def parse_daemon_lines(output):
@@ -109,9 +71,14 @@ def find_venv_daemon_processes(venv_dir):
     (pid, command_line); empty on any query failure (best-effort — the
     venv_python_locked pre-flight gate is the safety net).
     """
+    # A single-quoted PowerShell literal ends at the first apostrophe, so an
+    # install path containing one (an O'Brien home directory, say) silently
+    # produced a malformed script that matched nothing (CR-20). PowerShell
+    # escapes an apostrophe inside a single-quoted string by doubling it.
+    venv_literal = str(venv_dir).replace("'", "''")
     ps_script = (
         "Get-CimInstance Win32_Process | "
-        f"Where-Object {{ $_.ExecutablePath -like '{venv_dir}*' }} | "
+        f"Where-Object {{ $_.ExecutablePath -like '{venv_literal}*' }} | "
         'ForEach-Object { "$($_.ProcessId)|$($_.CommandLine)" }'
     )
     try:
@@ -576,6 +543,22 @@ def create_wrapper_scripts(install_dir):
         print(f"OK: Wrapper scripts created: {', '.join(scripts_created)}")
 
 
+def smoke_failure_reason(result):
+    """Best available reason text from a finished smoke-test subprocess (CR-17).
+
+    The smoke tests used to render ``result.stderr`` alone, but
+    ``control_panel.py`` reports its dependency diagnostic with a bare
+    ``print()`` -- i.e. on stdout -- so a genuine failure printed
+    "ERROR: ... failed:" with nothing after it. Prefers stderr, falls back to
+    stdout, and finally names the exit code so the message is never empty.
+    """
+    for stream in (result.stderr, result.stdout):
+        text = (stream or "").strip()
+        if text:
+            return text
+    return f"no output; exit code {result.returncode}"
+
+
 def test_installation(install_dir):
     """Test if the installation works using the dedicated venv Python."""
     print("\nTesting installation...")
@@ -591,7 +574,7 @@ def test_installation(install_dir):
         )
 
         if result.returncode != 0:
-            print(f"ERROR: LinkWatcher failed: {result.stderr}")
+            print(f"ERROR: LinkWatcher failed: {smoke_failure_reason(result)}")
             return False
         print("OK: LinkWatcher runs successfully")
 
@@ -605,7 +588,9 @@ def test_installation(install_dir):
                 text=True,
             )
             if panel_result.returncode != 0:
-                print(f"ERROR: LinkWatcher Control Panel failed: {panel_result.stderr}")
+                print(
+                    f"ERROR: LinkWatcher Control Panel failed: {smoke_failure_reason(panel_result)}"
+                )
                 return False
             print("OK: LinkWatcher Control Panel runs successfully")
 
@@ -717,7 +702,6 @@ def main():
     print(f"Source:  {project_root}")
     print(f"Target:  {install_dir}")
 
-    stop_running_linkwatcher(project_root)
     stop_daemons_using_venv(install_dir)
 
     if venv_python_locked(install_dir):

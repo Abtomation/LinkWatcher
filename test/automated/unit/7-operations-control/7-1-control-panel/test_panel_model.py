@@ -25,6 +25,7 @@ Pin expiry is driven by the injected ``fake_clock`` — the model never waits, s
 deadline behavior (including the exact boundary) is asserted deterministically.
 """
 
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -373,3 +374,164 @@ def test_validation_state_change_notifies(fake_clock):
 
     assert recorder.calls == 1
     assert model.validation["PRJ-001"].state == "running"
+
+
+# --------------------------------------------------------------------------- #
+# CR-14 — a failed poll is not evidence of an empty registry
+# (Code Review 2026-08-17). `discovery` returns `PollResult([], "Discovery
+# failed: ...")` when a poll raises, which `apply_poll` used to apply as
+# "there are zero projects": rows vanished and the selection cleared, which
+# reloads the Configuration pane and discards the operator's unsaved edits.
+# The suite never caught it because no test applied an error *without* rows.
+# --------------------------------------------------------------------------- #
+def test_failed_poll_preserves_rows_and_selection(fake_clock):
+    """CR-14: no-rows-plus-error records the error and keeps the last truth.
+
+    Discriminating condition: apply the old behaviour (replace poll state
+    unconditionally) and both the row and the selection are gone here.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001"), _snapshot("PRJ-002")])
+    model.select("PRJ-002")
+
+    model.apply_poll([], error="Discovery failed: registry unreadable")
+
+    assert [row.project.project_id for row in model.rows()] == ["PRJ-001", "PRJ-002"]
+    assert model.selected_project_id == "PRJ-002"
+    assert model.discovery_error == "Discovery failed: registry unreadable"
+
+
+def test_failed_poll_does_not_claim_a_refresh(fake_clock):
+    """CR-14: `last_refresh` means "when reality was last observed".
+
+    A poll that raised observed nothing, so advancing the timestamp would assert
+    a successful observation that never happened. The list pane's error mode
+    outranks its wait state, so leaving it untouched cannot strand a spinner.
+
+    The first timestamp is injected rather than taken from the clock: with two
+    real ``datetime.now()`` calls this close together, both land inside one clock
+    granularity tick on Windows and compare equal, so the assertion passed even
+    with the fix removed. Injecting a distant value makes any write detectable.
+    """
+    injected = datetime(2026, 1, 1, 12, 0, 0)
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001")], refreshed_at=injected)
+    assert model.last_refresh == injected  # precondition
+
+    model.apply_poll([], error="Discovery failed: registry unreadable")
+
+    assert model.last_refresh == injected
+
+
+def test_failed_poll_keeps_pins(fake_clock):
+    """CR-14: a transient failure must not drop a transitional pin either.
+
+    Dropping the pin would flip a row mid-action back to poll truth and re-enable
+    an action whose worker is still running.
+
+    The poll row must be RUNNING: a DRAINING pin is resolved by an observed
+    STOPPED status (the drain completed), so pinning against the `_snapshot`
+    default would resolve the pin immediately and prove nothing.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001", DaemonStatus.RUNNING, [1])])
+    model.pin("PRJ-001", DaemonStatus.DRAINING, ttl_seconds=25.0)
+    assert model.pinned_status("PRJ-001") == DaemonStatus.DRAINING  # precondition
+
+    model.apply_poll([], error="Discovery failed: registry unreadable")
+
+    assert model.pinned_status("PRJ-001") == DaemonStatus.DRAINING
+
+
+def test_successful_empty_poll_still_clears_rows_and_selection(fake_clock):
+    """The CR-14 fix must not mask a registry that legitimately became empty.
+
+    Discriminating condition: gating on "no rows" alone (instead of "no rows AND
+    an error") would keep stale rows forever once every project was deregistered.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001")])
+    model.select("PRJ-001")
+
+    model.apply_poll([])  # a successful poll that observed zero projects
+
+    assert model.rows() == []
+    assert model.selected_project_id is None
+    assert model.discovery_error is None
+
+
+def test_poll_with_rows_and_an_error_still_applies_the_rows(fake_clock):
+    """A poll that returned rows is real truth even when it also carries an error.
+
+    Matches `list_pane_display`'s precedence: rows win, and an error alongside
+    rows belongs in the status bar rather than replacing the list.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001")])
+
+    model.apply_poll([_snapshot("PRJ-002")], error="one project could not be read")
+
+    assert [row.project.project_id for row in model.rows()] == ["PRJ-002"]
+    assert model.discovery_error == "one project could not be read"
+
+
+# --------------------------------------------------------------------------- #
+# CR-7 — results are applied in completion order, so order them explicitly
+# (Code Review 2026-08-17). Sequences are stamped at poll *start*, so a lower
+# one observed reality earlier no matter when it finished.
+# --------------------------------------------------------------------------- #
+def test_stale_poll_result_never_overwrites_newer_truth(fake_clock):
+    """CR-7: a slow poll that lands after a faster later one is dropped.
+
+    Discriminating condition: ignore the sequence and the straggler below
+    overwrites RUNNING with STOPPED — the panel then shows a stopped daemon as
+    running (or the reverse) until the next poll happens to correct it.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001", DaemonStatus.RUNNING, [1])], sequence=5)
+
+    model.apply_poll([_snapshot("PRJ-001", DaemonStatus.STOPPED)], sequence=3)
+
+    assert model.rows()[0].status is DaemonStatus.RUNNING
+
+
+def test_newer_poll_result_is_applied(fake_clock):
+    """CR-7 guard rail: ordering must not block genuine progress.
+
+    Discriminating condition: a comparison written the wrong way round (or one
+    that latches) would freeze the list on its first snapshot forever.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001", DaemonStatus.RUNNING, [1])], sequence=5)
+
+    model.apply_poll([_snapshot("PRJ-001", DaemonStatus.STOPPED)], sequence=6)
+
+    assert model.rows()[0].status is DaemonStatus.STOPPED
+
+
+def test_stale_poll_error_is_dropped_too(fake_clock):
+    """CR-7: a straggler's *error* is as stale as its rows.
+
+    Applying it would raise a failure banner describing a registry state that has
+    since been superseded.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001")], sequence=9)
+
+    model.apply_poll([], error="registry unreadable", sequence=4)
+
+    assert model.discovery_error is None
+
+
+def test_unsequenced_polls_are_unaffected(fake_clock):
+    """Callers that pass no sequence keep the previous behaviour exactly.
+
+    Discriminating condition: gating on a default sequence of 0 would make the
+    second call here a no-op and silently freeze every unsequenced caller.
+    """
+    model = AppModel(clock=fake_clock)
+    model.apply_poll([_snapshot("PRJ-001", DaemonStatus.RUNNING, [1])])
+
+    model.apply_poll([_snapshot("PRJ-001", DaemonStatus.STOPPED)])
+
+    assert model.rows()[0].status is DaemonStatus.STOPPED

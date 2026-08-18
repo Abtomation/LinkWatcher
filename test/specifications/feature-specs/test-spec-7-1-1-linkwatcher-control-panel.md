@@ -2,9 +2,9 @@
 id: TE-TSP-045
 type: Document
 category: General
-version: 1.5
+version: 1.6
 created: 2026-07-12
-updated: 2026-08-14
+updated: 2026-08-18
 description: "7.1.1 Tier 2 — Control Panel discovery classification, drain-then-terminate lifecycle, termination guard, detail panes, single instance"
 feature_id: 7.1.1
 feature_name: LinkWatcher Control Panel
@@ -21,7 +21,7 @@ This document provides comprehensive test specifications for the **LinkWatcher C
 **Test Tier**: 2 (Comprehensive: unit + integration + UI/component)
 **TDD Reference**: [PD-TDD-033](../../../doc/technical/architecture/design-docs/tdd/tdd-7-1-1-linkwatcher-control-panel-t2.md)
 **Created**: 2026-07-12
-**Implementation Coverage**: 70/70 scenarios implemented (100%) — Phases A–G done (UNIT-S/D/M/L/T/V/C/I, INT-1…INT-9, COMP-1…COMP-8). Phase G closed INT-8, COMP-2 and COMP-8 and swept EC-1…EC-11 (see [Edge-Case Coverage](#edge-case-coverage-ec-1ec-11) below)
+**Implementation Coverage**: 83/83 scenarios implemented (100%) — Phases A–G, plus the Code Review gap closure (PF-STA-111, three sessions): session 1 added UNIT-C7/C8, UNIT-S7, UNIT-M8 and corrected the EC-10/EC-11 coverage claims; session 2 added UNIT-D11/D12, UNIT-M9 and UNIT-L12…L15 (the last closing TD263); session 3 added INT-10 and UNIT-P1. Every assertion added across the three sessions was mutation-verified — broken deliberately, confirmed to turn its own test red, and restored
 
 ## Feature Context
 
@@ -131,6 +131,8 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | UNIT-M5 | Pin expiry | Pin whose deadline passed is dropped; next poll truth wins (hung action never freezes a row) | Deadline exactly at boundary |
 | UNIT-M6 | Pin resolution | STARTING pin cleared when poll observes the running pair; DRAINING cleared on observed exit | Poll confirms before worker resolves |
 | UNIT-M7 | Shutdown mode | `shutting_down = True` reflected to subscribers as global mode | Set twice (idempotent) |
+| UNIT-M8 | Failed poll is not an empty registry (CR-14) | A poll that raised returns no snapshots **plus** an error; applying that as truth used to drop every row and clear the selection, which reloads the Configuration pane and discards unsaved edits. Rows, selection, pins and `last_refresh` are all preserved on a no-rows-plus-error result. Paired with two discriminating cases: a *successful* empty poll still clears rows and selection (so a deregistered registry is not masked), and a poll returning rows **with** an error still applies the rows — matching `list_pane_display`'s "rows win" precedence | fake clock, injected `refreshed_at` |
+| UNIT-M9 | Stale poll rejection (CR-7) | Results are applied in completion order, so a slow poll can land after a faster later one; sequences stamped at poll *start* let the model drop the straggler, including its error. Paired with guards that a genuinely newer poll still applies and that unsequenced callers are unaffected | fake clock |
 
 #### Services
 
@@ -143,6 +145,7 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | UNIT-S3 | Invalid values | Non-numeric / negative values rejected → defaults + surfaced warning, never crash | tmp file |
 | UNIT-S4 | Registry resolution order | CLI arg beats env var beats config key (each level tested) | env patching, tmp files |
 | UNIT-S5 | Unresolved registry | No source configured → error-banner state, **distinct from** empty-registry (EC-8) state | — |
+| UNIT-S7 | Non-finite / non-UTF-8 settings (CR-10, CR-11) | `.inf` / `.nan` / `-.inf` and an out-of-float-range integer are rejected like any other invalid value — they used to pass every gate (both are `float`, and neither satisfies `<= 0`) and reach the discovery thread, where `Event.wait(inf)` raises `OverflowError` outside the caller's try and silently kills polling. A non-UTF-8 `panel-config.yaml` yields defaults + a warning instead of aborting startup before any window exists. Paired with a case asserting legitimate values (including ints) still apply with no warnings | tmp install dir, raw bytes |
 
 **`discovery.py` — classification & identity**
 
@@ -158,6 +161,8 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | UNIT-D8 | Malformed lock | Garbage lock-file content → defensive STALE_LOCK/error detail, no exception | tmp lock file |
 | UNIT-D9 | Malformed registry | Unparseable `project-registry.json` → surfaced error state, no crash | tmp registry file |
 | UNIT-D10 | Empty registry | Zero projects → empty snapshot set (EC-8 calm state) | tmp registry file |
+| UNIT-D11 | Run-mode discrimination (CR-4) | A `main.py --validate` scan of the *same* project carries the same entry script and the same `--project-root` as the daemon; it must never be claimed, or a stopped project renders RUNNING and Stop/close truncates the scan. `--version` / `--help` likewise. Paired with a guard case proving ordinary daemon flags (`--debug`, `--quiet`, `--dry-run`, `--no-initial-scan`, `--log-file`) are still claimed | process entries |
+| UNIT-D12 | Wrapper shells are not daemons (CR-5) | `bash -c '…'`, `pwsh -Command '& …'` and `cmd /c '…'` whose single quoted argument mentions `main.py … --project-root X` must not be claimed — the old fallback regex-searched a *re-joined* argv. Paired with a guard case keeping the documented one-token raw command line parseable | process entries |
 
 **`lifecycle.py` — start / drain / terminate**
 
@@ -174,6 +179,10 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | UNIT-L9 | Termination guard | Refuses to terminate when three-way agreement fails at kill time (PID recycled between poll and action) | fake process table |
 | UNIT-L10 | Lock cleanup (owned) | After confirmed exit, lock deleted **only if** it still holds the terminated PID | tmp lock file |
 | UNIT-L11 | Lock cleanup (foreign) | Lock now holds a different PID → left intact | tmp lock file |
+| UNIT-L12 | Pin outlives its worker (CR-8) | The DRAINING pin TTL must exceed the stop worker's worst case — the full grace period plus the exit wait — or the row reverts to Running mid-stop and re-enables a Stop the busy guard then swallows | pure arithmetic over the module constants |
+| UNIT-L13 | Launcher shell resolution (CR-9) | `pwsh.exe` is resolved to an absolute path with relative PATH entries skipped, so Windows' current-directory-first search cannot supply the shell. `shutil.which` is *not* usable here — on Windows it prepends `os.curdir` even when given an explicit `path=`. Paired with a guard that an unresolvable PATH degrades to the bare name rather than losing Start | tmp dirs, decoy exe |
+| UNIT-L14 | Capture sweep (CR-12) | Every successful Start leaked a stdout/stderr capture pair (the spawned daemon inherits the handle; the CRT opens without `FILE_SHARE_DELETE`), so each run sweeps aged captures. Paired with guards that only this module's own prefixes are touched and that an in-flight capture survives | tmp dir |
+| UNIT-L15 | Unconfirmed exit (TD263) | A terminator whose target does *not* leave the process table drives `wait_for_exit` to its timeout: the outcome reports `exited=False` and the lock is left intact. Previously unreachable because the fake terminator removed PIDs synchronously (TE-TAR-090) | unlinked fake terminator, fake clock |
 
 **`log_tail.py`**
 
@@ -205,6 +214,8 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | UNIT-C4 | Atomic save | Valid content → temp file in same directory + `os.replace`; result byte-identical to submitted text | tmp config file |
 | UNIT-C5 | Interrupted save | Failure injected between temp-write and replace → original file intact, no truncation | tmp config file |
 | UNIT-C6 | Default skeleton | "Create default config" writes a minimal commented skeleton that round-trips through `LinkWatcherConfig.from_file()` | tmp dir |
+| UNIT-C7 | Non-UTF-8 read (CR-2) | A config with an undecodable byte → read-error state, **not** an escaping `UnicodeDecodeError`; also asserts it is *not* decoded leniently, since lossy text would be written back on the next save (EC-10) | tmp config file with raw bytes |
+| UNIT-C8 | Wrongly typed value blocked (CR-3) | `log_level: 5`, `max_file_size_mb: 'big'`, `monitored_extensions: 7`, `move_detect_delay: 'x'` — the real loader *raises* on each rather than reporting an issue (PD-BUG-123) → save blocked with an operator-facing explanation, file byte-identical, no temp residue. Paired with a discriminating case asserting an ordinary `validate()` issue still takes the issue path, so the handler cannot swallow normal reporting (EC-11, KR-05) | tmp config file, real validator |
 
 **`single_instance.py`**
 
@@ -230,6 +241,8 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | INT-7 | Config save + running daemon | config_edit + model | Valid save while project's row is RUNNING | Restart-needed notice state produced (BR-9/AC-12); not shown when STOPPED |
 | INT-8 | Worker error isolation | any worker → panel log → model | Worker raises unexpectedly | Exception caught, written to panel log, rendered as pane-local error; other rows/panes unaffected (TDD §3.3) |
 | INT-9 | Duplicate-start race | lifecycle + discovery | Start requested while fixture daemon already present for the project | Launcher's idempotent path taken; exactly one RUNNING row, no second start (EC-2/AC-10) |
+| INT-10 | Observability instrumentation (CR-13, CR-19) | Dispatcher queue depth is logged at DEBUG when non-empty (and *not* when idle, or the panel writes ten lines a second doing nothing); a poll past the §7.1 500 ms budget is raised to WARNING so a responsiveness problem is visible without re-running under `--debug`; an exception Tk raises inside its own callback is recorded with its traceback and the handler itself can never raise. Both rules live in module-level, Tk-free functions so they are assertable without a display (the Decision 11a precedent) | real `panel.log` logger, fake clock |
+| UNIT-P1 | Installer and packaging (CR-17, CR-18, CR-20) | Smoke-test failure reasons render from whichever stream carries them — `control_panel.py` reports dependency problems on **stdout**, so rendering `stderr` alone printed an empty reason; the GitPython floor excludes the CVE-bearing releases; an apostrophe in the install path is doubled before interpolation into a single-quoted PowerShell literal. Lives in `test_panel_installer_packaging.py` (TE-TST-153) because the code is in `deployment/` and `pyproject.toml`, not the panel subpackage | fake CompletedProcess, real `pyproject.toml` |
 
 ### UI/Component Tests
 
@@ -272,8 +285,21 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | EC-7 | Start failure → reason surfaced, list stays truthful | UNIT-L3 (captured reason) **+ EC-7 pipeline test** (the START_FAILED outcome pin decays and poll truth wins) |
 | EC-8 | No registered projects → empty state, not an error | UNIT-D10 (empty snapshot set), UNIT-S5 (distinct from unresolved registry), **COMP-8** (calm wording, toolbar all-disabled, and a pending discovery is never rendered as "no projects") |
 | EC-9 | Second panel instance → surface the existing window | UNIT-I1…I4 incl. the recycled-port guard (a foreign listener must not block the panel) |
-| EC-10 | Missing / malformed config → surfaced, never overwritten | UNIT-C1 (read-error state, file never auto-written) |
-| EC-11 | Invalid config value → save blocked, explained | UNIT-C2 (line-numbered YAML error), UNIT-C3 (real `LinkWatcherConfig.validate()`), both asserting the file on disk is untouched |
+| EC-10 | Missing / malformed config → surfaced, never overwritten | UNIT-C1 (read-error state, file never auto-written), **UNIT-C7** (non-UTF-8 file → read-error, not an escaping `UnicodeDecodeError`, and never decoded leniently) |
+| EC-11 | Invalid config value → save blocked, explained | UNIT-C2 (line-numbered YAML error), UNIT-C3 (real `LinkWatcherConfig.validate()`), **UNIT-C8** (wrongly *typed* value, where the real loader raises instead of reporting an issue), all asserting the file on disk is untouched |
+
+> **Coverage correction (Code Review 2026-08-17, findings CR-2 / CR-3).** The two
+> rows above previously cited only UNIT-C1 and UNIT-C2/C3 and read as full
+> coverage of EC-10 and EC-11, but neither edge case was covered at the point
+> that mattered. UNIT-C1 exercised only `OSError`, so a **non-UTF-8** config
+> raised `UnicodeDecodeError` (a `ValueError`) straight out of `read_config`'s
+> documented "never raises" contract; UNIT-C3 exercised only well-typed-but-invalid
+> values, so a **wrongly typed** value (`log_level: 5`) raised `AttributeError`
+> out of the save pipeline with no blocked-save notice and no log entry. UNIT-C7,
+> UNIT-C8, UNIT-S7 and UNIT-M8 close the gap; each was mutation-verified (break
+> the fix, confirm that assertion — and only it — goes red). This is the second
+> corrected over-claim in this table's history: TE-TAR-094 previously found CRLF
+> normalization documented as tested with no test behind it (TD264, still open).
 
 ## Mock Requirements
 

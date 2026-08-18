@@ -50,8 +50,7 @@ python deployment/install_global.py
 ```
 
 This script:
-- Stops any running LinkWatcher instance (via `.linkwatcher.lock`) so files can be overwritten
-- Stops **all** daemons running from the install-dir venv — other projects' daemons lock `.linkwatcher-venv\Scripts\python.exe` and would fail the venv rebuild (PD-BUG-106); stopped daemons restart at each project's next session start
+- Stops **all** daemons running from the install-dir venv — including this project's own — so no running process locks `.linkwatcher-venv\Scripts\python.exe` and fails the venv rebuild (PD-BUG-106); daemons are identified by executable path, never by a lock-file PID (PD-BUG-121), and restart at each project's next session start
 - Aborts cleanly (before any files are copied) if the venv `python.exe` is still locked after the daemon stop
 - Checks the Python version (3.8+ required)
 - Installs/updates dependencies from `pyproject.toml` (`pip install -e .`)

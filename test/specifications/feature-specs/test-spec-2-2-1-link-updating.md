@@ -144,6 +144,58 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 
 **Test File**: [`test/automated/unit/2-link-parsing-update/test_simultaneousmoves.py`](../../automated/unit/2-link-parsing-update/test_simultaneousmoves.py) (TE-TST-145, 10 methods). Manual validation: `test/bug-validation/PD-BUG-114_simultaneous_move_validation.py` (3 scenarios — both event orders plus authored-form preservation).
 
+#### Path-Span Integrity (PD-BUG-118)
+
+> **Added 2026-08-17** — a reference-update pass corrupted content *adjacent* to the matched path. Three independent mechanisms, all confirmed by reproduction: docstring reference columns recorded relative to the extracted docstring text rather than the physical line; `normalize_path()` output stripping an authored trailing separator; and bare-path character classes swallowing sentence punctuation into the target. The governing contract is the same one the authored-form guard above states for the sibling write path — a rewrite changes **where** a target points, never how it was written, and never a character outside the matched span.
+
+| Scenario | Test | Expected Outcome |
+|----------|------|------------------|
+| Docstring column drift, end-to-end | `test_docstring_line_replacement_has_no_character_duplication` | The literal bug evidence line rewrites cleanly; `ptest/` and `permanentanent` absent (negative assertions) |
+| Prose outside the span | `test_docstring_replacement_leaves_prose_byte_identical` | Whole line byte-identical apart from the path itself |
+| Exact directory match | `test_exact_directory_match_preserves_trailing_slash` | `doc/state-tracking/` → `doc/moved-tracking/` — authored trailing slash kept |
+| Control: no slash authored | `test_slashless_target_stays_slashless` | A target authored without a trailing slash must not gain one |
+| Directory-prefix branch | `test_subdirectory_prefix_match_preserves_trailing_slash` | Prefix-match rewrites preserve the trailing slash too |
+| Root-absolute form | `test_leading_slash_form_preserves_trailing_slash` | `/doc/x/` keeps **both** leading and trailing slash |
+| Backslash form | `test_backslash_target_preserves_trailing_backslash` | Separator style *and* trailing separator survive (PD-BUG-112 sibling) |
+| No-op move | `test_no_op_move_does_not_rewrite_file` | A move whose old and new paths are equal must never write the file |
+
+**Test File**: [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) (69 methods; `TestDocstringColumnCorruption` 2, `TestTrailingSlashPreservation` 6). Parser-side columns and punctuation trimming are specified in [test-spec-2-1-1](test-spec-2-1-1-link-parsing-system.md). Manual validation: `test/bug-validation/PD-BUG-118_path_span_corruption_validation.py` (10 checks across both defect classes, driving the real service with a real directory move).
+
+#### Move-Memory Thread Safety (PD-BUG-119)
+
+> **Added 2026-08-17** — the move memory the simultaneous-move fix introduced (`_recent_moves`, `_pending_recalcs`) is reached from two threads: the watchdog observer thread via `_handle_file_moved`, and the DirectoryMoveDetector worker thread via `_handle_directory_moved`. `handler.on_moved` does not serialize them, so a single-file move landing inside an open directory-move settle window interleaves with per-file processing. The contract: concurrent move processing leaves move memory and pending recalcs consistent — no exception escapes, and no deferred repair is lost.
+>
+> Interleavings are driven **deterministically** rather than raced: each test hooks a callable the production code already invokes inside the vulnerable window (a timestamp comparison inside `_prune_move_memory`'s iteration; the `time.monotonic()` call between `setdefault` and the store in `_register_pending_recalc`), so the competing thread runs at exactly the right instruction inside the real code path.
+
+| Scenario | Test | Expected Outcome |
+|----------|------|------------------|
+| Registration during prune, via `record_move` | `test_record_move_survives_registration_during_prune` | No `RuntimeError` escapes; the competing registration is retained. This is the severe path — `record_move` sits at the top of `_handle_file_moved`'s try, so an escape abandons the **entire** move update |
+| Registration during prune, via lookup | `test_lookup_recent_move_survives_registration_during_prune` | Lookup still returns its answer; the quiet path, where the error would be swallowed by `_calculate_updated_relative_path` and leave the link silently stale |
+| Pop during registration | `test_registration_is_not_lost_to_a_concurrent_apply` | The pending entry is either still queued or delivered to `apply_pending_recalcs` — never dropped into an orphaned dict (two-sided assertion: "delivered only" would fail on benign orderings, "queued only" would pass a run that consumed nothing) |
+| Re-entrant repair (design pin) | `test_apply_pending_recalcs_does_not_deadlock_on_reentrant_repair` | `apply_pending_recalcs` must release the lock before its repair callback, which re-enters the guarded methods. Passes pre-fix by construction; it exists to fail an over-locking fix, whose deadlock is worse than the race |
+| Concurrent stress (backstop) | `test_two_threads_hammering_move_memory_raise_nothing` | Covers `record_move`'s chain read-modify-write; no exception, and every recorded move stays resolvable |
+
+**Test File**: [`test/automated/unit/2-link-parsing-update/test_movememorythreadsafety.py`](../../automated/unit/2-link-parsing-update/test_movememorythreadsafety.py) (TE-TST-152, 5 methods). No manual validation script: a race in internal state has no trigger a human can drive reproducibly by hand, so a manual run that observed no corruption would prove nothing.
+
+#### Authored Trailing Separator Inside a Moved File (PD-BUG-120)
+
+> **Added 2026-08-17** — the sibling half of Path-Span Integrity above. PD-BUG-118 restored the authored trailing separator for references in **other** files, at the `PathResolver.calculate_new_target` choke point; links **inside** a moved file are recalculated by `reference_lookup._calculate_updated_relative_path`, which that helper never reaches and which returns raw `os.path.relpath` output — so `doc/x/` came back as `../doc/x`. The authored-form guard (PD-BUG-114) only protects links that still resolve unchanged, so the loss lands exactly on legitimate rewrites. Contract, unchanged from its sibling: a rewrite changes **where** a target points, never how it was written. The damaging manifestation is a path used as a concatenation prefix in a moved `.py`/`.ps1`/`.yaml` — `logs/linkwatcher/` + `run.log` silently becomes `../logs/linkwatcherrun.log`, with nothing logged.
+
+| Scenario | Test | Expected Outcome |
+|----------|------|------------------|
+| Main branch (target exists) | `test_bug120_main_branch_keeps_trailing_slash` | `doc/state-tracking/` → `../doc/state-tracking/`; slash-less form absent (negative assertion) |
+| `./dir/` authored form | `test_bug120_dot_slash_authored_form_keeps_trailing_slash` | The dot-slash form keeps its trailing separator through recalculation |
+| Backslash authored form | `test_bug120_backslash_authored_form_keeps_a_trailing_separator` | Ends in a separator matching the result's own style — never a mixed `../doc/x\` |
+| Move-memory branch | `test_bug120_move_memory_branch_keeps_trailing_slash` | A target that moved in the same operation is re-pointed **with** its separator |
+| Move-memory, root destination | `test_bug120_move_memory_to_root_keeps_trailing_slash` | Distinct return site: the mapped target is returned without `relpath` and still keeps the separator |
+| Trailing separator + anchor | `test_bug120_trailing_slash_with_anchor_keeps_both` | `doc/x/#top` → `../doc/x/#top` — the separator belongs before the fragment |
+| Control: none authored | `test_bug120_no_separator_invented_when_none_authored` | A reference authored without a separator must not gain one |
+| Control: file target | `test_bug120_file_target_unaffected` | File references are untouched by the restoration |
+| End-to-end, markdown | `test_bug120_markdown_directory_link_keeps_trailing_slash` | Real service move: `[state](doc/state-tracking/)` → `(../doc/state-tracking/)` |
+| End-to-end, concatenation prefix | `test_bug120_python_concatenation_prefix_keeps_trailing_slash` | `LOG_DIR = "logs/linkwatcher/"` in a moved `.py` still concatenates to a valid path |
+
+**Test Files**: unit — [`test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py) (`TestBug120TrailingSeparatorPreserved`, 8 methods, at the function that produces the value); end-to-end — [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py) (`TestBug120TrailingSeparatorWithinMovedFile`, 2 methods, driving the real service). Manual validation: `test/bug-validation/PD-BUG-120_trailing_separator_within_moved_file_validation.py` (6 checks, including what the concatenation in the moved file evaluates to before and after).
+
 ## Test Implementation Roadmap
 
 ### Priority Order

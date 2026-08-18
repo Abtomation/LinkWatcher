@@ -216,3 +216,90 @@ def test_create_default_makes_parent_directories(tmp_path):
 def test_skeleton_content_is_the_module_constant(config_path):
     create_default_config(config_path)
     assert config_path.read_text(encoding="utf-8") == DEFAULT_CONFIG_SKELETON
+
+
+# --------------------------------------------------------------------------- #
+# CR-2 / CR-3 — contract escapes via exceptions that are not OSError
+# (Code Review 2026-08-17). Both functions document "never raises" for content
+# states, and both used to propagate: read_text raises UnicodeDecodeError, and
+# LinkWatcherConfig raises AttributeError/TypeError on wrongly typed values
+# (PD-BUG-123). UNIT-C1 and UNIT-C3 above only ever exercised OSError and
+# well-typed-but-invalid values, which is why the suite stayed green.
+# --------------------------------------------------------------------------- #
+NON_UTF8_BYTES = b"log_level: INFO\n# caf\xe9 latin-1 byte\n"
+
+
+def test_non_utf8_config_reports_error_instead_of_raising(config_path):
+    """CR-2: a non-UTF-8 file is a read *error*, not an escaping exception.
+
+    Discriminating condition: narrowing the handler back to ``OSError`` makes
+    ``read_text``'s ``UnicodeDecodeError`` (a ``ValueError``) propagate, so this
+    call raises instead of returning.
+    """
+    config_path.write_bytes(NON_UTF8_BYTES)
+
+    result = read_config(config_path)
+
+    assert result.status == "error"
+    assert result.text is None
+    assert "not valid UTF-8" in result.error
+
+
+def test_non_utf8_config_is_not_decoded_leniently(config_path):
+    """CR-2: the pane must not be handed lossy text it would write back on save.
+
+    Reading with ``errors="replace"`` would satisfy "does not raise" while
+    seeding the editor with U+FFFD in place of the undecodable bytes — a
+    subsequent save would then persist that loss.
+    """
+    config_path.write_bytes(NON_UTF8_BYTES)
+
+    result = read_config(config_path)
+
+    assert result.text is None
+    assert result.status != "ok"
+
+
+@pytest.mark.parametrize(
+    "body, expected_exc",
+    [
+        ("log_level: 5\n", "AttributeError"),
+        ("max_file_size_mb: 'big'\n", "TypeError"),
+        ("monitored_extensions: 7\n", "TypeError"),
+        ("move_detect_delay: 'x'\n", "TypeError"),
+    ],
+)
+def test_type_invalid_value_blocks_save_instead_of_raising(config_path, body, expected_exc):
+    """CR-3 / EC-11 / KR-05: a wrongly typed value is a blocked save, explained.
+
+    The real loader (never mocked — D-T6) raises rather than reporting an issue
+    for these, so without the handler the exception escapes ``save_config`` and
+    takes the operator's unsaved edits with it. Discriminating condition: remove
+    the handler and each case raises instead of returning a ``SaveResult``.
+    """
+    config_path.write_text(VALID_TEXT, encoding="utf-8")
+
+    result = save_config(config_path, body)
+
+    assert result.ok is False
+    assert expected_exc in result.error
+    assert "wrong type" in result.error  # the operator-facing explanation, not just the traceback
+    assert config_path.read_text(encoding="utf-8") == VALID_TEXT  # byte-identical on refusal
+    assert no_temp_residue(config_path)
+
+
+def test_real_validator_issues_are_still_reported_as_issues(config_path):
+    """The CR-3 handler must not swallow ordinary validation issues.
+
+    Discriminating condition: if the broad handler were placed so that it also
+    caught the normal path, this would come back with the wrong-type wording
+    instead of the validator's own message.
+    """
+    config_path.write_text(VALID_TEXT, encoding="utf-8")
+
+    result = save_config(config_path, "max_file_size_mb: -5\n")
+
+    assert result.ok is False
+    assert "max_file_size_mb must be positive" in result.error
+    assert "wrong type" not in result.error
+    assert config_path.read_text(encoding="utf-8") == VALID_TEXT

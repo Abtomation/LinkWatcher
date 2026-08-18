@@ -49,6 +49,25 @@ DISPATCH_INTERVAL_MS = 100
 UI_TICK_INTERVAL_MS = 1000
 
 
+def report_callback_exception(log, exc_type, exc_value, exc_traceback) -> None:
+    """Record an exception Tk raised inside one of its own callbacks (CR-19).
+
+    Module-level and Tk-free for the same reason as :func:`drain_queue`: the rule
+    is assertable without a display. Tk's default hook prints to stderr, which
+    under the ``pythonw.exe`` launch the hook uses is attached to nothing — so
+    such a failure vanished completely.
+
+    Complements :func:`drain_queue`, which isolates callbacks the panel *queues*;
+    this covers the other UI-thread entry point, the handlers Tk invokes directly
+    (button commands, key bindings, ``<<TreeviewSelect>>``), which never pass
+    through the dispatcher at all. Never raises: it is the last handler standing.
+    """
+    try:
+        log.error("ui_callback_failed", exc_info=(exc_type, exc_value, exc_traceback))
+    except Exception:  # noqa: BLE001 - the last-resort handler cannot itself raise
+        pass
+
+
 def drain_queue(pending: "queue.Queue", log) -> int:
     """Run every queued UI-thread callback, isolating failures. Returns how many ran.
 
@@ -60,7 +79,15 @@ def drain_queue(pending: "queue.Queue", log) -> int:
     A callback that raises is logged to the panel log and swallowed, and the
     callbacks queued behind it still run — one bad update can neither kill the
     mainloop nor strand the updates waiting behind it.
+
+    Queue depth is sampled here, before the drain, and logged at DEBUG whenever
+    it is non-empty (TDD §7.1): depth growing tick over tick is the early signal
+    that workers are outpacing the UI thread. Only non-empty depths are logged,
+    so an idle panel stays silent instead of writing a line every 100 ms.
     """
+    depth = pending.qsize()
+    if depth:
+        log.debug("dispatch_queue_depth depth=%d", depth)
     ran = 0
     while True:
         try:
@@ -95,6 +122,12 @@ class ControlPanelApp:
         self._exiting = False
 
         self.root = tk.Tk()
+        # Tk swallows exceptions raised inside its own callbacks by printing to
+        # stderr — which under the `pythonw.exe` launch the hook uses is not
+        # attached to anything, so such a failure vanished entirely (CR-19).
+        # Routing it to the panel log makes it diagnosable by the same file the
+        # status bar already points operators at.
+        self.root.report_callback_exception = self._report_callback_exception
         self.model = AppModel()
 
         # One process table shared by discovery and lifecycle (it is stateless).
@@ -127,6 +160,9 @@ class ControlPanelApp:
         )
         self.model.subscribe(self.main_window.render)
 
+        # One manual refresh at a time (CR-7); the periodic poller is separate.
+        self._refresh_lock = threading.Lock()
+        self._refresh_in_flight = False
         self.poller = None
         if registry.resolved:
             self.poller = DiscoveryPoller(
@@ -146,6 +182,10 @@ class ControlPanelApp:
     # ------------------------------------------------------------------ #
     # Dispatcher
     # ------------------------------------------------------------------ #
+    def _report_callback_exception(self, exc_type, exc_value, exc_traceback) -> None:
+        """Tk's callback-exception hook — delegates to the Tk-free implementation."""
+        report_callback_exception(self._log, exc_type, exc_value, exc_traceback)
+
     def post(self, callback) -> None:
         """Thread-safe: schedule *callback* to run on the UI thread.
 
@@ -159,6 +199,10 @@ class ControlPanelApp:
 
         The drain itself lives in :func:`drain_queue` (module level, Tk-free)
         so its failure-isolation rule is testable without a display.
+
+        Queue-depth instrumentation (TDD §7.1) lives in :func:`drain_queue`
+        alongside the drain it measures, for the same display-free-testability
+        reason the drain itself was extracted.
         """
         drain_queue(self._queue, self._log)
         self.root.after(DISPATCH_INTERVAL_MS, self._pump_dispatch_queue)
@@ -182,8 +226,18 @@ class ControlPanelApp:
     # Wiring
     # ------------------------------------------------------------------ #
     def _on_poll_result(self, result) -> None:
-        """Poller-thread callback: hand the result to the UI thread untouched."""
-        self.post(lambda: self.model.apply_poll(result.snapshots, error=result.error))
+        """Poller-thread callback: hand the result to the UI thread untouched.
+
+        The poll's start-order sequence rides along so the model can drop a
+        result that observed reality earlier than one already applied (CR-7).
+        """
+        self.post(
+            lambda: self.model.apply_poll(
+                result.snapshots,
+                error=result.error,
+                sequence=getattr(result, "sequence", None),
+            )
+        )
 
     def _on_select(self, project_id) -> None:
         self.model.select(project_id)
@@ -198,14 +252,28 @@ class ControlPanelApp:
         self.validation.run(project_id)
 
     def _on_refresh(self) -> None:
-        """Manual Refresh: run one poll off-thread so the UI never blocks."""
+        """Manual Refresh: run one poll off-thread so the UI never blocks.
+
+        Guarded against overlap: every F5 / Refresh press used to spawn another
+        thread, so holding the key queued an unbounded pile of concurrent polls
+        that all raced to apply (CR-7). One manual refresh at a time is enough —
+        the periodic poller is still running underneath.
+        """
         if self.poller is None:
             return
-        threading.Thread(
-            target=lambda: self._on_poll_result(self.poller.poll_once()),
-            name="lw-panel-refresh",
-            daemon=True,
-        ).start()
+        with self._refresh_lock:
+            if self._refresh_in_flight:
+                return
+            self._refresh_in_flight = True
+
+        def _run() -> None:
+            try:
+                self._on_poll_result(self.poller.poll_once())
+            finally:
+                with self._refresh_lock:
+                    self._refresh_in_flight = False
+
+        threading.Thread(target=_run, name="lw-panel-refresh", daemon=True).start()
 
     # ------------------------------------------------------------------ #
     # Surfacing (single instance / hook auto-open)

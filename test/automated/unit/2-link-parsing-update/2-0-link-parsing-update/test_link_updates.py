@@ -1557,6 +1557,76 @@ class TestBug112SeparatorStylePreservedOnDirectoryMove:
         )
 
 
+class TestBug120TrailingSeparatorWithinMovedFile:
+    """Regression tests for PD-BUG-120: links INSIDE a moved file lost their
+    authored trailing separator.
+
+    End-to-end sibling of the unit tests in
+    ``test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py``
+    (``TestBug120TrailingSeparatorPreserved``). PD-BUG-118 fixed the same loss
+    for references in OTHER files, at the ``PathResolver.calculate_new_target``
+    choke point; this is the sibling path — ``ReferenceLookup``'s recalculation
+    of a moved file's own relative links, which that helper never reaches.
+    """
+
+    def test_bug120_markdown_directory_link_keeps_trailing_slash(self, temp_project_dir):
+        """A directory link authored with a trailing slash keeps it when the
+        containing file moves into a subdirectory."""
+        target_dir = temp_project_dir / "doc" / "state-tracking"
+        target_dir.mkdir(parents=True)
+        (target_dir / "keep.md").write_text("# keep")
+
+        notes = temp_project_dir / "notes.md"
+        notes.write_text("# Notes\n\nSee [state](doc/state-tracking/) for details.\n")
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        sub_dir = temp_project_dir / "sub"
+        sub_dir.mkdir()
+        new_notes = sub_dir / "notes.md"
+        notes.rename(new_notes)
+
+        service.handler._handle_file_moved(FileMovedEvent(str(notes), str(new_notes)))
+
+        updated = new_notes.read_text()
+        assert (
+            "(../doc/state-tracking/)" in updated
+        ), f"PD-BUG-120: authored trailing separator was dropped (got {updated!r})"
+        assert (
+            "(../doc/state-tracking)" not in updated
+        ), f"PD-BUG-120: link rewritten without its trailing separator (got {updated!r})"
+
+    def test_bug120_python_concatenation_prefix_keeps_trailing_slash(self, temp_project_dir):
+        """The damaging case: a path used as a concatenation prefix in a moved
+        .py file. Losing the separator silently breaks every concatenation
+        built from it, with nothing logged."""
+        log_dir = temp_project_dir / "logs" / "linkwatcher"
+        log_dir.mkdir(parents=True)
+        (log_dir / "keep.txt").write_text("x")
+
+        script = temp_project_dir / "collect.py"
+        script.write_text('LOG_DIR = "logs/linkwatcher/"\npath = LOG_DIR + "run.log"\n')
+
+        service = LinkWatcherService(str(temp_project_dir))
+        service._initial_scan()
+
+        tools_dir = temp_project_dir / "tools"
+        tools_dir.mkdir()
+        new_script = tools_dir / "collect.py"
+        script.rename(new_script)
+
+        service.handler._handle_file_moved(FileMovedEvent(str(script), str(new_script)))
+
+        updated = new_script.read_text()
+        assert (
+            '"../logs/linkwatcher/"' in updated
+        ), f"PD-BUG-120: concatenation prefix lost its trailing separator (got {updated!r})"
+        assert (
+            '"../logs/linkwatcher"' not in updated
+        ), f"PD-BUG-120: prefix rewritten without its separator (got {updated!r})"
+
+
 class TestBug043PythonImportModuleLookup:
     """Regression tests for PD-BUG-043: Python dot-notation imports
     not resolved during reference lookup.

@@ -196,6 +196,46 @@ def normalize_path(path: str) -> str:
     return os.path.normpath(path).replace("\\", "/")
 
 
+def apply_trailing_separator_style(result: str, original_target: str) -> str:
+    """Re-append the authored trailing separator stripped during recalculation.
+
+    Both rewrite paths lose it: ``os.path.normpath`` (via ``normalize_path``)
+    drops a trailing separator in ``PathResolver`` (PD-BUG-118), and
+    ``os.path.relpath`` drops it in
+    ``ReferenceLookup._calculate_updated_relative_path`` (PD-BUG-120). A
+    directory reference authored as ``doc/x/`` came back as ``doc/x`` on both.
+    A rewrite changes WHERE a target points, never HOW it was written — losing
+    the separator silently breaks any path built by concatenation from it
+    (``logs/linkwatcher/`` + ``run.log``).
+
+    Shared by the two modules that recalculate targets, rather than duplicated
+    in each: this rule has now been needed on both paths, and a second copy
+    would be the one that drifts.
+
+    The restored separator follows the *result's* own style, falling back to
+    the original's when the result carries no separator — ``PathResolver``
+    renders the result in the original's style before calling this (see
+    ``_apply_separator_style``, PD-BUG-112), so it is unaffected; ``Reference-
+    Lookup`` always produces forward-slash output, where blindly appending the
+    original's backslash would emit a mixed form like ``../doc/x\\``.
+
+    Sibling of ``PathResolver._apply_separator_style`` (whole-path separator
+    style) and of the authored-form guard in
+    ``reference_lookup._calculate_updated_relative_path``.
+    """
+    if not result or not original_target.endswith(("/", "\\")):
+        return result
+    if result.endswith(("/", "\\")):
+        return result
+    if "\\" in result:
+        separator = "\\"
+    elif "/" in result:
+        separator = "/"
+    else:
+        separator = "\\" if "\\" in original_target else "/"
+    return result + separator
+
+
 def path_exists_under_root(project_root, candidate_relpath: str) -> bool:
     """Check whether a candidate relative path resolves to a real file or
     directory under ``project_root``.

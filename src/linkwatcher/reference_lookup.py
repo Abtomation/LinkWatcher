@@ -29,12 +29,21 @@ AI Context
     the new location via ``_calculate_updated_relative_path()``, and writes
     back atomically.
   - Testing: ``test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py``.
+- **Threading**: instances are shared by two threads — the watchdog observer
+  thread and the ``DirectoryMoveDetector`` worker thread — because
+  ``handler.on_moved`` does not serialize move processing. The move-memory
+  dicts (``_recent_moves``, ``_pending_recalcs``) are therefore guarded by
+  ``_move_memory_lock`` (PD-BUG-119); any new cross-event mutable state on
+  this class needs the same treatment. The lock is never held across file I/O
+  or across ``apply_pending_recalcs``' repair callback, which re-enters the
+  guarded methods — holding it there deadlocks the daemon.
 """
 
 import os
 import re
 import shutil
 import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -43,7 +52,7 @@ from .link_types import LinkType
 from .logging import get_logger
 from .parser import LinkParser
 from .updater import LinkUpdater
-from .utils import get_relative_path, path_exists_under_root
+from .utils import apply_trailing_separator_style, get_relative_path, path_exists_under_root
 
 
 class ReferenceLookup:
@@ -85,6 +94,14 @@ class ReferenceLookup:
         # re-runs the link recalculation for the recorded files.
         self._pending_recalcs = {}
         self._move_memory_ttl = 300.0  # seconds; matches DirectoryMoveDetector window
+        # PD-BUG-119: both dicts above are reached from two threads — the
+        # watchdog observer thread (handler._handle_file_moved) and the
+        # DirectoryMoveDetector worker thread (handler._handle_directory_moved),
+        # which run concurrently because handler.on_moved does not serialize.
+        # This lock guards every read and write of them. It is deliberately
+        # never held across file I/O or across the repair callback in
+        # apply_pending_recalcs, which re-enters the guarded methods.
+        self._move_memory_lock = threading.Lock()
 
     def get_path_variations(self, path):
         """Generate all format variations of a path for database lookup.
@@ -327,20 +344,25 @@ class ReferenceLookup:
         PD-BUG-114: when two files that reference each other move in one
         operation, the link recalculation for one file needs to know where the
         other file went. Entries expire after _move_memory_ttl seconds.
+
+        PD-BUG-119: the prune, the chain read-modify-write and the record are
+        one critical section — all three touch dicts the other move-processing
+        thread mutates.
         """
         now = time.monotonic()
-        self._prune_move_memory(now)
         old_norm = old_path.replace("\\", "/")
         new_norm = new_path.replace("\\", "/")
-        # Follow chains: an earlier move whose destination just moved again
-        # should map to the final location.
-        for key, (dest, _ts) in list(self._recent_moves.items()):
-            if dest == old_norm:
-                # Refresh the timestamp to this hop: a chain that is still
-                # moving is still live, and ageing it from the first hop would
-                # expire the chain early (PD-BUG-114 code review follow-up).
-                self._recent_moves[key] = (new_norm, now)
-        self._recent_moves[old_norm] = (new_norm, now)
+        with self._move_memory_lock:
+            self._prune_move_memory(now)
+            # Follow chains: an earlier move whose destination just moved again
+            # should map to the final location.
+            for key, (dest, _ts) in list(self._recent_moves.items()):
+                if dest == old_norm:
+                    # Refresh the timestamp to this hop: a chain that is still
+                    # moving is still live, and ageing it from the first hop would
+                    # expire the chain early (PD-BUG-114 code review follow-up).
+                    self._recent_moves[key] = (new_norm, now)
+            self._recent_moves[old_norm] = (new_norm, now)
 
     def apply_pending_recalcs(self, moved_old_path: str) -> int:
         """Repair links previously skipped because they pointed at moved_old_path.
@@ -354,7 +376,13 @@ class ReferenceLookup:
         Returns the number of links updated.
         """
         key = moved_old_path.replace("\\", "/")
-        entries = self._pending_recalcs.pop(key, None)
+        # PD-BUG-119: the pop is atomic against a concurrent registration, but
+        # the lock is released before the repair loop below — that loop reads,
+        # parses and writes files, and re-enters _lookup_recent_move /
+        # _register_pending_recalc through the link recalculation. Holding a
+        # non-reentrant lock across it would deadlock the daemon.
+        with self._move_memory_lock:
+            entries = self._pending_recalcs.pop(key, None)
         if not entries:
             return 0
         links_updated = 0
@@ -392,8 +420,9 @@ class ReferenceLookup:
     def _lookup_recent_move(self, resolved_target: str):
         """Return the new path a recently processed move gave resolved_target, or None."""
         now = time.monotonic()
-        self._prune_move_memory(now)
-        entry = self._recent_moves.get(resolved_target.replace("\\", "/"))
+        with self._move_memory_lock:  # PD-BUG-119
+            self._prune_move_memory(now)
+            entry = self._recent_moves.get(resolved_target.replace("\\", "/"))
         return entry[0] if entry else None
 
     def _register_pending_recalc(
@@ -401,8 +430,14 @@ class ReferenceLookup:
     ):
         """Remember a link the existence guard skipped, keyed by its resolved old target."""
         key = resolved_target.replace("\\", "/")
-        entries = self._pending_recalcs.setdefault(key, {})
-        entries[(old_file_path, new_file_path)] = time.monotonic()
+        now = time.monotonic()
+        # PD-BUG-119: the setdefault and the store are one critical section.
+        # Split, a concurrent apply_pending_recalcs can pop the key between
+        # them, leaving this store in a dict nothing can reach — the deferred
+        # repair is then lost silently. Logging stays outside the lock.
+        with self._move_memory_lock:
+            entries = self._pending_recalcs.setdefault(key, {})
+            entries[(old_file_path, new_file_path)] = now
         self.logger.debug(
             "link_recalc_pending",
             resolved_target=key,
@@ -410,7 +445,13 @@ class ReferenceLookup:
         )
 
     def _prune_move_memory(self, now: float):
-        """Drop move-memory and pending-recalc entries older than the TTL."""
+        """Drop move-memory and pending-recalc entries older than the TTL.
+
+        PD-BUG-119: callers must hold _move_memory_lock. This iterates both
+        dicts, so a concurrent insert raises "dictionary changed size during
+        iteration". It deliberately does not acquire the lock itself — the
+        lock is non-reentrant and both callers already hold it.
+        """
         cutoff = now - self._move_memory_ttl
         for key in [k for k, (_, ts) in self._recent_moves.items() if ts < cutoff]:
             del self._recent_moves[key]
@@ -894,6 +935,9 @@ class ReferenceLookup:
                             recalculated = os.path.relpath(moved_target, new_dir).replace("\\", "/")
                         else:
                             recalculated = moved_target
+                        # PD-BUG-120: os.path.relpath drops an authored trailing
+                        # separator — restore it before the fragment is reattached.
+                        recalculated = apply_trailing_separator_style(recalculated, base_target)
                         self.logger.info(
                             "link_target_move_applied",
                             original_target=original_target,
@@ -936,6 +980,10 @@ class ReferenceLookup:
                 new_relative_target = new_relative_target.replace("\\", "/")
             else:
                 new_relative_target = old_absolute_target
+            # PD-BUG-120: same restoration on the main branch — a rewrite changes
+            # WHERE a target points, never HOW it was written, and a lost
+            # separator silently breaks paths built by concatenation.
+            new_relative_target = apply_trailing_separator_style(new_relative_target, base_target)
             return new_relative_target + fragment
 
         except Exception as e:

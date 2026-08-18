@@ -63,7 +63,7 @@ from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
 from .resolution_overrides import build_resolution_overrides, resolution_base_for_rel
-from .utils import normalize_path, path_exists_under_root
+from .utils import apply_trailing_separator_style, normalize_path, path_exists_under_root
 
 
 class PathResolver:
@@ -113,13 +113,13 @@ class PathResolver:
             updated_target = self._calculate_new_target_relative(
                 target_part, old_path, new_path, ref.file_path
             )
-            updated_target = self._apply_trailing_separator_style(updated_target, target_part)
+            updated_target = apply_trailing_separator_style(updated_target, target_part)
             return f"{updated_target}#{anchor}"
         else:
             updated_target = self._calculate_new_target_relative(
                 original_target, old_path, new_path, ref.file_path
             )
-            return self._apply_trailing_separator_style(updated_target, original_target)
+            return apply_trailing_separator_style(updated_target, original_target)
 
     def _calculate_new_target_relative(
         self, original_target: str, old_path: str, new_path: str, source_file: str
@@ -283,29 +283,6 @@ class PathResolver:
         if "\\" in original_target:
             return normalized_path.replace("/", "\\")
         return normalized_path
-
-    @staticmethod
-    def _apply_trailing_separator_style(result: str, original_target: str) -> str:
-        """Re-append the authored trailing separator stripped during normalization
-        (PD-BUG-118).
-
-        Every rewrite branch returns ``normalize_path`` output, and
-        ``os.path.normpath`` drops a trailing separator — so a directory
-        reference authored as ``doc/x/`` came back as ``doc/x``. That damaged the
-        authored form on every rewrite, and made the rewrite differ from the
-        original even when the path itself was unchanged, so files were written
-        for a difference that carried no meaning.
-
-        Sibling of ``_apply_separator_style`` (PD-BUG-112) and of the authored-
-        form guard in ``reference_lookup._calculate_updated_relative_path``,
-        whose comment names this exact case: a rewrite changes WHERE a target
-        points, never how it was written.
-        """
-        if not result or not original_target.endswith(("/", "\\")):
-            return result
-        if result.endswith(("/", "\\")):
-            return result
-        return result + ("\\" if "\\" in original_target else "/")
 
     def _match_direct(self, absolute_target_norm: str, old_path_norm: str) -> bool:
         """Check if the resolved target directly matches the old path."""

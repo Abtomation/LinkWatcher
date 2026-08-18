@@ -31,6 +31,7 @@ from typing import Callable, Optional
 
 from .. import config_edit
 from ..model import DaemonStatus
+from ..panel_log import get_panel_logger
 from . import rendering, tokens
 
 _SELECT_PLACEHOLDER = "Select a project"
@@ -84,9 +85,13 @@ class ConfigPane:
         footer.pack(side=tk.BOTTOM, fill=tk.X, pady=(8, 0))
         self.notice = ttk.Label(footer, anchor=tk.W)
         self.notice.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        self.save_button = ttk.Button(
-            footer, text="Save", command=self.save, state=tk.DISABLED, underline=0
-        )
+        # No `underline=` here on purpose. It advertised an Alt+S mnemonic that
+        # ttk never activates, while `<Alt-s>` on the toplevel is bound to Start
+        # daemon — so pressing the advertised key from inside the editor launched
+        # a daemon instead of saving (CR-15). PD-UIX-003 assigns Alt+S to Start
+        # and Ctrl+S to Save; Ctrl+S is bound on the editor and remains the
+        # keyboard route to saving.
+        self.save_button = ttk.Button(footer, text="Save", command=self.save, state=tk.DISABLED)
         self.save_button.pack(side=tk.RIGHT)
         self.discard_button = ttk.Button(
             footer, text="Discard", command=self.discard, state=tk.DISABLED
@@ -122,7 +127,18 @@ class ConfigPane:
         selected = self.model.selected_project_id if self.model is not None else None
         if selected != self._project_id:
             self._project_id = selected
-            self._load()
+            try:
+                self._load()
+            except Exception:
+                # `_project_id` has already switched, so a `_load` that dies
+                # part-way would leave `_mode == "ok"` with the *previous*
+                # project's text and baseline while Save resolves its path from
+                # the *new* id — arming a silent cross-project overwrite (CR-2).
+                # The known trigger (a non-UTF-8 file) is fixed at the reader, but
+                # the ordering itself must not be the only thing standing between
+                # an unexpected raise and destroying another project's config.
+                get_panel_logger().exception("config_pane_load_failed")
+                self._fail_closed()
         else:
             self._render_notice()
             self._render_buttons()
@@ -165,6 +181,30 @@ class ConfigPane:
                 )
         self._render_notice()
         self._render_buttons()
+
+    def _fail_closed(self) -> None:
+        """Force the pane into a non-editable, empty state after a failed load.
+
+        Ordering is the point: the *state* fields land first, so Save is disarmed
+        (``is_dirty`` requires ``_mode == "ok"``) even if a widget call below also
+        fails.  Never raises — it is the handler of last resort on the UI thread.
+        """
+        self._mode = "error"
+        self._baseline = ""
+        self._notice = "clean"
+        self._notice_error = None
+        try:
+            self._set_content("")
+            self.header.configure(text="Configuration")
+            self._show_banner(
+                "Configuration could not be loaded — see panel.log for details.",
+                error=True,
+                offer_create=False,
+            )
+            self._render_notice()
+            self._render_buttons()
+        except Exception:
+            get_panel_logger().exception("config_pane_fail_closed_incomplete")
 
     def _show_banner(self, text: str, *, error: bool, offer_create: bool) -> None:
         self.body.pack_forget()

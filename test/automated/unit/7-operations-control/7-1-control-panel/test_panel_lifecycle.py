@@ -31,18 +31,24 @@ Test Type: Unit
 # from the local conftest.
 
 import os
+import tempfile
+from pathlib import Path
 
 import pytest
 
 from linkwatcher.linkwatcher_control_panel.discovery import LOCK_FILE_NAME
 from linkwatcher.linkwatcher_control_panel.lifecycle import (
+    DRAIN_PIN_MARGIN_SECONDS,
+    EXIT_WAIT_TIMEOUT_SECONDS,
     LAUNCHER_TIMEOUT_SECONDS,
     LifecycleController,
     RunResult,
+    _sweep_stale_captures,
     cleanup_lock,
     drain_and_terminate,
     launcher_path,
     newest_log_stat,
+    resolve_shell,
     run_launcher,
     terminate_project_daemon,
     watch_quiescence,
@@ -601,3 +607,146 @@ def test_unknown_project_is_rejected(
     assert controller.start("PRJ-404") is False
     assert controller.stop("PRJ-404") is False
     assert fake_runner.calls == []
+
+
+# --------------------------------------------------------------------------- #
+# CR-8 / CR-9 / CR-12 + TD263 — Code Review 2026-08-17, session 2
+# --------------------------------------------------------------------------- #
+def test_draining_pin_outlives_the_stop_worker_worst_case():
+    """CR-8: the pin must not expire while its own worker can still be running.
+
+    The stop worker's worst case is the full grace period in `watch_quiescence`
+    followed by `wait_for_exit` (EXIT_WAIT_TIMEOUT_SECONDS). The DRAINING pin
+    used to carry a 5 s margin, expiring at grace + 5 s — so for the last 5 s of
+    a slow stop the row reverted to poll truth (Running) and re-enabled a Stop
+    button whose click the controller's busy guard then swallowed.
+
+    Discriminating condition: restore a margin below the exit wait and this
+    fails for every grace period.
+    """
+    for grace in (5.0, 20.0, 60.0):
+        pin_ttl = grace + DRAIN_PIN_MARGIN_SECONDS
+        worker_worst_case = grace + EXIT_WAIT_TIMEOUT_SECONDS
+        assert pin_ttl > worker_worst_case, f"pin expires mid-stop at grace={grace}"
+
+
+def test_launcher_shell_is_resolved_absolutely(tmp_path, monkeypatch):
+    """CR-9: the current directory must never supply the launcher shell.
+
+    Windows CreateProcess searches the working directory before PATH, so a bare
+    "pwsh.exe" runs whatever sits there. `shutil.which` is not a fix — it
+    unconditionally prepends os.curdir on Windows, returning the decoy even when
+    given an explicit path=.
+
+    Discriminating condition: resolve via the current directory (or via
+    shutil.which) and the decoy below is selected.
+    """
+    decoy_dir = tmp_path / "cwd"
+    decoy_dir.mkdir()
+    (decoy_dir / "pwsh.exe").write_bytes(b"MZ")
+    real_dir = tmp_path / "tools"
+    real_dir.mkdir()
+    real_shell = real_dir / "pwsh.exe"
+    real_shell.write_bytes(b"MZ")
+    monkeypatch.chdir(decoy_dir)
+
+    resolved = resolve_shell(env={"PATH": str(real_dir)})
+
+    assert Path(resolved) == real_shell
+    assert Path(resolved).parent != decoy_dir
+
+
+@pytest.mark.parametrize("path_value", ["", ".", f".{os.pathsep}..", "relative/dir"])
+def test_launcher_shell_falls_back_rather_than_failing(path_value):
+    """CR-9 guard rail: an unresolvable PATH degrades, it does not raise.
+
+    Every entry here is relative and must be skipped; a machine with no absolute
+    pwsh on PATH keeps working exactly as before rather than losing Start.
+    """
+    assert resolve_shell(env={"PATH": path_value}) == "pwsh.exe"
+
+
+def test_stale_launcher_captures_are_swept(tmp_path, monkeypatch):
+    """CR-12: capture files left by earlier runs are removed, bounding the leak.
+
+    Every successful Start leaked a pair: the spawned daemon inherits the handle
+    and the CRT opens without FILE_SHARE_DELETE, so the `finally` unlink fails
+    and is swallowed. Files nearly eight days old were measured still present,
+    contradicting the "cleaned up by the OS" comment that justified ignoring it.
+
+    Discriminating condition: remove the sweep and the aged files below survive.
+    """
+    monkeypatch.setattr(tempfile, "gettempdir", lambda: str(tmp_path))
+    aged_out = tmp_path / "lw-panel-out-aged.txt"
+    aged_err = tmp_path / "lw-panel-err-aged.txt"
+    unrelated = tmp_path / "someone-elses-file.txt"
+    for f in (aged_out, aged_err, unrelated):
+        f.write_text("x", encoding="utf-8")
+        os.utime(f, (0, 0))  # epoch — far older than the max age
+
+    removed = _sweep_stale_captures()
+
+    assert removed == 2
+    assert not aged_out.exists() and not aged_err.exists()
+    assert unrelated.exists(), "the sweep must only touch its own capture prefixes"
+
+
+def test_sweep_never_touches_an_in_flight_capture(tmp_path, monkeypatch):
+    """CR-12 guard rail: a capture belonging to a start in progress must survive.
+
+    Discriminating condition: sweep by prefix alone (ignoring age) and this file
+    — the shape of a capture whose launcher is still running — is deleted out
+    from under the run that owns it.
+    """
+    monkeypatch.setattr(tempfile, "gettempdir", lambda: str(tmp_path))
+    fresh = tmp_path / "lw-panel-out-fresh.txt"
+    fresh.write_text("in flight", encoding="utf-8")
+
+    removed = _sweep_stale_captures()
+
+    assert removed == 0
+    assert fresh.exists()
+
+
+def test_unconfirmed_exit_is_reported_when_the_daemon_does_not_die(
+    make_project,
+    write_lock,
+    fake_process_table,
+    fake_terminator,
+    fake_clock,
+    fake_log_stat,
+    daemons,
+):
+    """TD263: the exit-confirmation timeout branch, previously unreachable.
+
+    `FakeTerminator` removes the PID from the table synchronously, so every
+    existing test made `wait_for_exit` return True immediately and neither its
+    timeout branch nor the `daemon_exit_unconfirmed` warning ever executed
+    (TE-TAR-090). An unlinked terminator reproduces a process that ignores
+    termination: the wait must time out, the outcome must say so, and the lock
+    must be left alone because the daemon may still be using it.
+    """
+    project = make_project()
+    fake_process_table.set_entries([daemons.entry(4242, str(project.root), create_time=1.0)])
+    write_lock(project, 4242)
+    # TD263's condition: the terminator records the kill but the process does not
+    # leave the table, so wait_for_exit has something to actually time out on.
+    fake_terminator.table = None
+    stubborn = fake_terminator
+
+    outcome = drain_and_terminate(
+        project,
+        idle_threshold=3.0,
+        grace_period=20.0,
+        process_table=fake_process_table,
+        terminator=stubborn,
+        clock=fake_clock,
+        sleep=fake_clock.advance,
+        log_stat=fake_log_stat,
+    )
+
+    assert stubborn.terminated == [4242]
+    assert outcome.performed is True
+    assert outcome.exited is False, "wait_for_exit must report the timeout"
+    assert outcome.lock_removed is False, "a lock is never removed on an unconfirmed exit"
+    assert (project.root / LOCK_FILE_NAME).exists()

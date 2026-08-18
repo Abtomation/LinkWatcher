@@ -44,13 +44,15 @@ Recorded as a unit-type test because this project's Python test configuration
 defines no separate integration directory; the scenarios are the spec's INT-*.
 """
 
+import logging
 import queue
+import sys
 import threading
 from pathlib import Path
 
 import pytest
 
-from linkwatcher.linkwatcher_control_panel.app import drain_queue
+from linkwatcher.linkwatcher_control_panel.app import drain_queue, report_callback_exception
 from linkwatcher.linkwatcher_control_panel.config_edit import save_config
 from linkwatcher.linkwatcher_control_panel.discovery import LOCK_FILE_NAME, DiscoveryPoller
 from linkwatcher.linkwatcher_control_panel.lifecycle import (
@@ -980,3 +982,82 @@ def test_int8_dispatcher_isolates_a_failing_callback(panel_log):
     assert applied == ["before", "after"]
     assert "dispatch_callback_failed" in panel_log()
     assert pending.empty()
+
+
+# --------------------------------------------------------------------------- #
+# CR-13 / CR-19 — the observability TDD §7.1 and §7.3 already required
+# (Code Review 2026-08-17, session 3). Before this, exactly one .debug() call
+# existed in the whole subpackage while --debug advertised verbose logging, and
+# a UI-thread callback exception vanished entirely under the pythonw launch.
+# --------------------------------------------------------------------------- #
+def test_dispatch_queue_depth_is_logged_when_work_is_pending(caplog):
+    """CR-13: queue depth reaches the panel log, the §7.1 responsiveness signal.
+
+    Discriminating condition: remove the sample and no depth line is emitted, so
+    a queue growing tick over tick stays invisible until the user feels it.
+    """
+    pending = queue.Queue()
+    for _ in range(3):
+        pending.put(lambda: None)
+    log = logging.getLogger("lw-panel-test-depth")
+
+    with caplog.at_level(logging.DEBUG, logger=log.name):
+        drain_queue(pending, log)
+
+    depth_lines = [
+        r.getMessage() for r in caplog.records if "dispatch_queue_depth" in r.getMessage()
+    ]
+    assert depth_lines == ["dispatch_queue_depth depth=3"]
+
+
+def test_idle_dispatcher_logs_no_depth_line(caplog):
+    """CR-13 guard rail: an idle panel must not write a line every 100 ms.
+
+    Discriminating condition: log the depth unconditionally and this fails,
+    which would bury the panel log at ten lines a second while doing nothing.
+    """
+    log = logging.getLogger("lw-panel-test-depth-idle")
+
+    with caplog.at_level(logging.DEBUG, logger=log.name):
+        drain_queue(queue.Queue(), log)
+
+    assert not [r for r in caplog.records if "dispatch_queue_depth" in r.getMessage()]
+
+
+def test_ui_callback_exception_is_recorded(caplog):
+    """CR-19: an exception Tk raises inside its own callback must not vanish.
+
+    Tk's default hook prints to stderr, which is attached to nothing under the
+    `pythonw.exe` launch the hook wrapper uses — so a failing button command or
+    key binding left no trace anywhere. These handlers are invoked by Tk
+    directly and never pass through the dispatcher, so `drain_queue`'s isolation
+    does not cover them.
+
+    Discriminating condition: drop the override and nothing is logged.
+    """
+    log = logging.getLogger("lw-panel-test-callback")
+    try:
+        raise ValueError("button command blew up")
+    except ValueError:
+        exc_info = sys.exc_info()
+
+    with caplog.at_level(logging.ERROR, logger=log.name):
+        report_callback_exception(log, *exc_info)
+
+    records = [r for r in caplog.records if "ui_callback_failed" in r.getMessage()]
+    assert len(records) == 1
+    assert records[0].exc_info is not None, "the traceback must be recorded, not just the message"
+
+
+def test_callback_exception_handler_never_raises():
+    """CR-19: the last handler standing cannot itself throw.
+
+    Discriminating condition: drop its internal guard and a logger that raises
+    propagates out of Tk's hook, where nothing else can catch it.
+    """
+
+    class BrokenLog:
+        def error(self, *_args, **_kwargs):
+            raise RuntimeError("logging backend is down")
+
+    report_callback_exception(BrokenLog(), ValueError, ValueError("x"), None)

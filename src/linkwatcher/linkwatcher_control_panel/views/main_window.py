@@ -38,6 +38,7 @@ from tkinter import ttk
 from typing import Callable, Optional
 
 from ..model import DaemonStatus
+from ..panel_log import get_panel_logger
 from . import rendering, tokens
 from .config_pane import ConfigPane
 from .log_pane import LogPane
@@ -167,6 +168,10 @@ class MainWindow:
         for status in DaemonStatus:
             self.tree.tag_configure(status.value, foreground=rendering.status_display(status).color)
         self.tree.bind("<<TreeviewSelect>>", self._handle_select)
+        # Keyboard entry point: with no row selected, item focus is "" and every
+        # arrow keypress is a no-op, so a keyboard-only operator can never reach
+        # a first row (CR-6). Focusing the list adopts the first row.
+        self.tree.bind("<FocusIn>", self._handle_tree_focus_in)
 
         # Right — detail notebook: the Phase E panes (Log / Configuration /
         # Validation), each owning its tab frame and rendering from the model.
@@ -271,6 +276,11 @@ class MainWindow:
                 self._suppress_select_event = True
                 try:
                     self.tree.selection_set(selected)
+                    # Tk's Treeview key navigation moves the *focus item*, not
+                    # the selection. Selecting without focusing leaves item focus
+                    # at "", where every arrow keypress is a no-op and no row can
+                    # be reached without a mouse (CR-6).
+                    self.tree.focus(selected)
                 finally:
                     self._suppress_select_event = False
         elif current:
@@ -285,7 +295,13 @@ class MainWindow:
     ) -> None:
         """Status bar: the selected row's detail if it has one, else a summary."""
         if error and not rows:
-            self.status_var.set("Project registry not found — see panel log")
+            # Report the error we actually have. A fixed "registry not found"
+            # string contradicted the banner beside it, which shows the real
+            # reason — the registry can equally be unreadable, invalid JSON, or
+            # missing its `projects` mapping, and discovery itself can fail
+            # outright (CR-16). The panel log now carries these too, so the
+            # pointer to it is honest.
+            self.status_var.set(f"{error} — see panel log")
             return
         if display is not None and display.mode == "loading":
             # "0 daemons running" would be the same false claim as the empty state.
@@ -319,6 +335,26 @@ class MainWindow:
     # ------------------------------------------------------------------ #
     # Events
     # ------------------------------------------------------------------ #
+    def _handle_tree_focus_in(self, _event=None) -> None:
+        """Adopt the first row when the list gains focus with nothing focused.
+
+        Deliberately does nothing when an item already has focus (so returning to
+        the list keeps the operator's place) and when the list is empty. Lets the
+        selection event fire normally, so the model — and every pane bound to it
+        — follows the keyboard exactly as it follows the mouse.
+        """
+        try:
+            if self.tree.focus():
+                return
+            children = self.tree.get_children()
+            if not children:
+                return
+            first = children[0]
+            self.tree.focus(first)
+            self.tree.selection_set(first)
+        except Exception:  # noqa: BLE001 - a focus assist must never break the UI thread
+            get_panel_logger().exception("tree_focus_in_failed")
+
     def _handle_select(self, _event=None) -> None:
         if self._suppress_select_event or self._on_select is None:
             return

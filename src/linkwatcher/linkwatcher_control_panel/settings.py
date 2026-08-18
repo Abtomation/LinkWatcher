@@ -36,6 +36,7 @@ AI Context
   environment or the repository's own pointer file.
 """
 
+import math
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -105,8 +106,18 @@ def _coerce_positive_number(data: dict, key: str, default: float, warnings: List
     """Return a positive number for *key*, or *default* with a warning.
 
     Rejects (and defaults) missing keys silently, but a present-yet-invalid
-    value — non-numeric, boolean, or non-positive — is defaulted *and* recorded
-    in *warnings* so the operator learns their config value was ignored.
+    value — non-numeric, boolean, non-finite, out of float range, or
+    non-positive — is defaulted *and* recorded in *warnings* so the operator
+    learns their config value was ignored.
+
+    Total by construction: every ``key in data`` path returns either *default*
+    or a finite positive float.  This matters because the returned value becomes
+    a thread wait interval and a deadline offset, where a non-finite number
+    raises ``OverflowError`` from ``Event.wait`` far from here — outside the
+    caller's try — and silently kills the discovery thread, freezing the daemon
+    list on its first snapshot with no warning (CR-10).  ``.inf`` and ``.nan``
+    used to pass every gate below: both are ``float`` instances, and neither
+    satisfies ``value <= 0``.
     """
     if key not in data:
         return default
@@ -118,13 +129,27 @@ def _coerce_positive_number(data: dict, key: str, default: float, warnings: List
             f"(got {value!r}); using default {default}"
         )
         return default
-    if value <= 0:
+    try:
+        number = float(value)
+    except (OverflowError, ValueError) as exc:
+        # An integer literal too large to convert (e.g. 10**1000).
+        warnings.append(
+            f"{PANEL_CONFIG_FILENAME}: '{key}' is out of range ({exc}); " f"using default {default}"
+        )
+        return default
+    if not math.isfinite(number):
+        warnings.append(
+            f"{PANEL_CONFIG_FILENAME}: '{key}' must be a finite number "
+            f"(got {value}); using default {default}"
+        )
+        return default
+    if number <= 0:
         warnings.append(
             f"{PANEL_CONFIG_FILENAME}: '{key}' must be positive "
             f"(got {value}); using default {default}"
         )
         return default
-    return float(value)
+    return number
 
 
 def _settings_from_dict(data: object, warnings: List[str]) -> PanelSettings:
@@ -181,10 +206,15 @@ def _settings_from_dict(data: object, warnings: List[str]) -> PanelSettings:
 def load_panel_settings(install_dir) -> LoadedSettings:
     """Load ``<install_dir>/panel-config.yaml`` into a :class:`PanelSettings`.
 
-    Never raises: a missing file yields all defaults; an unreadable or
-    unparseable file yields defaults with a warning.  Invalid individual values
-    are defaulted per-key with a warning.  Returns the settings and the warning
-    list together (:class:`LoadedSettings`).
+    Never raises: a missing file yields all defaults; an unreadable, non-UTF-8,
+    or unparseable file yields defaults with a warning.  Invalid individual
+    values are defaulted per-key with a warning.  Returns the settings and the
+    warning list together (:class:`LoadedSettings`).
+
+    The non-UTF-8 case is explicit because ``read_text`` raises
+    ``UnicodeDecodeError`` — a ``ValueError``, not an ``OSError`` — which used to
+    escape this contract and abort panel startup before any window existed, with
+    nothing written to the panel log (CR-11).
     """
     warnings: List[str] = []
     config_path = Path(install_dir) / PANEL_CONFIG_FILENAME
@@ -194,6 +224,12 @@ def load_panel_settings(install_dir) -> LoadedSettings:
 
     try:
         raw = config_path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as exc:
+        warnings.append(
+            f"{PANEL_CONFIG_FILENAME}: is not valid UTF-8 "
+            f"(byte {exc.start}: {exc.reason}); using defaults"
+        )
+        return LoadedSettings(PanelSettings(), warnings)
     except OSError as exc:
         warnings.append(f"{PANEL_CONFIG_FILENAME}: could not be read ({exc}); using defaults")
         return LoadedSettings(PanelSettings(), warnings)
