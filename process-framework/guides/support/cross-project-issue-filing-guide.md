@@ -2,11 +2,12 @@
 id: PF-GDE-071
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2026-06-14
-updated: 2026-06-14
+updated: 2026-08-16
 related_task: PF-TSK-041,PF-TSK-067
 description: How an agent in any registered project files a bug or feature request directly into another registered project by running that project's own creation script, resolved via the central project registry
+owned_by: FWK-FB
 ---
 
 # Cross-Project Issue Filing Guide
@@ -40,7 +41,7 @@ Use this when, while working in one project, you discover a **product** bug or f
 Before you begin, ensure:
 
 - The target project is **registered** in the central `project-registry.json` and **present on the local machine** at its registered `path`.
-- You can resolve the central framework path from your current project (every registered project carries a `.framework-central-pointer`; appdev *is* the central host).
+- You can resolve the central framework path from your current project (every registered project carries a `.framework-parent-pointer` (legacy name `.framework-central-pointer`); appdev *is* the central host).
 - You have enough detail to write a meaningful one-line summary — you do **not** need to fully triage the issue (the target project does that).
 
 ## Background
@@ -60,7 +61,7 @@ The item you file lands as a **raw, untriaged** entry (`🆕 Needs Triage` for b
 
 Open the central registry and find the entry whose `name` matches the tool:
 
-- **Path**: `process-framework-central/project-registry.json` (the same file `Get-CentralFrameworkPath` resolves — directly under the appdev root when you are in appdev; via your project's `.framework-central-pointer` otherwise).
+- **Path**: `process-framework-central/project-registry.json` (the same file `Get-CentralFrameworkPath` resolves — directly under the appdev root when you are in appdev; via your project's `.framework-parent-pointer` otherwise).
 - Under `projects`, find the object whose `"name"` matches the target tool (e.g. `"LinkWatcher"`) and read its `"path"`.
 
 **Expected result:** an absolute path to the target project, e.g. `C:\Users\ronny\VS_Code\LinkWatcher`.
@@ -147,7 +148,7 @@ pwsh.exe -ExecutionPolicy Bypass -File "C:/Users/ronny/VS_Code/LinkWatcher/proce
 
 ### Can't resolve the registry
 
-**Symptom:** no `.framework-central-pointer`, or it points nowhere.
+**Symptom:** no `.framework-parent-pointer` (nor legacy `.framework-central-pointer`), or it points nowhere.
 
 **Cause:** the project was never reached by a framework Push, or appdev was moved.
 

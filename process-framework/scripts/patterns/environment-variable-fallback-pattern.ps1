@@ -8,6 +8,7 @@
     that contain spaces.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Add this code block after your param() block to enable environment variable fallback.
 
     Usage from CMD.exe:

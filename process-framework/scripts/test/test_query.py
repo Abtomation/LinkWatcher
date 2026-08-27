@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 """Query test metadata from pytest markers via AST parsing.
 
 Reads pytestmark assignments from test files without importing them.

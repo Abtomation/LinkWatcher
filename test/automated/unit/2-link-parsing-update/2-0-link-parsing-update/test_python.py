@@ -9,6 +9,8 @@ import pytest
 from linkwatcher.link_types import LinkType
 from linkwatcher.parsers.python import PythonParser
 
+Q = chr(39)
+
 pytestmark = [
     pytest.mark.feature("2.1.1"),
     pytest.mark.priority("Critical"),
@@ -534,3 +536,90 @@ class TestDocstringColumnPositions:
             assert "`" not in ref.link_target, "backtick captured into target: {!r}".format(
                 ref.link_target
             )
+
+
+class TestBug133AdjacentQuotedLiteralSpans:
+    """PD-BUG-133 regression: the shared quoted-directory pattern matched the
+    span BETWEEN two adjacent quoted literals, registering the connecting code
+    or prose as a directory reference.
+
+    ``QUOTED_DIR_PATTERN`` accepts any quote-delimited run containing a
+    separator.  Between two quoted literals on one line the "delimiters" are
+    the closing quote of the first and the opening quote of the second, so the
+    text between them is captured whenever it holds a ``/`` or a ``\\``.
+
+    The dominant real shape is not prose but the pathlib operator: measured
+    over this repo, ``Path(a) / 'b'`` produced the candidate `` / `` 322 times
+    in .py files alone, and 856 of 1882 directory references (45%) were
+    fragments of this kind.
+
+    Fixed by requiring a candidate to be a clean path token -- the same
+    character class the file pattern already demands, reused from
+    ``BaseParser._dir_token_pattern`` (PD-BUG-131).  Deliberately NOT applied
+    to the other parsers: measured, it would delete legitimate references such
+    as ``~/bin`` in markdown and ``Program Files/Git`` in PowerShell.
+
+    Those siblings were fixed separately under PD-BUG-135, with a different
+    rule -- a delimiter-pairing guard (``BaseParser._is_paired_delimiter``)
+    that rejects a span whose opening delimiter is really a closing one.  The
+    two guards coexist by design: this parser keeps the token-shape rule,
+    which is safe for python source and stricter than pairing.
+    """
+
+    def test_pathlib_join_between_quoted_literals_is_not_a_directory(self):
+        """The single largest shape: Path(a) / 'b' captured '' / ''."""
+        parser = PythonParser()
+        content = "p = Path(" + Q + "src" + Q + ") / " + Q + "utils" + Q + "\n"
+        refs = parser.parse_content(content, "m.py")
+        targets = [r.link_target for r in refs]
+
+        # The captured fragment is ') / ' -- the text between the CLOSING quote
+        # of the first literal and the OPENING quote of the second, so assert on
+        # the shape (padded, punctuation-bearing) rather than one exact string.
+        assert targets == [], "captured a fragment between two literals: {!r}".format(targets)
+
+    def test_prose_apostrophes_do_not_span_a_directory_candidate(self):
+        """The shape this bug was filed on."""
+        parser = PythonParser()
+        content = "# naming: " + Q + "a_test" + Q + " (Dart/Go), " + Q + "b_test" + Q + "\n"
+        refs = parser.parse_content(content, "m.py")
+        targets = [r.link_target for r in refs]
+
+        assert not any("Dart/Go" in t for t in targets)
+
+    def test_escape_fragment_between_literals_is_not_a_directory(self):
+        r"""A backslash counts as a separator, so '}\n' was a directory too."""
+        parser = PythonParser()
+        content = "s = " + Q + "}" + chr(92) + chr(92) + "n" + Q + " + x + " + Q + "{" + Q + "\n"
+        refs = parser.parse_content(content, "m.py")
+        targets = [r.link_target for r in refs]
+
+        for t in targets:
+            assert not t.startswith("}"), "escape fragment captured: {!r}".format(t)
+
+    def test_genuine_quoted_directory_still_detected(self):
+        """Control (PD-BUG-056): a real quoted directory is unaffected."""
+        parser = PythonParser()
+        content = "path = " + Q + "src/linkwatcher" + Q + "\n"
+        refs = parser.parse_content(content, "m.py")
+        dir_refs = [r for r in refs if r.link_type == LinkType.PYTHON_QUOTED_DIR]
+
+        assert [r.link_target for r in dir_refs] == ["src/linkwatcher"]
+
+    def test_genuine_directory_with_trailing_separator_still_detected(self):
+        """Control: the trailing-separator form survives the token guard."""
+        parser = PythonParser()
+        content = "path = " + Q + "doc/user/handbooks/" + Q + "\n"
+        refs = parser.parse_content(content, "m.py")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/user/handbooks/" in targets
+
+    def test_quoted_file_path_still_detected(self):
+        """Control: the file branch is untouched by the directory guard."""
+        parser = PythonParser()
+        content = "path = " + Q + "src/linkwatcher/utils.py" + Q + "\n"
+        refs = parser.parse_content(content, "m.py")
+        targets = [r.link_target for r in refs]
+
+        assert "src/linkwatcher/utils.py" in targets

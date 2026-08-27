@@ -149,7 +149,7 @@
         "values": [],
         "default": null
       },
-      "nextAvailable": 9
+      "nextAvailable": 12
     },
     "PD-FAQ": {
       "description": "Product Documentation - FAQ",
@@ -211,7 +211,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 126
+      "nextAvailable": 148
     },
     "PD-ASS": {
       "description": "Product Documentation - Assessment Artifacts",
@@ -243,7 +243,7 @@
         "permanent": "doc/state-tracking/permanent",
         "default": "permanent"
       },
-      "nextAvailable": 19
+      "nextAvailable": 21
     },
     "PD-FIS": {
       "description": "Product Documentation - Feature Implementation States",
@@ -279,7 +279,7 @@
         "plans": "doc/refactoring/plans",
         "default": "plans"
       },
-      "nextAvailable": 238
+      "nextAvailable": 240
     },
     "PD-TDA": {
       "description": "Product Documentation - Technical Debt Assessments",

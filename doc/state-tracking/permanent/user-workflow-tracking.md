@@ -5,7 +5,7 @@ type: Product Documentation
 category: State Tracking
 version: 2.0
 created: 2026-03-18
-updated: 2026-08-10
+updated: 2026-08-25
 previous_id: PD-DES-002
 previous_location: doc/technical/design/user-workflow-map.md
 ---
@@ -30,17 +30,17 @@ This document maps user-facing workflows to the features that enable them and tr
 
 | ID | Workflow | User Action | Required Features | Priority | Impl Status | E2E Status | Integration Doc |
 |----|----------|-------------|-------------------|----------|-------------|------------|-----------------|
-| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed | [PD-INT-002](/doc/technical/integration/single-file-move-integration-narrative.md) |
-| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | 🔄 Re-execution Needed | [PD-INT-006](/doc/technical/integration/directory-move-integration-narrative.md) |
-| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | All Implemented | 🔄 Re-execution Needed | [PD-INT-001](/doc/technical/integration/startup-integration-narrative.md) |
-| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | 🔄 Re-execution Needed | [PD-INT-007](/doc/technical/integration/rapid-sequential-moves-integration-narrative.md) |
-| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | 🔄 Re-execution Needed | [PD-INT-004](/doc/technical/integration/multi-format-file-move-integration-narrative.md) |
+| WF-001 | Single file move → links updated | Move/rename a file (VS Code, File Explorer, git) | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | ✅ Covered | [PD-INT-002](/doc/technical/integration/single-file-move-integration-narrative.md) |
+| WF-002 | Directory move → contained refs updated | Move/rename a directory | 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P1 | All Implemented | ✅ Covered | [PD-INT-006](/doc/technical/integration/directory-move-integration-narrative.md) |
+| WF-003 | Startup → initial project scan | Run `python main.py` or startup script | 0.1.1, 0.1.3, 0.1.2, 2.1.1, 1.1.1, 3.1.1 | P1 | All Implemented | ✅ Covered | [PD-INT-001](/doc/technical/integration/startup-integration-narrative.md) |
+| WF-004 | Rapid sequential moves → consistency | Move multiple files in quick succession | 1.1.1, 0.1.2, 2.2.1 | P2 | All Implemented | ✅ Covered | [PD-INT-007](/doc/technical/integration/rapid-sequential-moves-integration-narrative.md) |
+| WF-005 | Multi-format file move → all parsers handle | Move a file referenced from MD, YAML, JSON, Python, PS1 | 2.1.1, 2.2.1, 1.1.1 | P2 | All Implemented | ✅ Covered | [PD-INT-004](/doc/technical/integration/multi-format-file-move-integration-narrative.md) |
 | WF-006 | Configuration change → behavior adapts | Edit config file or pass CLI arguments | 0.1.3, 1.1.1, 3.1.1 | P3 | All Implemented | ✅ Covered | [PD-INT-009](/doc/technical/integration/configuration-change-integration-narrative.md) |
-| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | All Implemented | 🔄 Re-execution Needed | [PD-INT-003](/doc/technical/integration/dry-run-mode-integration-narrative.md) |
-| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | All Implemented | 🔄 Re-execution Needed | [PD-INT-008](/doc/technical/integration/graceful-shutdown-integration-narrative.md) |
+| WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | All Implemented | ✅ Covered | [PD-INT-003](/doc/technical/integration/dry-run-mode-integration-narrative.md) |
+| WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | All Implemented | ✅ Covered | [PD-INT-008](/doc/technical/integration/graceful-shutdown-integration-narrative.md) |
 | WF-009 | Link health audit → broken link report | Run python main.py --validate | 0.1.1, 2.1.1, 6.1.1 | P2 | All Implemented | ✅ Covered | [PD-INT-005](/doc/technical/integration/link-health-audit-integration-narrative.md) |
-| WF-010 | Manage running LinkWatcher instances via Control Panel | Open the Control Panel to view, start, or stop running LinkWatcher daemons | 7.1.1 | P3 | Pending: 7.1.1 | Not Tested | — |
-| WF-011 | Override-folder move → virtual-root links updated | Move/rename a file or directory inside a path_resolution_overrides folder (blueprint restructuring) | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P2 | All Implemented | 🔄 Re-execution Needed | — |
+| WF-010 | Manage running LinkWatcher instances via Control Panel | Open the Control Panel to view, start, or stop running LinkWatcher daemons | 7.1.1 | P3 | Pending: 7.1.1 | 🔄 Re-execution Needed | — |
+| WF-011 | Override-folder move → virtual-root links updated | Move/rename a file or directory inside a path_resolution_overrides folder (blueprint restructuring) | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P2 | All Implemented | ✅ Covered | — |
 
 ## Workflow Details
 
@@ -102,6 +102,20 @@ User runs validation mode to scan all workspace files for broken file references
 <summary><strong>WF-010: Manage running LinkWatcher instances via Control Panel</strong></summary>
 
 User uses the Control Panel (desktop window) to see running LinkWatcher daemons across all registered projects, start or stop them, view their logs, view/edit each project's configuration, and trigger link validation. The window auto-opens when a daemon is started by the `SessionStart` hook, and closing the window gracefully drains and terminates all managed daemons (the deliberate stop action). Defined functionally in [PD-FDD-034](/doc/functional-design/fdds/fdd-7-1-1-linkwatcher-control-panel.md).
+
+> **Scoping note (Performance & E2E Test Scoping, 2026-08-18)** — the workflow reached E2E-ready (1/1)
+> and carries a milestone row in [e2e-test-tracking.md](/test/state-tracking/permanent/e2e-test-tracking.md),
+> but **one clause above is not yet deliverable**: the window does *not* auto-open on `SessionStart`. That
+> change was live-verified on 2026-08-10, silently reverted by the 2026-08-14 framework rollout, and is
+> re-tracked as **PF-IMP-2032** (framework path). FR-8 / UI-7 / BR-8 and the first clause of AC-11 stay
+> UNMET until it lands. **Do not author an auto-open E2E case before then** — it cannot pass. Everything
+> else in the description is delivered.
+>
+> The Required Features cell reads `7.1.1` alone, which understates the fixtures a good case set needs:
+> the highest-value scenario — forced terminate with an **in-flight move**, earmarked for E2E acceptance by
+> TDD PD-TDD-033 §7.3 (AC-8/AC-9) — also exercises 2.2.1 and 0.1.2, and a daemon must exist to manage at all
+> (0.1.1, 0.1.3, 3.1.1). All are Completed, so readiness is unaffected; the list was left as authored and the
+> dependency recorded here instead.
 </details>
 
 <details>

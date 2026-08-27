@@ -17,6 +17,7 @@
     Wired into .pre-commit-config.yaml as the `no-nul-bytes` hook.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit codes:
         0 = no NUL bytes in any tracked text file (or not a git repo)
         1 = at least one tracked text file contains a NUL byte

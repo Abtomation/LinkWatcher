@@ -11,7 +11,7 @@ execution_mode: scripted
 estimated_duration: 3 minutes
 source: Cross-Cutting Spec PF-TSP-044 S-017
 created: 2026-03-18
-updated: 2026-03-18
+updated: 2026-08-27
 ---
 
 # Test Case: TE-E2E-020 Stop During Idle
@@ -40,13 +40,14 @@ updated: 2026-03-18
    - **Duration**: Wait 5 seconds for initial scan to complete
    - **Observe**: Log output confirming initial scan is done; no further activity
 
-3. **Stop LinkWatcher**: Send stop signal (SIGINT/Ctrl+C or process termination)
-   - **Tool**: Command Line or test orchestrator
+3. **Stop LinkWatcher**: Terminate the running process
+   - **Tool**: `Stop-WorkspaceLinkWatcher` (`run.ps1` finally block), which uses `Stop-Process -Force`
    - **Target**: The running LinkWatcher process
+   - **Note**: This is a hard `TerminateProcess`, matching how every operator stop path ends the daemon — see the scope note under [Notes](#notes)
 
-4. **Verify clean shutdown**: Check that the process exited cleanly
-   - **Tool**: Terminal output and log file
-   - **Observe**: Process exit code is 0; log shows shutdown message
+4. **Verify the process is gone**: Confirm the daemon is no longer running
+   - **Tool**: Terminal output
+   - **Observe**: The PID reported at startup no longer exists
 
 5. **Verify no file corruption**: Confirm all project files are identical to their pre-test state
    - **Tool**: `Verify-TestResult.ps1` or manual comparison
@@ -55,7 +56,7 @@ updated: 2026-03-18
 ## Scripted Action
 
 **Script**: `run.ps1`
-**Action**: Waits 5 seconds for LinkWatcher to reach idle state (no file operations performed; stop signal is sent by the test orchestrator)
+**Action**: Waits 5 seconds for LinkWatcher to reach idle state (no file operations performed), then terminates the daemon from its own `finally` block via `Stop-WorkspaceLinkWatcher`
 
 ## Expected Results
 
@@ -70,21 +71,19 @@ See `expected/` directory for complete post-test file state (identical to `proje
 
 ### Behavioral Outcomes
 
-- Log shows clean shutdown message (e.g., "Stopping", "Shutdown complete", "LinkWatcher stopped", or similar)
-- No error messages or stack traces in the log
-- Process exits with code 0
+- All project files are intact — an idle daemon holds no partial write, so termination cannot truncate or corrupt a file
+- No error messages or stack traces in the log up to the moment of termination
+- The daemon is ended by a hard kill and runs no Python cleanup, so it writes no `service_stopping` / `service_stopped` records and its exit code is -1. **This is the path under test, not a defect** — see the scope note under [Notes](#notes)
 
 ## Verification Method
 
-- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-020` — compares workspace against `expected/`
-- [ ] **Log check**: Check application log for clean shutdown message and absence of errors
+- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-020 -Workflow graceful-shutdown-no-corrupted-files` — compares workspace against `expected/`
+- [ ] **Log check** (manual): Read `<workspace>/linkwatcher-e2e.log` and confirm it contains no errors, exceptions, or stack traces
 
 ## Pass Criteria
 
-- [ ] All project files are byte-identical to their pre-test state (no corruption)
-- [ ] Application log contains a shutdown/stopping message
-- [ ] No error messages, exceptions, or stack traces in application log
-- [ ] LinkWatcher process exited with code 0
+- [ ] All project files are byte-identical to their pre-test state (no corruption) — machine-checked by `Verify-TestResult.ps1`
+- [ ] No error messages, exceptions, or stack traces in application log up to termination — manual check, not machine-checked
 
 ## Fail Actions
 
@@ -95,6 +94,32 @@ See `expected/` directory for complete post-test file state (identical to `proje
 
 ## Notes
 
-- This test validates the basic graceful shutdown path when no work is pending.
-- The stop signal may be SIGINT (Ctrl+C), SIGTERM, or process kill depending on the test orchestrator implementation.
-- If the process hangs on shutdown, it indicates a thread or resource cleanup issue.
+### Scope of this case: kill-safety, not graceful shutdown
+
+This case verifies that terminating an idle daemon leaves no file damaged. It does **not** verify
+the graceful shutdown sequence, and its criteria deliberately assert nothing about one.
+
+`run.ps1` stops the daemon with `Stop-Process -Force` — a hard `TerminateProcess` that runs no
+Python code in the target. `LinkWatcherService.stop()` never executes, so its `service_stopping` /
+`service_stopped` records are never written and the exit code is -1. That is not a harness
+shortcoming: it mirrors the product, where **every** operator stop path is a hard kill —
+`stop_linkwatcher.ps1` uses `Stop-Process -Force`, and the Control Panel uses `psutil terminate()`,
+whose own module docstring notes there is no graceful cross-process signal. Making this harness
+stop gracefully would exercise a path no operator tool can reach.
+
+The graceful sequence is reachable only by an interactive `Ctrl+C` in a foreground console (plus
+the daemon's own liveness/health self-stops). **No E2E case covers it** — a known gap, recorded at
+PD-BUG-144 triage and restated here so a reader of this case is not left believing otherwise.
+
+Earlier revisions of this case listed "Application log contains a shutdown/stopping message" and
+"LinkWatcher process exited with code 0" among its pass criteria. Both were unsatisfiable under
+this harness, and because `Verify-TestResult.ps1` compares only files under `expected/`, neither
+was ever machine-checked — the case sat at Passed and Audit Approved regardless (PD-BUG-146).
+`test/automated/unit/0-system-architecture-foundation/test_pd_bug_146_shutdown_criteria_guard.py`
+now fails the build if any force-killed case reintroduces such a criterion.
+
+### Other notes
+
+- If the process hangs on termination, it indicates a thread or resource cleanup issue.
+- An idle daemon is the weakest corruption case by design; TE-E2E-021 covers termination while a
+  reference update is in flight.

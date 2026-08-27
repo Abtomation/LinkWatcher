@@ -7,6 +7,7 @@ Implements JP test cases from comprehensive test documentation.
 
 import pytest
 
+from linkwatcher.link_types import LinkType
 from linkwatcher.parsers.json_parser import JsonParser
 
 pytestmark = [
@@ -223,7 +224,6 @@ class TestJsonParser:
         assert "meta/version.txt" in targets
         assert "meta/changelog.md" in targets
 
-    @pytest.mark.xfail(reason="Escaped path line-number matching fails for some decoded paths")
     def test_jp_004_escaped_strings(self, temp_project_dir):
         """
         JP-004: Escaped strings
@@ -706,3 +706,591 @@ class TestJsonParserCompoundStrings:
         references = parser.parse_content(json_content, "settings.json")
         targets = [ref.link_target for ref in references]
         assert len(targets) == 0
+
+
+BS = chr(92)
+Q = chr(39)
+
+
+class TestBug126EscapedLiteralLineLocation:
+    r"""PD-BUG-126 regression: a JSON string value carrying ANY escape sequence
+    was dropped, so its target was silently left stale when the file moved.
+
+    Classification was never the problem -- ``_classify_path`` accepts the
+    decoded value.  The reference died one step later, at line location:
+    ``_find_unclaimed_line`` searched the RAW source line for the DECODED
+    value, and every escape makes those two differ, so the search returned 0
+    and the reference was discarded without a log line.
+
+    JSON has no escape-free string form, so this reaches every path that must
+    be escaped -- notably a Windows-style path, whose only valid JSON spelling
+    is with doubled backslashes.
+    """
+
+    def _parse(self, tmp_dir, raw_value):
+        json_file = tmp_dir / "config.json"
+        json_file.write_text('{\n  "p": ' + raw_value + "\n}\n", encoding="utf-8")
+        return JsonParser().parse_file(str(json_file))
+
+    def test_escaped_forward_slash_is_detected(self, temp_project_dir):
+        r"""``"logs\/sub\/x.txt"`` is valid JSON decoding to a plain POSIX path."""
+        refs = self._parse(temp_project_dir, '"logs' + BS + "/sub" + BS + '/x.txt"')
+
+        assert len(refs) == 1, "escaped forward slash dropped at line location"
+        assert refs[0].link_target == "logs/sub/x.txt"
+        assert refs[0].line_number == 2
+
+    def test_unicode_escape_is_detected(self, temp_project_dir):
+        r"""``"logs/sub/\u0078.txt"`` decodes to ``logs/sub/x.txt``."""
+        refs = self._parse(temp_project_dir, '"logs/sub/' + BS + 'u0078.txt"')
+
+        assert len(refs) == 1, "unicode escape dropped at line location"
+        assert refs[0].link_target == "logs/sub/x.txt"
+
+    def test_escaped_backslash_path_is_detected(self, temp_project_dir):
+        r"""The reported case: ``"logs\sub\x.txt"`` decodes to ``logs\sub\x.txt``."""
+        refs = self._parse(temp_project_dir, '"logs' + BS * 2 + "sub" + BS * 2 + 'x.txt"')
+
+        assert len(refs) == 1, "backslash-authored path dropped at line location"
+        assert refs[0].link_target == "logs" + BS + "sub" + BS + "x.txt"
+
+    def test_span_covers_the_raw_literal_not_the_decoded_value(self, temp_project_dir):
+        r"""The recorded span must address the RAW source text.
+
+        The updater splices replacements in by column, so a span sized to the
+        (shorter) decoded value would leave escape debris behind in the file.
+        """
+        raw_inner = "logs" + BS + "/sub" + BS + "/x.txt"
+        json_file = temp_project_dir / "config.json"
+        content = '{\n  "p": "' + raw_inner + '"\n}\n'
+        json_file.write_text(content, encoding="utf-8")
+
+        refs = JsonParser().parse_file(str(json_file))
+
+        assert len(refs) == 1
+        ref = refs[0]
+        line = content.split("\n")[ref.line_number - 1]
+        assert (
+            line[ref.column_start : ref.column_end] == raw_inner
+        ), "span must cover the raw escaped literal, got " "{!r}".format(
+            line[ref.column_start : ref.column_end]
+        )
+
+    def test_plain_value_still_detected(self, temp_project_dir):
+        """Control: an escape-free value must keep working exactly as before."""
+        refs = self._parse(temp_project_dir, '"logs/sub/x.txt"')
+
+        assert len(refs) == 1
+        assert refs[0].link_target == "logs/sub/x.txt"
+
+    def test_escaped_and_plain_values_both_detected(self, temp_project_dir):
+        """Both spellings on adjacent lines are found, each on its own line."""
+        json_file = temp_project_dir / "config.json"
+        json_file.write_text(
+            '{\n  "back": "logs'
+            + BS * 2
+            + "sub"
+            + BS * 2
+            + 'x.txt",\n  "fwd": "logs/sub/x.txt"\n}\n',
+            encoding="utf-8",
+        )
+
+        refs = JsonParser().parse_file(str(json_file))
+        by_line = {r.line_number: r.link_target for r in refs}
+
+        assert by_line.get(2) == "logs" + BS + "sub" + BS + "x.txt"
+        assert by_line.get(3) == "logs/sub/x.txt"
+
+
+class TestBug130EscapedCompoundStringPaths:
+    r"""PD-BUG-130 regression: a path embedded in a COMPOUND (space-bearing)
+    JSON value was lost whenever the source literal carried any escape.
+
+    ``_extract_embedded_paths`` located the value by searching the raw line for
+    the DECODED whole string -- which never matches once anything is escaped --
+    and offset each candidate span within the DECODED text rather than the raw
+    text.  Two silent outcomes followed, decided only by where the path sat:
+
+    * path in the MIDDLE -> whole-string classification also failed, and the
+      reference was discarded with no reference and no warning;
+    * path at the END -> the compound string itself passed
+      ``looks_like_file_path`` and was registered with the ENTIRE command line
+      as its ``link_target`` (a mode the PD-BUG-126 fall-through introduced;
+      at HEAD both shapes were simply dropped).
+
+    Sibling of PD-BUG-126, which fixed the whole-string branch only.
+    """
+
+    def _parse(self, tmp_dir, raw_value, name="config.json"):
+        json_file = tmp_dir / name
+        json_file.write_text('{\n  "k": ' + raw_value + "\n}\n", encoding="utf-8")
+        return JsonParser().parse_file(str(json_file))
+
+    def _raw_line(self, tmp_dir, name="config.json"):
+        return (tmp_dir / name).read_text(encoding="utf-8").split("\n")[1]
+
+    def test_escaped_path_in_middle_is_detected(self, temp_project_dir):
+        r"""The reported case: ``"Bash(python logs\\sub\\run.py *)"``."""
+        refs = self._parse(
+            temp_project_dir,
+            '"Bash(python logs' + BS * 2 + "sub" + BS * 2 + 'run.py *)"',
+        )
+
+        targets = [r.link_target for r in refs]
+        assert targets == [
+            "logs" + BS + "sub" + BS + "run.py"
+        ], "escaped candidate inside a compound string was dropped, got {!r}".format(targets)
+
+    def test_escaped_path_at_end_is_not_registered_as_whole_string(self, temp_project_dir):
+        r"""``"pwsh -File logs\\sub\\run.ps1"`` must yield the PATH, not the command.
+
+        Negative assertion is the load-bearing one: pre-fix this produced a
+        reference whose target was the entire command line, which is not a
+        path, can never resolve, and pollutes the link database.
+        """
+        refs = self._parse(
+            temp_project_dir,
+            '"pwsh -File logs' + BS * 2 + "sub" + BS * 2 + 'run.ps1"',
+        )
+
+        targets = [r.link_target for r in refs]
+        whole = "pwsh -File logs" + BS + "sub" + BS + "run.ps1"
+
+        assert whole not in targets, "whole command string registered as a link target"
+        assert targets == ["logs" + BS + "sub" + BS + "run.ps1"]
+
+    def test_span_covers_the_raw_candidate_not_the_decoded_one(self, temp_project_dir):
+        r"""The recorded span must address RAW source text.
+
+        The updater splices by column, so a decoded-relative span would land on
+        the wrong characters inside an escaped literal -- the PD-BUG-124
+        corruption class.
+        """
+        refs = self._parse(
+            temp_project_dir,
+            '"Bash(python logs' + BS * 2 + "sub" + BS * 2 + 'run.py *)"',
+        )
+
+        assert len(refs) == 1
+        ref = refs[0]
+        line = self._raw_line(temp_project_dir)
+        assert line[ref.column_start : ref.column_end] == (
+            "logs" + BS * 2 + "sub" + BS * 2 + "run.py"
+        ), "span must cover the raw escaped candidate, got {!r}".format(
+            line[ref.column_start : ref.column_end]
+        )
+
+    def test_clean_candidate_inside_escaped_literal_is_detected(self, temp_project_dir):
+        r"""The real repo case: the CANDIDATE has no escapes, the literal does.
+
+        ``.claude/settings.json`` carries a hook command holding embedded JSON,
+        so the literal is full of ``\"`` while the path inside it is ordinary.
+        The whole-value search still fails, so the path was dropped.
+        """
+        raw = (
+            '"echo {' + BS + '"doc' + BS + '":' + BS + '"process-framework/ai-tasks.md' + BS + '"}"'
+        )
+        refs = self._parse(temp_project_dir, raw)
+
+        targets = [r.link_target for r in refs]
+        assert targets == [
+            "process-framework/ai-tasks.md"
+        ], "clean candidate inside an escaped literal was dropped, got {!r}".format(targets)
+
+        ref = refs[0]
+        line = self._raw_line(temp_project_dir)
+        assert line[ref.column_start : ref.column_end] == "process-framework/ai-tasks.md"
+
+    def test_unicode_escape_inside_compound_string(self, temp_project_dir):
+        r"""``x`` spelling maps back to its own raw span, not a re-escaped guess."""
+        refs = self._parse(
+            temp_project_dir,
+            '"Bash(python logs/sub/' + BS + 'u0078.py *)"',
+        )
+
+        assert [r.link_target for r in refs] == ["logs/sub/x.py"]
+        ref = refs[0]
+        line = self._raw_line(temp_project_dir)
+        assert line[ref.column_start : ref.column_end] == "logs/sub/" + BS + "u0078.py"
+
+    def test_two_escaped_candidates_in_one_value(self, temp_project_dir):
+        """Each candidate gets its own raw span, in order."""
+        refs = self._parse(
+            temp_project_dir,
+            '"copy logs' + BS * 2 + "a.txt logs" + BS * 2 + 'b.txt"',
+        )
+
+        assert [r.link_target for r in refs] == [
+            "logs" + BS + "a.txt",
+            "logs" + BS + "b.txt",
+        ]
+        line = self._raw_line(temp_project_dir)
+        assert line[refs[0].column_start : refs[0].column_end] == "logs" + BS * 2 + "a.txt"
+        assert line[refs[1].column_start : refs[1].column_end] == "logs" + BS * 2 + "b.txt"
+
+    def test_plain_compound_string_still_detected(self, temp_project_dir):
+        """Control: the escape-free compound string is unaffected (PD-BUG-061)."""
+        refs = self._parse(temp_project_dir, '"Bash(python logs/sub/run.py *)"')
+
+        assert [r.link_target for r in refs] == ["logs/sub/run.py"]
+
+    def test_compound_string_without_paths_still_ignored(self, temp_project_dir):
+        """Control: an escaped compound string holding no path yields nothing."""
+        refs = self._parse(temp_project_dir, '"echo ' + BS + '"hello world' + BS + '""')
+
+        assert refs == []
+
+    def test_unlocatable_compound_value_is_logged_and_not_fallen_through(
+        self, temp_project_dir, monkeypatch
+    ):
+        """Observability contract (the OB half of this bug, and of TD283).
+
+        When the raw literal genuinely cannot be located, the value must be
+        reported through ``path_value_line_not_located`` -- and must NOT fall
+        through to whole-string classification, which is what manufactured the
+        bogus whole-command reference.
+        """
+        events = []
+
+        parser = JsonParser()
+        monkeypatch.setattr(
+            parser, "_find_decoded_literal", lambda *a, **k: (0, 0, 0, ""), raising=False
+        )
+
+        class _Recorder:
+            def warning(self, event, **kw):
+                events.append(event)
+
+            def __getattr__(self, name):
+                return lambda *a, **k: None
+
+        parser.logger = _Recorder()
+
+        # Path in the MIDDLE deliberately: with the path at the END the
+        # whole-string branch ALSO reaches _add_escaped_reference and logs,
+        # so the warning assertion would pass without the compound branch
+        # logging at all.  The middle shape is silent in both branches
+        # pre-fix, which is what makes this test discriminate.
+        content = '{\n  "k": "Bash(python logs' + BS * 2 + "sub" + BS * 2 + 'run.py *)"\n}\n'
+        refs = parser.parse_content(content, "config.json")
+
+        assert refs == [], "unlocatable value must not produce a whole-string reference"
+        assert "path_value_line_not_located" in events, "silent drop: nothing was logged"
+
+
+class TestBug131CompoundStringDirectoryPaths:
+    """PD-BUG-131 regression: a DIRECTORY path embedded in a compound
+    (space-bearing) JSON value was never extracted, and the whole command
+    string was registered as the reference target in its place.
+
+    Root cause: ``_extract_embedded_paths`` reached only for ``_path_pattern``,
+    which requires a file extension.  The two structured parsers never adopted
+    the shared ``QUOTED_DIR_PATTERN`` the other five parsers use for
+    extensionless directories, so a compound value holding one yielded no
+    candidates, returned False, and fell through to whole-string
+    classification.
+
+    The delimiter requirement is deliberate and matches every other parser:
+    an UNQUOTED extensionless token is not a directory reference anywhere in
+    this product (markdown, generic, python, powershell all require quotes).
+    """
+
+    def test_quoted_directory_inside_compound_string_is_extracted(self):
+        """The real-population shape: a quoted directory inside a command."""
+        parser = JsonParser()
+        content = (
+            "{\n"
+            '  "permissions": {\n'
+            '    "allow": [\n'
+            '      "Bash([ -d ' + BS + '"doc/technical/design' + BS + '" ])"\n'
+            "    ]\n"
+            "  }\n"
+            "}\n"
+        )
+        references = parser.parse_content(content, "settings.json")
+        targets = [r.link_target for r in references]
+
+        assert "doc/technical/design" in targets
+        # Strong negative: the whole command must NOT survive as a target
+        assert not any("Bash(" in t for t in targets)
+
+    def test_extracted_directory_carries_the_dir_link_type(self):
+        """A directory candidate must be typed JSON_DIR, not JSON."""
+        parser = JsonParser()
+        content = "{\n" '  "cmd": "Bash([ -d ' + BS + '"doc/technical/design' + BS + '" ])"\n' "}\n"
+        references = parser.parse_content(content, "settings.json")
+        dir_refs = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert dir_refs, "directory candidate was not extracted"
+        assert dir_refs[0].link_type == LinkType.JSON_DIR
+
+    def test_unquoted_compound_directory_does_not_register_whole_command(self):
+        """Symptom (b): the bracketed command must not become a link target.
+
+        The unquoted ``doc/design`` is deliberately NOT extracted (no delimiter,
+        per product convention), but the whole command must not be registered
+        as a directory reference either -- it can never resolve.
+        """
+        parser = JsonParser()
+        content = '{\n  "cmd": "Bash([ -d doc/design ])"\n}\n'
+        references = parser.parse_content(content, "settings.json")
+        targets = [r.link_target for r in references]
+
+        assert not any("Bash(" in t for t in targets)
+
+    def test_directory_value_with_spaces_still_classified_whole_string(self):
+        """Discriminating control for symptom (b): a genuine path containing a
+        space is still a directory reference -- the containment must reject
+        command syntax, not spaces."""
+        parser = JsonParser()
+        content = '{\n  "target": "doc/my design"\n}\n'
+        references = parser.parse_content(content, "settings.json")
+
+        assert [r.link_target for r in references] == ["doc/my design"]
+        assert references[0].link_type == LinkType.JSON_DIR
+
+    def test_path_with_space_and_parenthesis_is_still_classified(self):
+        """Boundary control for the command-shape guard (code review, Finding 1).
+
+        The first cut keyed on "a space plus any of ``()[]``", which reads the
+        same way to a filename and silently dropped these.  A Windows ``(1)``
+        copy suffix is ordinary on this product's declared platform, so the
+        drop was the same silent-staleness class PD-BUG-130 removes.
+
+        Both existing discriminating controls used space-ONLY values, which is
+        exactly why the defect passed the suite.
+        """
+        parser = JsonParser()
+        for value, expected_type in [
+            ("assets/img (1).png", LinkType.JSON),
+            ("doc/report (final).pdf", LinkType.JSON),
+            ("doc/notes (draft)", LinkType.JSON_DIR),
+        ]:
+            content = '{\n  "target": "' + value + '"\n}\n'
+            references = parser.parse_content(content, "settings.json")
+
+            assert [r.link_target for r in references] == [
+                value
+            ], "space + parenthesis must not read as a command: {!r}".format(value)
+            assert references[0].link_type == expected_type
+
+    def test_bracketed_filename_tag_does_not_read_as_a_command(self):
+        """A bracketed filename tag carries no space INSIDE the brackets, which
+        is what separates it from a ``[ -d path ]`` test operator.
+
+        Asserted against the guard directly, not against the parser output: a
+        bracketed value is independently rejected by ``looks_like_regex_or_glob``
+        (PD-BUG-095, ``[draft]`` reads as a character class), so a parser-level
+        assertion here would pin unrelated pre-existing behaviour and would
+        break if that glob rule ever changed.
+        """
+        assert JsonParser()._is_command_shaped("doc/report [draft] final.md") is False
+        # ...while the test-operator form it must catch still reads as a command
+        assert JsonParser()._is_command_shaped("[ -d doc/design ]") is True
+
+    def test_bare_test_operator_command_is_still_contained(self):
+        """The guard must keep catching the shape it exists for, including the
+        form with no call head."""
+        parser = JsonParser()
+        content = '{\n  "cmd": "[ -d doc/design ]"\n}\n'
+        references = parser.parse_content(content, "settings.json")
+
+        assert [r.link_target for r in references] == []
+
+    def test_prose_containing_a_slash_is_not_harvested_as_a_directory(self):
+        """Noise containment: an unquoted prose slash must not become a target.
+
+        Measured in the real repo: 12 of the 14 whole-string compound values
+        are prose of this shape.  A looser (delimiter-free) directory pattern
+        would harvest every one of them.
+        """
+        parser = JsonParser()
+        content = '{\n  "description": "Product Documentation - UI/UX Design"\n}\n'
+        references = parser.parse_content(content, "settings.json")
+        targets = [r.link_target for r in references]
+
+        assert "UI/UX" not in targets
+
+    def test_prose_apostrophes_do_not_span_a_directory_candidate(self):
+        """The quoted-directory pattern must not match the GAP between two
+        prose apostrophes.
+
+        Found by measurement, not by review: against a real config template
+        carrying a list of quoted naming examples, the first cut of this fix
+        produced the candidate " (Dart/Go), " -- the text BETWEEN the closing
+        apostrophe of one example and the opening apostrophe of the next.
+        A directory candidate must be a clean path token.
+        """
+        parser = JsonParser()
+        prose = (
+            "Examples: "
+            + Q
+            + "test_{name}"
+            + Q
+            + " (Python), "
+            + Q
+            + "{name}_test"
+            + Q
+            + " (Dart/Go), "
+            + Q
+            + "{name}.test"
+            + Q
+            + " (JS/Jest)."
+        )
+        content = "{\n" + '  "_comment": "' + prose + '"\n' + "}\n"
+        references = parser.parse_content(content, "settings.json")
+        targets = [r.link_target for r in references]
+
+        assert not any("Dart/Go" in t for t in targets)
+        assert not any("JS/Jest" in t for t in targets)
+
+    def test_quoted_file_path_inside_compound_is_not_duplicated_as_directory(self):
+        """De-overlap control: QUOTED_DIR_PATTERN also matches extension-bearing
+        quoted paths, so a file candidate must be recorded once, as a file."""
+        parser = JsonParser()
+        content = "{\n" '  "cmd": "Bash([ -f ' + BS + '"doc/design/x.md' + BS + '" ])"\n' "}\n"
+        references = parser.parse_content(content, "settings.json")
+        matching = [r for r in references if r.link_target == "doc/design/x.md"]
+
+        assert len(matching) == 1, "candidate recorded more than once"
+        assert matching[0].link_type == LinkType.JSON
+
+    def test_compound_file_path_extraction_still_works(self):
+        """Control (PD-BUG-061): the file-path branch is unaffected."""
+        parser = JsonParser()
+        content = '{\n  "cmd": "Bash(python doc/scripts/run.py *)"\n}\n'
+        references = parser.parse_content(content, "settings.json")
+
+        assert [r.link_target for r in references] == ["doc/scripts/run.py"]
+
+    def test_filename_with_spaces_still_falls_through(self):
+        """Control: a value with no candidates keeps whole-string classification."""
+        parser = JsonParser()
+        content = '{\n  "target": "doc/a file with spaces.txt"\n}\n'
+        references = parser.parse_content(content, "settings.json")
+
+        assert [r.link_target for r in references] == ["doc/a file with spaces.txt"]
+
+
+class TestBug134SubstringLineAttribution:
+    """Regression tests for PD-BUG-134: a value attributed to an earlier line
+    that merely CONTAINS it as a substring, leaving its own line stale.
+
+    Distinct from PD-BUG-013, which covered two values sharing the same WHOLE
+    string.  Here the value is a substring of a larger literal, so the claimed
+    set cannot help -- the (value, line) pair genuinely is unclaimed.
+    """
+
+    def test_bug134_plain_value_not_attributed_to_compound_line(self):
+        """The reported fixture: a compound value on line 2 embeds the same
+        directory that line 3 holds as a plain value.  Both used to be recorded
+        against line 2, so line 3 went stale on a move with nothing logged."""
+        parser = JsonParser()
+        content = (
+            "{\n"
+            '  "watched_dir": "Bash([ -d ' + BS + '"doc/technical/design' + BS + '" ])",\n'
+            '  "plain_dir": "doc/technical/design"\n'
+            "}\n"
+        )
+
+        references = parser.parse_content(content, "settings.json")
+        matching = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert len(matching) == 2, "expected the compound candidate and the plain value"
+        lines = sorted(r.line_number for r in matching)
+        assert lines == [2, 3], f"expected one reference per line, got {lines}"
+        assert lines != [2, 2], "both references collapsed onto the compound line"
+
+    def test_bug134_directory_not_attributed_inside_longer_path(self):
+        """A directory that is a PREFIX of a longer path on an earlier line.
+        The short value used to be recorded at a span INSIDE the longer path,
+        so its own line was never rewritten."""
+        parser = JsonParser()
+        content = (
+            "{\n"
+            '  "spec": "doc/technical/design/spec.md",\n'
+            '  "dir": "doc/technical/design"\n'
+            "}\n"
+        )
+
+        references = parser.parse_content(content, "settings.json")
+        dir_refs = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert len(dir_refs) == 1
+        assert dir_refs[0].line_number == 3, (
+            "directory attributed to the longer path's line " f"(line {dir_refs[0].line_number})"
+        )
+        # The recorded span must address the value itself, not a slice of the
+        # longer path -- a span inside line 2 is what produced the overlap the
+        # PD-BUG-098 filter then silently dropped.
+        line3 = content.split("\n")[2]
+        assert line3[dir_refs[0].column_start : dir_refs[0].column_end] == "doc/technical/design"
+
+    def test_bug134_file_not_attributed_inside_compound_naming_it_twice(self):
+        """A compound value naming the file twice (once with a suffix) on an
+        earlier line than the plain value."""
+        parser = JsonParser()
+        content = (
+            "{\n"
+            '  "cmd": "python tools/run.py --out tools/run.py.bak",\n'
+            '  "script": "tools/run.py"\n'
+            "}\n"
+        )
+
+        references = parser.parse_content(content, "settings.json")
+        exact = [r for r in references if r.link_target == "tools/run.py"]
+
+        assert len(exact) == 2, "expected the compound candidate and the plain value"
+        assert sorted(r.line_number for r in exact) == [2, 3]
+
+    def test_bug134_key_shaped_collision_does_not_capture_the_value(self):
+        """Boundary control: an earlier value that merely ENDS with the search
+        text must not claim it (suffix collision)."""
+        parser = JsonParser()
+        content = "{\n" '  "other": "vendor/doc/design",\n' '  "dir": "doc/design"\n' "}\n"
+
+        references = parser.parse_content(content, "settings.json")
+        exact = [r for r in references if r.link_target == "doc/design"]
+
+        assert len(exact) == 1
+        assert exact[0].line_number == 3
+
+    def test_bug134_duplicate_whole_values_still_get_distinct_lines(self):
+        """Non-regression control (PD-BUG-013): the claimed-set behaviour for
+        values sharing the WHOLE string is unchanged by the stricter match."""
+        parser = JsonParser()
+        content = (
+            "{\n"
+            '  "primary": "data.csv",\n'
+            '  "backup": "data.csv",\n'
+            '  "final": "data.csv"\n'
+            "}\n"
+        )
+
+        references = parser.parse_content(content, "settings.json")
+        refs = [r for r in references if r.link_target == "data.csv"]
+
+        assert sorted(r.line_number for r in refs) == [2, 3, 4]
+
+    def test_bug134_escaped_literal_path_still_located(self):
+        """Non-regression control (PD-BUG-126): an escaped value is still found
+        by the decoding search, which the stricter plain match must not disturb."""
+        parser = JsonParser()
+        content = "{\n" '  "log": "logs' + BS + BS + "sub" + BS + BS + 'x.txt"\n' "}\n"
+
+        references = parser.parse_content(content, "settings.json")
+        matching = [r for r in references if r.link_target == "logs" + BS + "sub" + BS + "x.txt"]
+
+        assert len(matching) == 1
+        assert matching[0].line_number == 2
+
+    def test_bug134_array_elements_still_attributed_per_line(self):
+        """Boundary control: array elements carry a trailing comma, so the
+        quoted-form match must not require end-of-value."""
+        parser = JsonParser()
+        content = "{\n" '  "files": [\n' '    "a/one.md",\n' '    "a/two.md"\n' "  ]\n" "}\n"
+
+        references = parser.parse_content(content, "settings.json")
+        by_target = {r.link_target: r.line_number for r in references}
+
+        assert by_target == {"a/one.md": 3, "a/two.md": 4}

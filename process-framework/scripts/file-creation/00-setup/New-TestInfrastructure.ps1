@@ -909,8 +909,11 @@ function New-FileFromTemplate {
     }
 
     if ($PSCmdlet.ShouldProcess($TargetPath, "Create file: $Description")) {
-        $fullTemplate = Join-Path $projectRoot $TemplatePath
-        if (-not (Test-Path $fullTemplate)) {
+        # Two-face resolution (PF-IMP-1999): at a framework face a domain template lives in the
+        # producer blueprint, not on the Read face this root-relative path names; the shared
+        # helper retries the miss there ($null = both faces missed → placeholder fallback).
+        $fullTemplate = Resolve-TemplateFacePath -TemplatePath $TemplatePath
+        if (-not $fullTemplate) {
             Write-Warning "Template not found: $TemplatePath — creating minimal placeholder"
             $content = "# $Description`n`nCreated by New-TestInfrastructure.ps1"
         } else {

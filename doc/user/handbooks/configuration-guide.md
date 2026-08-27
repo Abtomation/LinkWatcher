@@ -3,9 +3,9 @@ id: PD-UGD-005
 description: "Complete guide to configuring LinkWatcher: config files, CLI arguments, environment variables, presets, and the ignore system"
 type: Product Documentation
 category: User Guide
-version: 1.1
+version: 1.4
 created: 2026-04-16
-updated: 2026-06-10
+updated: 2026-08-27
 handbook_category: usage
 handbook_name: Configuration Guide
 ---
@@ -145,6 +145,12 @@ move_detect_delay: 10.0      # Seconds to wait for a matching CREATE after a DEL
 dir_move_max_timeout: 300.0  # Max seconds to wait for all files in a directory move
 dir_move_settle_delay: 5.0   # Seconds after last file match before processing dir move
 
+# === Watch Liveness Monitoring ===
+watch_liveness_enabled: true        # Detect a watch that has stopped delivering events
+watch_liveness_idle_seconds: 60.0   # Silence before a liveness probe is run
+watch_liveness_probe_timeout: 10.0  # Seconds to wait for the probe event to arrive
+watch_liveness_failure_threshold: 3 # Consecutive missed probes before the daemon stops (minimum 2)
+
 # === Validation Mode (--validate) ===
 validation_extensions:       # File types to check for broken links
   - ".md"
@@ -220,7 +226,7 @@ LINKWATCHER_{FIELD_NAME_UPPER}
 
 | Field Type | Environment Variable Format | Example |
 |-----------|---------------------------|---------|
-| `bool` | `true`, `1`, `yes`, `on` (case-insensitive) | `LINKWATCHER_DRY_RUN_MODE=true` |
+| `bool` | `true`, `1`, `yes`, `on` (case-insensitive) enable it; **any other value disables it** — use `false` | `LINKWATCHER_DRY_RUN_MODE=true` / `LINKWATCHER_DRY_RUN_MODE=false` |
 | `int` | Integer string | `LINKWATCHER_MAX_FILE_SIZE_MB=25` |
 | `float` | Decimal string | `LINKWATCHER_MOVE_DETECT_DELAY=15.0` |
 | `Set[str]` | Comma-separated values | `LINKWATCHER_MONITORED_EXTENSIONS=.md,.yaml,.py` |
@@ -287,7 +293,7 @@ monitored_extensions:
   - ".svg"
 ```
 
-Pre-built config files for these presets are available in the [`config-examples/`](/config-examples) directory.
+Pre-built config files for these presets are available in the [`config-examples/`](../../../config-examples) directory.
 
 ## Validation Ignore System
 
@@ -350,7 +356,7 @@ path_resolution_overrides:
 - **Rewrite safety**: a `/...` reference is only rewritten when it resolves to the actually-moved file and the proposed new target exists on disk; references from files outside every override folder are never affected. Override rewrites are logged as `update_resolution_override_applied` for auditability.
 - Set this via a config file (like `parser_type_extensions`, it is not configurable via `LINKWATCHER_*` environment variables).
 
-See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-config.yaml) for a complete example.
+See [config-examples/linkwatcher-config.yaml](../../../config-examples/linkwatcher-config.yaml) for a complete example.
 
 ## Tips and Best Practices
 
@@ -379,11 +385,38 @@ python main.py --config my-config.yaml
 
 Unknown keys in the config file produce a warning in the log — check for typos.
 
+### Daemon exits 1 naming a config key
+
+**Problem:** Startup ends with a `config_issue` line and exit code 1, for example
+`log_file_max_size_mb must be a number (got str)`.
+
+**Solution:** That line names the offending key — correct that value. LinkWatcher
+type-checks every config value at startup and reports each problem by key rather
+than starting with an unusable setting. Two rules are easy to trip over:
+
+- Settings documented with a whole-number default (`max_file_size_mb`,
+  `scan_progress_interval`, `log_file_max_size_mb`, `log_file_backup_count`)
+  require a whole number — `10.5` is rejected. The timing settings
+  (`move_detect_delay`, `dir_move_max_timeout`, `dir_move_settle_delay`) accept
+  fractional values.
+- `true` / `false` is never a valid number. YAML reads `log_file_max_size_mb: true`
+  as a boolean, not as a size.
+- Every extension must start with a dot. `monitored_extensions`,
+  `validation_extensions` and the values of `parser_type_extensions` are matched
+  against a file's suffix, which always carries one, so a dotless `md` matches
+  nothing at all — you get a run that scans zero files rather than an obviously
+  wrong one. The reported issue names the key: `validation_extensions entry 'md'
+  should start with a dot`. Case, by contrast, does not matter — `.MD` and `.md`
+  are equivalent on both sides of the comparison.
+
+`log_file_backup_count: 0` is valid and means "rotate the log but never delete
+old rotations" — expect the log directory to grow.
+
 ### Environment variable ignored
 
 **Problem:** An environment variable doesn't change behavior.
 
-**Solution:** Verify the naming convention matches exactly: `LINKWATCHER_` prefix + field name in UPPER_CASE. For example, `dry_run_mode` becomes `LINKWATCHER_DRY_RUN_MODE`. Boolean values must be `true`, `1`, `yes`, or `on`.
+**Solution:** Verify the naming convention matches exactly: `LINKWATCHER_` prefix + field name in UPPER_CASE. For example, `dry_run_mode` becomes `LINKWATCHER_DRY_RUN_MODE`. For booleans, `true`, `1`, `yes` and `on` (case-insensitive) enable the setting and **any other value disables it** — use `false` to turn off a setting the config file turned on.
 
 ### Move detection too slow or too fast
 
@@ -409,11 +442,11 @@ ignored_directories:
 
 ## Related Documentation
 
-- [Quick Reference](/doc/user/handbooks/quick-reference.md) — CLI options at a glance
-- [Capabilities Reference](/doc/user/handbooks/linkwatcher-capabilities-reference.md) — What LinkWatcher detects and updates
-- [Link Validation](/doc/user/handbooks/link-validation.md) — Detailed validation mode guide
-- [File Type Quick Fix](/doc/user/handbooks/file-type-quick-fix.md) — Adding file type monitoring
-- [Config Examples](/config-examples) — Pre-built YAML configuration files
+- [Quick Reference](quick-reference.md) — CLI options at a glance
+- [Capabilities Reference](linkwatcher-capabilities-reference.md) — What LinkWatcher detects and updates
+- [Link Validation](link-validation.md) — Detailed validation mode guide
+- [File Type Quick Fix](file-type-quick-fix.md) — Adding file type monitoring
+- [Config Examples](../../../config-examples) — Pre-built YAML configuration files
 
 ---
 

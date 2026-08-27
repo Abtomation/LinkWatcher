@@ -6,6 +6,7 @@ version: 1.2
 created: 2026-05-28
 updated: 2026-08-04
 description: "Canonical policy and script reference for mutating feature-tracking.md"
+owned_by: FWK-FB
 ---
 
 # Feature Tracking Mutation Guide

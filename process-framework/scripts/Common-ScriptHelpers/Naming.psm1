@@ -6,6 +6,8 @@
 <#
 .SYNOPSIS
 Canonical slug-normalization helpers for scripts that derive directory and file names from human-typed names.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 #
 # Created: 2026-05-07 (PF-IMP-008)

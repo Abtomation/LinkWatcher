@@ -11,6 +11,7 @@ feature_id: [X.Y.Z]
 creates_document_type: Process Framework
 creates_document_category: State Tracking
 description: "Multi-session per-feature state tracking for retrospective documentation creation (PF-TSK-066 Phase 3) — includes Feature Overview, Required Phase 3 Deliverables table, Per-Feature Closure Updates table, Session Plan (via New-TempTaskState.ps1 -Variant RetrospectiveDocumentation)"
+owned_by: FWK-FB
 ---
 
 # Temporary State: PF-TSK-066 Phase 3 — Feature [X.Y.Z] [Feature Name]

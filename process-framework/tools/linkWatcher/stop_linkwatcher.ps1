@@ -24,6 +24,8 @@
     Exit codes (set by `exit N`, programmatically detectable via $LASTEXITCODE):
       0 — no instance was running, or all instances stopped and verified gone
       1 — invalid project root, or stop incomplete (surviving PIDs reported)
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 # Reuse the sibling's helpers (Find-ProjectConfigPath,

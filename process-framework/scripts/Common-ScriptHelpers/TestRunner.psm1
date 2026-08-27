@@ -4,6 +4,8 @@
 <#
 .SYNOPSIS
 Shared helpers for per-language test runners (Run-Tests.<language>.ps1).
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 #
 # Created: 2026-05-17 by Framework Self-Testing extension (PF-PRO-035) Phase 3a.

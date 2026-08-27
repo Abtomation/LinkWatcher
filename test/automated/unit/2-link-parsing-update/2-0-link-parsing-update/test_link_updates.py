@@ -2334,3 +2334,159 @@ class TestOverrideAwareBlueprintUpdates:
         assert (
             "/process-framework/task-definitions/a.md" in updated_guide
         ), f"dir-move rewrite missing in second source: {updated_guide!r}"
+
+
+BS = chr(92)
+
+
+class TestBug126EscapedLiteralsEndToEnd:
+    r"""PD-BUG-126: escape-bearing JSON values survive a real move.
+
+    Exercised through the service, which is the path production uses -- the
+    parser fix alone is not enough to prove the behaviour, because the
+    reference has to clear the updater's stale check and then be written back
+    in the author's own escaping.
+
+    The backslash case carries the corruption risk this fix inherited from
+    PD-BUG-124: its span covers an ESCAPED literal, so a replacement spliced
+    in raw would emit a single backslash, escape the following character, and
+    leave the file unparseable.
+    """
+
+    def _project(self, tmp_dir):
+        target = tmp_dir / "logs" / "sub" / "x.txt"
+        target.parent.mkdir(parents=True)
+        target.write_text("payload")
+        config = tmp_dir / "config.json"
+        config.write_text(
+            "{\n"
+            '  "escaped_slash":   "logs' + BS + "/sub" + BS + '/x.txt",\n'
+            '  "escaped_unicode": "logs/sub/' + BS + 'u0078.txt",\n'
+            '  "backslash":       "logs' + BS * 2 + "sub" + BS * 2 + 'x.txt",\n'
+            '  "plain":           "logs/sub/x.txt"\n'
+            "}\n"
+        )
+        return target, config
+
+    def _move(self, tmp_dir, target):
+        service = LinkWatcherService(str(tmp_dir))
+        service._initial_scan()
+        new_target = tmp_dir / "archive" / "y.txt"
+        new_target.parent.mkdir()
+        target.rename(new_target)
+        service.handler.on_moved(FileMovedEvent(str(target), str(new_target)))
+
+    def test_all_escape_forms_updated(self, temp_project_dir):
+        """Every spelling of the same target follows the move."""
+        import json
+
+        target, config = self._project(temp_project_dir)
+        self._move(temp_project_dir, target)
+
+        decoded = json.loads(config.read_text())
+
+        assert decoded["escaped_slash"] == "archive/y.txt"
+        assert decoded["escaped_unicode"] == "archive/y.txt"
+        assert decoded["plain"] == "archive/y.txt", "plain sibling regressed"
+
+    def test_backslash_value_is_rewritten_still_escaped(self, temp_project_dir):
+        """The escaping guard: a rewritten backslash path stays doubled.
+
+        A single backslash here would escape the ``y`` and corrupt the value;
+        if it landed before a quote it would break the file outright.
+        """
+        import json
+
+        target, config = self._project(temp_project_dir)
+        self._move(temp_project_dir, target)
+
+        raw = config.read_text()
+        decoded = json.loads(raw)  # raises if the rewrite broke the file
+
+        assert decoded["backslash"] == "archive" + BS + "y.txt"
+        assert (
+            "archive" + BS * 2 + "y.txt"
+        ) in raw, "backslash separator was not re-escaped in the raw source"
+
+    def test_no_stale_target_remains(self, temp_project_dir):
+        """Negative assertion: the old target is gone from every spelling."""
+        target, config = self._project(temp_project_dir)
+        self._move(temp_project_dir, target)
+
+        raw = config.read_text()
+
+        assert "logs/sub/x.txt" not in raw
+        assert ("logs" + BS * 2 + "sub" + BS * 2 + "x.txt") not in raw
+        assert (BS + "u0078") not in raw
+
+
+class TestBug130EscapedCompoundStringsEndToEnd:
+    r"""PD-BUG-130: an escaped path inside a COMPOUND value survives a move.
+
+    Driven through the service, like its PD-BUG-126 sibling above: the parser
+    fix alone cannot prove the behaviour, because the reference still has to
+    clear the updater stale check and be written back in the author's own
+    escaping.  The compound case adds the risk the whole-value branch does not
+    have -- the span addresses a candidate sitting INSIDE a larger escaped
+    literal, so a mis-mapped span corrupts surrounding command text rather than
+    just the path.
+    """
+
+    def _move(self, tmp_dir, target, new_rel):
+        service = LinkWatcherService(str(tmp_dir))
+        service._initial_scan()
+        new_target = tmp_dir / new_rel
+        new_target.parent.mkdir(parents=True, exist_ok=True)
+        target.rename(new_target)
+        service.handler.on_moved(FileMovedEvent(str(target), str(new_target)))
+
+    def test_json_escaped_compound_value_follows_the_move(self, temp_project_dir):
+        """The escaped candidate is rewritten and the file stays valid JSON."""
+        import json
+
+        target = temp_project_dir / "logs" / "sub" / "run.py"
+        target.parent.mkdir(parents=True)
+        target.write_text("payload")
+
+        config = temp_project_dir / "config.json"
+        config.write_text(
+            "{\n"
+            '  "escaped": "Bash(python logs' + BS * 2 + "sub" + BS * 2 + 'run.py *)",\n'
+            '  "plain":   "Bash(python logs/sub/run.py *)"\n'
+            "}\n"
+        )
+
+        self._move(temp_project_dir, target, "archive/moved.py")
+
+        raw = config.read_text()
+        decoded = json.loads(raw)  # must still parse
+
+        escaped = decoded["escaped"]
+        assert "run.py" not in escaped, "stale target left behind: {!r}".format(escaped)
+        assert escaped.replace(BS, "/") == "Bash(python archive/moved.py *)", escaped
+        assert escaped.startswith("Bash(python "), "surrounding command text corrupted"
+        assert escaped.endswith(" *)"), "surrounding command text corrupted"
+        assert decoded["plain"] == "Bash(python archive/moved.py *)", "plain sibling regressed"
+
+    def test_yaml_escaped_compound_scalar_follows_the_move(self, temp_project_dir):
+        """YAML write-back half — previously unpinned (TD283)."""
+        import yaml as _yaml
+
+        target = temp_project_dir / "logs" / "sub" / "run.ps1"
+        target.parent.mkdir(parents=True)
+        target.write_text("payload")
+
+        config = temp_project_dir / "config.yaml"
+        config.write_text(
+            'escaped: "pwsh -File logs' + BS * 2 + "sub" + BS * 2 + 'run.ps1 -Quick"\n'
+            'plain:   "pwsh -File logs/sub/run.ps1 -Quick"\n'
+        )
+
+        self._move(temp_project_dir, target, "archive/moved.ps1")
+
+        decoded = _yaml.safe_load(config.read_text())  # must still parse
+
+        escaped = decoded["escaped"]
+        assert "run.ps1" not in escaped, "stale target left behind: {!r}".format(escaped)
+        assert escaped.replace(BS, "/") == "pwsh -File archive/moved.ps1 -Quick", escaped
+        assert decoded["plain"] == "pwsh -File archive/moved.ps1 -Quick", "plain sibling regressed"

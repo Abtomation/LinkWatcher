@@ -30,6 +30,17 @@ overview from that source:
 A task file is "routed" iff its frontmatter carries `use_when`. Files under tasks/**
 without it (READMEs, path companions, deprecated tasks) are excluded by design.
 
+Task categories are per-workspace data (PF-PRO-069 WI-3), declared in the scanned
+tree's own domain-config.json under task_catalog.categories (array order = render
+order; each entry: dir / heading / kind, optional source). A category with source
+'received' (R-9) sources its task files from the workspace's received consumer face
+(paths.process_framework): those rows render in the ai-tasks routing table only —
+with a workspace-relative code-path Location cell and an audience note, never a
+markdown link — and are excluded from the README catalog, task registry, transition
+registry, and -ReportMissing (their schema belongs to the owning level). At a
+workspace whose faces coincide (self-hosted root) or a project, 'received' resolves
+to the scanned tree and the category behaves as own-tree content.
+
 Frontmatter path values (scripts, next_tasks[].task) and links embedded in use_when /
 File Operations / transition content are task-file-relative (LinkWatcher-maintained);
 this script rebases them to each projection's directory at render time.
@@ -62,6 +73,7 @@ Preview directory: rendered projections are written here (flat, original file na
 instead of overwriting the real targets.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Exit codes:
     0 = success (generated / in sync / nothing missing)
     1 = drift detected (-Check) or missing metadata (-ReportMissing)
@@ -228,20 +240,85 @@ $autoGenHeader = @(
 )
 
 # ---------------------------------------------------------------------------
-# Category metadata (fixed render order)
+# Category metadata (per-workspace data — PF-PRO-069 WI-3)
+#
+# Categories are declared by the scanned tree's own domain-config.json under
+# task_catalog.categories: array order is render order; each entry carries
+# dir / heading / kind, plus optional source 'received' (R-9) — the category's
+# task files live on the workspace's RECEIVED consumer face
+# (paths.process_framework) rather than in the scanned tree. Level differences
+# are data, never hardcoded lists (the E2 pattern New-Task.ps1 carries).
 # ---------------------------------------------------------------------------
-$categoryOrder = @('00-setup', '01-planning', '02-design', '03-testing', '04-implementation', '05-validation', '06-maintenance', '07-deployment', 'cyclical', 'support')
-$categoryInfo = @{
-    '00-setup'          = @{ Heading = '00 - Setup Tasks';          Kind = 'standard' }
-    '01-planning'       = @{ Heading = '01 - Planning Tasks';       Kind = 'standard' }
-    '02-design'         = @{ Heading = '02 - Design Tasks';         Kind = 'standard' }
-    '03-testing'        = @{ Heading = '03 - Testing Tasks';        Kind = 'standard' }
-    '04-implementation' = @{ Heading = '04 - Implementation Tasks'; Kind = 'standard' }
-    '05-validation'     = @{ Heading = '05 - Validation Tasks';     Kind = 'standard' }
-    '06-maintenance'    = @{ Heading = '06 - Maintenance Tasks';    Kind = 'standard' }
-    '07-deployment'     = @{ Heading = '07 - Deployment Tasks';     Kind = 'standard' }
-    'cyclical'          = @{ Heading = 'Cyclical Tasks';            Kind = 'cyclical' }
-    'support'           = @{ Heading = 'Support Tasks';             Kind = 'support' }
+$domainConfigPath = Join-Path $pfRoot 'domain-config.json'
+if (-not (Test-Path $domainConfigPath)) {
+    Write-Host "[ERROR] domain-config.json not found at $domainConfigPath — task categories are per-workspace data (task_catalog.categories, PF-PRO-069 WI-3)." -ForegroundColor Red
+    exit 2
+}
+try {
+    $domainConfig = Get-Content $domainConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
+} catch {
+    Write-Host "[ERROR] domain-config.json parse failed ($domainConfigPath): $($_.Exception.Message)" -ForegroundColor Red
+    exit 2
+}
+$catalogDecl = if ($domainConfig.task_catalog) { @($domainConfig.task_catalog.categories) } else { @() }
+if (-not $catalogDecl.Count) {
+    Write-Host "[ERROR] domain-config.json declares no task_catalog.categories ($domainConfigPath) — task categories are per-workspace data (PF-PRO-069 WI-3): declare the ordered category list (dir/heading/kind, optional source 'received')." -ForegroundColor Red
+    exit 2
+}
+$validKinds = @('standard', 'cyclical', 'support')
+$categoryOrder = [System.Collections.Generic.List[string]]::new()
+$categoryInfo = @{}
+foreach ($c in $catalogDecl) {
+    $catDirName = [string]$c.dir
+    if ([string]::IsNullOrWhiteSpace($catDirName) -or [string]::IsNullOrWhiteSpace([string]$c.heading) -or $validKinds -notcontains [string]$c.kind) {
+        Write-Host "[ERROR] domain-config.json task_catalog entry invalid (dir='$catDirName'): each entry needs dir, heading, and kind (standard|cyclical|support)." -ForegroundColor Red
+        exit 2
+    }
+    if ($categoryInfo.ContainsKey($catDirName)) {
+        Write-Host "[ERROR] domain-config.json task_catalog declares category '$catDirName' twice." -ForegroundColor Red
+        exit 2
+    }
+    $categoryOrder.Add($catDirName)
+    $categoryInfo[$catDirName] = @{
+        Heading = [string]$c.heading
+        Kind    = [string]$c.kind
+        Source  = if ($c.PSObject.Properties['source']) { [string]$c.source } else { '' }
+    }
+}
+
+# R-9 per-category source roots: a category marked source 'received' reads its task files
+# from the workspace's received consumer face (paths.process_framework) instead of the
+# scanned tree. The workspace root is found by walking up from the scanned tree to the
+# first doc/project-config.json carrying a non-null project_id — a blueprint TEMPLATE
+# config (project_id null) is not a workspace (the C3-U2 / Commit-SandboxBaseline probe
+# rule). At a self-hosted root (both path keys name one tree) or a project the resolved
+# face IS the scanned tree, and when no workspace config resolves at all (synthetic test
+# fixtures), the category degenerates to the single-root walk unchanged.
+$receivedTasksRoot = $null
+$receivedWorkspaceRoot = $null
+if (@($categoryInfo.Values | Where-Object { $_.Source -eq 'received' }).Count) {
+    $probe = $pfRoot
+    for ($hop = 0; $hop -lt 6; $hop++) {
+        $parent = Split-Path -Parent $probe
+        if (-not $parent -or $parent -eq $probe) { break }
+        $probe = $parent
+        $probeConfigPath = Join-Path $probe 'doc/project-config.json'
+        if (Test-Path $probeConfigPath) {
+            $probeConfig = try { Get-Content $probeConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json } catch { $null }
+            if ($probeConfig -and -not [string]::IsNullOrWhiteSpace([string]$probeConfig.project_id)) {
+                $pfKey = if ($probeConfig.paths -and $probeConfig.paths.process_framework) { [string]$probeConfig.paths.process_framework } else { 'process-framework' }
+                $candidate = Join-Path $probe $pfKey
+                if (Test-Path $candidate) {
+                    $resolvedFace = (Resolve-Path $candidate).Path
+                    if ($resolvedFace -ne $pfRoot) {
+                        $receivedTasksRoot = $resolvedFace
+                        $receivedWorkspaceRoot = $probe
+                    }
+                }
+                break
+            }
+        }
+    }
 }
 $complexityDisplay = @{ simple = '🟢 Simple'; medium = '🟡 Medium'; complex = '🔴 Complex' }
 $automationLabel = [ordered]@{
@@ -321,6 +398,44 @@ if ($parseErrors.Count) {
     exit 2
 }
 
+# ---------------------------------------------------------------------------
+# R-9 (PF-PRO-069 WI-3): collect received-sourced categories' task files from the
+# received consumer face. These are CATALOG-ONLY rows: they render in the ai-tasks
+# routing table (what a session can select here) but not in the deep projections
+# (README catalog, task registry, transition registry), which document the corpus
+# this tree authors and ships. A malformed or non-routed received file is skipped
+# quietly — the received face is a hash-gated mirror, so its schema is the owning
+# level's business, not this workspace's regen gate.
+# ---------------------------------------------------------------------------
+$receivedTasks = [System.Collections.Generic.List[object]]::new()
+if ($receivedTasksRoot) {
+    foreach ($cat in $categoryOrder) {
+        if ($categoryInfo[$cat].Source -ne 'received') { continue }
+        $catDir = Join-Path $receivedTasksRoot "tasks/$cat"
+        if (-not (Test-Path $catDir)) { continue }
+        foreach ($f in (Get-ChildItem $catDir -Filter '*.md' -File | Sort-Object FullName)) {
+            $raw = Get-Content $f.FullName -Raw -Encoding UTF8
+            $fmMatch = [regex]::Match($raw, "(?ms)\A---\r?\n(.*?)^---\s*$")
+            if (-not $fmMatch.Success) { continue }
+            try { $fm = ConvertFrom-Yaml $fmMatch.Groups[1].Value } catch { continue }
+            if (-not ($fm -is [System.Collections.IDictionary]) -or -not $fm.Contains('use_when') -or [string]::IsNullOrWhiteSpace([string]$fm['use_when'])) { continue }
+            $titleMatch = [regex]::Match($raw, '(?m)^# (.+)$')
+            $title = if ($titleMatch.Success) { $titleMatch.Groups[1].Value.Trim() } else { $f.BaseName }
+            # WorkspacePath: workspace-root-relative location — rendered as a code path, not
+            # a markdown link, because the file lives outside the scanned tree (and outside
+            # a receiving project entirely).
+            $wsRel = ConvertTo-NormalizedRelPath ($f.FullName.Substring($receivedWorkspaceRoot.Length + 1))
+            $receivedTasks.Add([pscustomobject]@{
+                Category      = $cat
+                Title         = $title
+                Id            = [string]$fm['id']
+                Fm            = $fm
+                WorkspacePath = $wsRel
+            })
+        }
+    }
+}
+
 # PF-IMP-1720: lookups for -Check drift attribution. A projection line names its source task
 # either by its `tasks/...md` path (rebased per projection, so only the tail is stable) or by
 # its title in a transition heading — index both once rather than re-scanning $tasks per line.
@@ -332,6 +447,12 @@ foreach ($t in $tasks) {
     $tail = ($segments[-2..-1]) -join '/'     # <category>/<file>.md — unique across the tree
     if (-not $script:TaskRelByTail.ContainsKey($tail)) { $script:TaskRelByTail[$tail] = $t.Rel }
     if (-not $script:TaskRelByTitle.ContainsKey($t.Title)) { $script:TaskRelByTitle[$t.Title] = $t.Rel }
+}
+foreach ($t in $receivedTasks) {
+    # Received rows anchor by their workspace-relative code path (see Get-AnchorTaskRel).
+    $segments = $t.WorkspacePath -split '/'
+    $tail = ($segments[-2..-1]) -join '/'
+    if (-not $script:TaskRelByTail.ContainsKey($tail)) { $script:TaskRelByTail[$tail] = $t.WorkspacePath }
 }
 
 function Get-CategoryTasks {
@@ -361,6 +482,24 @@ function Build-AiTasksTable {
     $rows = Get-CategoryTasks -Category $Category
     $kind = $categoryInfo[$Category].Kind
     $lines = [System.Collections.Generic.List[string]]::new()
+
+    # R-9: a genuinely received-sourced category (resolution found a distinct received
+    # face) renders its rows with a workspace-relative CODE PATH in a Location column —
+    # never a markdown link, because the files sit outside the scanned tree and a
+    # receiving product project does not carry them at all — plus an audience note.
+    $catReceived = @($receivedTasks | Where-Object { $_.Category -eq $Category } | Sort-Object Title)
+    if ($catReceived.Count) {
+        $lines.Add('> _Received framework infrastructure: these tasks are owned by the parent level and are **not authored in this tree**. A framework workspace reads and runs them from its received consumer face (`Location` column); a product project does not carry these files._')
+        $lines.Add('')
+        $lines.Add('| Task | Use When | Location |')
+        $lines.Add('| ---- | -------- | -------- |')
+        foreach ($t in $catReceived) {
+            $useWhen = [string]$t.Fm['use_when'] -replace '\s+', ' '
+            $lines.Add("| **$($t.Title)** | $($useWhen.Trim()) | ``$($t.WorkspacePath)`` |")
+        }
+        return ($lines -join "`n")
+    }
+
     switch ($kind) {
         'cyclical' {
             $lines.Add('| Task | Trigger | Frequency | Link |')
@@ -683,7 +822,9 @@ function Build-AiTasksContent {
     $nl = if ($ExistingRaw -match "`r`n") { "`r`n" } else { "`n" }
     $content = $ExistingRaw
     foreach ($cat in $categoryOrder) {
-        if (-not (Get-CategoryTasks -Category $cat).Count) { continue }
+        $hasOwn = (Get-CategoryTasks -Category $cat).Count
+        $hasReceived = @($receivedTasks | Where-Object { $_.Category -eq $cat }).Count
+        if (-not ($hasOwn -or $hasReceived)) { continue }
         $body = (Build-AiTasksTable -Category $cat) -replace "`n", $nl
         $content = Set-GeneratedRegion -Content $content -Name "task-table:$cat" -Body $body -NL $nl -MissingList $MissingRegions
     }
@@ -789,6 +930,7 @@ function Get-AnchorTaskRel {
         '\[→ Definition\]\([^)]*?([A-Za-z0-9._\-]+/[A-Za-z0-9._\-]+\.md)\)'          # ai-tasks table row
         '^\|\s*\[[^\]]+\]\([^)]*?([A-Za-z0-9._\-]+/[A-Za-z0-9._\-]+\.md)\)\s*\|'     # tasks/README catalog row
         '^#### \*\*.+?\*\* \(\[[A-Z]{2,4}-TSK-\d+\]\([^)]*?([A-Za-z0-9._\-]+/[A-Za-z0-9._\-]+\.md)\)\)'  # registry catalog entry
+        '^\|\s*\*\*.+?\*\*\s*\|.*\|\s*`[^`]*?([A-Za-z0-9._\-]+/[A-Za-z0-9._\-]+\.md)`\s*\|\s*$'  # received-sourced ai-tasks row (code-path Location cell, R-9)
     )
 
     foreach ($pattern in $linkAnchors) {
@@ -900,7 +1042,8 @@ if ($Check) {
         if (-not (Compare-Normalized -A $rendered[$key] -B $raws[$key])) { $drift.Add($key) }
     }
     if (-not $drift.Count) {
-        Write-Host "[PASS] Task-metadata projections in sync — $($tasks.Count) routed tasks." -ForegroundColor Green
+        $recNote = if ($receivedTasks.Count) { " (+$($receivedTasks.Count) received)" } else { '' }
+        Write-Host "[PASS] Task-metadata projections in sync — $($tasks.Count) routed tasks$recNote." -ForegroundColor Green
         exit 0
     }
     Write-Host "[FAIL] Task-metadata projections out of date — regenerate with Build-TaskMetadata.ps1:" -ForegroundColor Red
@@ -951,5 +1094,6 @@ foreach ($key in $targets.Keys) {
         $written++
     }
 }
-Write-Host "[OK] $($tasks.Count) routed tasks rendered — $written of $($targets.Count) projection files updated." -ForegroundColor Green
+$recNote = if ($receivedTasks.Count) { " (+$($receivedTasks.Count) received)" } else { '' }
+Write-Host "[OK] $($tasks.Count) routed tasks rendered$recNote — $written of $($targets.Count) projection files updated." -ForegroundColor Green
 exit 0

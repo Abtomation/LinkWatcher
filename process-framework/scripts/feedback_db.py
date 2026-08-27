@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 """Feedback Ratings Database — Persistent storage for feedback form ratings.
 
 Stores quantified ratings from feedback forms in a SQLite database,

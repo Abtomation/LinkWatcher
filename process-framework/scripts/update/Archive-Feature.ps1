@@ -281,9 +281,19 @@ function Main {
         "Replacement"  = $Replacement
     }
 
+    # Link-tolerant row id. Move-MarkdownTableRow compares the RAW first cell with a fully
+    # anchored match, and every real feature-tracking.md carries the id as a markdown link to
+    # the feature's state file — so a bare escaped id matches nothing and archival always
+    # failed (verified by controlled probe 2026-08-25: identical runs differing only in the id
+    # cell shape exit 1 linked / 0 bare). This accepts both forms. INTERIM: the shared helper
+    # should normalize a linked cell itself, killing the class for every caller — escalated to
+    # FrameworkBuilder as PF-IMP-2162, since TableOperations.psm1 carries the FWK-FB ownership
+    # line. When that lands this pattern becomes harmlessly redundant.
+    $rowIdPattern = '\[?' + [regex]::Escape($FeatureId) + '\]?(\([^)]*\))?'
+
     $result = Move-MarkdownTableRow `
         -Content $content `
-        -RowIdPattern ([regex]::Escape($FeatureId)) `
+        -RowIdPattern $rowIdPattern `
         -SourceSection "## Feature Categories" `
         -DestinationSection "## Archived Features" `
         -ColumnMapping $columnMapping `

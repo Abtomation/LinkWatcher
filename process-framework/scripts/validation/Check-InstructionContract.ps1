@@ -62,6 +62,7 @@
     in a rolled-out project (process-framework).
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit codes:
         0 = clean, or findings in warn-first mode (default)
         1 = findings and -Blocking was supplied

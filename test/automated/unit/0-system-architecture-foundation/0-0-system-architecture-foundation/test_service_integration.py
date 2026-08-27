@@ -15,9 +15,11 @@ Test Cases Implemented:
 - SI-008: Service health monitoring
 """
 
+import signal
 import threading
 import time
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from watchdog.events import FileCreatedEvent, FileDeletedEvent, FileMovedEvent
@@ -742,3 +744,185 @@ class TestServiceHealth:
         # Should be able to process new files after recovery
         stats = service.link_db.get_stats()
         assert stats["total_references"] >= 1  # at least the initial scan refs
+
+
+class TestBug144ShutdownSequenceRunsOnEveryStopPath:
+    """PD-BUG-144: ``stop()`` guarded its whole body with ``if self.running``,
+    a flag every path that reaches it has already cleared.
+
+    The monitoring loop exits by setting ``self.running = False`` — from a
+    liveness failure (PD-BUG-139), from the observer-thread-died check
+    (PD-BUG-018), or from ``_signal_handler`` on SIGINT/SIGTERM.  ``start()``'s
+    ``finally`` then calls ``stop()``, the guard is already ``False``, and the
+    entire shutdown sequence is skipped: the observer is never stopped or
+    joined, final statistics are never printed, and neither ``service_stopping``
+    nor ``service_stopped`` is logged.
+
+    Consequences, in order of what actually matters:
+
+    - It partially defeats PD-BUG-139.  That fix exists so a daemon which has
+      gone blind stops *loudly* and the operator knows to run a validation
+      scan.  On that exact path the log ends at ``observer_emitter_died`` with
+      no shutdown confirmation, so a completed clean stop is indistinguishable
+      from a crash mid-work.
+    - It violates two named functional requirements — 0.1.1-FR-5 ("graceful
+      shutdown ... stopping the file observer thread cleanly") and 0.1.1-FR-6
+      ("SHALL report operational statistics upon shutdown") — and falsifies
+      0.1.1-AC-4 and 0.1.1-AC-7, both of which the FDD records as met.
+
+    Not reached at all under a hard kill: the Control Panel, the stop launcher
+    and the E2E harness all use ``TerminateProcess`` / ``Stop-Process -Force``,
+    so this defect belongs to WF-008 (Ctrl+C, self-stop), not WF-010.
+
+    Contract pinned here: the shutdown sequence runs exactly once per started
+    service, on every path that reaches ``stop()``, and a service that was
+    never started stays silent.
+    """
+
+    @staticmethod
+    def _service(tmp_path):
+        """A service with its side-effecting collaborators replaced.
+
+        ``register_signals=False`` keeps the real process's SIGINT handling out
+        of the test session; the signal *path* is exercised by calling
+        ``_signal_handler`` directly, which is exactly what the OS does.
+        """
+        svc = LinkWatcherService(str(tmp_path), register_signals=False)
+        svc.observer = MagicMock()
+        svc.logger = MagicMock()
+        svc._print_final_stats = MagicMock()
+        svc._remove_liveness_sentinel = MagicMock()
+        svc._started = True
+        svc.running = True
+        return svc
+
+    @staticmethod
+    def _logged(svc):
+        return [call.args[0] for call in svc.logger.info.call_args_list]
+
+    # ---- the reported defect ----------------------------------------------
+
+    def test_shutdown_runs_when_the_loop_cleared_running_first(self, tmp_path):
+        """The liveness / observer-died self-stop shape: the loop sets
+        ``running = False``, then ``start()``'s ``finally`` calls ``stop()``.
+        """
+        svc = self._service(tmp_path)
+        svc.running = False  # what _watch_is_healthy() failing does
+
+        svc.stop()
+
+        assert svc.observer.stop.called, "observer was never stopped"
+        assert svc.observer.join.called, "observer was never joined"
+        assert svc._print_final_stats.called, "final statistics were never printed"
+        assert "service_stopping" in self._logged(svc)
+        assert "service_stopped" in self._logged(svc)
+
+    def test_shutdown_runs_after_a_shutdown_signal(self, tmp_path):
+        """The Ctrl+C shape. ``_signal_handler`` is what the OS invokes for
+        SIGINT once ``start()`` has registered it, so this is the real path —
+        the ``except KeyboardInterrupt`` branch in ``start()`` never fires
+        while a handler is installed.
+        """
+        svc = self._service(tmp_path)
+        svc._signal_handler(signal.SIGINT, None)
+
+        svc.stop()
+
+        assert svc.observer.stop.called
+        assert svc.observer.join.called
+        assert svc._print_final_stats.called
+        assert "service_stopped" in self._logged(svc)
+
+    def test_real_observer_is_not_left_running_after_a_signal_shutdown(self, tmp_path):
+        """The non-mock assertion, and the one that reproduces 0.1.1-AC-4
+        ("without orphaned threads") directly.
+
+        A real observer is started, the loop is left the way a signal leaves
+        it, and the observer thread must be dead once ``start()`` returns.
+        Before the fix it is still alive — the watchdog thread is a daemon, so
+        nothing hangs and the process exits cleanly, which is precisely why
+        this went unnoticed.
+        """
+        (tmp_path / "a.md").write_text("[x](b.md)\n", encoding="utf-8")
+        (tmp_path / "b.md").write_text("hi\n", encoding="utf-8")
+
+        svc = LinkWatcherService(str(tmp_path), register_signals=False)
+        loop = threading.Thread(target=lambda: svc.start(initial_scan=False), daemon=True)
+        loop.start()
+
+        deadline = time.time() + 15
+        while time.time() < deadline and not svc.running:
+            time.sleep(0.05)
+        assert svc.running, "service never reached its monitoring loop"
+
+        svc._signal_handler(signal.SIGINT, None)
+        loop.join(timeout=15)
+
+        assert not loop.is_alive(), "start() never returned"
+        assert not svc.observer.is_alive(), "the observer thread was left running"
+
+    # ---- controls ---------------------------------------------------------
+
+    def test_control_explicit_stop_while_running_still_works(self, tmp_path):
+        """The path that always worked — an exception in ``start()``, or a
+        caller invoking ``stop()`` directly, both reach it with ``running``
+        still ``True``.
+        """
+        svc = self._service(tmp_path)
+
+        svc.stop()
+
+        assert svc.observer.stop.called
+        assert svc._print_final_stats.called
+        assert "service_stopped" in self._logged(svc)
+
+    def test_control_a_never_started_service_stays_silent(self, tmp_path):
+        """``test_si_002_service_multiple_stop_calls`` calls ``stop()`` three
+        times on a service that was never started. It must not raise — and it
+        must not emit three shutdown records or three sets of statistics for a
+        service that never ran.
+        """
+        svc = LinkWatcherService(str(tmp_path), register_signals=False)
+        svc.logger = MagicMock()
+        svc._print_final_stats = MagicMock()
+
+        svc.stop()
+        svc.stop()
+        svc.stop()
+
+        assert not svc._print_final_stats.called
+        assert "service_stopping" not in self._logged(svc)
+        assert "service_stopped" not in self._logged(svc)
+
+    def test_control_shutdown_sequence_runs_exactly_once(self, tmp_path):
+        """``start()``'s ``finally`` may call ``stop()`` after a caller already
+        did. The second call must be a no-op, not a second join and a second
+        set of statistics.
+        """
+        svc = self._service(tmp_path)
+
+        svc.stop()
+        svc.stop()
+
+        assert svc.observer.stop.call_count == 1
+        assert svc.observer.join.call_count == 1
+        assert svc._print_final_stats.call_count == 1
+        assert self._logged(svc).count("service_stopped") == 1
+
+    def test_control_stop_does_not_raise_when_start_failed_before_the_observer_ran(self, tmp_path):
+        """``start()`` builds the observer, schedules it, *then* starts it — and
+        calls ``stop()`` from its ``finally`` whatever happens.
+
+        If scheduling raises, the observer object exists but its thread never
+        started, and ``join()`` on an unstarted thread raises ``RuntimeError``,
+        which would mask the original failure. Guarding on ``self.observer``
+        being set would reintroduce exactly that; the fix guards on the
+        observer having actually started.
+        """
+        svc = LinkWatcherService(str(tmp_path), register_signals=False)
+        svc.observer = MagicMock()
+        svc.observer.join.side_effect = RuntimeError("cannot join thread before it is started")
+
+        svc.stop()  # must not raise
+
+        assert not svc.observer.join.called

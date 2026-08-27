@@ -234,10 +234,70 @@ FileModifiedEvent→ on_modified()      → file, monitored, exists, not in igno
                                         Re-indexes links written into an EXISTING file by external tools (PD-BUG-102).
                                         DB-only (never writes files); serial dispatch guarantees the rescan lands before any later move event.
 ErrorEvent      → on_error()          → log watchdog_error, increment errors stat (prevents silent observer thread death)
+Health poll     → LinkWatcherService._watch_is_healthy() → WatchLivenessMonitor.check()  → emitter liveness + delivery canary (PD-BUG-139)
 Worker thread   → MoveDetector._expiry_worker()                → callback → _process_true_file_delete() → if file exists: rescan (PD-BUG-035)
 Timer callback  → DirectoryMoveDetector._process_dir_move_settled()  → process batch with unmatched files
 Timer callback  → DirectoryMoveDetector._process_dir_move_timeout()  → fallback: process or treat as true delete
 ```
+
+**Watch liveness monitoring** (PD-BUG-139): a watchdog `Observer` can stay `is_alive()` while
+delivering no events at all — `is_alive()` reports the *dispatcher* thread, whereas the actual
+producer on Windows is a per-watch `WindowsApiEmitter` thread that watchdog can lose silently
+(`queue_events` calls `self.stop()` on an `is_removed_self` event, and `EventEmitter.run` carries
+no exception guard). The daemon was then permanently blind while reporting healthy, and the
+`observer_thread_died` check (PD-BUG-018) could not fire because the observer genuinely was alive.
+
+`WatchLivenessMonitor` (`liveness.py`) is polled once per second from
+`LinkWatcherService._watch_is_healthy()` and applies two layers:
+
+| Layer | Question | Catches | Signal |
+|-------|----------|---------|--------|
+| Emitter liveness | Does the observer still have live emitters? | a lost emitter thread — conclusive on first observation, since a dead thread never revives | `observer_emitter_died` (ERROR) |
+| Delivery canary | Are events still arriving end to end? | any cause, including paths that leave no fingerprint | `watch_liveness_probe_failed` (WARNING), then `watch_delivery_stalled` (ERROR) |
+
+The canary probes **on suspicion, not on a timer**: only after `watch_liveness_idle_seconds` of
+total silence does it write a sentinel inside the watched tree and wait `watch_liveness_probe_timeout`
+for the event to return. A passive "time since last event" heartbeat cannot distinguish a quiet
+repository from a blind daemon, and an unconditional timer would write constantly; silence-gating
+gives zero writes on active repositories and bounded latency on quiet ones.
+`watch_liveness_failure_threshold` consecutive misses are required before acting, so a momentarily
+slow filesystem cannot stop a working watch; the setting carries a validated floor of `2`, because a
+threshold of `1` is a positive number the default numeric rule would admit while silently voiding
+that guarantee. A probe that cannot be *written* is not counted as a delivery failure — it proves
+nothing about delivery.
+
+The sentinel is written into the daemon's **own-output directory** (`compute_own_output_exclusions`,
+PD-BUG-107) whenever the log lives in a directory inside the project, so the probe sits where the
+daemon already writes and where scanning and event handling already exclude it; the project root is
+a fallback for the log-at-root and log-outside-project cases only. That matters more than it looks:
+the resolver originally iterated the exclusion registry *dict* rather than its `dirs` set, which
+made the own-output branch unreachable and dropped a never-removed dotfile into the root of every
+watched project.
+
+**Sentinel lifetime is per-probe, not per-daemon** (PD-BUG-145). The file only has to exist long
+enough for the OS to emit one event, so `_probe_round_trips` deletes it in a `finally` as soon as
+the round trip is decided; between probes no file exists. Cleanup cannot be attached to shutdown
+alone, because the stop paths that actually stop daemons — `Stop-Process -Force` in
+`stop_linkwatcher.ps1`, `psutil terminate()` in the Control Panel — are a hard `TerminateProcess`
+that runs no Python shutdown code (an `atexit`/signal hook fails for the same reason). `start()`
+therefore also sweeps a probe stranded by a hard-killed predecessor, which is the only layer that
+can cover a crash *during* a probe; `stop()` keeps its removal for the clean-stop path. The startup
+sweep must run after logging setup and before the observer starts: `_liveness_sentinel_path` pins
+its answer for the daemon's lifetime, so sweeping earlier would pin the project-root fallback and
+relocate the probe for every deployment.
+
+Delivery is observed in `LinkMaintenanceHandler.dispatch()`, deliberately **above** the own-output
+and ignored-directory filters: the question is whether the OS is still delivering at all, not
+whether the event is interesting, so a tree whose only activity is filtered still proves liveness.
+`dispatch()` consumes the sentinel event and does not pass it on, so the probe file never reaches
+the parser or the link database. The sentinel lives in the daemon's own-output directory where one
+exists inside the project, falling back to a project-root dotfile otherwise.
+
+On established failure the daemon logs ERROR and **stops** — it does not re-arm. A running-but-blind
+daemon is strictly worse than a stopped one because it gives false assurance, and correct re-arming
+would require a full re-scan (the database is stale after a blind window). Recovery is by restart
+through the launcher or Control Panel. In-process recovery is deferred until field evidence shows
+how often the condition fires.
 
 **Event deferral** (PD-BUG-053): `LinkWatcherService` calls `begin_event_deferral()` before the initial scan, then `notify_scan_complete()` after. During the deferral window, all four event handlers (`on_moved`, `on_deleted`, `on_created`, `on_modified`) queue events in `_deferred_events` (protected by `_deferred_lock`) instead of processing them. On scan completion, queued events are replayed in arrival order. This prevents move detection against an incomplete link database.
 

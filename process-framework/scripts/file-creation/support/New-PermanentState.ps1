@@ -33,6 +33,8 @@ Authors a FRAMEWORK-SHIPPED tracker into blueprint/doc/state-tracking/permanent/
 <FAMILY>-FST id — identical in every child and seeded at bootstrap. Producer faces only; the
 script errors at a leaf, and errors at a producer face missing either half of the contract.
 Omitted (default) creates a project-local PF-STA tracker routed by Get-StateTrackingContext.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]

@@ -21,6 +21,8 @@
 
     Config: the "locking" block of doc/project-config.json. An ABSENT block means disabled by
     design — projects that never adopted locking need no migration.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 Set-StrictMode -Version Latest

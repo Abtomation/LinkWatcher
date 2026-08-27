@@ -21,6 +21,8 @@
     Human-approval provenance (who approved, e.g. "ronny 2026-07-29"). Mandatory — this
     script must never run without an explicit human decision (Standing Orders: fresh foreign
     locks are human-gated).
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
 param(

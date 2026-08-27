@@ -25,6 +25,7 @@ This version (3.0) uses a modular architecture where functionality is split acro
 focused sub-modules, but maintains complete backward compatibility.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 3.0 (Modularized Architecture)
 Created: 2025-07-08
 Updated: 2025-08-26
@@ -134,6 +135,7 @@ if ($LoadedFunctions.Count -gt 0) {
         'Open-ProjectFileInEditor',
         'Get-TemplateMetadata',
         'Get-TemplateContentWithoutMetadata',
+        'Resolve-TemplateFacePath',
         'New-ProjectDocumentWithMetadata',
         'New-ProjectDocumentWithCodeMetadata',
         'New-ProjectCodeMetadata',

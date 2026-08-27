@@ -86,6 +86,10 @@ class GenericParser(BaseParser):
                 for match in self.quoted_dir_pattern.finditer(line):
                     potential_dir = match.group(1)
 
+                    # PD-BUG-135: reject the span BETWEEN two quoted literals.
+                    if not self._is_paired_delimiter(line, match):
+                        continue
+
                     # Skip if it has a file extension (already handled by quoted_pattern)
                     _, ext = os.path.splitext(potential_dir)
                     if ext:

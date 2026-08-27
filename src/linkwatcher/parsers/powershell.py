@@ -157,6 +157,12 @@ class PowerShellParser(BaseParser):
         #    path extraction (TD146: merged former quoted_pattern + all_quoted_pattern)
         for match in self.all_quoted_pattern.finditer(line):
             content = match.group(1)
+            # PD-BUG-135: the same delimiter-gap defect reaches the general
+            # quoted-string pass -- a double-quoted message containing an
+            # apostrophe closed the span on that apostrophe, registering the
+            # sentence prefix as a path.
+            if not self._is_paired_delimiter(line, match):
+                continue
             if self._looks_like_file_path(content):
                 # Whole quoted string is a file path — add directly
                 file_path_spans.add((match.start(1), match.end(1)))
@@ -195,6 +201,10 @@ class PowerShellParser(BaseParser):
         # 3. Quoted directory paths (no extension required)
         for match in self.quoted_dir_pattern.finditer(line):
             if (match.start(1), match.end(1)) in file_path_spans:
+                continue
+            # PD-BUG-135: reject the span BETWEEN two quoted literals -- the
+            # STRICT variant does not prevent it.
+            if not self._is_paired_delimiter(line, match):
                 continue
             potential_dir = match.group(1).strip()
             if self._looks_like_directory_path(potential_dir):

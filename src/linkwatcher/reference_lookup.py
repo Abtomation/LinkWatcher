@@ -379,7 +379,7 @@ class ReferenceLookup:
         # PD-BUG-119: the pop is atomic against a concurrent registration, but
         # the lock is released before the repair loop below — that loop reads,
         # parses and writes files, and re-enters _lookup_recent_move /
-        # _register_pending_recalc through the link recalculation. Holding a
+        # _resolve_or_register_pending_recalc through the link recalculation. Holding a
         # non-reentrant lock across it would deadlock the daemon.
         with self._move_memory_lock:
             entries = self._pending_recalcs.pop(key, None)
@@ -425,10 +425,27 @@ class ReferenceLookup:
             entry = self._recent_moves.get(resolved_target.replace("\\", "/"))
         return entry[0] if entry else None
 
-    def _register_pending_recalc(
+    def _resolve_or_register_pending_recalc(
         self, resolved_target: str, old_file_path: str, new_file_path: str
     ):
-        """Remember a link the existence guard skipped, keyed by its resolved old target."""
+        """Resolve the target from move memory, or remember the link for later.
+
+        Returns the target's new path when move memory already knows it — the
+        caller recalculates immediately — and ``None`` when the link was queued
+        for deferred repair instead.
+
+        PD-BUG-122: the caller's check-then-register spans two lock
+        acquisitions, because _lookup_recent_move releases the lock before this
+        runs. A competing thread that completes a whole move-processing pass for
+        this key in that gap — record_move then apply_pending_recalcs, the order
+        both handler paths use — would otherwise leave the registration under a
+        key already applied. Nothing pops it again, so the deferred repair never
+        runs and the link stays stale, with no exception and no log line.
+        Re-checking _recent_moves inside the SAME critical section as the
+        registration closes the window: either the move is visible and we return
+        it, or it has not landed and its apply_pending_recalcs is still ahead of
+        this registration.
+        """
         key = resolved_target.replace("\\", "/")
         now = time.monotonic()
         # PD-BUG-119: the setdefault and the store are one critical section.
@@ -436,13 +453,26 @@ class ReferenceLookup:
         # them, leaving this store in a dict nothing can reach — the deferred
         # repair is then lost silently. Logging stays outside the lock.
         with self._move_memory_lock:
-            entries = self._pending_recalcs.setdefault(key, {})
-            entries[(old_file_path, new_file_path)] = now
+            self._prune_move_memory(now)
+            entry = self._recent_moves.get(key)
+            if entry is None:
+                entries = self._pending_recalcs.setdefault(key, {})
+                entries[(old_file_path, new_file_path)] = now
+        if entry is not None:
+            # PD-BUG-122: the losing side of the race is otherwise invisible.
+            self.logger.debug(
+                "link_recalc_resolved_in_window",
+                resolved_target=key,
+                moved_target=entry[0],
+                file_path=new_file_path,
+            )
+            return entry[0]
         self.logger.debug(
             "link_recalc_pending",
             resolved_target=key,
             file_path=new_file_path,
         )
+        return None
 
     def _prune_move_memory(self, now: float):
         """Drop move-memory and pending-recalc entries older than the TTL.
@@ -929,6 +959,17 @@ class ReferenceLookup:
             # knows where it went.
             if not path_exists_under_root(self.project_root, old_absolute_target):
                 moved_target = self._lookup_recent_move(old_absolute_target)
+                if moved_target is None:
+                    # Not a known move yet: either a non-path string (PD-BUG-033)
+                    # or a target whose own move event has not been processed.
+                    # Record it so apply_pending_recalcs() can repair the link if
+                    # that move event arrives later (PD-BUG-114) — but re-check
+                    # move memory inside that same critical section first, because
+                    # the lock was released above and the move may have landed in
+                    # the gap (PD-BUG-122).
+                    moved_target = self._resolve_or_register_pending_recalc(
+                        old_absolute_target, old_file_path, new_file_path
+                    )
                 if moved_target is not None:
                     if path_exists_under_root(self.project_root, moved_target):
                         if new_dir:
@@ -937,7 +978,12 @@ class ReferenceLookup:
                             recalculated = moved_target
                         # PD-BUG-120: os.path.relpath drops an authored trailing
                         # separator — restore it before the fragment is reattached.
-                        recalculated = apply_trailing_separator_style(recalculated, base_target)
+                        # separator="/" — this module always emits forward-slash
+                        # output, so the restored separator must not depend on
+                        # whether the result happens to carry one (PD-BUG-124).
+                        recalculated = apply_trailing_separator_style(
+                            recalculated, base_target, separator="/"
+                        )
                         self.logger.info(
                             "link_target_move_applied",
                             original_target=original_target,
@@ -951,11 +997,6 @@ class ReferenceLookup:
                         moved_target=moved_target,
                     )
                     return original_target
-                # Not a known move: either a non-path string (PD-BUG-033) or a
-                # target whose own move event has not been processed yet. Record
-                # it so apply_pending_recalcs() can repair the link if that move
-                # event arrives later (PD-BUG-114).
-                self._register_pending_recalc(old_absolute_target, old_file_path, new_file_path)
                 return original_target
 
             # PD-BUG-114 (code review follow-up): the recalculation is semantic,
@@ -983,7 +1024,9 @@ class ReferenceLookup:
             # PD-BUG-120: same restoration on the main branch — a rewrite changes
             # WHERE a target points, never HOW it was written, and a lost
             # separator silently breaks paths built by concatenation.
-            new_relative_target = apply_trailing_separator_style(new_relative_target, base_target)
+            new_relative_target = apply_trailing_separator_style(
+                new_relative_target, base_target, separator="/"
+            )
             return new_relative_target + fragment
 
         except Exception as e:

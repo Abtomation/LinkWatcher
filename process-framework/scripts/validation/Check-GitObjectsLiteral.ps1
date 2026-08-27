@@ -16,6 +16,7 @@
     Wired into .pre-commit-config.yaml as the `no-git-objects-literal` hook.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit codes:
         0 = no violations (or no staged files)
         1 = at least one staged file contains the corruption pattern

@@ -43,6 +43,7 @@ AI Context
 
 from __future__ import annotations
 
+import math
 import os
 import subprocess
 import tempfile
@@ -52,6 +53,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, List, Mapping, NamedTuple, Optional, Sequence, Tuple
 
+from ..config import LinkWatcherConfig
 from .discovery import LOCK_FILE_NAME, is_daemon_for, read_lock_pid
 from .model import AppModel, DaemonStatus, ProjectInfo
 from .panel_log import get_panel_logger
@@ -88,6 +90,30 @@ OUTCOME_PIN_TTL_SECONDS = 30.0
 
 # Cadence of drain / exit-wait checks (tests inject clock+sleep instead).
 CHECK_INTERVAL_SECONDS = 0.25
+
+# The daemon's own `move_detect_delay` default, read from the daemon's own config
+# class rather than copied.  Used when a project's config is absent or unreadable:
+# falling back to 0 would silently restore the PD-BUG-136 defect, so the fallback is
+# the protective value.  Deriving it removes the drift hazard of a second hand-kept
+# copy (TD294) -- there is no longer a literal here that can disagree with
+# `linkwatcher.config.settings`.
+DEFAULT_MOVE_DETECT_DELAY_SECONDS = LinkWatcherConfig().move_detect_delay
+
+# Slack kept between the required idle window and the grace period.  A required
+# idle equal to the grace period would race the bound and force-stop a daemon
+# that was in fact quiet, so a window wider than `grace - headroom` is clamped.
+CORRELATION_GRACE_HEADROOM_SECONDS = 2.0
+
+# Lock-unlink backoff (PD-BUG-137).  On Windows a file opened without
+# FILE_SHARE_DELETE cannot be unlinked, so *any* concurrent holder — the panel's
+# own poller mid-read, an antivirus scanner examining a just-terminated
+# process's files, the search indexer — defeats a single attempt.  The holder is
+# not knowable from inside the panel, so the backoff targets the whole class:
+# escalating waits totalling ~1.05 s, which covers both a sub-millisecond read
+# overlap and a scanner holding the file for a few hundred milliseconds.  Well
+# inside the stop worker's budget (the drain pin outlives it by grace + 15 s).
+LOCK_UNLINK_BACKOFF_SECONDS = (0.05, 0.1, 0.2, 0.3, 0.4)
+LOCK_UNLINK_ATTEMPTS = len(LOCK_UNLINK_BACKOFF_SECONDS) + 1
 
 
 # --------------------------------------------------------------------------- #
@@ -305,14 +331,65 @@ def newest_log_stat(log_dir: Path) -> Optional[LogStat]:
     return best
 
 
+def read_correlation_window(config_path) -> float:
+    """The daemon's *effective* ``move_detect_delay``, or its default; never raises.
+
+    This is the span during which the daemon may hold a *buffered* delete waiting for
+    its matching create -- work that is completely invisible in the log signature the
+    drain watches (PD-BUG-136).
+
+    Resolution goes through the daemon's own configuration machinery, in the daemon's
+    own precedence order (defaults -> config file -> ``LINKWATCHER_*`` environment),
+    rather than re-reading the YAML by hand.  A hand-rolled file-only read derives a
+    *different* window than the daemon is actually running with whenever the operator
+    sets ``LINKWATCHER_MOVE_DETECT_DELAY``: too short, and the drain terminates a daemon
+    still holding a buffered correlation and the reference update is silently dropped;
+    too long, and it over-waits into a needless forced stop (PD-BUG-142).  There is no
+    CLI flag for this field, so file plus environment is the whole precedence chain.
+
+    The two stages are guarded separately -- exactly as ``main.py`` guards them -- so an
+    unreadable or unparseable config cannot also swallow a live environment override.
+    Every remaining failure mode (missing file, absent key, wrong type, non-positive or
+    non-finite value) falls back to :data:`DEFAULT_MOVE_DETECT_DELAY_SECONDS` rather than
+    to zero: a config the panel cannot read is a reason to be more careful, not less.
+
+    Residual (accepted, PD-BUG-142): a daemon the panel *adopted* rather than started may
+    have been launched from a different environment than the panel's own, in which case
+    the environment read here is not that daemon's.  Recorded beside the log-level
+    residual in TDD 4.4; closing it would need the daemon to publish its effective
+    configuration on a channel the panel can read.
+    """
+    resolved = LinkWatcherConfig()
+    try:
+        path = Path(config_path)
+        if path.is_file():
+            resolved = resolved.merge(LinkWatcherConfig.from_file(str(path)))
+    except Exception:  # unreadable, undecodable, unparseable, or not a mapping
+        get_panel_logger().warning("correlation_window_config_unreadable path=%s", config_path)
+    try:
+        resolved = resolved.merge(LinkWatcherConfig.from_env())
+    except Exception:  # a hostile environment must not disable the protection
+        get_panel_logger().warning("correlation_window_env_unreadable")
+
+    raw = resolved.move_detect_delay
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        return DEFAULT_MOVE_DETECT_DELAY_SECONDS
+    value = float(raw)
+    if not math.isfinite(value) or value <= 0:
+        return DEFAULT_MOVE_DETECT_DELAY_SECONDS
+    return value
+
+
 def watch_quiescence(
     log_dir: Path,
     *,
     idle_threshold: float,
     grace_period: float,
+    correlation_window: float,
     clock: Callable[[], float] = time.monotonic,
     sleep: Callable[[float], None] = time.sleep,
     log_stat: Callable[[Path], Optional[LogStat]] = newest_log_stat,
+    wall_clock: Callable[[], float] = time.time,
     check_interval: float = CHECK_INTERVAL_SECONDS,
 ) -> bool:
     """Wait for the daemon's log to go quiet; ``True`` = quiescent, ``False`` = grace elapsed.
@@ -323,15 +400,43 @@ def watch_quiescence(
     rotation shows up as a signature change (new path/mtime) and correctly
     counts as activity.  **No log file at all is quiescent immediately** — the
     drain must not wait the full grace period on nothing (UNIT-L7).
+
+    *correlation_window* is the daemon's ``move_detect_delay`` (PD-BUG-136).  A
+    daemon holding a buffered move-correlation writes nothing while it waits, so
+    log silence alone cannot distinguish it from an idle one; when the log was
+    written recently enough for a correlation to still be open, the required
+    idle span is raised to the window.  It is **required, not defaulted**: this
+    is the primitive the policy is expressed through, and a caller that silently
+    got no protection was the shape of the original defect (CR F3).  Pass ``0``
+    only to mean "correlations are not a concern here".
+
+    The span is re-armed on every observed log change, not decided once at entry
+    (CR F1).  Ageing the log at entry is a statement about the instant the drain
+    begins; the drain then runs for seconds, and a delete buffered inside that
+    span opens a correlation the entry-time decision knows nothing about.  The
+    cost is deliberate: a daemon logging more often than *correlation_window*
+    never reaches the re-armed silence and now ends at the grace bound as
+    FORCE_STOPPED, where it previously drained cleanly at *idle_threshold*.
+    That is the honest outcome — such a daemon is still working — and BR-7
+    bounds it either way.
+
+    ``wall_clock`` is compared against the log's ``mtime`` (both wall-clock) to
+    age the log; the grace bound stays on the monotonic *clock*.
     """
     started = clock()
     last = log_stat(log_dir)
     if last is None:
         return True
+    required_idle = _required_idle_span(
+        idle_threshold=idle_threshold,
+        grace_period=grace_period,
+        correlation_window=correlation_window,
+        log_age=max(0.0, wall_clock() - last.mtime),
+    )
     last_change = started
     while True:
         now = clock()
-        if now - last_change >= idle_threshold:
+        if now - last_change >= required_idle:
             return True
         if now - started >= grace_period:
             return False
@@ -340,6 +445,51 @@ def watch_quiescence(
         if current != last:
             last = current
             last_change = clock()
+            # Fresh activity may be a delete that has just been buffered, so the
+            # window is re-armed from zero age rather than kept at the entry-time
+            # decision (CR F1).
+            required_idle = _required_idle_span(
+                idle_threshold=idle_threshold,
+                grace_period=grace_period,
+                correlation_window=correlation_window,
+                log_age=0.0,
+            )
+
+
+def _required_idle_span(
+    *,
+    idle_threshold: float,
+    grace_period: float,
+    correlation_window: float,
+    log_age: float,
+) -> float:
+    """How long the log must stay silent before the daemon counts as quiescent.
+
+    Normally *idle_threshold*.  It is raised to the correlation window when the
+    daemon logged recently enough that a buffered move-correlation could still be
+    open (PD-BUG-136): a pending delete expires exactly ``move_detect_delay``
+    after the ``file_deleted`` record that buffered it, so a log already silent
+    for longer than the window cannot be hiding one — which is what keeps the
+    common close fast instead of paying the window on every stop.
+
+    The raised span is clamped to stay inside the grace period (BR-7 bounds the
+    drain): without the clamp, a project whose ``move_detect_delay`` exceeds the
+    grace period would force-stop on *every* stop, turning a protection into a
+    permanent false alarm.  *log_age* is a wall-clock span and only ever shortens
+    the wait, so clock skew degrades to today's behaviour rather than to a hang.
+    """
+    if correlation_window <= 0 or log_age >= correlation_window:
+        return idle_threshold
+    ceiling = max(idle_threshold, grace_period - CORRELATION_GRACE_HEADROOM_SECONDS)
+    required = max(idle_threshold, min(correlation_window, ceiling))
+    if required < correlation_window:
+        get_panel_logger().warning(
+            "drain_correlation_window_clamped window=%.1fs grace=%.1fs using=%.1fs",
+            correlation_window,
+            grace_period,
+            required,
+        )
+    return required
 
 
 # --------------------------------------------------------------------------- #
@@ -397,7 +547,12 @@ def wait_for_exit(
         sleep(check_interval)
 
 
-def cleanup_lock(project_root: Path, terminated_pids: Sequence[int]) -> bool:
+def cleanup_lock(
+    project_root: Path,
+    terminated_pids: Sequence[int],
+    *,
+    sleep: Callable[[float], None] = time.sleep,
+) -> bool:
     """Delete the project's lock only if it still names a PID we terminated.
 
     The daemon's own ``release_lock()`` never runs under ``TerminateProcess``,
@@ -405,6 +560,23 @@ def cleanup_lock(project_root: Path, terminated_pids: Sequence[int]) -> bool:
     applies: a lock now holding a *different* PID belongs to a successor and is
     left intact (UNIT-L10/L11); a corrupt lock is likewise never touched here
     (discovery surfaces it as STALE_LOCK instead).
+
+    **The unlink is retried** (PD-BUG-137).  Windows cannot unlink a file that
+    another handle holds open without ``FILE_SHARE_DELETE``, so a single attempt
+    loses to *any* concurrent holder — the panel's own poller mid-read (the
+    panel racing itself; confirmed to fail 208/300 attempts under a continuous
+    reader), an antivirus scanner examining the files of a process we just
+    terminated, the search indexer.  The holder is not knowable from in here,
+    and the failure is intermittent, which is why one stop removed the lock and
+    the next did not.  The escalating backoff is a large probability reduction
+    across that whole class, not a guarantee: a holder that outlasts the budget
+    still wins, and the downstream defences remain the backstop (``main.py``
+    reclaims a dead-PID lock, and discovery surfaces STALE_LOCK).
+
+    Only a lock that is *ours and still undeletable* is surfaced.  The two benign
+    non-removals — no lock, or a foreign one — are correct outcomes and stay
+    silent, or a normal close would warn every time and bury the case that
+    matters.
     """
     lock_path = Path(project_root) / LOCK_FILE_NAME
     if not lock_path.is_file():
@@ -412,11 +584,27 @@ def cleanup_lock(project_root: Path, terminated_pids: Sequence[int]) -> bool:
     owner_pid, _problem = read_lock_pid(lock_path)
     if owner_pid is None or owner_pid not in set(terminated_pids):
         return False
-    try:
-        lock_path.unlink()
-        return True
-    except OSError:
-        return False
+    last_error: Optional[OSError] = None
+    for attempt in range(LOCK_UNLINK_ATTEMPTS):
+        try:
+            lock_path.unlink()
+            return True
+        except FileNotFoundError:
+            # Something removed it between the is_file() check and here — the
+            # desired end state, reached without us.
+            return True
+        except OSError as exc:
+            last_error = exc
+            if attempt < len(LOCK_UNLINK_BACKOFF_SECONDS):
+                sleep(LOCK_UNLINK_BACKOFF_SECONDS[attempt])
+    get_panel_logger().warning(
+        "lock_cleanup_failed path=%s owner_pid=%s attempts=%s error=%s",
+        lock_path,
+        owner_pid,
+        LOCK_UNLINK_ATTEMPTS,
+        last_error,
+    )
+    return False
 
 
 @dataclass(frozen=True)
@@ -443,22 +631,32 @@ def drain_and_terminate(
     grace_period: float,
     process_table: object,
     terminator: PsutilTerminator,
+    correlation_window: Optional[float] = None,
     clock: Callable[[], float] = time.monotonic,
     sleep: Callable[[float], None] = time.sleep,
     log_stat: Callable[[Path], Optional[LogStat]] = newest_log_stat,
+    wall_clock: Callable[[], float] = time.time,
 ) -> StopOutcome:
     """The full stop pipeline: drain watch → guarded pair termination → lock cleanup.
 
     Runs on a worker thread; every collaborator is injected so tests drive the
     whole pipeline with a fake clock (no real 20 s waits, per TE-TSP-045).
+
+    *correlation_window* defaults to the project's own ``move_detect_delay``
+    (PD-BUG-136) — read here, where the :class:`ProjectInfo` is in hand, so the
+    controller and the shutdown fan-out both inherit it without extra wiring.
     """
+    if correlation_window is None:
+        correlation_window = read_correlation_window(project.config_path)
     quiescent = watch_quiescence(
         project.log_dir,
         idle_threshold=idle_threshold,
         grace_period=grace_period,
+        correlation_window=correlation_window,
         clock=clock,
         sleep=sleep,
         log_stat=log_stat,
+        wall_clock=wall_clock,
     )
     terminated = terminate_project_daemon(project, process_table, terminator)
     if not terminated:
@@ -616,6 +814,7 @@ class LifecycleController:
         clock: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
         log_stat: Callable[[Path], Optional[LogStat]] = newest_log_stat,
+        wall_clock: Callable[[], float] = time.time,
         executor: Optional[Callable[[Callable[[], None]], None]] = None,
     ):
         self._model = model
@@ -628,6 +827,10 @@ class LifecycleController:
         self._clock = clock
         self._sleep = sleep
         self._log_stat = log_stat
+        # Threaded through so the correlation widening is reachable — and
+        # therefore testable — from the controller, not only from a direct
+        # drain_and_terminate call (CR F4).
+        self._wall_clock = wall_clock
         self._executor = executor
         self._log = get_panel_logger()
         self._busy: set = set()
@@ -716,6 +919,7 @@ class LifecycleController:
                 clock=self._clock,
                 sleep=self._sleep,
                 log_stat=self._log_stat,
+                wall_clock=self._wall_clock,
             )
             if not outcome.performed:
                 # Guard refusal / daemon already gone: release the row to truth.

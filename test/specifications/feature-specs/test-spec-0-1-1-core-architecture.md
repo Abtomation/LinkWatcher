@@ -145,6 +145,14 @@ Tests cover the Orchestrator/Facade pattern: service construction wires all subs
 | Directory rename | Service → Handler → Updater → Database | `test_fm_004_directory_rename` | All files in directory updated |
 | Nested directory | Service → Handler → Updater → Database | `test_fm_005_nested_directory_movement` | Deep path chains updated |
 
+#### Shutdown Sequencing (0.1.1-FR-5, 0.1.1-FR-6)
+
+| Flow | Components Involved | Test Scenario | Expected Outcome |
+|------|-------------------|---------------|-----------------|
+| Self-stop shutdown | Loop → Service.stop() → Observer | `TestBug144ShutdownSequenceRunsOnEveryStopPath` | Observer stopped and joined, statistics printed and `service_stopping` / `service_stopped` logged even though the loop cleared `running` before `stop()` was reached (PD-BUG-144) |
+| Signal shutdown | `_signal_handler` → Loop → Service.stop() → Observer | same class, real-observer case | The observer thread is **not alive** after `start()` returns — 0.1.1-AC-4, "without orphaned threads" |
+| Shutdown idempotence | Service.stop() ×N | same class, controls | The sequence runs exactly once per started service; a never-started service stays silent; a `schedule()` failure before the observer ran does not raise `RuntimeError` from `join()` |
+
 **Test File**: [`test/automated/integration/test_file_movement.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_file_movement.py) (7 methods including edge cases)
 
 #### Data Flow Testing — Link Updates

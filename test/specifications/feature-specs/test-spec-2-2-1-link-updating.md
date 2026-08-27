@@ -159,23 +159,24 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | Backslash form | `test_backslash_target_preserves_trailing_backslash` | Separator style *and* trailing separator survive (PD-BUG-112 sibling) |
 | No-op move | `test_no_op_move_does_not_rewrite_file` | A move whose old and new paths are equal must never write the file |
 
-**Test File**: [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) (69 methods; `TestDocstringColumnCorruption` 2, `TestTrailingSlashPreservation` 6). Parser-side columns and punctuation trimming are specified in [test-spec-2-1-1](test-spec-2-1-1-link-parsing-system.md). Manual validation: `test/bug-validation/PD-BUG-118_path_span_corruption_validation.py` (10 checks across both defect classes, driving the real service with a real directory move).
+**Test File**: [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) (74 methods; `TestDocstringColumnCorruption` 2, `TestTrailingSlashPreservation` 6, `TestBug124EscapedBackslashSeparators` 5). Parser-side columns and punctuation trimming are specified in [test-spec-2-1-1](test-spec-2-1-1-link-parsing-system.md). Manual validation: `test/bug-validation/PD-BUG-118_path_span_corruption_validation.py` (10 checks across both defect classes, driving the real service with a real directory move).
 
-#### Move-Memory Thread Safety (PD-BUG-119)
+#### Move-Memory Thread Safety (PD-BUG-119, PD-BUG-122)
 
-> **Added 2026-08-17** — the move memory the simultaneous-move fix introduced (`_recent_moves`, `_pending_recalcs`) is reached from two threads: the watchdog observer thread via `_handle_file_moved`, and the DirectoryMoveDetector worker thread via `_handle_directory_moved`. `handler.on_moved` does not serialize them, so a single-file move landing inside an open directory-move settle window interleaves with per-file processing. The contract: concurrent move processing leaves move memory and pending recalcs consistent — no exception escapes, and no deferred repair is lost.
+> **Added 2026-08-17** — the move memory the simultaneous-move fix introduced (`_recent_moves`, `_pending_recalcs`) is reached from two threads: the watchdog observer thread via `_handle_file_moved`, and the DirectoryMoveDetector worker thread via `_handle_directory_moved`. `handler.on_moved` does not serialize them, so a single-file move landing inside an open directory-move settle window interleaves with per-file processing. The contract: concurrent move processing leaves move memory and pending recalcs consistent — no exception escapes, and no deferred repair is lost. **Extended 2026-08-18 (PD-BUG-122)**: atomicity of each individual operation is not enough — the link recalculation's *check-then-register pair* spans two acquisitions, so the registration re-checks move memory inside its own critical section and resolves inline when the move landed in the gap.
 >
-> Interleavings are driven **deterministically** rather than raced: each test hooks a callable the production code already invokes inside the vulnerable window (a timestamp comparison inside `_prune_move_memory`'s iteration; the `time.monotonic()` call between `setdefault` and the store in `_register_pending_recalc`), so the competing thread runs at exactly the right instruction inside the real code path.
+> Interleavings are driven **deterministically** rather than raced: each test hooks a callable the production code already invokes inside the vulnerable window (a timestamp comparison inside `_prune_move_memory`'s iteration; the `time.monotonic()` call between `setdefault` and the store in `_resolve_or_register_pending_recalc`), so the competing thread runs at exactly the right instruction inside the real code path.
 
 | Scenario | Test | Expected Outcome |
 |----------|------|------------------|
 | Registration during prune, via `record_move` | `test_record_move_survives_registration_during_prune` | No `RuntimeError` escapes; the competing registration is retained. This is the severe path — `record_move` sits at the top of `_handle_file_moved`'s try, so an escape abandons the **entire** move update |
 | Registration during prune, via lookup | `test_lookup_recent_move_survives_registration_during_prune` | Lookup still returns its answer; the quiet path, where the error would be swallowed by `_calculate_updated_relative_path` and leave the link silently stale |
 | Pop during registration | `test_registration_is_not_lost_to_a_concurrent_apply` | The pending entry is either still queued or delivered to `apply_pending_recalcs` — never dropped into an orphaned dict (two-sided assertion: "delivered only" would fail on benign orderings, "queued only" would pass a run that consumed nothing) |
+| Move landing between check and register | `test_move_landing_between_check_and_register_is_not_orphaned` | The link is repaired inline **and** no pending entry is left under the consumed key. PD-BUG-122: `_lookup_recent_move` releases the lock before the registration re-acquires it, so a competing thread completing an entire move pass in that gap would otherwise orphan the registration under an already-applied key — nothing pops it again, and the link stays stale with no exception and no log line (two-sided assertion: link-only would pass an implementation that repairs but leaks the entry; orphan-only would pass one that drops the registration entirely) |
 | Re-entrant repair (design pin) | `test_apply_pending_recalcs_does_not_deadlock_on_reentrant_repair` | `apply_pending_recalcs` must release the lock before its repair callback, which re-enters the guarded methods. Passes pre-fix by construction; it exists to fail an over-locking fix, whose deadlock is worse than the race |
 | Concurrent stress (backstop) | `test_two_threads_hammering_move_memory_raise_nothing` | Covers `record_move`'s chain read-modify-write; no exception, and every recorded move stays resolvable |
 
-**Test File**: [`test/automated/unit/2-link-parsing-update/test_movememorythreadsafety.py`](../../automated/unit/2-link-parsing-update/test_movememorythreadsafety.py) (TE-TST-152, 5 methods). No manual validation script: a race in internal state has no trigger a human can drive reproducibly by hand, so a manual run that observed no corruption would prove nothing.
+**Test File**: [`test/automated/unit/2-link-parsing-update/test_movememorythreadsafety.py`](../../automated/unit/2-link-parsing-update/test_movememorythreadsafety.py) (TE-TST-152, 6 methods). No manual validation script: a race in internal state has no trigger a human can drive reproducibly by hand, so a manual run that observed no corruption would prove nothing.
 
 #### Authored Trailing Separator Inside a Moved File (PD-BUG-120)
 
@@ -185,7 +186,7 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 |----------|------|------------------|
 | Main branch (target exists) | `test_bug120_main_branch_keeps_trailing_slash` | `doc/state-tracking/` → `../doc/state-tracking/`; slash-less form absent (negative assertion) |
 | `./dir/` authored form | `test_bug120_dot_slash_authored_form_keeps_trailing_slash` | The dot-slash form keeps its trailing separator through recalculation |
-| Backslash authored form | `test_bug120_backslash_authored_form_keeps_a_trailing_separator` | Ends in a separator matching the result's own style — never a mixed `../doc/x\` |
+| Backslash authored form | `test_bug120_backslash_authored_form_keeps_a_trailing_separator` | Ends in a separator matching the style this module emits — always forward slash, never a mixed `../doc/x\` (rule tightened by PD-BUG-124: it no longer depends on the result's own style, which was absent at single-segment depth) |
 | Move-memory branch | `test_bug120_move_memory_branch_keeps_trailing_slash` | A target that moved in the same operation is re-pointed **with** its separator |
 | Move-memory, root destination | `test_bug120_move_memory_to_root_keeps_trailing_slash` | Distinct return site: the mapped target is returned without `relpath` and still keeps the separator |
 | Trailing separator + anchor | `test_bug120_trailing_slash_with_anchor_keeps_both` | `doc/x/#top` → `../doc/x/#top` — the separator belongs before the fragment |
@@ -195,6 +196,49 @@ The `LinkUpdater` class performs atomic file modifications to update link refere
 | End-to-end, concatenation prefix | `test_bug120_python_concatenation_prefix_keeps_trailing_slash` | `LOG_DIR = "logs/linkwatcher/"` in a moved `.py` still concatenates to a valid path |
 
 **Test Files**: unit — [`test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py) (`TestBug120TrailingSeparatorPreserved`, 8 methods, at the function that produces the value); end-to-end — [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_link_updates.py) (`TestBug120TrailingSeparatorWithinMovedFile`, 2 methods, driving the real service). Manual validation: `test/bug-validation/PD-BUG-120_trailing_separator_within_moved_file_validation.py` (6 checks, including what the concatenation in the moved file evaluates to before and after).
+
+#### Escaped Backslash Separators (PD-BUG-124)
+
+> **Added 2026-08-18** — the third pass over the same contract, and the first where restoring the separator was itself the damage. Link targets are extracted from, and spliced back into, the file's **raw source**. Inside an escaped string literal (`.py`, and any parser reporting raw spans) one separator is authored as `\\`; every reconstruction site emitted a bare `\`, which the language then reads as an escape character. Two failure shapes, and the quiet one is the dangerous one: **loud** when the bare backslash escapes the closing quote (`LOG = "logs2\"` → unterminated string literal, the reported case), **silent** when it forms a valid escape (`logs\deep\notes.txt` still parses, but `\n` decodes to a newline and the value is quietly wrong, with `links_updated=1` logged as success).
+>
+> Three sites shared it, all reached from `PathResolver`: the trailing separator (`utils.apply_trailing_separator_style`, the reported case, on both recalculation paths) and **two body-separator sites** that the report did not name and the Step 20 similar-issue sweep found — `_apply_separator_style` (directory-prefix branch) and `_convert_to_original_link_type` (match branch, the silent one). Both trace to PD-BUG-112 rather than to this cycle.
+>
+> Contract, unchanged from its two siblings above and now stated at full strength: a rewrite changes **where** a target points, never how it was written — and **never leaves the containing file invalid**. The corollary this bug adds: preserving the authored *path* is not enough if the authored *escaping* is dropped. Because the assertion must catch the silent shape, the end-to-end scenario checks the **decoded value**, not just that the file parses.
+
+| Scenario | Test | Expected Outcome |
+|----------|------|------------------|
+| Trailing separator, dir renamed | `test_trailing_separator_preserves_authored_escaping` | An authored `\\` comes back `\\`; the bare-backslash form absent (negative assertion) |
+| Body separators, prefix branch | `test_directory_prefix_branch_preserves_authored_escaping` | Escaping survives on every segment, not just the last; the halved form would be a truncated hex escape |
+| Body separators, match branch | `test_match_branch_preserves_authored_escaping` | The **silent** case — the halved form still parses, so the assertion pins the exact escaped output |
+| Control: unescaped authoring | `test_single_backslash_authoring_is_unchanged` | Markdown authors one backslash and means it — separators must not gain an escape (green before *and* after the fix) |
+| End-to-end, file validity | `test_rewritten_python_file_still_parses_and_keeps_its_value` | The rewritten `.py` parses **and** its constant decodes to the intended path — a parse check alone would pass the silent case |
+| Single-segment result | `test_single_segment_result_does_not_emit_a_bare_backslash` | `reference_lookup` emits forward-slash output at every depth; no bare trailing backslash |
+| Style vs result depth | `test_style_does_not_depend_on_result_depth` | One authored form, two destination depths, both genuinely recalculated — the restored separator must match (the secondary defect) |
+
+**Test Files**: unit — [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py) (`TestBug124EscapedBackslashSeparators`, 5 methods, covering all three reconstruction sites plus the end-to-end file-validity contract); [`test/automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py`](../../automated/unit/1-file-watching-detection/1-0-file-watching-detection/test_reference_lookup.py) (`TestBug124TrailingSeparatorStyleIsConsistent`, 2 methods, at the function that produces the value). Manual validation: `test/bug-validation/PD-BUG-124_escaped_backslash_separator_validation.py` (5 checks driving the real service, printing source, *parses* and *decodes* per case so the silent shape is visible to the human).
+
+#### Escaped Structured Literals (PD-BUG-126)
+
+> **Added 2026-08-19** — the fourth pass over the same contract, reached from the other end: not the separator being reconstructed wrongly, but the reference never arriving at the updater at all. Both structured-data parsers located a value by searching the **raw** source line for the **decoded** text; every JSON escape form makes those differ, so the search returned 0 and the reference was dropped silently. Nothing was logged, and the target went stale on the next move while a plain sibling on the same line updated normally.
+>
+> The two halves are inseparable, and that is the load-bearing part of this contract: making the references **visible** exposes them to the write-back path, where splicing raw text into an escaped literal is exactly the PD-BUG-124 corruption. Measured on a file holding one escaped value and one plain one, a parser-only fix yields `files_updated=0` and `stale_files=[config.json]` — the plain sibling, which worked before, stops updating. A detection-only fix is therefore net-negative, not merely incomplete.
+>
+> Contract: a value is located by whichever spelling the author chose; the recorded span addresses the raw source; the replacement is written back in the same escaped form; and a value that cannot be located is **logged**, never dropped in silence. The rule from the three siblings above holds unchanged — a rewrite changes **where** a target points, never how it was written — and it now covers the character set as well as the separators.
+
+| Scenario | Test | Expected Outcome |
+|----------|------|------------------|
+| Escaped forward slash | `test_escaped_forward_slash_is_detected` | `\/` decodes to an ordinary POSIX path — detected and located on its own line |
+| Unicode escape | `test_unicode_escape_is_detected` | `\u0078` decodes to `x`; refutes the hypothesis that this class is Windows-specific |
+| Backslash-authored path | `test_escaped_backslash_path_is_detected` | The reported case — the only valid JSON spelling of a Windows path is detected |
+| Span addresses raw source | `test_span_covers_the_raw_literal_not_the_decoded_value` | A span sized to the shorter decoded value would leave escape debris behind on write-back |
+| Control: escape-free value | `test_plain_value_still_detected` | The pre-existing path is untouched by the new branch (green before *and* after) |
+| Both spellings, one file | `test_escaped_and_plain_values_both_detected` | Each is claimed on its own line; the claim key is (line, column), since several spellings decode alike |
+| No false stale | `test_escaped_ref_does_not_mark_file_stale` | The escaped literal must not abandon updates for the whole file |
+| Plain sibling survives | `test_plain_sibling_still_updates` | The regression guard for the coupling above — measured failing on a parser-only fix |
+| Write-back validity | `test_escaped_ref_is_rewritten_and_file_stays_valid_json` | The rewritten file still parses **and** decodes to the intended target |
+| Non-ASCII authoring | `test_non_ascii_authoring_survives_the_rewrite` | Code Review amendment: `ensure_ascii=False`, so an authored character is not re-spelled as a unicode escape — negative assertion on the escape form, since the re-spelled value is valid and decode-identical and would otherwise pass unnoticed |
+
+**Test Files**: parser — [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py); updater — [`test/automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_updater.py); manual validation — `test/bug-validation/PD-BUG-126_escaped_json_literal_validation.py` (7/7 through the real service)
 
 ## Test Implementation Roadmap
 

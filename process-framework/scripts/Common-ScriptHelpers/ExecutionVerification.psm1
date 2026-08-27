@@ -4,6 +4,8 @@
 <#
 .SYNOPSIS
 Soak-verification helpers for newly created or recently modified PowerShell scripts.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 #
 # VERSION 2.3 - PF-PRO-068 WI-5 ownership-aware soak resolution (PF-TSK-026)

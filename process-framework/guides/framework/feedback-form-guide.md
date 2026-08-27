@@ -6,6 +6,7 @@ version: 1.3
 created: 2025-06-05
 updated: 2026-07-21
 description: "Comprehensive guide for completing feedback forms effectively (referenced by all tasks)"
+owned_by: FWK-FB
 ---
 
 # Feedback Form Guide
@@ -23,7 +24,7 @@ This guide provides comprehensive instructions for completing feedback forms eff
 
 2. **Manual creation**: Copy the template and follow the naming convention: `YYYYMMDD-HHMMSS-document-id-feedback.md`
 
-3. **File placement**: Save in `appdev/process-framework-central/feedback/feedback-forms/`
+3. **File placement**: Save in `process-framework-central/feedback/feedback-forms/`
 
 ## Rating Scale Guidelines
 

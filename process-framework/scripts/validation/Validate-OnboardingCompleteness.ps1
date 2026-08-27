@@ -26,6 +26,8 @@
     Validate-OnboardingCompleteness.ps1 -Detailed
 .EXAMPLE
     Validate-OnboardingCompleteness.ps1 -SourceExclusions "vendor","third_party"
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 param(

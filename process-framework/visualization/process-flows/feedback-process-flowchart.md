@@ -1,10 +1,11 @@
 ---
 id: PF-VIS-001
 type: Documentation
-version: 1.1
+version: 1.0
 created: 2025-06-03
-updated: 2026-08-10
+updated: 2026-04-14
 description: "Visual guide to the feedback collection and processing workflow (Tools Review → IMP Triage → owning task), referenced from ai-tasks.md."
+owned_by: FWK-FB
 ---
 
 # Feedback Process Flowchart
@@ -50,7 +51,7 @@ flowchart TD
     U -->|No| V[All feedback forms completed]
 
     V --> W[Feedback forms stored in:]
-    W --> X[appdev/process-framework-central/feedback/feedback-forms/]
+    W --> X[process-framework-central/feedback/feedback-forms/]
     X --> Y[Feedback reviewed in Tools Review Task]
     Y --> Z[Task Complete]
 
@@ -71,14 +72,14 @@ flowchart TD
 
 ### File Structure
 ```
-appdev/process-framework-central/feedback/                  # Phase 7 central (post-2026-05-11)
+process-framework-central/feedback/                  # Phase 7 central (post-2026-05-11)
 ├── archive/                           # Processed forms (by review cycle)
 └── feedback-forms/                    # Active feedback files
     ├── YYYYMMDD-HHMMSS_<PROJECT-ID>_PF-TSK-009_feedback.md     # Phase 7 underscore-separated
     └── ...
 ```
 
-ID tracking is managed by `appdev/process-framework-central/PF-id-registry-central.json` (prefix `PF-FEE` — central pool shared across all projects, Phase 7 cutover).
+ID tracking is managed by `process-framework-central/PF-id-registry-central.json` (prefix `PF-FEE` — central pool shared across all projects, Phase 7 cutover).
 
 ### Naming Convention
 
@@ -101,7 +102,7 @@ Individual feedback forms are not tracked in the documentation map - only the RE
 | Issue | Solution |
 |-------|----------|
 | Script not found | Run via `pwsh.exe -File process-framework/scripts/file-creation/support/New-FeedbackForm.ps1` |
-| ID registry error | Verify `appdev/process-framework-central/PF-id-registry-central.json` exists and has a `PF-FEE` prefix entry (Phase 7: PF-FEE moved to central pool) |
+| ID registry error | Verify `process-framework-central/PF-id-registry-central.json` exists and has a `PF-FEE` prefix entry (Phase 7: PF-FEE moved to central pool) |
 | Template not found | Verify `process-framework/templates/support/feedback-form-template.md` exists |
 
 > For detailed best practices and completion instructions, see the [Feedback Form Guide](../../guides/framework/feedback-form-guide.md).

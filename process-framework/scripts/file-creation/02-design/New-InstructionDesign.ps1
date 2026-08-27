@@ -66,7 +66,7 @@ try {
 catch {
     Write-ProjectError -Message ("PD-IND is not registered in this project's PD ID registry, so no Instruction Design document can be created here.`n" +
         "   Cause: the PD-IND prefix is bootstrap-seeded content — it reaches an already-registered project only through a Framework Rollout (PF-TSK-088) Mode C migration.`n" +
-        "   Fix:   drain this project's pending PD-IND registry migration (process-framework-central/per-project-migrations/<PRJ-NNN>/pending-migrations.md), then re-run.`n" +
+        "   Fix:   drain this project's pending PD-IND registry migration (process-framework-central/migration-entries/<PRJ-NNN>/pending-migrations.md), then re-run.`n" +
         "   Registry error: $($_.Exception.Message)") -ExitCode 1
 }
 

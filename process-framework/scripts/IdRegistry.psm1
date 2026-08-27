@@ -5,6 +5,8 @@
 <#
 .SYNOPSIS
 Central ID management for process-framework projects — registry resolution, ID generation, and prefix/directory lookups.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 # The shared resolution leaf module — project root, declared role, the config read, the framework

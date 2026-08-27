@@ -106,12 +106,12 @@ if ($CodeMaturity -ge 2.0) {
     Write-Host ""
 }
 
-# Resolve paths
-$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/00-setup/quality-assessment-report-template.md"
-
-# Validate template exists
-if (-not (Test-Path $templatePath)) {
-    Write-ProjectError -Message "Quality Assessment Report template not found at: $templatePath" -ExitCode 1
+# Resolve paths — two-face resolution (PF-IMP-1999): at a framework face this domain template
+# lives in the producer blueprint, not on the Read face; the shared helper retries the miss there.
+$templateCandidate = Join-Path (Get-ProcessFrameworkPath) "templates/00-setup/quality-assessment-report-template.md"
+$templatePath = Resolve-TemplateFacePath -TemplatePath $templateCandidate
+if (-not $templatePath) {
+    Write-ProjectError -Message "Quality Assessment Report template not found at: $templateCandidate (both workspace faces checked)" -ExitCode 1
 }
 
 # Sanitize feature name via the canonical helper (PF-IMP-008). PreserveCase

@@ -25,6 +25,8 @@ the broken-link report and prints its path to stdout (the report location is own
 LinkWatcher build, not this launcher).
 
 Exit code: passes through main.py's exit code (1 on invalid project root / missing install).
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 param()

@@ -19,6 +19,8 @@ directly rather than through the Common-ScriptHelpers umbrella.
                                 line. New languages declare their convention in
                                 languages-config/{lang}/{lang}-config.json instead of adding
                                 a bespoke function here.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 function Get-SynopsisDescription {

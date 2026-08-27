@@ -174,16 +174,19 @@ def save_config(config_path, text: str, *, replace: Callable = os.replace) -> Sa
             except OSError:
                 raise  # a real I/O failure on the temp file — the outer handler owns it
             except Exception as exc:
-                # Neither `_from_dict` nor `validate()` coerces or type-checks
-                # values, so a well-formed YAML document carrying a wrongly typed
-                # value raises out of them instead of being reported as an issue —
-                # `log_level: 5` reaches `self.log_level.upper()` as an int, and
-                # `max_file_size_mb: 'big'` reaches a numeric comparison.  The
-                # content is invalid either way, so this refuses the save with an
-                # explanation rather than letting the exception escape and take
+                # Defence in depth: a pane must survive anything an external
+                # module throws rather than letting the exception escape and take
                 # the operator's unsaved edits with it (CR-3 / EC-11 / KR-05).
-                # The underlying loader defect belongs to the Configuration
-                # System feature and is filed separately.
+                #
+                # This no longer fires for the known type-invalid values that
+                # motivated it: PD-BUG-123 (fixed 2026-08-18) made `_from_dict`
+                # and `validate()` report a wrongly typed value as an ordinary
+                # issue naming the key, so `log_level: 5` and
+                # `max_file_size_mb: 'big'` now travel the `issues` path below
+                # and produce a better message than this handler could.  The
+                # handler stays because the loader is still an external module
+                # that may raise for reasons this pane cannot enumerate; its
+                # coverage is a forced-raise test, not a config value.
                 get_panel_logger().warning(
                     "config_save_blocked_invalid_value path=%s error_type=%s error=%s",
                     path,

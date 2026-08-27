@@ -1,4 +1,4 @@
-﻿# BatchProcessing.psm1
+# BatchProcessing.psm1
 # Batch operations and multi-file processing utilities
 # Provides batch processing capabilities for multiple files and operations
 
@@ -15,6 +15,7 @@ This module provides functionality for:
 - Error handling for batch processes
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 3.0 (Modularized from Common-ScriptHelpers v2.0)
 Created: 2025-08-26
 #>

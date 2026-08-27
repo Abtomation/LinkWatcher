@@ -83,6 +83,9 @@ dev format
 | [File Type Troubleshooting](doc/user/handbooks/troubleshooting-file-types.md) | **Detailed guide** for file type monitoring issues |
 | [Logging and Monitoring](doc/user/handbooks/logging-and-monitoring.md) | Debug logging, file logging, log rotation, monitoring dashboard |
 | [Capabilities Reference](doc/user/handbooks/linkwatcher-capabilities-reference.md) | Complete reference of all detection patterns, parsers, and update triggers |
+| [Control Panel Operations](doc/user/handbooks/how-to/control-panel-operations.md) | Desktop window: start/stop daemons, tail logs, edit config, run validation |
+| [Control Panel Reference](doc/user/handbooks/reference/control-panel-reference.md) | Panel options, `panel-config.yaml` keys, status values, shortcuts, file locations |
+| [How the Control Panel Stops Daemons](doc/user/handbooks/explanation/how-the-control-panel-stops-daemons.md) | Why closing the panel stops daemons, and the drain-then-terminate model |
 
 ## 🏗️ Architecture
 

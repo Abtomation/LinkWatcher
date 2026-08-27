@@ -68,8 +68,8 @@ If you discover a **product bug or feature request that belongs to a different r
 
 The project maintains clear separation between two concerns:
 
-- **Process Framework** (`doc`): HOW to develop the project (tasks, templates, workflows)
-- **Product Documentation** (`docs/`): Project-specific documentation (testing, CI/CD, configuration, troubleshooting)
+- **Process Framework** (`process-framework/`): HOW to develop the project (tasks, templates, workflows). **Rollout-managed and read-only in this project** — the tree is re-mirrored by every Framework Rollout, so local edits are lost; an improvement or defect there is a framework finding — file it as an IMP (see the [Issue Classification and Routing Guide](process-framework/guides/framework/issue-classification-and-routing-guide.md)) rather than editing the local copy.
+- **Product Documentation** (`doc/`): Project-specific documentation (testing, CI/CD, configuration, troubleshooting)
 
 ### Process Framework Structure
 
@@ -83,23 +83,20 @@ process-framework/
 │   ├── 05-validation/        # Quality validation and compliance
 │   ├── 06-maintenance/       # Code maintenance and bug management
 │   ├── 07-deployment/        # Release preparation and deployment
-│   ├── cyclical/             # Recurring activities (documentation adjustment, tech debt)
-│   └── support/              # Meta-framework tasks (creating tasks, adapting framework)
-├── templates/                # Framework document templates (task-template.md, etc.)
+│   └── cyclical/             # Recurring activities (documentation adjustment, tech debt)
+├── templates/                # Framework document templates (state-file-template.md, feedback-form-template.md, etc.)
 ├── scripts/file-creation/    # PowerShell automation for creating framework documents
-├── state-tracking/
-│   ├── permanent/            # Long-term tracking (feature-tracking.md, bug-tracking.md, etc.)
-│   └── temporary/            # Session-specific state files
-├── guides/                   # Best practices and reference guides
-└── feedback/                 # Task completion feedback forms
+└── guides/                   # Best practices and reference guides
 ```
+
+> State tracking lives in the **product doc tree**, not here: long-term trackers under `doc/state-tracking/permanent/` (feature-tracking.md, bug-tracking.md, …) and session-specific state under `doc/state-tracking/temporary/`. Feedback forms are written to the central framework host (resolved via `.framework-parent-pointer`), not to a local directory.
 
 ### Key State Files
 
 - **Feature Tracking**: Feature development status and progress
 - **Bug Tracking**: Bug reports and fix status
 - **Release Status**: Release preparation and deployment tracking
-- **Task-specific temporary state**: Created per multi-session task in `state-tracking/temporary/`
+- **Task-specific temporary state**: Created per multi-session task in `doc/state-tracking/temporary/`
 
 ### Document ID System
 

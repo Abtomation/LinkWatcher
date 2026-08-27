@@ -71,6 +71,7 @@
     Run-Tests.ps1 -All -Coverage
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Per-language runners may implement only a subset of these flags in their first iteration.
     Run-Tests.powershell.ps1 supports: -Category / -TestFile / -Quick / -All / -Coverage / -ListCategories / -VerboseOutput.
     Not yet implemented in the PowerShell runner: -Discover / -Lint / -Critical / -Performance / -UpdateTracking (the Python runner implements these).

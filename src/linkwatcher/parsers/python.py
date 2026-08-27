@@ -404,6 +404,14 @@ class PythonParser(BaseParser):
                 for match in self.quoted_dir_pattern.finditer(line):
                     potential_dir = match.group(1)
 
+                    # PD-BUG-133: the pattern matches the span BETWEEN two
+                    # adjacent quoted literals -- '' / '' out of
+                    # Path(a) / 'b' was the single most common shape in
+                    # this repo -- so require a clean path token first, the same
+                    # character class the file pattern already demands.
+                    if not self._dir_token_pattern.match(potential_dir):
+                        continue
+
                     # Skip if it has a file extension (already handled by quoted_pattern)
                     _, ext = os.path.splitext(potential_dir)
                     if ext:

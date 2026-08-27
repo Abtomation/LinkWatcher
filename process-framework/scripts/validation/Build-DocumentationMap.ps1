@@ -79,6 +79,7 @@
     Print artifacts with no extractable source description. Exit 1 if any exist.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit codes:
         0 = success (generated / in sync / no missing descriptions), or an optional tree
             (-Tree SC) that is unconfigured, absent, or holds no indexable artifact

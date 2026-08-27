@@ -54,6 +54,7 @@
     # Annotate several failed cases with one bug ID in a single tracking write (PF-IMP-1230).
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Created: 2026-03-15
     Updated: 2026-05-14 (PF-IMP-871 Phase 3c2 — `-Group` renamed to `-Workflow`; matches against
                         the Workflow column (index 1) instead of the whole line for cleaner semantics)

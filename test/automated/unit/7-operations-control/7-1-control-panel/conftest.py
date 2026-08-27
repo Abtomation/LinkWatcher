@@ -20,6 +20,7 @@ Fixtures
 - ``fake_runner``        — scriptable launcher invocations (Phase C)
 - ``fake_terminator``    — records terminations, removes PIDs from the table (Phase C)
 - ``fake_log_stat``      — controllable log-stat source driving the drain heuristic (Phase C)
+- ``panel_log_capture``  — hermetic capture of panel-logger records (PD-BUG-125)
 
 Helpers are reached through fixtures rather than imported from this module: the
 feature test directories are not Python packages, so a ``from .conftest import``
@@ -32,6 +33,7 @@ child sharing near-identical arguments, with the project root passed via
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Iterable, List, Optional, Sequence
 
@@ -40,6 +42,7 @@ import pytest
 from linkwatcher.linkwatcher_control_panel.discovery import LOCK_FILE_NAME, ProcessEntry
 from linkwatcher.linkwatcher_control_panel.lifecycle import LogStat, RunResult
 from linkwatcher.linkwatcher_control_panel.model import ProjectInfo
+from linkwatcher.linkwatcher_control_panel.panel_log import PANEL_LOGGER_NAME
 
 
 class DaemonFactory:
@@ -323,3 +326,74 @@ def write_registry(tmp_path):
         return registry
 
     return _write
+
+
+# --------------------------------------------------------------------------- #
+# Panel-log capture (PD-BUG-125)
+#
+# ``caplog`` installs its handler on the **root** logger, so it only sees panel
+# records for as long as ``linkwatcher.panel`` still propagates.  Production
+# code deliberately owns that flag — ``setup_panel_log`` sets ``propagate =
+# False`` to keep panel diagnostics off the daemon's logger — and never restores
+# it.  Any test that captures panel records through ``caplog`` therefore goes
+# silently blind once *anything* earlier in the session has configured a real
+# panel log, and its assertions collapse to ``assert []``.
+#
+# Capturing on the panel logger itself removes the coupling: the assertions hold
+# whatever the session did to the logger beforehand.  ``test_panel_integration``
+# already uses the equivalent shape for its dispatcher tests by injecting a
+# throwaway logger; this is the same idea for the shared panel logger.
+# --------------------------------------------------------------------------- #
+class PanelLogCapture(logging.Handler):
+    """Collects panel-logger records directly, bypassing propagation."""
+
+    def __init__(self):
+        super().__init__(level=logging.DEBUG)
+        self.records: List[logging.LogRecord] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.records.append(record)
+
+    @property
+    def messages(self) -> List[str]:
+        """Rendered messages, in emission order."""
+        return [record.getMessage() for record in self.records]
+
+
+@pytest.fixture(autouse=True)
+def _isolate_panel_logger():
+    """Restore the shared panel logger after every panel test.
+
+    ``setup_panel_log`` mutates process-wide logger state (level, propagate,
+    handlers).  Without this, a test that configures a real panel log leaks that
+    state into every test that runs afterwards in the same session — the
+    order-dependence behind PD-BUG-125.
+    """
+    logger = logging.getLogger(PANEL_LOGGER_NAME)
+    saved = (logger.level, logger.propagate, logger.disabled, logger.handlers[:])
+    try:
+        yield
+    finally:
+        logger.setLevel(saved[0])
+        logger.propagate = saved[1]
+        logger.disabled = saved[2]
+        logger.handlers = saved[3]
+
+
+@pytest.fixture
+def panel_log_capture():
+    """Capture panel-logger records at DEBUG, independent of session state.
+
+    Yields a :class:`PanelLogCapture` exposing ``records`` (real ``LogRecord``
+    objects, so level assertions still work) and ``messages``.
+    """
+    logger = logging.getLogger(PANEL_LOGGER_NAME)
+    capture = PanelLogCapture()
+    # Explicit, not inherited: the whole point is that the outcome must not
+    # depend on what an earlier test left behind.  ``_isolate_panel_logger``
+    # restores every one of these.
+    logger.handlers = [capture]
+    logger.setLevel(logging.DEBUG)
+    logger.disabled = False
+    logger.propagate = False
+    yield capture

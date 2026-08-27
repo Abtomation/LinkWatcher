@@ -22,7 +22,7 @@ Test Type: Unit
 #
 #   * the watchdog observer thread, via handler._handle_file_moved
 #     (record_move, apply_pending_recalcs, and the _lookup_recent_move /
-#     _register_pending_recalc calls reached from _calculate_updated_relative_path)
+#     _resolve_or_register_pending_recalc calls reached from _calculate_updated_relative_path)
 #   * the DirectoryMoveDetector worker thread, started as a daemon thread in
 #     dir_move_detector._trigger_processing, via handler._handle_directory_moved
 #
@@ -34,7 +34,7 @@ Test Type: Unit
 # test hooks a callable the production code already invokes inside the
 # vulnerable window (a timestamp comparison in _prune_move_memory; the
 # time.monotonic() call between setdefault and the store in
-# _register_pending_recalc), so the competing thread runs at exactly the
+# _resolve_or_register_pending_recalc), so the competing thread runs at exactly the
 # instruction that matters, inside the real code path.
 #
 # Test File ID: TE-TST-152
@@ -149,7 +149,7 @@ class TestPruneDuringConcurrentRegistration:
     """Failure mode 1: RuntimeError from mutating a dict mid-iteration."""
 
     def test_record_move_survives_registration_during_prune(self, lookup):
-        """A concurrent _register_pending_recalc must not blow up record_move.
+        """A concurrent _resolve_or_register_pending_recalc must not blow up record_move.
 
         _prune_move_memory iterates the inner entries dict in a list
         comprehension. An insert from the other thread changes its size, and
@@ -165,7 +165,9 @@ class TestPruneDuringConcurrentRegistration:
         def _hook():
             competing.append(
                 _run_competing(
-                    lambda: lookup._register_pending_recalc(target, "a/old.md", "a/new.md")
+                    lambda: lookup._resolve_or_register_pending_recalc(
+                        target, "a/old.md", "a/new.md"
+                    )
                 )
             )
 
@@ -202,7 +204,9 @@ class TestPruneDuringConcurrentRegistration:
         def _hook():
             competing.append(
                 _run_competing(
-                    lambda: lookup._register_pending_recalc(target, "b/old.md", "b/new.md")
+                    lambda: lookup._resolve_or_register_pending_recalc(
+                        target, "b/old.md", "b/new.md"
+                    )
                 )
             )
 
@@ -230,7 +234,7 @@ class TestPendingRecalcLostUpdate:
     def test_registration_is_not_lost_to_a_concurrent_apply(self, lookup, temp_dir):
         """apply_pending_recalcs popping mid-registration must not lose the entry.
 
-        _register_pending_recalc does ``entries = setdefault(key, {})`` and then
+        _resolve_or_register_pending_recalc does ``entries = setdefault(key, {})`` and then
         stores into ``entries``. A pop between the two leaves the caller writing
         into a dict no longer reachable from _pending_recalcs: the deferred
         repair is gone, with no exception and no log line.
@@ -267,7 +271,7 @@ class TestPendingRecalcLostUpdate:
 
         with patch.object(lookup, "update_links_within_moved_file", side_effect=_fake_repair):
             with patch("linkwatcher.reference_lookup.time.monotonic", _monotonic_with_hook):
-                lookup._register_pending_recalc(target, pending_old, pending_new)
+                lookup._resolve_or_register_pending_recalc(target, pending_old, pending_new)
 
         for thread in competing:
             thread.join(_JOIN_TIMEOUT)
@@ -289,7 +293,7 @@ class TestNoLockHeldAcrossRepair:
     Not a pre-fix reproduction — unsynchronized code passes this trivially. It
     exists to fail the *wrong* fix: apply_pending_recalcs calls back into
     update_links_within_moved_file, which reaches _lookup_recent_move and
-    _register_pending_recalc through _calculate_updated_relative_path. Holding
+    _resolve_or_register_pending_recalc through _calculate_updated_relative_path. Holding
     a non-reentrant lock across that callback deadlocks the daemon — a strictly
     worse outcome than the race being fixed.
     """
@@ -304,11 +308,11 @@ class TestNoLockHeldAcrossRepair:
         def _reentrant_repair(old, new, abs_new, backup_enabled=False):
             # Exactly what the real repair reaches via link recalculation.
             lookup._lookup_recent_move("some/other-target.md")
-            lookup._register_pending_recalc("another/target.md", old, new)
+            lookup._resolve_or_register_pending_recalc("another/target.md", old, new)
             lookup.record_move(old, new)
             return 0
 
-        lookup._register_pending_recalc(target, pending_old, pending_new)
+        lookup._resolve_or_register_pending_recalc(target, pending_old, pending_new)
 
         outcome = []
 
@@ -360,7 +364,9 @@ class TestConcurrentMoveMemoryStress:
             barrier.wait()
             try:
                 for i in range(150):
-                    lookup._register_pending_recalc("seed/target.md", f"t2/{i}.md", f"t2/n{i}.md")
+                    lookup._resolve_or_register_pending_recalc(
+                        "seed/target.md", f"t2/{i}.md", f"t2/n{i}.md"
+                    )
                     lookup.record_move(f"t2/{i}.md", f"t2/moved-{i}.md")
             except Exception as exc:
                 errors.append(exc)
@@ -382,3 +388,75 @@ class TestConcurrentMoveMemoryStress:
         for i in range(150):
             assert lookup._lookup_recent_move(f"t1/{i}.md") == f"t1/moved-{i}.md"
             assert lookup._lookup_recent_move(f"t2/{i}.md") == f"t2/moved-{i}.md"
+
+
+class TestCheckThenRegisterWindow:
+    """Failure mode 3 (PD-BUG-122): the check and the register are two acquisitions.
+
+    PD-BUG-119 made each move-memory operation atomic, but not the *pair* the
+    link recalculation performs: _lookup_recent_move(K) misses and releases the
+    lock, then _resolve_or_register_pending_recalc(K) re-acquires it. A competing thread
+    that completes an entire move-processing pass for K in that gap leaves the
+    registration under a key whose apply has already run — nothing pops it
+    again, so the deferred repair never happens and the link stays stale.
+    """
+
+    def test_move_landing_between_check_and_register_is_not_orphaned(self, lookup, temp_dir):
+        """A move that lands in the window must repair the link, not orphan it.
+
+        Both halves are asserted. Checking only the returned link would pass on
+        an implementation that repairs the link but still leaves the pending
+        entry behind (an unbounded leak keyed by a consumed move); checking only
+        the orphan would pass on one that drops the registration entirely and
+        leaves the link stale — which is the bug.
+        """
+        (temp_dir / "docs").mkdir()
+        (temp_dir / "doc").mkdir()
+        # apply/recalculation only accepts a destination that exists on disk.
+        (temp_dir / "doc" / "relocated.md").write_text("body\n", encoding="utf-8")
+
+        key = str(temp_dir / "doc" / "vacated.md").replace("\\", "/")
+        moved_to = str(temp_dir / "doc" / "relocated.md").replace("\\", "/")
+
+        real_lookup_recent_move = lookup._lookup_recent_move
+        fired = threading.Event()
+        competing = []
+
+        def _lookup_with_hook(resolved_target):
+            result = real_lookup_recent_move(resolved_target)
+            # Fires at the exact instruction boundary the bug needs: the miss has
+            # happened and the lock is released, but the registration has not run
+            # yet. No lock is held here, so the competing pass is joined to
+            # completion — the worst-case interleaving, deterministically.
+            if result is None and not fired.is_set():
+                fired.set()
+
+                def _whole_move_pass():
+                    lookup.record_move(key, moved_to)
+                    lookup.apply_pending_recalcs(key)
+
+                thread = _run_competing(_whole_move_pass)
+                thread.join(_JOIN_TIMEOUT)
+                competing.append(thread)
+            return result
+
+        with patch.object(lookup, "_lookup_recent_move", side_effect=_lookup_with_hook):
+            updated = lookup._calculate_updated_relative_path(
+                "../doc/vacated.md",
+                str(temp_dir / "docs" / "old.md"),
+                str(temp_dir / "docs" / "new.md"),
+            )
+
+        for thread in competing:
+            assert not thread.is_alive(), "competing move pass never completed"
+            assert not thread.errors, f"competing thread raised: {thread.errors}"
+        assert fired.is_set(), "hook never fired — the check-then-register window was not reached"
+
+        assert updated == "../doc/relocated.md", (
+            "the link was not repaired: the move for its target landed between the "
+            f"check and the register, but the link came back as {updated!r}"
+        )
+        assert not lookup._pending_recalcs.get(key, {}), (
+            "a pending recalc was left under a key whose apply has already run — "
+            "nothing pops it again, so the deferred repair would never happen"
+        )

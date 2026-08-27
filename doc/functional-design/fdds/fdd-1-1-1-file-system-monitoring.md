@@ -3,9 +3,9 @@ id: PD-FDD-024
 description: "1.1.1 Tier 2 — Watchdog event handling, move detection, file filtering"
 type: Product Documentation
 category: Functional Design Document
-version: 1.0
+version: 1.1
 created: 2026-02-19
-updated: 2026-02-20
+updated: 2026-08-26
 feature_id: 1.1.1
 feature_name: File System Monitoring
 consolidates: [1.1.1 (Watchdog Integration), 1.1.2 (Event Handler), 1.1.3 (Initial Scan), 1.1.4 (File Filtering), 1.1.5 (Real-time Monitoring)]
@@ -146,6 +146,8 @@ retrospective: true
 - **1.1.1-EC-8**: If a file is moved during the startup initial scan window, the move is still detected because the watchdog observer starts before the scan begins — there is no gap between scan completion and observer activation (resolved by PD-BUG-053)
 - **1.1.1-EC-9**: If a directory is renamed to a name matching an ignored directory entry (e.g., `DirA/` → `process-framework-local/tools/linkWatcher/`), references in non-ignored files are still updated — directory move processing uses extension-only filtering rather than the full `should_monitor_file()` check, so the destination directory name does not suppress updates (resolved by PD-BUG-071)
 - **1.1.1-EC-10**: A native move event whose source is inside an ignored tree but whose destination is in a monitored location indexes the destination like a newly created file (directory moves index each monitored file in the moved subtree). No references are rewritten — outside references into the ignored tree stay untouched, and the move detectors are bypassed (resolved by PD-BUG-108)
+- **1.1.1-EC-11**: If the file system watch stops delivering events while the observer still reports itself alive, the system detects it and stops the daemon rather than continuing to run blind. Detection is two-layered: a lost event-emitter thread is reported immediately as `observer_emitter_died`; a watch that is alive but delivering nothing is caught by a liveness probe that runs only after `watch_liveness_idle_seconds` of total silence and must be observed within `watch_liveness_probe_timeout`, reported as `watch_delivery_stalled` after `watch_liveness_failure_threshold` consecutive misses. A single missed probe never stops a daemon (`watch_liveness_failure_threshold` is validated to be at least 2, so the guarantee cannot be configured away). Recovery is two-part and the error messages state both: restart (launcher or Control Panel) to resume monitoring — the daemon does not re-arm itself — then run a validation scan to find references left stale during the blind window, which a restart does not repair. Previously such a daemon reported healthy indefinitely while silently missing every move (resolved by PD-BUG-139)
+- **1.1.1-EC-12**: If a transient file-observation error occurs while the watched directory is still reachable (for example a quota shortfall), the system reports it as an error rather than treating it as deletion of the watched directory. A directory is treated as gone only when it has genuinely been deleted, moved out from under the watch, or replaced by a different directory at the same path — decided by comparing the watched directory's identity rather than the spelling of its path, so a project reached through a junction or a `subst` drive is correctly recognized as healthy. Previously any such error was misread as a deletion and silently ended monitoring while the daemon still reported itself healthy (resolved by PD-BUG-141). **Known limitation**: if the watch root becomes *unreachable* rather than erroring — a dropped network share — it cannot be distinguished from a deletion and monitoring still ends; recovery is by restart. Telling a brief outage from a real deletion requires a retry policy with a timeout, which is deliberately out of scope for this edge case.
 
 ## Dependencies
 
@@ -175,7 +177,7 @@ retrospective: true
 - [x] User interactions documented (user moves file → automatic detection → log confirmation)
 - [x] Business rules specified (10-second buffer, deduplication, directory walk, filter exclusions)
 - [x] Acceptance criteria are testable and measurable (1.1.1-AC-1 through 1.1.1-AC-7)
-- [x] Edge cases identified with expected behaviors (1.1.1-EC-1 through 1.1.1-EC-9)
+- [x] Edge cases identified with expected behaviors (1.1.1-EC-1 through 1.1.1-EC-12)
 - [x] Dependencies mapped (functional: Database, Parser, Updater, PathUtils; technical: watchdog, threading)
 - [x] Success metrics defined
 - [x] User experience flow covers all event types (native move, directory move, cross-tool move, delete, create)

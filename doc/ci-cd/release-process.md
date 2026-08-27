@@ -3,9 +3,9 @@ id: PD-CIC-003
 description: "Project-specific release process guide — deploy, version, and distribute mechanics with a release checklist."
 type: Documentation
 category: CI-CD
-version: 2.3
+version: 2.4
 created: 2023-06-15
-updated: 2026-06-13
+updated: 2026-08-20
 ---
 
 # Release Process Guide
@@ -17,8 +17,8 @@ This document outlines the release process for LinkWatcher. LinkWatcher is deplo
 > Read by the Release & Deployment freshness gate (PF-TSK-008). Re-set **both** fields
 > whenever the mechanics in this guide change or are re-verified against a real release.
 
-- **Verified against release:** `2.1.3`
-- **Verified on:** 2026-06-22
+- **Verified against release:** `2.2.0`
+- **Verified on:** 2026-08-20
 
 ## Architecture
 
@@ -50,15 +50,15 @@ python deployment/install_global.py
 ```
 
 This script:
-- Stops **all** daemons running from the install-dir venv — including this project's own — so no running process locks `.linkwatcher-venv\Scripts\python.exe` and fails the venv rebuild (PD-BUG-106); daemons are identified by executable path, never by a lock-file PID (PD-BUG-121), and restart at each project's next session start
+- Stops **every process running from the install-dir venv** — this project's own daemon, other projects' daemons, **and a running Control Panel** — so nothing locks `.linkwatcher-venv\Scripts\python.exe` and fails the venv rebuild (PD-BUG-106); processes are identified by executable path, never by a lock-file PID (PD-BUG-121). Daemons restart at each project's next session start; **the Control Panel does not restart itself** — relaunch it manually after the install (see step 3)
 - Aborts cleanly (before any files are copied) if the venv `python.exe` is still locked after the daemon stop
 - Checks the Python version (3.8+ required)
-- Installs/updates dependencies from `pyproject.toml` (`pip install -e .`)
 - Removes stale files from previous installs (e.g., old `link_watcher.py`)
-- Copies `main.py`, `pyproject.toml`, the `src/linkwatcher` package, `config-examples/`, and the `doc/user/handbooks/` user handbooks (excluding `__pycache__`/`*.pyc`)
-- Creates a dedicated LinkWatcher virtual environment (`.linkwatcher-venv`) with the pinned dependencies (PD-BUG-077)
-- Creates wrapper scripts (`linkwatcher.bat`, `linkwatcher.ps1`, and `checklinks.bat` if `scripts/check_links.py` is present)
-- Runs a smoke test (`main.py --help`) to verify the install works
+- Copies `main.py`, `control_panel.py`, `pyproject.toml`, the `src/linkwatcher` package, `config-examples/`, and the `doc/user/handbooks/` user handbooks (excluding `__pycache__`/`*.pyc`)
+- Generates `requirements.txt` in the install dir from the runtime dependencies declared in `pyproject.toml` — the deployed venv is a flat tree with no package build, so the venv installs from this file (falling back to `pyproject.toml` only if it is absent)
+- Creates a dedicated LinkWatcher virtual environment (`.linkwatcher-venv`) with those pinned dependencies (PD-BUG-077)
+- Creates wrapper scripts (`linkwatcher.bat`, `linkwatcher.ps1`, `linkwatcher-panel.bat`, `linkwatcher-panel.ps1`, and `checklinks.bat` if `scripts/check_links.py` is present). The panel wrappers use the console `python.exe`, not `pythonw.exe`, so a terminal launch can surface the panel's dependency diagnostics
+- Runs smoke tests (`main.py --help`, and `control_panel.py --help` in a GUI-safe form) to verify the install works
 - **Propagates per-project config-schema changes** (see [Config-Schema Propagation](#config-schema-propagation) below)
 
 To install to a custom location:
@@ -69,16 +69,22 @@ python deployment/install_global.py --install-dir "D:\tools\linkwatcher"
 
 ### 3. Restart LinkWatcher
 
-If LinkWatcher is running in the background, restart it to pick up changes:
+The install script has already stopped every venv process, so this step is a **restart**, not a stop-then-start. Start this project's daemon fresh:
 
 ```powershell
-# Stop existing instance
-Get-Process python* | Where-Object {
-    (Get-CimInstance Win32_Process -Filter "ProcessId = $($_.Id)").CommandLine -match "main\.py"
-} | Stop-Process -Force
-
-# Start fresh
 & process-framework\tools\linkWatcher\start_linkwatcher_background.ps1
+```
+
+If a daemon survived (an instance started from a different install, say), stop it with the project's own tool — it matches on command line plus project root and verifies the post-condition, rather than trusting a lock-file PID:
+
+```powershell
+& process-framework\tools\linkWatcher\stop_linkwatcher.ps1
+```
+
+**Control Panel**: the install kills a running panel with the rest of the venv processes and nothing restarts it. Relaunch it manually if it was open:
+
+```powershell
+& "$env:USERPROFILE\bin\linkwatcher-panel.ps1"
 ```
 
 ### 4. Verify
@@ -113,13 +119,14 @@ It is non-fatal: on a standalone clone (no `.framework-central-pointer`) it skip
 
 | Source | Deployed To | Purpose |
 |--------|-------------|---------|
-| `main.py` | `~/bin/main.py` | Entry point |
-| `pyproject.toml` | `~/bin/pyproject.toml` | Package metadata + dependencies |
+| `main.py` | `~/bin/main.py` | Daemon / CLI entry point |
+| `control_panel.py` | `~/bin/control_panel.py` | Control Panel entry point (feature 7.1.1); the `linkwatcher_control_panel` subpackage it imports ships inside `src/linkwatcher` below |
+| `pyproject.toml` | `~/bin/pyproject.toml` | Package metadata + dependency declarations |
 | `src/linkwatcher` | `~/bin/linkwatcher/` | Core package (all modules) |
 | `config-examples/` | `~/bin/config-examples/` | Example configurations |
 | `doc/user/handbooks/` | `~/bin/doc/user/handbooks/` | User handbooks (structure-preserving so the per-project config template's pointer `<install>/doc/user/handbooks/configuration-guide.md` and the handbooks' absolute-from-root cross-links resolve; PD-BUG-104) |
 
-(The install also creates `~/bin/.linkwatcher-venv/` and the `linkwatcher.*` wrapper scripts in `~/bin/`.)
+(The install also generates `~/bin/requirements.txt`, creates `~/bin/.linkwatcher-venv/`, and writes the `linkwatcher.*` and `linkwatcher-panel.*` wrapper scripts in `~/bin/`.)
 
 ## Release Checklist
 
@@ -129,12 +136,13 @@ It is non-fatal: on a standalone clone (no `.framework-central-pointer`) it skip
 - [ ] Config-schema propagation step ran cleanly (no-op, or filed an IMP + synced the template if a project-configurable field changed)
 - [ ] User-visible behavior changed? Update the affected handbooks (configuration-guide / quick-reference / capabilities-reference). Config-key drift in the configuration guide's Full Reference is caught automatically by the test sweep (`test_configschemadrift.py`); semantic, CLI, or behavior changes need this manual check.
 - [ ] Restart LinkWatcher background process
+- [ ] Relaunch the Control Panel if it was open (the install kills it; nothing restarts it)
 - [ ] Verify LinkWatcher is running and detecting file changes
 - [ ] **Freshness Stamp** above updated to this release's version and date
 
 ## Version Management
 
-The version is defined in **two places that must be bumped together** (currently `2.1.3`):
+The version is defined in **two places that must be bumped together** (currently `2.2.0`):
 
 - `pyproject.toml` under `[project].version` — package metadata
 - `src/linkwatcher/__init__.py` `__version__` — the value `main.py --version` actually reports (the deployed venv installs from `requirements.txt`, so there is no package metadata to read at runtime; the hardcode is authoritative in the install)

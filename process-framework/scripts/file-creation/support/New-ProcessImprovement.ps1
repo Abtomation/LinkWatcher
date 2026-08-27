@@ -129,6 +129,7 @@
         -Reason "Link broke when the guide section was renamed"
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     - Requires PowerShell execution policy to allow script execution
     - Automatically updates the central ID registry with new ID assignments
     - Adds entry to "Current Improvement Opportunities" table (Single/Batch) or "Active Pilots" table (-AsPilot)

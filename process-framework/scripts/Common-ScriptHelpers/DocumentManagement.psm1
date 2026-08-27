@@ -15,6 +15,7 @@ This module provides functionality for:
 - Standard document creation workflows
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 3.0 (Modularized from Common-ScriptHelpers v2.0)
 Created: 2025-08-26
 #>
@@ -830,6 +831,74 @@ function New-ProjectCodeMetadata {
     return ($metadataLines -join "`n")
 }
 
+function Resolve-TemplateFacePath {
+    <#
+    .SYNOPSIS
+    Resolves a template path against the workspace's Read face with a single producer-face
+    retry, returning the first existing absolute path or $null — the shared two-face
+    resolution for creation scripts that pre-check their template before calling
+    New-FrameworkDocument (PF-IMP-1999 / PF-PRO-068 Session F).
+
+    .DESCRIPTION
+    THE RULE: a script resolves its co-located resources from the face it LIVES IN, not from
+    the workspace's Read face. At a framework face those differ: Get-ProcessFrameworkPath is
+    the received consumer tree (substrate + support only), while a DOMAIN creation script and
+    its templates live in the producer blueprint. A domain script that builds its template
+    path from the Read face therefore misses post-cutover even though the template exists.
+    Session 14's face fix established this rule for registry WRITES; this helper carries it
+    to template lookup.
+
+    Resolution order:
+      1. The path as given (relative paths join Get-ProjectRoot) — correct at a project
+         (single face) and for substrate/support templates in the received tree.
+      2. If that misses AND the path sits under the consumer face AND the workspace declares
+         a distinct producer face (paths.blueprint), the same suffix under the producer face.
+
+    In a project the two faces are the same path, so the retry is a no-op; at a leaf role
+    Get-BlueprintPath throws by its no-fallback contract, which is caught — the miss simply
+    returns $null and the caller's own error message stays intact. A $null return therefore
+    means BOTH faces missed; callers should say so (see New-StandardProjectDocument's
+    error wording).
+
+    .PARAMETER TemplatePath
+    Template path, absolute or relative to the project root.
+
+    .OUTPUTS
+    The resolved absolute path of the first face where the file exists, or $null when
+    neither face has it.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$TemplatePath
+    )
+
+    if (-not [System.IO.Path]::IsPathRooted($TemplatePath)) {
+        $resolved = Join-Path -Path (Get-ProjectRoot) -ChildPath $TemplatePath
+    } else {
+        $resolved = $TemplatePath
+    }
+
+    if (Test-Path $resolved) { return $resolved }
+
+    try {
+        $consumerRoot = Get-ProcessFrameworkPath
+        $producerRoot = Get-BlueprintPath
+        if ($consumerRoot -and $producerRoot -and ($producerRoot -ne $consumerRoot) -and
+            $resolved.StartsWith($consumerRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $suffix = $resolved.Substring($consumerRoot.Length).TrimStart('\', '/')
+            $candidate = Join-Path -Path $producerRoot -ChildPath $suffix
+            if (Test-Path $candidate) { return $candidate }
+        }
+    } catch {
+        # Leaf role (no producer face) or unreadable config — the expected project case; the
+        # miss falls through to $null so the caller's own error stays diagnosable.
+        Write-Verbose "Resolve-TemplateFacePath: no distinct producer face to retry against ($($_.Exception.Message))"
+    }
+
+    return $null
+}
+
 function New-StandardProjectDocument {
     <#
     .SYNOPSIS
@@ -1062,7 +1131,11 @@ function New-StandardProjectDocument {
             return $false
         }
 
-        # Resolve template path
+        # Resolve template path (Read face first, producer-face retry — PF-PRO-068 Session F).
+        # The rule and mechanism live in Resolve-TemplateFacePath, exported so domain creation
+        # scripts with their own pre-checks route through the same two-face resolution instead
+        # of re-implementing it (PF-IMP-1999). The Read-face path is pre-computed here only so
+        # the error can name what the primary lookup tried.
         if (-not [System.IO.Path]::IsPathRooted($TemplatePath)) {
             $projectRoot = Get-ProjectRoot
             $resolvedTemplatePath = Join-Path -Path $projectRoot -ChildPath $TemplatePath
@@ -1070,9 +1143,11 @@ function New-StandardProjectDocument {
             $resolvedTemplatePath = $TemplatePath
         }
 
-        # Validate template exists before proceeding
-        if (-not (Test-Path $resolvedTemplatePath)) {
-            Write-ProjectError -Message "Template not found: $resolvedTemplatePath" -ExitCode 1
+        $faceResolved = Resolve-TemplateFacePath -TemplatePath $TemplatePath
+        if ($faceResolved) {
+            $resolvedTemplatePath = $faceResolved
+        } else {
+            Write-ProjectError -Message "Template not found: $resolvedTemplatePath (a producer-face retry was attempted and also missed; a domain template belongs in the producer blueprint, a substrate/support one in the received tree)" -ExitCode 1
         }
 
         # Create the document using appropriate handler based on template type
@@ -1375,6 +1450,7 @@ Export-ModuleMember -Function @(
     'Open-ProjectFileInEditor',
     'Get-TemplateMetadata',
     'Get-TemplateContentWithoutMetadata',
+    'Resolve-TemplateFacePath',
     'Convert-TemplateLinkDepth',
     'New-ProjectDocumentWithMetadata',
     'New-ProjectDocumentWithCodeMetadata',

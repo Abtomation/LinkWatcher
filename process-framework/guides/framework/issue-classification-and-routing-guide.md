@@ -7,6 +7,7 @@ created: 2026-06-18
 updated: 2026-07-22
 related_task: PF-TSK-041,PF-TSK-009,PF-TSK-022,PF-TSK-089,PF-TSK-010
 description: "Decision guide for classifying a discovered issue (product bug, feature request, framework improvement, or technical debt) and routing it to the correct tracker."
+owned_by: FWK-FB
 ---
 
 # Issue Classification and Routing Guide

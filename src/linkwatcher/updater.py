@@ -24,6 +24,7 @@ AI Context
     before each write.
 """
 
+import json
 import os
 import re
 import shutil
@@ -61,6 +62,16 @@ class LinkUpdater:
     Uses proper file handling to ensure atomic updates and backup safety.
     Delegates path resolution to PathResolver.
     """
+
+    #: Link types whose recorded span may cover an ESCAPED source literal,
+    #: so ``link_text`` (raw source) and ``link_target`` (decoded value)
+    #: legitimately differ (PD-BUG-126).
+    _ESCAPABLE_STRUCTURED_TYPES = (
+        LinkType.JSON,
+        LinkType.JSON_DIR,
+        LinkType.YAML,
+        LinkType.YAML_DIR,
+    )
 
     def __init__(
         self,
@@ -372,6 +383,20 @@ class LinkUpdater:
                         and ref.link_text in line
                     ):
                         pass  # Not stale — found via dot-notation link_text
+                    elif (
+                        ref.link_type in self._ESCAPABLE_STRUCTURED_TYPES
+                        and ref.link_text
+                        and ref.link_text != ref.link_target
+                        and ref.link_text in line
+                    ):
+                        # PD-BUG-126: an escaped JSON/YAML literal holds the
+                        # RAW source in link_text and the DECODED value in
+                        # link_target, so the decoded form is legitimately
+                        # absent from the line.  Without this branch the
+                        # file is declared stale and EVERY update in it is
+                        # abandoned -- including references that update
+                        # correctly today.
+                        pass  # Not stale — found via raw-source link_text
                     elif new_target in line or (
                         ref.link_type == LinkType.PYTHON_IMPORT
                         and new_target.replace("/", ".") in line
@@ -646,6 +671,25 @@ class LinkUpdater:
                 # blocking other refs in the same file.
                 self._ambiguous_skip_count += 1
             return line
+
+        # PD-BUG-126 / PD-BUG-124 class: when the span covers an ESCAPED
+        # source literal, the replacement has to be written in the same
+        # escaped form -- splicing raw text into an escaped string literal
+        # is exactly what left files unparseable before.
+        if (
+            ref.link_type in self._ESCAPABLE_STRUCTURED_TYPES
+            and ref.link_text
+            and ref.link_text != ref.link_target
+        ):
+            # ensure_ascii=False is load-bearing, not a preference: the
+            # default would re-spell every non-ASCII character as a \uXXXX
+            # escape, so a path holding one comes back in a different
+            # spelling than the author wrote.  It stays valid and decodes
+            # identically, but a rewrite changes WHERE a target points, never
+            # HOW it was written -- the rule PD-BUG-118 / PD-BUG-120 /
+            # PD-BUG-124 exist to enforce.  Backslashes and quotes are still
+            # escaped either way, which is what keeps the file parseable.
+            new_target = json.dumps(new_target, ensure_ascii=False)[1:-1]
 
         # Extract the text at the specified position
         text_at_position = line[start_col:end_col]

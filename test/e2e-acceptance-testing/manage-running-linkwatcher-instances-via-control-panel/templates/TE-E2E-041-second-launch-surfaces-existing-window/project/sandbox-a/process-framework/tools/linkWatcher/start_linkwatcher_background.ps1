@@ -1,0 +1,415 @@
+<#
+.SYNOPSIS
+    Starts this project's LinkWatcher daemon in the background, resolving the
+    project root, the global install directory and the per-project config
+    automatically.
+
+.DESCRIPTION
+    Agnostic across projects: resolves project root from doc/project-config.json
+    (script lives at process-framework/tools/linkWatcher/, three levels above doc/),
+    auto-detects the global LinkWatcher install dir, writes runtime logs under
+    <project>/logs/linkwatcher/ (flat post-Phase-5 layout, no nested logs/ subdir),
+    and provisions the .linkwatcher-ignore skeleton under <project>/tools/linkwatcher/
+    — where LinkWatcher reads validation suppression rules (validation_ignore_file
+    default since PD-BUG-101, 2026-06-10), co-located with the per-project config.
+    The daemon is started with --config <project>/tools/linkwatcher/linkwatcher-config.yaml
+    when that file exists (PF-IMP-1115, 2026-06-11), so live monitoring honors
+    per-project settings (e.g. ignored_directories — PD-BUG-105); absent → no --config.
+
+.PARAMETER DebugLogging
+    PF-IMP-967: opt-in verbose daemon logging (--debug); off by default.
+
+.NOTES
+    Testing notes (handle-inheritance gotcha for subprocess callers):
+
+    This script spawns the LinkWatcher daemon via `Start-Process -PassThru
+    -WindowStyle Hidden -RedirectStandardOutput <stdoutLog>`. On Windows, the
+    child python.exe inherits inheritable handles from this script's process —
+    including our parent's stdout if we were invoked via `pwsh.exe -File ... |
+    Out-String` or any other pipe-capturing pattern. The daemon then holds that
+    stdout handle for its entire lifetime, which blocks the parent pipe from
+    ever closing. Subprocess callers that capture our output via pipe will hang
+    indefinitely.
+
+    Test authors invoking this script from a parent pwsh.exe must capture our
+    stdout via file redirection + bounded WaitForExit, not via pipes. The pattern
+    locked in TE-E2E-009 (test/e2e-acceptance-testing/linkwatcher-startup/):
+
+      $tempOut = [System.IO.Path]::GetTempFileName()
+      $tempErr = [System.IO.Path]::GetTempFileName()
+      $p = Start-Process pwsh.exe `
+          -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-File',$startScript) `
+          -WindowStyle Hidden -PassThru `
+          -RedirectStandardOutput $tempOut -RedirectStandardError $tempErr
+      if (-not $p.WaitForExit(8000)) { Stop-Process -Id $p.Id -Force }
+      $output = (Get-Content $tempOut -Raw) + (Get-Content $tempErr -Raw)
+
+    Process model note (Store-Python venvs, PF-IMP-1682): when the LinkWatcher
+    venv was created from the Microsoft Store Python, the venv's python.exe is a
+    redirector that spawns the real interpreter as a CHILD process — a healthy
+    daemon then shows as TWO processes matching a main.py scan (shim parent +
+    real interpreter). The child writes ITS pid to .linkwatcher.lock, while
+    Start-Process here only ever sees the shim's pid. This is why the success
+    banner prefers the lock's pid over $process.Id, and why a process count must
+    not be read as an instance count.
+
+    Exit codes (set by `exit N`, programmatically detectable via $LASTEXITCODE):
+      0 — daemon started OR already running for this project (idempotent success)
+      1 — config missing / invalid project root / install missing / daemon crashed
+#>
+
+param(
+    [switch]$DebugLogging  # PF-IMP-967: opt-in verbose daemon logging (--debug); off by default
+)
+
+# Resolve project root from project-config.json by walking up from the script
+# location. The walk-up correctly skips the blueprint template config at
+# appdev/blueprint/doc/project-config.json (project_id: null) and lands on
+# appdev/doc/project-config.json (project_id: "PRJ-000") in appdev. In rolled-out
+# projects the walk finds the project's own config on first match. Mirrors the
+# pattern in WorkspaceResolution.psm1::Get-ProjectRoot, which solves the identical
+# problem from the registry-loading side.
+function Find-ProjectConfigPath {
+    param([string]$StartPath)
+    $current = $StartPath
+    $maxDepth = 10
+    for ($i = 0; $i -lt $maxDepth; $i++) {
+        $candidate = Join-Path $current "doc\project-config.json"
+        if (Test-Path $candidate) {
+            try {
+                $check = Get-Content $candidate -Raw | ConvertFrom-Json
+                if ($check.project_id) { return $candidate }
+            } catch {
+                # Unparseable — keep walking (treat as no project_id)
+            }
+        }
+        $parent = Split-Path -Parent $current
+        if ($parent -eq $current) { break }
+        $current = $parent
+    }
+    return $null
+}
+
+function Get-LinkWatcherArguments {
+    # PF-IMP-967: build the daemon argument string. --debug is opt-in (it used to be
+    # hardcoded), so the default session-start path no longer floods and rapidly
+    # rotates the log — the condition that fed the multi-instance rotation storm.
+    # PF-IMP-1115: optional -ConfigFile appends --config so the daemon honors the
+    # per-project linkwatcher-config.yaml (e.g. ignored_directories — PD-BUG-105).
+    # Pure (no filesystem access): the caller decides whether the config exists.
+    param(
+        [Parameter(Mandatory)][string]$MainPy,
+        [Parameter(Mandatory)][string]$ProjectRoot,
+        [Parameter(Mandatory)][string]$LogFile,
+        [string]$ConfigFile,
+        [switch]$DebugLogging
+    )
+    $argStr = "$MainPy --project-root `"$ProjectRoot`" --log-file `"$LogFile`""
+    if ($ConfigFile) { $argStr += " --config `"$ConfigFile`"" }
+    if ($DebugLogging) { $argStr += " --debug" }
+    return $argStr
+}
+
+function Test-LinkWatcherAlreadyRunning {
+    # PF-IMP-967: robust singleton guard. The lock-file check can miss an instance
+    # that started but never reached main.py's lock acquisition (e.g. stuck in the
+    # PD-BUG-099 logging/rotation loop). Scan running processes for any daemon
+    # already bound to THIS project root. Returns the matching PIDs (@() if none).
+    param([Parameter(Mandatory)][string]$ProjectRoot)
+    try {
+        # PF-IMP-1682: only python interpreter processes qualify. A shell or
+        # diagnostic process whose command line merely mentions main.py and the
+        # project root (e.g. a pwsh query about LinkWatcher) must not match —
+        # it would falsely block startup here and be killed by the sibling
+        # stop_linkwatcher.ps1, which reuses this scan as its stop list.
+        $procs = Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object {
+            $_.Name -like 'python*' -and $_.CommandLine -and $_.CommandLine -like '*main.py*' -and $_.CommandLine.Contains($ProjectRoot)
+        }
+        return @($procs | ForEach-Object { $_.ProcessId })
+    } catch {
+        # Process enumeration failed — do not block startup.
+        return @()
+    }
+}
+
+function Select-LinkWatcherDaemonPid {
+    # PF-IMP-1682: pick the real daemon among scanned instance PIDs. With a
+    # Store-Python venv the scan sees the redirector shim plus its child (the
+    # real interpreter, which owns the lock) — prefer the PID whose parent is
+    # also in the set; with no such pair, fall back to the first PID.
+    # $GetParentPid is injectable so the choice is unit-testable.
+    param(
+        [Parameter(Mandatory)][int[]]$Pids,
+        [scriptblock]$GetParentPid = { param($p) (Get-CimInstance Win32_Process -Filter "ProcessId = $p" -ErrorAction SilentlyContinue).ParentProcessId }
+    )
+    foreach ($p in $Pids) {
+        $parent = & $GetParentPid $p
+        if ($null -ne $parent -and $Pids -contains [int]$parent) { return $p }
+    }
+    return $Pids[0]
+}
+
+function Get-DaemonExitDisposition {
+    # PD-BUG-100: decide how to react when the daemon we just spawned has already
+    # exited by the post-start check. The naive "it exited, so clean up its lock"
+    # rule is wrong: a daemon also exits(1) when it *correctly* declined to start
+    # because another live instance already holds the lock. Removing the lock in
+    # that case strips the singleton guarantee from the running owner, so the next
+    # start spawns a duplicate — the multi-instance bug.
+    #
+    # Returns a disposition object:
+    #   Disposition = 'AlreadyRunning' — a DIFFERENT, live PID owns the lock; our
+    #                  spawned process correctly declined. Idempotent success;
+    #                  the foreign lock MUST be preserved.
+    #   Disposition = 'Crashed'        — genuine failure (or no/dead/empty lock).
+    #                  RemoveLock is true ONLY when the lock is our own spawned
+    #                  PID's lock; foreign/dead/empty locks are left for main.py's
+    #                  stale-reclaim to handle on the next start.
+    #
+    # $IsPidAlive is injectable so the decision is unit-testable without real
+    # processes; it defaults to a Get-Process liveness probe.
+    param(
+        [Parameter(Mandatory)][int]$SpawnedPid,
+        [Parameter(Mandatory)][string]$LockFile,
+        [scriptblock]$IsPidAlive = { param($p) [bool](Get-Process -Id $p -ErrorAction SilentlyContinue) }
+    )
+
+    $owner = $null
+    if (Test-Path $LockFile) {
+        try { $owner = [int]((Get-Content $LockFile -Raw).Trim()) } catch { $owner = $null }
+    }
+
+    if ($null -ne $owner -and $owner -ne $SpawnedPid -and (& $IsPidAlive $owner)) {
+        # A different, live instance owns the lock — our spawned process correctly
+        # declined. Idempotent success; the foreign lock MUST be preserved.
+        return [pscustomobject]@{
+            Disposition = 'AlreadyRunning'
+            OwnerPid    = $owner
+            RemoveLock  = $false
+        }
+    }
+
+    # Genuine crash (or no/dead/empty lock). Remove the lock ONLY when it is our
+    # own spawned PID's lock; foreign/dead/empty locks are left for main.py's
+    # stale-reclaim to handle on the next start.
+    return [pscustomobject]@{
+        Disposition = 'Crashed'
+        OwnerPid    = $owner
+        RemoveLock  = ($null -ne $owner -and $owner -eq $SpawnedPid)
+    }
+}
+
+# PF-IMP-967: when dot-sourced (e.g. by Pester), define functions only and skip the
+# startup body so tests can exercise the helpers without spawning a daemon.
+if ($MyInvocation.InvocationName -eq '.') { return }
+
+$scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$configPath = Find-ProjectConfigPath -StartPath $scriptDir
+
+if (-not $configPath) {
+    Write-Host "Error: project-config.json (with non-null project_id) not found walking up from: $scriptDir" -ForegroundColor Red
+    exit 1
+}
+
+$config = Get-Content $configPath -Raw | ConvertFrom-Json
+$projectRoot = $config.project.root_directory
+
+if (-not $projectRoot -or -not (Test-Path $projectRoot)) {
+    Write-Host "Error: Invalid project root in project-config.json: $projectRoot" -ForegroundColor Red
+    exit 1
+}
+
+# Check if LinkWatcher is already running for THIS project via lock file
+$lockFile = Join-Path $projectRoot ".linkwatcher.lock"
+if (Test-Path $lockFile) {
+    try {
+        $lockPid = [int](Get-Content $lockFile -Raw).Trim()
+        $lockProcess = Get-Process -Id $lockPid -ErrorAction SilentlyContinue
+        if ($lockProcess) {
+            Write-Host "LinkWatcher is already running for $projectRoot (PID: $lockPid)" -ForegroundColor Yellow
+            Write-Host "Not starting a new instance." -ForegroundColor Yellow
+            exit 0
+        } else {
+            Write-Host "Stale lock file found (PID $lockPid no longer running), will be overridden." -ForegroundColor DarkYellow
+        }
+    } catch {
+        Write-Host "Invalid lock file, will be overridden." -ForegroundColor DarkYellow
+    }
+}
+
+# PF-IMP-967: process-based singleton backstop. The lock-file check above is
+# defeated when a prior instance stalled before writing its lock (PD-BUG-099),
+# which is how three daemons accumulated. Refuse to start a duplicate.
+$runningPids = Test-LinkWatcherAlreadyRunning -ProjectRoot $projectRoot
+if ($runningPids.Count -gt 0) {
+    Write-Host "LinkWatcher is already running for $projectRoot (PID(s): $($runningPids -join ', '))." -ForegroundColor Yellow
+    Write-Host "Not starting a duplicate instance." -ForegroundColor Yellow
+    # PF-IMP-1682: reaching this point means the lock did not name a live owner
+    # (absent, stale, or invalid) while a live daemon exists. Left alone, that
+    # state self-perpetuates: every later lock-based stop signals a dead PID and
+    # believes it succeeded, and this script keeps declining without ever fixing
+    # the lock. Re-point the lock at the live daemon before exiting.
+    try {
+        $daemonPid = Select-LinkWatcherDaemonPid -Pids $runningPids
+        Set-Content -Path $lockFile -Value $daemonPid -Encoding ascii
+        Write-Host "Lock file re-pointed to the live daemon (PID: $daemonPid)." -ForegroundColor DarkYellow
+    } catch {
+        Write-Host "Could not re-point lock file: $($_.Exception.Message)" -ForegroundColor DarkYellow
+    }
+    exit 0
+}
+
+Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan
+
+# Resolve LinkWatcher installation directory and dedicated venv Python
+# PD-BUG-077: Never use bare 'python' — it may resolve to a project .venv
+# that lacks LinkWatcher dependencies, causing silent startup failure.
+#
+# Resolver order:
+#   1. $env:LINKWATCHER_INSTALL_DIR (explicit override for non-standard installs)
+#   2. ~/bin, ~/tools, ~/scripts, ~/.local/bin, ~/LinkWatcher (auto-detect)
+# A directory qualifies if both main.py and the dedicated venv Python exist.
+function Resolve-LinkWatcherInstall {
+    $venvRel = ".linkwatcher-venv\Scripts\python.exe"
+    $candidates = @()
+    if ($env:LINKWATCHER_INSTALL_DIR) { $candidates += $env:LINKWATCHER_INSTALL_DIR }
+    $candidates += @(
+        (Join-Path $HOME "bin"),
+        (Join-Path $HOME "tools"),
+        (Join-Path $HOME "scripts"),
+        (Join-Path $HOME ".local\bin"),
+        (Join-Path $HOME "LinkWatcher")
+    )
+    foreach ($dir in $candidates) {
+        if ((Test-Path (Join-Path $dir "main.py")) -and (Test-Path (Join-Path $dir $venvRel))) {
+            return $dir
+        }
+    }
+    return $null
+}
+
+$lwInstallDir = Resolve-LinkWatcherInstall
+if (-not $lwInstallDir) {
+    Write-Host "Error: LinkWatcher installation not found." -ForegroundColor Red
+    Write-Host "Searched: `$env:LINKWATCHER_INSTALL_DIR, ~/bin, ~/tools, ~/scripts, ~/.local/bin, ~/LinkWatcher" -ForegroundColor Red
+    Write-Host "Each location must contain main.py and .linkwatcher-venv\Scripts\python.exe" -ForegroundColor Red
+    Write-Host "Run the global installer first:" -ForegroundColor Yellow
+    Write-Host "  python deployment/install_global.py" -ForegroundColor Yellow
+    exit 1
+}
+
+$lwMainPy = Join-Path $lwInstallDir "main.py"
+$lwVenvPython = Join-Path $lwInstallDir ".linkwatcher-venv\Scripts\python.exe"
+
+# Auto-create per-project .linkwatcher-ignore skeleton if missing
+# (replaces the bootstrap that setup_project.py used to do).
+# Must match LinkWatcher's validation_ignore_file default — tools/linkwatcher/
+# since PD-BUG-101 (2026-06-10); a skeleton anywhere else is never read.
+$lwIgnoreDir = Join-Path $projectRoot "tools\linkwatcher"
+$lwIgnoreFile = Join-Path $lwIgnoreDir ".linkwatcher-ignore"
+if (-not (Test-Path $lwIgnoreFile)) {
+    if (-not (Test-Path $lwIgnoreDir)) {
+        New-Item -ItemType Directory -Path $lwIgnoreDir -Force | Out-Null
+    }
+    @'
+# .linkwatcher-ignore — Per-file validation suppression rules
+#
+# Format:  source_glob -> target_substring
+# A broken link is suppressed when the source file matches the glob AND
+# the link target contains the substring.
+#
+# Use sparingly — every rule here is a potential blind spot.
+# Prefer fixing the actual link over adding a rule.
+'@ | Set-Content -Path $lwIgnoreFile -Encoding UTF8
+}
+
+# Start LinkWatcher with explicit project root and logging
+# Runtime logs live in the flat logs/linkwatcher/ layout (no inner logs/
+# subdir per Phase 5 flatten decision).
+$logsDir = Join-Path $projectRoot "logs\linkwatcher"
+if (-not (Test-Path $logsDir)) {
+    New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+}
+$logFile = Join-Path $logsDir "LinkWatcherLog.txt"
+$stdoutLog = Join-Path $logsDir "LinkWatcherStdout.txt"
+$stderrLog = Join-Path $logsDir "LinkWatcherError.txt"
+
+# PF-IMP-1115: pass the per-project config to the daemon when it exists, so live
+# monitoring honors per-project settings (e.g. ignored_directories — PD-BUG-105).
+# Mirrors run_linkwatcher_validate.ps1's convention; absent file → no --config,
+# identical behavior to before (backward-compatible). The config is NOT created
+# here — its lifecycle is owned by Project Initiation / per-project migrations.
+$lwConfigFile = Join-Path $projectRoot "tools\linkwatcher\linkwatcher-config.yaml"
+$cfgArg = if (Test-Path $lwConfigFile) { $lwConfigFile } else { $null }
+if ($cfgArg) {
+    Write-Host "Using per-project config: $lwConfigFile" -ForegroundColor Cyan
+}
+
+$arguments = Get-LinkWatcherArguments -MainPy $lwMainPy -ProjectRoot $projectRoot -LogFile $logFile -ConfigFile $cfgArg -DebugLogging:$DebugLogging
+
+$process = Start-Process -FilePath $lwVenvPython -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
+
+if ($process) {
+    # Let main.py handle its own lock file acquisition.
+    # Previously this script wrote the lock file early, but that causes a
+    # race condition: main.py sees its own PID in the lock, thinks another
+    # instance is running, and exits.
+
+    # PD-BUG-077: Verify the process survives initialization.
+    # The old script reported success immediately, but the process could
+    # crash on import before doing any work.
+    Start-Sleep -Seconds 2
+    $process.Refresh()
+    if ($process.HasExited) {
+        $exitCode = $process.ExitCode
+        $crashLockFile = Join-Path $projectRoot ".linkwatcher.lock"
+
+        # PD-BUG-100: distinguish a correctly-declined duplicate from a genuine
+        # crash so we never delete a running owner's lock.
+        $disposition = Get-DaemonExitDisposition -SpawnedPid $process.Id -LockFile $crashLockFile
+
+        if ($disposition.Disposition -eq 'AlreadyRunning') {
+            Write-Host "LinkWatcher already running for $projectRoot (PID: $($disposition.OwnerPid)); duplicate start declined." -ForegroundColor Yellow
+            Write-Host "Not starting a duplicate instance." -ForegroundColor Yellow
+            exit 0
+        }
+
+        Write-Host "Error: LinkWatcher process exited immediately (exit code: $exitCode)" -ForegroundColor Red
+        if (Test-Path $stderrLog) {
+            $stderr = Get-Content $stderrLog -Raw
+            if ($stderr) {
+                Write-Host "Stderr output:" -ForegroundColor Red
+                Write-Host $stderr -ForegroundColor DarkRed
+            }
+        }
+        # Clean up the lock ONLY if it is our own crashed process's lock.
+        if ($disposition.RemoveLock -and (Test-Path $crashLockFile)) { Remove-Item $crashLockFile -Force }
+        exit 1
+    }
+
+    # PF-IMP-1682: report the daemon's real PID. On a Store-Python venv,
+    # $process.Id is the redirector shim; the real interpreter (its child)
+    # writes its own PID to the lock during startup. Prefer the lock's PID
+    # when it names a live process.
+    $reportPid = $process.Id
+    try {
+        # Cold starts need a few seconds past the survival check to finish
+        # imports and write the lock — poll briefly rather than racing it.
+        # Bounded at 2s so the whole body stays inside the 8s WaitForExit
+        # envelope of the hook wrapper and the TE-E2E-009 harness.
+        for ($i = 0; $i -lt 4 -and -not (Test-Path $lockFile); $i++) { Start-Sleep -Milliseconds 500 }
+        if (Test-Path $lockFile) {
+            $lockOwner = [int]((Get-Content $lockFile -Raw).Trim())
+            if ($lockOwner -gt 0 -and (Get-Process -Id $lockOwner -ErrorAction SilentlyContinue)) {
+                $reportPid = $lockOwner
+            }
+        }
+    } catch { }
+    Write-Host "LinkWatcher started successfully in background (PID: $reportPid)" -ForegroundColor Green
+    Write-Host "  Project root: $projectRoot" -ForegroundColor Green
+    Write-Host "  Log file: $logFile" -ForegroundColor Green
+    exit 0
+} else {
+    Write-Host "Failed to start LinkWatcher" -ForegroundColor Red
+    exit 1
+}

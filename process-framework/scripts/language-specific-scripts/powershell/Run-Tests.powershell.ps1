@@ -80,6 +80,8 @@
     parallel session's edits) no longer fail the run. Warns if the baseline was saved for a
     different project root or test scope. Use the SAME scope (-All / -Category / -TestFile) on save
     and compare.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]

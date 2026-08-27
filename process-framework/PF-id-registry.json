@@ -24,8 +24,7 @@
         "05-validation": "process-framework/tasks/05-validation",
         "06-maintenance": "process-framework/tasks/06-maintenance",
         "07-deployment": "process-framework/tasks/07-deployment",
-        "support": "process-framework/tasks/support",
-        "cyclical": "process-framework/tasks/cyclical",
+            "cyclical": "process-framework/tasks/cyclical",
         "default": "01-planning"
       },
       "nextAvailable": 95

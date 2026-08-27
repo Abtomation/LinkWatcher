@@ -11,7 +11,7 @@ execution_mode: scripted
 estimated_duration: 5 minutes
 source: Cross-Cutting Spec PF-TSP-044 S-019
 created: 2026-03-18
-updated: 2026-03-18
+updated: 2026-08-27
 ---
 
 # Test Case: TE-E2E-022 Read-Only Referencing File
@@ -89,7 +89,7 @@ See `expected/` directory for complete post-test file state.
 
 ## Verification Method
 
-- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-022` — compares workspace against `expected/`
+- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-022 -Workflow graceful-shutdown-no-corrupted-files` — compares workspace against `expected/`
 - [ ] **Log check**: Check application log for error/warning about readme.md and successful update of guide.md
 
 ## Pass Criteria

@@ -56,6 +56,7 @@
     Run-E2EAcceptanceTest.ps1 -WaitSeconds 12
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Test cases must have a run.ps1 file (created via New-E2EAcceptanceTestCase.ps1 -Scripted).
     Test cases without run.ps1 are skipped — execute them directly following test-case.md.
 

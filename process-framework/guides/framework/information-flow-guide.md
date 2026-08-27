@@ -7,6 +7,7 @@ created: 2026-04-13
 updated: 2026-08-05
 change_notes: "v1.0 - Extracted from Task Transition Guide (PF-GDE-018) to separate information flow concerns from transition procedures"
 description: "Information flow patterns, task ownership boundaries, cross-reference standards, and separation of concerns between tasks"
+owned_by: FWK-FB
 ---
 
 # Information Flow and Separation of Concerns

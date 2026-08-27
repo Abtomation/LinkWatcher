@@ -99,6 +99,8 @@
     # ... make the scoped change, then prove no NEW errors, passing the path the save run
     # PRINTED (the directory is workspace-scoped, so do not compose it by hand):
     ../Validate-StateTracking.ps1 -Baseline $env:TEMP\vst-baselines-<project>-<root-hash>\vst-baseline-<project>-<timestamp>-<PID>.json
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 param(

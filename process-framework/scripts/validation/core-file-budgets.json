@@ -373,10 +373,6 @@
       "words": 2564,
       "set": "2026-08-04"
     },
-    "tasks/support/framework-domain-adaptation.md": {
-      "words": 3027,
-      "set": "2026-08-04"
-    },
     "tasks/support/framework-evaluation.md": {
       "words": 3873,
       "set": "2026-08-04"
@@ -410,8 +406,9 @@
       "set": "2026-08-04"
     },
     "tasks/support/tools-review-task.md": {
-      "words": 5162,
-      "set": "2026-08-04"
+      "words": 5476,
+      "set": "2026-08-16",
+      "reason": "PF-PRO-068 S3 G7 owner-approved bump 2026-08-16: G6 level-scope additions (PF-IMP-1976) put the file 53 words over; restored to the -Init +5% headroom (ceil(5215*1.05)). Twin of FB bea0d01 - shared rows stay numerically identical (E4-i convention)."
     }
   }
 }

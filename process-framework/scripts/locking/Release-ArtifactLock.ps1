@@ -36,6 +36,8 @@
 .PARAMETER CoAuthoredBy
     Optional Co-Authored-By trailer value (e.g. "Claude Fable 5 <noreply@anthropic.com>").
     Omitted when not supplied.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(

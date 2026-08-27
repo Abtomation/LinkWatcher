@@ -43,6 +43,7 @@ from linkwatcher.linkwatcher_control_panel.validation import (
     strip_ansi,
     validator_python,
 )
+from linkwatcher.linkwatcher_control_panel.views.rendering import validation_display
 
 pytestmark = [
     pytest.mark.feature("7.1.1"),
@@ -119,10 +120,11 @@ def test_broken_count_comes_from_the_report_file(make_project):
 
 
 def test_report_found_at_conventional_path_without_stdout_locator(make_project):
+    """Locator line missing, but the summary line proves this run scanned (PD-BUG-132)."""
     project = make_project()
     report = write_report(project.log_dir, 7)
 
-    run = parse_validation_result(RunResult(1, "", ""), project.log_dir)
+    run = parse_validation_result(RunResult(1, "Broken links  : 7\n", ""), project.log_dir)
 
     assert run.state == "broken"
     assert run.broken_count == 7
@@ -151,6 +153,106 @@ def test_nonzero_without_report_is_failed(make_project):
     assert run.state == "failed"
     assert "boom" in run.error
     assert run.broken_count is None
+
+
+# --------------------------------------------------------------------------- #
+# PD-BUG-132 — a report counts as this run's only when the run actually scanned
+# --------------------------------------------------------------------------- #
+def test_abort_before_scan_is_failed_even_with_a_stale_report(make_project):
+    """Exit 1 without scanning surfaces the config error, never the old count."""
+    project = make_project()
+    write_report(project.log_dir, 7)  # left by an earlier, unrelated run
+    stderr = "config_issue issue='log_file_max_size_mb must be a number (got str)'"
+
+    run = parse_validation_result(RunResult(1, "", stderr), project.log_dir)
+
+    assert run.state == "failed"
+    assert run.state != "broken"  # negative: the stale verdict must not win
+    assert run.broken_count is None  # negative: no count may be reported
+    assert "log_file_max_size_mb" in run.error
+
+
+def test_stale_clean_report_is_not_rendered_as_zero_broken_links(make_project):
+    """The false-clean shape: an earlier clean run must not read as success (EC-6)."""
+    project = make_project()
+    write_report(project.log_dir, 0)
+    stderr = "config_issue issue='validation_extensions must be a list of strings'"
+
+    run = parse_validation_result(RunResult(1, "", stderr), project.log_dir)
+    display = validation_display(run)
+
+    assert run.state == "failed"
+    assert display.mode == "failure"
+    assert "0 broken links" not in display.text  # negative: the literal falsehood
+    assert "validation_extensions" in display.text
+
+
+def test_failure_reason_names_the_offending_config_key_not_the_log_preamble(make_project):
+    """The pane must carry the config_issue text, not the INFO lines above it."""
+    project = make_project()
+    write_report(project.log_dir, 7)
+    stderr = (
+        "2026-08-19T15:14:51Z [info     ] logging_configured  [linkwatcher] json_logs=False\n"
+        "2026-08-19T15:14:51Z [info     ] config_loaded       [linkwatcher] config_file=bad.yaml\n"
+        "2026-08-19T15:14:51Z [error    ] configuration_validation_failed [linkwatcher] "
+        "issues=['log_file_max_size_mb must be a number (got str)']\n"
+        "2026-08-19T15:14:51Z [error    ] config_issue        [linkwatcher] "
+        "issue='log_file_max_size_mb must be a number (got str)'\n"
+    )
+
+    run = parse_validation_result(RunResult(1, "", stderr), project.log_dir)
+
+    assert run.state == "failed"
+    assert run.error.startswith("log_file_max_size_mb must be a number")
+    assert "logging_configured" not in run.error  # negative: preamble is not the reason
+    assert "config_loaded" not in run.error
+
+
+def test_failure_reason_reports_every_offending_key(make_project):
+    """Two bad keys, two names — the operator fixes both in one pass."""
+    project = make_project()
+    stderr = (
+        "2026-08-19T15:14:51Z [info     ] logging_configured [linkwatcher]\n"
+        "2026-08-19T15:14:51Z [error    ] config_issue [linkwatcher] "
+        "issue='log_file_max_size_mb must be a number (got str)'\n"
+        "2026-08-19T15:14:51Z [error    ] config_issue [linkwatcher] "
+        "issue='log_file_backup_count must be an integer (got str)'\n"
+    )
+
+    run = parse_validation_result(RunResult(1, "", stderr), project.log_dir)
+
+    assert "log_file_max_size_mb" in run.error
+    assert "log_file_backup_count" in run.error
+
+
+def test_failure_reason_falls_back_to_the_error_line_then_to_raw_output(make_project):
+    """No config_issue payload: prefer the error line; with neither, keep the raw text."""
+    project = make_project()
+    traceback = (
+        "2026-08-19T15:14:51Z [info     ] logging_configured [linkwatcher]\n"
+        "Traceback (most recent call last):\n"
+        "ValueError: invalid project root\n"
+    )
+
+    run = parse_validation_result(RunResult(1, "", traceback), project.log_dir)
+    assert "invalid project root" in run.error
+    assert "logging_configured" not in run.error
+
+    plain = parse_validation_result(RunResult(1, "", "could not spawn validator"), project.log_dir)
+    assert plain.error == "could not spawn validator"
+
+
+def test_crash_before_scan_is_failed_even_with_a_stale_report(make_project):
+    """Any exit-1-before-report path, not only an invalid config (PD-BUG-132)."""
+    project = make_project()
+    write_report(project.log_dir, 3)
+    stderr = "Traceback (most recent call last):\nValueError: invalid project root"
+
+    run = parse_validation_result(RunResult(1, "", stderr), project.log_dir)
+
+    assert run.state == "failed"
+    assert run.broken_count is None
+    assert "invalid project root" in run.error
 
 
 def test_unexpected_exit_code_is_failed(make_project):

@@ -6,6 +6,7 @@ version: 1.7
 created: 2026-06-15
 updated: 2026-07-30
 description: The universal execution spine every task runs under — task selection, role adoption, the Read-Do step contract, and session-end (state updates and feedback). The selected task's definition plugs in at a placeholder. Holds once what was formerly stamped into every task (PF-IMP-1128 / F4).
+owned_by: FWK-FB
 ---
 
 # Task Execution Protocol

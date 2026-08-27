@@ -485,3 +485,57 @@ class TestBug095PathDetectorsRejectRegexAndGlob:
         assert looks_like_file_path("doc/foo/bar.md") is True
         assert looks_like_file_path("config.yaml") is True
         assert looks_like_directory_path("doc/foo/bar") is True
+
+
+class TestBug135DelimiterGapSpans:
+    r"""PD-BUG-135 regression: ``QUOTED_DIR_PATTERN`` matched the span BETWEEN
+    two quoted literals, registering the connecting text as a directory.
+
+    The pattern ``['"]([^'"]*[/\\][^'"]*)['"]`` requires a separator inside the
+    span, so when a legitimate literal holds none the regex re-anchors on that
+    literal's CLOSING quote and pairs it with the NEXT literal's OPENING quote.
+    Measured over this repo the generic parser produced 8 directory references,
+    2 of which were such fragments (`` rmdir /s /q ``).
+
+    Fixed by the shared delimiter-pairing guard
+    (``BaseParser._is_paired_delimiter``) rather than the clean-path-token
+    guard used for the python sibling (PD-BUG-133), which was measured to
+    delete legitimate references in the sibling parsers.
+    """
+
+    def test_gap_between_two_literals_is_not_a_directory(self):
+        """The reported shape: the text between two literals held a separator."""
+        parser = GenericParser()
+        content = 'call("first") rmdir /s /q ("second")\n'
+        refs = parser.parse_content(content, "t.txt")
+        targets = [r.link_target for r in refs]
+
+        assert not any("rmdir" in t for t in targets), f"captured the gap: {targets}"
+
+    def test_pathlib_style_gap_is_not_a_directory(self):
+        """A separator sitting between two literals is not a reference."""
+        parser = GenericParser()
+        content = 'x = join("src") / ("utils")\n'
+        refs = parser.parse_content(content, "t.txt")
+        targets = [r.link_target for r in refs]
+
+        assert ") / (" not in targets, f"captured the join operator as a path: {targets}"
+
+    def test_real_reference_beside_a_gap_still_detected(self):
+        """Discriminating control: the genuine neighbour must survive."""
+        parser = GenericParser()
+        content = 'call("first") rmdir /s /q ("second") then "doc/state-tracking"\n'
+        refs = parser.parse_content(content, "t.txt")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/state-tracking" in targets, f"real ref lost: {targets}"
+        assert not any("rmdir" in t for t in targets), f"gap survived: {targets}"
+
+    def test_genuine_quoted_directory_still_detected(self):
+        """Control (PD-BUG-021): a real quoted directory is unaffected."""
+        parser = GenericParser()
+        content = 'path = "doc/state-tracking"\n'
+        refs = parser.parse_content(content, "t.txt")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/state-tracking" in targets, f"real quoted dir lost: {targets}"

@@ -21,7 +21,7 @@
     guard is the ship-time backstop covering every route into a ledger (direct scaffold,
     batch, hand-edit, amend).
 
-    Scans every project's OPEN ledger (per-project-migrations/<PRJ-NNN>/pending-migrations.md)
+    Scans every child's OPEN ledger (migration-entries/<CHILD-ID>/pending-migrations.md)
     for TODO markers, naming the entry each marker sits in. Archives are not scanned — a
     drained entry's markers are terminal history. In a rolled-out project no central tree is
     committed, so the guard exits 0 without scanning.
@@ -38,6 +38,7 @@
     staged promotion the other fleet gates follow (PF-IMP-1211).
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit codes:
         0 = no TODO markers in any open ledger (or no central tree here), or findings in warn-first mode
         1 = findings, and -Blocking was passed
@@ -60,8 +61,13 @@ if (-not $CentralRoot) {
     else {
         $dir = $PSScriptRoot
         while ($dir) {
-            $candidate = Join-Path -Path $dir -ChildPath 'process-framework-central'
-            if (Test-Path -LiteralPath $candidate) { $CentralRoot = $candidate; break }
+            # Skip a candidate sitting directly under a 'blueprint' dir: that is the
+            # central-skeleton SEED a producer's blueprint ships (PF-PRO-069 WI-2) — template
+            # material modeling a child workspace, never this workspace's operative central.
+            if ((Split-Path -Leaf $dir) -ne 'blueprint') {
+                $candidate = Join-Path -Path $dir -ChildPath 'process-framework-central'
+                if (Test-Path -LiteralPath $candidate) { $CentralRoot = $candidate; break }
+            }
             $dir = Split-Path -Parent $dir
         }
     }
@@ -70,7 +76,8 @@ if (-not $CentralRoot -or -not (Test-Path -LiteralPath $CentralRoot)) {
     exit 0   # no central tree here (rolled-out project) — nothing to check
 }
 
-$migrationsRoot = Join-Path -Path $CentralRoot -ChildPath 'per-project-migrations'
+# 'migration-entries' is the role-invariant ledger dir (PF-PRO-069 R-12).
+$migrationsRoot = Join-Path -Path $CentralRoot -ChildPath 'migration-entries'
 if (-not (Test-Path -LiteralPath $migrationsRoot)) { exit 0 }
 
 # --- scan each open ledger; resolved blocks relocate to archive/ (PF-IMP-983), so every ---

@@ -39,6 +39,7 @@ Reset-SandboxFixtures.ps1 -TestId TE-E2E-003
 Reset-SandboxFixtures.ps1 -TestId TE-E2E-003 -Check
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Framework Self-Testing extension (PF-PRO-035) Phase 3.5. Authored Session 22 (2026-05-18).
 Invoked by Run-E2EAcceptanceTest.ps1 before each framework-self-test case's pre-test setup.
 #>

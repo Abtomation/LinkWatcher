@@ -30,6 +30,8 @@ redirect output to a sandbox; omit for normal use so central-path resolution app
 
 .PARAMETER OpenInEditor
 Opens the created form in the configured editor after creation.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]

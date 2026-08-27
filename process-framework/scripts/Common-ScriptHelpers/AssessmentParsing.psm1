@@ -3,6 +3,8 @@
 <#
 .SYNOPSIS
 Parses tier assessment documents to extract a feature's design requirements and tier.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 #
 # Parses tier assessment documents to extract design requirements and tier

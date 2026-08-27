@@ -29,7 +29,7 @@ Quick validation sequence covering all test cases in this group. Run this FIRST 
    - Action: Wait for LinkWatcher to reach idle state (5 seconds after startup), then stop it
    - Tool: Command Line
    - Target: LinkWatcher process
-   - Expected: Clean shutdown, no error messages, process exits with code 0, all files unchanged
+   - Expected: all files unchanged, and no error messages in the log up to termination. The stop is a hard kill (`Stop-Process -Force`), so the daemon runs no Python cleanup: expect a -1 exit code and no `service_stopping` / `service_stopped` records — that is the path under test, not a failure. See TE-E2E-020's scope note.
 
 2. **Stop LinkWatcher immediately after a file move**
    - Action: Reset environment, move `docs/report.md` to `archive/report.md`, immediately stop LinkWatcher
@@ -49,7 +49,7 @@ Run individual test cases to isolate the issue:
 
 | Test Case | Path | Description |
 |-----------|------|-------------|
-| TE-E2E-020 | [TE-E2E-020-stop-during-idle/test-case.md](TE-E2E-020-stop-during-idle/test-case.md) | Stop LinkWatcher during idle — clean shutdown, no errors, no corrupted files |
+| TE-E2E-020 | [TE-E2E-020-stop-during-idle/test-case.md](TE-E2E-020-stop-during-idle/test-case.md) | Terminate LinkWatcher while idle — no errors, no corrupted files (kill-safety, not graceful shutdown) |
 | TE-E2E-021 | [TE-E2E-021-stop-immediately-after-move/test-case.md](TE-E2E-021-stop-immediately-after-move/test-case.md) | Stop LinkWatcher immediately after file move — files are either fully updated or untouched (atomic) |
 
 ## Notes

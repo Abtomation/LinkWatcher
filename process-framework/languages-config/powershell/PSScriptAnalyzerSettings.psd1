@@ -1,3 +1,4 @@
+# OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 # Curated PSScriptAnalyzer ruleset for the framework PowerShell script fleet (PF-IMP-1328).
 #
 # Consumed by scripts/validation/Run-ScriptConventionGate.ps1 (warn-first pre-commit / CI gate).

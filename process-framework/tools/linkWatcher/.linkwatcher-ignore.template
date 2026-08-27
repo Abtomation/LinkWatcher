@@ -19,13 +19,13 @@
 
 # Framework→central references use rolled-layout-relative form (as if
 # process-framework-central sat next to process-framework/ at the project
-# root). Central lives in appdev and is reached via .framework-central-pointer
+# root). Central lives in appdev and is reached via .framework-parent-pointer (legacy .framework-central-pointer)
 # — these are navigational hints, not resolvable links (PF-IMP-1097).
 process-framework/** -> process-framework-central/
 
 # Per-project pending-migrations archive (PF-IMP-983): rolled-out task/guide
 # prose names the ledger-relative path `archive/pending-migrations-archive.md`
-# — a navigational hint into appdev's per-project-migrations tree, not a
+# — a navigational hint into appdev's migration-entries tree, not a
 # resolvable link from the project layout.
 process-framework/** -> archive/pending-migrations-archive.md
 

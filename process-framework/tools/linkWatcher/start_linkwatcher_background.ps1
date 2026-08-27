@@ -20,6 +20,7 @@
     PF-IMP-967: opt-in verbose daemon logging (--debug); off by default.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Testing notes (handle-inheritance gotcha for subprocess callers):
 
     This script spawns the LinkWatcher daemon via `Start-Process -PassThru

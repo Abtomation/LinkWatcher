@@ -47,6 +47,8 @@
     Validate-TestTracking.ps1 -Fix
     Runs all checks as usual, but for Check 8 syncs any drifted "Test Cases Count" cells to the
     pytest collection count rather than only warning.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 param(

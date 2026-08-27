@@ -37,6 +37,7 @@
     Validate-AuditReport.ps1 -ReportFile "foundation/audit-report-0.2.3-TE-TST-001.md" -Detailed
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     - Validates against Test Audit Report template structure
     - Checks for consistency between findings and audit decision
     - Ensures all mandatory sections are completed

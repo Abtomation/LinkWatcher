@@ -25,6 +25,7 @@ correct here: a leaf has no children and therefore no sandbox row to resolve.
 
 .NOTES
 Created at PF-PRO-068 Sub-concept 3, Session 30 (2026-08-13), unit E4/D2.
+OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 $script:E2EHelperRoot = $PSScriptRoot

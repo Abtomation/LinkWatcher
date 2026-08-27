@@ -130,10 +130,14 @@ if ($CrossCutting) {
     }
 }
 
-if (-not (Test-Path $templatePath)) {
-    Write-Error "Template not found: $templatePath"
+# Two-face resolution (PF-IMP-1999): at a framework face this domain template lives in the
+# producer blueprint, not on the Read face; the shared helper retries the miss there.
+$resolvedTemplatePath = Resolve-TemplateFacePath -TemplatePath $templatePath
+if (-not $resolvedTemplatePath) {
+    Write-Error "Template not found: $templatePath (both workspace faces checked)"
     exit 1
 }
+$templatePath = $resolvedTemplatePath
 
 $kebabDocName = ConvertTo-KebabCase -InputString $documentName
 $customFileName = "$kebabDocName.md"

@@ -1,4 +1,4 @@
-﻿# StateFileManagement.psm1
+# StateFileManagement.psm1
 # State file operations and tracking file management
 # VERSION 4.0 - REFACTORED MODULAR ARCHITECTURE
 # This module now imports specialized sub-modules while maintaining full backward compatibility
@@ -19,6 +19,7 @@ VERSION 4.0 uses a modular architecture where functionality is split across
 focused sub-modules, but maintains complete backward compatibility.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 4.0 (Refactored Modular Architecture)
 Created: 2025-08-26
 Refactored: 2025-08-30

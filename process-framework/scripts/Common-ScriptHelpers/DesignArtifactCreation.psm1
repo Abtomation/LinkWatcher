@@ -4,6 +4,8 @@
 <#
 .SYNOPSIS
 Shared orchestration core for the per-feature design artifact creation pipeline.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 #
 # Created 2026-05-08 for PF-PRO-002 / PF-IMP-028 Phase 2 (Feature Tracking

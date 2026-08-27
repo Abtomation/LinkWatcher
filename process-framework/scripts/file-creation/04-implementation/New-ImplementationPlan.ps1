@@ -99,15 +99,18 @@ $customReplacements = @{
 # Select template based on tier
 $fwDir = Get-ProcessFrameworkPath
 if ($Tier -eq 1) {
-    $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-tier1-template.md"
+    $templateCandidate = Join-Path $fwDir "templates/04-implementation/implementation-plan-tier1-template.md"
 } else {
-    $templatePath = Join-Path $fwDir "templates/04-implementation/implementation-plan-template.md"
+    $templateCandidate = Join-Path $fwDir "templates/04-implementation/implementation-plan-template.md"
 }
 
-if (-not (Test-Path $templatePath)) {
-    Write-Warning "Implementation plan template not found at: $templatePath"
+# Two-face resolution (PF-IMP-1999): at a framework face this domain template lives in the
+# producer blueprint, not on the Read face; the shared helper retries the miss there.
+$templatePath = Resolve-TemplateFacePath -TemplatePath $templateCandidate
+if (-not $templatePath) {
+    Write-Warning "Implementation plan template not found at: $templateCandidate (both workspace faces checked)"
     Write-Warning "Please create the template using New-Template.ps1 before using this script."
-    Write-Error "Template file required: $(Split-Path $templatePath -Leaf)"
+    Write-Error "Template file required: $(Split-Path $templateCandidate -Leaf)"
     exit 1
 }
 

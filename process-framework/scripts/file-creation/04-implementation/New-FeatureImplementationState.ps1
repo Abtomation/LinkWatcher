@@ -175,10 +175,13 @@ try {
     # Build absolute template path using project root
     $projectRoot = Get-ProjectRoot
     $templateFileName = if ($Lightweight) { "feature-implementation-state-lightweight-template.md" } else { "feature-implementation-state-template.md" }
-    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/04-implementation/$templateFileName"
+    $templateCandidate = Join-Path (Get-ProcessFrameworkPath) "templates/04-implementation/$templateFileName"
 
-    if (-not (Test-Path $templatePath)) {
-        Write-ProjectError -Message "Feature implementation state template not found at: $templatePath - Template file required: $templateFileName" -ExitCode 1
+    # Two-face resolution (PF-IMP-1999): at a framework face this domain template lives in the
+    # producer blueprint, not on the Read face; the shared helper retries the miss there.
+    $templatePath = Resolve-TemplateFacePath -TemplatePath $templateCandidate
+    if (-not $templatePath) {
+        Write-ProjectError -Message "Feature implementation state template not found at: $templateCandidate - Template file required: $templateFileName (both workspace faces checked)" -ExitCode 1
     }
 
     if ($Lightweight) {

@@ -47,6 +47,8 @@ Open the created file in the default editor after creation.
 
 .EXAMPLE
 .\New-TempTaskState.ps1 -TaskName "Onboarding Process Evaluation" -Variant FrameworkEvaluation -Description "Full seven-dimension evaluation of PF-TSK-059/064/065/066"
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]

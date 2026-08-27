@@ -112,6 +112,8 @@
 .EXAMPLE
     Find-Improvement.ps1 -Keyword "linkwatcher" -MaxMatches 25
     # Prints the first 25 of a broad keyword's matches and reports how many more exist.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 
 .EXAMPLE
     Find-Improvement.ps1 -Keyword "soak resolution" -Portfolio

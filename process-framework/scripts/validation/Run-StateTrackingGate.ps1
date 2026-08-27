@@ -33,6 +33,8 @@
 .EXAMPLE
     Run-StateTrackingGate.ps1 -Blocking -Baseline .vst-baseline.json
     # blocking ratchet — a project carrying error debt; fails only on NEW errors vs the committed baseline.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 [CmdletBinding()]
 param(

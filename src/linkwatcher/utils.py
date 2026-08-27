@@ -8,23 +8,42 @@ AI Context
 - **Role**: Stateless pure-function library for path manipulation and
   file-classification heuristics.  No classes, no instance state — every
   function is a free function importable by any module.
-- **High-traffic functions and primary callers**:
-  - ``normalize_path()`` — canonical forward-slash form.
-    Called by database.py, handler.py, path_resolver.py, service.py,
-    validator.py, dir_move_detector.py.
+- **Shared functions and their callers** — COMPLETE as of 2026-08-27
+  (TD270), so a function absent from this list has no callers outside this
+  module rather than an unrecorded one.  Verified against every
+  ``from .utils import`` statement, not by memory; re-verify when adding or
+  removing a function here:
   - ``should_monitor_file()`` — extension + ignored-dir filter.
     Called by handler.py, service.py, validator.py.
+  - ``normalize_path()`` — canonical forward-slash form.
+    Called by database.py, dir_move_detector.py, handler.py,
+    path_resolver.py, linkwatcher_control_panel/discovery.py.
   - ``get_relative_path()`` — absolute-to-project-relative conversion.
-    Called by database.py, handler.py, service.py, reference_lookup.py.
-  - ``looks_like_file_path()`` / ``looks_like_directory_path()`` —
-    heuristic classifiers for parser-extracted text.
+    Called by handler.py, reference_lookup.py, service.py.
+  - ``compute_own_output_exclusions()`` / ``is_own_output()`` — the daemon
+    own-output exclusion registry (PD-BUG-107).
+    Called by handler.py, service.py.
+  - ``path_exists_under_root()`` — project-root-relative existence check.
+    Called by path_resolver.py, reference_lookup.py.
+  - ``apply_trailing_separator_style()`` — re-applies the authored trailing
+    separator to a recalculated target (PD-BUG-124).
+    Called by path_resolver.py, reference_lookup.py.
+  - ``authored_backslash_unit()`` — the backslash sequence the author wrote
+    for one separator.
+    Called by path_resolver.py.
+  - ``looks_like_file_path()`` — heuristic classifier for parser-extracted
+    text.
+    Called by parsers/base.py (``BaseParser``), validator.py.
+  - ``looks_like_directory_path()`` — directory-shaped counterpart.
     Called by parsers/base.py (``BaseParser``).
   - ``safe_file_read()`` — multi-encoding file reader with fallback.
-    Called by database.py, reference_lookup.py, validator.py.
-  - ``should_ignore_directory()`` — basename-level dir filter.
-    Called by handler.py, service.py.
+    Called by parsers/base.py.
   - ``find_line_number()`` — linear search for text in line list.
-    Called by validator.py.
+    Called by parsers/base.py.
+  - ``is_file_size_within_limit()`` — size guard applied before parsing.
+    Called by parser.py.
+  - Module-internal only, no callers outside this file:
+    ``trailing_separator_run()``, ``looks_like_regex_or_glob()``.
 - **Common tasks**:
   - Adding a new utility: add a free function here, import where needed.
     No registration or wiring required.
@@ -55,7 +74,8 @@ def should_monitor_file(
 
     Args:
         file_path: Path to the file
-        monitored_extensions: Set of file extensions to monitor (e.g., {'.md', '.py'})
+        monitored_extensions: Set of file extensions to monitor (e.g., {'.md', '.py'}).
+            Matched case-insensitively, so '.MD' and '.md' are equivalent.
         ignored_dirs: Set of directory names to ignore (e.g., {'.git', 'node_modules'})
         project_root: If provided, only check path parts relative to this root.
             This prevents false rejections when the project lives under a
@@ -64,9 +84,16 @@ def should_monitor_file(
     Returns:
         True if file should be monitored, False otherwise
     """
-    # Check file extension
+    # Check file extension.  Both sides are normalized: lowercasing only the
+    # file suffix left the documented case-insensitive matching half done, so a
+    # ".MD" *file* matched a ".md" entry while a ".MD" *entry* matched nothing
+    # at all — the same silent no-match as a dotless entry (PD-BUG-129).  The
+    # direct lookup runs first so the ordinary all-lowercase config keeps its
+    # O(1) hit and pays nothing for the fallback.
     file_ext = os.path.splitext(file_path)[1].lower()
-    if file_ext not in monitored_extensions:
+    if file_ext not in monitored_extensions and file_ext not in {
+        ext.lower() for ext in monitored_extensions
+    }:
         return False
 
     # Check if file is in an ignored directory.
@@ -86,21 +113,6 @@ def should_monitor_file(
             return False
 
     return True
-
-
-def should_ignore_directory(dir_path: str, ignored_dirs: Set[str]) -> bool:
-    """
-    Check if a directory should be ignored.
-
-    Args:
-        dir_path: Path to the directory
-        ignored_dirs: Set of directory names to ignore
-
-    Returns:
-        True if directory should be ignored, False otherwise
-    """
-    dir_name = os.path.basename(dir_path)
-    return dir_name in ignored_dirs
 
 
 def compute_own_output_exclusions(log_file: Optional[str], project_root: str) -> dict:
@@ -196,7 +208,48 @@ def normalize_path(path: str) -> str:
     return os.path.normpath(path).replace("\\", "/")
 
 
-def apply_trailing_separator_style(result: str, original_target: str) -> str:
+def trailing_separator_run(original_target: str) -> str:
+    """Return the exact trailing separator the author wrote, escaping included.
+
+    ``"doc/x/"`` -> ``"/"``; ``"doc\\x\\"`` -> ``"\\"``; a ``.py`` literal
+    authored as ``"logs\\\\"`` -> ``"\\\\"``.  Returns ``""`` when the target
+    carries no trailing separator.  Re-appending this run verbatim preserves the
+    authored escaping, which synthesizing a single character cannot do
+    (PD-BUG-124).
+    """
+    if original_target.endswith("/"):
+        return "/"
+    stripped = original_target.rstrip("\\")
+    return original_target[len(stripped) :]
+
+
+def authored_backslash_unit(original_target: str) -> str:
+    """Return the backslash sequence the author wrote for ONE separator.
+
+    Link targets are extracted from — and spliced back into — the file's RAW
+    source text.  Inside an escaped string literal (a ``.py`` path, and any
+    parser that reports raw spans) one separator is authored as ``\\\\``;
+    emitting a bare ``\\`` there turns it into an escape character and corrupts
+    the file — loudly when it escapes the closing quote, silently when it forms
+    a valid escape such as ``\\n`` (PD-BUG-124).  Contexts that do not escape —
+    markdown prose, and the JSON parser, which reports *decoded* values — author
+    a single ``\\`` and mean it.
+
+    The authored runs are the evidence; the shortest is the unit.  A target with
+    no backslash run falls back to a single one, i.e. pre-PD-BUG-124 behavior.
+
+    Used by ``PathResolver`` wherever it renders a forward-slash result back
+    into the original's backslash style.
+    """
+    runs = re.findall(r"\\+", original_target)
+    if not runs:
+        return "\\"
+    return min(runs, key=len)
+
+
+def apply_trailing_separator_style(
+    result: str, original_target: str, separator: Optional[str] = None
+) -> str:
     """Re-append the authored trailing separator stripped during recalculation.
 
     Both rewrite paths lose it: ``os.path.normpath`` (via ``normalize_path``)
@@ -212,28 +265,33 @@ def apply_trailing_separator_style(result: str, original_target: str) -> str:
     in each: this rule has now been needed on both paths, and a second copy
     would be the one that drifts.
 
-    The restored separator follows the *result's* own style, falling back to
-    the original's when the result carries no separator — ``PathResolver``
-    renders the result in the original's style before calling this (see
-    ``_apply_separator_style``, PD-BUG-112), so it is unaffected; ``Reference-
-    Lookup`` always produces forward-slash output, where blindly appending the
-    original's backslash would emit a mixed form like ``../doc/x\\``.
+    The restored separator is the authored one, re-appended *verbatim* —
+    escaping included (PD-BUG-124).  Targets are spliced back into the file's
+    RAW source, where an escaped-string context authors one separator as
+    ``\\\\``; synthesizing a bare ``\\`` there escapes the closing quote and
+    leaves the file unparseable.  ``PathResolver`` renders the whole result in
+    the original's style (see ``_apply_separator_style``, PD-BUG-112), so the
+    authored form is exactly what belongs at the end of it.
+
+    A caller that renders in a *fixed* style passes it as ``separator``:
+    ``ReferenceLookup`` always emits forward slashes, so it passes ``"/"``.
+    Without that, the answer would depend on the result's depth — a
+    multi-segment result carries a ``/`` to copy, a single-segment result
+    carries nothing and would fall back to the authored backslash, producing
+    two different answers for one authored form (PD-BUG-124, secondary defect).
 
     Sibling of ``PathResolver._apply_separator_style`` (whole-path separator
     style) and of the authored-form guard in
     ``reference_lookup._calculate_updated_relative_path``.
     """
-    if not result or not original_target.endswith(("/", "\\")):
+    if not result:
+        return result
+    authored = trailing_separator_run(original_target)
+    if not authored:
         return result
     if result.endswith(("/", "\\")):
         return result
-    if "\\" in result:
-        separator = "\\"
-    elif "/" in result:
-        separator = "/"
-    else:
-        separator = "\\" if "\\" in original_target else "/"
-    return result + separator
+    return result + (authored if separator is None else separator)
 
 
 def path_exists_under_root(project_root, candidate_relpath: str) -> bool:

@@ -18,9 +18,21 @@ AI Context
   report file is the more stable surface; stdout remains the locator ("the
   report location is owned by the build", per the validate launcher).
 - **Exit-code contract** (UNIT-V1…V3): 0 → ``ok`` (0 broken); 1 *with* a
-  report → ``broken`` with the parsed count; anything else — spawn failure,
-  timeout, nonzero without a report — → ``failed`` with the captured reason,
-  never rendered as success (EC-6).
+  report **this run demonstrably produced** → ``broken`` with the parsed count;
+  anything else — spawn failure, timeout, nonzero without a completed scan — →
+  ``failed`` with the captured reason, never rendered as success (EC-6).
+- **A report on disk is not evidence of this run** (PD-BUG-132): the validator
+  writes to the conventional path on *every* completed run, so for any project
+  validated even once a report is always sitting there.  A run that exits 1
+  *before* scanning — invalid config, invalid project root, an exception inside
+  the scan — writes none, and the conventional-path fallback would otherwise
+  hand it the previous run's report, rendering a stale count (or, after a clean
+  run, "0 broken links") as the current verdict while discarding the error.
+  :func:`_scan_completed` supplies the missing binding: the fallback resolves a
+  *path*, stdout proves a *scan*.  Both markers it looks for are suppressed by
+  ``--quiet``, which :func:`build_validate_command` deliberately never passes;
+  were that to change, a genuine broken run would surface as ``failed`` — wrong,
+  but loudly so, which is the safe direction for this failure.
 - **One run per project at a time** (UNIT-V4): a second trigger for the same
   project is rejected while its run is in flight; other projects are
   unaffected.  Same busy-guard pattern as :class:`~.lifecycle.LifecycleController`.
@@ -57,6 +69,16 @@ _REPORT_WRITTEN_RE = re.compile(r"Report written to\s+(.+?)\s*$", re.MULTILINE)
 # The stable summary line, identical in the report file and the stdout copy.
 _BROKEN_COUNT_RE = re.compile(r"Broken links\s*:\s*(\d+)")
 
+# The validator's own diagnosis of an unusable config: one `config_issue` log
+# record per offending key, each carrying the human-readable text as `issue='…'`.
+_CONFIG_ISSUE_RE = re.compile(r"issue='([^']*)'")
+
+# Fallback when there is no structured diagnosis: the lines of captured output
+# that actually say something went wrong, as opposed to the startup preamble.
+_DIAGNOSTIC_LINE_RE = re.compile(
+    r"\[error|\[critical|Traceback|[A-Za-z]*Error:|[A-Za-z]*Exception:", re.IGNORECASE
+)
+
 
 def strip_ansi(text: str) -> str:
     """Remove ANSI escape sequences from captured subprocess output."""
@@ -67,6 +89,33 @@ def _short(text: str, limit: int = 300) -> str:
     """Collapse *text* to one bounded line for pane/status display."""
     collapsed = " ".join(text.split())
     return collapsed if len(collapsed) <= limit else collapsed[: limit - 1] + "…"
+
+
+def _failure_reason(stderr: str, stdout_clean: str) -> str:
+    """The most informative account of why the run failed (PD-BUG-132).
+
+    A failed run's captured output opens with startup logging — ``logging_
+    configured``, ``config_loaded`` — and the sentence that matters arrives
+    several lines later, past the display bound :func:`_short` applies.  Naming
+    the offending key is the point of surfacing the failure at all, so pick the
+    diagnosis out of the stream rather than the first 300 characters of it:
+    the ``config_issue`` payloads when the validator produced them, else the
+    lines that report an error, else the raw text unchanged.
+    """
+    raw = stderr.strip() or stdout_clean.strip()
+    if not raw:
+        return ""
+
+    issues = _CONFIG_ISSUE_RE.findall(raw)
+    if issues:
+        return "; ".join(dict.fromkeys(issues))  # de-duplicated, order preserved
+
+    diagnostic = [
+        line.strip()
+        for line in raw.splitlines()
+        if line.strip() and _DIAGNOSTIC_LINE_RE.search(line)
+    ]
+    return " ".join(diagnostic) if diagnostic else raw
 
 
 # --------------------------------------------------------------------------- #
@@ -122,6 +171,17 @@ def _report_path(stdout_clean: str, log_dir) -> Optional[Path]:
     return None
 
 
+def _scan_completed(stdout_clean: str) -> bool:
+    """Whether this run's own output proves the scan itself finished (PD-BUG-132).
+
+    ``main.py --validate`` prints the summary block and then the ``Report
+    written to`` line only after :class:`~linkwatcher.validator.LinkValidator`
+    has run; a run that aborts earlier prints neither.  Either marker is
+    therefore sufficient evidence that a report belongs to *this* run.
+    """
+    return bool(_REPORT_WRITTEN_RE.search(stdout_clean) or _BROKEN_COUNT_RE.search(stdout_clean))
+
+
 def _count_from_report(report_path: Path) -> Optional[int]:
     try:
         text = Path(report_path).read_text(encoding="utf-8")
@@ -135,7 +195,9 @@ def parse_validation_result(result: RunResult, log_dir) -> ValidationRun:
     """Map a finished ``--validate`` subprocess to a :class:`ValidationRun`.
 
     Never renders a failure as success (EC-6): only exit 0, or exit 1 with a
-    locatable report, produce a result state.
+    locatable report that *this run* is shown to have produced, yield a result
+    state.  A locatable report alone is not enough — see :func:`_scan_completed`
+    and PD-BUG-132.
     """
     if result.timed_out:
         return ValidationRun(
@@ -149,14 +211,14 @@ def parse_validation_result(result: RunResult, log_dir) -> ValidationRun:
     if result.returncode == 0:
         return ValidationRun(state="ok", broken_count=0, report_path=report)
 
-    if result.returncode == 1 and report is not None:
+    if result.returncode == 1 and report is not None and _scan_completed(stdout_clean):
         count = _count_from_report(report)
         if count is None:
             match = _BROKEN_COUNT_RE.search(stdout_clean)
             count = int(match.group(1)) if match else None
         return ValidationRun(state="broken", broken_count=count, report_path=report)
 
-    reason = result.stderr.strip() or stdout_clean.strip()
+    reason = _failure_reason(result.stderr, stdout_clean)
     if not reason:
         reason = f"Validator exited with code {result.returncode} and no output"
     return ValidationRun(state="failed", error=_short(reason))

@@ -112,20 +112,6 @@ The task-based approach helps to:
 | ---- | ----------- |
 | [Documentation Tier Adjustment Task](cyclical/documentation-tier-adjustment-task.md) | Adjust documentation requirements |
 | [Technical Debt Assessment Task](cyclical/technical-debt-assessment-task.md) | Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase |
-
-### Support Tasks
-
-| Task | Description |
-| ---- | ----------- |
-| [Framework Domain Adaptation](support/framework-domain-adaptation.md) | Systematically adapt the process framework from one business domain to another while preserving core structure |
-| [Framework Evaluation](support/framework-evaluation.md) | Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability |
-| [Framework Extension Task](support/framework-extension-task.md) | Support task for fundamentally extending the framework with new functionalities and capabilities |
-| [Framework Rollout](support/framework-rollout-task.md) | Deploy framework code from a producer face's canonical blueprint tree to its registered children. |
-| [IMP Triage](support/imp-triage-task.md) | Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected. |
-| [New Task Creation Process](support/new-task-creation-process.md) | Complete process for creating new tasks from concept to implementation-ready definition |
-| [Process Improvement](support/process-improvement-task.md) | Improve development processes |
-| [Structure Change Task](support/structure-change-task.md) | Manage structural changes to documentation |
-| [Tools Review Task](support/tools-review-task.md) | Review and improve project tools and templates |
 <!-- END GENERATED: task-catalog -->
 
 ## Task Structure

@@ -63,7 +63,7 @@ param(
 
 # Configuration
 $ScriptName = "Update-TechnicalDebtFromAssessment.ps1"
-$UpdateScript = $null  # resolved after module import (needs Get-ProcessFrameworkPath)
+$UpdateScript = $null  # resolved below from this script's own directory (co-located sibling)
 
 # Import the common helpers with walk-up path resolution
 $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
@@ -90,7 +90,12 @@ catch {
 if ([string]::IsNullOrWhiteSpace($AssessmentDirectory)) {
     $AssessmentDirectory = Join-Path (Get-ProjectRoot) "doc/technical-debt"
 }
-$UpdateScript = Join-Path (Get-ProcessFrameworkPath) "scripts/update/Update-TechDebt.ps1"
+# Update-TechDebt.ps1 is a co-located sibling (same scripts/update/ directory in every tree this
+# script ships in), so resolve it from this script's own location — not through the workspace's
+# Read face (Get-ProcessFrameworkPath): at a framework face post-cutover that is the received
+# consumer tree, which carries no domain scripts, so the Read-face path misses (PF-PRO-068
+# Session F rule: a script resolves its co-located resources from the face it lives in).
+$UpdateScript = Join-Path $scriptDir "Update-TechDebt.ps1"
 
 function Test-Prerequisites {
     Write-ProjectLog "Checking prerequisites..."

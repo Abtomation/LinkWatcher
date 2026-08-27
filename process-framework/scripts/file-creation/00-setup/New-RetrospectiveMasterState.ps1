@@ -69,14 +69,16 @@ try {
 
 # Resolve paths (Phase 5.5: configurable framework subtree via paths.process_framework)
 $processFrameworkDir = Get-ProcessFrameworkPath
-$templatePath = Join-Path $processFrameworkDir "templates/00-setup/retrospective-state-template.md"
+$templateCandidate = Join-Path $processFrameworkDir "templates/00-setup/retrospective-state-template.md"
 $stContext = Get-StateTrackingContext
 $outputDir = Join-Path $stContext.StateTrackingRoot "temporary"
 $outputFile = Join-Path $outputDir "retrospective-master-state.md"
 
-# Validate template exists
-if (-not (Test-Path $templatePath)) {
-    Write-ProjectError -Message "Retrospective state template not found at: $templatePath" -ExitCode 1
+# Validate template exists — two-face resolution (PF-IMP-1999): at a framework face this domain
+# template lives in the producer blueprint, not on the Read face; the helper retries there.
+$templatePath = Resolve-TemplateFacePath -TemplatePath $templateCandidate
+if (-not $templatePath) {
+    Write-ProjectError -Message "Retrospective state template not found at: $templateCandidate (both workspace faces checked)" -ExitCode 1
 }
 
 # Check if file already exists

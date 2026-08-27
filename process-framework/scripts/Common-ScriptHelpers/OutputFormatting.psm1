@@ -1,4 +1,4 @@
-﻿# OutputFormatting.psm1
+# OutputFormatting.psm1
 # Output formatting and utility functions for PowerShell scripts
 # Provides standardized messaging, path operations, and string utilities
 
@@ -15,6 +15,7 @@ This module provides standardized functionality for:
 - File conflict handling
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 3.0 (Modularized from Common-ScriptHelpers v2.0)
 Created: 2025-08-26
 #>

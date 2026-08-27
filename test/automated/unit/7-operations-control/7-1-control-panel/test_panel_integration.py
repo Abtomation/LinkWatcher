@@ -398,7 +398,16 @@ def test_parallel_shutdown_resolves_every_row(
 ):
     """INT-5: three running daemons — fast, at-boundary, never-quiescent — all
     resolve (STOPPED / STOPPED / FORCE_STOPPED) and the exit condition is
-    reached (AC-7)."""
+    reached (AC-7).
+
+    The boundary moved with PD-BUG-136 CR F1: any log activity during the drain
+    re-arms the required silence to the project's `move_detect_delay` (10 s by
+    default here, no config file), so a clean stop now needs activity to have
+    ceased by grace − window ≈ 10 s rather than by grace − idle ≈ 17 s. Beta
+    quiets at 8 s to sit just inside that boundary; at its former 15 s it now
+    force-stops, which is the honest outcome — a daemon still logging at 15 s
+    could have buffered a delete whose correlation outlives the grace period.
+    """
     alpha = make_project("PRJ-001", "alpha")
     beta = make_project("PRJ-002", "beta")
     gamma = make_project("PRJ-003", "gamma")
@@ -415,7 +424,7 @@ def test_parallel_shutdown_resolves_every_row(
     assert all(row.status is DaemonStatus.RUNNING for row in pipeline.model.rows())
 
     stat = RoutedLogStat(fake_clock)
-    stat.quiet_after = {"alpha": 0.0, "beta": 15.0, "gamma": None}
+    stat.quiet_after = {"alpha": 0.0, "beta": 8.0, "gamma": None}
     controller = pipeline.controller(
         fake_process_table, fake_runner, fake_terminator, fake_clock, stat
     )
@@ -434,7 +443,8 @@ def test_parallel_shutdown_resolves_every_row(
     assert pipeline.status("PRJ-002") is DaemonStatus.STOPPED
     assert pipeline.status("PRJ-003") is DaemonStatus.FORCE_STOPPED
     assert sorted(fake_terminator.terminated) == [100, 101, 200, 201, 300, 301]
-    # Sequential fake time ≈ 3 (alpha) + 15+3 (beta) + 20 (gamma forced) s.
+    # Sequential fake time ≈ 3 (alpha, never re-armed) + 8+10 (beta, re-armed to
+    # the 10 s window by its own activity) + 20 (gamma forced) s.
     assert 35.0 <= fake_clock.now <= 45.0
 
 
@@ -759,6 +769,10 @@ def panel_log(tmp_path):
     Configures the shared panel logger against a temp install dir and yields a
     reader for its contents; handlers are closed on teardown so no file handle
     outlives the test (Windows would otherwise block temp cleanup).
+
+    Restoring the logger's own state (level, propagate, handler list) is the
+    autouse ``_isolate_panel_logger`` fixture's job — doing it by hand here is
+    what leaked an INFO level into the rest of the session (PD-BUG-125).
     """
     install = tmp_path / "panel-install"
     setup_panel_log(install, to_console=False)
@@ -773,7 +787,6 @@ def panel_log(tmp_path):
     for handler in logger.handlers[:]:
         handler.close()
         logger.removeHandler(handler)
-    logger.propagate = True
 
 
 class ExplodingRunner:

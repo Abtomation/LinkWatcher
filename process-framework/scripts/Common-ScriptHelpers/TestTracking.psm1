@@ -1,4 +1,4 @@
-﻿# TestTracking.psm1
+# TestTracking.psm1
 # Test tracking operations and marker management
 # Extracted from StateFileManagement.psm1 as part of module decomposition
 #
@@ -21,6 +21,7 @@ This is a focused module extracted from StateFileManagement.psm1 to improve
 maintainability and reduce complexity.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 2.0 (Marker-Based — SC-007)
 Created: 2025-08-30
 Updated: 2026-03-26

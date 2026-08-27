@@ -62,6 +62,7 @@
     Run-Tests.ps1 -Category unit -UpdateTracking
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Config: doc/project-config.json (project settings) + process-framework/languages-config/{language}/{language}-config.json (commands).
     Categories are auto-discovered from test directory subdirectories.
 #>

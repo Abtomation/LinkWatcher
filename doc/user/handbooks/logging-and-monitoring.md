@@ -3,9 +3,9 @@ id: PD-UGD-006
 description: "Guide to configuring logging output, file logging, log rotation, and the real-time monitoring dashboard"
 type: Product Documentation
 category: User Guide
-version: 1.0
+version: 1.1
 created: 2026-04-16
-updated: 2026-04-16
+updated: 2026-08-18
 handbook_category: usage
 handbook_name: Logging and Monitoring
 ---
@@ -80,7 +80,7 @@ Use it with:
 python main.py --config my-config.yaml
 ```
 
-See [config-examples/logging-config.yaml](/config-examples/logging-config.yaml) for a complete example with all settings.
+See [config-examples/logging-config.yaml](../../../config-examples/logging-config.yaml) for a complete example with all settings.
 
 ## Console Output
 
@@ -239,10 +239,10 @@ If the file grows beyond `log_file_max_size_mb`, rotation should trigger automat
 
 ## Related Documentation
 
-- [Quick Reference](/doc/user/handbooks/quick-reference.md) — CLI options, config basics, environment variables
-- [Configuration Guide](/doc/user/handbooks/configuration-guide.md) — Complete configuration reference
-- [Capabilities Reference](/doc/user/handbooks/linkwatcher-capabilities-reference.md) — What LinkWatcher detects and updates
-- [config-examples/logging-config.yaml](/config-examples/logging-config.yaml) — Example logging configuration
+- [Quick Reference](quick-reference.md) — CLI options, config basics, environment variables
+- [Configuration Guide](configuration-guide.md) — Complete configuration reference
+- [Capabilities Reference](linkwatcher-capabilities-reference.md) — What LinkWatcher detects and updates
+- [config-examples/logging-config.yaml](../../../config-examples/logging-config.yaml) — Example logging configuration
 
 ---
 

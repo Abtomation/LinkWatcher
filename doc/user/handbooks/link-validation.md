@@ -3,9 +3,9 @@ id: PD-UGD-003
 description: "On-demand workspace scan for broken file references using --validate"
 type: Product Documentation
 category: User Guide
-version: 1.0
+version: 1.1
 created: 2026-03-27
-updated: 2026-03-27
+updated: 2026-08-18
 handbook_category: usage
 handbook_name: Link Validation
 ---
@@ -76,7 +76,13 @@ Each broken link shows:
 | Code | Meaning |
 |------|---------|
 | `0` | All links are valid |
-| `1` | One or more broken links found |
+| `1` | One or more broken links found, **or** the configuration is invalid |
+
+A run whose configuration is invalid exits `1` before scanning, naming each
+offending key as a `config_issue` line, and writes no report. This matches the
+daemon, which refuses to start on the same configuration (PD-BUG-128) - a
+diagnostic command must not hand back a clean result for a configuration the
+product rejects everywhere else.
 
 This makes `--validate` suitable for CI/CD pipelines:
 
@@ -155,7 +161,7 @@ path_resolution_overrides:
 - **Not validation-only** (since v2.2): the same override also drives the **live update path** — moving or renaming files inside an override folder rewrites the folder's `/...` cross-references, preserving their virtual-root style. See the [Configuration Guide](configuration-guide.md#per-folder-path-resolution-override-path_resolution_overrides) for the live-update behavior and safety guards.
 - Set this via a config file; like `parser_type_extensions`, it is **not** configurable via a `LINKWATCHER_*` environment variable.
 
-See [config-examples/linkwatcher-config.yaml](/config-examples/linkwatcher-config.yaml) for a complete example.
+See [config-examples/linkwatcher-config.yaml](../../../config-examples/linkwatcher-config.yaml) for a complete example.
 
 ## Combining with Other Options
 
@@ -212,9 +218,9 @@ Use `--log-file` to control where the report lands.
 
 ## Related Documentation
 
-- [Quick Reference](/doc/user/handbooks/quick-reference.md) — All CLI options and configuration
-- [Multi-Project Setup](/doc/user/handbooks/multi-project-setup.md) — Using LinkWatcher across multiple projects
-- [README](/README.md) — Project overview and installation
+- [Quick Reference](quick-reference.md) — All CLI options and configuration
+- [Multi-Project Setup](multi-project-setup.md) — Using LinkWatcher across multiple projects
+- [README](../../../README.md) — Project overview and installation
 
 ---
 

@@ -2,9 +2,9 @@
 id: PF-MAI-000
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2025-05-29
-updated: 2025-05-29
+updated: 2026-08-15
 ---
 
 # Process Framework Documentation
@@ -33,7 +33,7 @@ The Process Framework documentation is organized into the following directories:
 
   - **[doc/state-tracking/permanent](../doc/state-tracking/permanent)**: Project-local long-term state files (feature-tracking, bug-tracking, technical-debt-tracking, etc.)
   - **[doc/state-tracking/temporary](../doc/state-tracking/temporary)**: Project-local short-term implementation tracking
-  - **appdev/process-framework-central/state-tracking/**: Cross-project tracking (e.g., process-improvement-tracking.md) — resolved via the project's `.framework-central-pointer`
+  - **appdev/process-framework-central/state-tracking/**: Cross-project tracking (e.g., process-improvement-tracking.md) — resolved via the project's `.framework-parent-pointer` (legacy name `.framework-central-pointer`)
 
 - **[templates/](../process-framework/templates)**: Templates for creating consistent process documents
 

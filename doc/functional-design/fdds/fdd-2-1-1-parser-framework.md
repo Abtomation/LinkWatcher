@@ -79,12 +79,12 @@ retrospective: true
 
 ### Acceptance Criteria
 
-- **2.1.1-AC-1**: Given a `.md` file, `parse_file()` returns markdown link references — including `[text](path)` links, reference-style `[label]: path` definitions, HTML `<a href>` tags, quoted file/directory paths (`"path"`, `'path'`), backtick-delimited file/directory paths (`` `path` ``), and standalone file references
+- **2.1.1-AC-1**: Given a `.md` file, `parse_file()` returns markdown link references — including `[text](path)` links, reference-style `[label]: path` definitions, HTML `<a href>` tags, quoted file/directory paths (`"path"`, `'path'`), backtick-delimited file/directory paths (`` `path` ``), and standalone file references A quoted or backtick-delimited path counts only when its delimiters are **properly paired**: the text between two separate literals is not a reference (PD-BUG-135).
 - **2.1.1-AC-2**: Given a `.yaml` file, `parse_file()` returns YAML-format file path references
 - **2.1.1-AC-3**: Given a `.py` file, `parse_file()` returns Python import path references and file/directory path references in quoted string literals
 - **2.1.1-AC-4**: Given a file with extension `.xyz` (unregistered), `parse_file()` returns whatever `GenericParser` extracts — not an empty list by default
 - **2.1.1-AC-5**: After `add_parser('.toml', custom_parser)`, calling `parse_file('pyproject.toml')` routes to `custom_parser`
-- **2.1.1-AC-5b**: Given a `.ps1` file, `parse_file()` returns PowerShell file path references from comments (`#`, `<# #>`), quoted string literals (file and directory paths), and embedded markdown links
+- **2.1.1-AC-5b**: Given a `.ps1` file, `parse_file()` returns PowerShell file path references from comments (`#`, `<# #>`), quoted string literals (file and directory paths), and embedded markdown links A quoted or backtick-delimited path counts only when its delimiters are **properly paired**: the text between two separate literals is not a reference (PD-BUG-135).
 - **2.1.1-AC-6**: `get_supported_extensions()` returns at minimum `['.md', '.markdown', '.yaml', '.yml', '.json', '.py', '.dart', '.ps1', '.psm1']`
 - **2.1.1-AC-7**: Performance timing is logged for every `parse_file()` call
 

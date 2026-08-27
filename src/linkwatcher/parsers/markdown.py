@@ -263,6 +263,9 @@ class MarkdownParser(BaseParser):
         refs = []
         for match in self.quoted_dir_pattern.finditer(line):
             potential_dir = match.group(1)
+            # PD-BUG-135: reject the span BETWEEN two quoted literals.
+            if not self._is_paired_delimiter(line, match):
+                continue
             _, ext = os.path.splitext(potential_dir)
             if ext:
                 continue
@@ -352,6 +355,10 @@ class MarkdownParser(BaseParser):
         refs = []
         for match in self.backtick_dir_pattern.finditer(line):
             potential_dir = match.group(1)
+            # PD-BUG-135: reject the span BETWEEN two backticked literals --
+            # the dominant real shape (`a` / `b` yielded " / " 383 times).
+            if not self._is_paired_delimiter(line, match):
+                continue
             _, ext = os.path.splitext(potential_dir)
             if ext:
                 continue

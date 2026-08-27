@@ -35,6 +35,162 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+# Numeric fields whose lower bound differs from the default "must be positive".
+#
+# ``log_file_backup_count: 0`` is a real setting rather than a mistake:
+# ``TimestampRotatingFileHandler.doRollover`` guards its pruning branch with
+# ``if self.backupCount > 0``, so 0 means "rotate but never prune".  Applying
+# the blanket positive rule here would reject a value the code deliberately
+# handles (PD-BUG-127).
+#
+# ``watch_liveness_failure_threshold: 2`` is the opposite case — a floor that
+# rejects values the default rule would *accept*.  1 is positive, so nothing
+# else here would stop it, yet it makes the first missed probe stop the daemon
+# and silently voids the guarantee stated in FDD 1.1.1-EC-11 that a single
+# missed probe never does (PD-BUG-139).
+_NUMERIC_MINIMUMS = {"log_file_backup_count": 0, "watch_liveness_failure_threshold": 2}
+
+# Fields where the schema's ``int`` is load-bearing at runtime, not merely
+# nominal.  ``doRollover`` slices with ``backups[self.backupCount:]``, and a
+# slice index must be a real ``int`` — ``3.5`` *and* ``3.0`` both raise
+# ``TypeError`` there, long after startup (PD-BUG-127).
+_WHOLE_NUMBER_MESSAGE = "a whole number"
+
+
+def _schema_fields(*wanted) -> tuple:
+    """Names of ``LinkWatcherConfig`` fields whose declared type is in ``wanted``.
+
+    Coverage is derived from the dataclass rather than listed by hand, so a
+    field added to the schema cannot be silently left unvalidated.  That is the
+    exact failure this bug records: ``validate()`` iterated a hardcoded list of
+    five numeric fields while the schema declared seven, and the two omissions
+    (``log_file_max_size_mb``, ``log_file_backup_count``) reached the logging
+    handler unchecked (PD-BUG-127).  The same hardcoding in the former
+    ``_SET_FIELDS`` tuple was tracked as TD275 and is closed by this helper.
+    """
+    hints = get_type_hints(LinkWatcherConfig)
+    return tuple(
+        f.name for f in dataclasses.fields(LinkWatcherConfig) if hints.get(f.name) in wanted
+    )
+
+
+def _numeric_issue(name: str, value: Any) -> Optional[str]:
+    """Issue text for one numeric field, or ``None`` when the value is valid.
+
+    Order matters: the "is it a number at all" check runs first so that a
+    ``str`` or ``bool`` on an ``int``-declared field keeps the wording the
+    PD-BUG-123 suite pins byte-identically.
+    """
+    if not _is_number(value):
+        return _wrong_type(name, value, "a number")
+
+    # An ``int``-declared field means a real ``int``: a whole-valued float is
+    # still rejected by a slice index (PD-BUG-127).
+    if name in _schema_fields(int) and not isinstance(value, int):
+        return _wrong_type(name, value, _WHOLE_NUMBER_MESSAGE)
+
+    minimum = _NUMERIC_MINIMUMS.get(name)
+    if minimum is None:
+        if value <= 0:
+            return f"{name} must be positive"
+    elif value < minimum:
+        # A floor of 0 reads naturally as "not negative"; any other floor has
+        # to state the number, or the message misdescribes the rule.
+        return (
+            f"{name} must not be negative" if minimum == 0 else f"{name} must be at least {minimum}"
+        )
+
+    return None
+
+
+def is_usable(name: str, value: Any) -> bool:
+    """True when ``value`` is a valid setting for the numeric field ``name``.
+
+    Exposed for ``main._apply_logging_config``, which consumes two numeric
+    fields *before* ``validate()`` runs and must degrade to the schema default
+    rather than carry an unusable value into the logging handler (PD-BUG-127).
+    """
+    return _numeric_issue(name, value) is None
+
+
+def schema_default(name: str) -> Any:
+    """The dataclass default for ``name`` — the value to fall back to."""
+    for f in dataclasses.fields(LinkWatcherConfig):
+        if f.name == name:
+            return f.default
+    raise KeyError(name)
+
+
+def _is_number(value: Any) -> bool:
+    """True for a real int/float, excluding ``bool``.
+
+    ``bool`` is a subclass of ``int``, so ``max_file_size_mb: true`` would
+    otherwise satisfy ``value <= 0`` as False and sail through validation as a
+    silent size of 1 (PD-BUG-123).
+    """
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _is_string_collection(value: Any) -> bool:
+    """True for a collection of strings — the authored form of a ``Set[str]``.
+
+    A bare ``str`` is deliberately excluded: ``monitored_extensions: ".md"``
+    used to be coerced by ``set(value)`` into ``{'.', 'm', 'd'}``, turning one
+    plausible operator mistake into three nonsense extensions (PD-BUG-123).
+    """
+    if not isinstance(value, (set, frozenset, list, tuple)):
+        return False
+    return all(isinstance(item, str) for item in value)
+
+
+def _wrong_type(name: str, value: Any, expected: str) -> str:
+    """Render the issue text for a type-invalid config value."""
+    return f"{name} must be {expected} (got {type(value).__name__})"
+
+
+def _extension_fields() -> tuple:
+    """Names of ``LinkWatcherConfig`` fields whose values are file extensions.
+
+    Membership follows the ``_extensions`` name suffix every such field already
+    uses, so a field added later is checked without being listed here — the
+    same derive-rather-than-list rule ``_schema_fields`` applies to the numeric
+    checks.  Naming one field literally is exactly what let the other two
+    through: ``validation_extensions`` and ``parser_type_extensions`` were both
+    unchecked, and both fail silently by matching nothing (PD-BUG-129).
+    """
+    return tuple(
+        f.name for f in dataclasses.fields(LinkWatcherConfig) if f.name.endswith("_extensions")
+    )
+
+
+def _extension_issues(name: str, value: Any) -> List[str]:
+    """Issues for one extension-bearing field — empty when every entry is sound.
+
+    Two declared shapes carry extensions: a ``Set[str]`` holds them directly,
+    while ``parser_type_extensions`` is a ``Dict[str, str]`` whose *values* are
+    the extensions.  A wrongly typed value produces nothing here — the type
+    check in ``validate()`` already names that key, and a second issue for the
+    same key would only bury it (the PD-BUG-123 ordering rule).
+
+    Case is deliberately not an issue: ``should_monitor_file`` compares
+    extensions case-insensitively, so ``.MD`` is a working entry rather than a
+    mistake.  A *missing dot* is an issue because it can never match a
+    ``splitext`` suffix, which always carries one.
+    """
+    if isinstance(value, dict):
+        entries = [v for v in value.values() if isinstance(v, str)]
+    elif _is_string_collection(value):
+        entries = list(value)
+    else:
+        return []
+
+    # Sorted so the issue list is stable — these fields are sets.
+    return [
+        f"{name} entry '{entry}' should start with a dot"
+        for entry in sorted(entries)
+        if not entry.startswith(".")
+    ]
+
 
 @dataclass
 class LinkWatcherConfig:
@@ -46,9 +202,18 @@ class LinkWatcherConfig:
         3. Configuration file (YAML/JSON) — loaded via ``from_file(path)``
         4. Dataclass defaults — defined on each field below
 
-    Use ``merge()`` to combine two configs: the *other* config's non-default
+    Use ``merge()`` to combine two configs: the *other* config's explicitly set
     values override *this* config's values, which enables the precedence
     chain (e.g., ``file_config.merge(env_config).merge(cli_config)``).
+
+    "Explicitly set" means assigned *after* construction — which is what
+    ``_from_dict()`` and ``from_env()`` both do, so the file and environment
+    layers are recorded automatically.  ``merge()`` used to infer it from
+    ``value != default`` instead, which cannot distinguish a field set to its
+    own default from one never set at all, so an environment variable set to a
+    default was silently discarded and the config file won (PD-BUG-143).  A
+    config built by keyword records nothing and keeps the historical
+    value-vs-default behaviour, so library callers are unaffected.
 
     Configuration groups:
         - **File monitoring**: ``monitored_extensions``, ``ignored_directories``
@@ -245,6 +410,53 @@ class LinkWatcherConfig:
     dir_move_max_timeout: float = 300.0
     dir_move_settle_delay: float = 5.0
 
+    # Watch liveness monitoring (PD-BUG-139).  A watchdog observer can stay
+    # alive while its event emitter is gone, leaving the daemon permanently
+    # blind but reporting healthy.  These settings govern the delivery check
+    # that detects it.  Defaults are deliberately conservative: the probe only
+    # runs after a minute of total silence, and three consecutive misses are
+    # required before the daemon stops, so a momentarily slow filesystem
+    # cannot take down a working watch.
+    watch_liveness_enabled: bool = True
+    watch_liveness_idle_seconds: float = 60.0
+    watch_liveness_probe_timeout: float = 10.0
+    watch_liveness_failure_threshold: int = 3
+
+    # ``_EXPLICIT`` is bookkeeping, not a schema field: it is deliberately not
+    # declared as a dataclass field so it stays out of ``dataclasses.fields()``
+    # — which the validation helpers, the schema-drift test and the docs
+    # generator all derive their coverage from.  It lives in ``__dict__``, so
+    # every consumer that walks ``__dict__`` (``to_dict`` and both ``merge``
+    # loops — the only three in the codebase) skips ``_``-prefixed keys.
+    _EXPLICIT = "_explicit_fields"
+
+    def __post_init__(self):
+        """Start recording assignments once the generated ``__init__`` is done.
+
+        The record has to be created *here* rather than as a field: the
+        dataclass ``__init__`` assigns every field through ``__setattr__``, so
+        a record that already existed during ``__init__`` would mark all 39
+        fields as explicitly set — and ``from_env()``, which starts from a
+        plain ``cls()``, would then override every field in the config it is
+        merged into (PD-BUG-143).
+        """
+        object.__setattr__(self, self._EXPLICIT, set())
+
+    def __setattr__(self, name: str, value: Any):
+        """Record post-construction assignments so ``merge()`` knows intent.
+
+        During ``__init__`` the record does not exist yet and nothing is
+        tracked — see ``__post_init__``.
+        """
+        explicit = self.__dict__.get(self._EXPLICIT)
+        if explicit is not None and not name.startswith("_"):
+            explicit.add(name)
+        object.__setattr__(self, name, value)
+
+    def _explicitly_set(self) -> Set[str]:
+        """Field names assigned after construction (empty for a plain build)."""
+        return self.__dict__.get(self._EXPLICIT) or set()
+
     @classmethod
     def from_file(cls, config_path: str) -> "LinkWatcherConfig":
         """Load configuration from a file."""
@@ -290,9 +502,14 @@ class LinkWatcherConfig:
             if key.startswith("_") or key not in known_fields:
                 continue
             field_type = type_hints.get(key)
-            if field_type is Set[str] or field_type is set:
+            if (field_type is Set[str] or field_type is set) and _is_string_collection(value):
                 setattr(config, key, set(value))
             else:
+                # A wrongly typed value is stored as authored rather than
+                # coerced, so validate() can report it naming the key.  set()
+                # used to raise here on a non-iterable — before validate(), the
+                # function whose job is to report it, was ever reached
+                # (PD-BUG-123).
                 setattr(config, key, value)
 
         return config
@@ -351,6 +568,11 @@ class LinkWatcherConfig:
         result = {}
 
         for key, value in self.__dict__.items():
+            # ``_``-prefixed keys are bookkeeping (PD-BUG-143). This dict feeds
+            # ``save_to_file``, so letting one through would write a private
+            # attribute into the user's YAML or JSON.
+            if key.startswith("_"):
+                continue
             if isinstance(value, set):
                 result[key] = list(value)
             else:
@@ -390,58 +612,89 @@ class LinkWatcherConfig:
                     pass
 
     def merge(self, other: "LinkWatcherConfig") -> "LinkWatcherConfig":
-        """Merge this configuration with another, returning a new instance."""
+        """Merge this configuration with another, returning a new instance.
+
+        ``other`` wins for every field it set explicitly.  Where it recorded
+        nothing — a config built by keyword rather than loaded — the historical
+        ``value != default`` inference applies, so programmatic callers keep
+        their behaviour (PD-BUG-143).
+        """
         merged = LinkWatcherConfig()
         default_config = LinkWatcherConfig()
+        other_explicit = other._explicitly_set()
+
+        def _assign(key, value):
+            # object.__setattr__, not setattr: copying a field is not the
+            # caller expressing intent about it.  Recording these would mark
+            # all 39 fields explicit on the result, so merging that result
+            # into a third config would overwrite every field of the target.
+            object.__setattr__(merged, key, value.copy() if isinstance(value, set) else value)
 
         # Start with this config's values
         for key, value in self.__dict__.items():
-            if isinstance(value, set):
-                setattr(merged, key, value.copy())
-            else:
-                setattr(merged, key, value)
+            if key.startswith("_"):
+                continue
+            _assign(key, value)
 
-        # Override with other config's values, but only if they differ from defaults
+        # Override with the other config's values
         for key, value in other.__dict__.items():
-            default_value = getattr(default_config, key)
+            if key.startswith("_"):
+                continue
 
-            # Only override if the other config's value is different from default
-            if value != default_value:
-                if isinstance(value, set):
-                    setattr(merged, key, value.copy())
-                else:
-                    setattr(merged, key, value)
+            # Explicitly set wins outright — including when it equals the
+            # schema default, which is exactly the case the old
+            # value-vs-default inference discarded.
+            if key in other_explicit or value != getattr(default_config, key):
+                _assign(key, value)
+
+        # The result inherits both inputs' intent, so it can be merged again.
+        object.__setattr__(
+            merged, self._EXPLICIT, set(self._explicitly_set()) | set(other_explicit)
+        )
 
         return merged
 
     def validate(self) -> List[str]:
-        """Validate configuration and return list of issues."""
+        """Validate configuration and return list of issues.
+
+        **Never raises.** A wrongly typed value is reported as an issue naming
+        the key, not thrown (PD-BUG-123).  This method's contract is to *return*
+        what is wrong, and its callers rely on that: the daemon calls it during
+        startup inside a broad ``except Exception``, so an exception escaping
+        here becomes one generic ``fatal_error`` carrying a raw Python message
+        instead of the precise per-key ``config_issue`` lines written just below
+        that call — leaving the operator with no idea which key is at fault.
+        """
         issues = []
 
-        # Check file size limit
-        if self.max_file_size_mb <= 0:
-            issues.append("max_file_size_mb must be positive")
+        # Check every numeric field the schema declares.  Both the field set
+        # and the int-vs-number rule come from the dataclass type hints, so a
+        # numeric field added later cannot be left silently unvalidated the way
+        # the two log-rotation fields were (PD-BUG-127).
+        for name in _schema_fields(int, float):
+            issue = _numeric_issue(name, getattr(self, name))
+            if issue:
+                issues.append(issue)
 
-        # Check log level
+        # Check log level (a non-str value is reported as the same issue — the
+        # key still simply does not name a valid level)
         valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-        if self.log_level.upper() not in valid_log_levels:
+        if not isinstance(self.log_level, str) or self.log_level.upper() not in valid_log_levels:
             issues.append(f"log_level must be one of: {valid_log_levels}")
 
-        # Check extensions format
-        for ext in self.monitored_extensions:
-            if not ext.startswith("."):
-                issues.append(f"Extension '{ext}' should start with a dot")
+        # Check set-valued fields carry a collection of strings.  ``_from_dict``
+        # leaves a wrongly typed value raw instead of raising (PD-BUG-123), so
+        # every declared Set[str] must be checked here — otherwise that
+        # tolerance trades a loud load-time failure for a later runtime one.
+        for name in _schema_fields(Set[str], set):
+            value = getattr(self, name)
+            if not _is_string_collection(value):
+                issues.append(_wrong_type(name, value, "a list of strings"))
 
-        # Check scan progress interval
-        if self.scan_progress_interval <= 0:
-            issues.append("scan_progress_interval must be positive")
-
-        # Check move detection timing
-        if self.move_detect_delay <= 0:
-            issues.append("move_detect_delay must be positive")
-        if self.dir_move_max_timeout <= 0:
-            issues.append("dir_move_max_timeout must be positive")
-        if self.dir_move_settle_delay <= 0:
-            issues.append("dir_move_settle_delay must be positive")
+        # Check extensions format across every field that holds extensions —
+        # each only once the value itself is sound, since the type issue above
+        # already names a wrongly typed one.
+        for name in _extension_fields():
+            issues.extend(_extension_issues(name, getattr(self, name)))
 
         return issues

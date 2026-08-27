@@ -22,6 +22,7 @@ description: Creates state tracking files for monitoring project status
 additional_fields:
   state_type: "[STATE_TYPE]"
   tracking_scope: "[TRACKING_SCOPE]"
+owned_by: FWK-FB
 ---
 
 # [State File Name]

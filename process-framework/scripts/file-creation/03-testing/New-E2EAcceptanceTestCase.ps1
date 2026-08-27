@@ -268,9 +268,11 @@ try {
         if (Test-Path $masterTestFile) {
             Write-Warning "Master test already exists: $masterTestFile (skipping creation; -NewMaster is a no-op here)"
         } else {
-            # Create master test from template
-            $masterTemplatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/e2e-acceptance-master-test-template.md"
-            if (Test-Path $masterTemplatePath) {
+            # Create master test from template — two-face resolution (PF-IMP-1999): at a framework
+            # face this domain template lives in the producer blueprint, not on the Read face.
+            $masterTemplateCandidate = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/e2e-acceptance-master-test-template.md"
+            $masterTemplatePath = Resolve-TemplateFacePath -TemplatePath $masterTemplateCandidate
+            if ($masterTemplatePath) {
                 $masterContent = Get-Content $masterTemplatePath -Raw -Encoding UTF8
 
                 # Extract template content (everything after the frontmatter and instruction comments)
@@ -305,7 +307,7 @@ try {
                     Write-Verbose "Created master test: $masterTestFile"
                 }
             } else {
-                Write-Warning "Master test template not found: $masterTemplatePath"
+                Write-Warning "Master test template not found: $masterTemplateCandidate (both workspace faces checked)"
             }
         }
     }
@@ -365,9 +367,11 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
         }
     }
 
-    # --- 5. Create test-case.md from template ---
-    $testCaseTemplatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/e2e-acceptance-test-case-template.md"
-    if (Test-Path $testCaseTemplatePath) {
+    # --- 5. Create test-case.md from template — two-face resolution (PF-IMP-1999): at a framework
+    # face this domain template lives in the producer blueprint, not on the Read face.
+    $testCaseTemplateCandidate = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/e2e-acceptance-test-case-template.md"
+    $testCaseTemplatePath = Resolve-TemplateFacePath -TemplatePath $testCaseTemplateCandidate
+    if ($testCaseTemplatePath) {
         $testCaseContent = Get-Content $testCaseTemplatePath -Raw -Encoding UTF8
 
         # Extract template content after the marker
@@ -420,7 +424,7 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             Write-Verbose "Created test-case.md: $testCaseFile"
         }
     } else {
-        throw "Test case template not found: $testCaseTemplatePath"
+        throw "Test case template not found: $testCaseTemplateCandidate (both workspace faces checked)"
     }
 
     # --- 6. Update master test "If Failed" table ---

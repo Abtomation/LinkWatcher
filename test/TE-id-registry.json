@@ -28,7 +28,7 @@
         "templates": "test/e2e-acceptance-testing",
         "default": "templates"
       },
-      "nextAvailable": 15
+      "nextAvailable": 16
     },
     "TE-E2E": {
       "description": "E2E Acceptance Testing - Test Cases",
@@ -38,7 +38,7 @@
         "templates": "test/e2e-acceptance-testing",
         "default": "templates"
       },
-      "nextAvailable": 34
+      "nextAvailable": 42
     },
     "TE-TSP": {
       "description": "Test - Test Specifications",
@@ -62,7 +62,7 @@
         "main": "test/audits",
         "default": "unit"
       },
-      "nextAvailable": 98
+      "nextAvailable": 106
     },
     "TE-STA": {
       "description": "Test - State Tracking",
@@ -84,7 +84,7 @@
         "unit": "test/automated/unit",
         "default": "unit"
       },
-      "nextAvailable": 155
+      "nextAvailable": 161
     },
     "BM": {
       "description": "Performance - Benchmark Tests (Component Level 1, Operation Level 2)",

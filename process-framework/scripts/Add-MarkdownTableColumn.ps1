@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 Inserts a new column into a markdown feature table (optionally after a named column, with a default cell value).
 
@@ -27,6 +27,8 @@ invoke via `pwsh -Command` when overriding it.
 .PARAMETER SkipIfExists
 Whether to leave a table untouched when it already has a column of this name, rather than adding a
 duplicate. Defaults to $true. Same [bool] invocation caveat as -BackupFile.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]

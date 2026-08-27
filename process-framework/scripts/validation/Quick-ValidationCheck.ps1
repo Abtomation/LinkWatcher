@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 
 <#
 .SYNOPSIS
@@ -70,6 +70,7 @@ Quick-ValidationCheck.ps1 -CheckType "UI" -Severity "Warning" -FailOnError
 Validates UI components, shows warnings and errors, fails on critical issues
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 This script is part of the Feature Validation Framework.
 It provides rapid feedback complementing the comprehensive validation reports.
 #>

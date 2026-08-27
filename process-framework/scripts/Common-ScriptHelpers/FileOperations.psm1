@@ -19,6 +19,7 @@ This is a focused module extracted from StateFileManagement.psm1 to improve
 maintainability and reduce complexity.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 1.0 (Extracted Module)
 Created: 2025-08-30
 Extracted From: StateFileManagement.psm1

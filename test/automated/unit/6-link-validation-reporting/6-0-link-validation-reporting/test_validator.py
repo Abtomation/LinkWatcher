@@ -1426,3 +1426,59 @@ class TestPathResolutionOverrides:
 
         targets = {bl.target_path for bl in result.broken_links}
         assert "/process-framework/x.md" not in targets
+
+
+_BS = chr(92)
+
+
+class TestBug130EscapedCompoundUnderReport:
+    r"""PD-BUG-130, validation half: an escaped compound reference to a MISSING
+    target was neither counted nor listed, so ``--validate`` under-reported.
+
+    Two siblings on adjacent lines point at the same missing file and differ
+    only in spelling.  Pre-fix the forward-slash one was reported broken and the
+    escaped one was invisible -- a partial false-clean in the link-health audit,
+    the same family as PD-BUG-128 / PD-BUG-129.
+    """
+
+    def test_escaped_compound_broken_link_is_reported(self, tmp_path):
+        _create_file(
+            str(tmp_path),
+            "config.json",
+            "{\n"
+            '  "escaped": "Bash(python scripts' + _BS * 2 + "gone" + _BS * 2 + 'missing.py *)",\n'
+            '  "plain":   "Bash(python scripts/gone/missing.py *)"\n'
+            "}\n",
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        targets = {bl.target_path.replace(_BS, "/") for bl in result.broken_links}
+
+        assert "scripts/gone/missing.py" in targets, "plain sibling regressed"
+        assert (
+            len(result.broken_links) == 2
+        ), "escaped sibling under-reported: expected both spellings, got " "{!r}".format(
+            [(bl.line_number, bl.target_path) for bl in result.broken_links]
+        )
+        assert {bl.line_number for bl in result.broken_links} == {2, 3}
+
+    def test_escaped_compound_existing_target_is_not_reported(self, tmp_path):
+        """Control: when the target exists, neither spelling is broken."""
+        _create_file(str(tmp_path), "scripts/sub/run.py", "# target")
+        _create_file(
+            str(tmp_path),
+            "config.json",
+            "{\n"
+            '  "escaped": "Bash(python scripts' + _BS * 2 + "sub" + _BS * 2 + 'run.py *)",\n'
+            '  "plain":   "Bash(python scripts/sub/run.py *)"\n'
+            "}\n",
+        )
+
+        cfg = _make_config()
+        v = LinkValidator(str(tmp_path), cfg)
+        result = v.validate()
+
+        assert result.broken_links == []

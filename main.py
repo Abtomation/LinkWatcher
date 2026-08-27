@@ -34,6 +34,7 @@ try:
 
     from linkwatcher import LinkWatcherService, __version__
     from linkwatcher.config import DEFAULT_CONFIG, LinkWatcherConfig
+    from linkwatcher.config.settings import is_usable, schema_default
     from linkwatcher.logging import LogLevel, get_logger, setup_logging
     from linkwatcher.validator import LinkValidator
 except ImportError as e:
@@ -125,7 +126,17 @@ def _apply_logging_config(args, config: LinkWatcherConfig):
     elif args.quiet:
         level = LogLevel.ERROR
     else:
-        level = LogLevel(config.log_level)
+        try:
+            level = LogLevel(config.log_level)
+        except (ValueError, TypeError):
+            # PD-BUG-123: this runs BEFORE config.validate(), so an invalid
+            # log_level raised here pre-empted the very report that names it —
+            # the operator got a raw ValueError instead of a config_issue line.
+            # Come up on the default level so validate() below can do its job;
+            # it reports log_level and main() exits 1 with the offending key
+            # named.  Not a silent fallback: the issue is still fatal, it is
+            # just diagnosed by the function whose contract that is.
+            level = LogLevel.INFO
 
     log_file = args.log_file or config.log_file
     # PD-BUG-107: persist the effective log path on the config — the
@@ -133,15 +144,70 @@ def _apply_logging_config(args, config: LinkWatcherConfig):
     # (load_config never merges args.log_file).
     config.log_file = log_file
 
+    # PD-BUG-127: these two run BEFORE config.validate() as well, and an
+    # unusable value here never reaches the report that names it — it reaches
+    # the RotatingFileHandler instead, whose `if maxBytes > 0` raises TypeError
+    # and surfaces as a generic fatal_error, or (for the backup count) survives
+    # startup and breaks the first rollover, where the stdlib emit handler
+    # swallows it and rotated logs stop being pruned.  Same remedy as the
+    # log_level fallback above: come up on the schema default so validate()
+    # below can do its job.  Not a silent fallback — the value is still fatal,
+    # it is just diagnosed by the function whose contract that is.
+    max_size_mb = _usable_or_default(config, "log_file_max_size_mb")
+    backup_count = _usable_or_default(config, "log_file_backup_count")
+
     return setup_logging(
         level=level,
         log_file=log_file,
         colored_output=config.colored_output and not args.quiet,
         show_icons=config.show_log_icons and not args.quiet,
         json_logs=config.json_logs,
-        max_file_size=config.log_file_max_size_mb * 1024 * 1024,
-        backup_count=config.log_file_backup_count,
+        max_file_size=max_size_mb * 1024 * 1024,
+        backup_count=backup_count,
     )
+
+
+def _usable_or_default(config: LinkWatcherConfig, name: str):
+    """The configured value for `name`, or the schema default if unusable.
+
+    Shares one rule source with `validate()` (`config.settings.is_usable`), so
+    the value logging starts with and the value the operator is told about can
+    never disagree (PD-BUG-127).
+    """
+    value = getattr(config, name)
+    if is_usable(name, value):
+        return value
+    return schema_default(name)
+
+
+def _configure_logging_and_validate(args, config: LinkWatcherConfig):
+    """Bring logging up from the config, then report anything wrong with it.
+
+    PD-BUG-128: these two halves are one contract, not two steps a caller may
+    pick from.  ``_apply_logging_config`` deliberately degrades an unusable
+    value to the schema default (see the PD-BUG-123 / PD-BUG-127 notes above)
+    and defers naming the offending key to ``validate()`` -- which is only
+    honest while every caller runs the second half.  ``main()`` had two call
+    sites and only the daemon one did, so ``--validate`` came up on silent
+    defaults and reported a clean run for a config the daemon refuses to start
+    on.  Worse, the missing call gates *every* key ``validate()`` checks, so a
+    mistyped ``validation_extensions`` made the scan examine nothing and still
+    exit 0.  Binding the halves here makes the pairing structural: a caller
+    cannot take the fallback without the diagnosis.
+
+    Exits 1 on any issue, matching the daemon path rather than inventing a
+    second convention for the same failure.
+    """
+    logger = _apply_logging_config(args, config)
+
+    config_issues = config.validate()
+    if config_issues:
+        logger.error("configuration_validation_failed", issues=config_issues)
+        for issue in config_issues:
+            logger.error("config_issue", issue=issue)
+        sys.exit(1)
+
+    return logger
 
 
 def validate_project_root(project_root: str) -> Path:
@@ -395,7 +461,7 @@ Examples:
                 show_icons=not args.quiet,
             )
             config = load_config(args.config, args, project_root=str(project_root))
-            _apply_logging_config(args, config)
+            _configure_logging_and_validate(args, config)
             validator = LinkValidator(str(project_root), config)
 
             if not args.quiet:
@@ -446,16 +512,10 @@ Examples:
         # Load configuration
         config = load_config(args.config, args, project_root=str(project_root))
 
-        # Re-initialize logging from config (CLI args take precedence — see helper)
-        logger = _apply_logging_config(args, config)
-
-        # Validate configuration
-        config_issues = config.validate()
-        if config_issues:
-            logger.error("configuration_validation_failed", issues=config_issues)
-            for issue in config_issues:
-                logger.error("config_issue", issue=issue)
-            sys.exit(1)
+        # Re-initialize logging from config (CLI args take precedence — see
+        # helper), then validate it — one call, so the two can never drift apart
+        # per-branch again (PD-BUG-128)
+        logger = _configure_logging_and_validate(args, config)
 
         # Log startup information
         logger.info(

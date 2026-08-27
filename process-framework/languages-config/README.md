@@ -1,3 +1,7 @@
+---
+owned_by: FWK-FB
+---
+
 # Language Configurations
 
 This directory contains language-specific configuration files and templates used by framework scripts (e.g., `Run-Tests.ps1`).

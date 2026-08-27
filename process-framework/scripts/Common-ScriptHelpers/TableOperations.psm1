@@ -1,4 +1,4 @@
-﻿# TableOperations.psm1
+# TableOperations.psm1
 # Core markdown table manipulation functions
 # Extracted from StateFileManagement.psm1 as part of module decomposition
 #
@@ -38,6 +38,7 @@ Header-driven row construction (v2.4):
 - New-HeaderDrivenTableRow: Build a row ordered by the live table's headers (drift-proof)
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 2.4
 Created: 2025-08-30
 Updated: 2026-07-17

@@ -29,6 +29,7 @@
     location relative to this validator.
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit codes:
         0 = ValidateSet ↔ Build-ColumnMappingForMove are in sync
         1 = at least one ValidateSet member has no destination branch

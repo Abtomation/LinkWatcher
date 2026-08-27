@@ -11,7 +11,7 @@ execution_mode: scripted
 estimated_duration: 3 minutes
 source: Cross-Cutting Spec PF-TSP-044 S-018
 created: 2026-03-18
-updated: 2026-03-18
+updated: 2026-08-27
 ---
 
 # Test Case: TE-E2E-021 Stop Immediately After File Move
@@ -83,13 +83,13 @@ The `expected/` directory contains Outcome A (the fully updated state). The veri
 
 ### Behavioral Outcomes
 
-- LinkWatcher process exits cleanly (no crash, no hang)
+- LinkWatcher neither crashes nor hangs before `run.ps1` terminates it — the forced termination itself is expected and is not a failure (`Stop-Process -Force`; the daemon runs no Python shutdown code, so no shutdown record is written — see TE-E2E-020's scope note)
 - No error messages or stack traces in the log
 - readme.md is in exactly one of the two valid states described above
 
 ## Verification Method
 
-- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-021` — compares workspace against `expected/` (accepts Outcome A)
+- [ ] **Automated comparison**: Run `Verify-TestResult.ps1 -TestCase TE-E2E-021 -Workflow graceful-shutdown-no-corrupted-files` — compares workspace against `expected/` (accepts Outcome A)
 - [ ] **Manual fallback**: If automated comparison fails, manually check if readme.md matches Outcome B (unchanged link) — this is also a valid pass
 - [ ] **Log check**: Check application log for absence of errors, exceptions, or corruption warnings
 

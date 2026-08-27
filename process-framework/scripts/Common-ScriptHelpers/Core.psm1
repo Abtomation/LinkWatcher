@@ -14,6 +14,7 @@ This module provides essential infrastructure functionality:
 - Directory resolution for project IDs
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Version: 3.0 (Modularized from Common-ScriptHelpers v2.0)
 Created: 2025-08-26
 #>
@@ -139,9 +140,11 @@ function Get-ChildRegistryInfo {
       pre-P-13-shaped synthetic E2E worlds. The FWK-T shape is provisional — no FB sandbox row
       exists yet; it mirrors the mnemonic-T precedent the registry metadata cites.
     - LedgerDirName — the central migrations directory holding one per-child pending-migrations
-      ledger (per-project-migrations at a framework face, per-framework-migrations at FB —
-      Session B skeleton naming). Consumed by Register (ledger scaffold at registration) and,
-      once FB-level fan-out is wired, by New-PendingMigration.
+      ledger: 'migration-entries' at every producer role (unified by PF-PRO-069 R-12 — the
+      pre-unification names per-project-migrations/per-framework-migrations encoded the child
+      role in a directory name while the mechanism was already role-generic data). Consumed by
+      Register (ledger scaffold at registration) and, once FB-level fan-out is wired, by
+      New-PendingMigration.
 
     A leaf role (project, subject) has no children and therefore no child registry — that
     throws, because every caller is a fan-out/rollout operation that is meaningless at a leaf.
@@ -177,7 +180,7 @@ function Get-ChildRegistryInfo {
                 PinField           = 'current_substrate_version'
                 AcceptedChildRoles = @('framework')
                 SandboxKeyPattern  = '^FWK-T'
-                LedgerDirName      = 'per-framework-migrations'
+                LedgerDirName      = 'migration-entries'
             }
         }
         'framework' {
@@ -202,7 +205,7 @@ function Get-ChildRegistryInfo {
                 PinField           = 'current_framework_version'
                 AcceptedChildRoles = @('project')
                 SandboxKeyPattern  = $sandboxPattern
-                LedgerDirName      = 'per-project-migrations'
+                LedgerDirName      = 'migration-entries'
             }
         }
         default {

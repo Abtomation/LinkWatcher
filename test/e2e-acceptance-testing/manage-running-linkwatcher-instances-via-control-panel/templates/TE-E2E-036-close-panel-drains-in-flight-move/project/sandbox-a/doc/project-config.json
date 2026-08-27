@@ -1,0 +1,12 @@
+{
+  "project_id": "SBX-A",
+  "project": {
+    "name": "Sandbox A",
+    "display_name": "WF-010 Sandbox A",
+    "description": "Synthetic sandbox project for WF-010 Control Panel E2E acceptance tests. root_directory is stamped with the absolute workspace path by seed-sandbox.ps1; the launcher validates it with Test-Path, so the placeholder below never works as-is.",
+    "root_directory": "SET-AT-SEED-TIME-BY-seed-sandbox.ps1"
+  },
+  "paths": {
+    "process_framework": "process-framework"
+  }
+}

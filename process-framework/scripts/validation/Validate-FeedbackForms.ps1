@@ -20,6 +20,8 @@ Without this switch the script only reports. Subject to the -GraceMinutes recenc
 Recency guard for -FixIncomplete: forms modified within this many minutes are left in place,
 because a freshly created blank form may be mid-fill in another session. Defaults to 120; set to
 0 for a deliberate full sweep when nothing is known to be in flight.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding()]

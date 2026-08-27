@@ -32,6 +32,8 @@
 
 .EXAMPLE
     Validate-ProjectConfig.ps1 -Path "C:\proj\doc\project-config.json"
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 param(

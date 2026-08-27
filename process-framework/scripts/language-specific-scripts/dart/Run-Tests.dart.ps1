@@ -55,6 +55,7 @@
     Run-Tests.ps1 -ListCategories
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Config: doc/project-config.json (project settings) + process-framework/languages-config/dart/dart-config.json (commands).
     Requires the Flutter SDK on PATH and a pubspec.yaml at the project root (created during 0.x foundation work).
 #>

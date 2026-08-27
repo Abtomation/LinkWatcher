@@ -2,9 +2,9 @@
 id: PD-FDD-034
 type: Process Framework
 category: Functional Design Document
-version: 1.0
+version: 1.2
 created: 2026-06-29
-updated: 2026-06-29
+updated: 2026-08-27
 description: "Functional Design Document for LinkWatcher Control Panel (7.1.1)"
 feature_id: 7.1.1
 feature_name: LinkWatcher Control Panel
@@ -97,7 +97,7 @@ Per [PD-ASS-201](../../documentation-tiers/assessments/PD-ASS-201-7.1.1-linkwatc
 
 - **7-1-1-BR-1**: A project has **at most one** LinkWatcher daemon at any time (per-project singleton). The panel must not start a second daemon for a project that already has one running.
 - **7-1-1-BR-2**: Daemon identity is resolved per project (via the project's lock/PID), so the panel always acts on the correct daemon and never starts, stops, or terminates an unrelated process.
-- **7-1-1-BR-3**: Stopping a daemon — individually (7-1-1-FR-3) or via panel close (7-1-1-FR-7) — must **drain in-flight work first**: the daemon is allowed to finish buffered move-correlations and pending reference updates, and the panel waits for a quiescence signal (the daemon being idle, with no in-flight updates) before terminating it.
+- **7-1-1-BR-3**: Stopping a daemon — individually (7-1-1-FR-3) or via panel close (7-1-1-FR-7) — must **drain in-flight work first**: the daemon is allowed to finish buffered move-correlations and pending reference updates, and the panel waits for a quiescence signal (the daemon being idle, with no in-flight updates) before terminating it. The obligation is **bounded by 7-1-1-BR-7** and **limited to work the quiescence signal can observe**: the panel is a separate process and infers quiescence from the daemon's own observable activity, so in-flight work that produces no observable activity for longer than the drain's idle requirement is indistinguishable from an idle daemon and is not covered (7-1-1-EC-12). Where the two rules conflict, BR-7 wins — the drain is always bounded, and BR-3 is a best effort within that bound, never a guarantee that every correlation completes.
 - **7-1-1-BR-4**: Closing the panel terminates **all** running daemons it manages, including daemons it did not itself start (e.g. hook-started ones). Stopping link maintenance this way is accepted behavior; the next Claude session's `SessionStart` hook will restart the relevant daemon.
 - **7-1-1-BR-5**: The panel does **not** own automatic daemon start-up. The existing `SessionStart` hook remains the automatic start path; the panel provides manual start/stop plus shutdown-on-close, and coexists with hook-started daemons.
 - **7-1-1-BR-6**: A validation scan runs as a separate, short-lived operation that does not require stopping, and does not interfere with, a running daemon for the same project.
@@ -161,6 +161,9 @@ Per [PD-ASS-201](../../documentation-tiers/assessments/PD-ASS-201-7.1.1-linkwatc
 - **7-1-1-EC-9**: **Second panel instance** — the panel is launched (manually or by a hook auto-open) while one is already open. The panel avoids two instances issuing conflicting start/stop/close actions on the same daemons by surfacing the existing single window instead of opening a second; the exact mechanism is a design decision for the TDD.
 - **7-1-1-EC-10**: **Missing / malformed config** — the selected project's configuration file is absent or unparseable. The panel surfaces this clearly (e.g. shows effective defaults or a read error) rather than crashing, and does not overwrite the file with partial/garbage content.
 - **7-1-1-EC-11**: **Invalid config value** — the user edits a configuration value to something invalid. The panel validates on save, blocks the save, and explains what is wrong instead of persisting an invalid configuration.
+- **7-1-1-EC-12**: **Unobservable in-flight work** — a daemon is holding work that produces no observable activity, so the panel cannot distinguish it from an idle daemon and stops it as if the drain had succeeded. The known case is a **directory move whose first file-creation event has not yet arrived**: the daemon has buffered the directory deletion and is waiting, silently, for the matching creations. Stopping the panel inside that wait drops the pending reference updates for every file under the moved directory, and the stop is reported as clean rather than forced. Per 7-1-1-BR-7 the loss is bounded to *dropped, never corrupted* updates, and it is recoverable — a validation scan (7-1-1-FR-5) lists the resulting stale references so they can be corrected.
+
+  Two halves of this edge case close differently, and only one of them is out of reach. **Preventing** the loss would require a cooperative stop contract in which the daemon *holds* its stop until the correlation resolves. The daemon already *reports* the pending work — it logs the buffered directory delete at INFO — but reporting is not what is missing: the drain is bounded by 7-1-1-BR-7 while the wait is not (a correlation that has matched nothing may stay open far longer than the grace period), so no bounded drain can wait it out however well it is informed. That contract is deliberately out of MVP scope (see Notes). **Detecting** the condition needs no daemon-side contract — within one bound: the record the panel would read is written at INFO, so a project configured at `log_level: WARNING` or `ERROR` (the setting the shipped production example uses) writes nothing to detect, and the same levels already switch off the per-file drain protection entirely. At INFO or below the panel could read that record and report the stop as lossy rather than clean — closing the observability half without closing the data-loss half; above INFO the honest outcome is that the panel reports it *cannot determine* whether work was pending. That is deferred rather than impossible, and is tracked separately as **PD-FRQ-020**. Tracked as PD-BUG-140.
 
 ## Dependencies
 

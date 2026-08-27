@@ -355,10 +355,14 @@ function Update-OverallProgress {
 function Add-RegistryEntry {
     param([string[]]$Lines)
 
-    # Check if report already exists in registry (idempotent)
+    # Check whether the report already has a REGISTRY ROW (idempotent). Anchored to the row
+    # form on purpose: a bare substring scan also matched the feature-by-feature cells written
+    # by Update-FeatureByFeatureCells two steps earlier, whose ReportPath contains the ReportId
+    # under the framework's own report-naming convention — so the guard tripped on the same
+    # run's own write and the registry row was never added (PF-IMP-2158).
     $escapedId = [regex]::Escape($ReportId)
     foreach ($line in $Lines) {
-        if ($line -match $escapedId) {
+        if ($line -match "^\|\s*\[?$escapedId\]?") {
             Write-ProjectLog -Level "INFO" -Message "Registry entry for $ReportId already exists — skipping"
             return $Lines
         }

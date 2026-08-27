@@ -573,7 +573,9 @@ def test_poll_sequence_increases_per_pass(tmp_path, fake_process_table):
     assert len(set(sequences)) == 3
 
 
-def test_registry_errors_reach_the_panel_log_once_per_change(tmp_path, fake_process_table, caplog):
+def test_registry_errors_reach_the_panel_log_once_per_change(
+    tmp_path, fake_process_table, panel_log_capture
+):
     """CR-16: registry-load problems must be recorded, and not once per poll.
 
     `load_projects` *returns* its three errors rather than raising, so only
@@ -591,18 +593,17 @@ def test_registry_errors_reach_the_panel_log_once_per_change(tmp_path, fake_proc
         registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
     )
 
-    with caplog.at_level(logging.WARNING, logger=PANEL_LOGGER_NAME):
-        first = poller.poll_once()
-        poller._log_error_change(first.error)
-        second = poller.poll_once()
-        poller._log_error_change(second.error)
+    first = poller.poll_once()
+    poller._log_error_change(first.error)
+    second = poller.poll_once()
+    poller._log_error_change(second.error)
 
     assert first.error and "not valid JSON" in first.error
-    logged = [r for r in caplog.records if "discovery_error" in r.getMessage()]
+    logged = [m for m in panel_log_capture.messages if "discovery_error" in m]
     assert len(logged) == 1, "a persistent error must not be logged on every poll"
 
 
-def test_discovery_error_recovery_is_logged(tmp_path, fake_process_table, caplog):
+def test_discovery_error_recovery_is_logged(tmp_path, fake_process_table, panel_log_capture):
     """CR-16: the log must show when the registry came back, not just when it broke."""
     registry = tmp_path / "project-registry.json"
     registry.write_text("{ not json", encoding="utf-8")
@@ -610,12 +611,11 @@ def test_discovery_error_recovery_is_logged(tmp_path, fake_process_table, caplog
         registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
     )
 
-    with caplog.at_level(logging.INFO, logger=PANEL_LOGGER_NAME):
-        poller._log_error_change(poller.poll_once().error)
-        registry.write_text('{"projects": {}}', encoding="utf-8")
-        poller._log_error_change(poller.poll_once().error)
+    poller._log_error_change(poller.poll_once().error)
+    registry.write_text('{"projects": {}}', encoding="utf-8")
+    poller._log_error_change(poller.poll_once().error)
 
-    messages = [r.getMessage() for r in caplog.records]
+    messages = panel_log_capture.messages
     assert any(
         "discovery_error " in m or "discovery_error=" in m or "discovery_error" in m
         for m in messages
@@ -623,7 +623,7 @@ def test_discovery_error_recovery_is_logged(tmp_path, fake_process_table, caplog
     assert any("discovery_error_cleared" in m for m in messages)
 
 
-def test_poll_cycle_duration_is_logged(tmp_path, fake_process_table, caplog):
+def test_poll_cycle_duration_is_logged(tmp_path, fake_process_table, panel_log_capture):
     """CR-13: poll-cycle duration reaches the panel log (TDD §7.1).
 
     Discriminating condition: remove the instrumentation and no duration line is
@@ -636,16 +636,14 @@ def test_poll_cycle_duration_is_logged(tmp_path, fake_process_table, caplog):
         registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
     )
 
-    # The level must be raised on the *panel* logger: other tests in this
-    # session call setup_panel_log(), which sets it to INFO, and a dropped
-    # record never reaches caplog no matter what the root logger allows.
-    with caplog.at_level(logging.DEBUG, logger=PANEL_LOGGER_NAME):
-        poller.poll_once()
+    poller.poll_once()
 
-    assert [r for r in caplog.records if "poll_cycle" in r.getMessage()]
+    assert [m for m in panel_log_capture.messages if "poll_cycle" in m]
 
 
-def test_slow_poll_is_raised_above_debug(tmp_path, fake_process_table, caplog, monkeypatch):
+def test_slow_poll_is_raised_above_debug(
+    tmp_path, fake_process_table, panel_log_capture, monkeypatch
+):
     """CR-13: a poll past the §7.1 budget is a WARNING, not a DEBUG line.
 
     A responsiveness problem should be visible in the panel log without having to
@@ -664,9 +662,37 @@ def test_slow_poll_is_raised_above_debug(tmp_path, fake_process_table, caplog, m
         "linkwatcher.linkwatcher_control_panel.discovery.time.monotonic", lambda: next(ticks)
     )
 
-    with caplog.at_level(logging.DEBUG, logger=PANEL_LOGGER_NAME):
-        poller.poll_once()
+    poller.poll_once()
 
-    slow = [r for r in caplog.records if "poll_cycle_slow" in r.getMessage()]
+    slow = [r for r in panel_log_capture.records if "poll_cycle_slow" in r.getMessage()]
     assert len(slow) == 1
     assert slow[0].levelno == logging.WARNING
+
+
+def test_panel_log_capture_survives_a_configured_panel_logger(
+    tmp_path, fake_process_table, panel_log_capture
+):
+    """PD-BUG-125: panel-log assertions must not depend on propagation to root.
+
+    ``setup_panel_log`` sets ``propagate = False`` on the panel logger and never
+    restores it, so once any earlier test in the session has configured a real
+    panel log, every record stops reaching ``caplog`` — whose handler lives on
+    the *root* logger.  The four tests above then assert ``[]`` against an empty
+    capture and fail for a reason that has nothing to do with the code they pin.
+
+    Discriminating condition: capture through ``caplog`` instead of the panel
+    logger itself and this fails with ``assert []``.
+    """
+    registry = tmp_path / "project-registry.json"
+    registry.write_text('{"projects": {}}', encoding="utf-8")
+    poller = DiscoveryPoller(
+        registry, fake_process_table, interval_seconds=99.0, on_result=lambda _r: None
+    )
+
+    # The state setup_panel_log() leaves behind, reproduced explicitly rather
+    # than inherited from whatever ran earlier in the session.
+    logging.getLogger(PANEL_LOGGER_NAME).propagate = False
+
+    poller.poll_once()
+
+    assert [m for m in panel_log_capture.messages if "poll_cycle" in m]

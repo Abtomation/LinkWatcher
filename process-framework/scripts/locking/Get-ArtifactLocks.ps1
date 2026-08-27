@@ -6,6 +6,8 @@
 .PARAMETER Summary
     One-line output for hook use: silent when the store is empty or locking is disabled,
     otherwise "Artifact locks: N active (M expired) — <paths>".
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 [CmdletBinding()]
 param(

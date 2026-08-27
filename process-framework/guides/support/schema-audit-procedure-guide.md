@@ -8,6 +8,7 @@ updated: 2026-08-05
 related_task: PF-TSK-009
 related_script: Validate-StateTracking.ps1
 description: "How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)"
+owned_by: FWK-FB
 ---
 
 # Schema Audit Procedure

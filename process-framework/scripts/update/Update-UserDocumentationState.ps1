@@ -262,14 +262,12 @@ if (-not $stateFile) {
 # Perform updates
 $success = $true
 
-Write-ProjectLog ""
 Write-ProjectLog "--- Feature State File ---"
 if (-not (Update-FeatureStateFile -StateFilePath $stateFile)) {
     Write-ProjectLog "Failed to update feature state file" -Level "ERROR"
     $success = $false
 }
 
-Write-ProjectLog ""
 if ($success) {
     Write-ProjectSummary "Feature $FeatureId → Documentation Inventory updated ($HandbookId)"
     Write-ProjectLog "Remaining manual steps:"

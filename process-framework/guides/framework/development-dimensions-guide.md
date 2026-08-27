@@ -7,6 +7,7 @@ created: 2026-03-30
 updated: 2026-03-30
 related_task: PF-TSK-014
 description: "Single authoritative reference for 10 development dimensions across all task phases (planning, implementation, review, validation)"
+owned_by: FWK-FB
 ---
 
 # Development Dimensions Guide

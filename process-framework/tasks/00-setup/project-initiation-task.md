@@ -3,9 +3,9 @@ id: PF-TSK-059
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.15
+version: 1.20
 created: 2026-02-16
-updated: 2026-08-12
+updated: 2026-08-17
 change_notes: "v1.8 - PF-IMP-1770: Step 18 + completion-checklist gate list extended with the two corruption guards (no-git-objects-literal, no-nul-bytes), matching the completed CI/CD Setup Guide framework-gate set. v1.7 - PF-IMP-1435 corridor restructure: two-phase structure with a single context switch - Phase A (appdev session: gather/confirm, blueprint bootstrap, registration, first framework push) then Phase B (project session: everything project-local). Full renumber; external step references converted to descriptive names. Fixes the v1.6 bootstrap-before-path-gathering ordering defect; restores the Design Guidelines opt-in step dropped by v1.6; first push folded in from PF-TSK-088 Mode B (delegation note there); LinkWatcher validation config now bootstrap-seeded from blueprint/tools/linkwatcher"
 description: "Initial project setup including ../doc/project-config.json creation"
 complexity: medium
@@ -24,8 +24,6 @@ output_status:
 next_tasks:
   - task: codebase-feature-discovery.md
     condition: "When adopting the framework into an **existing codebase**: Discovery's source-structure step (Step 7.f) consumes the `project-config.json` and `source-code-layout.md` produced here."
-  - task: ../support/framework-domain-adaptation.md
-    condition: "For comprehensive framework customization beyond configuration file (adapting task categories, document types, ID prefixes)"
 ---
 
 # Project Initiation
@@ -58,7 +56,6 @@ Establishes foundational project configuration and metadata when initializing a 
 
 - **Reference Only (Access When Needed):**
   - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - For understanding recommended directory structure
-  - [Framework Domain Adaptation](../support/framework-domain-adaptation.md) - For comprehensive framework customization beyond config file
 
 ## Process
 
@@ -100,20 +97,20 @@ Establishes foundational project configuration and metadata when initializing a 
 7. **Register Project in Appdev Central Registry**: This step assigns the project a stable child ID minted from the producer's mnemonic (`APP-NNN` under FWK-APP — P-14) and adds it to appdev's `project-registry.json`. The script also writes the assigned `project_id` into the bootstrapped `doc/project-config.json` (which is why the Step 6 bootstrap must precede it), which downstream framework scripts (state-creating, ID-assigning) read to route appropriately.
 
     ```bash
-    pwsh.exe -ExecutionPolicy Bypass -File blueprint/process-framework/scripts/file-creation/support/Register-Project.ps1 -Path "<absolute-path-to-new-project>" -Name "<project-name>" -ProducerPath "<absolute-path-to-appdev>" -Confirm:\$false
+    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/support/Register-Project.ps1 -Path "<absolute-path-to-new-project>" -Name "<project-name>" -ProducerPath "<absolute-path-to-appdev>" -Confirm:\$false
     ```
 
     The script:
     - Assigns the next child ID from `<appdev>/process-framework-central/PF-id-registry-central.json` (mnemonic-named pool, e.g. `APP`).
     - Adds an entry to `<appdev>/process-framework-central/project-registry.json`.
     - Writes the assigned `"project_id"` into `<new-project>/doc/project-config.json`.
-    - Creates `<appdev>/process-framework-central/per-project-migrations/<project-id>/` with a `pending-migrations.md` skeleton.
+    - Creates `<appdev>/process-framework-central/migration-entries/<project-id>/` with a `pending-migrations.md` skeleton.
 
     **🚨 CHECKPOINT**: Confirm the assigned child ID with the human partner and verify the matching `project_id` appears in the new project's `doc/project-config.json`.
 
 8. **First Framework Push (version-stamp the new project)**: The bootstrap copied the framework content, but the project is not yet version-stamped or connected to central state. Push scoped to the new project — still from the appdev session:
 
-   > For a freshly bootstrapped project this push is **mechanical**: the content diff is expected to be `added=0 / modified=0 / deleted=0` (the bootstrap already delivered the current blueprint), and the payload is everything else the push writes — the `.framework-version` / `.framework-version-previous` stamps, `.framework-central-pointer` (which enables central writes — feedback forms, IMP filing — from the very first project session), the `rollout-<version>` tag + rollout-log entry, and the registry's `current_framework_version`. A 0/0/0 diff is the correct result, not a no-op signal. The Mode B pre-push self-test trigger ("framework scripts changed since the previous rollout version") does not fire here — the bootstrap just delivered exactly the content this push snapshots.
+   > For a freshly bootstrapped project this push is **mechanical**: the content diff is expected to be `added=0 / modified=0 / deleted=0` (the bootstrap already delivered the current blueprint), and the payload is everything else the push writes — the `.framework-version` / `.framework-version-previous` stamps, `.framework-parent-pointer` + its legacy twin `.framework-central-pointer` (written identical; they enable central writes — feedback forms, IMP filing — from the very first project session), the `rollout-<version>` tag + rollout-log entry, and the registry's `current_framework_version`. A 0/0/0 diff is the correct result, not a no-op signal. The Mode B pre-push self-test trigger ("framework scripts changed since the previous rollout version") does not fire here — the bootstrap just delivered exactly the content this push snapshots.
 
    Dry-run first:
    ```bash
@@ -122,7 +119,7 @@ Establishes foundational project configuration and metadata when initializing a 
 
    > Pre-flight requires a clean `blueprint/process-framework/` git subtree in appdev (the push commits + tags appdev). If unrelated framework edits are in flight, resolve with the human partner before pushing — ship them via a normal rollout first, or postpone this push — rather than reaching for `-Force`.
 
-   **🚨 CHECKPOINT**: Review the dry-run with the human partner (expected: the 0/0/0 content diff, this project as the only target), then run the real push (same command without `-Check`). Verify afterwards: `<project>/process-framework/.framework-version` matches the new rollout tag, and `.framework-central-pointer` points at appdev.
+   **🚨 CHECKPOINT**: Review the dry-run with the human partner (expected: the 0/0/0 content diff, this project as the only target), then run the real push (same command without `-Check`). Verify afterwards: `<project>/process-framework/.framework-version` matches the new rollout tag, and `.framework-parent-pointer` points at appdev (its legacy twin `.framework-central-pointer` is written identical).
 
    > All *subsequent* pushes to this project are normal [Framework Rollout (PF-TSK-088)](../support/framework-rollout-task.md) Mode B sessions. This delegated first push is a Project Initiation special case — the same fold-in pattern as registration (formerly Rollout Mode A for new projects).
 
@@ -190,7 +187,7 @@ Establishes foundational project configuration and metadata when initializing a 
 
     > Skip if no available skills match the project's technology stack. The `recommended_skills` fields remain empty arrays / empty objects (apart from pre-seeded craft bindings) — consuming tasks handle absence silently.
 
-16. **Apply Language Customizations to Test Tree**: The blueprint copy already provides the test directory structure — including the fixed bones `test/automated/unit/`, `test/automated/performance/level{1-4}-*/`, `test/audits/{unit,performance/level{1-4}-*,e2e}/`, `test/e2e-acceptance-testing/`, and `test/bug-validation/` (top-level since PF-IMP-871 Phase 2b — formerly under `test/automated/`) — along with tracking files (`test-tracking.md`, `e2e-test-tracking.md`, `performance-test-tracking.md`) and `TE-id-registry.json`. Run `New-TestInfrastructure.ps1 -Scaffold` to layer the language-specific customizations on top:
+16. **Apply Language Customizations to Test Tree**: The blueprint copy already provides the test directory structure — including the fixed bones `test/automated/unit/`, `test/automated/performance/level{1-4}-*/`, `test/audits/{unit,performance/level{1-4}-*,e2e}/`, `test/e2e-acceptance-testing/`, and `test/bug-validation/` (top-level since PF-IMP-871 Phase 2b — formerly under `test/automated/`) — along with tracking files (`test-tracking.md`, `e2e-test-tracking.md`, `performance-test-tracking.md`) and `TE-id-registry.json`. Run `New-TestInfrastructure.ps1` (Scaffold mode — the default parameter set; there is no `-Scaffold` switch) to layer the language-specific customizations on top:
    ```bash
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/00-setup/New-TestInfrastructure.ps1 -Language "<language>"
    ```
@@ -281,15 +278,15 @@ Establishes foundational project configuration and metadata when initializing a 
 
 26. **Document Project-Specific Notes**: If there are any non-standard configurations or important context, add comments to this task or create a project README
 
-27. **Establish the Validation Baseline**: Run the validators against the finished setup — [`Validate-ProjectConfig.ps1`](../../scripts/validation/Validate-ProjectConfig.ps1), [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1), and the LinkWatcher broken-link scan ([`run_linkwatcher_validate.ps1`](../../tools/linkWatcher/run_linkwatcher_validate.ps1)) — and triage each finding: **expected-by-design** (note why), **project-local** (fix now), or **framework defect** (file an IMP centrally — a fresh project's first full validation run is exactly where blueprint-shipped defects surface; the Phase A push already planted the `.framework-central-pointer`, so central filing works from this session). Record the accepted baseline (remaining findings + their classifications) when presenting task completion.
+27. **Establish the Validation Baseline**: Run the validators against the finished setup — [`Validate-ProjectConfig.ps1`](../../scripts/validation/Validate-ProjectConfig.ps1), [`Validate-StateTracking.ps1`](../../scripts/validation/Validate-StateTracking.ps1), and the LinkWatcher broken-link scan ([`run_linkwatcher_validate.ps1`](../../tools/linkWatcher/run_linkwatcher_validate.ps1)) — and triage each finding: **expected-by-design** (note why), **project-local** (fix now), or **framework defect** (file an IMP centrally — a fresh project's first full validation run is exactly where blueprint-shipped defects surface; the Phase A push already planted the `.framework-parent-pointer`, so central filing works from this session). Record the accepted baseline (remaining findings + their classifications) when presenting task completion.
 
 28. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Outputs
 
 - **Bootstrapped framework copy** - appdev's `blueprint/*` copied into the project root (Phase A, Step 6): `process-framework/` tree, `doc/` skeleton (incl. the blank `project-config.json` template), test-tree bones, `.claude/` (framework craft skills + SessionStart hooks), `tools/linkwatcher/` validation-config seeds, project `CLAUDE.md`
-- **Project registration** - child ID (`APP-NNN`) assigned in appdev's `project-registry.json`; `project_id` field written into the project's `doc/project-config.json`; per-project migration ledger created at `<appdev>/process-framework-central/per-project-migrations/<project-id>/` (Phase A, Step 7)
-- **First framework push** - `.framework-version` / `.framework-version-previous` stamps and `.framework-central-pointer` in the project; `rollout-<version>` tag + rollout-log entry in appdev; registry `current_framework_version` / `last_rollout` set (Phase A, Step 8)
+- **Project registration** - child ID (`APP-NNN`) assigned in appdev's `project-registry.json`; `project_id` field written into the project's `doc/project-config.json`; per-project migration ledger created at `<appdev>/process-framework-central/migration-entries/<project-id>/` (Phase A, Step 7)
+- **First framework push** - `.framework-version` / `.framework-version-previous` stamps and `.framework-parent-pointer` (+ legacy twin) in the project; `rollout-<version>` tag + rollout-log entry in appdev; registry `current_framework_version` / `last_rollout` set (Phase A, Step 8)
 - **Git repository** - Initialized git repo at project root with `.gitignore` and optional remote
 - **project-config.json** - the bootstrapped template at `doc/project-config.json`, customized to contain:
   - Project identification (name, display name, description, repository URL)
@@ -323,7 +320,7 @@ Establishes foundational project configuration and metadata when initializing a 
   - Lifecycle: Permanent (never archived)
 
 - **Per-project migration ledger** (PERMANENT, in appdev):
-  - Location: `<appdev>/process-framework-central/per-project-migrations/<project-id>/pending-migrations.md`
+  - Location: `<appdev>/process-framework-central/migration-entries/<project-id>/pending-migrations.md`
   - Purpose: Tracks per-project working-doc migrations queued by Structure Change task; applied by Framework Rollout Mode C
   - Lifecycle: Permanent; entries added/resolved over time by Structure Change + Framework Rollout work
 
@@ -365,9 +362,9 @@ Establishes foundational project configuration and metadata when initializing a 
 - [ ] **Registration & First Push (Phase A)**: Confirm the project is registered and version-stamped
   - [ ] The assigned `project_id` field is present in `doc/project-config.json`
   - [ ] Appdev's `process-framework-central/project-registry.json` contains an entry for the new child ID with `current_framework_version` set by the first push
-  - [ ] Per-project migration ledger directory exists at `<appdev>/process-framework-central/per-project-migrations/<project-id>/`
+  - [ ] Per-project migration ledger directory exists at `<appdev>/process-framework-central/migration-entries/<project-id>/`
   - [ ] `<project>/process-framework/.framework-version` matches the first push's `rollout-<version>` tag
-  - [ ] `<project>/process-framework/.framework-central-pointer` points at appdev
+  - [ ] `<project>/process-framework/.framework-parent-pointer` points at appdev
   - [ ] Appdev's `rollout-log.md` has the first-push entry
 
 - [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-059`, context "Project Initiation".
@@ -388,7 +385,6 @@ Establishes foundational project configuration and metadata when initializing a 
 ## Next Tasks
 
 - [**Codebase Feature Discovery (PF-TSK-064)**](codebase-feature-discovery.md) - When adopting the framework into an **existing codebase**: Discovery's source-structure step (Step 7.f) consumes the `project-config.json` and `source-code-layout.md` produced here.
-- [**Framework Domain Adaptation**](../support/framework-domain-adaptation.md) - For comprehensive framework customization beyond configuration file (adapting task categories, document types, ID prefixes)
 - **Begin Development Workflow** - Use appropriate task from [AI Tasks Registry](../../ai-tasks.md) based on your next activity (feature planning, implementation, etc.)
 
 <!-- merged from transition-registry entry: Project Initiation (PF-TSK-059) -->
@@ -405,7 +401,6 @@ Establishes foundational project configuration and metadata when initializing a 
 
 ```
 What is needed next?
-├─ Framework customization needed → Framework Domain Adaptation
 ├─ Features already known → Feature Request Evaluation or Feature Discovery
 ├─ Adopting framework into existing codebase → Codebase Feature Discovery
 └─ Greenfield project → Begin normal development workflow (Feature Discovery)
@@ -421,7 +416,6 @@ What is needed next?
 
 - [Example project-config.json](../../../doc/project-config.json) - Reference implementation from LinkWatcher project
 - [Process Framework README](../../README.md) - Overview of framework structure and components
-- [Framework Domain Adaptation](../support/framework-domain-adaptation.md) - Comprehensive framework customization for new domains
 - [Documentation Structure Guide](../../guides/framework/documentation-structure-guide.md) - Recommended directory organization patterns
 - [PF ID Registry](../../PF-id-registry.json) - Document ID prefixes and directory mappings
 - [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md) - Test directory structure, tracking, and scaffolding

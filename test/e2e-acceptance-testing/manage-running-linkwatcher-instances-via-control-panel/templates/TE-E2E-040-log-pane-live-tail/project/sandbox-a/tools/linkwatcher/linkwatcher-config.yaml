@@ -1,0 +1,18 @@
+# LinkWatcher per-project configuration — WF-010 sandbox project A
+#
+# Kept deliberately small: the Control Panel config editor (AC-12) round-trips this
+# exact file, so every key here must survive safe_load -> edit -> validate -> atomic save.
+
+monitored_extensions:
+  - .md
+  - .yaml
+  - .yml
+  - .json
+
+ignored_directories:
+  - .git
+  - logs
+
+move_detect_delay: 10
+create_backups: false
+dry_run_mode: false

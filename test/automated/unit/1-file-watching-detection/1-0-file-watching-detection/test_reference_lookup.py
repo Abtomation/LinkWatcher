@@ -914,3 +914,71 @@ class TestGetRelativePath:
         result = lookup._get_relative_path(abs_path)
         assert "src" in result or "file.py" in result
         assert not os.path.isabs(result)
+
+
+# One backslash character, and the doubled form a .py/.json author MUST write to
+# express ONE separator inside an escaped string literal.
+BS = chr(92)
+ESC = BS * 2
+
+
+class TestBug124TrailingSeparatorStyleIsConsistent:
+    """PD-BUG-124 regression on the ``reference_lookup`` path.
+
+    ``apply_trailing_separator_style`` chose the restored separator from the
+    RESULT's own style, falling back to the AUTHORED style only when the result
+    carried no separator.  ``_calculate_updated_relative_path`` always emits
+    forward-slash output, so one authored backslash form produced two different
+    answers depending only on how deep the result happened to be: a
+    multi-segment result got a forward slash (correct), while a single-segment
+    result got a bare backslash -- which, in a ``.py`` file, escapes the closing
+    quote of the literal it is written into.
+
+    The separator now follows the style this module actually emits, so the
+    answer no longer depends on the result's depth.  Companion of
+    ``TestBug120TrailingSeparatorPreserved`` above, whose backslash test already
+    pinned the multi-segment half of this contract.
+    """
+
+    @pytest.fixture
+    def logs_dir(self, temp_dir):
+        d = temp_dir / "logs"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "x.txt").write_text("x")
+        return d
+
+    def test_single_segment_result_does_not_emit_a_bare_backslash(self, lookup, logs_dir):
+        """The reported Case B: ``sub/collect.py`` moves to the project root."""
+        result = lookup._calculate_updated_relative_path(
+            ".." + ESC + "logs" + ESC, "sub/collect.py", "collect.py"
+        )
+
+        assert result == "logs/", "expected forward-slash form, got {!r}".format(result)
+        assert not result.endswith(BS), (
+            "PD-BUG-124: a bare trailing backslash escapes the closing quote of "
+            "the .py string literal it is written into"
+        )
+
+    def test_style_does_not_depend_on_result_depth(self, lookup, logs_dir):
+        """One authored form must not yield two separator styles.
+
+        Same authored target and same origin, two destination depths -- both
+        genuinely recalculated, so the restored separator must match.  (A
+        same-directory 'move' would not do: the authored-form guard returns the
+        original untouched, which is correct but proves nothing here.)
+        """
+        authored = ".." + ESC + "logs" + ESC
+        single_segment = lookup._calculate_updated_relative_path(
+            authored, "sub/collect.py", "collect.py"
+        )
+        multi_segment = lookup._calculate_updated_relative_path(
+            authored, "sub/collect.py", "sub/deep/collect.py"
+        )
+
+        assert single_segment == "logs/", "unexpected: {!r}".format(single_segment)
+        assert multi_segment == "../../logs/", "unexpected: {!r}".format(multi_segment)
+        assert (
+            single_segment[-1] == multi_segment[-1]
+        ), "separator style depends on result depth: {!r} vs {!r}".format(
+            single_segment, multi_segment
+        )

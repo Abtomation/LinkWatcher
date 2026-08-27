@@ -14,6 +14,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [.ai-entry-point.md](.ai-entry-point.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 - [ai-tasks.md](ai-tasks.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 - [domain-config.json](domain-config.json) — Domain-specific configuration for process framework scripts. Update this file when adapting framework to a new business domain. To reconcile Surface 10 schema drift surfaced by Validate-StateTracking.ps1 -Detailed, follow process-framework/guides/support/schema-audit-procedure-guide.md.
+- [payload-manifest.json](payload-manifest.json) — FrameworkBuilder's payload classification - the path-level ownership truth for everything FB ships (PF-PRO-067 N-5, realized by PF-PRO-068 WI-2, classification frozen at the Session A owner checkpoint). DEFAULT-COVERED: any shipped path NOT named in support_exceptions is class 'substrate' (most protective: ships to every child transitively, synced, hash-gated, edit-refused in consumers, ownership-lined). The manifest lists only exceptions - a forgotten file fails safe (unneeded substrate treatment), never open (silent editability). Consumed by the generalized Push payload filter, the substrate sync step, and the drift/banner gate (all land Sessions E-G).
 - [PF-id-registry.json](PF-id-registry.json) — Process Framework ID Registry - framework-level document IDs portable across projects
 
 ## guides/01-planning
@@ -62,16 +63,10 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 
 ## guides/support
 
-- [craft-skill-authoring-guide.md](guides/support/craft-skill-authoring-guide.md) — Authoring and conversion conventions for framework craft skills - skill-creator deltas (user-invocable false, no packaging, reference-don't-bundle), the task wiring recipe with the renumber-vs-Step-0 decision rule, the retire-the-source-guide checklist (trigger preservation, link repointing), distribution via the Push skills mirror, and the mandatory agent-coupling-registry row per conversion (BL-6 policy).
 - [cross-project-issue-filing-guide.md](guides/support/cross-project-issue-filing-guide.md) — How an agent in any registered project files a bug or feature request directly into another registered project by running that project's own creation script, resolved via the central project registry
 - [feature-tracking-mutation-guide.md](guides/support/feature-tracking-mutation-guide.md) — Canonical policy and script reference for mutating feature-tracking.md
-- [framework-rollout-usage-guide.md](guides/support/framework-rollout-usage-guide.md) — Customization and usage patterns for Framework Rollout (PF-TSK-088): Push/Restore/Register script invocations, dry-run interpretation, the Mode C test-suite migration and map-cutover description-backfill patterns, partial-rollout recovery, frozen-project handling, and Pending Migration Entry Template usage by Structure Change task authors.
-- [guide-creation-best-practices-guide.md](guides/support/guide-creation-best-practices-guide.md) — Best practices for creating effective guides within the task framework
-- [migration-best-practices.md](guides/support/migration-best-practices.md) — Best practices for migrating documentation and framework components
-- [process-improvement-task-reference-guide.md](guides/support/process-improvement-task-reference-guide.md) — Lookup tables and conventions consulted at specific steps of the Process Improvement task: problem-verification notes, evaluation criteria, routing destinations, risk classification, framework-script verification by edit kind, common stale-description sites, TOOL_DOC_ID and constituent-disposition conventions.
 - [schema-audit-procedure-guide.md](guides/support/schema-audit-procedure-guide.md) — How to reconcile template-frontmatter schema drift surfaced by Validate-StateTracking.ps1 -Detailed (Surface 10)
 - [script-development-quick-reference.md](guides/support/script-development-quick-reference.md) — Quick reference for common script development issues and solutions
-- [tools-review-edge-cases-guide.md](guides/support/tools-review-edge-cases-guide.md) — Consult-on-stumble edge-case record for the Tools Review task (PF-TSK-010) - legacy-form naming, recurrence-vs-duplicate ordering, site-list label precedent, queue-depth observations, ratings-key anomalies (PF-PRO-059 two-zone convention).
 - [visual-notation-guide.md](guides/support/visual-notation-guide.md) — Standard notation for framework mermaid diagrams (e.g. Integration Narratives, task/guide component diagrams)
 
 ## infrastructure
@@ -168,7 +163,6 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [New-BugFixState.ps1](scripts/file-creation/06-maintenance/New-BugFixState.ps1) — Creates a new Bug Fix State Tracking file for a multi-session complex bug fix.
 - [New-BugReport.ps1](scripts/file-creation/06-maintenance/New-BugReport.ps1) — Creates a new bug report with an automatically assigned ID.
 - [New-RefactoringPlan.ps1](scripts/file-creation/06-maintenance/New-RefactoringPlan.ps1) — Creates a new Refactoring Plan document with an automatically assigned ID.
-- [New-ReviewSummary.ps1](scripts/file-creation/06-maintenance/New-ReviewSummary.ps1) — Creates a new Tools Review Summary document with an automatically assigned ID.
 
 ## scripts/file-creation/07-deployment
 
@@ -183,18 +177,9 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 ## scripts/file-creation/support
 
 - [New-FeedbackForm.ps1](scripts/file-creation/support/New-FeedbackForm.ps1) — Creates a new feedback form (Single Tool / Multiple Tools / Task-Level) with an automatically assigned ID.
-- [New-FrameworkEvaluationReport.ps1](scripts/file-creation/support/New-FrameworkEvaluationReport.ps1) — Creates a new Framework Evaluation Report document with an automatically assigned ID.
-- [New-FrameworkExtensionConcept.ps1](scripts/file-creation/support/New-FrameworkExtensionConcept.ps1) — Creates a new Framework Extension Concept document with an automatically assigned ID.
-- [New-Guide.ps1](scripts/file-creation/support/New-Guide.ps1) — Creates a new guide document with an automatically assigned ID.
-- [New-PendingMigration.ps1](scripts/file-creation/support/New-PendingMigration.ps1) — Scaffolds Pending Migration Entries (Summary row + entry skeleton) across one or more project ledgers, allocating each per-project MIG-NNN automatically.
 - [New-PermanentState.ps1](scripts/file-creation/support/New-PermanentState.ps1) — Creates a new permanent state tracking file with an automatically assigned ID.
 - [New-ProcessImprovement.ps1](scripts/file-creation/support/New-ProcessImprovement.ps1) — Adds a new improvement opportunity to process-improvement-tracking.md with an auto-assigned ID; -FastTrack logs a small already-applied framework fix directly to the archive Completed section.
-- [New-StructureChangeProposal.ps1](scripts/file-creation/support/New-StructureChangeProposal.ps1) — Creates a new Structure Change Proposal document with an automatically assigned ID.
-- [New-StructureChangeState.ps1](scripts/file-creation/support/New-StructureChangeState.ps1) — Creates a new Structure Change state tracking file with an automatically assigned ID.
-- [New-Task.ps1](scripts/file-creation/support/New-Task.ps1) — Creates a new task definition document with an automatically assigned task ID from the workspace's declared artifact family (PF-TSK at appdev, FB-TSK at FB — PF-PRO-068 P-12a).
-- [New-Template.ps1](scripts/file-creation/support/New-Template.ps1) — Creates a new template document with an automatically assigned ID.
 - [New-TempTaskState.ps1](scripts/file-creation/support/New-TempTaskState.ps1) — Creates a new temporary state tracking file for multi-session task creation, process improvement, framework extension, framework evaluation, refactoring, or retrospective documentation workflows.
-- [Register-Project.ps1](scripts/file-creation/support/Register-Project.ps1) — Registers a project with a producer face's central registry, assigning it a stable child ID minted from the producer's own mnemonic (FWK-APP children key APP-NNN, FWK-LEG children LEG-NNN — PF-PRO-068 P-14).
 
 ## scripts/language-specific-scripts/dart
 
@@ -220,13 +205,6 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 ## scripts/patterns
 
 - [environment-variable-fallback-pattern.ps1](scripts/patterns/environment-variable-fallback-pattern.ps1) — Template showing environment variable fallback pattern for CMD.exe compatibility
-
-## scripts/rollout
-
-- [Commit-SandboxBaseline.ps1](scripts/rollout/Commit-SandboxBaseline.ps1) — After a Push to this workspace's framework self-test sandbox (APP-T01 at appdev), refresh the sandbox's baseline commit so the next E2E test reset cycle has the new rolled-out state as its pristine target.
-- [PayloadFilter.psm1](scripts/rollout/PayloadFilter.psm1) — Shared payload-classification helpers for the rollout scripts — manifest read, per-edge exclusion sets, and the filtered staging tree.
-- [Push-FrameworkUpdate.ps1](scripts/rollout/Push-FrameworkUpdate.ps1) — Phase 1 of Framework Rollout (PF-TSK-088 Mode B): mirror a producer face's framework source tree to one or more registered children.
-- [Restore-FrameworkVersion.ps1](scripts/rollout/Restore-FrameworkVersion.ps1) — Mode D rollback (PF-TSK-088): revert a project's process-framework/ to a previous rollout version.
 
 ## scripts/test
 
@@ -257,11 +235,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [Update-FeatureImplementationState.ps1](scripts/update/Update-FeatureImplementationState.ps1) — Automates implementation-status transitions in feature-tracking.md (implementation tasks), including the derived workflow-tracking refresh.
 - [Update-FeatureRequest.ps1](scripts/update/Update-FeatureRequest.ps1) — Updates a feature request in the Feature Request Tracking state file — a lifecycle transition, or a notes-only annotation of an open request.
 - [Update-FeatureTrackingFromAssessment.ps1](scripts/update/Update-FeatureTrackingFromAssessment.ps1) — Updates feature tracking status based on completed documentation tier assessment results.
-- [Update-ImprovementBacklog.ps1](scripts/update/Update-ImprovementBacklog.ps1) — Automates Improvement Backlog operations — adds a below-materiality-bar candidate with a computed counter, promotes a matched row into the IMP tracker's Intake, removes a row, or runs the per-source-task expiry sweep (PF-IMP-1882).
-- [Update-LanguageConfig.ps1](scripts/update/Update-LanguageConfig.ps1) — Adds or updates a field in all language config files and the language config template.
-- [Update-PendingMigration.ps1](scripts/update/Update-PendingMigration.ps1) — Resolves (or skips) a single Pending Migration Entry — atomic dual-site Status write plus relocation of the terminal detail block to the per-project archive (PF-IMP-983).
 - [Update-PerformanceTracking.ps1](scripts/update/Update-PerformanceTracking.ps1) — Automates status transitions and column updates in performance-test-tracking.md
-- [Update-ProcessImprovement.ps1](scripts/update/Update-ProcessImprovement.ps1) — Automates improvement status updates and section moves in the Process Improvement Tracking state file
 - [Update-QualityClassification.ps1](scripts/update/Update-QualityClassification.ps1) — Computes and writes the Quality Assessment classification in a feature implementation state file (PF-TSK-065's quality-assessment step).
 - [Update-RetrospectiveMasterState.ps1](scripts/update/Update-RetrospectiveMasterState.ps1) — Atomically updates a retrospective master state file — Feature Inventory rows, Unassigned Files batch flips, or Coverage Metrics recalculation
 - [Update-ScriptReferences.ps1](scripts/update/Update-ScriptReferences.ps1) — Updates references to relocated New-*.ps1 creation scripts across doc/ markdown to point at the centralized scripts/file-creation location.
@@ -297,6 +271,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [Validate-ProjectConfig.ps1](scripts/validation/Validate-ProjectConfig.ps1) — Validates a project-config.json for JSON syntax, populated required fields, and leftover placeholders.
 - [Validate-StateTracking.ps1](scripts/validation/Validate-StateTracking.ps1) — Master state validation script — validates that state tracking entries match actual files on disk.
 - [Validate-TestTracking.ps1](scripts/validation/Validate-TestTracking.ps1) — Validates test tracking consistency using pytest markers as single source of truth.
+- [Validate-WorkspaceConformance.ps1](scripts/validation/Validate-WorkspaceConformance.ps1) — Validates a workspace's canonical directory shape and entry point against its declared role - the PF-PRO-065 Contract 3 conformance check (PF-PRO-068 S3 G5).
 
 ## tasks/00-setup
 
@@ -382,18 +357,6 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [documentation-tier-adjustment-task.md](tasks/cyclical/documentation-tier-adjustment-task.md) — Adjust documentation requirements
 - [technical-debt-assessment-task.md](tasks/cyclical/technical-debt-assessment-task.md) — Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase
 
-## tasks/support
-
-- [framework-domain-adaptation.md](tasks/support/framework-domain-adaptation.md) — Systematically adapt the process framework from one business domain to another while preserving core structure
-- [framework-evaluation.md](tasks/support/framework-evaluation.md) — Structurally evaluate the process framework for completeness, consistency, redundancy, accuracy, effectiveness, automation coverage, and scalability
-- [framework-extension-task.md](tasks/support/framework-extension-task.md) — Support task for fundamentally extending the framework with new functionalities and capabilities
-- [framework-rollout-task.md](tasks/support/framework-rollout-task.md) — Deploy framework code from a producer face's canonical blueprint tree to its registered children.
-- [imp-triage-task.md](tasks/support/imp-triage-task.md) — Sort raw IMPs from the Intake section into Improvements / Extensions / Structural Changes / Active Pilots / Rejected.
-- [new-task-creation-process.md](tasks/support/new-task-creation-process.md) — Complete process for creating new tasks from concept to implementation-ready definition
-- [process-improvement-task.md](tasks/support/process-improvement-task.md) — Improve development processes
-- [structure-change-task.md](tasks/support/structure-change-task.md) — Manage structural changes to documentation
-- [tools-review-task.md](tasks/support/tools-review-task.md) — Review and improve project tools and templates
-
 ## templates/00-setup
 
 - [product-concept-template.md](templates/00-setup/product-concept-template.md) — Template for a project's Product Concept (PD-DOC-001) - the synthesis of the project's founding inputs into an authoritative statement of what is being built
@@ -478,37 +441,13 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 
 ## templates/support
 
-- [document-creation-script-template.ps1](templates/support/document-creation-script-template.ps1) — Creates a new [DOCUMENT_TYPE] document with an automatically assigned ID.
 - [feedback-db-input-template.json](templates/support/feedback-db-input-template.json) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 - [feedback-form-template.md](templates/support/feedback-form-template.md) — Creates feedback forms for evaluating tools and processes
-- [framework-evaluation-report-template.md](templates/support/framework-evaluation-report-template.md) — Template for structured framework evaluation reports with dimension scoring
-- [framework-extension-concept-creation-template.md](templates/support/framework-extension-concept-creation-template.md) — Creation-type template for extensions that add entirely new artifacts
-- [framework-extension-concept-minimal-template.md](templates/support/framework-extension-concept-minimal-template.md) — Minimal template for small-scope creation extensions (single artifact), used by New-FrameworkExtensionConcept.ps1 -Minimal
-- [framework-extension-concept-modification-template.md](templates/support/framework-extension-concept-modification-template.md) — Modification-type template for extensions that modify existing artifacts
-- [framework-extension-concept-pattern-template.md](templates/support/framework-extension-concept-pattern-template.md) — Pattern/architecture template for cross-cutting extensions that introduce a convention or pattern — lighter than the Hybrid template, omitting the per-task numbered-step process skeleton and the fixed multi-session plan; used by New-FrameworkExtensionConcept.ps1 -Pattern
-- [framework-extension-concept-template.md](templates/support/framework-extension-concept-template.md) — Template for creating framework extension concept documents (Hybrid type; also used as base)
-- [guide-template.md](templates/support/guide-template.md) — Template for creating new guides
 - [language-config-template.json](templates/support/language-config-template.json) — Language-specific configuration for [Language] projects using the process framework. Copy this file to process-framework/languages-config/{language}/{language}-config.json and fill in the values.
-- [pending-migration-entry-cleanup-template.md](templates/support/pending-migration-entry-cleanup-template.md) — Trimmed variant of the Pending Migration Entry Template (PF-TEM-079) for no-data-motion migrations (empty-dir/placeholder removal, config-key edit, in-place text substitution, or additive section append)
-- [pending-migration-entry-template.md](templates/support/pending-migration-entry-template.md) — Template for one entry in appdev/process-framework-central/per-project-migrations/<project-id>/pending-migrations.md. Each entry is one project working-doc migration written by Structure Change (PF-TSK-014) and applied by Framework Rollout Mode C (PF-TSK-088).
 - [Run-Tests-runner-template.ps1](templates/support/Run-Tests-runner-template.ps1) — Template for creating a per-language test runner (Run-Tests.<language>.ps1).
 - [state-file-template.md](templates/support/state-file-template.md) — Creates state tracking files for monitoring project status
-- [structure-change-proposal-template.md](templates/support/structure-change-proposal-template.md) — Template for structure change proposals
-- [structure-change-state-content-update-template.md](templates/support/structure-change-state-content-update-template.md) — Lightweight template for content-only structure changes (no pilot/rollback/metrics sections)
-- [structure-change-state-framework-extension-template.md](templates/support/structure-change-state-framework-extension-template.md) — Lightweight template for framework extension structure changes (artifact tracking, no pilot/rollback/metrics)
-- [structure-change-state-from-proposal-template.md](templates/support/structure-change-state-from-proposal-template.md) — Lightweight execution-tracking template for proposal-backed structure changes (phase checklist + session log only)
-- [structure-change-state-rename-template.md](templates/support/structure-change-state-rename-template.md) — Template for rename-focused structure changes
-- [structure-change-state-template.md](templates/support/structure-change-state-template.md) — Template for tracking multi-session structure change implementation
-- [task-template.md](templates/support/task-template.md) — Creates task definition documents for process framework
-- [temp-framework-evaluation-state-template.md](templates/support/temp-framework-evaluation-state-template.md) — Template for tracking multi-session framework evaluation (PF-TSK-079) — Artifacts-in-Scope inventory, per-dimension progress across the seven evaluation dimensions, findings log with scores and routing, and session plan (via New-TempTaskState.ps1 -Variant FrameworkEvaluation)
-- [temp-framework-extension-state-template.md](templates/support/temp-framework-extension-state-template.md) — Template for tracking multi-session framework extension implementation with artifact tracking and task impact analysis (via New-TempTaskState.ps1 -Variant FrameworkExtension)
-- [temp-process-improvement-state-template.md](templates/support/temp-process-improvement-state-template.md) — Template for tracking multi-session process improvement implementation (via New-TempTaskState.ps1 -Variant ProcessImprovement)
 - [temp-refactoring-state-template.md](templates/support/temp-refactoring-state-template.md) — Multi-session state tracking for code refactoring work (PF-TSK-022 Standard Path) — includes Test Baseline anchor (Step 5), Phase 0/A/B/C/D structure, bug-discovery log, and 3-phase closure (via New-TempTaskState.ps1 -Variant Refactoring)
 - [temp-retrospective-documentation-state-template.md](templates/support/temp-retrospective-documentation-state-template.md) — Multi-session per-feature state tracking for retrospective documentation creation (PF-TSK-066 Phase 3) — includes Feature Overview, Required Phase 3 Deliverables table, Per-Feature Closure Updates table, Session Plan (via New-TempTaskState.ps1 -Variant RetrospectiveDocumentation)
-- [temp-task-creation-state-template.md](templates/support/temp-task-creation-state-template.md) — Template for tracking multi-session task creation implementation
-- [template-base-template.md](templates/support/template-base-template.md) — Base template for creating new document templates
-- [tools-review-summary-template.md](templates/support/tools-review-summary-template.md) — Standardized template for Tools Review task (PF-TSK-010) summary output documents
-- [update-script-template.ps1](templates/support/update-script-template.ps1) — Automates [TARGET_DESCRIPTION] updates in [TARGET_FILE_NAME]
 
 ## tools/linkWatcher
 

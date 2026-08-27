@@ -63,7 +63,12 @@ from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
 from .resolution_overrides import build_resolution_overrides, resolution_base_for_rel
-from .utils import apply_trailing_separator_style, normalize_path, path_exists_under_root
+from .utils import (
+    apply_trailing_separator_style,
+    authored_backslash_unit,
+    normalize_path,
+    path_exists_under_root,
+)
 
 
 class PathResolver:
@@ -279,9 +284,14 @@ class PathResolver:
         ``\\"``), and flipping it to '/' corrupts the source (e.g. a Python
         SyntaxError). Mirrors the separator-style reconstruction in
         ``_convert_to_original_link_type``.
+
+        The emitted separator is the author's own backslash *unit*, not a bare
+        ``\\`` (PD-BUG-124): an escaped-string context writes one separator as
+        ``\\\\``, and halving it re-creates exactly the escape corruption this
+        method exists to prevent — loudly for ``\\x``, silently for ``\\n``.
         """
         if "\\" in original_target:
-            return normalized_path.replace("/", "\\")
+            return normalized_path.replace("/", authored_backslash_unit(original_target))
         return normalized_path
 
     def _match_direct(self, absolute_target_norm: str, old_path_norm: str) -> bool:
@@ -468,9 +478,11 @@ class PathResolver:
             # Original was relative - calculate new relative path
             result = self._calculate_relative_path_between_files(source_file, new_path_norm)
 
-        # Apply original separator style
+        # Apply original separator style, in the author's own backslash unit
+        # (PD-BUG-124 — a bare backslash halves an authored ``\\\\`` and turns
+        # the separator into an escape character).
         if link_info["separator_style"] == "\\":
-            result = result.replace("/", "\\")
+            result = result.replace("/", authored_backslash_unit(link_info["original_target"]))
 
         return result
 

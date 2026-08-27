@@ -1543,3 +1543,294 @@ class TestTrailingSlashPreservation:
 
         assert md_file.read_text(encoding="utf-8") == original, "no-op move rewrote the file"
         assert stats["files_updated"] == 0
+
+
+# One backslash character, and the doubled form a .py/.json author MUST write to
+# express ONE separator inside an escaped string literal.  Built from chr(92)
+# rather than written inline so the difference between the two is unmissable in
+# the assertions below.
+BS = chr(92)
+ESC = BS * 2
+
+
+class TestBug124EscapedBackslashSeparators:
+    r"""PD-BUG-124 regression: a reconstructed backslash separator was emitted as
+    a bare ``\`` regardless of how the author escaped backslashes.
+
+    The rewritten text is spliced back into the file's RAW source.  In a Python
+    (or JSON) string literal one separator must be authored as ``\\``; emitting
+    a bare ``\`` turns it into an escape character, so the rewrite leaves the
+    containing file either unparseable or -- worse -- silently wrong.
+
+    Three sites shared the defect, all reached from ``PathResolver``:
+      * ``utils.apply_trailing_separator_style`` -- the restored TRAILING
+        separator (PD-BUG-118 / PD-BUG-120 class, the reported case);
+      * ``PathResolver._apply_separator_style`` -- BODY separators on the
+        directory-prefix branch;
+      * ``PathResolver._convert_to_original_link_type`` -- BODY separators on
+        the match branch, whose corruption is SILENT (a bare backslash before
+        ``n`` decodes to a newline and the file still parses).
+
+    A rewrite changes WHERE a target points, never HOW it was written -- and it
+    must never leave the containing file invalid.
+    """
+
+    def _dir_ref(self, source_file, target):
+        return LinkReference(
+            file_path=source_file,
+            line_number=1,
+            column_start=0,
+            column_end=len(target),
+            link_text=target,
+            link_target=target,
+            link_type=LinkType.PYTHON_QUOTED_DIR,
+        )
+
+    def _file_ref(self, source_file, target):
+        return LinkReference(
+            file_path=source_file,
+            line_number=1,
+            column_start=0,
+            column_end=len(target),
+            link_text=target,
+            link_target=target,
+            link_type=LinkType.PYTHON_QUOTED,
+        )
+
+    def test_trailing_separator_preserves_authored_escaping(self, temp_project_dir):
+        """Case A: an escaped trailing separator survives a directory rename.
+
+        The authored doubled backslash must come back doubled.  A bare trailing
+        backslash escapes the closing quote -> unterminated string literal.
+        """
+        (temp_project_dir / "logs2").mkdir()
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._dir_ref("collect.py", "logs" + ESC)
+
+        result = updater._calculate_new_target(ref, "logs", "logs2")
+
+        assert result == "logs2" + ESC, "authored escaping lost: {!r}".format(result)
+        assert result != "logs2" + BS, (
+            "PD-BUG-124: a bare trailing backslash escapes the closing quote of "
+            "the .py string literal it is written into"
+        )
+
+    def test_directory_prefix_branch_preserves_authored_escaping(self, temp_project_dir):
+        """Case D: BODY separators on the directory-prefix branch stay escaped."""
+        (temp_project_dir / "logs2" / "sub").mkdir(parents=True)
+        (temp_project_dir / "logs2" / "sub" / "x.txt").write_text("x", encoding="utf-8")
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._file_ref("collect.py", "logs" + ESC + "sub" + ESC + "x.txt")
+
+        result = updater._calculate_new_target(ref, "logs", "logs2")
+
+        assert result == "logs2" + ESC + "sub" + ESC + "x.txt", "escaping lost: {!r}".format(result)
+        assert result != "logs2" + BS + "sub" + BS + "x.txt", (
+            "PD-BUG-124: bare backslashes here produce a truncated hex escape "
+            "and the file stops parsing"
+        )
+
+    def test_match_branch_preserves_authored_escaping(self, temp_project_dir):
+        """Case E: BODY separators on the match branch stay escaped.
+
+        This is the SILENT variant -- the bare-backslash output still parses,
+        but the backslash before ``notes`` decodes to a newline, so the value is
+        quietly wrong and nothing fails.
+        """
+        (temp_project_dir / "logs" / "deep").mkdir(parents=True)
+        (temp_project_dir / "logs" / "deep" / "notes.txt").write_text("x", encoding="utf-8")
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        ref = self._file_ref("collect.py", "logs" + ESC + "sub" + ESC + "notes.txt")
+
+        result = updater._calculate_new_target(ref, "logs/sub/notes.txt", "logs/deep/notes.txt")
+
+        assert result == "logs" + ESC + "deep" + ESC + "notes.txt", "escaping lost: {!r}".format(
+            result
+        )
+        assert result != "logs" + BS + "deep" + BS + "notes.txt", (
+            "PD-BUG-124: a bare backslash before 'notes' decodes to a newline - "
+            "silent value corruption in a file that still parses"
+        )
+
+    def test_single_backslash_authoring_is_unchanged(self, temp_project_dir):
+        """Control: unescaped single-backslash authoring keeps ONE backslash.
+
+        The fix must not double separators that were never escaped -- markdown
+        and prose contexts author a bare backslash and mean it.
+        """
+        (temp_project_dir / "doc" / "moved-tracking").mkdir(parents=True)
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        target = "doc" + BS + "state-tracking" + BS
+        ref = LinkReference(
+            file_path="README.md",
+            line_number=1,
+            column_start=0,
+            column_end=len(target),
+            link_text=target,
+            link_target=target,
+            link_type=LinkType.MARKDOWN_BACKTICK_DIR,
+        )
+
+        result = updater._calculate_new_target(ref, "doc/state-tracking", "doc/moved-tracking")
+
+        assert result == "doc" + BS + "moved-tracking" + BS, "control damaged: {!r}".format(result)
+        assert ESC not in result, "single-backslash authoring must not gain an escape"
+
+    def test_rewritten_python_file_still_parses_and_keeps_its_value(self, temp_project_dir):
+        """End-to-end contract: a rewrite never leaves the containing file invalid.
+
+        Asserts the file parses AND that the decoded constant is the intended
+        path -- a syntax check alone would pass the silent Case E corruption.
+        """
+        import ast
+
+        (temp_project_dir / "logs2").mkdir()
+        py_file = temp_project_dir / "collect.py"
+        target = "logs" + ESC
+        original = 'LOG = "' + target + '"\n'
+        py_file.write_text(original, encoding="utf-8")
+
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+        updater.set_backup_enabled(False)
+        ref = LinkReference(
+            file_path=str(py_file),
+            line_number=1,
+            column_start=original.index(target),
+            column_end=original.index(target) + len(target),
+            link_text=target,
+            link_target=target,
+            link_type=LinkType.PYTHON_QUOTED_DIR,
+        )
+
+        updater.update_references([ref], "logs", "logs2")
+
+        rewritten = py_file.read_text(encoding="utf-8")
+        ast.parse(rewritten)  # raises SyntaxError on the PD-BUG-124 output
+
+        namespace = {}
+        exec(rewritten, namespace)  # noqa: S102 - asserting the DECODED value
+        assert namespace["LOG"] == "logs2" + BS, "decoded value wrong: {!r}".format(
+            namespace["LOG"]
+        )
+
+
+class TestBug126EscapedLiteralNotStale:
+    r"""PD-BUG-126, updater half: an escaped literal must not poison its file.
+
+    The parser fix records the DECODED value as ``link_target`` while the span
+    and ``link_text`` address the RAW escaped source.  The stale check --
+    ``if ref.link_target not in line`` -- then cannot find the target and
+    declares the WHOLE FILE stale, abandoning every update in it.
+
+    Measured before the fix, on a file holding one escaped value and one plain
+    one: ``files_updated=0``, ``stale_files=[config.json]`` -- the plain
+    sibling, which updates correctly today, stopped updating.  So a
+    parser-only fix does not merely fail to help; it converts one silently
+    missed reference into a file that never updates at all.
+
+    These tests pin the whole chain (real parser -> real updater) rather than
+    hand-built references, so they also fail if the parser stops emitting the
+    span/link_text shape the stale check relies on.
+    """
+
+    def _write(self, tmp_dir, body):
+        (tmp_dir / "logs" / "sub").mkdir(parents=True, exist_ok=True)
+        (tmp_dir / "logs" / "sub" / "x.txt").write_text("x", encoding="utf-8")
+        cfg = tmp_dir / "config.json"
+        cfg.write_text(body, encoding="utf-8")
+        return cfg
+
+    def test_escaped_ref_does_not_mark_file_stale(self, temp_project_dir):
+        """The escaped value must not abort updates for the whole file."""
+        from linkwatcher.parsers.json_parser import JsonParser
+
+        cfg = self._write(
+            temp_project_dir,
+            '{\n  "esc": "logs' + BS + "/sub" + BS + '/x.txt",\n'
+            '  "plain": "logs/sub/x.txt"\n}\n',
+        )
+        refs = JsonParser().parse_file(str(cfg))
+        updater = LinkUpdater(project_root=str(temp_project_dir))
+
+        stats = updater.update_references(refs, "logs/sub/x.txt", "logs2/sub/x.txt")
+
+        assert stats["stale_files"] == [], "escaped literal marked the file stale"
+        assert stats["files_updated"] == 1
+
+    def test_plain_sibling_still_updates(self, temp_project_dir):
+        """The regression guard: the plain sibling must survive the escaped one."""
+        from linkwatcher.parsers.json_parser import JsonParser
+
+        cfg = self._write(
+            temp_project_dir,
+            '{\n  "esc": "logs' + BS + "/sub" + BS + '/x.txt",\n'
+            '  "plain": "logs/sub/x.txt"\n}\n',
+        )
+        refs = JsonParser().parse_file(str(cfg))
+        LinkUpdater(project_root=str(temp_project_dir)).update_references(
+            refs, "logs/sub/x.txt", "logs2/sub/x.txt"
+        )
+
+        after = cfg.read_text(encoding="utf-8")
+        assert '"logs2/sub/x.txt"' in after, "plain sibling was not updated"
+        assert '"logs/sub/x.txt"' not in after, "stale plain target still present"
+
+    def test_escaped_ref_is_rewritten_and_file_stays_valid_json(self, temp_project_dir):
+        """The escaped reference itself updates, leaving parseable JSON."""
+        import json
+
+        from linkwatcher.parsers.json_parser import JsonParser
+
+        cfg = self._write(
+            temp_project_dir,
+            '{\n  "esc": "logs' + BS + "/sub" + BS + '/x.txt"\n}\n',
+        )
+        refs = JsonParser().parse_file(str(cfg))
+        LinkUpdater(project_root=str(temp_project_dir)).update_references(
+            refs, "logs/sub/x.txt", "logs2/sub/x.txt"
+        )
+
+        after = cfg.read_text(encoding="utf-8")
+        decoded = json.loads(after)
+        assert decoded["esc"] == "logs2/sub/x.txt", "escaped ref not rewritten: {!r}".format(
+            decoded["esc"]
+        )
+        assert decoded["esc"] != "logs/sub/x.txt", "stale target survived the rewrite"
+
+    def test_non_ascii_authoring_survives_the_rewrite(self, temp_project_dir):
+        r"""Re-escaping must not re-spell characters unrelated to the move.
+
+        ``json.dumps`` defaults to ``ensure_ascii=True``, which renders every
+        non-ASCII character as a ``\uXXXX`` escape.  The result stays valid and
+        decodes identically, so nothing breaks -- but a character that had
+        nothing to do with the move comes back in a different spelling, which
+        is precisely what PD-BUG-118/120/124 established must not happen: a
+        rewrite changes WHERE a target points, never HOW it was written.
+
+        The move is performed on disk before updating because a backslash-
+        bearing target is resolved through the PD-BUG-112 disk-existence
+        guard, which leaves the reference untouched when the new path is not
+        real -- without the move this test would pass vacuously.
+        """
+        import json
+        import shutil
+
+        from linkwatcher.parsers.json_parser import JsonParser
+
+        (temp_project_dir / "logs" / "sub").mkdir(parents=True, exist_ok=True)
+        (temp_project_dir / "logs" / "sub" / "nöte.txt").write_text("x", encoding="utf-8")
+        cfg = temp_project_dir / "config.json"
+        cfg.write_text('{\n  "p": "logs' + ESC + "sub" + ESC + 'nöte.txt"\n}\n', encoding="utf-8")
+
+        refs = JsonParser().parse_file(str(cfg))
+        shutil.move(str(temp_project_dir / "logs"), str(temp_project_dir / "logs2"))
+        LinkUpdater(project_root=str(temp_project_dir)).update_references(
+            refs, "logs/sub/nöte.txt", "logs2/sub/nöte.txt"
+        )
+
+        after = cfg.read_text(encoding="utf-8")
+        assert BS + "u00f6" not in after, "non-ASCII re-spelled as a unicode escape: {!r}".format(
+            after
+        )
+        assert "nöte.txt" in after, "authored non-ASCII character lost: {!r}".format(after)
+        assert json.loads(after)["p"] == "logs2" + BS + "sub" + BS + "nöte.txt"

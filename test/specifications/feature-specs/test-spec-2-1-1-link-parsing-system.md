@@ -99,6 +99,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Anchored links | `test_lr_003_links_with_anchors` | file#anchor kept, #section excluded |
 | Complex document | `test_complex_markdown_document` | 7+ targets, mixed formats |
 | Empty/error | `test_empty_file`, `test_file_with_no_links`, `test_error_handling` | Edge cases |
+| Delimiter-gap spans | `TestBug135DelimiterGapSpans` (8 methods) | The span between two delimited literals is not a directory — covering the dominant backtick shape (`` `a` / `b` ``), the quoted-prose shape, mismatched delimiters, and the bogus span that STRADDLED and hid a real backticked directory. Controls pin `~/bin`, a real quoted directory, a real backticked directory, a leading literal, and the genuine neighbour beside a gap (PD-BUG-135) |
 
 **Test File**: [`test/automated/parsers/test_markdown.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_markdown.py) (24 methods)
 
@@ -117,7 +118,10 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Binary data | `test_yaml_with_binary_data` | `!!binary` blocks handled |
 | Quoted paths | `test_quoted_file_paths` | Single, double, unquoted, special chars |
 | Directory paths | `test_bug030_directory_paths_detected_in_yaml`, `test_bug030_directory_paths_coexist_with_file_paths` | Directory paths without extensions detected alongside file paths (PD-BUG-030) |
-| Compound string extraction | `test_compound_command_string_with_embedded_file_path`, `test_compound_string_with_embedded_directory_path` | Embedded file paths extracted from command-line strings via regex sub-path extraction (PD-BUG-060) |
+| Compound string extraction | `test_compound_command_string_with_embedded_file_path`, `test_compound_hook_entry_with_embedded_file_path` | Embedded file paths extracted from command-line strings via regex sub-path extraction (PD-BUG-060). The second test was renamed under PD-BUG-131: it asserted a FILE target under a directory-sounding name |
+| Compound directory extraction | `TestBug131CompoundScalarDirectoryPaths` (9 methods) | A QUOTED directory inside a compound scalar is extracted and typed `YAML_DIR`; an unquoted one is not, and no longer registers the whole command as the target. Controls pin the de-overlap of file candidates, prose containment, and whole-string fall-through (PD-BUG-131) |
+| Escaped compound strings | `TestBug130EscapedCompoundStringPaths` (6 methods) | A path inside a double-quoted compound scalar is found and its span mapped onto the RAW literal; the whole command string is never registered as the target, and an unlocatable scalar is logged rather than dropped (PD-BUG-130) |
+| Value line attribution | `TestBug134SubstringLineAttribution` (10 methods) | A scalar is attributed to the line it occupies, not an earlier line whose larger literal contains it — a longer path it prefixes, or a compound scalar embedding it. Controls pin the plain-scan fallback for shapes the standalone rule does not recognise (an explicit `!!str` tag), the block-scalar opt-out, sequence/flow/comment boundaries, and verbatim repeats (PD-BUG-134) |
 
 **Test File**: [`test/automated/parsers/test_yaml.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_yaml.py) (13 methods)
 
@@ -139,6 +143,10 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Duplicate value line numbers | `test_bug013_duplicate_values_get_correct_line_numbers`, `test_bug013_mixed_duplicate_and_unique_values`, `test_bug013_adjacent_duplicate_values` | Same path on multiple lines gets unique correct line numbers (PD-BUG-013) |
 | Directory paths | `test_bug030_directory_paths_detected_in_json`, `test_bug030_directory_paths_coexist_with_file_paths`, `test_bug030_non_path_strings_not_detected` | Directory paths without extensions detected alongside file paths, non-path strings rejected (PD-BUG-030) |
 | Compound string extraction | `test_compound_string_with_embedded_file_path`, `test_compound_string_multiple_patterns`, `test_compound_string_no_false_positive_from_glob` | Embedded file paths extracted from compound command strings (e.g., permission patterns) via regex sub-path extraction (PD-BUG-061) |
+| Escaped compound strings | `TestBug130EscapedCompoundStringPaths` (9 methods) | A path inside an escape-bearing compound value is found and its span mapped onto the RAW literal, covering doubled backslashes, `\uXXXX`, and a clean path inside a literal escaped elsewhere; the whole command string is never registered as the target, and an unlocatable value is logged rather than dropped (PD-BUG-130) |
+| Compound directory extraction | `TestBug131CompoundStringDirectoryPaths` (12 methods) | A QUOTED directory inside a compound value is extracted and typed `JSON_DIR`; an unquoted one is not, and no longer registers the whole command as the target. Controls pin the de-overlap of file candidates, the clean-path-token guard against prose apostrophes, and whole-string fall-through (PD-BUG-131) |
+| Adjacent-quoted-literal spans | `TestBug133AdjacentQuotedLiteralSpans` (6 methods) | The span between two adjacent quoted literals is not a directory candidate — covering the pathlib operator (`Path(a) / 'b'`), prose apostrophes, and escape fragments — while genuine quoted directories, trailing-separator directories and quoted file paths still resolve (PD-BUG-133) |
+| Value line attribution | `TestBug134SubstringLineAttribution` (7 methods) | A value is attributed to the line it occupies, not an earlier line whose larger literal contains it — the lookup matches the quoted form `"value"`. Controls pin array elements with trailing commas, escaped-literal location, and the PD-BUG-013 whole-string duplicate behaviour (PD-BUG-134) |
 
 **Test File**: [`test/automated/parsers/test_json.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_json.py) (20 methods)
 
@@ -192,6 +200,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Unicode | `test_unicode_handling` | French, Russian, Chinese paths |
 | Empty/error | `test_empty_file`, `test_error_handling` | Edge cases |
 | Quoted directory paths | `test_bug021_quoted_directory_paths_detected` and related tests in `TestGenericParserDirectoryPaths` class | Quoted strings containing path separators but no file extension detected as directory path references (PD-BUG-021) |
+| Delimiter-gap spans | `TestBug135DelimiterGapSpans` (4 methods) | The span between two quoted literals is not a directory; controls pin a real quoted directory and the genuine neighbour beside a gap (PD-BUG-135) |
 
 **Test File**: [`test/automated/parsers/test_generic.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_generic.py) (21 methods)
 
@@ -224,6 +233,7 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 | Regex filtering | `test_regex_patterns_extracted_as_dir_paths`, `test_regex_filtered_at_updater_layer` | PD-BUG-033 |
 | Deduplication | `test_deduplication` | Same ref on same line |
 | Line numbers | `test_line_numbers_are_1_based` | 1-based indexing |
+| Delimiter-gap spans | `TestBug135DelimiterGapSpans` (6 methods) | Neither an unpaired opening quote nor a mismatched pair yields a directory — the STRICT variant does not prevent either. Controls pin a `$Variable`-bearing path, single- and double-quoted directories, and the genuine neighbour beside a gap (PD-BUG-135) |
 
 **Test File**: [`test/automated/parsers/test_powershell.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_powershell.py) (32 methods)
 **Note**: Registered as TE-TST-129 during test audit (2026-03-15) — was previously unregistered.

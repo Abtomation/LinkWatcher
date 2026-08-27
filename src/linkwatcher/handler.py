@@ -86,6 +86,7 @@ AI Context
 
 import os
 import threading
+import time
 from pathlib import Path
 
 from watchdog.events import (
@@ -155,12 +156,20 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         self.project_root = Path(project_root).resolve()
         self.logger = get_logger()
 
-        # Configuration from parameters or DEFAULT_CONFIG
-        self.monitored_extensions = (
-            monitored_extensions
-            if monitored_extensions is not None
-            else DEFAULT_CONFIG.monitored_extensions.copy()
-        )
+        # Configuration from parameters or DEFAULT_CONFIG.
+        # Extensions are stored lowercased so every consumer compares against a
+        # normalized set: `_handle_directory_moved` tests membership directly
+        # rather than through `should_monitor_file`, and `add_extension` below
+        # already lowercases on the assumption this set is normalized. Without
+        # it a ".MD" config entry matched nothing here (PD-BUG-129).
+        self.monitored_extensions = {
+            ext.lower()
+            for ext in (
+                monitored_extensions
+                if monitored_extensions is not None
+                else DEFAULT_CONFIG.monitored_extensions
+            )
+        }
         self.ignored_dirs = (
             ignored_directories
             if ignored_directories is not None
@@ -226,6 +235,15 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
         self._deferred_events = []
         self._deferred_lock = threading.Lock()
 
+        # Watch liveness observation (PD-BUG-139).  ``dispatch`` records the
+        # arrival of *every* event here, before any own-output / ignored-dir
+        # filtering, because the question this answers is "is the OS still
+        # delivering to us at all", not "is this event interesting".
+        self._last_event_monotonic = time.monotonic()
+        self._liveness_lock = threading.Lock()
+        self._liveness_probe_path = None
+        self._liveness_probe_observed = False
+
         # Statistics (protected by _stats_lock — PD-BUG-026)
         self.stats = {
             "files_moved": 0,
@@ -241,6 +259,50 @@ class LinkMaintenanceHandler(FileSystemEventHandler):
             monitored_extensions=list(self.monitored_extensions),
             ignored_dirs=list(self.ignored_dirs),
         )
+
+    def dispatch(self, event):
+        """Record delivery, then dispatch normally (PD-BUG-139).
+
+        This is the single point every watchdog event passes through, and it
+        sits *above* the own-output and ignored-directory filters, so a tree
+        whose only activity is filtered still proves the watch is alive.
+
+        The liveness sentinel is consumed here and never dispatched onward:
+        it is a probe, not project content, and must never reach the parser
+        or the link database.
+        """
+        with self._liveness_lock:
+            self._last_event_monotonic = time.monotonic()
+            probe_path = self._liveness_probe_path
+
+        src_path = getattr(event, "src_path", None)
+        if probe_path is not None and src_path and self._paths_match(src_path, probe_path):
+            with self._liveness_lock:
+                self._liveness_probe_observed = True
+            return
+
+        super().dispatch(event)
+
+    @staticmethod
+    def _paths_match(a: str, b: str) -> bool:
+        """Compare two paths tolerantly (Windows case-insensitivity, separators)."""
+        return os.path.normcase(os.path.normpath(a)) == os.path.normcase(os.path.normpath(b))
+
+    def seconds_since_last_event(self) -> float:
+        """Seconds since any file system event last arrived (PD-BUG-139)."""
+        with self._liveness_lock:
+            return time.monotonic() - self._last_event_monotonic
+
+    def arm_liveness_probe(self, path: str):
+        """Expect an event for ``path`` and clear any previous observation."""
+        with self._liveness_lock:
+            self._liveness_probe_path = path
+            self._liveness_probe_observed = False
+
+    def liveness_probe_observed(self) -> bool:
+        """Whether the armed probe path has been seen since arming."""
+        with self._liveness_lock:
+            return self._liveness_probe_observed
 
     def begin_event_deferral(self):
         """Activate event deferral before initial scan starts (PD-BUG-053)."""

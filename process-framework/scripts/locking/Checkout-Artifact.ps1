@@ -27,6 +27,7 @@
     Free-text holder label: the running task plus context (e.g. "PF-TSK-009 PF-IMP-1234").
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Errors are raised as terminating errors (not bare exit codes) so they survive the
     `&` call operator (script-development quick reference, exit-N-through-& footgun).
 #>

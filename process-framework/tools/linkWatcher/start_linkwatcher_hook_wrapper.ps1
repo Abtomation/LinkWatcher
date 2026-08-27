@@ -27,6 +27,7 @@
         <project>/logs/linkwatcher/).
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit code: always 0. LinkWatcher startup failures must not block session start.
     The output line carries the diagnostic for the agent to surface to the human.
 #>

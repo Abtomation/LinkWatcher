@@ -60,6 +60,7 @@
 .NOTES
     PF-PRO-068 S3 E3 (Session 16). Read-only validator — not soak-enrolled (validator class,
     fleet convention). The hash half of the N-4 pair is Sync-Substrate.ps1 -Check.
+OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding()]

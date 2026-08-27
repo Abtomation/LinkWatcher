@@ -59,6 +59,7 @@
     structurally dormant until the Session F cutover splits the faces — enrollment rides the
     cutover session, when real invocations exist to verify (same disposition as
     Commit-SandboxBaseline, Session 10).
+OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 [CmdletBinding(SupportsShouldProcess = $true)]
@@ -151,11 +152,42 @@ if ($manifest.framework_level_files -and $manifest.framework_level_files.paths) 
     $perLevel += @($manifest.framework_level_files.paths)
 }
 
-# Enumerate the received set: everything under the consumer face minus per-level files and
-# mirror hygiene exclusions.
+# THE SUPPORT CLASS IS EXCLUDED TOO (PF-IMP-1998, PF-PRO-068 Session F).
+# This projection targets a PRODUCER BLUEPRINT — the tree its workspace SHIPS — and the two sets
+# are not the same. A framework face RECEIVES substrate + support; it SHIPS substrate + its own
+# domain content, because support is the frameworks-only payload and its children are projects.
+# Projecting the received set wholesale therefore restores exactly the support-class members the
+# cutover pruned from the blueprint (Constraint 4) and re-ships framework-development tooling to
+# every project at the next rollout. Measured at the cutover: 58 of 163 received files were the
+# pruned support set, and the "obvious" fix for a red gate — run the sync — was the one action
+# that silently undid the cutover.
+#
+# Scope note for a deeper portfolio: this is right while a framework's children are all projects.
+# A framework that ever parents another FRAMEWORK must pass support along, and this exclusion
+# would need to key off the child roles in its registry rather than being unconditional.
+$supportPaths = @()
+if ($manifest.support_exceptions) {
+    foreach ($key in @('task_directories', 'scripts', 'templates', 'guides')) {
+        if ($manifest.support_exceptions.$key) { $supportPaths += @($manifest.support_exceptions.$key) }
+    }
+}
+$supportPaths = @($supportPaths | ForEach-Object { $_.TrimEnd('/') } | Where-Object { $_ })
+
+function Test-IsSupportPath {
+    param([string]$Rel)
+    foreach ($s in $supportPaths) {
+        if ($Rel -eq $s) { return $true }                       # exact file entry
+        if ($Rel.StartsWith($s + '/', [System.StringComparison]::OrdinalIgnoreCase)) { return $true }  # directory entry
+    }
+    return $false
+}
+
+# Enumerate the received set: everything under the consumer face minus per-level files, the
+# support class, and mirror hygiene exclusions.
 $received = @(Get-ChildItem -LiteralPath $consumerFull -Recurse -File | Where-Object {
         $rel = $_.FullName.Substring($consumerFull.Length).TrimStart('\', '/').Replace('\', '/')
         ($rel -notin $perLevel) -and
+        (-not (Test-IsSupportPath -Rel $rel)) -and
         ($rel -notmatch '(^|/)__pycache__/') -and
         ($rel -notmatch '(^|/)\.git/') -and
         ($_.Extension -ne '.pyc')

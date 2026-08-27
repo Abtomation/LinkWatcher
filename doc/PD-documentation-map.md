@@ -49,6 +49,7 @@ and `Build-DocumentationMap.ps1 -Tree PD -Check` to verify it is in sync. Entrie
 
 ## refactoring/plans
 
+- [documentation-alignment-technical-debt-batch-utils-py-ai.md](refactoring/plans/documentation-alignment-technical-debt-batch-utils-py-ai.md) — Refactoring plan: Documentation Alignment technical debt batch: utils.py AI-context inventory reconciliation, PowerShell parser capabilities handbook, and two archived bug-record corrections
 - [extract-shared-structured-data-tree-walk-logic-from-yaml.md](refactoring/plans/extract-shared-structured-data-tree-walk-logic-from-yaml.md) — Refactoring Plan: Extract shared structured-data tree-walk logic from YAML/JSON parsers.
 - [remove-incorrect-colorama-dependency-from-updater-tdd-and-fdd.md](refactoring/plans/remove-incorrect-colorama-dependency-from-updater-tdd-and-fdd.md) — Lightweight Refactoring Plan: Remove incorrect colorama dependency from updater TDD and FDD.
 - [wire-parser-enable-disable-config-flags-into-linkparser-runtime.md](refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md) — Refactoring Plan: Wire parser enable/disable config flags into LinkParser runtime.
@@ -81,7 +82,8 @@ and `Build-DocumentationMap.ps1 -Tree PD -Check` to verify it is in sync. Entrie
 
 ## state-tracking/temporary
 
-- [batch-update-results-BATCH-UPDATE-20260715-170403.json](state-tracking/temporary/batch-update-results-BATCH-UPDATE-20260715-170403.json) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [batch-update-results-BATCH-UPDATE-20260818-230625.json](state-tracking/temporary/batch-update-results-BATCH-UPDATE-20260818-230625.json) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [bug-fix-state-pd-bug-139.md](state-tracking/temporary/bug-fix-state-pd-bug-139.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 - [temp-mig-005-test-reorg-state.md](state-tracking/temporary/temp-mig-005-test-reorg-state.md) — MIG-005 Test/Audit Tree Reorganization — Execution State.
 
 ## state-tracking/validation
@@ -148,6 +150,18 @@ and `Build-DocumentationMap.ps1 -Tree PD -Check` to verify it is in sync. Entrie
 - [multi-project-setup.md](user/handbooks/multi-project-setup.md) — Using across multiple projects
 - [quick-reference.md](user/handbooks/quick-reference.md) — CLI options, config, environment variables, examples
 - [troubleshooting-file-types.md](user/handbooks/troubleshooting-file-types.md) — Detailed diagnosis and fixes for file type monitoring issues
+
+## user/handbooks/explanation
+
+- [how-the-control-panel-stops-daemons.md](user/handbooks/explanation/how-the-control-panel-stops-daemons.md) — Why closing the Control Panel window stops every daemon it manages, and how the drain-then-terminate model bounds that shutdown
+
+## user/handbooks/how-to
+
+- [control-panel-operations.md](user/handbooks/how-to/control-panel-operations.md) — Launch the LinkWatcher Control Panel and use it to start, stop, inspect, and validate daemons across your projects
+
+## user/handbooks/reference
+
+- [control-panel-reference.md](user/handbooks/reference/control-panel-reference.md) — Complete reference for the LinkWatcher Control Panel: command-line options, panel-config.yaml keys, registry resolution, status values, keyboard shortcuts, and file locations
 
 ## validation/reports
 

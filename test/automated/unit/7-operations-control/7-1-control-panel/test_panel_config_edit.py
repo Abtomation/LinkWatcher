@@ -261,29 +261,65 @@ def test_non_utf8_config_is_not_decoded_leniently(config_path):
 
 
 @pytest.mark.parametrize(
-    "body, expected_exc",
+    "body, expected_key",
     [
-        ("log_level: 5\n", "AttributeError"),
-        ("max_file_size_mb: 'big'\n", "TypeError"),
-        ("monitored_extensions: 7\n", "TypeError"),
-        ("move_detect_delay: 'x'\n", "TypeError"),
+        ("log_level: 5\n", "log_level"),
+        ("max_file_size_mb: 'big'\n", "max_file_size_mb"),
+        ("monitored_extensions: 7\n", "monitored_extensions"),
+        ("move_detect_delay: 'x'\n", "move_detect_delay"),
     ],
 )
-def test_type_invalid_value_blocks_save_instead_of_raising(config_path, body, expected_exc):
+def test_type_invalid_value_blocks_save_instead_of_raising(config_path, body, expected_key):
     """CR-3 / EC-11 / KR-05: a wrongly typed value is a blocked save, explained.
 
-    The real loader (never mocked — D-T6) raises rather than reporting an issue
-    for these, so without the handler the exception escapes ``save_config`` and
-    takes the operator's unsaved edits with it. Discriminating condition: remove
-    the handler and each case raises instead of returning a ``SaveResult``.
+    The save must be refused, the file left byte-identical, and the operator
+    told **which key** is wrong.
+
+    Updated by PD-BUG-123 (2026-08-18): these four bodies used to make the real
+    loader *raise*, so this asserted the CR-3 exception handler's wrong-type
+    wording. The loader now reports them as ordinary validation issues, so the
+    same inputs travel the normal ``issues`` path and the operator gets the
+    validator's own message — which names the offending key instead of wrapping
+    a ``TypeError``. That is a strictly better outcome, so the assertion follows
+    it. The handler itself is still required (a pane must survive anything an
+    external module throws) and keeps its own coverage in the test below.
     """
     config_path.write_text(VALID_TEXT, encoding="utf-8")
 
     result = save_config(config_path, body)
 
     assert result.ok is False
-    assert expected_exc in result.error
-    assert "wrong type" in result.error  # the operator-facing explanation, not just the traceback
+    assert expected_key in result.error, result.error
+    assert "Traceback" not in result.error
+    assert config_path.read_text(encoding="utf-8") == VALID_TEXT  # byte-identical on refusal
+    assert no_temp_residue(config_path)
+
+
+def test_loader_exception_is_still_handled_not_escaped(config_path, monkeypatch):
+    """CR-3 / EC-11 / KR-05: the defensive handler must survive PD-BUG-123.
+
+    PD-BUG-123 stopped the loader raising for the *known* type-invalid values,
+    which removed the trigger the test above used to reach this handler. The
+    handler is not obsolete: its contract is that a pane survives anything an
+    external module throws, and without coverage it could be deleted later with
+    nothing going red.
+
+    The exception is therefore forced rather than provoked through a config
+    value — the point is the pane's behaviour when the loader misbehaves, not
+    any particular input that makes it misbehave.
+    """
+    config_path.write_text(VALID_TEXT, encoding="utf-8")
+
+    def _boom(self):
+        raise RuntimeError("loader exploded")
+
+    monkeypatch.setattr(LinkWatcherConfig, "validate", _boom)
+
+    result = save_config(config_path, "max_file_size_mb: 10\n")
+
+    assert result.ok is False
+    assert "wrong type" in result.error  # the operator-facing explanation
+    assert "RuntimeError" in result.error
     assert config_path.read_text(encoding="utf-8") == VALID_TEXT  # byte-identical on refusal
     assert no_temp_residue(config_path)
 

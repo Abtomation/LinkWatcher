@@ -1426,3 +1426,133 @@ class TestMarkdownParserBarePathProseFiltering:
         references = parser.parse_content(content, "test.md")
         targets = [r.link_target for r in references]
         assert targets == ["target.md"], f"Unexpected refs: {targets}"
+
+
+class TestBug135DelimiterGapSpans:
+    r"""PD-BUG-135 regression: the directory patterns matched the span BETWEEN
+    two delimited literals, registering the connecting prose as a directory.
+
+    Both markdown directory patterns are delimiter-class regexes that require
+    a separator *inside* the span::
+
+        quoted_dir_pattern     ['"]([^'"]*[/\\][^'"]*)['"]
+        backtick_dir_pattern   `([^`]*[/\\][^`]*)`
+
+    When a legitimate literal holds no separator the regex fails at that start
+    position and re-anchors on the literal's CLOSING delimiter, pairing it with
+    the NEXT literal's OPENING delimiter -- so the gap between two literals is
+    captured whenever it holds a ``/`` or ``\``.
+
+    The dominant real shape is two backticked literals joined by a slash:
+    ```dev.bat dev-setup` / `dev.bat pre-commit``` yielded the target
+    ``" / "`` 383 times in this repo's markdown alone.  Measured over the whole
+    repo, 653 of 2809 markdown directory references (23%) were such fragments.
+
+    Fixed by a delimiter-pairing guard (``BaseParser._is_paired_delimiter``):
+    the match's opening delimiter must really be an opening one -- an even
+    number of that same character precedes it on the line -- and the closing
+    delimiter must be the same character.  The clean-path-token guard used for
+    the python sibling (PD-BUG-133) was measured deleting legitimate
+    references here, including ``~/bin`` 11 times, so a different rule was
+    required.
+    """
+
+    def test_backtick_gap_between_two_literals_is_not_a_directory(self):
+        """The dominant shape: `a` / `b` captured ' / '."""
+        parser = MarkdownParser()
+        content = "- `dev.bat dev-setup` / `dev.bat pre-commit`\n"
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert " / " not in targets, f"captured the gap between two literals: {targets}"
+        assert not any(t.strip() == "/" for t in targets), f"gap fragment: {targets}"
+
+    def test_quoted_gap_between_two_literals_is_not_a_directory(self):
+        """The prose shape: two quoted naming examples separated by '(Dart/Go),'."""
+        parser = MarkdownParser()
+        content = 'Write `"{name}_test"` (Dart/Go), `"{name}.test"` for JS\n'
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert not any("Dart/Go" in t for t in targets), f"captured the gap: {targets}"
+
+    def test_mismatched_delimiters_do_not_span_a_directory(self):
+        """A span opened by ' and closed by " crosses a literal boundary."""
+        parser = MarkdownParser()
+        content = 'the task\'s `doc/founding/inputs/` and "other"\n'
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        for t in targets:
+            assert not t.startswith("s "), f"mismatched-delimiter span captured: {targets}"
+
+    def test_real_reference_after_a_gap_still_detected(self):
+        """Discriminating control: the guard must not eat the genuine neighbour."""
+        parser = MarkdownParser()
+        content = "- `a` / `b` and the real `doc/state-tracking/permanent` tracker\n"
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/state-tracking/permanent" in targets, f"real ref lost: {targets}"
+        assert " / " not in targets, f"gap survived: {targets}"
+
+    def test_bogus_span_no_longer_suppresses_the_reference_it_straddles(self):
+        """The half that actually cost the user: markdown suppresses a match
+        falling inside an already-claimed span, so a bogus span straddling a
+        real backticked directory HID that reference -- it was never tracked
+        and so silently failed to follow a move.
+
+        Real shape, retrospective-documentation-creation.md line 383: an
+        apostrophe opens a span that closes on a later double quote, spanning
+        the genuine path between them.
+        """
+        parser = MarkdownParser()
+        content = (
+            "- The project's founding material is placed raw in "
+            "`doc/founding/inputs/` and captured into the concept "
+            '(or left unfilled with a "no material" note).\n'
+        )
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/founding/inputs/" in targets, f"real reference still suppressed: {targets}"
+        assert not any(
+            t.startswith("s founding material") for t in targets
+        ), f"mismatched-delimiter span captured: {targets}"
+
+    def test_tilde_home_directory_still_detected(self):
+        """Control for the rule CHOICE: ~/bin is why the python clean-token
+        guard was rejected for this parser (11 occurrences in this repo)."""
+        parser = MarkdownParser()
+        content = "Install default `~/bin` (override via LINKWATCHER_INSTALL_DIR)\n"
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert "~/bin" in targets, f"legitimate tilde path deleted: {targets}"
+
+    def test_genuine_quoted_directory_still_detected(self):
+        """Control (PD-BUG-031): a real quoted directory is unaffected."""
+        parser = MarkdownParser()
+        content = 'The config lives in "doc/state-tracking" today\n'
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/state-tracking" in targets, f"real quoted dir lost: {targets}"
+
+    def test_genuine_backtick_directory_still_detected(self):
+        """Control (PD-BUG-054): a real backticked directory is unaffected."""
+        parser = MarkdownParser()
+        content = "See `src/linkwatcher/parsers` for the parser fleet.\n"
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert "src/linkwatcher/parsers" in targets, f"real backtick dir lost: {targets}"
+
+    def test_first_literal_on_the_line_still_detected(self):
+        """Control: an opening delimiter at index 0 has an even (zero) count."""
+        parser = MarkdownParser()
+        content = "`doc/user/handbooks/` holds the handbooks.\n"
+        refs = parser.parse_content(content, "t.md")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/user/handbooks/" in targets, f"leading literal lost: {targets}"

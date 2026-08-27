@@ -50,6 +50,7 @@ Get-FeatureDesignArtifacts.ps1 -Format Csv > artifacts.csv
 # Bulk export for spreadsheet review
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 Script ID: PF-PRO-002 Phase 1 helper (cross-feature query parity replacement
 for the dropped FDD/TDD/Test Spec master columns). Created 2026-05-07.
 #>

@@ -4,6 +4,8 @@
 <#
 .SYNOPSIS
 Per-feature state-file §4 Documentation Inventory operations — path resolution and inventory-row insertion.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 #
 # Created 2026-05-07 for PF-PRO-002 / PF-IMP-028 (Feature Tracking Lightweight Index).

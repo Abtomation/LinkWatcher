@@ -27,6 +27,7 @@
     Setup-TestEnvironment.ps1 -Clean
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Created: 2026-03-15
     Version: 1.1
     Updated: 2026-05-14 (PF-IMP-871 Phase 3c2 — per-workflow paths: `-Group` renamed to `-Workflow`;

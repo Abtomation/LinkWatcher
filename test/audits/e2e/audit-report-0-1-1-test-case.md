@@ -3,9 +3,9 @@ id: TE-TAR-048
 description: "Test quality assessment"
 type: E2E Test Audit
 category: Test Audit Report
-version: 1.0
+version: 1.1
 created: 2026-04-16
-updated: 2026-04-16
+updated: 2026-08-27
 test_file_path: test/e2e-acceptance-testing/graceful-shutdown-no-corrupted-files/templates/TE-E2E-020-stop-during-idle/test-case.md
 auditor: AI Agent
 feature_id: 0.1.1
@@ -13,6 +13,33 @@ audit_date: 2026-04-16
 ---
 
 # E2E Test Audit Report — TE-E2E-020 Stop During Idle
+
+> ## Post-Audit Correction (2026-08-27, PD-BUG-146)
+>
+> **Two of the four pass criteria this audit approved were unsatisfiable.** Criterion 2 below
+> records "4 explicit pass criteria: file integrity, shutdown log message, no errors, exit code 0"
+> and the summary calls them "4 measurable conditions" with "No issues found". In fact the case's
+> own harness made two of them impossible to meet:
+>
+> - `Application log contains a shutdown/stopping message`
+> - `LinkWatcher process exited with code 0` — measured at -1 under `Stop-Process -Force`
+>
+> `run.ps1` stops the daemon through `Stop-WorkspaceLinkWatcher`, which uses `Stop-Process -Force`:
+> a hard `TerminateProcess` that runs no Python shutdown code. Neither condition can ever hold.
+> Because `Verify-TestResult.ps1` compares only files under `expected/` and reads no logs or exit
+> codes, neither was machine-checked, and the case remained at Passed / Audit Approved regardless.
+>
+> **What this changes**: the Coverage Completeness finding overstated what the case verifies. The
+> case verifies kill-safety (files survive a forced termination), not graceful shutdown.
+>
+> **Corrected under PD-BUG-146** (2026-08-27): the unsatisfiable criteria were removed from the
+> test case, a scope note was added in their place, and
+> `test/automated/unit/0-system-architecture-foundation/test_pd_bug_146_shutdown_criteria_guard.py`
+> now fails the build if any force-killed E2E case reintroduces such a criterion.
+>
+> The verdict below is left exactly as originally written. This is a correction record, not a
+> re-audit — TE-E2E-020 has not been re-audited against its corrected criteria.
+
 
 ## Audit Overview
 

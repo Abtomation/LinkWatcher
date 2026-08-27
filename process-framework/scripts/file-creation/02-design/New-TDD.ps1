@@ -92,10 +92,14 @@ $tierNames = @{
 # reached "📝 Needs TDD" (every design gate in the router is a pass-through) and was handed
 # a Models/Services/Repositories template with nothing to report the mismatch.
 $templateName = if ($Medium -eq 'instruction') { 'tdd-instruction-template.md' } else { "tdd-t$Tier-template.md" }
-$templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/$templateName"
-if (-not (Test-Path $templatePath)) {
+$templateCandidate = Join-Path (Get-ProcessFrameworkPath) "templates/02-design/$templateName"
+# Two-face resolution (PF-IMP-1999): at a framework face this domain template lives in the
+# producer blueprint, not on the Read face this path names — the shared helper retries the
+# miss there; $null means both faces missed.
+$templatePath = Resolve-TemplateFacePath -TemplatePath $templateCandidate
+if (-not $templatePath) {
     $what = if ($Medium -eq 'instruction') { "Instruction-medium terminal template" } else { "Template for Tier $Tier" }
-    Write-ProjectError -Message "$what not found at $templatePath" -ExitCode 1
+    Write-ProjectError -Message "$what not found at $templateCandidate (both workspace faces checked)" -ExitCode 1
 }
 
 $safeFeatureName = ConvertTo-KebabCase -InputString $FeatureName

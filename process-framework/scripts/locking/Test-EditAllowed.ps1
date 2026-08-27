@@ -22,6 +22,8 @@
 
     Kept dependency-light on purpose: imports only LockStore.psm1 (never the
     Common-ScriptHelpers umbrella) because this runs on every Edit/Write tool call.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 [CmdletBinding()]
 param()

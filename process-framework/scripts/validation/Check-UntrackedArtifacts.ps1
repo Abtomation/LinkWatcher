@@ -42,6 +42,7 @@
     staged promotion the other fleet gates follow (PF-IMP-1211).
 
 .NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
     Exit codes:
         0 = no findings, or findings reported in warn-first mode (or not a git repo)
         1 = findings, and -Blocking was passed

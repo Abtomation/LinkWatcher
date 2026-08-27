@@ -11,6 +11,8 @@
 <#
 .SYNOPSIS
 Workspace resolution primitives shared by Common-ScriptHelpers/Core.psm1 and IdRegistry.psm1 — project root, declared role, config read, framework faces, the parent-pointer chain walk, and central resolution.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 
 .DESCRIPTION
 Extracted by PF-PRO-068 Sub-concept 3 (E4-g) from the eleven Core/IdRegistry twin pairs, on the

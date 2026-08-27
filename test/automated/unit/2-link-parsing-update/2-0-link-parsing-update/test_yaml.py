@@ -7,6 +7,7 @@ Implements YP test cases from comprehensive test documentation.
 
 import pytest
 
+from linkwatcher.link_types import LinkType
 from linkwatcher.parsers.yaml_parser import YamlParser
 
 pytestmark = [
@@ -586,8 +587,15 @@ class TestYamlParserCompoundStrings:
         targets = [ref.link_target for ref in references]
         assert "alpha-project/scripts/test/Run-Tests.ps1" in targets
 
-    def test_compound_string_with_embedded_directory_path(self):
-        """Compound string with an embedded directory path should be detected."""
+    def test_compound_hook_entry_with_embedded_file_path(self):
+        """Compound hook entry with an embedded FILE path should be detected.
+
+        Renamed under PD-BUG-131: this was called
+        ``test_compound_string_with_embedded_directory_path`` while asserting a
+        .py FILE target, so it read as directory coverage that did not exist --
+        which is roughly where PD-BUG-131 hid.  Real directory coverage now
+        lives in TestBug131CompoundScalarDirectoryPaths.
+        """
         parser = YamlParser()
         yaml_content = (
             "hooks:\n" '  - entry: "python alpha-project/scripts/feedback_db.py record --json"\n'
@@ -629,3 +637,417 @@ class TestYamlParserCompoundStrings:
         assert all(
             "generic" not in lt for lt in link_types
         ), f"Should not fall back to GenericParser; got link_types: {link_types}"
+
+
+BS = chr(92)
+
+
+class TestBug126EscapedLiteralLineLocation:
+    r"""PD-BUG-126 regression, YAML half.
+
+    ``_find_next_occurrence`` searches the RAW line for the DECODED value, so a
+    double-quoted scalar carrying an escape is dropped exactly as in JSON.
+
+    Exposure is narrower than JSON's: YAML honours backslash escapes only in
+    DOUBLE-quoted scalars, so the single-quoted and plain forms already worked
+    (there, raw and decoded are identical).  Those two are pinned as controls
+    -- they must keep working.
+    """
+
+    def _parse(self, tmp_dir, raw_line):
+        yaml_file = tmp_dir / "config.yaml"
+        yaml_file.write_text(raw_line + "\n", encoding="utf-8")
+        return YamlParser().parse_file(str(yaml_file))
+
+    def test_double_quoted_escaped_backslash_is_detected(self, temp_project_dir):
+        r"""``p: "logs\sub\x.txt"`` -- escapes honoured, so raw != decoded."""
+        refs = self._parse(temp_project_dir, 'p: "logs' + BS * 2 + "sub" + BS * 2 + 'x.txt"')
+
+        assert len(refs) == 1, "double-quoted escaped scalar dropped at line location"
+        assert refs[0].link_target == "logs" + BS + "sub" + BS + "x.txt"
+
+    def test_single_quoted_still_detected(self, temp_project_dir):
+        """Control: single-quoted scalars take backslashes literally."""
+        refs = self._parse(temp_project_dir, "p: 'logs" + BS + "sub" + BS + "x.txt'")
+
+        assert len(refs) == 1
+        assert refs[0].link_target == "logs" + BS + "sub" + BS + "x.txt"
+
+    def test_plain_scalar_still_detected(self, temp_project_dir):
+        """Control: plain scalars take backslashes literally."""
+        refs = self._parse(temp_project_dir, "p: logs" + BS + "sub" + BS + "x.txt")
+
+        assert len(refs) == 1
+        assert refs[0].link_target == "logs" + BS + "sub" + BS + "x.txt"
+
+    def test_forward_slash_still_detected(self, temp_project_dir):
+        """Control: the ordinary escape-free path is unaffected."""
+        refs = self._parse(temp_project_dir, "p: logs/sub/x.txt")
+
+        assert len(refs) == 1
+        assert refs[0].link_target == "logs/sub/x.txt"
+
+
+class TestBug130EscapedCompoundStringPaths:
+    r"""PD-BUG-130 regression, YAML half.
+
+    Same defect and same two silent modes as the JSON twin: the compound-string
+    branch searched the raw line for the DECODED value and offset candidate
+    spans within the decoded text.  Narrower reach than JSON only because YAML
+    honours backslash escapes in DOUBLE-quoted scalars alone -- plain and
+    single-quoted scalars take them literally, so raw and decoded agree and the
+    ordinary search already succeeds.
+    """
+
+    def _parse(self, tmp_dir, line, name="config.yaml"):
+        yaml_file = tmp_dir / name
+        yaml_file.write_text(line + "\n", encoding="utf-8")
+        return YamlParser().parse_file(str(yaml_file))
+
+    def _raw_line(self, tmp_dir, name="config.yaml"):
+        return (tmp_dir / name).read_text(encoding="utf-8").split("\n")[0]
+
+    def test_escaped_path_in_middle_is_detected(self, temp_project_dir):
+        r"""``k: "pwsh -File logs\\sub\\run.ps1 -Verbose"``."""
+        refs = self._parse(
+            temp_project_dir,
+            'k: "pwsh -File logs' + BS * 2 + "sub" + BS * 2 + 'run.ps1 -Verbose"',
+        )
+
+        targets = [r.link_target for r in refs]
+        assert targets == [
+            "logs" + BS + "sub" + BS + "run.ps1"
+        ], "escaped candidate inside a compound scalar was dropped, got {!r}".format(targets)
+
+    def test_escaped_path_at_end_is_not_registered_as_whole_string(self, temp_project_dir):
+        """The whole command line must never become the link target."""
+        refs = self._parse(
+            temp_project_dir,
+            'k: "pwsh -File logs' + BS * 2 + "sub" + BS * 2 + 'run.ps1"',
+        )
+
+        targets = [r.link_target for r in refs]
+        whole = "pwsh -File logs" + BS + "sub" + BS + "run.ps1"
+
+        assert whole not in targets, "whole command string registered as a link target"
+        assert targets == ["logs" + BS + "sub" + BS + "run.ps1"]
+
+    def test_span_covers_the_raw_candidate_not_the_decoded_one(self, temp_project_dir):
+        """The span must address the raw escaped candidate (PD-BUG-124 class)."""
+        refs = self._parse(
+            temp_project_dir,
+            'k: "pwsh -File logs' + BS * 2 + "sub" + BS * 2 + 'run.ps1 -Verbose"',
+        )
+
+        assert len(refs) == 1
+        ref = refs[0]
+        line = self._raw_line(temp_project_dir)
+        assert line[ref.column_start : ref.column_end] == (
+            "logs" + BS * 2 + "sub" + BS * 2 + "run.ps1"
+        ), "span must cover the raw escaped candidate, got {!r}".format(
+            line[ref.column_start : ref.column_end]
+        )
+
+    def test_clean_candidate_inside_escaped_scalar_is_detected(self, temp_project_dir):
+        r"""The candidate is escape-free; the surrounding scalar is not."""
+        refs = self._parse(
+            temp_project_dir,
+            'k: "echo ' + BS + '"x' + BS + '" && pwsh -File doc/scripts/Run.ps1"',
+        )
+
+        assert [r.link_target for r in refs] == ["doc/scripts/Run.ps1"]
+        ref = refs[0]
+        line = self._raw_line(temp_project_dir)
+        assert line[ref.column_start : ref.column_end] == "doc/scripts/Run.ps1"
+
+    def test_plain_compound_scalar_still_detected(self, temp_project_dir):
+        """Control: escape-free compound scalar is unaffected (PD-BUG-060)."""
+        refs = self._parse(temp_project_dir, 'k: "pwsh -File doc/scripts/Run.ps1 -Quick"')
+
+        assert [r.link_target for r in refs] == ["doc/scripts/Run.ps1"]
+
+    def test_single_quoted_compound_scalar_still_detected(self, temp_project_dir):
+        r"""Control: single-quoted scalars take ``\`` literally, so raw == decoded."""
+        refs = self._parse(
+            temp_project_dir, "k: 'pwsh -File logs" + BS + "sub" + BS + "run.ps1 -Quick'"
+        )
+
+        assert [r.link_target for r in refs] == ["logs" + BS + "sub" + BS + "run.ps1"]
+
+
+class TestBug131CompoundScalarDirectoryPaths:
+    """PD-BUG-131 regression: a DIRECTORY path embedded in a compound
+    (space-bearing) YAML scalar was never extracted, and the whole command
+    string was registered as the reference target in its place.
+
+    Root cause: ``_extract_embedded_paths`` reached only for ``_path_pattern``,
+    which requires a file extension.  The two structured parsers never adopted
+    the shared ``QUOTED_DIR_PATTERN`` the other five parsers use for
+    extensionless directories, so a compound scalar holding one yielded no
+    candidates, returned False, and fell through to whole-string
+    classification.
+
+    The delimiter requirement is deliberate and matches every other parser:
+    an UNQUOTED extensionless token is not a directory reference anywhere in
+    this product.
+    """
+
+    def test_quoted_directory_inside_compound_scalar_is_extracted(self):
+        """A quoted directory inside a command scalar is a directory reference."""
+        parser = YamlParser()
+        content = "cmd: pwsh.exe -File 'doc/technical/design' -Recurse\n"
+        references = parser.parse_content(content, "config.yaml")
+        targets = [r.link_target for r in references]
+
+        assert "doc/technical/design" in targets
+        # Strong negative: the whole command must NOT survive as a target
+        assert not any("pwsh.exe -File" in t for t in targets)
+
+    def test_extracted_directory_carries_the_dir_link_type(self):
+        """A directory candidate must be typed YAML_DIR, not YAML."""
+        parser = YamlParser()
+        content = "cmd: pwsh.exe -File 'doc/technical/design' -Recurse\n"
+        references = parser.parse_content(content, "config.yaml")
+        dir_refs = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert dir_refs, "directory candidate was not extracted"
+        assert dir_refs[0].link_type == LinkType.YAML_DIR
+
+    def test_unquoted_compound_directory_does_not_register_whole_command(self):
+        """Symptom (b): the bracketed command must not become a link target."""
+        parser = YamlParser()
+        content = 'cmd: "Bash([ -d doc/design ])"\n'
+        references = parser.parse_content(content, "config.yaml")
+        targets = [r.link_target for r in references]
+
+        assert not any("Bash(" in t for t in targets)
+
+    def test_directory_value_with_spaces_still_classified_whole_string(self):
+        """Discriminating control for symptom (b): a genuine path containing a
+        space is still a directory reference -- the containment must reject
+        command syntax, not spaces."""
+        parser = YamlParser()
+        content = 'target: "doc/my design"\n'
+        references = parser.parse_content(content, "config.yaml")
+
+        assert [r.link_target for r in references] == ["doc/my design"]
+        assert references[0].link_type == LinkType.YAML_DIR
+
+    def test_prose_containing_a_slash_is_not_harvested_as_a_directory(self):
+        """Noise containment: an unquoted prose slash must not become a target."""
+        parser = YamlParser()
+        content = 'description: "Parser tests for Dart import/part statement parsing"\n'
+        references = parser.parse_content(content, "config.yaml")
+        targets = [r.link_target for r in references]
+
+        assert "import/part" not in targets
+
+    def test_prose_apostrophes_do_not_span_a_directory_candidate(self):
+        """Symmetry with the JSON suite (code review suggestion).
+
+        The code is shared through ``BaseParser._collect_path_candidates``, so
+        behaviour is identical; this pins it on the YAML side too rather than
+        relying on the JSON test to cover both.
+        """
+        parser = YamlParser()
+        q = chr(39)
+        content = (
+            "description: "
+            + chr(34)
+            + "naming: "
+            + q
+            + "a_test"
+            + q
+            + " (Dart/Go), "
+            + q
+            + "b_test"
+            + q
+            + chr(34)
+            + "\n"
+        )
+        references = parser.parse_content(content, "config.yaml")
+        targets = [r.link_target for r in references]
+
+        assert not any("Dart/Go" in t for t in targets)
+
+    def test_quoted_file_path_inside_compound_is_not_duplicated_as_directory(self):
+        """De-overlap control: a file candidate is recorded once, as a file."""
+        parser = YamlParser()
+        content = "cmd: pwsh.exe -File 'doc/scripts/Run.ps1' -Quick\n"
+        references = parser.parse_content(content, "config.yaml")
+        matching = [r for r in references if r.link_target == "doc/scripts/Run.ps1"]
+
+        assert len(matching) == 1, "candidate recorded more than once"
+        assert matching[0].link_type == LinkType.YAML
+
+    def test_compound_file_path_extraction_still_works(self):
+        """Control (PD-BUG-060): the file-path branch is unaffected."""
+        parser = YamlParser()
+        content = 'cmd: "pwsh -File doc/scripts/Run.ps1 -Quick"\n'
+        references = parser.parse_content(content, "config.yaml")
+
+        assert [r.link_target for r in references] == ["doc/scripts/Run.ps1"]
+
+    def test_filename_with_spaces_still_falls_through(self):
+        """Control: a scalar with no candidates keeps whole-string classification."""
+        parser = YamlParser()
+        content = 'target: "doc/a file with spaces.txt"\n'
+        references = parser.parse_content(content, "config.yaml")
+
+        assert [r.link_target for r in references] == ["doc/a file with spaces.txt"]
+
+
+class TestBug134SubstringLineAttribution:
+    """Regression tests for PD-BUG-134: a scalar attributed to an earlier line
+    that merely CONTAINS it as a substring, leaving its own line stale.
+
+    The YAML sibling of the JSON defect.  ``_find_next_occurrence`` already
+    skips a position another reference took, which covers a scalar repeated
+    verbatim -- but not one sitting INSIDE a larger literal, where no
+    reference holds that exact (target, column) pair.
+    """
+
+    def test_bug134_directory_not_attributed_inside_longer_path(self):
+        """A directory that is a PREFIX of a longer path on an earlier line."""
+        parser = YamlParser()
+        content = "spec: doc/technical/design/spec.md\ndir: doc/technical/design\n"
+
+        references = parser.parse_content(content, "config.yaml")
+        dir_refs = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert len(dir_refs) == 1
+        assert dir_refs[0].line_number == 2, (
+            "directory attributed to the longer path's line " f"(line {dir_refs[0].line_number})"
+        )
+        line2 = content.split("\n")[1]
+        assert line2[dir_refs[0].column_start : dir_refs[0].column_end] == "doc/technical/design"
+
+    def test_bug134_plain_scalar_not_attributed_to_unquoted_compound_line(self):
+        """An UNQUOTED directory inside a compound scalar is deliberately not a
+        reference (PD-BUG-131), so no reference holds that position -- and the
+        plain scalar on the next line used to be attributed to it, which both
+        left line 2 stale and rewrote a value that is not a reference."""
+        parser = YamlParser()
+        content = "cmd: pwsh -File doc/technical/design -Recurse\nplain: doc/technical/design\n"
+
+        references = parser.parse_content(content, "config.yaml")
+        matching = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert len(matching) == 1, f"expected only the plain scalar, got {matching}"
+        assert matching[0].line_number == 2, (
+            "plain scalar attributed to the compound line " f"(line {matching[0].line_number})"
+        )
+
+    def test_bug134_suffix_collision_does_not_capture_the_value(self):
+        """Boundary control: an earlier value ENDING with the search text must
+        not claim it."""
+        parser = YamlParser()
+        content = "other: vendor/doc/design\ndir: doc/design\n"
+
+        references = parser.parse_content(content, "config.yaml")
+        exact = [r for r in references if r.link_target == "doc/design"]
+
+        assert len(exact) == 1
+        assert exact[0].line_number == 2
+
+    def test_bug134_quoted_compound_candidate_still_gets_its_own_line(self):
+        """Non-regression control (PD-BUG-131): a QUOTED directory inside a
+        compound scalar is a reference, and the plain scalar below it keeps a
+        separate line."""
+        parser = YamlParser()
+        content = (
+            "cmd: \"pwsh.exe -File 'doc/technical/design' -Recurse\"\nplain: doc/technical/design\n"
+        )
+
+        references = parser.parse_content(content, "config.yaml")
+        matching = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert len(matching) == 2
+        assert sorted(r.line_number for r in matching) == [1, 2]
+
+    def test_bug134_tagged_scalar_still_located(self):
+        """Fallback control: a shape the standalone-scalar rule does not
+        recognise (an explicit YAML tag) must still be located rather than
+        dropped -- the strict pass falls back to the plain scan."""
+        parser = YamlParser()
+        content = "dir: !!str doc/technical/design\n"
+
+        references = parser.parse_content(content, "config.yaml")
+        matching = [r for r in references if r.link_target == "doc/technical/design"]
+
+        assert len(matching) == 1, "tagged scalar dropped instead of falling back"
+        assert matching[0].line_number == 1
+
+    def test_bug134_list_items_attributed_per_line(self):
+        """Boundary control: block sequence entries."""
+        parser = YamlParser()
+        content = "dirs:\n  - doc/one/design\n  - doc/two/design\n"
+
+        references = parser.parse_content(content, "config.yaml")
+        by_target = {r.link_target: r.line_number for r in references}
+
+        assert by_target == {"doc/one/design": 2, "doc/two/design": 3}
+
+    def test_bug134_flow_sequence_and_trailing_comment_attributed(self):
+        """Boundary control: a flow sequence and a commented scalar are both
+        whole values despite their trailing punctuation."""
+        parser = YamlParser()
+        content = "flow: [doc/a/design, doc/b/design]\nnoted: doc/c/design  # keep\n"
+
+        references = parser.parse_content(content, "config.yaml")
+        by_target = {r.link_target: r.line_number for r in references}
+
+        assert by_target == {
+            "doc/a/design": 1,
+            "doc/b/design": 1,
+            "doc/c/design": 2,
+        }
+
+    def test_bug134_block_scalar_candidates_still_located(self):
+        """Non-regression control (PD-BUG-079): candidates inside a multiline
+        block scalar are located individually and are NOT whole values, so the
+        standalone rule must not be applied to them."""
+        parser = YamlParser()
+        content = (
+            "script: |\n  pwsh -File doc/scripts/Run.ps1 -Quick\n  python doc/scripts/run.py\n"
+        )
+
+        references = parser.parse_content(content, "config.yaml")
+        by_target = {r.link_target: r.line_number for r in references}
+
+        assert by_target == {"doc/scripts/Run.ps1": 2, "doc/scripts/run.py": 3}
+
+    def test_bug134_block_scalar_candidate_not_pulled_onto_a_later_value(self):
+        """The block-scalar opt-out (whole_value=False) is load-bearing, not
+        redundant with the fallback.
+
+        Applying the standalone rule to a block-scalar candidate makes the
+        strict pass skip the fragment on its own line and match a LATER line
+        where the same path is a whole value.  The two references then swap
+        lines: the candidate claims the standalone line, and the standalone
+        value is pushed onto the block scalar by the fallback behind it."""
+        parser = YamlParser()
+        content = (
+            "script: |\n" "  pwsh -File doc/scripts/Run.ps1 -Quick\n" "other: doc/scripts/Run.ps1\n"
+        )
+
+        references = parser.parse_content(content, "config.yaml")
+        refs = [r for r in references if r.link_target == "doc/scripts/Run.ps1"]
+
+        assert len(refs) == 2
+        assert sorted(r.line_number for r in refs) == [2, 3]
+        # Order matters: the block-scalar candidate is recorded first and must
+        # hold line 2, the line it actually occupies.
+        assert refs[0].line_number == 2, "block-scalar candidate pulled onto the later value"
+        assert refs[1].line_number == 3
+
+    def test_bug134_repeated_scalar_still_gets_distinct_lines(self):
+        """Non-regression control: a scalar repeated verbatim keeps one
+        reference per line."""
+        parser = YamlParser()
+        content = "a: data/report.md\nb: data/report.md\nc: data/report.md\n"
+
+        references = parser.parse_content(content, "config.yaml")
+        refs = [r for r in references if r.link_target == "data/report.md"]
+
+        assert sorted(r.line_number for r in refs) == [1, 2, 3]

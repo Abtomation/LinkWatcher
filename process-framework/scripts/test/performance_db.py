@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 """Performance Results Database — Persistent storage for performance test results.
 
 Stores performance test measurements in a SQLite database,

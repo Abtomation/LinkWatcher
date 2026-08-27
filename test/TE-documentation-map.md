@@ -27,6 +27,14 @@ and `Build-DocumentationMap.ps1 -Tree TE -Check` to verify it is in sync. Entrie
 - [audit-report-2-1-1-test-case.md](audits/e2e/audit-report-2-1-1-test-case.md) — Test quality assessment
 - [audit-report-2-2-1-te-e2e-032.md](audits/e2e/audit-report-2-2-1-te-e2e-032.md) — Test audit report for feature 2.2.1 (E2E)
 - [audit-report-2-2-1-te-e2e-033.md](audits/e2e/audit-report-2-2-1-te-e2e-033.md) — Test audit report for feature 2.2.1 (E2E)
+- [audit-report-7-1-1-te-e2e-034.md](audits/e2e/audit-report-7-1-1-te-e2e-034.md) — Test audit report for feature 7.1.1 (E2E)
+- [audit-report-7-1-1-te-e2e-035.md](audits/e2e/audit-report-7-1-1-te-e2e-035.md) — Test audit report for feature 7.1.1 (E2E)
+- [audit-report-7-1-1-te-e2e-036.md](audits/e2e/audit-report-7-1-1-te-e2e-036.md) — Test audit report for feature 7.1.1 (E2E)
+- [audit-report-7-1-1-te-e2e-037.md](audits/e2e/audit-report-7-1-1-te-e2e-037.md) — Test audit report for feature 7.1.1 (E2E)
+- [audit-report-7-1-1-te-e2e-038.md](audits/e2e/audit-report-7-1-1-te-e2e-038.md) — Test audit report for feature 7.1.1 (E2E)
+- [audit-report-7-1-1-te-e2e-039.md](audits/e2e/audit-report-7-1-1-te-e2e-039.md) — Test audit report for feature 7.1.1 (E2E)
+- [audit-report-7-1-1-te-e2e-040.md](audits/e2e/audit-report-7-1-1-te-e2e-040.md) — Test audit report for feature 7.1.1 (E2E)
+- [audit-report-7-1-1-te-e2e-041.md](audits/e2e/audit-report-7-1-1-te-e2e-041.md) — Test audit report for feature 7.1.1 (E2E)
 - [audit-report-te-e2e-003-test-case.md](audits/e2e/audit-report-te-e2e-003-test-case.md) — Test quality assessment
 - [audit-report-te-e2e-004-test-case.md](audits/e2e/audit-report-te-e2e-004-test-case.md) — Test quality assessment
 - [audit-report-te-e2e-005-test-case.md](audits/e2e/audit-report-te-e2e-005-test-case.md) — Test quality assessment
@@ -200,6 +208,42 @@ and `Build-DocumentationMap.ps1 -Tree TE -Check` to verify it is in sync. Entrie
 ## e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-028-validate-ignore-rules-suppress
 
 - [test-case.md](e2e-acceptance-testing/link-health-audit-broken-link-report/templates/TE-E2E-028-validate-ignore-rules-suppress/test-case.md) — E2E acceptance test (WF-009): TE-E2E-028 Validate Ignore Rules Suppress.
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates
+
+- [master-test-manage-running-linkwatcher-instances-via-control-panel.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/master-test-manage-running-linkwatcher-instances-via-control-panel.md) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-034-panel-lists-running-daemons
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-034-panel-lists-running-daemons/test-case.md) — E2E acceptance test case: panel lists running daemons
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-035-start-and-stop-daemon-from-panel
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-035-start-and-stop-daemon-from-panel/test-case.md) — E2E acceptance test case: start and stop daemon from panel
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-036-close-panel-drains-in-flight-move
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-036-close-panel-drains-in-flight-move/test-case.md) — E2E acceptance test case: close panel drains in flight move
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-037-forced-terminate-on-grace-expiry
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-037-forced-terminate-on-grace-expiry/test-case.md) — E2E acceptance test case: forced terminate on grace expiry
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-038-panel-triggered-validation
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-038-panel-triggered-validation/test-case.md) — E2E acceptance test case: panel triggered validation
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-039-config-edit-persists-and-flags-restart
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-039-config-edit-persists-and-flags-restart/test-case.md) — E2E acceptance test case: config edit persists and flags restart
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-040-log-pane-live-tail
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-040-log-pane-live-tail/test-case.md) — E2E acceptance test case: log pane live tail
+
+## e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-041-second-launch-surfaces-existing-window
+
+- [test-case.md](e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-041-second-launch-surfaces-existing-window/test-case.md) — E2E acceptance test case: second launch surfaces existing window
 
 ## e2e-acceptance-testing/multi-format-file-move-all-parsers-handle/templates
 

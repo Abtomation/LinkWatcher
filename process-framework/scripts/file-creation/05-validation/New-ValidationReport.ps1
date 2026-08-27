@@ -141,7 +141,11 @@ catch {
 
 # Resolve paths using project root for reliability
 $ProjectRoot = if ($useEnhancedTracking) { Get-ProjectRoot } else { (Get-Item (Join-Path $ScriptDirectory "../../../..")).FullName }
-$TemplateFile = Join-Path (Get-ProcessFrameworkPath) "templates/05-validation/validation-report-template.md"
+# Two-face resolution (PF-IMP-1999): at a framework face this domain template lives in the
+# producer blueprint, not on the Read face; the shared helper retries the miss there.
+# $TemplateFile is $null when both faces miss — the create function guards on that.
+$TemplateCandidate = Join-Path (Get-ProcessFrameworkPath) "templates/05-validation/validation-report-template.md"
+$TemplateFile = Resolve-TemplateFacePath -TemplatePath $TemplateCandidate
 # Discover active validation tracking file (highest -N suffix in state-tracking/validation/)
 $trackingDir = Join-Path $ProjectRoot "doc/state-tracking/validation"
 $trackingFiles = Get-ChildItem -Path $trackingDir -Filter "validation-tracking-*.md" -File |
@@ -468,9 +472,9 @@ function New-ValidationReportFromTemplate {
     )
 
     try {
-        # Read template
-        if (-not (Test-Path $TemplateFile)) {
-            throw "Template file not found: $TemplateFile"
+        # Read template ($TemplateFile is the face-resolved path, $null when both faces missed)
+        if (-not $TemplateFile -or -not (Test-Path $TemplateFile)) {
+            throw "Template file not found: $TemplateCandidate (both workspace faces checked)"
         }
 
         $templateContent = Get-Content $TemplateFile -Raw

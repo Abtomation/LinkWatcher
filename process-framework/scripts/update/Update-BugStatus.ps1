@@ -74,7 +74,10 @@ Used when transitioning to NeedsReview; rendered into the bug's Notes as "Tests 
 URL to the pull request containing the fix - used when transitioning to NeedsReview
 
 .PARAMETER VerificationNotes
-Notes from verification process. Required when transitioning to Closed and with -FastClose.
+Notes from verification process. Required when transitioning to Closed and with -FastClose;
+accepted on any transition, and carried into the bug's Notes as "Verification: <value>" on
+whichever one supplied it. The Code Review task uses it on a rejection (-NewStatus InProgress)
+to carry the review findings the next Bug Fixing session reads.
 
 .PARAMETER ReopenReason
 Reason for reopening the bug. Required when transitioning to Reopened.
@@ -355,13 +358,17 @@ function Update-BugEntryContent {
     Write-ProjectLog "Found bug entry for $BugId"
     $currentEntry = $match.Value
 
-    # Parse the table row (see column index mapping at top of script)
-    $columns = $currentEntry -split '\|' | ForEach-Object { $_.Trim() }
-
-    # Skip empty first element (before first |)
-    if ($columns[0] -eq '') {
-        $columns = $columns[1..($columns.Length - 1)]
+    # Parse the table row (see column index mapping at top of script) through the canonical
+    # TableOperations helper (PF-IMP-2069): it drops the empty element at BOTH ends and is
+    # pipe-escape aware. The former hand-rolled split stripped only the LEADING empty element,
+    # so the surviving trailing one became a stray empty cell on every rebuild below — one per
+    # invocation, compounding across a bug's lifecycle.
+    $parsedColumns = Split-MarkdownTableRow -Line $currentEntry.Trim()
+    if ($null -eq $parsedColumns -or @($parsedColumns).Count -lt 11) {
+        Write-ProjectLog "Bug entry for $BugId is not a well-formed 11-column table row: $currentEntry" -Level "ERROR"
+        return $null
     }
+    $columns = @($parsedColumns)
 
     # Update status
     $statusEmoji = Get-StatusEmoji -Status $NewStatus
@@ -393,28 +400,33 @@ function Update-BugEntryContent {
         $columns[9] = $UpdateData.Dims
     }
 
-    # Update notes with status-specific information (column [10])
+    # Update notes with whatever detail the caller supplied (column [10]).
+    #
+    # PF-IMP-2069: this was a switch keyed on $NewStatus, with an arm per status naming the
+    # fields that status consumes. Anything supplied outside the current status's arm was
+    # accepted, carried into $UpdateData, and then silently dropped while the run still logged
+    # SUCCESS. Two live losses: -VerificationNotes on the InProgress transition (no arm at all
+    # — the exact call code-review-task.md prescribes on rejection, whose summary is the only
+    # record of the findings the next Bug Fixing session reads), and -FixDetails / -RootCause /
+    # -TestsAdded on the -FastClose path, where -FixDetails is a REQUIRED parameter that never
+    # reached the row. An ordered label map applied to what was actually supplied kills the
+    # discard class rather than adding a sixth hardcoded arm; order matches the former arms.
     $notes = $columns[10]
     $currentDate = Get-Date -Format "yyyy-MM-dd"
 
-    switch ($NewStatus) {
-        "NeedsFix" {
-            if ($UpdateData.TriageNotes) { $notes += "; Triage: $($UpdateData.TriageNotes)" }
-        }
-        "NeedsReview" {
-            if ($UpdateData.FixDetails) { $notes += "; Fix: $($UpdateData.FixDetails)" }
-            if ($UpdateData.RootCause) { $notes += "; Root Cause: $($UpdateData.RootCause)" }
-            if ($UpdateData.TestsAdded) { $notes += "; Tests Added: $($UpdateData.TestsAdded)" }
-            if ($UpdateData.PullRequestUrl) { $notes += "; PR: $($UpdateData.PullRequestUrl)" }
-        }
-        "Closed" {
-            if ($UpdateData.VerificationNotes) { $notes += "; Verification: $($UpdateData.VerificationNotes)" }
-        }
-        "Reopened" {
-            if ($UpdateData.ReopenReason) { $notes += "; Reopen Reason: $($UpdateData.ReopenReason)" }
-        }
-        "Rejected" {
-            if ($UpdateData.RejectionReason) { $notes += "; Rejected: $($UpdateData.RejectionReason)" }
+    $noteLabels = [ordered]@{
+        TriageNotes       = "Triage"
+        FixDetails        = "Fix"
+        RootCause         = "Root Cause"
+        TestsAdded        = "Tests Added"
+        PullRequestUrl    = "PR"
+        VerificationNotes = "Verification"
+        ReopenReason      = "Reopen Reason"
+        RejectionReason   = "Rejected"
+    }
+    foreach ($noteField in $noteLabels.Keys) {
+        if ($UpdateData.$noteField) {
+            $notes += "; $($noteLabels[$noteField]): $($UpdateData.$noteField)"
         }
     }
 
@@ -423,8 +435,10 @@ function Update-BugEntryContent {
     }
     $columns[10] = $notes
 
-    # Reconstruct the table row and replace
-    $updatedEntry = "| " + ($columns -join " | ") + " |"
+    # Reconstruct the table row through the canonical helper (PF-IMP-2069) — the write half of
+    # Split-MarkdownTableRow's round-trip contract, so a literal pipe inside caller-supplied
+    # note prose is escaped instead of silently becoming an extra cell.
+    $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
 
     Write-ProjectLog "Successfully updated bug $BugId to status: $statusEmoji $displayName" -Level "SUCCESS"
@@ -854,7 +868,10 @@ function Main {
                 # Read-after-write verification: confirm the bug row exists in archive (it moved there)
                 if (-not $WhatIfPreference) {
                     $rowPattern = "\|\s*" + [regex]::Escape($BugId) + "\s*\|"
-                    Assert-LineInFile -Path $ArchiveFile -Pattern $rowPattern -Context "bug row for $BugId in $ArchiveFile (archive)"
+                    # Assert-TableRowInFile, not Assert-LineInFile (PF-IMP-2069): a presence-only
+                    # assert passed a row whose cell count had drifted from its header, which is
+                    # how the stray-cell defect stayed silent while every run reported SUCCESS.
+                    Assert-TableRowInFile -Path $ArchiveFile -Pattern $rowPattern -Context "bug row for $BugId in $ArchiveFile (archive)"
                 }
 
                 if ($soakInSoak) {
@@ -1000,7 +1017,8 @@ function Main {
             if (-not $WhatIfPreference) {
                 $rowPattern = "\|\s*" + [regex]::Escape($BugId) + "\s*\|"
                 $verifyFile = if ($NewStatus -in @("Closed", "Rejected")) { $ArchiveFile } else { $BugTrackingFile }
-                Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "bug row for $BugId in $verifyFile"
+                # Header-aware post-condition (PF-IMP-2069) — see the FastClose site above.
+                Assert-TableRowInFile -Path $verifyFile -Pattern $rowPattern -Context "bug row for $BugId in $verifyFile"
             }
 
             if ($soakInSoak) {

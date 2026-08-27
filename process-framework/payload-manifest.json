@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "name": "payload-manifest",
+    "description": "FrameworkBuilder's payload classification - the path-level ownership truth for everything FB ships (PF-PRO-067 N-5, realized by PF-PRO-068 WI-2, classification frozen at the Session A owner checkpoint). DEFAULT-COVERED: any shipped path NOT named in support_exceptions is class 'substrate' (most protective: ships to every child transitively, synced, hash-gated, edit-refused in consumers, ownership-lined). The manifest lists only exceptions - a forgotten file fails safe (unneeded substrate treatment), never open (silent editability). Consumed by the generalized Push payload filter, the substrate sync step, and the drift/banner gate (all land Sessions E-G).",
+    "created": "2026-08-06",
+    "updated": "2026-08-06",
+    "classification_rules": {
+      "default": "substrate - ships to every child (frameworks re-ship at their pin per Question C); who-runs-it decides, not whose-pipeline-it-feeds: filing tools every workspace runs (New-FeedbackForm, New-ProcessImprovement, Find-Improvement, feedback_db.py, extract_ratings.py, New-PermanentState, New-TempTaskState) are substrate even though they feed the framework-development pipeline",
+      "support": "role-filtered - reaches only children whose declared role is framework or framework-builder; a project tree never receives these paths",
+      "domain": "not in FB's payload at all - each framework's own authored content, shipped by that framework to its children",
+      "granularity": "file-level wherever a directory mixes classes (templates/support/ and guides/support/ each hold substrate files - a directory-level entry would misclassify ~10 files; PF-PRO-068 v2 sweep finding)"
+    }
+  },
+  "support_exceptions": {
+    "description": "The complete support-class exception list, frozen at the PF-PRO-068 Session A checkpoint. Paths are relative to the shipped framework root (process-framework/) except the skills block (relative to the blueprint root).",
+    "task_directories": [
+      "tasks/support/"
+    ],
+    "skills": [
+      ".claude/skills/task-creation/",
+      ".claude/skills/framework-extension-concept/",
+      ".claude/skills/template-development/",
+      ".claude/skills/creation-script-development/",
+      ".claude/skills/process-improvement/",
+      ".claude/skills/imp-triage/"
+    ],
+    "skills_note": "state-file-customization is deliberately ABSENT (substrate by the Session A hard-case ruling: its permanent-state half serves projects and the substrate script New-PermanentState.ps1 prints a pointer to it on every success).",
+    "scripts": [
+      "scripts/file-creation/support/New-Task.ps1",
+      "scripts/file-creation/support/New-Template.ps1",
+      "scripts/file-creation/support/New-Guide.ps1",
+      "scripts/file-creation/support/New-StructureChangeState.ps1",
+      "scripts/file-creation/support/New-StructureChangeProposal.ps1",
+      "scripts/file-creation/support/New-FrameworkExtensionConcept.ps1",
+      "scripts/file-creation/support/New-FrameworkEvaluationReport.ps1",
+      "scripts/file-creation/support/New-PendingMigration.ps1",
+      "scripts/file-creation/support/Register-Project.ps1",
+      "scripts/file-creation/06-maintenance/New-ReviewSummary.ps1",
+      "scripts/update/Update-ProcessImprovement.ps1",
+      "scripts/update/Update-ImprovementBacklog.ps1",
+      "scripts/update/Update-PendingMigration.ps1",
+      "scripts/update/Update-LanguageConfig.ps1",
+      "scripts/rollout/Push-FrameworkUpdate.ps1",
+      "scripts/rollout/Restore-FrameworkVersion.ps1",
+      "scripts/rollout/Commit-SandboxBaseline.ps1",
+      "scripts/rollout/PayloadFilter.psm1"
+    ],
+    "scripts_note": "New-ReviewSummary is named individually because it lives OUTSIDE file-creation/support/ (PF-PRO-068 v2 sweep finding). scripts/rollout/ holds the rollout machinery, relocated from appdev's process-framework-central/scripts/ at PF-PRO-068 Session E2 (2026-08-10). PayloadFilter.psm1 (E4-c) is the shared payload-classification module Push and Restore both import; this list is FILE-level, so an unlisted file under scripts/rollout/ would ship to every project as substrate — anything added there needs a line here. Update-LanguageConfig is support by the Session A hard-case ruling (fleet-wide language-config maintenance is producer work; the language configs and runners it maintains are substrate). Deliberately substrate (absent here): New-FeedbackForm, New-PermanentState, New-ProcessImprovement, New-TempTaskState (script substrate; 4 of its 6 template variants are support - see templates), Update-ScriptReferences (runs in project cwds during Mode C migrations), Find-Improvement, feedback_db.py, extract_ratings.py.",
+    "templates": [
+      "templates/support/task-template.md",
+      "templates/support/template-base-template.md",
+      "templates/support/guide-template.md",
+      "templates/support/framework-extension-concept-template.md",
+      "templates/support/framework-extension-concept-creation-template.md",
+      "templates/support/framework-extension-concept-modification-template.md",
+      "templates/support/framework-extension-concept-minimal-template.md",
+      "templates/support/framework-extension-concept-pattern-template.md",
+      "templates/support/framework-evaluation-report-template.md",
+      "templates/support/tools-review-summary-template.md",
+      "templates/support/structure-change-proposal-template.md",
+      "templates/support/structure-change-state-template.md",
+      "templates/support/structure-change-state-content-update-template.md",
+      "templates/support/structure-change-state-framework-extension-template.md",
+      "templates/support/structure-change-state-from-proposal-template.md",
+      "templates/support/structure-change-state-rename-template.md",
+      "templates/support/pending-migration-entry-template.md",
+      "templates/support/pending-migration-entry-cleanup-template.md",
+      "templates/support/temp-task-creation-state-template.md",
+      "templates/support/temp-process-improvement-state-template.md",
+      "templates/support/temp-framework-extension-state-template.md",
+      "templates/support/temp-framework-evaluation-state-template.md",
+      "templates/support/document-creation-script-template.ps1",
+      "templates/support/update-script-template.ps1"
+    ],
+    "templates_note": "Deliberately substrate in templates/support/ (absent here): state-file-template.md (New-PermanentState consumes it; projects create PD-STA files), feedback-form-template.md (New-FeedbackForm), language-config-template.json (TestRunner error path directs projects to it), Run-Tests-runner-template.ps1 (TestRunner + Project Initiation), temp-refactoring-state-template.md and temp-retrospective-documentation-state-template.md (product-task variants of New-TempTaskState, run in project cwds; the latter is also hard-coded by the substrate gate Validate-DesignDimensions.ps1), feedback-db-input-template.json (travels with its substrate tool feedback_db.py). task-completion-template.md is RETIRED (see retirements).",
+    "guides": [
+      "guides/support/framework-rollout-usage-guide.md",
+      "guides/support/process-improvement-task-reference-guide.md",
+      "guides/support/tools-review-edge-cases-guide.md",
+      "guides/support/craft-skill-authoring-guide.md",
+      "guides/support/guide-creation-best-practices-guide.md",
+      "guides/support/migration-best-practices.md"
+    ],
+    "guides_note": "Deliberately substrate in guides/support/ (absent here): script-development-quick-reference.md (blueprint CLAUDE.md @-references it as the PowerShell-execution single source of truth; 8+ product tasks link it - ships whole per the Session A hard-case ruling), visual-notation-guide.md, feature-tracking-mutation-guide.md, cross-project-issue-filing-guide.md, schema-audit-procedure-guide.md (detector-companion rule). ALL of guides/framework/ is substrate (the operating spine)."
+  },
+  "optional_parts": {
+    "description": "Named substrate part groups a framework's consumption profile may decline (producer classifies, consumer selects - PF-PRO-067 N-5). Conservative initial set; parts accrete as consumer needs surface (umbrella Risk 4 discipline: mechanism now, values accrete). A part not declined ships by default.",
+    "feature-domain-helpers": {
+      "description": "Application-development-flavored helper surface a non-code framework may decline (the legal fork renamed FeatureTracking to ItemTracking rather than consume it - the empirical trigger for this part).",
+      "paths": [
+        "scripts/Common-ScriptHelpers/FeatureTracking.psm1",
+        "scripts/Common-ScriptHelpers/AssessmentParsing.psm1",
+        "scripts/Common-ScriptHelpers/DesignArtifactCreation.psm1",
+        "scripts/Common-ScriptHelpers/StateFileInventory.psm1",
+        "scripts/Common-ScriptHelpers/TestTracking.psm1",
+        "scripts/Get-FeatureDesignArtifacts.ps1"
+      ],
+      "caveat": "Declining this part requires the consumer's re-shipped payload to also exclude it. VERIFIED at Session B population (2026-08-06): the umbrella import (Common-ScriptHelpers.psm1) is already resilient - Test-Path guard with warn-and-continue per sub-module - and an empirical run with all six part files removed loads the umbrella cleanly (exit 0, 82 functions, core exports intact) emitting one loud warning per absent module. The part is fully declinable, not advisory. Consumer-experience note: a declining consumer sees ~5 'Sub-module not found' warnings per umbrella import; suppressing expected-absent warnings for declared-declined parts is a consumption-profile refinement for the Session E payload-filter work."
+    },
+    "code-testing-runners": {
+      "description": "Per-language test runners and performance tooling a code-free framework may decline.",
+      "paths": [
+        "scripts/language-specific-scripts/",
+        "scripts/test/performance_db.py",
+        "scripts/test/test_query.py"
+      ]
+    }
+  },
+  "consumption_profile_schema": {
+    "description": "Contract 4 consumed-parts, concrete: each framework's doc/project-config.json MAY carry a consumption_profile block; ABSENT means the full default payload (all substrate incl. all optional parts + support, role permitting).",
+    "location": "project-config.json top-level key 'consumption_profile'",
+    "shape": {
+      "declined_parts": "array of optional_parts keys this framework does not take and does not re-ship"
+    },
+    "read_at": "rollout time by the generalized Push payload filter (Session E)"
+  },
+  "ownership_line_conventions": {
+    "description": "Every shipped file carries a per-language ownership line - authored once at FB, shipped byte-identical, validated against this manifest by the drift/banner gate (a disagreeing banner is a gate failure, not an exemption). Authoring lands with the Session B population; the gate with Session E.",
+    "powershell": ".NOTES block line: 'OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.'",
+    "python": "header comment, same sentence",
+    "markdown": "frontmatter field owned_by: FWK-FB",
+    "json": "metadata.owned_by field where a metadata block exists; otherwise exempt (noted per file in the gate's allowlist)"
+  },
+  "per_level_files": {
+    "description": "RATIFIED WITH CHANGES (owner, 2026-08-12, PF-PRO-068 S3 E4) - supersedes the Session B amendment that stood 'pending ratification' while the Push filter had already consumed it since Session 8. Files authored or written per level at EVERY target role: never shipped, and - the correction - never orphan-deleted at the destination either. PRESERVE semantics: stripped from the staged payload (so the producer's copy is not copied over the child's) AND passed to the mirror's /XF (so /MIR does not delete the child's copy as an orphan). Stripping alone DELETES, which is the E4-b defect this ratification fixes. Paths relative to the shipped framework root.",
+    "paths": [
+      "domain-config.json",
+      ".framework-parent-pointer",
+      ".framework-central-pointer",
+      ".framework-version",
+      ".framework-version-previous"
+    ],
+    "note": "Both pointer names (the .framework-central-pointer -> .framework-parent-pointer rename transition, PF-PRO-068 S6 C4) and .framework-version-previous are written per child by the rollout itself. .framework-version is ALSO written per child as of the E4-b fix: it previously reached the child by riding the unfiltered mirror, so under a filtered payload it was deleted with nothing rewriting it (finding F2, measured at the E4 drill - the child kept a rollback pointer but lost the record of what it runs, and the rollout log then read 'rolled back from (unrecorded)'). domain-config.json is genuinely level-authored: measured 2026-08-12, APP-003 carries a ratings_db_path key appdev's copy lacks, authored after its last rollout - owner decision 2026-08-12 is to KEEP the child's copy."
+  },
+  "framework_level_files": {
+    "description": "Per-level ONLY when the target authors these itself - i.e. a target whose declared role is 'framework' or 'framework-builder'. Such a face generates its own catalogs from its own tree (Build-TaskMetadata / Build-DocumentationMap) and mints from its own pools, so the producer must not ship its copies over them. A PROJECT target authors none of this: it consumes the producer's copies and must KEEP RECEIVING them, so for a project these paths are ordinary substrate and are NOT excluded. Same PRESERVE semantics as per_level_files when they do apply.",
+    "applies_to_target_roles": [
+      "framework",
+      "framework-builder"
+    ],
+    "paths": [
+      "PF-id-registry.json",
+      "ai-tasks.md",
+      "PF-documentation-map.md",
+      "README.md",
+      ".ai-entry-point.md",
+      "infrastructure/process-framework-task-registry.md",
+      "infrastructure/task-transition-registry.md",
+      "tasks/README.md",
+      "templates/README.md",
+      "scripts/validation/core-file-budgets.json"
+    ],
+    "note": "Split out of per_level_files by owner decision 2026-08-12 (PF-PRO-068 S3 E4). The flat list applied one answer to every role, which for a project meant deleting its task catalog (ai-tasks.md), its session entry point (.ai-entry-point.md), its ID registry and its doc map on the first filtered rollout - the framework at that project would stop being usable until git-restored. Evidence for the project side: no registered project is ahead of appdev on ANY PF-* counter (measured across APP-001/002/003, 2026-08-12), and post-cutover a project cannot mint framework IDs at all because New-Task / New-Guide / New-Template are support-class and withheld. Divergence at the projects is rollout staleness (APP-001/002 sat on 2026-07-02-001 against appdev's 2026-07-30-001), not level-authored state. scripts/validation/core-file-budgets.json was ADDED to this block by owner decision 2026-08-13 (PF-PRO-068 S3 E4-i): it was already level-authored in fact and unclassified in the manifest - Session B trimmed FB's copy to the 28 files present in FB's tree and said so in the file's own metadata, while appdev's copy keeps all 97 (the 28 shared VALUES were identical, so the trim removed rows and never changed numbers). Left as substrate it would have been overwritten at the first post-cutover Sync-Substrate (Copy-Item -Force over everything outside these two blocks), replacing appdev's 97 rows with FB's 28 and SILENTLY un-budgeting 69 domain task/guide files - Check-CoreFileBudget then prints '(69 scanned file(s) carry no budget yet)' and exits 0, so it reads as a pass. Same defect class as E4-b, in a file that was on no list. A project keeps receiving it: a project authors no budgets and its core-file set is the producer's."
+  },
+  "retirements": {
+    "task-completion-template.md": "Retired at PF-PRO-068 Session A (2026-08-06, owner-approved): orphaned - sole reference was the generated doc map; its own automation_rationale ('embedded via New-Task.ps1') was stale prose, New-Task.ps1 has zero references. ID PF-TEM-013 stays burned per id_gaps_policy."
+  }
+}

@@ -457,3 +457,99 @@ class TestPowerShellLeadingWhitespace:
         targets = [r.link_target for r in refs]
         # The target should be trimmed — no leading spaces
         assert "alpha-project/framework/state-tracking/backups" in targets
+
+
+class TestBug135DelimiterGapSpans:
+    r"""PD-BUG-135 regression: ``QUOTED_DIR_PATTERN_STRICT`` matched the span
+    BETWEEN two quoted literals, registering the connecting prose as a
+    directory.
+
+    The STRICT variant only requires a character after the last separator, so
+    it does not prevent the gap capture.  Two shapes occur in real scripts:
+
+    * **Unpaired opening quote** -- between two single-quoted literals the
+      "delimiters" are the closing quote of the first and the opening quote of
+      the second, so ``'main' (the tasks/ catalog root) and the 'default'``
+      registered the parenthesised prose as a directory.
+    * **Mismatched delimiters** -- a double-quoted message containing an
+      apostrophe closed the span on that apostrophe, so
+      ``"... (.claude/skills/api-design/), activated by the API Design task's
+      ..."`` registered the whole sentence prefix as a directory.
+
+    Measured over this repo the PowerShell parser produced 408 directory
+    references, 24 of which were such fragments.
+
+    Fixed by the shared delimiter-pairing guard
+    (``BaseParser._is_paired_delimiter``).  The clean-path-token guard used for
+    the python sibling (PD-BUG-133) was measured deleting 265 references here,
+    including ``Program Files/Git`` and every ``$Variable``-bearing path, so a
+    different rule was required.
+    """
+
+    def test_unpaired_opening_quote_is_not_a_directory(self):
+        """Real shape (New-Task.ps1): prose between two single-quoted literals."""
+        parser = PowerShellParser()
+        content = "# 'main' (the tasks/ catalog root) and the 'default' alias are keys\n"
+        refs = parser.parse_content(content, "t.ps1")
+        targets = [r.link_target for r in refs]
+
+        assert not any(
+            "catalog root" in t for t in targets
+        ), f"captured the gap between two literals: {targets}"
+
+    def test_mismatched_delimiters_do_not_span_a_directory(self):
+        """Real shape (New-FDD.ps1): a double-quoted message closed on an
+        apostrophe, capturing the sentence prefix as a directory."""
+        parser = PowerShellParser()
+        content = (
+            '$details += "apply the fdd-creation craft skill '
+            "(.claude/skills/fdd-creation/), activated by the FDD Creation task's "
+            'Check Recommended Skills step"\n'
+        )
+        refs = parser.parse_content(content, "t.ps1")
+        targets = [r.link_target for r in refs]
+
+        assert not any(
+            t.startswith("apply the fdd-creation") for t in targets
+        ), f"mismatched-delimiter span captured: {targets}"
+
+    def test_real_reference_beside_a_gap_still_detected(self):
+        """Discriminating control: the genuine neighbour must survive."""
+        parser = PowerShellParser()
+        content = (
+            "# 'main' (the tasks/ catalog root) and the 'default' alias; "
+            "see 'doc/state-tracking' for status\n"
+        )
+        refs = parser.parse_content(content, "t.ps1")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/state-tracking" in targets, f"real ref lost: {targets}"
+        assert not any("catalog root" in t for t in targets), f"gap survived: {targets}"
+
+    def test_variable_bearing_path_still_detected(self):
+        """Control for the rule CHOICE: a $Variable path is why the python
+        clean-token guard was rejected for this parser."""
+        parser = PowerShellParser()
+        content = '$p = "$WorkspacePath/doc/state-tracking"\n'
+        refs = parser.parse_content(content, "t.ps1")
+        targets = [r.link_target for r in refs]
+
+        assert "$WorkspacePath/doc/state-tracking" in targets, f"variable path lost: {targets}"
+
+    def test_genuine_quoted_directory_still_detected(self):
+        """Control: a real quoted directory is unaffected."""
+        parser = PowerShellParser()
+        content = '$p = "doc/state-tracking"\n'
+        refs = parser.parse_content(content, "t.ps1")
+        targets = [r.link_target for r in refs]
+
+        assert "doc/state-tracking" in targets, f"real quoted dir lost: {targets}"
+
+    def test_single_quoted_directory_still_detected(self):
+        """Control: the single-quoted form survives the pairing guard."""
+        parser = PowerShellParser()
+        content = "$p = 'src/linkwatcher/parsers'\n"
+        refs = parser.parse_content(content, "t.ps1")
+        targets = [r.link_target for r in refs]
+
+        assert "src/linkwatcher/parsers" in targets, f"single-quoted dir lost: {targets}"

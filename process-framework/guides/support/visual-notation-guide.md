@@ -6,6 +6,7 @@ version: 1.0
 created: 2025-06-11
 updated: 2026-06-15
 description: "Standard notation for framework mermaid diagrams (e.g. Integration Narratives, task/guide component diagrams)"
+owned_by: FWK-FB
 ---
 
 # Visual Notation Guide for AI Interpretation

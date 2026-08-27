@@ -47,6 +47,8 @@
 .EXAMPLE
     Run-ScriptConventionGate.ps1 -Blocking
     # blocking — fails the gate on any phantom call or curated-rule finding.
+.NOTES
+    OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 [CmdletBinding()]
 param(

@@ -41,7 +41,10 @@ repos:
         # E2E acceptance test trees under test/e2e-acceptance-testing/ are sample-project
         # *fixtures* that LinkWatcher parses as data, not source to lint — linting them would
         # force edits that alter fixture content and the behavior the E2E cases verify.
-        exclude: ^test/e2e-acceptance-testing/
+        # process-framework/ is rollout-managed and read-only in this project: a finding there
+        # cannot be fixed here (any local edit is reverted by the next Framework Rollout), so
+        # linting it only blocks commits. Framework lint defects are filed as IMPs instead.
+        exclude: ^(test/e2e-acceptance-testing/|process-framework/)
 
   - repo: local
     hooks:

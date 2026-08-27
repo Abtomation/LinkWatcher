@@ -112,7 +112,6 @@ The process framework includes multiple interconnected tasks. This document help
 
 ```
 What is needed next?
-├─ Framework customization needed → Framework Domain Adaptation
 ├─ Features already known → Feature Request Evaluation or Feature Discovery
 ├─ Adopting framework into existing codebase → Codebase Feature Discovery
 └─ Greenfield project → Begin normal development workflow (Feature Discovery)
@@ -1135,128 +1134,6 @@ What was the assessment result?
 3. **Plan Comprehensive Workflow**: Prepare for temporary state tracking, bug discovery, and potential ADR creation
 4. **Update Technical Debt Tracking**: Mark selected items as "🔄 In Progress" before starting refactoring
 5. **Prepare Decision Matrix**: Review 4-tier bug severity decision process for systematic bug discovery
-
-### Transitioning FROM Framework Evaluation (PF-TSK-079)
-
-<!-- merged from transition-registry entry: Framework Evaluation -->
-**Prerequisites for Transition:**
-
-- [ ] Evaluation scope defined and approved
-- [ ] All selected dimensions evaluated with scores and evidence
-- [ ] Evaluation report created via New-FrameworkEvaluationReport.ps1
-- [ ] IMP entries registered for actionable findings
-
-**Next Task Selection:**
-
-- **Improvements needed**: → Process Improvement (to address IMP entries from evaluation)
-- **Structural issues found**: → Structure Change (for reorganization needs)
-- **Missing tasks identified**: → New Task Creation Process (to fill gaps)
-- **No major issues**: → Return to development work
-
-### Transitioning FROM Framework Extension Task (PF-TSK-026)
-
-<!-- merged from transition-registry entry: Framework Extension Task -->
-**Prerequisites for Transition:**
-
-- [ ] Framework Extension Concept Document created and approved
-- [ ] Impact analysis documented, including the per-declaration enforcement trace (Step 4)
-- [ ] **Pilot vs. Full Rollout decision made at Step 4.5** (PF-PRO-030); if pilot, adopters / success criteria / decision trigger defined
-- [ ] New task definitions created and integrated into `ai-tasks.md`
-- [ ] Supporting infrastructure created (templates, guides, scripts, directories)
-- [ ] Core framework files updated (`ai-tasks.md`, `PF-documentation-map.md`, PF ID Registry)
-- [ ] Temporary state tracking file completed (all phases done)
-- [ ] **Framework script verification done**: every new or modified `.ps1`/`.psm1` produced by this extension has a co-located Pester unit test (`<ScriptName>.Tests.ps1`, fixture modeled on a real project's row format) green at extension close; a new/modified Python script with no Pester harness was verified by a recorded before/after contrast run instead. N/A if the extension produced no scripts. Introduced by the Framework Self-Testing extension (PF-PRO-035).
-- [ ] **If pilot was chosen**: pilot row exists in central [Section 5 — Active Pilots](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md#section-5--active-pilots) with status `Active`; the driving IMP is Completed without `-ArchiveConcept`; concept doc remains in `appdev/process-framework-central/proposals/` (archive deferred until pilot resolves)
-
-**Next Task Selection:**
-
-- **Further refinements needed**: → Process Improvement (for polish and adjustments)
-- **New tasks ready to use**: → Execute the newly created extension-specific tasks
-- **Documentation updates needed**: → Structure Change (if reorganization required)
-- **Pilot was chosen — eventual rollout/rollback decision**: → Process Improvement (later session) processes the decision-trigger IMP filed at Phase 4. On resolution: `Update-ProcessImprovement.ps1 -ImprovementId <pilot PF-IMP-NNN> -NewStatus Resolved -Impact <HIGH|MEDIUM|LOW> -ValidationNotes "<decision summary>"` records the disposition, automatically archives the concept doc to `proposals/old/`, and moves the pilot row from Active Pilots to Completed Improvements (PF-IMP-729). The originally-deferred archive is owned by this later session, not the original Framework Extension Task session.
-
-### Transitioning FROM New Task Creation Process (PF-TSK-001)
-
-**Lightweight Mode — Next Tasks:**
-
-- **[Framework Evaluation](../tasks/support/framework-evaluation.md)** (PF-TSK-079) — Mandatory quality gate in a separate session before the new task can be used in production workflows
-- **New Task Usage** — The new task is ready for use after Framework Evaluation passes
-
-**Full Mode — Next Tasks:**
-
-- **Continue Multi-Session Implementation** — Use the temporary state tracking file to continue implementation across sessions:
-  - Session 2: Document creation infrastructure (if task creates new files)
-  - Session 3: Templates and craft skills creation
-  - Session 4: Metadata projection and cross-cutting updates
-  - Session 5: Framework Evaluation (PF-TSK-079) — mandatory quality gate before task can be used
-- **Track Progress** — Update temporary state file after each session with completed items and next steps
-- **Delete Temporary State File** — Remove the temporary tracking file once all infrastructure is complete and functional
-
-**Follow-Up Tasks (Both Modes):**
-
-- [**Process Improvement**](../tasks/support/process-improvement-task.md) - If task creation reveals process gaps or improvements needed
-- **New Task Usage** - Once complete, the new task can be used for its intended purpose
-
-<!-- merged from transition-registry entry: New Task Creation Process -->
-**Prerequisites for Transition:**
-
-- [ ] New task definition created
-- [ ] Task integrated into framework
-- [ ] Task documentation completed
-- [ ] Task transition patterns defined
-
-**Next Task Selection:**
-
-- **Always**: → Update Task Transition Guide (this document) to include new task
-
-### Transitioning FROM Process Improvement (PF-TSK-009)
-
-<!-- merged from transition-registry entry: Process Improvement -->
-**Prerequisites for Transition:**
-
-- [ ] Process improvement analysis completed
-- [ ] Improvement recommendations documented
-- [ ] Process changes implemented or planned
-- [ ] Impact assessment completed
-- [ ] **Framework script verification done**: each script touched was verified per its edit kind's row in the [framework-script verification table](../guides/support/process-improvement-task-reference-guide.md#framework-script-verification-by-edit-kind). N/A if no scripts were touched. Introduced by the Framework Self-Testing extension (PF-PRO-035).
-
-**Next Task Selection:**
-
-```
-What type of improvement was made?
-├─ Workflow changes → Return to development with new process
-├─ Documentation structure changes → Structure Change
-└─ Tool improvements needed → Tools Review
-```
-
-### Transitioning FROM Structure Change Task (PF-TSK-014)
-
-<!-- merged from transition-registry entry: Structure Change -->
-**Prerequisites for Transition:**
-
-- [ ] Structure change plan executed
-- [ ] Files moved/reorganized as planned
-- [ ] All links and references updated
-- [ ] Structure change documented
-- [ ] **Framework script verification done**: if the structure change touched any `.ps1`/`.psm1` files (path-prefix changes, helper-module signature changes, script renames), their Pester unit tests (fixtures modeled on a real project's row format) were added/updated alongside the edit and the targeted Pester run is green; a touched Python script with no Pester harness was verified by a recorded before/after contrast run instead. The test suite is the cheapest catch for silent breakage in mass renames / column moves / path-prefix changes. N/A if no scripts were touched. Introduced by the Framework Self-Testing extension (PF-PRO-035).
-
-**Next Task Selection:**
-
-- **Always**: → Return to interrupted development work or continue with planned tasks
-
-### Transitioning FROM Tools Review Task (PF-TSK-010)
-
-<!-- merged from transition-registry entry: Tools Review -->
-**Prerequisites for Transition:**
-
-- [ ] Tool evaluation completed
-- [ ] Tool improvements implemented
-- [ ] Tool documentation updated
-- [ ] Tool effectiveness measured
-
-**Next Task Selection:**
-
-- **Always**: → Return to development work with improved tools
 
 <!-- BEGIN HAND-WRITTEN: non-task-entries -->
 ### Transitioning TO System Architecture Review

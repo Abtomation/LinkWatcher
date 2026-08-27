@@ -281,10 +281,13 @@ $customReplacements = @{
 # Create the document using standardized process
 try {
     $templateName = "test-file-template$fileExtension.template"
-    $templatePath = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/$templateName"
+    $templateCandidate = Join-Path (Get-ProcessFrameworkPath) "templates/03-testing/$templateName"
 
-    if (-not (Test-Path $templatePath)) {
-        Write-Error "Template not found: $templatePath. Please create the $templateName template first."
+    # Two-face resolution (PF-IMP-1999): at a framework face this domain template lives in the
+    # producer blueprint, not on the Read face; the shared helper retries the miss there.
+    $templatePath = Resolve-TemplateFacePath -TemplatePath $templateCandidate
+    if (-not $templatePath) {
+        Write-Error "Template not found: $templateCandidate. Please create the $templateName template first."
         exit 1
     }
 

@@ -35,7 +35,6 @@ This document serves as the **comprehensive registry** of all process framework 
 - **E2E Acceptance Test Execution** ([PF-TSK-070](../tasks/03-testing/e2e-acceptance-test-execution-task.md))
 - **FDD Creation** ([PF-TSK-027](../tasks/02-design/fdd-creation-task.md))
 - **Instruction Design** ([PF-TSK-094](../tasks/02-design/instruction-design-task.md))
-- **New Task Creation Process** ([PF-TSK-001](../tasks/support/new-task-creation-process.md))
 - **System Architecture Review** ([PF-TSK-019](../tasks/01-planning/system-architecture-review.md))
 - **Technical Debt Assessment Task** ([PF-TSK-023](../tasks/cyclical/technical-debt-assessment-task.md))
 - **Technical Design Document (TDD) Creation** ([PF-TSK-015](../tasks/02-design/tdd-creation-task.md))
@@ -56,17 +55,14 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Feature Implementation Planning Task** ([PF-TSK-044](../tasks/04-implementation/feature-implementation-planning-task.md))
 - **Feature Request Evaluation** ([PF-TSK-067](../tasks/01-planning/feature-request-evaluation.md))
 - **Foundation Feature Implementation Task** ([PF-TSK-024](../tasks/04-implementation/foundation-feature-implementation-task.md))
-- **Framework Extension Task** ([PF-TSK-026](../tasks/support/framework-extension-task.md))
 - **Integration and Testing** ([PF-TSK-053](../tasks/04-implementation/integration-and-testing.md))
 - **Integration Narrative Creation** ([PF-TSK-083](../tasks/02-design/integration-narrative-creation.md))
 - **Performance & E2E Test Scoping** ([PF-TSK-086](../tasks/03-testing/performance-and-e2e-test-scoping-task.md))
 - **Performance Baseline Capture** ([PF-TSK-085](../tasks/03-testing/performance-baseline-capture-task.md))
 - **Performance Test Creation** ([PF-TSK-084](../tasks/03-testing/performance-test-creation-task.md))
-- **Process Improvement** ([PF-TSK-009](../tasks/support/process-improvement-task.md))
 - **Project Initiation** ([PF-TSK-059](../tasks/00-setup/project-initiation-task.md))
 - **Retrospective Documentation Creation** ([PF-TSK-066](../tasks/00-setup/retrospective-documentation-creation.md))
 - **State Management Implementation** ([PF-TSK-056](../tasks/04-implementation/state-management-implementation.md))
-- **Structure Change Task** ([PF-TSK-014](../tasks/support/structure-change-task.md))
 - **Technical Exploration** ([PF-TSK-093](../tasks/01-planning/technical-exploration-task.md))
 - **Test Audit** ([PF-TSK-030](../tasks/03-testing/test-audit-task.md))
 - **UI Implementation** ([PF-TSK-052](../tasks/04-implementation/ui-implementation.md))
@@ -75,8 +71,6 @@ This document serves as the **comprehensive registry** of all process framework 
 ### 🔄 Partially Automated Tasks
 
 - **Codebase Feature Analysis** ([PF-TSK-065](../tasks/00-setup/codebase-feature-analysis.md))
-- **Framework Evaluation** ([PF-TSK-079](../tasks/support/framework-evaluation.md))
-- **Tools Review Task** ([PF-TSK-010](../tasks/support/tools-review-task.md))
 - **User Documentation Creation** ([PF-TSK-081](../tasks/07-deployment/user-documentation-creation.md))
 
 ### 🔧 Manual Tasks
@@ -85,10 +79,7 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Codebase Feature Discovery** ([PF-TSK-064](../tasks/00-setup/codebase-feature-discovery.md))
 - **Codebase Source Migration** ([PF-TSK-091](../tasks/00-setup/codebase-source-migration-task.md))
 - **Documentation Tier Adjustment Task** ([PF-TSK-011](../tasks/cyclical/documentation-tier-adjustment-task.md))
-- **Framework Domain Adaptation** ([PF-TSK-080](../tasks/support/framework-domain-adaptation.md))
-- **Framework Rollout** ([PF-TSK-088](../tasks/support/framework-rollout-task.md))
 - **Git Commit and Push** ([PF-TSK-082](../tasks/07-deployment/git-commit-and-push.md))
-- **IMP Triage** ([PF-TSK-089](../tasks/support/imp-triage-task.md))
 - **Implementation Finalization** ([PF-TSK-055](../tasks/04-implementation/implementation-finalization.md))
 - **Release & Deployment** ([PF-TSK-008](../tasks/07-deployment/release-deployment-task.md))
 
@@ -1039,183 +1030,6 @@ This document serves as the **comprehensive registry** of all process framework 
 - **Trigger:** _(schedule / user request)_
 - **Output:** `technical-debt-tracking.md` → new items added (triggers PF-TSK-022)
 
-### **Support Tasks**
-
-#### **Framework Domain Adaptation** ([PF-TSK-080](../tasks/support/framework-domain-adaptation.md))
-
-**🔧 Process Type:** 🔧 **Manual**
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Updates** | Framework documents (multiple) | Manual | Domain-specific terminology translations, adapted templates, updated references |
-| **Deletes** | Obsolete domain-specific documents | Manual | Removes documents no longer applicable to new domain |
-
-**🔗 TRIGGER & OUTPUT**
-
-- **Trigger:** _(user request)_
-- **Output:** All framework files → domain-adapted
-
-#### **Framework Evaluation** ([PF-TSK-079](../tasks/support/framework-evaluation.md))
-
-**🔧 Process Type:** 🔄 **Partially Automated**
-
-**Scripts:** [`New-FrameworkEvaluationReport.ps1`](../scripts/file-creation/support/New-FrameworkEvaluationReport.ps1), [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1)
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Creates** | `appdev/process-framework-central/evaluation-reports/YYYYMMDD-framework-evaluation-{scope}.md` | Script | Evaluation report from template (PF-TEM-064) |
-| **Updates** | [`process-improvement-tracking.md`](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | Script | Adds improvement entries via New-ProcessImprovement.ps1 |
-
-**🔗 TRIGGER & OUTPUT**
-
-- **Trigger:** _(schedule / user request)_
-- **Output:** `process-improvement-tracking.md` → new IMP items (triggers PF-TSK-009)
-
-#### **Framework Extension Task** ([PF-TSK-026](../tasks/support/framework-extension-task.md))
-
-**🔧 Process Type:** 🔄 **Semi-Automated**
-
-**Scripts:** [`New-FrameworkExtensionConcept.ps1`](../scripts/file-creation/support/New-FrameworkExtensionConcept.ps1)
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Creates** | Framework extension concept document | [`New-FrameworkExtensionConcept.ps1`](../scripts/file-creation/support/New-FrameworkExtensionConcept.ps1) | Detailed concept document for framework extension |
-| **Creates** | Temporary state tracking file | `New-TempTaskState.ps1` | Multi-session implementation tracking |
-| **Updates** | [`PF-documentation-map.md`](../PF-documentation-map.md) | Manual | Register new framework documents |
-| **Updates** | [`process-improvement-tracking.md`](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | Manual | Track extension progress if linked to IMP entry |
-| **Updates** | [`script-soak-tracking.md`](../../../process-framework-central/state-tracking/permanent/script-soak-tracking.md) | Manual via `Register-SoakScript` | Conditional: if the extension creates new PowerShell scripts, each is registered for 5-invocation soak verification (PF-PRO-028). |
-| **Updates** | Multiple process framework files (varies) | Manual | Updates vary based on extension scope |
-
-**🔗 TRIGGER & OUTPUT**
-
-- **Trigger:** _(user request)_
-- **Output:** `ai-tasks.md`, `PF-documentation-map.md`, ID registry → updated
-
-#### **Framework Rollout** ([PF-TSK-088](../tasks/support/framework-rollout-task.md))
-
-**🔧 Process Type:** 🔧 **Manual**
-
-**Scripts:** [`Register-Project.ps1`](../scripts/file-creation/support/Register-Project.ps1), [`New-PendingMigration.ps1`](../scripts/file-creation/support/New-PendingMigration.ps1), [`Update-PendingMigration.ps1`](../scripts/update/Update-PendingMigration.ps1), [`Push-FrameworkUpdate.ps1`](../scripts/rollout/Push-FrameworkUpdate.ps1), [`Restore-FrameworkVersion.ps1`](../scripts/rollout/Restore-FrameworkVersion.ps1), [`Commit-SandboxBaseline.ps1`](../scripts/rollout/Commit-SandboxBaseline.ps1)
-
-**📁 FILE OPERATIONS**
-
-> Mode letters A–D refer to this task's Operating Modes. `process-framework-central` paths are producer-face-only; `<project>/` paths are written into each registered target project.
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Updates** | `process-framework-central/project-registry.json` | `Register-Project.ps1` (A); `Push-FrameworkUpdate.ps1` (B) | A: new child-ID entry; B: `current_framework_version` + `last_rollout` per target |
-| **Updates** | `<project>/doc/project-config.json` | `Register-Project.ps1` (A) | Adds/updates the `project_id` field |
-| **Creates** | `process-framework-central/per-project-migrations/<PROJECT-ID>/pending-migrations.md` | `Register-Project.ps1` (A) | Empty ledger skeleton (real projects only) |
-| **Creates** | producer-repo git tag `rollout-<YYYY-MM-DD-NNN>` (+ commit pushed to the config-declared remote) | `Push-FrameworkUpdate.ps1` (B) | Rollout snapshot tag = the rollback target |
-| **Replaces** | `<project>/process-framework/` (entire tree) | `Push-FrameworkUpdate.ps1` (B) | Mirrors the canonical framework into each target |
-| **Updates** | `<project>/process-framework/.framework-version`, `.framework-version-previous`, `.framework-central-pointer` | `Push-FrameworkUpdate.ps1` (B); `Restore-FrameworkVersion.ps1` (D) | Version-stamp + central-pointer files per target |
-| **Updates** | `process-framework-central/rollouts/rollout-log.md` | `Push-FrameworkUpdate.ps1` (B); `Restore-FrameworkVersion.ps1` (D) | New rollout (B) or rollback (D) entry |
-| **Updates** | project working documents named in the resolved migration entries | manual (C) | Exactly the files listed in the ledger entries |
-| **Updates** | `process-framework-central/per-project-migrations/<PROJECT-ID>/pending-migrations.md` + `archive/pending-migrations-archive.md` | `Update-PendingMigration.ps1` (C) | Marks entries resolved; relocates detail blocks to the archive |
-| **Reverts** | `<project>/process-framework/` to the prior version | `Restore-FrameworkVersion.ps1` (D) | Restores to `.framework-version-previous` |
-
-#### **IMP Triage** ([PF-TSK-089](../tasks/support/imp-triage-task.md))
-
-**🔧 Process Type:** 🔧 **Manual**
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| _TBD_ | _Update after task customization_ | _TBD_ | _TBD_ |
-
-#### **New Task Creation Process** ([PF-TSK-001](../tasks/support/new-task-creation-process.md))
-
-**🔧 Process Type:** ✅ **Fully Automated**
-
-**Scripts:** [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1)
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Creates** | `[kebab-case-task-name].md` | [`New-Task.ps1`](../scripts/file-creation/support/New-Task.ps1) | New task document with standardized structure |
-| **Creates** | Temporary task creation state file (Full Mode) | `New-TempTaskState.ps1` (conditional) | Multi-session tracking in resolved `state-tracking/temporary/` (via `Get-StateTrackingContext` — appdev: `process-framework-central/state-tracking/temporary/`; projects: `doc/state-tracking/temporary/`) |
-| **Updates** | [`ai-tasks.md`](../ai-tasks.md) | `New-Task.ps1` → `Build-TaskMetadata.ps1` | Regenerate the per-category task table regions from task frontmatter (PF-PRO-042) |
-| **Updates** | [`tasks/README.md`](../tasks/README.md) | `New-Task.ps1` → `Build-TaskMetadata.ps1` | Regenerate the catalog region |
-| **Updates** | [`process-framework-task-registry.md`](process-framework-task-registry.md) | `New-Task.ps1` → `Build-TaskMetadata.ps1` | Regenerate catalog entry / automation summary / trigger index from the task's frontmatter + `## File Operations` |
-| **Updates** | [`task-transition-registry.md`](task-transition-registry.md) | `New-Task.ps1` → `Build-TaskMetadata.ps1` | Regenerate the task's "Transitioning FROM" section from its `## Next Tasks` subsections |
-| **Updates** | [`PF-documentation-map.md`](../PF-documentation-map.md) | Manual via `Build-DocumentationMap.ps1` | Refresh from the task's `description:` frontmatter (separate generator) |
-| **Updates** | [`script-soak-tracking.md`](../../../process-framework-central/state-tracking/permanent/script-soak-tracking.md) | Manual via `Register-SoakScript` | Conditional (Session 2 only): if the task creates a new document creation script, register it for 5-invocation soak verification (PF-PRO-028). |
-
-**🔗 TRIGGER & OUTPUT**
-
-- **Trigger:** _(user request)_
-- **Output:** `ai-tasks.md`, `PF-documentation-map.md` → task registered
-
-#### **Process Improvement** ([PF-TSK-009](../tasks/support/process-improvement-task.md))
-
-**🔧 Process Type:** 🔄 **Semi-Automated**
-
-**Scripts:** [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1), [`Update-ProcessImprovement.ps1`](../scripts/update/Update-ProcessImprovement.ps1)
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Updates** | [`process-improvement-tracking.md`](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | Script | Status-only: updates Status and Last Updated columns in Current table<br/>Completion: moves row from Current to Completed, updates summary count<br/>Supersession (PF-IMP-832 (c)): `-NewStatus Superseded -SupersededBy <ID>` moves the row to Section 7 — Rejected with `Rejection Reason = "Superseded by <ID>"`<br/>Annotation (PF-IMP-832 (a)): `-AppendNotes <text>` (idempotent), `-SetRespTask <PF-TSK-NNN>` and `-SetPriority <High\|Medium\|Low>` (PF-IMP-1885 — the only re-prioritization path, since a same-section `-MoveToSection` is refused as a no-op) edit Notes / Resp Task / Priority columns alone or alongside any non-pilot `-NewStatus`; `-AppendNotes` also rides `-MoveToSection` moves (PF-IMP-1393 (c)) and, annotation-only, covers every section — the live ones including Intake and Active Pilots (PF-IMP-1570) plus already-archived Completed / Rejected rows, written to the archive file with their terminal Resolution / Rejection Date left intact (PF-IMP-1719) — `-SetRespTask` / `-SetPriority` stay triaged-sections-only (Intake / Active Pilots / archived rows have no Resp Task / Priority column)<br/>Concept archival (PF-IMP-1688): `-ArchiveConcept <PF-PRO-NNN>` moves a full-rollout extension concept to `proposals/old/` alongside any non-`Resolved` transition (the pilot `Resolved` path discovers its concept from the Active Pilots row instead)<br/>Tool-change logging (PF-IMP-832 (b)): `-LogToolChanges <json>` folds the PF-TSK-009 Step 12 `feedback_db log-change --batch -` invocation into the Completed transition, with the payload validated before the move (PF-IMP-1393 (b)) |
-
-**🔗 TRIGGER & OUTPUT**
-
-- **Trigger:** `process-improvement-tracking.md` → Active items (not Completed/Deferred)
-- **Output:** `process-improvement-tracking.md` → `✅ Completed`
-
-#### **Structure Change Task** ([PF-TSK-014](../tasks/support/structure-change-task.md))
-
-**🔧 Process Type:** 🔄 **Semi-Automated**
-
-**Scripts:** [`New-StructureChangeState.ps1`](../scripts/file-creation/support/New-StructureChangeState.ps1), [`New-PendingMigration.ps1`](../scripts/file-creation/support/New-PendingMigration.ps1), [`Build-DocumentationMap.ps1`](../scripts/validation/Build-DocumentationMap.ps1)
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Creates** | Structure change state document | `New-StructureChangeState.ps1` | Tracks structural changes and their impact |
-| **Creates** | Structure change proposal (optional) | `New-StructureChangeProposal.ps1` | Proposal document for review |
-| **Updates** | `per-project-migrations/<PRJ>/pending-migrations.md` | `New-PendingMigration.ps1` (Step 14.5, conditional) | Scaffolds a Pending Migration Entry per affected project when the change touches project working docs |
-| **Updates** | [`process-improvement-tracking.md`](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | Manual (conditional) | If addressing an IMP entry |
-| **Updates** | [`PF-documentation-map.md`](../PF-documentation-map.md) | Generated by [`Build-DocumentationMap.ps1`](../scripts/validation/Build-DocumentationMap.ps1); `-Check` drift gate | Steps 8/17 regenerate then require `-Check` exit 0 — the map is a generated, DO-NOT-EDIT projection of each artifact's source description (PF-PRO-037, supersedes PF-IMP-836) |
-| **Updates** | [`PD-documentation-map.md`](../../doc/PD-documentation-map.md) | Generated by [`Build-DocumentationMap.ps1 -Tree PD`](../scripts/validation/Build-DocumentationMap.ps1); `-Check` drift gate | If product doc organization changes — regenerate (DO-NOT-EDIT projection, PF-PRO-050) |
-| **Updates** | [`TE-documentation-map.md`](../../test/TE-documentation-map.md) | Generated by [`Build-DocumentationMap.ps1 -Tree TE`](../scripts/validation/Build-DocumentationMap.ps1); `-Check` drift gate | If test artifact organization changes — regenerate (DO-NOT-EDIT projection, PF-PRO-050) |
-
-**🔗 TRIGGER & OUTPUT**
-
-- **Trigger:** `process-improvement-tracking.md` / _(user request)_ → IMP item routed to PF-TSK-014
-- **Output:** Documentation maps → updated; `process-improvement-tracking.md` → IMP item → `Completed`
-
-#### **Tools Review Task** ([PF-TSK-010](../tasks/support/tools-review-task.md))
-
-**🔧 Process Type:** 🔄 **Partially Automated**
-
-**Scripts:** [`New-ReviewSummary.ps1`](../scripts/file-creation/06-maintenance/New-ReviewSummary.ps1), [`New-ProcessImprovement.ps1`](../scripts/file-creation/support/New-ProcessImprovement.ps1), [`Update-ImprovementBacklog.ps1`](../scripts/update/Update-ImprovementBacklog.ps1)
-
-**📁 FILE OPERATIONS**
-
-| Operation | File Path | Update Method | Details |
-|-----------|-----------|---------------|---------|
-| **Creates** | `appdev/process-framework-central/feedback/reviews/tools-review-YYYYMMDD.md` | Script | Review summary from template (PF-TEM-046) |
-| **Updates** | [`process-improvement-tracking.md`](../../../process-framework-central/state-tracking/permanent/process-improvement-tracking.md) | Script | Adds new improvement entries via New-ProcessImprovement.ps1 |
-| **Updates** | [`feature-request-tracking.md`](../../doc/state-tracking/permanent/feature-request-tracking.md) | `New-FeatureRequest.ps1` (conditional) | Product feature requests from feedback analysis |
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | `New-BugReport.ps1` (conditional) | Bugs identified from feedback analysis |
-| **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1` (conditional) | Tech debt items from feedback analysis |
-| **Updates** | `appdev/process-framework-central/feedback/ratings.db` | `feedback_db.py record` | Feedback ratings database |
-
-**🔗 TRIGGER & OUTPUT**
-
-- **Trigger:** _(schedule / task count)_ + unprocessed feedback forms in `appdev/process-framework-central/feedback/feedback-forms/`
-- **Output:** `process-improvement-tracking.md` → new IMP items; `bug-tracking.md` → `🆕 Needs Triage` (if bugs); `feature-request-tracking.md` → `📥 Submitted` (if features)
-
 <!-- BEGIN HAND-WRITTEN: catalog-tombstones -->
 ### **Deprecated / Tombstone Entries**
 
@@ -1316,10 +1130,7 @@ Which status in which file triggers which task.
 Unstructured triggers (no single state-file status):
 
 - _(user request)_ — checks `e2e-test-tracking.md`, feature impl state files; reads the project's **Release Process Guide** (`doc/ci-cd/release-process.md`, `PD-CIC`) **Freshness Stamp** at the Step 3 freshness gate (blocks the release if the guide is stale/missing — detects but never authors) — [PF-TSK-008](../tasks/07-deployment/release-deployment-task.md) Release & Deployment
-- `process-improvement-tracking.md` → Active items (not Completed/Deferred) — [PF-TSK-009](../tasks/support/process-improvement-task.md) Process Improvement
-- _(schedule / task count)_ + unprocessed feedback forms in `appdev/process-framework-central/feedback/feedback-forms/` — [PF-TSK-010](../tasks/support/tools-review-task.md) Tools Review Task
 - _(user recognition)_ — complexity change during implementation — [PF-TSK-011](../tasks/cyclical/documentation-tier-adjustment-task.md) Documentation Tier Adjustment Task
-- `process-improvement-tracking.md` / _(user request)_ → IMP item routed to PF-TSK-014 — [PF-TSK-014](../tasks/support/structure-change-task.md) Structure Change Task
 - `feature-tracking.md` → Tier 2+ after FDD — [PF-TSK-019](../tasks/01-planning/system-architecture-review.md) System Architecture Review
 - `technical-debt-tracking.md` → Active items (not Resolved/Deferred) — [PF-TSK-022](../tasks/06-maintenance/code-refactoring-task.md) Code Refactoring Task
 - _(schedule / user request)_ — [PF-TSK-023](../tasks/cyclical/technical-debt-assessment-task.md) Technical Debt Assessment Task
@@ -1337,7 +1148,6 @@ Unstructured triggers (no single state-file status):
 - E2E spec / bug report / refactoring plan _(multi-path)_ — [PF-TSK-069](../tasks/03-testing/e2e-acceptance-test-case-creation-task.md) E2E Acceptance Test Case Creation
 - `e2e-test-tracking.md` → `🔄 Needs Re-execution` or `📋 Needs Execution` (with `✅ Audit Approved`) — [PF-TSK-070](../tasks/03-testing/e2e-acceptance-test-execution-task.md) E2E Acceptance Test Execution
 - `feature-tracking.md` + Feature impl state file → `🟡 In Progress` + task = `not_started` in sequence — [PF-TSK-078](../tasks/04-implementation/core-logic-implementation.md) Core Logic Implementation
-- _(schedule / user request)_ — [PF-TSK-079](../tasks/support/framework-evaluation.md) Framework Evaluation
 - Feature impl state file → User Documentation = `❌ Needed` — [PF-TSK-081](../tasks/07-deployment/user-documentation-creation.md) User Documentation Creation
 - `user-workflow-tracking.md` → all workflow features = `Implemented` + Integration Doc empty — [PF-TSK-083](../tasks/02-design/integration-narrative-creation.md) Integration Narrative Creation
 - `performance-test-tracking.md` → `⬜ Needs Creation` entries (created by PF-TSK-086) — [PF-TSK-084](../tasks/03-testing/performance-test-creation-task.md) Performance Test Creation
@@ -1735,24 +1545,14 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `New-BugFixState.ps1` | `file-creation/06-maintenance/` | PF-TSK-007 | Creates a new Bug Fix State Tracking file for a multi-session complex bug fix. |
 | `New-BugReport.ps1` | `file-creation/06-maintenance/` | PF-TSK-005, PF-TSK-008, PF-TSK-022, PF-TSK-024, PF-TSK-030, PF-TSK-053, PF-TSK-070, PF-TSK-078 | Creates a new bug report with an automatically assigned ID. |
 | `New-RefactoringPlan.ps1` | `file-creation/06-maintenance/` | PF-TSK-022 | Creates a new Refactoring Plan document with an automatically assigned ID. |
-| `New-ReviewSummary.ps1` | `file-creation/06-maintenance/` | PF-TSK-010 | Creates a new Tools Review Summary document with an automatically assigned ID. |
 | `New-Handbook.ps1` | `file-creation/07-deployment/` | PF-TSK-081 | Creates a new user handbook document with an automatically assigned ID. |
 | `New-DebtItem.ps1` | `file-creation/cyclical/` | PF-TSK-023 | Creates a new Technical Debt Item record with an automatically assigned ID. |
 | `New-PrioritizationMatrix.ps1` | `file-creation/cyclical/` | PF-TSK-023 | Creates a new Technical Debt Prioritization Matrix document. |
 | `New-TechnicalDebtAssessment.ps1` | `file-creation/cyclical/` | PF-TSK-023 | Creates a new Technical Debt Assessment document with an automatically assigned ID. |
 | `New-FeedbackForm.ps1` | `file-creation/support/` | — | Creates a new feedback form (Single Tool / Multiple Tools / Task-Level) with an automatically assigned ID. |
-| `New-FrameworkEvaluationReport.ps1` | `file-creation/support/` | PF-TSK-079 | Creates a new Framework Evaluation Report document with an automatically assigned ID. |
-| `New-FrameworkExtensionConcept.ps1` | `file-creation/support/` | PF-TSK-026 | Creates a new Framework Extension Concept document with an automatically assigned ID. |
-| `New-Guide.ps1` | `file-creation/support/` | — | Creates a new guide document with an automatically assigned ID. |
-| `New-PendingMigration.ps1` | `file-creation/support/` | PF-TSK-014, PF-TSK-088 | Scaffolds Pending Migration Entries (Summary row + entry skeleton) across one or more project ledgers, allocating each per-project MIG-NNN automatically. |
 | `New-PermanentState.ps1` | `file-creation/support/` | — | Creates a new permanent state tracking file with an automatically assigned ID. |
-| `New-ProcessImprovement.ps1` | `file-creation/support/` | PF-TSK-009, PF-TSK-010, PF-TSK-079 | Adds a new improvement opportunity to process-improvement-tracking.md with an auto-assigned ID; -FastTrack logs a small already-applied framework fix directly to the archive Completed section. |
-| `New-StructureChangeProposal.ps1` | `file-creation/support/` | — | Creates a new Structure Change Proposal document with an automatically assigned ID. |
-| `New-StructureChangeState.ps1` | `file-creation/support/` | PF-TSK-014 | Creates a new Structure Change state tracking file with an automatically assigned ID. |
-| `New-Task.ps1` | `file-creation/support/` | PF-TSK-001 | Creates a new task definition document with an automatically assigned task ID from the workspace's declared artifact family (PF-TSK at appdev, FB-TSK at FB — PF-PRO-068 P-12a). |
-| `New-Template.ps1` | `file-creation/support/` | — | Creates a new template document with an automatically assigned ID. |
+| `New-ProcessImprovement.ps1` | `file-creation/support/` | — | Adds a new improvement opportunity to process-improvement-tracking.md with an auto-assigned ID; -FastTrack logs a small already-applied framework fix directly to the archive Completed section. |
 | `New-TempTaskState.ps1` | `file-creation/support/` | PF-TSK-022 | Creates a new temporary state tracking file for multi-session task creation, process improvement, framework extension, framework evaluation, refactoring, or retrospective documentation workflows. |
-| `Register-Project.ps1` | `file-creation/support/` | PF-TSK-059, PF-TSK-088 | Registers a project with a producer face's central registry, assigning it a stable child ID minted from the producer's own mnemonic (FWK-APP children key APP-NNN, FWK-LEG children LEG-NNN — PF-PRO-068 P-14). |
 
 ### State Update Scripts
 
@@ -1769,11 +1569,7 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `Update-FeatureImplementationState.ps1` | `update/` | — | Automates implementation-status transitions in feature-tracking.md (implementation tasks), including the derived workflow-tracking refresh. |
 | `Update-FeatureRequest.ps1` | `update/` | PF-TSK-067 | Updates a feature request in the Feature Request Tracking state file — a lifecycle transition, or a notes-only annotation of an open request. |
 | `Update-FeatureTrackingFromAssessment.ps1` | `update/` | PF-TSK-067 | Updates feature tracking status based on completed documentation tier assessment results. |
-| `Update-ImprovementBacklog.ps1` | `update/` | PF-TSK-010 | Automates Improvement Backlog operations — adds a below-materiality-bar candidate with a computed counter, promotes a matched row into the IMP tracker's Intake, removes a row, or runs the per-source-task expiry sweep (PF-IMP-1882). |
-| `Update-LanguageConfig.ps1` | `update/` | — | Adds or updates a field in all language config files and the language config template. |
-| `Update-PendingMigration.ps1` | `update/` | PF-TSK-088 | Resolves (or skips) a single Pending Migration Entry — atomic dual-site Status write plus relocation of the terminal detail block to the per-project archive (PF-IMP-983). |
 | `Update-PerformanceTracking.ps1` | `update/` | PF-TSK-084, PF-TSK-085 | Automates status transitions and column updates in performance-test-tracking.md |
-| `Update-ProcessImprovement.ps1` | `update/` | PF-TSK-009 | Automates improvement status updates and section moves in the Process Improvement Tracking state file |
 | `Update-QualityClassification.ps1` | `update/` | PF-TSK-065 | Computes and writes the Quality Assessment classification in a feature implementation state file (PF-TSK-065's quality-assessment step). |
 | `Update-RetrospectiveMasterState.ps1` | `update/` | PF-TSK-065 | Atomically updates a retrospective master state file — Feature Inventory rows, Unassigned Files batch flips, or Coverage Metrics recalculation |
 | `Update-ScriptReferences.ps1` | `update/` | — | Updates references to relocated New-*.ps1 creation scripts across doc/ markdown to point at the centralized scripts/file-creation location. |
@@ -1788,7 +1584,7 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 
 | Script | Location | Used By Task(s) | Purpose |
 |--------|----------|------------------|---------|
-| `Build-DocumentationMap.ps1` | `validation/` | PF-TSK-014 | Generates the PF / PD / TE / SC documentation map (selected by -Tree) from each artifact's own .SYNOPSIS / docstring / doc-comment / frontmatter description; also checks for drift and reports artifacts missing a source description (PF-PRO-037 / PF-PRO-050 / PF-PRO-064 / PF-IMP-1955). |
+| `Build-DocumentationMap.ps1` | `validation/` | — | Generates the PF / PD / TE / SC documentation map (selected by -Tree) from each artifact's own .SYNOPSIS / docstring / doc-comment / frontmatter description; also checks for drift and reports artifacts missing a source description (PF-PRO-037 / PF-PRO-050 / PF-PRO-064 / PF-IMP-1955). |
 | `Build-TaskMetadata.ps1` | `validation/` | — | Generates the task-metadata projections — ai-tasks.md task tables, process-framework-task-registry.md, task-transition-registry.md, and the tasks/README catalog — from task-file frontmatter and authored sections; -Check drift gate; -ReportMissing schema-conformance report (PF-IMP-1134 / PF-PRO-042). |
 | `Check-CoreFileBudget.ps1` | `validation/` | — | Warn-first pre-commit / CI guard against unbounded growth of core framework files — task definitions and guides — against per-file word budgets (PF-IMP-1938). |
 | `Check-GitObjectsLiteral.ps1` | `validation/` | — | Pre-commit guard against .git/objects/<hex>/<sha> literal corruption (PF-IMP-615). |
@@ -1810,6 +1606,7 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `Validate-ProjectConfig.ps1` | `validation/` | PF-TSK-059 | Validates a project-config.json for JSON syntax, populated required fields, and leftover placeholders. |
 | `Validate-StateTracking.ps1` | `validation/` | PF-TSK-066 | Master state validation script — validates that state tracking entries match actual files on disk. |
 | `Validate-TestTracking.ps1` | `validation/` | PF-TSK-053 | Validates test tracking consistency using pytest markers as single source of truth. |
+| `Validate-WorkspaceConformance.ps1` | `validation/` | — | Validates a workspace's canonical directory shape and entry point against its declared role - the PF-PRO-065 Contract 3 conformance check (PF-PRO-068 S3 G5). |
 
 ### Testing Scripts
 
@@ -1842,6 +1639,3 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `Remove-ArtifactLock.ps1` | `locking/` | — | Force-releases an artifact lock the caller does not hold — the human-approved manual override for a wedged FRESH foreign lock; prints the lock's evidence (holder, age, the path's git status) before acting (PF-PRO-061). |
 | `Test-EditAllowed.ps1` | `locking/` | — | PreToolUse enforcement hook for Artifact Checkout Locking (PF-PRO-061) — reads the tool call from stdin, allows edits to unguarded paths instantly, blocks a guarded-path edit that has no fresh lock held by the calling session, and refreshes the lock's last-activity timestamp on every allowed edit. |
 | `environment-variable-fallback-pattern.ps1` | `patterns/` | — | Template showing environment variable fallback pattern for CMD.exe compatibility |
-| `Commit-SandboxBaseline.ps1` | `rollout/` | PF-TSK-088 | After a Push to this workspace's framework self-test sandbox (APP-T01 at appdev), refresh the sandbox's baseline commit so the next E2E test reset cycle has the new rolled-out state as its pristine target. |
-| `Push-FrameworkUpdate.ps1` | `rollout/` | PF-TSK-059, PF-TSK-088 | Phase 1 of Framework Rollout (PF-TSK-088 Mode B): mirror a producer face's framework source tree to one or more registered children. |
-| `Restore-FrameworkVersion.ps1` | `rollout/` | PF-TSK-088 | Mode D rollback (PF-TSK-088): revert a project's process-framework/ to a previous rollout version. |
