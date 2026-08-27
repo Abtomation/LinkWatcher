@@ -45,7 +45,7 @@ linkwatcher-panel.bat --registry "C:\path\to\project-registry.json"
 linkwatcher-panel.bat --debug
 ```
 
-If you run a launcher while a panel is already open, the running window is brought to the front and the second launch exits with a message instead of opening a duplicate.
+If you run a launcher while a panel is already open, the second launch exits with a message instead of opening a duplicate, and the running window is surfaced. Usually it comes to the front; when Windows' foreground lock refuses to let a background process steal focus, its taskbar button flashes instead — click it to raise the window. Either way you never get a second panel.
 
 **The list is empty for a few seconds after launch.** The panel shows `Discovering daemons…` while it takes its first pass over the process table — measured at around 7.5 seconds on a busy machine, and about 0.1 seconds for every poll after that. This is expected; the panel deliberately says "discovering" rather than falsely reporting an empty registry.
 

@@ -12,7 +12,7 @@ estimated_duration: 4 minutes
 source: WF-010 milestone
 expected_exit_code: 0
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-08-27
 ---
 
 # Test Case: TE-E2E-041 second launch surfaces existing window
@@ -78,8 +78,11 @@ No daemon needs to run for this case — the subject is the panel's own single-i
 7. **Launch a second panel from a separate terminal**.
    - **Tool**: Command Line (repository root, second terminal)
    - **Command**: the step 4 command, unchanged
-   - **Observe**: The existing window comes to the front, in the position set in step 6 — its
-     contents and position are preserved, so it is plainly the same window, not a new one
+   - **Observe**: The existing window is surfaced — it is raised to the front, **or**, where
+     Windows' foreground lock refuses the activation, its taskbar button flashes (TDD §4.5 states
+     the flash as the guaranteed floor). **Record which of the two occurred.** Either way the
+     window keeps the position set in step 6 and its contents, so it is plainly the same window,
+     not a new one
 
 8. **Confirm the second launch exited rather than staying resident**.
    - **Tool**: Command Line (second terminal)
@@ -103,7 +106,8 @@ asserted unchanged.
 
 - The first launch opens exactly one window
 - The second launch **does not** create a second window
-- The existing window is surfaced (brought to the front), preserving its position and contents
+- The existing window is surfaced — raised to the front, or (where Windows' foreground lock refuses
+  the activation) its taskbar button flashes — preserving its position and contents
 - The second process prints an informational message and **exits**
 - The panel process count and PID are unchanged across the second launch
 - The panel log records the surface handshake; no ERROR entries
@@ -112,14 +116,18 @@ asserted unchanged.
 
 - [ ] **Automated comparison**: `Verify-TestResult.ps1 -TestCase TE-E2E-041 -Workflow manage-running-linkwatcher-instances-via-control-panel`
 - [ ] **Process check**: PID recorded at step 5 equals the single PID at step 9
-- [ ] **Visual inspection**: The surfaced window kept the position set in step 6
+- [ ] **Visual inspection**: A surfacing response was observed — raise to front or taskbar flash,
+      recorded as one or the other — and the surfaced window kept the position set in step 6
 - [ ] **Log check**: Panel log records the surface handshake and no ERROR entries
 
 ## Pass Criteria
 
 - [ ] Exactly one panel process exists after the second launch, with the same PID as before it
 - [ ] No second window appears
-- [ ] The existing window is brought to the front with position and contents preserved
+- [ ] The surfaced window is the same window — the position set in step 6 and its contents are preserved
+- [ ] Surfacing was positively observed: the window was raised to the front, **or** — where Windows'
+      foreground lock refused the activation — its taskbar button flashed (the TDD §4.5 floor).
+      Record which occurred; observing **neither** is a FAIL
 - [ ] The second launch process exits rather than remaining resident
 - [ ] All files in `expected/` match the workspace byte-for-byte
 - [ ] No ERROR entries in the panel log
@@ -129,9 +137,10 @@ asserted unchanged.
 - Record the failure in e2e-test-tracking.md with status `🔴 Failed`
 - If a **second window** opened, capture both PIDs and the `panel.port` file contents — a recycled
   or stale port is the known failure mode of the guard
-- If **no** window surfaced and the second process exited silently, distinguish "guard worked,
-  surfacing failed" from "guard worked, window was already in front" — step 6 exists to make that
-  distinguishable, so re-run it properly rather than guessing
+- If **neither** a raise nor a taskbar flash was observed and the second process exited silently,
+  distinguish "guard worked, surfacing failed" from "guard worked, window was already in front" —
+  step 6 exists to make that distinguishable, so re-run it properly rather than guessing. A flash
+  without a raise is **not** a failure (TDD §4.5); only the absence of both is
 - Create a bug report using `New-BugReport.ps1` if the failure indicates a genuine defect
 
 ## Notes

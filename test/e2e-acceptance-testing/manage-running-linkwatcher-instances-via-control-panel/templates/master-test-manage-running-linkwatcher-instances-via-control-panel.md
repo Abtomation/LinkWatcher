@@ -90,7 +90,7 @@ group and extend the sequence below with an auto-open step.
 7. **Confirm a second launch surfaces the existing window** (TE-E2E-041)
    - Action: Send the window behind another, then run the identical panel command from a second terminal
    - Tool: Command Line
-   - Expected: The existing window comes to the front with its position and contents preserved; the second process prints a message and exits; still exactly one panel process, same PID
+   - Expected: The existing window is surfaced — raised to the front, or (Windows' foreground lock permitting only that) its taskbar button flashes — with its position and contents preserved; the second process prints a message and exits; still exactly one panel process, same PID
 
 8. **Close the panel** and confirm every remaining managed daemon is drained and the app exits by itself (AC-7)
 
