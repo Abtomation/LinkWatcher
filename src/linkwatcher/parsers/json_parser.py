@@ -49,7 +49,7 @@ from .base import BaseParser
 class JsonParser(BaseParser):
     """Parser for JSON files (.json)."""
 
-    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+    def _parse_content_impl(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse JSON content for file references."""
         try:
             lines = content.split("\n")

@@ -2,9 +2,9 @@
 id: TE-TSP-045
 type: Document
 category: General
-version: 1.8
+version: 1.11
 created: 2026-07-12
-updated: 2026-08-27
+updated: 2026-08-29
 description: "7.1.1 Tier 2 — Control Panel discovery classification, drain-then-terminate lifecycle, termination guard, detail panes, single instance"
 feature_id: 7.1.1
 feature_name: LinkWatcher Control Panel
@@ -21,7 +21,7 @@ This document provides comprehensive test specifications for the **LinkWatcher C
 **Test Tier**: 2 (Comprehensive: unit + integration + UI/component)
 **TDD Reference**: [PD-TDD-033](../../../doc/technical/architecture/design-docs/tdd/tdd-7-1-1-linkwatcher-control-panel-t2.md)
 **Created**: 2026-07-12
-**Implementation Coverage**: 83/83 scenarios implemented (100%) — Phases A–G, plus the Code Review gap closure (PF-STA-111, three sessions): session 1 added UNIT-C7/C8, UNIT-S7, UNIT-M8 and corrected the EC-10/EC-11 coverage claims; session 2 added UNIT-D11/D12, UNIT-M9 and UNIT-L12…L15 (the last closing TD263); session 3 added INT-10 and UNIT-P1. Every assertion added across the three sessions was mutation-verified — broken deliberately, confirmed to turn its own test red, and restored
+**Implementation Coverage**: 84/84 scenarios implemented (100%) — Phases A–G, plus the Code Review gap closure (PF-STA-111, three sessions): session 1 added UNIT-C7/C8, UNIT-S7, UNIT-M8 and corrected the EC-10/EC-11 coverage claims; session 2 added UNIT-D11/D12, UNIT-M9 and UNIT-L12…L15 (the last closing TD263); session 3 added INT-10 and UNIT-P1. Every assertion added across the three sessions was mutation-verified — broken deliberately, confirmed to turn its own test red, and restored. UNIT-S8 was added by PD-BUG-148's third Code Review round and deepened by its fourth (2026-08-28) — both rounds' assertions mutation-verified. UNIT-S5 was deepened by the sixth round (2026-08-29), which pins the unresolved-state guidance as an assertion rather than a prose sweep; also mutation-verified. Neither addition is a new scenario, so the 84/84 denominator is unchanged
 
 ## Feature Context
 
@@ -144,8 +144,11 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
 | UNIT-S2 | Partial override | File with only `grace_period_seconds` → that key overridden, rest defaults | tmp file |
 | UNIT-S3 | Invalid values | Non-numeric / negative values rejected → defaults + surfaced warning, never crash | tmp file |
 | UNIT-S4 | Registry resolution order | CLI arg beats env var beats config key (each level tested) | env patching, tmp files |
-| UNIT-S5 | Unresolved registry | No source configured → error-banner state, **distinct from** empty-registry (EC-8) state | — |
+| UNIT-S5 | Unresolved registry | No source configured → error-banner state, **distinct from** empty-registry (EC-8) state. Deepened by PD-BUG-148 round 6: the guidance in that state is read *inside an open panel* (this string is the list-pane banner), and every remedy it names — `--registry`, the environment variable, the `panel-config.yaml` key, `--project-root`, launching from the root — takes effect only at startup, which the single-instance guard discards on a second launch. The string must therefore name closing the panel first; asserted rather than swept, because three review rounds re-broke the same invariant in prose | — |
+| UNIT-S6 | Workspace-shaped auto-locate (PD-BUG-148) | The two auto-locate tiers below the three explicit ones. A non-leaf workspace resolves the child registry it **owns** (`project-registry.json` at a framework, `framework-registry.json` at a framework-builder); a leaf owns none and hops through its parent-pointer, a path that must stay byte-identical to pre-fix. The owning root is `--project-root` when given, else the **cwd taken exactly** — the launchers pass no `--project-root`, so without the implied root the tier is unreachable from every manual launch (CR-1) — and it is never walked up, or a producer's zero-row *seed* registry would render "no registered projects" while daemons run. Paired guards: an explicit `--project-root` is not overridden by the cwd; the three explicit tiers keep precedence; both pointer filenames are honored; and the declared framework face (`paths.process_framework`) is load-bearing for pointer resolution, not just for `launcher_path` (CR-4) | tmp workspace trees, `doc/project-config.json` fixtures |
 | UNIT-S7 | Non-finite / non-UTF-8 settings (CR-10, CR-11) | `.inf` / `.nan` / `-.inf` and an out-of-float-range integer are rejected like any other invalid value — they used to pass every gate (both are `float`, and neither satisfies `<= 0`) and reach the discovery thread, where `Event.wait(inf)` raises `OverflowError` outside the caller's try and silently kills polling. A non-UTF-8 `panel-config.yaml` yields defaults + a warning instead of aborting startup before any window exists. Paired with a case asserting legitimate values (including ints) still apply with no warnings | tmp install dir, raw bytes |
+
+| UNIT-S8 | Closed-enumeration diagnostics & pointer decode resilience (PD-BUG-148 round 3) | The recognized registry filenames and collection keys are closed enumerations of today's roles, so the next role divergence would repeat this bug's shape — a silent fall-through to the *parent's* list under an ordinary `registry resolved via pointer:` line. A `process-framework-central/` holding no recognized registry is therefore logged (naming the directory and what was sought), while the far commoner leaf case — no central directory at all — stays silent, so the diagnostic cannot degrade into noise. The diagnostic is reported once per directory, not once per examination — a self-hosted producer's pointer names itself, so the same central is reached at both auto-locate tiers, and a duplicate invites the reader who counts occurrences to infer two divergent workspaces; de-duplication is per directory rather than a one-shot latch, so a leaf and its parent both diverging remain two findings. Separately, a non-UTF-8 parent-pointer must degrade rather than crash: `UnicodeDecodeError` is a `ValueError`, so it escaped the `OSError` guard and propagated out of resolution, aborting the panel before any window existed (the CR-11 class); the rejected pointer skips to the next filename, so a workspace mid-migration still resolves via its legacy pointer | tmp workspace trees, raw bytes, log capture |
 
 **`discovery.py` — classification & identity**
 
@@ -345,7 +348,7 @@ Every TDD component gets isolated unit coverage through its designed seam; integ
    - [x] Config save pipeline incl. atomic/interrupted save (UNIT-C1…C6, INT-7) — TE-TST-150/144, Phase E
    - [x] Start flow + duplicate-start race (UNIT-L1…L3, INT-3, INT-9) — TE-TST-146/144, Phase C
    - [x] Validation runner (UNIT-V1…V5) — TE-TST-149, Phase E
-   - [x] Settings + registry resolution (UNIT-S1…S5) — TE-TST-141, Phase A
+   - [x] Settings + registry resolution (UNIT-S1…S8) — TE-TST-141, Phase A
    - [x] Single instance (UNIT-I1…I4) — TE-TST-151, Phase F
    - [x] Worker error isolation (INT-8) — TE-TST-144, Phase G
 
@@ -366,7 +369,7 @@ Test files are created via `New-TestFile.ps1` (TE-TST IDs assigned at creation) 
 ```
 test/automated/unit/7-operations-control/7-1-control-panel/
 ├── test_panel_model.py            # UNIT-M1…M7
-├── test_panel_settings.py         # UNIT-S1…S5
+├── test_panel_settings.py         # UNIT-S1…S8
 ├── test_panel_discovery.py        # UNIT-D1…D10
 ├── test_panel_lifecycle.py        # UNIT-L1…L11
 ├── test_panel_log_tail.py         # UNIT-T1…T5

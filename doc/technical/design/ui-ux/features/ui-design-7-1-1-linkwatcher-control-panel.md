@@ -2,9 +2,9 @@
 id: PD-UIX-003
 type: Product Documentation
 category: UI/UX Design
-version: 1.1
+version: 1.2
 created: 2026-07-06
-updated: 2026-08-13
+updated: 2026-08-28
 description: "UI/UX Design Document for LinkWatcher Control Panel (7.1.1)"
 feature_id: 7.1.1
 feature_name: LinkWatcher Control Panel
@@ -319,8 +319,8 @@ flowchart TD
 ┌──────────────────────────────────────────────┐
 │                                              │
 │        No registered projects found.         │
-│   Projects appear here once registered in    │
-│   the central project registry.              │
+│   Projects appear here once registered       │
+│   in the registry the panel is reading.      │
 │                                              │
 └──────────────────────────────────────────────┘
 ```

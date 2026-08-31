@@ -156,8 +156,13 @@ _TARGET_SKIP_PREDICATES: tuple = (
     ),
     # Template placeholder paths
     (lambda t, lt: bool(_PLACEHOLDER_PATTERN.search(t)), "template placeholder"),
-    # Whitespace beyond a simple path
-    (lambda t, lt: " " in t, "contains whitespace"),
+    # Whitespace beyond a simple path — skip unless the link type uses explicit
+    # link syntax, where a space is part of a deliberately authored destination
+    # rather than the prose/command signal it is for heuristic detection.
+    # CommonMark requires the angle form ([text](<a b.md>)) for exactly this
+    # case, so refusing to check it left that population unverifiable.
+    # (PD-BUG-156 — same explicit-vs-heuristic split as BUG-088 below.)
+    (lambda t, lt: " " in t and lt not in _EXPLICIT_LINK_TYPES, "contains whitespace"),
     # Bare filenames without any path separator — skip unless the link type
     # uses explicit link syntax where bare filenames are valid targets
     # (e.g. [text](file.md), [label]: file.md, <a href="file.md">).  (BUG-088)

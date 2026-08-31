@@ -12,7 +12,7 @@ estimated_duration: 7 minutes
 source: WF-010 milestone
 expected_exit_code: 0
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-08-31
 ---
 
 # Test Case: TE-E2E-035 start and stop daemon from panel
@@ -61,7 +61,10 @@ daemon for an already-running project).
 
 5. **Wait for the start to converge**.
    - **Duration**: Up to 30 seconds — the launcher sleeps ~2 s for its own post-start check, and the panel needs up to two poll cycles
-   - **Observe**: The row moves through a transitional state to **running** and reports a PID
+   - **Observe**: The row moves through a transitional state to **running**. The row shows status
+     and uptime — the panel does **not** display a PID (no design document specifies one; PIDs are
+     internal identity machinery per TDD §4.4). The daemon PID is recorded in
+     `sandbox-a/.linkwatcher.lock` and is captured from the command line in step 6.
 
 6. **Record the daemon PIDs**.
    - **Tool**: Command Line
@@ -98,7 +101,8 @@ unchanged across both sandbox projects.
 ### Behavioral Outcomes
 
 - Both rows start as **stopped**
-- After step 4 the `sandbox-a` row reaches **running** and reports the lock file PID
+- After step 4 the `sandbox-a` row reaches **running**; the daemon PID is recorded in
+  `sandbox-a/.linkwatcher.lock` (the row itself renders status and uptime, not a PID)
 - The daemon appears as a process **pair** with identical command lines (expected process model,
   not a duplicate daemon)
 - The second start attempt (step 7) produces **no additional daemon**: either the control is

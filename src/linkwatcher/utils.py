@@ -36,6 +36,9 @@ AI Context
     Called by parsers/base.py (``BaseParser``), validator.py.
   - ``looks_like_directory_path()`` — directory-shaped counterpart.
     Called by parsers/base.py (``BaseParser``).
+  - ``unwrap_angle_destination()`` — strips the CommonMark angle brackets
+    from a link destination (PD-BUG-155).
+    Called by parsers/markdown.py, parsers/powershell.py.
   - ``safe_file_read()`` — multi-encoding file reader with fallback.
     Called by parsers/base.py.
   - ``find_line_number()`` — linear search for text in line list.
@@ -428,6 +431,75 @@ def looks_like_regex_or_glob(text: str) -> bool:
     return False
 
 
+def is_dot_only_path(text: str) -> bool:
+    """Check whether a path is built only from dot segments (PD-BUG-149).
+
+    ``../``, ``../../``, ``./..`` and friends name no artifact — they are
+    notation, not references. Accepting them made every parser register a bare
+    parent-directory token written in prose as a link, which the
+    within-moved-file rewrite then re-depthed along with the real links,
+    silently corrupting the surrounding text ("carries 7 ``../`` links" became
+    "carries 7 ``../../`` links").
+
+    Shared by :func:`looks_like_file_path` and
+    :func:`looks_like_directory_path`: such a token is neither a file nor a
+    directory reference, and the two predicates must not drift apart on it.
+
+    A directory whose name merely *begins* with dots (``..hidden/x``) keeps a
+    named segment and is therefore not dot-only.
+    """
+    return all(segment in ("", ".", "..") for segment in re.split(r"[/\\]", text))
+
+
+def unwrap_angle_destination(destination: str) -> tuple:
+    """Unwrap a CommonMark angle-bracket link destination (PD-BUG-155).
+
+    CommonMark lets an inline link or a reference definition enclose its
+    destination in angle brackets, and *requires* that form when the path
+    contains a space::
+
+        [x](<doc/a b.md>)        [label]: <doc/a b.md>
+
+    The brackets are link *syntax*, not part of the path, but they used to be
+    captured as part of ``link_target``.  Everything downstream then failed for
+    that one reason, each in its own way and all of them silently: the database
+    is keyed on target, so a moved file never matched such a reference at all;
+    the within-moved-file rewrite found no such path on disk and dropped it; and
+    ``--validate`` discarded it as a ``<placeholder>`` before the disk check, so
+    the recovery tool could not find the stale links either.
+
+    Only a *well-formed* angle destination is unwrapped — one that opens with
+    ``<``, closes with ``>``, and carries neither character in between, matching
+    what CommonMark accepts.  Anything else is returned untouched, so a token
+    that merely looks bracketed keeps its literal spelling.
+
+    Deliberately NOT applied globally in ``BaseParser``: unlike the whitespace
+    normalization there (PD-BUG-151), angle brackets are markdown-link syntax
+    rather than a universal artifact of capture.  Stripping them everywhere
+    would turn a YAML value ``<x>`` or a PowerShell ``<Placeholder>`` token into
+    a file reference.  The unwrap belongs at the markdown-link capture sites
+    only.
+
+    Args:
+        destination: The captured destination text, titles already removed.
+
+    Returns:
+        ``(path, was_wrapped)`` — the unwrapped path and whether brackets were
+        removed.  Callers whose recorded span covers the brackets must narrow
+        that span when ``was_wrapped`` is true, or positional replacement will
+        write the new target over them.
+    """
+    if (
+        len(destination) >= 2
+        and destination.startswith("<")
+        and destination.endswith(">")
+        and "<" not in destination[1:-1]
+        and ">" not in destination[1:-1]
+    ):
+        return destination[1:-1], True
+    return destination, False
+
+
 def looks_like_file_path(text: str) -> bool:
     """
     Check if a string looks like a file path.
@@ -440,6 +512,13 @@ def looks_like_file_path(text: str) -> bool:
     """
     # Basic heuristics for file paths
     if not text or len(text) < 3:
+        return False
+
+    # PD-BUG-149: a dot-only path is notation, not a reference. Without this,
+    # "../" reached the "'/' in text" branch below and was classified as a FILE
+    # path — the route by which the PowerShell, YAML and JSON parsers kept
+    # registering it after the directory-side guard landed.
+    if is_dot_only_path(text):
         return False
 
     # Skip URLs
@@ -511,6 +590,13 @@ def looks_like_directory_path(text: str) -> bool:
 
     # Must have at least one path separator
     if "/" not in text and "\\" not in text:
+        return False
+
+    # PD-BUG-149: a dot-only path is notation, not a reference — see
+    # is_dot_only_path(). A token written in link syntax ("[x](../)") is an
+    # authored reference extracted without consulting this helper, so it is
+    # unaffected; only a bare token inside a quote or backtick is suppressed.
+    if is_dot_only_path(text):
         return False
 
     # Skip paths that look like URLs (contain ://)

@@ -238,6 +238,26 @@ The Link Parsing System uses a Registry+Facade pattern. `LinkParser` dispatches 
 **Test File**: [`test/automated/parsers/test_powershell.py`](../../automated/unit/2-link-parsing-update/2-0-link-parsing-update/test_powershell.py) (32 methods)
 **Note**: Registered as TE-TST-129 during test audit (2026-03-15) — was previously unregistered.
 
+### Cross-Parser Tests — Dot-Only Notation and Reference-Span Normalization (PD-BUG-149 / PD-BUG-151 / TD305)
+
+Cross-parser rather than per-parser: both defects live in code every parser reaches, and PD-BUG-149 established that guarding one route leaves the others emitting the token by another. The cases are therefore exhaustive across the affected parsers, not representative.
+
+| Test Focus | Key Test Cases | Edge Cases Covered |
+|-----------|----------------|-------------------|
+| Dot-only notation is not a reference | `TestBug149Helper` (15 methods), `TestBug149ParserDetection` (12) | `../`, `../../`, `./..`, backslash spellings — suppressed in markdown, generic, python, PowerShell, YAML and JSON; each paired with a NAMED sibling written the same way that must still be detected (PD-BUG-149) |
+| Link-syntax boundary | `TestBug149PreservedBoundary` (1) | `[parent](../)` is an authored reference and is still detected and re-depthed — the one dot-only shape that must NOT be suppressed |
+| Padded notation | `TestBug151PaddedTokenNotRegistered` (15) | The same tokens written with surrounding whitespace, which tested verbatim walked past the PD-BUG-149 guard. Asserts both that the padded form is absent AND that stripping it did not revive the tight form (PD-BUG-151) |
+| Span covers exactly the target | `TestTD305SpanCoversExactlyTheTarget` (6) | A padded NAMED target is tracked by its trimmed path with columns covering only that path; a tight target is unchanged (TD305) |
+| Span never wider than a tight target | `TestBug150SpanNeverWiderThanTightTarget` (14) | The **mirror** case, missing until PD-BUG-150 round 3: the target is already tight but the SPAN is wider, which is what a parser leaves when it strips the captured text into `link_target` while the columns keep the raw match extent. Asserted **type-agnostically** — a span may exceed its target, but never by whitespace alone — so no list of affected link types appears and a parser added later is covered. Includes a control that a construct-spanning markdown span keeps its width, and a control that an indented reference definition keeps its recorded columns |
+| Padded URL | `TestBug151PaddedUrlNotRegistered` (2) | Padding also evaded the `startswith` URL guard. Latent, not live — it never resolved — but closed by the same re-validation. The control pins that the tight spelling adds no such target, so the padded case is a real difference |
+| Moved-file rewrite | `TestBug151MovedFileRewrite` (13) | Padded spans come back BYTE-IDENTICAL after a depth-changing move, in prose (backtick and quoted) and in YAML/JSON/PowerShell/generic config **values**. Includes the depth-1 inert case — `` ` ../ ` `` recalculates to itself, so a suite exercising only depth 1 would call the bug fixed while it was not. Also pins that a padded named DIRECTORY now follows the move (measured STALE in five shapes pre-fix) and that PowerShell's padded and tight twins do not double-replace once normalization collapses them onto one span |
+
+**Test File**: [`test/automated/unit/2-link-parsing-update/test_bug149dotonlypathtokens.py`](../../automated/unit/2-link-parsing-update/test_bug149dotonlypathtokens.py) (TE-TST-161 — 45 test functions, 80 collected cases after parametrization: 30 from PD-BUG-149, 36 added for PD-BUG-151 / TD305, 14 added for PD-BUG-150 round 3).
+**Manual validation**: `test/bug-validation/PD-BUG-149_dot_only_prose_token_validation.py` (5 checks) and `test/bug-validation/PD-BUG-151_padded_dot_only_token_validation.py` (6 checks, **1/6 pre-fix → 6/6 post-fix**), both through the real service move handler.
+**Round 3 (PD-BUG-150, 2026-08-31)** — the normalization above enforced only *half* the invariant it documented. `_normalize_reference` early-returns whenever the target is already tight, which is exactly the state the PowerShell quoted-directory scan produces, so the span kept padding the target no longer named and positional replacement destroyed it. `_tighten_span` closes the second half at the same choke point. Verified by a damage oracle rather than a shape census — rewrite every reference in the repo with a sentinel and require that mapping it back reproduces the line byte for byte: **16 damaged of 47,057 before, 0 of 47,231 after**. The earlier claim that normalization is "confined to references whose recorded span is EXACTLY the target" no longer holds and was the defect.
+
+**Behavioural delta measured** for the PD-BUG-151 / TD305 fix, paired (each file parsed once, normalized vs un-normalized) across 88,359 references in the LinkWatcher and appdev deployments: 11 references dropped (4 padded dot-only, 4 padded bare separators, 3 PowerShell padded twins de-duplicated), 62 tightened, **0 added**.
+
 ## Test Implementation Roadmap
 
 ### Priority Order

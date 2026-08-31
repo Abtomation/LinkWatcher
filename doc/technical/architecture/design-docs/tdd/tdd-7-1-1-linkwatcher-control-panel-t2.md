@@ -2,9 +2,9 @@
 id: PD-TDD-033
 type: Technical Design Document
 category: TDD Tier 2
-version: 1.10
+version: 1.11
 created: 2026-07-12
-updated: 2026-08-27
+updated: 2026-08-28
 description: "Technical Design Document (Tier 2) for LinkWatcher Control Panel (7.1.1)"
 feature_id: 7.1.1
 tier: 2
@@ -98,7 +98,7 @@ graph TD
     Validation --> CLI>main.py --validate]
     Views --> ConfigEdit([config_edit.py - read / validate / atomic save])
     ConfigEdit --> Cfg[/tools/linkwatcher/linkwatcher-config.yaml/]
-    Poller --> Registry[/project-registry.json/]
+    Poller --> Registry[/child registry - project- or framework-registry.json/]
 
     class App,Lifecycle,Poller critical
     class Model,Views,SingleInstance important
@@ -158,7 +158,16 @@ poll_interval_seconds: 2.5    # discovery cadence
 project_registry: C:/path/to/project-registry.json   # optional override
 ```
 
-Registry resolution order: `--registry` CLI arg → `LINKWATCHER_PROJECT_REGISTRY` env var → `project_registry` key in `panel-config.yaml` → **`.framework-central-pointer` discovery** → error banner with guidance (distinct from the *empty registry* case, which is the calm EC-8 empty state). The pointer tier (added during Core Logic Implementation Phase A, checkpoint-approved 2026-07-27) reads `<project-root>/process-framework/.framework-central-pointer` — the project root taken from an explicit `--project-root` first, then a cwd walk-up — and joins `process-framework-central/project-registry.json`, counting only when that file exists. It reuses the framework's canonical "where is central?" locator so the hook-auto-opened panel is zero-config (the hook passes its own `--project-root`; a manual launch from inside any registered project is found by the walk-up), rather than introducing a second source of truth for central's location.
+Registry resolution order: `--registry` CLI arg → `LINKWATCHER_PROJECT_REGISTRY` env var → `project_registry` key in `panel-config.yaml` → **workspace-owned child registry** → **parent-pointer discovery** → error banner with guidance (distinct from the *empty registry* case, which is the calm EC-8 empty state). The two discovery tiers (pointer tier added during Core Logic Implementation Phase A, checkpoint-approved 2026-07-27; generalized by PD-BUG-148) keep the panel zero-config — the hook passes its own `--project-root`; a manual launch is answered by the current directory when it is a workspace root that owns a registry, and by the cwd walk-up from anywhere inside a leaf project — rather than introducing a second source of truth for the registry's location.
+
+A workspace that **has children** keeps their registry in its own `process-framework-central/`, under a role-derived filename (`project-registry.json` indexing `projects` at a framework; `framework-registry.json` indexing `frameworks` at a framework-builder). Both filenames and both collection keys are recognized; the row schema is identical for the panel's purposes, which reads only `name` and `path`. A **leaf** workspace owns no child registry, so it resolves through the parent-pointer in its framework face (`.framework-parent-pointer`, or the legacy `.framework-central-pointer`) to the registry its parent owns. Either tier counts only when the resolved file exists, so an unreachable parent falls through to the error state rather than claiming a phantom path.
+
+Two deliberate constraints (PD-BUG-148):
+
+- **Own-registry lookup takes the cwd exactly, and never walks up.** The root is `--project-root` when given, else the current directory. Accepting an *implied* root is required for correctness, not convenience: the launchers forward their arguments and add none, so without it the tier was unreachable from every manual launch and a non-leaf workspace silently got its parent's registry (PD-BUG-148 CR-1; measured at appdev — own 4 projects vs. parent 3 frameworks, indistinguishable in the UI). Walking *up*, by contrast, would adopt a registry merely walked past: a producer's blueprint/template tree carries a zero-row *seed* registry, and resolving to it renders the calm "no registered projects" empty state, a wrong answer that reads as a valid one. Ancestors therefore keep pointer-only semantics. Two accepted residuals: a launch from a deep subdirectory of a non-leaf workspace still lists its parent's registry, and a launch from a blueprint tree root reaches that tree's seed. Both are diagnosable from the `registry resolved via <source>` line in `panel.log`.
+- **The face location is read from the workspace, not assumed.** `paths.process_framework` in `doc/project-config.json` locates the framework face (a self-hosted producer keeps its face under `blueprint/`), falling back to `process-framework/` when undeclared or unreadable. The same resolution locates the per-project launcher script used by Start (§4.3).
+
+Both recognized filenames and both collection keys are closed enumerations of the roles that exist today, so the next role divergence would repeat this bug's failure shape — a silent fall-through to the parent's list under an ordinary `registry resolved via pointer:` line. A `process-framework-central/` holding no recognized registry is therefore logged (`central_registry_unrecognized`, naming the directory and what was sought); the fall-through itself is unchanged. An unreadable parent-pointer is logged for the same reason, and `UnicodeDecodeError` is caught alongside `OSError` there — it is a `ValueError`, so it previously propagated out of resolution and aborted the panel before any window existed.
 
 ### 4.2 UI Components
 
@@ -186,7 +195,7 @@ graph TD
     classDef critical fill:#f9d0d0,stroke:#d83a3a
     classDef important fill:#d0e8f9,stroke:#3a7bd8
 
-    Registry[/project-registry.json/] --> Poller([Poller thread, every 2.5s])
+    Registry[/child registry - project- or framework-registry.json/] --> Poller([Poller thread, every 2.5s])
     Locks[/.linkwatcher.lock per project/] --> Poller
     Procs>psutil process table] --> Poller
     Poller --o--> Queue[(thread-safe queue)]
@@ -343,7 +352,7 @@ All runtime dependencies already exist — nothing must be implemented first:
 
 - Features 0.1.1 (CLI + lock), 0.1.3 (config loader/validator), 3.1.1 (log files), 6.1.1 (`--validate`) — all 🟢 Completed.
 - `psutil >= 5.9.0` — already in `pyproject.toml`; Tkinter — stdlib. **No new packages.**
-- Central `project-registry.json` (exists in appdev central) — consumed read-only.
+- A child registry — `project-registry.json` at a framework, `framework-registry.json` at a framework-builder — consumed read-only.
 - `start_linkwatcher_hook_wrapper.ps1` — small additive change (panel auto-open call) inside this feature's scope. **Not delivered** — see the §4.5 status note; tracked as PF-IMP-2032 on the framework path.
 
 ### 6.2 Implementation Steps

@@ -57,11 +57,14 @@ from ..config import LinkWatcherConfig
 from .discovery import LOCK_FILE_NAME, is_daemon_for, read_lock_pid
 from .model import AppModel, DaemonStatus, ProjectInfo
 from .panel_log import get_panel_logger
+from .settings import workspace_face_dir
 
-# The launcher inside every registered project (the same script the hook runs).
-_LAUNCHER_RELPATH = (
-    Path("process-framework") / "tools" / "linkWatcher" / "start_linkwatcher_background.ps1"
-)
+# The launcher inside every registered project (the same script the hook runs),
+# relative to that workspace's framework face.  The face is NOT assumed to be
+# ``process-framework/``: a self-hosted producer declares another location, and
+# assuming the conventional one made Start fail for such a workspace the moment
+# the panel could list it (PD-BUG-148).
+_LAUNCHER_IN_FACE = Path("tools") / "linkWatcher" / "start_linkwatcher_background.ps1"
 
 # Bounded launcher wait: the launcher sleeps ~2 s for its post-start check; 30 s
 # covers a slow spawn without letting a hung shell pin the row forever.
@@ -223,8 +226,12 @@ class StartOutcome:
 
 
 def launcher_path(project_root: Path) -> Path:
-    """The project's own launcher script (start goes only through it, D-T4)."""
-    return Path(project_root) / _LAUNCHER_RELPATH
+    """The project's own launcher script (start goes only through it, D-T4).
+
+    Resolved against the workspace's declared framework face, so a workspace
+    whose face is not ``process-framework/`` is still startable (PD-BUG-148).
+    """
+    return workspace_face_dir(Path(project_root)) / _LAUNCHER_IN_FACE
 
 
 def resolve_shell(env: Optional[Mapping[str, str]] = None) -> str:

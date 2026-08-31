@@ -63,7 +63,11 @@ _PIN_RESOLVED_BY: Dict[DaemonStatus, frozenset] = {
 
 @dataclass(frozen=True)
 class ProjectInfo:
-    """One registered project, as read from the central ``project-registry.json``.
+    """One registered row, as read from the child registry a workspace owns.
+
+    The registry is ``project-registry.json`` at a framework and
+    ``framework-registry.json`` at a framework-builder; both carry the ``name``
+    and ``path`` this reads (PD-BUG-148).
 
     Static for the lifetime of a poll cycle.  Paths are derived from ``root``
     using the project layout the launcher and validator already assume.

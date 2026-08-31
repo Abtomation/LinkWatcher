@@ -10,12 +10,17 @@ AI Context
 - **Entry point**: ``LinkUpdater.update_references_in_file()`` — called
   by handler after a move is detected to rewrite link targets in a
   single source file.
-- **Delegation**: updater → PathResolver (new relative path calculation),
-  parser-specific replace methods (``_replace_markdown_target``, etc.).
+- **Delegation**: updater → PathResolver (new relative path calculation)
+  and ``linkwatcher.replacement`` for the whole replacement stack — link-type
+  dispatch, the format-aware markdown replacers, column-span replacement and
+  the contained-overlap pre-pass — shared with
+  ``ReferenceLookup._replace_links_in_lines`` so the two rewrite paths
+  cannot diverge again (PD-BUG-150).  The methods below are thin delegators.
   File I/O uses atomic tempfile-write + rename pattern.
 - **Common tasks**:
-  - Adding a new file format: add a ``_replace_<format>_target()``
-    method and wire it into ``_replace_reference_target()``.
+  - Adding a new file format: add a ``replace_<format>_target()`` function
+    to ``linkwatcher.replacement`` and wire it into its ``replace_in_line()``
+    dispatch, so both rewrite paths pick it up.
   - Debugging failed updates: check ``UpdateResult`` return value —
     ``STALE`` means the old link text was not found in the file
     (file changed between scan and update).
@@ -24,19 +29,26 @@ AI Context
     before each write.
 """
 
-import json
 import os
 import re
 import shutil
 import tempfile
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, TypedDict
+from typing import Dict, List, Tuple, TypedDict
 
 from .link_types import LinkType
 from .logging import get_logger
 from .models import LinkReference
 from .path_resolver import PathResolver
+from .replacement import (
+    ESCAPABLE_STRUCTURED_TYPES,
+    filter_contained_overlaps,
+    replace_at_position,
+    replace_in_line,
+    replace_markdown_target,
+    replace_reference_target,
+)
 
 
 class UpdateStats(TypedDict):
@@ -65,13 +77,11 @@ class LinkUpdater:
 
     #: Link types whose recorded span may cover an ESCAPED source literal,
     #: so ``link_text`` (raw source) and ``link_target`` (decoded value)
-    #: legitimately differ (PD-BUG-126).
-    _ESCAPABLE_STRUCTURED_TYPES = (
-        LinkType.JSON,
-        LinkType.JSON_DIR,
-        LinkType.YAML,
-        LinkType.YAML_DIR,
-    )
+    #: legitimately differ (PD-BUG-126).  Defined once in
+    #: ``linkwatcher.replacement`` and shared with the within-moved-file
+    #: rewrite path (PD-BUG-150); kept as a class attribute because the
+    #: stale-detection branch below and existing tests reach it by that name.
+    _ESCAPABLE_STRUCTURED_TYPES = ESCAPABLE_STRUCTURED_TYPES
 
     def __init__(
         self,
@@ -92,8 +102,6 @@ class LinkUpdater:
             python_source_root=python_source_root,
             path_resolution_overrides=path_resolution_overrides,
         )
-        self._regex_cache: Dict[str, re.Pattern] = {}
-        self._REGEX_CACHE_MAX_SIZE = 1024
         # PD-BUG-098 / TD252: per-file count of refs skipped via
         # _replace_at_position's invalid-column ambiguous-fallback path
         # (occurrences>1 case).  Reset by _update_file_references[_multi]
@@ -455,88 +463,12 @@ class LinkUpdater:
         """Drop refs whose column range is strictly contained in another ref
         on the same line (PD-BUG-098).
 
-        Scope — strictly-contained overlap only.  Partial overlap (where two
-        ranges overlap but neither strictly contains the other, e.g. ranges
-        ``[5, 12)`` and ``[10, 18)``) is NOT addressed by this filter and
-        would still produce the bottom-up replacement corruption.  Partial
-        overlap has not been observed in practice (the canonical PD-BUG-098
-        trigger — bare filename inside a longer path — always yields strict
-        containment), so the simpler containment-only filter is sufficient
-        until a reproducer for partial overlap surfaces.
-
-        When two refs on the same line overlap such that one strictly contains
-        the other, the descending-column processing in `_apply_replacements`
-        produces corrupted output.  The inner ref's replacement extends the
-        line; the outer ref's original column positions are then stale, and
-        position-based slicing yields ``<new_target> + chopped_tail`` because
-        ``line[outer_end_col:]`` indexes into the freshly-inserted text.
-
-        The outer ref's replacement covers the inner range textually, so
-        dropping the inner ref preserves the intended outer rewrite.  When
-        both refs would rewrite to a path resolving to the same file (the
-        canonical trigger — directory moves where the inner is a bare-filename
-        ref to the moved file), the result is identical to the non-overlapping
-        case.  When their new_targets diverge, the outer wins; this is no
-        worse than the previous behavior, which produced corruption.
-
-        Args:
-            replacement_items: List of ``(LinkReference, new_target)`` tuples.
-            file_path: Source-file path for log messages.
-
-        Returns:
-            Filtered list with strictly-contained inner refs removed.  Order
-            is otherwise preserved.
+        Delegates to :func:`linkwatcher.replacement.filter_contained_overlaps`,
+        which the within-moved-file rewrite path shares (PD-BUG-150).  See that
+        function for the full contract, including the strictly-contained-only
+        scope limit.
         """
-        # Group items by 1-based line_number; preserve original index so the
-        # returned list keeps stable ordering for items not dropped.
-        by_line: Dict[int, List[Tuple[int, LinkReference, str]]] = {}
-        for original_idx, (ref, new_target) in enumerate(replacement_items):
-            by_line.setdefault(ref.line_number, []).append((original_idx, ref, new_target))
-
-        dropped_indices: Set[int] = set()
-
-        for line_number, line_items in by_line.items():
-            if len(line_items) < 2:
-                continue
-            # For each pair, mark the strictly-contained one as dropped.
-            for i, (_, ref_a, _) in enumerate(line_items):
-                if line_items[i][0] in dropped_indices:
-                    continue
-                a_start, a_end = ref_a.column_start, ref_a.column_end
-                for j, (_, ref_b, _) in enumerate(line_items):
-                    if i == j or line_items[j][0] in dropped_indices:
-                        continue
-                    b_start, b_end = ref_b.column_start, ref_b.column_end
-                    # B strictly contained in A: a_start <= b_start
-                    # and b_end <= a_end and ranges differ.
-                    if (
-                        a_start <= b_start
-                        and b_end <= a_end
-                        and (a_start, a_end) != (b_start, b_end)
-                    ):
-                        dropped_indices.add(line_items[j][0])
-                        self.logger.warning(
-                            "overlapping_references_resolved",
-                            file_path=file_path,
-                            line_number=line_number,
-                            outer_target=ref_a.link_target,
-                            outer_range=(a_start, a_end),
-                            inner_target=ref_b.link_target,
-                            inner_range=(b_start, b_end),
-                            reason=(
-                                "PD-BUG-098: inner ref strictly contained "
-                                "in outer; dropping inner"
-                            ),
-                        )
-
-        if not dropped_indices:
-            return replacement_items
-
-        return [
-            item
-            for original_idx, item in enumerate(replacement_items)
-            if original_idx not in dropped_indices
-        ]
+        return filter_contained_overlaps(replacement_items, file_path, self.logger)
 
     def _calculate_new_target(self, ref: LinkReference, old_path: str, new_path: str) -> str:
         """Calculate the new target path for a reference.
@@ -546,184 +478,40 @@ class LinkUpdater:
         return self.path_resolver.calculate_new_target(ref, old_path, new_path)
 
     def _replace_in_line(self, line: str, ref: LinkReference, new_target: str) -> str:
-        """Replace the target in a line based on the reference information."""
-        # Handle different link types appropriately
-        if ref.link_type == LinkType.MARKDOWN:
-            # For markdown links [text](target), replace just the target part
-            return self._replace_markdown_target(line, ref, new_target)
-        elif ref.link_type == LinkType.MARKDOWN_REFERENCE:
-            # For reference links [label]: target "title", replace just the target part
-            return self._replace_reference_target(line, ref, new_target)
-        else:
-            # For other types, use position-based replacement for precision
-            return self._replace_at_position(line, ref, new_target)
+        """Replace the target in a line based on the reference information.
+
+        Delegates to :func:`linkwatcher.replacement.replace_in_line`, which the
+        within-moved-file rewrite path shares (PD-BUG-150).  The link-type
+        dispatch lives there, beside the primitives it guards, so neither path
+        can reach positional replacement without it.
+        """
+        return replace_in_line(line, ref, new_target, self.logger, self._note_ambiguous_skip)
 
     def _replace_markdown_target(self, line: str, ref: LinkReference, new_target: str) -> str:
         """Replace target in markdown link format, handling titles properly.
 
-        When the link text exactly matches the old target, the text is also
-        updated to the new target (PD-BUG-012).
+        Delegates to :func:`linkwatcher.replacement.replace_markdown_target`.
         """
-        # Escape special regex characters in the original target
-        escaped_target = re.escape(ref.link_target)
-
-        # Pattern to match [text](target optional_title) where target is our specific target
-        # Text is captured separately so we can update it when it matches the old target
-        # This handles titles in formats: "title", 'title', (title)
-        pattern = rf"(\[)([^\]]*)(\]\()({escaped_target})(\s+[\"'(][^\"')]*[\"')])?(\))"
-
-        def replace_func(match):
-            # Group 1: [
-            # Group 2: link text
-            # Group 3: ](
-            # Group 4: target (the file path we want to replace)
-            # Group 5: optional title (including the space and quotes/parens)
-            # Group 6: closing )
-            link_text = match.group(2)
-            title_part = match.group(5) if match.group(5) else ""
-            # Update link text when it exactly matches the old target
-            if link_text == ref.link_target:
-                link_text = new_target
-            return (
-                f"{match.group(1)}{link_text}{match.group(3)}"
-                f"{new_target}{title_part}{match.group(6)}"
-            )
-
-        compiled = self._get_cached_regex(pattern)
-        return compiled.sub(replace_func, line)
+        return replace_markdown_target(line, ref, new_target)
 
     def _replace_reference_target(self, line: str, ref: LinkReference, new_target: str) -> str:
-        """Replace target in reference link format [label]: target "title"."""
-        # Escape special regex characters in the original target
-        escaped_target = re.escape(ref.link_target)
+        """Replace target in reference link format [label]: target "title".
 
-        # Pattern to match [label]: target optional_title
-        # This handles titles in formats: "title", 'title', (title)
-        pattern = rf"(\[[^\]]*\]:\s*)({escaped_target})(\s+[\"'(][^\"')]*[\"')])?(\s*$)"
+        Delegates to :func:`linkwatcher.replacement.replace_reference_target`.
+        """
+        return replace_reference_target(line, ref, new_target)
 
-        def replace_func(match):
-            # Group 1: [label]:
-            # Group 2: target (the file path we want to replace)
-            # Group 3: optional title (including the space and quotes/parens)
-            # Group 4: end of line
-            title_part = match.group(3) if match.group(3) else ""
-            end_part = match.group(4) if match.group(4) else ""
-            return f"{match.group(1)}{new_target}{title_part}{end_part}"
-
-        compiled = self._get_cached_regex(pattern)
-        return compiled.sub(replace_func, line)
-
-    def _get_cached_regex(self, pattern: str) -> re.Pattern:
-        """Get a compiled regex from cache, compiling and caching if needed."""
-        compiled = self._regex_cache.get(pattern)
-        if compiled is None:
-            if len(self._regex_cache) >= self._REGEX_CACHE_MAX_SIZE:
-                self._regex_cache.clear()
-            compiled = re.compile(pattern)
-            self._regex_cache[pattern] = compiled
-        return compiled
+    def _note_ambiguous_skip(self) -> None:
+        """Record that a replacement was refused as ambiguous (TD252)."""
+        self._ambiguous_skip_count += 1
 
     def _replace_at_position(self, line: str, ref: LinkReference, new_target: str) -> str:
-        """Replace target at specific position in line."""
-        # Special handling for Python imports - replace the text, not the target
-        if ref.link_type == LinkType.PYTHON_IMPORT:
-            # For Python imports, we need to replace the dot notation in the line
-            # Convert new_target (slash notation) back to dot notation
-            new_import_text = new_target.replace("/", ".")
-            # PD-BUG-094 / TD251: bounded regex with negative lookbehind/lookahead
-            # makes a second application a safe no-op. Without this, an unbounded
-            # str.replace would substring-match inside the already-prefixed result
-            # if duplicate refs ever reached this method (PD-BUG-096 class).
-            pattern = r"(?<![.\w])" + re.escape(ref.link_text) + r"(?!\w)"
-            return re.sub(pattern, new_import_text, line)
+        """Replace target at specific position in line.
 
-        # Use column positions to replace only the specific occurrence
-        start_col = ref.column_start
-        end_col = ref.column_end
-
-        # Validate positions
-        if start_col < 0 or end_col > len(line) or start_col >= end_col:
-            # Fall back to bounded replacement when positions are invalid
-            # (PD-BUG-098). Unbounded ``line.replace(old, new)`` would replace
-            # every occurrence of ``link_target`` on the line, producing
-            # multi-substitution corruption when the target appears more than
-            # once.  Skip ambiguous cases (0 or >1 occurrences) and replace
-            # exactly one occurrence otherwise.
-            occurrences = line.count(ref.link_target)
-            if occurrences == 1:
-                return line.replace(ref.link_target, new_target, 1)
-            if occurrences > 1:
-                self.logger.warning(
-                    "ambiguous_fallback_replacement_skipped",
-                    file_path=ref.file_path,
-                    line_number=ref.line_number,
-                    link_target=ref.link_target,
-                    occurrences=occurrences,
-                    reason=(
-                        "PD-BUG-098: invalid columns + multiple matches; "
-                        "refusing unbounded replace"
-                    ),
-                )
-                # TD252 / Option C: surface this silent skip in UpdateStats["errors"]
-                # so callers see that a ref could not be safely replaced.  STALE-
-                # escalation was rejected (whole-file blast radius for a single
-                # ambiguous ref); per-skip counter preserves visibility without
-                # blocking other refs in the same file.
-                self._ambiguous_skip_count += 1
-            return line
-
-        # PD-BUG-126 / PD-BUG-124 class: when the span covers an ESCAPED
-        # source literal, the replacement has to be written in the same
-        # escaped form -- splicing raw text into an escaped string literal
-        # is exactly what left files unparseable before.
-        if (
-            ref.link_type in self._ESCAPABLE_STRUCTURED_TYPES
-            and ref.link_text
-            and ref.link_text != ref.link_target
-        ):
-            # ensure_ascii=False is load-bearing, not a preference: the
-            # default would re-spell every non-ASCII character as a \uXXXX
-            # escape, so a path holding one comes back in a different
-            # spelling than the author wrote.  It stays valid and decodes
-            # identically, but a rewrite changes WHERE a target points, never
-            # HOW it was written -- the rule PD-BUG-118 / PD-BUG-120 /
-            # PD-BUG-124 exist to enforce.  Backslashes and quotes are still
-            # escaped either way, which is what keeps the file parseable.
-            new_target = json.dumps(new_target, ensure_ascii=False)[1:-1]
-
-        # Extract the text at the specified position
-        text_at_position = line[start_col:end_col]
-
-        # For quoted references, the text might include quotes
-        if (
-            ref.link_type
-            in [
-                LinkType.MARKDOWN_QUOTED,
-                LinkType.QUOTED,
-                LinkType.PYTHON_QUOTED,
-                LinkType.HTML_ANCHOR,
-            ]
-            and text_at_position.startswith('"')
-            and text_at_position.endswith('"')
-        ):
-            # Replace just the content inside quotes
-            return line[:start_col] + f'"{new_target}"' + line[end_col:]
-        elif (
-            ref.link_type
-            in [
-                LinkType.MARKDOWN_QUOTED,
-                LinkType.QUOTED,
-                LinkType.PYTHON_QUOTED,
-                LinkType.HTML_ANCHOR,
-            ]
-            and text_at_position.startswith("'")
-            and text_at_position.endswith("'")
-        ):
-            # Replace just the content inside single quotes
-            return line[:start_col] + f"'{new_target}'" + line[end_col:]
-        else:
-            # Direct replacement at position
-            return line[:start_col] + new_target + line[end_col:]
+        Delegates to :func:`linkwatcher.replacement.replace_at_position`, which
+        the within-moved-file rewrite path shares (PD-BUG-150).
+        """
+        return replace_at_position(line, ref, new_target, self.logger, self._note_ambiguous_skip)
 
     def _write_file_safely(self, file_path: str, content: str):
         """Write file content safely with backup and atomic operation."""

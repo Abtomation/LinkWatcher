@@ -55,7 +55,7 @@ class YamlParser(BaseParser):
     _VALUE_TRAIL = frozenset(",]}#")
     _SCALAR_QUOTES = frozenset("\"'")
 
-    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+    def _parse_content_impl(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse YAML content for file references."""
         try:
             lines = content.split("\n")

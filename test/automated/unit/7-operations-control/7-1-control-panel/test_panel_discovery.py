@@ -696,3 +696,71 @@ def test_panel_log_capture_survives_a_configured_panel_logger(
     poller.poll_once()
 
     assert [m for m in panel_log_capture.messages if "poll_cycle" in m]
+
+
+# --------------------------------------------------------------------------- #
+# PD-BUG-148 — the child-registry collection key is role-derived
+#
+# ``load_projects`` required a top-level ``projects`` mapping, so a
+# framework-builder's ``framework-registry.json`` (which indexes its rows under
+# ``frameworks``) was rejected outright — measured before the fix as
+# rows=0, error="has no 'projects' mapping".  The two registries differ only in
+# the container name: rows carry the same ``name``/``path`` fields the panel
+# reads, so nothing about row parsing changes.
+# --------------------------------------------------------------------------- #
+def test_frameworks_mapping_is_accepted(tmp_path):
+    """PD-BUG-148: a framework-registry indexes rows under 'frameworks'."""
+    registry = tmp_path / "framework-registry.json"
+    registry.write_text(
+        '{"frameworks": {'
+        '"FWK-FB": {"name": "FrameworkBuilder", "path": "C:\\\\x\\\\fb"},'
+        '"FWK-APP": {"name": "appdev", "path": "C:\\\\x\\\\fb\\\\appdev"}}}',
+        encoding="utf-8",
+    )
+
+    loaded = load_projects(registry)
+
+    assert [p.project_id for p in loaded.projects] == ["FWK-FB", "FWK-APP"]
+    assert [p.name for p in loaded.projects] == ["FrameworkBuilder", "appdev"]
+    # Negative assertion: the pre-fix rejection must be gone, not merely masked.
+    assert loaded.error is None
+    assert "projects" not in (loaded.error or "")
+
+
+def test_frameworks_rows_derive_the_same_paths_as_projects_rows(tmp_path):
+    """PD-BUG-148: row schemas are interchangeable — only the container differs."""
+    registry = tmp_path / "framework-registry.json"
+    registry.write_text(
+        '{"frameworks": {"FWK-FB": {"name": "fb", "path": "C:\\\\x\\\\fb"}}}', encoding="utf-8"
+    )
+
+    project = load_projects(registry).projects[0]
+
+    assert project.root == Path(r"C:\x\fb")
+    assert project.config_path == Path(r"C:\x\fb\tools\linkwatcher\linkwatcher-config.yaml")
+    assert project.log_dir == Path(r"C:\x\fb\logs\linkwatcher")
+
+
+def test_projects_mapping_still_accepted(tmp_path):
+    """PD-BUG-148 regression guard: the existing container name keeps working."""
+    registry = tmp_path / "project-registry.json"
+    registry.write_text(
+        '{"projects": {"APP-001": {"name": "LinkWatcher", "path": "C:\\\\x\\\\lw"}}}',
+        encoding="utf-8",
+    )
+
+    loaded = load_projects(registry)
+
+    assert [p.project_id for p in loaded.projects] == ["APP-001"]
+    assert loaded.error is None
+
+
+def test_registry_with_neither_mapping_is_still_rejected(tmp_path):
+    """PD-BUG-148: accepting a second container must not accept anything at all."""
+    registry = tmp_path / "project-registry.json"
+    registry.write_text('{"metadata": {"name": "not-a-registry"}}', encoding="utf-8")
+
+    loaded = load_projects(registry)
+
+    assert loaded.projects == []
+    assert loaded.error is not None

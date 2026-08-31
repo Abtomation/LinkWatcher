@@ -49,7 +49,6 @@ and `Build-DocumentationMap.ps1 -Tree PD -Check` to verify it is in sync. Entrie
 
 ## refactoring/plans
 
-- [documentation-alignment-technical-debt-batch-utils-py-ai.md](refactoring/plans/documentation-alignment-technical-debt-batch-utils-py-ai.md) — Refactoring plan: Documentation Alignment technical debt batch: utils.py AI-context inventory reconciliation, PowerShell parser capabilities handbook, and two archived bug-record corrections
 - [extract-shared-structured-data-tree-walk-logic-from-yaml.md](refactoring/plans/extract-shared-structured-data-tree-walk-logic-from-yaml.md) — Refactoring Plan: Extract shared structured-data tree-walk logic from YAML/JSON parsers.
 - [remove-incorrect-colorama-dependency-from-updater-tdd-and-fdd.md](refactoring/plans/remove-incorrect-colorama-dependency-from-updater-tdd-and-fdd.md) — Lightweight Refactoring Plan: Remove incorrect colorama dependency from updater TDD and FDD.
 - [wire-parser-enable-disable-config-flags-into-linkparser-runtime.md](refactoring/plans/wire-parser-enable-disable-config-flags-into-linkparser-runtime.md) — Refactoring Plan: Wire parser enable/disable config flags into LinkParser runtime.

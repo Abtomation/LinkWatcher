@@ -5,13 +5,13 @@ type: Product Documentation
 category: Architecture
 version: 2.0
 created: 2023-06-15
-updated: 2026-08-27
+updated: 2026-08-31
 generated: true
 ---
 
 # Feature Dependencies Map
 
-> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-08-27.
+> **Auto-generated** by Update-FeatureDependencies.ps1 on 2026-08-31.
 > Source: feature state files in doc/state-tracking/features/.
 > Do not edit manually — changes will be overwritten on next generation.
 
@@ -104,13 +104,13 @@ graph TD
 ### Most Depended-On Features (highest fan-in)
 
 - **0.1.1 Core Architecture**: 6 features depend on this
-- **0.1.2 In-Memory Link Database**: 3 features depend on this
-- **0.1.3 Configuration System**: 3 features depend on this
-- **3.1.1 Logging System**: 3 features depend on this
 - **2.1.1 Link Parsing System**: 3 features depend on this
+- **0.1.2 In-Memory Link Database**: 3 features depend on this
+- **3.1.1 Logging System**: 3 features depend on this
+- **0.1.3 Configuration System**: 3 features depend on this
 - **2.2.1 Link Updating**: 2 features depend on this
-- **1.1.1 File System Monitoring**: 1 features depend on this
 - **6.1.1 Link Validation**: 1 features depend on this
+- **1.1.1 File System Monitoring**: 1 features depend on this
 
 ### Features With No Dependencies (root nodes)
 

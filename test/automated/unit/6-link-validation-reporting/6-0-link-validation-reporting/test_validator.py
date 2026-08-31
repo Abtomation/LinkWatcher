@@ -204,6 +204,86 @@ class TestLinkValidator:
         assert "docs/nope.md" in targets
         assert "docs/exists.md" not in targets
 
+    def test_space_in_filename_broken_link_reported(self, tmp_path):
+        """A stale link whose target contains a space must be reported (PD-BUG-156).
+
+        Both CommonMark destination forms are exercised, each with a space-free
+        control on the same file.  Before the fix the validator discarded any
+        target containing a space via the "contains whitespace" skip predicate,
+        so these links were never checked at all -- not logged, not counted, and
+        not listed as skipped.
+        """
+        _create_file(
+            str(tmp_path),
+            "doc/note.md",
+            "[angle](<gone/a b.md>)\n" "[tight](gone/a b.md)\n" "[control](gone/ab.md)\n",
+        )
+
+        cfg = _make_config()
+        result = LinkValidator(str(tmp_path), cfg).validate()
+        targets = {bl.target_path for bl in result.broken_links}
+
+        # Control first: if this is absent the fixture itself is broken.
+        assert "gone/ab.md" in targets
+        # The defect: the space-containing target must not be silently dropped.
+        assert "gone/a b.md" in targets
+
+    def test_space_in_filename_resolving_link_not_reported(self, tmp_path):
+        """A space-containing target that EXISTS must not be reported (PD-BUG-156).
+
+        Guards the other direction: checking these targets must not turn a valid
+        reference into a false positive.
+        """
+        _create_file(str(tmp_path), "doc/a b.md", "# target")
+        _create_file(str(tmp_path), "doc/note.md", "[ok](<a b.md>)\n[ok2](a b.md)\n")
+
+        cfg = _make_config()
+        result = LinkValidator(str(tmp_path), cfg).validate()
+
+        assert result.is_clean, [bl.target_path for bl in result.broken_links]
+        # Discriminating: the links were actually checked, not skipped again.
+        assert result.links_checked >= 2
+
+    def test_reference_definition_space_in_filename_reported(self, tmp_path):
+        """A reference definition with a space in the target is checked too (PD-BUG-156)."""
+        _create_file(
+            str(tmp_path),
+            "doc/note.md",
+            "See [a] and [c].\n\n[a]: <gone/a b.md>\n[c]: gone/ab.md\n",
+        )
+
+        cfg = _make_config()
+        result = LinkValidator(str(tmp_path), cfg).validate()
+        targets = {bl.target_path for bl in result.broken_links}
+
+        assert "gone/ab.md" in targets
+        assert "gone/a b.md" in targets
+
+    def test_prose_with_spaces_still_skipped(self, tmp_path):
+        """Heuristic link types with spaces stay suppressed (PD-BUG-156 guard).
+
+        The whitespace predicate is load-bearing noise suppression for
+        heuristically detected targets -- backticked commands, prose fragments.
+        Narrowing it to exempt explicit link syntax must not reopen that noise.
+        """
+        _create_file(
+            str(tmp_path),
+            "doc/note.md",
+            "Run `pytest test/automated/unit/test_config.py` to check.\n"
+            "The file carries 7 `../missing/ ../gone/` links.\n"
+            "[control](gone/ab.md)\n",
+        )
+
+        cfg = _make_config()
+        result = LinkValidator(str(tmp_path), cfg).validate()
+        targets = {bl.target_path for bl in result.broken_links}
+
+        # Control proves the scan ran and reports what it should.
+        assert "gone/ab.md" in targets
+        # Nothing containing a space may be reported from a heuristic link type.
+        noisy = {t for t in targets if " " in t}
+        assert noisy == set(), f"heuristic noise resurfaced: {noisy}"
+
     def test_subdirectory_link_resolution(self, tmp_path):
         """Links should resolve relative to the source file's directory."""
         _create_file(str(tmp_path), "docs/guide.md", "# Guide")
@@ -515,8 +595,17 @@ class TestShouldCheckTarget:
             ("*.md", "generic-unquoted", "wildcard *"),
             ("**/*.py", "generic-unquoted", "double-star glob"),
             ("file?.txt", "generic-unquoted", "question mark wildcard"),
-            # Spaces (prose / commands)
+            # Spaces (prose / commands) — heuristic link types only (PD-BUG-156).
+            # A space in a heuristically-detected target almost always means the
+            # string is prose or a shell command, not a path.  These MUST stay
+            # skipped: removing the whitespace predicate outright was measured at
+            # 54 new broken reports repo-wide, none of them genuine.
             ("some random text.md", "generic-unquoted", "target with spaces"),
+            ("pytest test/automated/unit/test_config.py", "markdown-backtick", "backtick command"),
+            ("carries 7 links", "markdown-backtick-dir", "backtick prose fragment"),
+            ("Parser registry with 6 format parsers", "yaml", "yaml description prose"),
+            ("File names to exclude when scanning", "json", "json description prose"),
+            ("old/a.md new/a.md", "markdown-standalone", "two standalone paths on one line"),
             # Non-path strings (no separator)
             ("justtext", "generic-unquoted", "no path separator"),
             # Bare filenames (prose mentions — standalone link types only)
@@ -580,6 +669,20 @@ class TestShouldCheckTarget:
             ("missing-guide.md", "markdown", "bare filename with hyphen in markdown link"),
             ("readme.md", "markdown-reference", "bare filename in reference def"),
             ("page.html", "html-anchor", "bare filename in HTML anchor"),
+            # Explicit link syntax whose destination contains a space (PD-BUG-156).
+            # CommonMark REQUIRES the angle form when a path contains a space, so
+            # this is exactly the population that form exists for.  The author
+            # wrote deliberate link markup, so a space is part of the filename —
+            # not the prose signal it is for the heuristic types above.
+            ("doc/a b.md", "markdown", "markdown link, space in filename"),
+            ("gone/a b.md", "markdown", "markdown link, space in missing filename"),
+            (
+                "state-tracking/features/6.1.1-Link Validation-implementation-state.md",
+                "markdown",
+                "live repo shape — space-containing state file",
+            ),
+            ("doc/a b.md", "markdown-reference", "reference definition, space in filename"),
+            ("spaces in name.txt", "html-anchor", "html anchor href, space in filename"),
             # Dir-like targets (ending in / or \) — TD170 lines 480-481
             ("some-unknown-dir/", "markdown-standalone", "dir-like target ending in /"),
             ("nested/path/subdir/", "markdown", "nested dir-like target"),

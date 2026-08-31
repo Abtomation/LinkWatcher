@@ -30,12 +30,23 @@ All extensions are configurable via `monitored_extensions` in config.
 
 ## Link Detection by Parser
 
+**Applies to every parser below**: a path built only from dot segments — `../`, `../../`, `./..` — is **not** a reference (PD-BUG-149). It names no artifact, so a bare parent-directory token written inside quotes or backticks is treated as notation and left alone. Previously it was registered like any other path, and when its containing file moved to a different depth the rewrite re-depthed it along with the real links, silently changing the prose — a sentence reading "carries 7 `../` links" came back as "carries 7 `../../` links". The same token written in **link syntax** — `[parent](../)` — is an authored reference and is still detected and updated; only bare tokens are suppressed. A directory whose name merely begins with dots (`..hidden/x`) has a named segment and is unaffected.
+
+**Surrounding whitespace does not change any of this** (PD-BUG-151). The rule above once held only for the *tight* spelling: a token written with padding inside its delimiters — `` ` ../../ ` `` — was still registered, and on a depth-changing move the whole span **including its padding** was replaced, so the notation was destroyed rather than re-depthed (`` ` ../../ ` `` became `` `..` ``). In YAML and JSON that damage landed in structured config **values**, not prose, and it was silent — the span was counted as an updated link. A padded token is now recognised as the same notation and left alone, in every parser.
+
+The underlying cause was that a target's surrounding whitespace was captured as **part of the reference**. It no longer is: a reference now records its path trimmed, and its recorded position covers exactly that path. That guarantee was itself only half-kept until PD-BUG-150: it held where the *path* carried the padding, but not where a parser trimmed the path and left the recorded position covering the whitespace anyway. A PowerShell **quoted directory** written with padding — `$dir = "  doc/target  "` — was the case that reached it: the path was re-pointed correctly on a move, but the spacing around it was overwritten, silently, and the link still counted as updated. Both halves now hold, in every parser, so a move re-points a link without ever re-spelling how it was written. This also repairs a quieter failure — a padded reference that named something real, such as `" ../doc/sub "`, never resolved on disk and so was **silently skipped** when its file moved, going stale with no warning. Such a reference now follows the move, and the whitespace the author wrote around it is preserved.
+
+**An inline markdown link written with padding follows a move too** (PD-BUG-152). CommonMark allows whitespace around a link destination, and `[x]( ../doc/y.md )` renders exactly like `[x](../doc/y.md)` — but the padded spelling was never updated, in either direction: neither when the file *containing* it moved, nor when the file it *points at* moved. The second case is the broader one, since it reaches every file referencing a moved target, and it was completely silent — no warning, and the link still counted as updated. Both are fixed, and the spacing is written back exactly as authored. This is the same principle applied throughout: a move changes **where** a link points, never **how** it was written.
+
+**A link destination wrapped in angle brackets follows a move too** (PD-BUG-155). CommonMark lets a destination be enclosed in angle brackets — `[x](<doc/a b.md>)`, and the same for a reference definition, `[label]: <doc/a b.md>` — and **requires** that form when the path contains a space, which is the only reason to reach for it. Those brackets are link syntax, not part of the path, but they used to be recorded as part of the target. Nothing then matched: a file that moved was never recognised as the thing such a link pointed at, so the link was left untouched on **both** paths — when the file containing it moved, and when the file it pointed at moved. It was silent in the strongest sense available: the reference was never even selected, so there was no warning, no count, and no skipped-link report. A stale link of this kind was also invisible to `--validate`, which discarded any angle-wrapped target as a `<placeholder>` before checking it. All of that is fixed, and the brackets are written back exactly as authored. The same applies to an angle-wrapped destination inside a PowerShell string. A validation scan now verifies these links too (PD-BUG-156). It previously refused to check **any** target containing a space, so a path that needed the angle form for that very reason was followed correctly on a move yet never verified by a scan — a stale one was reported by nothing, and the documented recovery of running `--validate` after a blind window did not cover the class. The refusal was a deliberate noise filter and is still applied to *heuristically* detected paths, where a space almost always means the text is prose or a shell command rather than a path; it is no longer applied to **explicit link syntax** — `[text](path)`, `[label]: path`, `<a href="path">` — where the author wrote deliberate link markup and a space is part of the filename. Removing the filter outright was measured on this repository at 54 additional reports, none of them real.
+
 ### Markdown (.md)
 
 | Pattern | Example |
 |---------|---------|
 | Standard links | `[text](path/file.md)` |
 | Reference definitions | `[label]: path/file.md "title"` |
+| Angle-bracket destinations | `[text](<path/file with space.md>)`, `[label]: <path/file with space.md>` |
 | HTML anchors | `<a href="path/file.md">` |
 | Quoted file paths | `"path/file.ext"` or `'path/file.ext'` |
 | Quoted directory paths | `"path/to/dir"` |
@@ -92,7 +103,7 @@ Falls back to generic parser on JSONDecodeError. Values written with any JSON es
 |---------|---------|
 | Quoted file paths | `"path/file.ps1"` or `'path/file.ps1'` |
 | Quoted directory paths | `"path/to/dir"` |
-| Embedded markdown links | `[text](path/to/file)` inside strings |
+| Embedded markdown links | `[text](path/to/file)` inside strings, including an angle-bracket destination |
 | Unquoted paths | In comments and text |
 | Block comments | `<# ... #>` content |
 | Here-strings | `@"..."@` and `@'...'@` content |
@@ -133,7 +144,14 @@ Three detection strategies:
 **On move detection, LinkWatcher**:
 - Updates all references pointing to the moved file across the entire project
 - Updates the database entry for the moved file's own path
-- Fixes relative links inside the moved file itself
+- Fixes relative links inside the moved file itself. Each such link is rewritten at the exact
+  position it was found, so two links on one line never interfere — previously a markdown link
+  could be re-depthed a second time by the pass belonging to a *different* link, silently
+  pointing it at another file (PD-BUG-153). For a markdown link whose visible text is exactly
+  its target — `[doc/a.md](doc/a.md)` — **both halves** now follow the move, matching what
+  LinkWatcher has always done for the same link in any other file. Text that merely resembles
+  the target is left alone: the rule is exact equality, so a backtick-wrapped or
+  differently-worded label is never rewritten.
 - Updates references to directory paths
 - **Override-folder virtual-root links** (v2.2): when the moved file lives under a folder configured in `path_resolution_overrides`, host-absolute `/...` references to it from other files in that folder are matched against the folder's virtual root and rewritten, preserving their `/...` style (the blueprint-restructuring use case). References from files outside every override folder are never affected; a rewrite only fires when the resolved target is the actually-moved file and the new target exists on disk. Logged as `update_resolution_override_applied`.
 
@@ -219,6 +237,7 @@ Three detection strategies:
 - Default validated extensions: `.md`, `.yaml`, `.yml`, `.json` (configurable via `validation_extensions`)
 - Smart resolution: tries source-file-relative first, falls back to project-root-relative; `/...` links in `path_resolution_overrides` folders resolve against the folder's configured base (same rule the live update path uses)
 - Context-aware skipping: code blocks, `<details>` archival sections, table rows, template files, placeholder lines
+- Target filtering: URLs, shell commands, glob patterns, regex fragments and template placeholders are not checked. A target containing a **space** is filtered too, but only when it was detected heuristically (backtick spans, bare paths, YAML/JSON values) — a space in an explicit `[text](path)`, `[label]: path` or `<a href="path">` destination is part of the filename and **is** checked (PD-BUG-156)
 
 ## What LinkWatcher Does NOT Do
 

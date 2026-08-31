@@ -16,7 +16,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from linkwatcher.models import LinkReference
+from linkwatcher.parser import LinkParser
 from linkwatcher.reference_lookup import ReferenceLookup
+from linkwatcher.updater import LinkUpdater
 
 pytestmark = [
     pytest.mark.feature("1.1.1"),
@@ -982,3 +984,453 @@ class TestBug124TrailingSeparatorStyleIsConsistent:
         ), "separator style depends on result depth: {!r} vs {!r}".format(
             single_segment, multi_segment
         )
+
+
+# ---------------------------------------------------------------------------
+# PD-BUG-150 — within-moved-file rewrite must honour column positions
+# ---------------------------------------------------------------------------
+
+
+class TestBug150ColumnPositionIgnored:
+    """PD-BUG-150 regression: position-blind replacement inside a moved file.
+
+    ``_replace_links_in_lines`` rewrote every non-markdown reference with
+    ``lines[idx].replace(target, new, 1)``, discarding the ``column_start`` /
+    ``column_end`` the parser supplies.  When a line carried two or more
+    references whose targets are duplicates or nested, EVERY replacement landed
+    on the LEFTMOST match:
+
+      * the first span was rewritten a second time (compounded to a wrong
+        depth, e.g. ``../doc/`` -> ``../../../doc/``), because the old target
+        survives as a substring of its own replacement -- always true for the
+        ``../`` depth family a move-deeper produces; and
+      * the later span was never touched, so it stayed stale.
+
+    Both outcomes are silent: ``moved_file_links_updated`` reports the full
+    count and no warning is emitted.
+
+    Sibling of PD-BUG-098, which fixed the same defect class in the OTHER
+    rewrite path (``updater._apply_replacements``); the tests there are
+    ``TestOverlappingReferenceCorruption`` in ``test_updater.py``.
+
+    These tests drive the REAL parser and the REAL updater end to end, so the
+    column values under test are the ones the parser actually produces rather
+    than hand-picked constants that could agree with a broken implementation.
+
+    Each assertion compares the WHOLE rewritten line, not a substring count.
+    Counting occurrences is not discriminating here: dropping the
+    descending-column ordering splices the second replacement at stale offsets
+    and yields ``Both `../../doc/` an../../doc/oc/` are ...`` -- which still
+    contains ``../../doc/`` exactly twice and no over-deepened path, so a
+    count-based assertion passes on visibly corrupted output.  Verified by
+    mutation while writing these tests.
+    """
+
+    @pytest.fixture
+    def real_lookup(self, mock_db, temp_dir):
+        """ReferenceLookup wired to a real parser and a real updater."""
+        return ReferenceLookup(
+            link_db=mock_db,
+            parser=LinkParser(),
+            updater=LinkUpdater(str(temp_dir)),
+            project_root=temp_dir,
+        )
+
+    @staticmethod
+    def _move_deeper(lookup, temp_dir, filename, line, extra_dirs=()):
+        """Lay out a project, place ``line`` in the moved file, run the rewrite.
+
+        The file is written directly at its NEW location because
+        ``update_links_within_moved_file`` only ever reads the new path.
+
+        Returns:
+            Tuple of (links_updated, file content after the rewrite).
+        """
+        (temp_dir / "doc").mkdir(parents=True, exist_ok=True)
+        (temp_dir / "doc" / "a.md").write_text("# a\n", encoding="utf-8")
+        for extra in extra_dirs:
+            (temp_dir / extra).mkdir(parents=True, exist_ok=True)
+
+        (temp_dir / "sub" / "deeper").mkdir(parents=True, exist_ok=True)
+        moved = temp_dir / "sub" / "deeper" / filename
+        moved.write_text(line, encoding="utf-8")
+
+        count = lookup.update_links_within_moved_file(
+            "sub/{}".format(filename), "sub/deeper/{}".format(filename), str(moved)
+        )
+        return count, moved.read_text(encoding="utf-8")
+
+    def test_duplicate_directory_refs_each_rewritten_at_its_own_position(
+        self, real_lookup, temp_dir
+    ):
+        """The filed reproduction: one directory referenced twice on one line."""
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "Both `../doc/` and `../doc/` are the same real directory.\n",
+        )
+
+        assert content == "Both `../../doc/` and `../../doc/` are the same real directory.\n", (
+            "PD-BUG-150: each span must be rewritten where the parser found it. "
+            "Pre-fix this compounded the first span to ../../../doc/ and left the "
+            "second stale; got {!r}".format(content)
+        )
+        assert count == 2
+
+    def test_duplicate_file_refs_each_rewritten_at_its_own_position(self, real_lookup, temp_dir):
+        """Same defect with real FILE links -- no prose involved.
+
+        This is the shape that leaves a genuinely broken path on disk, which is
+        why PD-BUG-150 was split out of PD-BUG-149 rather than folded into it.
+        """
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "Run `../doc/a.md` then `../doc/a.md` again.\n",
+        )
+
+        assert content == "Run `../../doc/a.md` then `../../doc/a.md` again.\n", (
+            "PD-BUG-150: pre-fix this produced `../../../doc/a.md` (resolves "
+            "nowhere) alongside a stale `../doc/a.md`; got {!r}".format(content)
+        )
+        assert count == 2
+
+    def test_nested_targets_still_rewritten_correctly(self, real_lookup, temp_dir):
+        """Control: two DISTINCT nested targets already worked -- keep it so.
+
+        ``../doc/`` does not survive inside ``../../doc/sub/``'s replacement in
+        a way that misdirects the second rewrite, so this case passed before the
+        fix.  It guards against an over-correction that breaks nesting.
+        """
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "See `../doc/` and `../doc/sub/` here.\n",
+            extra_dirs=("doc/sub",),
+        )
+
+        assert (
+            content == "See `../../doc/` and `../../doc/sub/` here.\n"
+        ), "a nested pair must survive the fix unchanged: {!r}".format(content)
+        assert count == 2
+
+    def test_distinct_targets_on_one_line_unaffected(self, real_lookup, temp_dir):
+        """Control: two unrelated targets on one line -- no interference."""
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "See `../doc/` and `../other/` here.\n",
+            extra_dirs=("other",),
+        )
+
+        assert (
+            content == "See `../../doc/` and `../../other/` here.\n"
+        ), "unrelated targets on one line must not interfere: {!r}".format(content)
+        assert count == 2
+
+    def test_three_duplicate_refs_on_one_line(self, real_lookup, temp_dir):
+        """Three copies compounded hardest -- the shape seen in the incident.
+
+        The PD-BUG-149 evidence recorded ``../`` reaching ``../../../../``
+        where several spans shared one line; with N duplicates the leftmost span
+        absorbs all N rewrites.
+        """
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "One `../doc/`, two `../doc/`, three `../doc/`.\n",
+        )
+
+        assert content == ("One `../../doc/`, two `../../doc/`, three `../../doc/`.\n"), (
+            "PD-BUG-150: with three copies the leftmost span absorbed all three "
+            "rewrites, reaching ../../../../doc/; got {!r}".format(content)
+        )
+        assert count == 3
+
+    def test_duplicate_markdown_links_each_rewritten_without_warning(self, real_lookup, temp_dir):
+        """Duplicate markdown links: one rewrite each, no false warning.
+
+        Originally the markdown branch rewrote every occurrence of a target in a
+        single content-global pass, so a second reference to the same target
+        found nothing left to change and was reported as
+        ``link_pattern_not_found`` -- a warning naming a real, correctly-rewritten
+        link.  De-duplicating the targets removed the artefact.
+
+        PD-BUG-153 removed the content-global pass itself: each reference is now
+        rewritten at its own recorded span, so duplicates are no longer collapsed
+        and each is counted.  Both must still be rewritten, and neither may be
+        reported as missing -- now under the unified
+        ``link_target_not_found_on_line`` event, which is the one this path can
+        actually emit.
+        """
+        spy = MagicMock()
+        with patch.object(real_lookup, "logger", spy):
+            count, content = self._move_deeper(
+                real_lookup,
+                temp_dir,
+                "note.md",
+                "See [a](../doc/a.md) and again [a](../doc/a.md).\n",
+            )
+
+        assert (
+            content == "See [a](../../doc/a.md) and again [a](../../doc/a.md).\n"
+        ), "both markdown links must be rewritten: {!r}".format(content)
+        assert count == 2, "each reference is rewritten at its own span and counted"
+
+        warned = [c.args[0] for c in spy.warning.call_args_list if c.args]
+        assert (
+            "link_target_not_found_on_line" not in warned
+        ), "a correctly-rewritten duplicate must not be reported as missing: {!r}".format(warned)
+
+    def test_contained_overlap_does_not_chop_the_outer_replacement(
+        self, lookup, mock_parser, temp_dir
+    ):
+        """A span nested inside another must not corrupt the outer rewrite.
+
+        Refs are hand-built here rather than parsed: a single ``parse_content``
+        pass emits one reference per span, so this shape is not reachable from
+        the parser today (probed across markdown / YAML / JSON / Python /
+        PowerShell lines while writing these tests).  The pre-pass is carried
+        anyway because the OTHER rewrite path proved the failure mode real
+        (PD-BUG-098) and both paths now share one implementation -- letting the
+        two diverge again is what produced this bug family.  Without the
+        pre-pass the inner replacement widens the line, the outer ref's
+        recorded columns then point into shifted text, and the splice leaves
+        ``...file.md.md``.
+        """
+        (temp_dir / "doc" / "sub").mkdir(parents=True, exist_ok=True)
+        (temp_dir / "doc" / "sub" / "file.md").write_text("# f", encoding="utf-8")
+
+        moved = temp_dir / "note.md"
+        moved.write_text("See ../doc/sub/file.md here.\n", encoding="utf-8")
+
+        inner = LinkReference(
+            file_path="sub/note.md",
+            line_number=1,
+            column_start=4,
+            column_end=15,
+            link_text="",
+            link_target="../doc/sub/",
+            link_type="markdown-standalone",
+        )
+        outer = LinkReference(
+            file_path="sub/note.md",
+            line_number=1,
+            column_start=4,
+            column_end=22,
+            link_text="",
+            link_target="../doc/sub/file.md",
+            link_type="markdown-standalone",
+        )
+        # Inner first: without the pre-pass this is the order that corrupts.
+        mock_parser.parse_content.return_value = [inner, outer]
+
+        lookup.update_links_within_moved_file("sub/note.md", "sub/deeper/note.md", str(moved))
+
+        assert moved.read_text(encoding="utf-8") == "See ../../doc/sub/file.md here.\n", (
+            "PD-BUG-098 shape: the outer replacement was spliced against stale "
+            "columns, leaving a chopped tail: {!r}".format(moved.read_text(encoding="utf-8"))
+        )
+
+    # ------------------------------------------------------------------
+    # Reference-definition shapes.
+    #
+    # Added at rework after Code Review (2026-08-30) rejected the first
+    # PD-BUG-150 fix.  Phase 1 routed every non-MARKDOWN type into the
+    # positional splice, but a MARKDOWN_REFERENCE span covers the WHOLE
+    # definition line (the parser records ``match.start()``/``match.end()``
+    # of ``[label]: target "title"``), so the splice overwrote label and
+    # title along with the target -- silently, counted as a success.
+    #
+    # updater.py never had this problem: it dispatches on link type
+    # (``_replace_in_line``) before falling through to positional
+    # replacement.  Phase 1 adopted the guarded primitive without its
+    # guard, so the fix that set out to end the divergence between the two
+    # rewrite paths reintroduced a narrower one.  The dispatch now lives
+    # in ``linkwatcher.replacement`` beside the primitive it guards, which
+    # is what stops the next recurrence.
+    #
+    # Bound measured end to end across every link-type shape the parsers
+    # emit: MARKDOWN_REFERENCE is the ONLY affected type.  All three of
+    # its shapes are covered below because all three were damaged --
+    # the no-title and directory forms lose the whole ``[label]: `` prefix,
+    # not merely a title.
+    # ------------------------------------------------------------------
+
+    def test_reference_definition_with_title_keeps_label_and_title(self, real_lookup, temp_dir):
+        """``[label]: target "title"`` -- only the target may change."""
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            '[lbl]: ../doc/a.md "Title"\n',
+        )
+
+        assert content == '[lbl]: ../../doc/a.md "Title"\n', (
+            "the reference definition must survive intact: the splice against a "
+            "whole-line span left the bare target ../../doc/a.md, destroying both "
+            "label and title; got {!r}".format(content)
+        )
+        assert count == 1
+
+    def test_reference_definition_without_title_keeps_label(self, real_lookup, temp_dir):
+        """The title is optional, and its absence does not narrow the span."""
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "[lbl]: ../doc/a.md\n",
+        )
+
+        assert content == "[lbl]: ../../doc/a.md\n", (
+            "the label must survive: the splice left the bare target, orphaning "
+            "every [text][lbl] usage in the file; got {!r}".format(content)
+        )
+        assert count == 1
+
+    def test_reference_definition_with_directory_target_keeps_label(self, real_lookup, temp_dir):
+        """A directory target is the third damaged shape, not a separate type."""
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "[d]: ../doc/\n",
+        )
+
+        assert (
+            content == "[d]: ../../doc/\n"
+        ), "a directory reference definition must keep its label too: " "got {!r}".format(content)
+        assert count == 1
+
+    def test_reference_definition_alongside_positional_refs(self, real_lookup, temp_dir):
+        """The two phases must coexist: a definition plus duplicate spans.
+
+        This is the shape the E2E fixtures carry -- a reference-definition
+        block at the foot of a file whose body also holds ordinary links --
+        so it exercises the interaction rather than the definition alone.
+        """
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.md",
+            "Both `../doc/a.md` and `../doc/a.md` are the same file.\n"
+            "\n"
+            '[lbl]: ../doc/a.md "Title"\n',
+        )
+
+        assert content == (
+            "Both `../../doc/a.md` and `../../doc/a.md` are the same file.\n"
+            "\n"
+            '[lbl]: ../../doc/a.md "Title"\n'
+        ), "definition and duplicate spans must both come out right: {!r}".format(content)
+        assert count == 3
+
+    @pytest.mark.parametrize(
+        "written,expected",
+        [
+            ('$dir = "  doc/target  "\n', '$dir = "  ../doc/target  "\n'),
+            ('$dir = "  doc/target"\n', '$dir = "  ../doc/target"\n'),
+            ('$dir = "doc/target  "\n', '$dir = "../doc/target  "\n'),
+            ('$dir = "doc/target"\n', '$dir = "../doc/target"\n'),  # tight control
+        ],
+    )
+    def test_padded_quoted_directory_keeps_its_whitespace(
+        self, real_lookup, temp_dir, written, expected
+    ):
+        """A span wider than its target destroys the padding it covers.
+
+        ``powershell.py``'s quoted-DIRECTORY scan strips the captured text into
+        ``link_target`` while the columns keep the raw match extent, so the span
+        still covers the surrounding whitespace.  Phase 1 then splices the bare
+        target across the whole span.
+
+        A REGRESSION on this path specifically: the ``line.replace(target, new,
+        1)`` this fix replaced matched the tight target and left the padding
+        alone.  The sibling defect in the updater path is older -- pinned in
+        ``test_updater.TestBug150PaddedQuotedDirectorySpan``.
+
+        Extensionless on purpose: an extension-bearing target is captured tight
+        by a character class that cannot match a space, so the same assertion on
+        a file target would pass before the fix.
+        """
+        count, content = self._move_deeper(
+            real_lookup,
+            temp_dir,
+            "note.ps1",
+            written,
+            extra_dirs=("sub/doc/target",),
+        )
+
+        assert content == expected, (
+            "PD-BUG-150: the target must be re-depthed and the authored padding "
+            "preserved -- a rewrite changes WHERE a link points, never HOW it was "
+            "written; got {!r}".format(content)
+        )
+        assert count == 1
+
+    def test_ambiguous_skip_reported_once_and_counted(self, lookup, mock_parser, temp_dir):
+        """An ambiguous refusal is reported once, by its real cause, and counted.
+
+        When ``replace_at_position`` meets invalid columns AND the target occurs
+        more than once on the line, it refuses the unbounded replace rather than
+        corrupting the line (PD-BUG-098) and says so with
+        ``ambiguous_fallback_replacement_skipped``.
+
+        The moved-file caller then saw an unchanged line and logged
+        ``link_target_not_found_on_line`` on top of it -- a second warning
+        naming a different, wrong cause (the target IS on the line; it was
+        refused, not missing).  Nothing counted the refusal either, so a
+        reference silently left unrewritten inside a moved file had no number
+        anywhere.  Raised as a Code Review suggestion at the rework.
+        """
+        (temp_dir / "doc").mkdir(parents=True, exist_ok=True)
+        (temp_dir / "doc" / "a.md").write_text("# a", encoding="utf-8")
+
+        moved = temp_dir / "note.md"
+        moved.write_text("See ../doc/a.md twice: ../doc/a.md\n", encoding="utf-8")
+
+        # Columns deliberately invalid (end beyond the line) so the refusal
+        # branch is the one exercised, with the target present twice.
+        ref = LinkReference(
+            file_path="sub/note.md",
+            line_number=1,
+            column_start=0,
+            column_end=9999,
+            link_text="",
+            link_target="../doc/a.md",
+            link_type="markdown-standalone",
+        )
+        mock_parser.parse_content.return_value = [ref]
+
+        spy = MagicMock()
+        with patch.object(lookup, "logger", spy):
+            lookup.update_links_within_moved_file("sub/note.md", "sub/deeper/note.md", str(moved))
+
+        warned = [c.args[0] for c in spy.warning.call_args_list if c.args]
+
+        assert (
+            "ambiguous_fallback_replacement_skipped" in warned
+        ), "the refusal itself must still be reported: {!r}".format(warned)
+        assert "link_target_not_found_on_line" not in warned, (
+            "a refused replacement must not ALSO be reported as a missing target -- "
+            "two warnings, the second naming the wrong cause: {!r}".format(warned)
+        )
+        assert (
+            "moved_file_ambiguous_skips" in warned
+        ), "the refusal must be counted where a reader can see it: {!r}".format(warned)
+
+        counted = [
+            c.kwargs.get("skipped")
+            for c in spy.warning.call_args_list
+            if c.args and c.args[0] == "moved_file_ambiguous_skips"
+        ]
+        assert counted == [1], "exactly one skip should be counted: {!r}".format(counted)
+
+        assert (
+            moved.read_text(encoding="utf-8") == "See ../doc/a.md twice: ../doc/a.md\n"
+        ), "the refusal must leave the line untouched, not partially rewritten"

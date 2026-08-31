@@ -3,9 +3,9 @@ id: PD-FDD-027
 description: "2.2.1 Tier 2 — Atomic file updates, relative path calculation, dry-run"
 type: Product Documentation
 category: Functional Design Document
-version: 1.1
+version: 1.2
 created: 2026-02-19
-updated: 2026-06-29
+updated: 2026-08-30
 feature_id: 2.2.1
 feature_name: Link Updating
 consolidates: [2.2.1, 2.2.2 (Relative Path Calculation), 2.2.3 (Anchor Preservation), 2.2.4 (Dry Run Mode), 2.2.5 (Backup Creation)]
@@ -55,11 +55,12 @@ retrospective: true
 
 - **2.2.1-FR-1**: The system SHALL update all file references in a single pass per containing file, given a list of `LinkReference` objects and old/new file paths
 - **2.2.1-FR-2**: The system SHALL group references by containing file and process each file independently, reading content once and writing once
-- **2.2.1-FR-3**: The system SHALL sort references in descending `(line_number, column_start)` order before applying replacements, ensuring earlier positions remain valid
+- **2.2.1-FR-3**: The system SHALL sort references in descending `(line_number, column_start)` order before applying replacements, ensuring earlier positions remain valid. (PD-BUG-150, 2026-08-30) This applies to **both** rewrite paths — references in other files and links inside a file that just moved — which now share one implementation of the replacement primitives
 - **2.2.1-FR-4**: The system SHALL compute new targets via `_calculate_new_target()` using relative path calculation from the containing file to the new location
-- **2.2.1-FR-5**: The system SHALL dispatch line-level replacement to link-type-specific methods: `_replace_markdown_target()`, `_replace_reference_target()`, or `_replace_at_position()`
+- **2.2.1-FR-5**: The system SHALL dispatch line-level replacement by link type — `replace_markdown_at_span()` for inline markdown links, `replace_reference_target()` for reference definitions, `replace_at_position()` for every other type. (PD-BUG-150 rework, 2026-08-30) The dispatch is shared by **both** rewrite paths and lives beside the primitives it guards, in `linkwatcher.replacement`; the `LinkUpdater` methods of the same names are thin delegators. (PD-BUG-154, 2026-08-31) The inline-markdown branch dispatched to the line-scoped `replace_markdown_target()` until that fix routed it to the span-confined `replace_markdown_at_span()`, so the dispatch no longer hands one rewrite path a wider reach than the other
 - **2.2.1-FR-6**: The system SHALL write modified content via atomic temp-file + `shutil.move()` to prevent data loss on interruption
 - **2.2.1-FR-7**: The system SHALL track statistics (`files_updated`, `references_updated`, `errors`) and return them from `update_references()`
+- **2.2.1-FR-12**: The system SHALL replace a reference at the column span its parser recorded, never at the first textual match of its target on the line — **except** for link types whose recorded span covers a whole enclosing construct rather than the target alone (inline markdown links and reference definitions today), which are rewritten by their format-aware replacers per FR-5 so that link text, label and title survive. (PD-BUG-150, 2026-08-30) Reaching positional replacement without that dispatch overwrites the whole construct. (PD-BUG-153, 2026-08-30) In the within-moved-file path the inline-markdown replacer is additionally **confined to the recorded span**, so a format-aware rewrite cannot reach a neighbouring reference on the same line and re-depth one that was already rewritten. (PD-BUG-154, 2026-08-31) That confinement now applies on **both** rewrite paths: the shared dispatch routes inline markdown to the span-confined replacer, so the updater path can no longer overwrite a neighbouring link whose old target equals this one's new target. (PD-BUG-150 round 3, 2026-08-31) The positional branch relies on the parser-side span invariant 2.1.1-FR-9, which until that fix was enforced in one direction only: a span left wider than an already-tight target was spliced over, destroying the whitespace it covered. Two earlier rounds of this fix instead recorded an **enumeration** of the wide-span types as load-bearing truth and it was falsified both times, so the guarantee now rests on the parser-side invariant rather than on a list maintained here
 
 ### User Interactions
 
@@ -77,6 +78,7 @@ retrospective: true
 - **2.2.1-BR-5**: Backup creation failure is non-blocking — the update proceeds even if backup fails (graceful degradation)
 - **2.2.1-BR-6**: Each link type has its own replacement method, ensuring syntax-correct modifications (markdown inline, reference-style, generic position-based)
 - **2.2.1-BR-7**: When a markdown link's display text exactly matches the old link target path, both the display text and the target are updated to the new path (PD-BUG-012)
+- **2.2.1-BR-11**: A rewrite SHALL preserve the form in which a reference was authored, changing only where it points. Whitespace written around an inline markdown link's destination — `[x]( old )`, which CommonMark permits and renders identically to `[x](old)` — is matched and written back unchanged, as it already is for reference definitions. (PD-BUG-152, 2026-08-31) Because the parser records the target stripped, a replacer that assumes the target sits flush against the surrounding syntax matches nothing on a padded link and silently leaves it stale rather than corrupting it — the failure mode is a link left pointing at a path that no longer exists. This generalizes the authored-form rule already enforced for separator style (PD-BUG-118 / PD-BUG-120 / PD-BUG-124). (PD-BUG-155, 2026-08-31) The same rule now covers the CommonMark angle-bracket destination form, which the parser records unwrapped: both markdown replacers try an angle-wrapped pattern variant before the tight one and write the brackets back verbatim. That form is not optional styling - CommonMark requires it whenever the path contains a space
 
 ### Acceptance Criteria
 
@@ -86,6 +88,8 @@ retrospective: true
 - **2.2.1-AC-4**: Given a power failure during write, either the original or fully-updated file exists — never a partial write
 - **2.2.1-AC-5**: Given `backup_enabled=True`, a `.bak` file exists alongside each modified file
 - **2.2.1-AC-6**: Given a reference with an anchor (`#section`), the anchor is preserved in the updated path
+- **2.2.1-AC-9**: Given a file that moves to a different depth and carries two references to the same target on one line, each is re-depthed exactly once at its own position — neither compounded by a second rewrite nor left at its old depth (PD-BUG-150, 2026-08-30)
+- **2.2.1-AC-10**: Given a moved file carrying a reference definition (`[label]: target "title"`), only the target changes — label and title are byte-identical afterwards, so `[text][label]` usages elsewhere in the file keep resolving (PD-BUG-150 rework, 2026-08-30)
 
 ### Override-Folder Reference Maintenance
 

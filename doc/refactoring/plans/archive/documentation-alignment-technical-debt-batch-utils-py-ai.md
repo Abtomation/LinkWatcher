@@ -5,7 +5,7 @@ category: Refactoring Plan
 version: 1.1
 created: 2026-08-27
 updated: 2026-08-27
-debt_item: TD270, TD292, TD301, TD279
+debt_item: TD270, TD292, TD279
 description: "Refactoring plan: Documentation Alignment technical debt batch: utils.py AI-context inventory reconciliation, PowerShell parser capabilities handbook, and two archived bug-record corrections"
 mode: lightweight
 priority: Low
@@ -20,10 +20,10 @@ target_area: Documentation Alignment (DA) debt across utils.py, capabilities han
 - **Created**: 2026-08-27
 - **Author**: AI Agent & Human Partner
 - **Status**: Complete
-- **Debt Item**: TD270, TD292, TD301, TD279
+- **Debt Item**: TD270, TD292, TD279 (TD301 withdrawn - see Item 3)
 - **Mode**: Lightweight (no architectural impact)
 
-> **Batch composition**: the four open Documentation Alignment (DA) items in [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md). TD261 was considered and excluded — it mentions `configuration-guide.md` drift but its dimension is TST and its fix is a test-guard code change, not a documentation correction.
+> **Batch composition**: the four open Documentation Alignment (DA) items in [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md). TD261 was considered and excluded — it mentions `configuration-guide.md` drift but its dimension is TST and its fix is a test-guard code change, not a documentation correction.
 
 ## Dependencies and Impact
 - **Affected Components**: `src/linkwatcher/utils.py` (module docstring + one uncalled function); `doc/user/handbooks/linkwatcher-capabilities-reference.md` (PowerShell section); `doc/state-tracking/permanent/archive/bug-tracking-archive.md` (PD-BUG-141 and PD-BUG-125 rows); plus the six downstream doc surfaces that referenced the removed function (TDD 1.1.1, directory-move integration narrative, two test specifications) and the 0.1.1 feature state file.
@@ -53,8 +53,8 @@ Correctly absent and verified as such: `trailing_separator_run()` and `looks_lik
 1. **Origin**: the inventory was authored once in commit `130b3ea` and never treated as a maintained surface.
 2. **Mechanism**: every util added afterwards arrived through a bug-fix session that edited the *function region* and never read the *module header* — `compute_own_output_exclusions` and `is_own_output` (`b741c37`, PD-BUG-107), `path_exists_under_root` (`208b7bd`), `apply_trailing_separator_style` and `authored_backslash_unit` (`5784e5a`, PD-BUG-120/124). `is_file_size_within_limit` predates the inventory and was omitted from the start. The list is a hand-maintained projection of import edges with no generator and no gate, and no task step owns it.
 3. **Recurrence — twice over**. This is the finding worth carrying forward, not the text edit:
-   - The identical defect class in the identical module was already fixed once — see [add-ai-context-docblock-to-utils-py-and-fix-phantom.md](archive/add-ai-context-docblock-to-utils-py-and-fix-phantom.md), which removed phantom claims for `calculate_relative_path()` and `is_subpath()` (functions that never existed in git history). That fix corrected the *instances*, not the maintenance gap.
-   - **Two prior validation rounds recorded these exact defects and neither was actioned.** [PD-VAL-042](../../validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) graded "TDD says `should_ignore_directory()` used by handler — not called anywhere in handler.py" as **Major**, with the recommendation "Remove reference". [PD-VAL-051](../../validation/reports/documentation-alignment/PD-VAL-051-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) recommended fixing the utils.py function inventory outright. Both belong to validation round 1, which was **archived** — the findings aged out without ever reaching a tracker that drives a fix. Recording a Major finding in a round that is later archived is not the same as tracking it.
+   - The identical defect class in the identical module was already fixed once — see [add-ai-context-docblock-to-utils-py-and-fix-phantom.md](add-ai-context-docblock-to-utils-py-and-fix-phantom.md), which removed phantom claims for `calculate_relative_path()` and `is_subpath()` (functions that never existed in git history). That fix corrected the *instances*, not the maintenance gap.
+   - **Two prior validation rounds recorded these exact defects and neither was actioned.** [PD-VAL-042](../../../validation/reports/documentation-alignment/PD-VAL-042-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) graded "TDD says `should_ignore_directory()` used by handler — not called anywhere in handler.py" as **Major**, with the recommendation "Remove reference". [PD-VAL-051](../../../validation/reports/documentation-alignment/PD-VAL-051-documentation-alignment-features-0.1.1-0.1.2-0.1.3-1.1.1.md) recommended fixing the utils.py function inventory outright. Both belong to validation round 1, which was **archived** — the findings aged out without ever reaching a tracker that drives a fix. Recording a Major finding in a round that is later archived is not the same as tracking it.
 
 **Changes Made**:
 - [x] Replaced the "High-traffic functions and primary callers" list in `src/linkwatcher/utils.py` with a **complete, verified** inventory of all 15 surviving functions, explicitly labelled COMPLETE so a future reader can read absence as "no external callers" rather than "possibly stale", with an instruction to re-verify on add/remove.
@@ -82,7 +82,7 @@ Correctly absent and verified as such: `trailing_separator_run()` and `looks_lik
 
 ## Item 2: TD292 — capabilities handbook understates the PowerShell pairing guard
 
-**Scope**: The PowerShell section of [linkwatcher-capabilities-reference.md](../../user/handbooks/linkwatcher-capabilities-reference.md) framed the PD-BUG-135 pairing rule as applying to *directory* references. In `powershell.py` the same guard also gates the general `all_quoted_pattern` pass, which classifies **file** paths. A reader consulting the handbook — which `CLAUDE.md` directs agents to do before assuming LinkWatcher behavior — would have concluded quoted file paths are unaffected by pairing, which is wrong.
+**Scope**: The PowerShell section of [linkwatcher-capabilities-reference.md](../../../user/handbooks/linkwatcher-capabilities-reference.md) framed the PD-BUG-135 pairing rule as applying to *directory* references. In `powershell.py` the same guard also gates the general `all_quoted_pattern` pass, which classifies **file** paths. A reader consulting the handbook — which `CLAUDE.md` directs agents to do before assuming LinkWatcher behavior — would have concluded quoted file paths are unaffected by pairing, which is wrong.
 
 **Scope Delta vs. filed description**: None — scope matches original description. The item's collateral claim that the markdown and generic sections are accurate was independently verified and **holds**: markdown's two guard call sites are both directory extractors (`_extract_quoted_dirs` at line 267, `_extract_backtick_dirs` at line 360), and generic's single site (line 90) is its quoted-directory loop. PowerShell (guard at both line 164 and line 207) is the only understated section.
 
@@ -112,41 +112,50 @@ Correctly absent and verified as such: `trailing_separator_run()` and `looks_lik
 
 **Bugs Discovered**: None.
 
-## Item 3: TD301 — PD-BUG-141 coverage claim contradicts the measured coverage
+## Item 3: TD301 — WITHDRAWN (resolved concurrently by another session; this session's edit reverted)
 
-**Scope**: The item carries three code-review findings. Verification established that **F1, F2 and the test half of F3 were already applied** on 2026-08-27 and are present in the working tree; only F3's documentation half remained. The PD-BUG-141 Verification note in the bug archive still stated that "the 5 remaining uncovered lines are the non-Windows and absent-watchdog defensive branches" — measured, only lines 162 and 166-167 are.
+**Outcome**: Not delivered by this plan. TD301 was worked to completion by a **concurrent session**
+while this batch was in flight, and resolved by it at 15:50 under its own plan,
+[correct-superseded-pd-bug-141-records-and-pin-the-untested.md](correct-superseded-pd-bug-141-records-and-pin-the-untested.md).
+The collision surfaced only when this session ran Update-TechDebt against TD301 and the script
+reported the row missing from the Registry table.
 
-**Scope Delta vs. filed description**: Narrowed substantially. Verified already-applied before this session began:
+**Correction to this plan as originally written**: the F1, F2 and F3-test work recorded above as
+already applied was NOT settled prior work. It was that session in flight, landing while this
+session was verifying. The file-state observation was accurate; the provenance attributed to it
+was not.
 
-- F1 — the 1.1.1 feature state file bug-history row (line 128) now correctly frames the `os.path.isdir` implementation as "rejected at code review on 2026-08-27 … the identity rewrite supersedes it". No longer stale.
-- F2 — `test_watchrootdeletionpredicate.py` no longer carries the stale `isdir` rationale; the file was rewritten and the only surviving `isdir` reference (line 95) is an unrelated cleanup helper.
-- F3 (test half) — `test_unusable_watch_handle_is_reported_deleted` exists at line 210 and explicitly pins `winapi_patch.py` lines 115 and 138.
-- **Remaining and fixed here**: F3's documentation half — one sentence in the archived Verification note.
+**The one piece this session did apply, and then reverted**: the F3 documentation half — the
+PD-BUG-141 Verification note claiming the 5 remaining uncovered lines are the non-Windows and
+absent-watchdog defensive branches. The concurrent session had deliberately dropped that half at
+its own Effort Assessment Gate, human-approved, on the ground that the row is an append-only audit
+trail already carrying the correction.
 
-**Drift root cause** (DA guidance):
-1. **Origin**: the coverage sentence was true of an earlier revision of `winapi_patch.py`. The identity rewrite changed which lines are uncovered, and the Verification note was appended to rather than corrected.
-2. **Mechanism**: bug-tracking Verification cells are **append-only in practice**. The review that discovered the error recorded its correction in a *later segment of the same cell* rather than amending the earlier sentence, so the row carried the wrong claim and its refutation side by side, in that order. A reader who stopped at the first coverage statement got the wrong number.
-3. **Class**: same append-not-amend mechanism as Item 4 — see that item's root cause for the shared tooling gap.
+Reviewed on the merits rather than deferred to, the outcome splits:
 
-**Changes Made**:
-- [x] Corrected the coverage claim in the PD-BUG-141 Verification note in `bug-tracking-archive.md`, marking it as a dated correction under TD301 F3: of the 5 uncovered lines only 3 are defensive branches (162, 166-167); 115 and 138 were the unusable-watch-handle branch, a live Windows runtime path, now covered by `test_unusable_watch_handle_is_reported_deleted` in TE-TST-159.
-- [x] Verified the edit landed in exactly one location (guarded replacement — aborts unless exactly one occurrence) and that the row's markdown table column count (12 pipes, matching the header) and the file's LF line endings were preserved.
-- [x] Recorded F1/F2/F3-test as already-applied rather than re-doing them.
+- **Their stated reason does not hold.** They argued that once F3 lands the claim becomes
+  substantively true and only its count is stale. It does not: the sentence reports a measurement
+  at 89 percent coverage where 5 lines were uncovered and asserts all 5 were defensive branches.
+  That was false when written, since 115 and 138 were the unusable-watch-handle branch, which is
+  precisely why the review filed the finding.
+- **Their conclusion holds anyway, for a stronger reason.** The in-place rewrite orphaned a later
+  review segment on the same row that QUOTES the earlier sentence word for word. After the edit,
+  that wording existed nowhere on the row except inside the quotation, so a reader met a critique
+  of a claim the row no longer made. The edit did not merely touch history, it introduced a fresh
+  incoherence into a row whose defect was incoherence.
+- **Therefore reverted.** The original sentence was restored verbatim and the coupling verified:
+  2 occurrences of the phrase (the claim and the critique quoting it), the correction marker gone,
+  the 12-pipe row structure intact. The accurate post-fix coverage figure lives where the
+  concurrent session put it, in the TD301 resolution notes.
 
-**Test Baseline**: Documentation-only item — no code touched. Batch baseline: 1699 passed, 0 failed.
-**Test Result**: Batch result 1699 passed, 0 failed — zero delta.
+**Scope Delta vs. filed description**: Withdrawn entirely from this plan. Recorded here rather than
+deleted, because the calibration data matters: two sessions ran the same debt item to completion
+simultaneously and neither detected it until a script error made it visible.
 
-**Documentation & State Updates**:
-- [x] Feature implementation state file (1.1.1) updated, or N/A — **N/A**: F1 already corrected on 2026-08-27; re-verified current at line 128 and left unchanged.
-- [x] TDD (1.1.1) updated, or N/A — **N/A**: the PD-BUG-141 fix notes record the TDD as out of scope (it scopes to the handler subsystem and lists neither `liveness.py` nor the observer layer).
-- [x] Test spec updated, or N/A — **N/A**: the 1.1.1 test spec already gained its PD-BUG-141 row during the original fix.
-- [x] FDD updated, or N/A — **N/A**: FDD 1.1.1-EC-12 already records this behavior accurately.
-- [x] ADR updated, or N/A — **N/A**: the watchdog version coupling was deliberately recorded as TD296, not an ADR.
-- [x] Integration Narrative updated, or N/A — **N/A**: no narrative covers the watch-root deletion predicate.
-- [x] User documentation updated, or N/A — **N/A**: the capabilities handbook already names the junction/subst support and the unreachable-root limitation accurately.
-- [x] Validation tracking updated, or N/A — **N/A**: not tracked in an active validation round.
-- [x] Test tracking files updated, or N/A — **N/A**: the TE-TST-159 row was already corrected to "Needs Audit / 12 cases / run 2026-08-27" during the originating review.
-- [x] Technical Debt Tracking: TD301 marked resolved.
+**Test Baseline / Test Result**: Not applicable — no net change from this plan.
+
+**Documentation & State Updates**: Not applicable — no surviving change. TD301 was marked Resolved
+by the concurrent session, not by this one.
 
 **Bugs Discovered**: None.
 
@@ -191,7 +200,7 @@ Correctly absent and verified as such: `trailing_separator_run()` and `looks_lik
 |------|------------------|--------|------------|-------------|
 | 1 | TD270 | Complete | None | utils.py docblock rewritten + dead function removed; 0.1.1 state file (debt row + checkbox); TDD 1.1.1 (2); integration narrative (1); test specs 0.1.1 and 1.1.1 (4) |
 | 2 | TD292 | Complete | None | Capabilities reference, PowerShell section (1 sentence) |
-| 3 | TD301 | Complete | None | bug-tracking-archive PD-BUG-141 Verification note (coverage claim corrected) |
+| 3 | TD301 | **Withdrawn** - resolved concurrently by another session | None | None - this session edit was reverted |
 | 4 | TD279 | Complete | None | bug-tracking-archive PD-BUG-125 Root Cause field (hedged + cross-referenced) |
 
 **Regression**: baseline 1699 passed / 0 failed → post-change 1699 passed / 0 failed. Zero delta. Lint gates (flake8 at gate settings, black, isort) clean on the one changed source module.
@@ -202,9 +211,18 @@ Correctly absent and verified as such: `trailing_separator_run()` and `looks_lik
 
 1. **The utils.py inventory has no owner, no generator and no gate.** It has now drifted and been corrected at least three times (the archived phantom-function plan, PD-VAL-051's unactioned recommendation, and this plan). A fourth recurrence is the default outcome unless the surface is either generated or gated. Routed to the session feedback form as a framework improvement candidate rather than solved here.
 2. **Major validation findings can age out via round archival.** PD-VAL-042 graded the false TDD claim as Major with a concrete recommendation; the round was archived and the finding never reached a tracker that drives work. This is a process gap, not a product one.
+4. **Two sessions ran the same debt item to completion simultaneously and neither noticed.**
+   TD301 was worked by this batch and by a concurrent session at the same time; the collision
+   surfaced only when Update-TechDebt reported the row missing, after this session had already
+   made an edit the other session had deliberately decided against. Nothing in the flow reserves a
+   debt item at selection time, so the first signal of a conflict is a script error or a clobbered
+   file. Worth noting that the two sessions also reached opposite conclusions on the same edit,
+   both defensibly - which is a reason to make the reservation explicit rather than to rely on
+   sessions converging by judgment.
+
 3. **No amend-only path for closed/archived bug records.** `Update-BugStatus.ps1` requires a status transition to write any field, so factual corrections to closed rows have no scripted route and were applied manually here under explicit human approval.
 
 ## Related Documentation
-- [Technical Debt Tracking](../../state-tracking/permanent/technical-debt-tracking.md)
-- [Bug Tracking Archive](../../state-tracking/permanent/archive/bug-tracking-archive.md)
-- [Prior fix of the same defect class](archive/add-ai-context-docblock-to-utils-py-and-fix-phantom.md)
+- [Technical Debt Tracking](../../../state-tracking/permanent/technical-debt-tracking.md)
+- [Bug Tracking Archive](../../../state-tracking/permanent/archive/bug-tracking-archive.md)
+- [Prior fix of the same defect class](add-ai-context-docblock-to-utils-py-and-fix-phantom.md)

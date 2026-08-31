@@ -13,6 +13,7 @@ from ..logging import get_logger
 from ..models import LinkReference
 from ..utils import (
     find_line_number,
+    is_dot_only_path,
     looks_like_directory_path,
     looks_like_file_path,
     safe_file_read,
@@ -53,8 +54,182 @@ class BaseParser(ABC):
             )
             return []
 
-    @abstractmethod
     def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+        """Parse ``content`` and return normalized references (PD-BUG-151 / TD305).
+
+        Subclasses implement :meth:`_parse_content_impl`; this wrapper enforces
+        the invariant every downstream stage assumes:
+
+            ``link_target`` carries no surrounding whitespace, and
+            ``[column_start, column_end)`` covers exactly that target.
+
+        The parsers used to capture padding INTO the span.  A quoted or
+        backticked target written with surrounding whitespace -- ``" doc/sub "``
+        -- was registered as `` doc/sub `` with columns covering the spaces,
+        which broke two ways.  A padded DOT-ONLY token walked past the
+        PD-BUG-149 guard (which tested the span verbatim) and was then replaced
+        span-and-all, so `` ` ../../ ` `` came back as `` `..` `` -- destroyed,
+        not re-depthed, in five parsers, and silently counted as an update.  A
+        padded NAMED directory never resolved on disk, so the existence guard
+        skipped it and the reference went stale with no warning at all.
+
+        The invariant has TWO halves and only the first was enforced until
+        PD-BUG-150 round 3.  A parser that strips the captured text INTO
+        ``link_target`` while the columns keep the raw match extent leaves the
+        target tight and the SPAN wide -- and positional replacement splices the
+        new target across the whole span, so the padding it covered was
+        destroyed, silently and counted as a successful update.  Both halves are
+        enforced here now (:meth:`_normalize_reference` and
+        :meth:`_tighten_span`).
+
+        Normalizing here rather than at the 39 ``LinkReference`` construction
+        sites is the same choice ``replacement.py`` records for its own
+        extraction: one implementation, every parser reaches it, and a parser
+        added later cannot forget it.
+        """
+        return self._normalize_references(self._parse_content_impl(content, file_path), content)
+
+    @classmethod
+    def _normalize_references(
+        cls, references: List[LinkReference], content: str
+    ) -> List[LinkReference]:
+        """Strip padding off every reference, then drop what no longer qualifies.
+
+        Stripping alone would be worse than the bug: `` ../../ `` would become a
+        tight ``../../``, which is exactly the token PD-BUG-149 exists to
+        suppress.  So a reference whose stripped target no longer passes the
+        path predicates -- dot-only notation, a padded URL that only got past
+        the ``startswith`` guard because of its padding -- is dropped instead.
+        """
+        lines = content.split("\n")
+        normalized: List[LinkReference] = []
+        seen = set()
+
+        for ref in references:
+            kept = cls._normalize_reference(ref, lines)
+            if kept is None:
+                continue
+            # Normalization can make two references identical -- the PowerShell
+            # quoted scan emits both a padded and a tight reference for one
+            # target, and they collapse onto the same span.  ``filter_contained_
+            # overlaps`` drops only STRICTLY contained spans, so an exact
+            # duplicate would replace twice at the same columns and splice the
+            # line.  Measured zero exact duplicates across 88,350 references in
+            # the two live deployments, so this drops nothing else.
+            key = (
+                kept.line_number,
+                kept.column_start,
+                kept.column_end,
+                kept.link_target,
+                kept.link_type,
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            normalized.append(kept)
+
+        return normalized
+
+    @staticmethod
+    def _normalize_reference(ref: LinkReference, lines: List[str]):
+        """Return ``ref`` with its padding removed, or ``None`` to drop it.
+
+        This half handles a PADDED TARGET: the target is trimmed and its columns
+        shrink onto it.  A target that is already tight is delegated to
+        :meth:`_tighten_span`, which handles the mirror case -- a SPAN left wider
+        than the target.
+
+        Both halves are keyed on the recorded span relating to the target by
+        whitespace alone.  A span that covers a whole construct (the markdown
+        types) or an escaped source literal (where ``link_text`` is raw source
+        and ``link_target`` the decoded value) does not, and is returned
+        untouched -- which is what keeps this off the column contract PD-BUG-150
+        made load-bearing.  Note that this is a *property* of those spans, not a
+        list of them: see :meth:`_tighten_span` for why the difference matters.
+        """
+        target = ref.link_target
+        if not isinstance(target, str):
+            return ref
+        stripped = target.strip()
+        if stripped == target:
+            # Target already tight -- but the SPAN may still be wider than it,
+            # which is the other half of the same invariant (PD-BUG-150).
+            return BaseParser._tighten_span(ref, lines)
+
+        index = ref.line_number - 1
+        if index < 0 or index >= len(lines):
+            return ref
+        if lines[index][ref.column_start : ref.column_end] != target:
+            return ref
+
+        if not stripped:
+            return None
+        if is_dot_only_path(stripped):
+            return None
+        if not (looks_like_file_path(stripped) or looks_like_directory_path(stripped)):
+            return None
+
+        leading = len(target) - len(target.lstrip())
+        trailing = len(target) - len(target.rstrip())
+        ref.column_start += leading
+        ref.column_end -= trailing
+        ref.link_target = stripped
+        # Keep ``link_text`` in step when it carried the same padded value:
+        # the escaped-structured branch in ``replacement`` decides on
+        # ``link_text != link_target``, so leaving it padded would make a plain
+        # value look escaped and get re-spelled through ``json.dumps``.
+        if ref.link_text == target:
+            ref.link_text = stripped
+        return ref
+
+    @staticmethod
+    def _tighten_span(ref: LinkReference, lines: List[str]) -> LinkReference:
+        """Shrink a span that is wider than an ALREADY-TIGHT target.
+
+        The second half of the invariant :meth:`parse_content` documents.
+        ``_normalize_reference`` above repairs a padded TARGET; this repairs a
+        padded SPAN around a target that is already tight -- the state a parser
+        leaves when it strips the captured text into ``link_target`` but keeps
+        the raw match extent for the columns.  ``powershell.py``'s
+        quoted-directory scan does exactly that: ``potential_dir =
+        match.group(1).strip()`` sits beside ``column_start=match.start(1)``.
+
+        Positional replacement splices the new target across the WHOLE span, so
+        the padding the target no longer names was overwritten -- silently, and
+        counted as a successful update (PD-BUG-150).  Blast radius is exactly
+        that whitespace, since the target IS the span stripped, so no link
+        broke; but a rewrite changes WHERE a link points, never HOW it was
+        written (PD-BUG-118 / PD-BUG-120 / PD-BUG-124).
+
+        The condition is ``span.strip() == target`` rather than a list of
+        affected link types, and that is the point.  A span may legitimately
+        exceed its target -- a markdown construct, an escaped source literal, a
+        span that includes its quotes -- and none of those strip to their
+        target, so each is excluded by construction rather than by enumeration.
+        Two earlier rounds of this fix shipped such an enumeration as
+        load-bearing truth ("MARKDOWN and MARKDOWN_REFERENCE are the only
+        wide-span types") and it was falsified both times.  A parser added later
+        that strips a target is covered here without anyone remembering to add
+        it to a list.
+        """
+        target = ref.link_target
+        if not target:
+            return ref
+
+        index = ref.line_number - 1
+        if index < 0 or index >= len(lines):
+            return ref
+
+        span = lines[index][ref.column_start : ref.column_end]
+        if span == target or span.strip() != target:
+            return ref
+
+        ref.column_start += len(span) - len(span.lstrip())
+        ref.column_end -= len(span) - len(span.rstrip())
+        return ref
+
+    @abstractmethod
+    def _parse_content_impl(self, content: str, file_path: str) -> List[LinkReference]:
         """
         Parse content string for link references.
 

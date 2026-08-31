@@ -2,9 +2,10 @@
 Daemon discovery for the LinkWatcher Control Panel — registry + locks + psutil.
 
 Every poll cycle this module rebuilds the panel's picture of reality from three
-external surfaces it only ever *reads*: the central ``project-registry.json``,
-each project's ``.linkwatcher.lock``, and the OS process table.  It adds no
-daemon-side contract (TDD §4.4).
+external surfaces it only ever *reads*: the child registry a workspace owns —
+``project-registry.json`` at a framework, ``framework-registry.json`` at a
+framework-builder — each project's ``.linkwatcher.lock``, and the OS process
+table.  It adds no daemon-side contract (TDD §4.4).
 
 AI Context
 ----------
@@ -50,6 +51,12 @@ from .panel_log import get_panel_logger
 LOCK_FILE_NAME = ".linkwatcher.lock"
 
 # Per-project layout the launcher and validator already assume.
+# Top-level keys under which a child registry indexes its rows.  The name is
+# role-derived — a framework lists 'projects', a framework-builder lists
+# 'frameworks' — while the row schema is identical for the panel's purposes
+# (it reads only 'name' and 'path'), so both are accepted (PD-BUG-148).
+_REGISTRY_COLLECTION_KEYS = ("projects", "frameworks")
+
 _CONFIG_RELPATH = Path("tools") / "linkwatcher" / "linkwatcher-config.yaml"
 _LOG_DIR_RELPATH = Path("logs") / "linkwatcher"
 
@@ -255,7 +262,11 @@ def _project_from_entry(project_id: str, entry: dict) -> Optional[ProjectInfo]:
 
 
 def load_projects(registry_path) -> RegistryLoad:
-    """Read every registered project from ``project-registry.json``.
+    """Read every registered row from a child registry.
+
+    Accepts either collection key — ``projects`` (a framework's registry) or
+    ``frameworks`` (a framework-builder's) — since the panel reads only ``name``
+    and ``path``, which both row schemas carry (PD-BUG-148).
 
     No filtering: ``version_freeze`` marks a project as excluded from *framework
     rollouts*, which says nothing about whether a LinkWatcher daemon runs there
@@ -274,12 +285,19 @@ def load_projects(registry_path) -> RegistryLoad:
     except json.JSONDecodeError as exc:
         return RegistryLoad([], f"Project registry is not valid JSON: {path} (line {exc.lineno})")
 
-    if not isinstance(data, dict) or not isinstance(data.get("projects"), dict):
-        return RegistryLoad([], f"Project registry has no 'projects' mapping: {path}")
+    rows = None
+    if isinstance(data, dict):
+        for key in _REGISTRY_COLLECTION_KEYS:
+            if isinstance(data.get(key), dict):
+                rows = data[key]
+                break
+    if rows is None:
+        expected = " or ".join(f"'{key}'" for key in _REGISTRY_COLLECTION_KEYS)
+        return RegistryLoad([], f"Project registry has no {expected} mapping: {path}")
 
     projects: List[ProjectInfo] = []
     skipped: List[str] = []
-    for project_id, entry in data["projects"].items():
+    for project_id, entry in rows.items():
         project = _project_from_entry(str(project_id), entry) if isinstance(entry, dict) else None
         if project is None:
             skipped.append(str(project_id))

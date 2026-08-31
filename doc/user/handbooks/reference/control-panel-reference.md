@@ -2,9 +2,9 @@
 id: PD-UGD-010
 type: Product Documentation
 category: User Guide
-version: 1.0
+version: 1.2
 created: 2026-08-18
-updated: 2026-08-18
+updated: 2026-08-28
 description: "Complete reference for the LinkWatcher Control Panel: command-line options, panel-config.yaml keys, registry resolution, status values, keyboard shortcuts, and file locations"
 handbook_content_type: reference
 handbook_name: Control Panel Reference
@@ -30,27 +30,39 @@ Both wrappers use the install directory's dedicated venv interpreter and pass ev
 
 | Option | Value | Purpose |
 |---|---|---|
-| `--registry` | Path | Path to the central `project-registry.json`. Highest-precedence registry source. |
-| `--project-root` | Directory | A registered project root; the panel discovers the central registry from that project's `process-framework/.framework-central-pointer`. |
+| `--registry` | Path | Path to a child registry file — `project-registry.json` or `framework-registry.json`. Highest-precedence registry source. |
+| `--project-root` | Directory | A workspace root; the panel supervises from the child registry that workspace owns, or — for a leaf project — from the one its parent owns, found via the parent-pointer in its framework face. Omitting it falls back to the current directory, so a launch from the workspace root needs no argument. |
 | `--debug` | flag | Verbose (DEBUG) panel logging. |
 
 ## Registry resolution order
 
-The panel resolves `project-registry.json` through this chain, highest precedence first. The first source that yields a path wins.
+The panel resolves the registry through this chain, highest precedence first. The first source that yields a path wins.
 
 | # | Source | Existence check |
 |---|---|---|
 | 1 | `--registry` argument | Taken as given |
 | 2 | `LINKWATCHER_PROJECT_REGISTRY` environment variable | Taken as given |
 | 3 | `project_registry` key in `panel-config.yaml` | Taken as given |
-| 4 | `.framework-central-pointer` discovery — from `--project-root` first, then by walking up from the current directory | Must exist on disk to count |
-| 5 | Unresolved | The panel still opens, showing a registry-error banner and starting no polling |
+| 4 | The child registry the workspace root owns, in its own `process-framework-central/` — the root named by `--project-root`, or the current directory when no `--project-root` is given | Must exist on disk to count |
+| 5 | Parent-pointer discovery — from `--project-root` first, then by walking up from the current directory | Must exist on disk to count |
+| 6 | Unresolved | The panel still opens, showing a registry-error banner and starting no polling |
 
-Sources 1–3 are used as supplied, so a configured-but-missing path surfaces later as an informative error rather than being silently skipped. Source 4 is a best-effort auto-locate and only counts when the derived registry file actually exists.
+Sources 1–3 are used as supplied, so a configured-but-missing path surfaces later as an informative error rather than being silently skipped. Sources 4–5 are best-effort auto-locates and only count when the derived registry file actually exists.
+
+**Which of the two auto-locates answers depends on the workspace.** A workspace that has children keeps their registry in its own `process-framework-central/` — named `project-registry.json` (listing `projects`) at a framework, or `framework-registry.json` (listing `frameworks`) at a framework-builder. Both are recognized. A leaf project owns no such registry, so it resolves through the parent-pointer in its framework face — `.framework-parent-pointer`, or the legacy `.framework-central-pointer` — to the registry its parent owns.
+
+Two limits worth knowing:
+
+- **Source 4 takes the current directory exactly, and never walks up.** The session hook passes its own `--project-root`; the `linkwatcher-panel` launchers forward your arguments and add none, so a launch from a workspace root is answered by the current directory instead. Walking *up* is deliberately not done: a producer's blueprint/template tree carries an empty seed registry, and adopting one from a parent directory would show "no registered projects" while daemons were in fact running elsewhere. Two consequences follow — a launch from a **deep subdirectory** of a non-leaf workspace falls through to source 5 and lists its *parent's* registry, and a launch from a **blueprint tree root** does reach that tree's empty seed registry. `panel.log` records which registry answered (`registry resolved via workspace: …`, or `via pointer: …`), which is how you tell them apart.
+- **The framework face is read, not assumed.** The panel takes `paths.process_framework` from the workspace's `doc/project-config.json`, falling back to `process-framework/`, so a workspace whose face lives elsewhere (for example under `blueprint/`) resolves correctly — for both the pointer above and the launcher script that Start invokes.
+
+Only the two filenames above are recognized. A workspace whose `process-framework-central/` holds some *other* registry falls through to source 5 and is supervised from its parent's list — a wrong answer that otherwise looks like a right one — so that case is logged as `central_registry_unrecognized` in `panel.log`, naming the directory and the filenames that were looked for.
 
 ## Panel settings (`panel-config.yaml`)
 
 An optional file in the install directory, beside `main.py`. Every key is optional; a missing file means all defaults.
+
+**Read once, at startup.** The panel loads this file before it builds its window and never re-reads it, so an edit reaches the panel only when you close it and launch again. A second launch while a window is open does not help — it surfaces the running window and exits before reading anything.
 
 | Key | Type | Default | Purpose |
 |---|---|---|---|
@@ -162,12 +174,14 @@ The broken-link count is read from the report file's `Broken links : N` line, wi
 | `tools/linkwatcher/linkwatcher-config.yaml` | Per-project configuration shown in the Configuration tab |
 | `logs/linkwatcher/` | Daemon logs shown in the Log tab |
 | `logs/linkwatcher/LinkWatcherBrokenLinks.txt` | Default validation report |
-| `process-framework/tools/linkWatcher/start_linkwatcher_background.ps1` | The launcher Start runs |
-| `process-framework/.framework-central-pointer` | Consulted by registry resolution tier 4 |
+| `<framework face>/tools/linkWatcher/start_linkwatcher_background.ps1` | The launcher Start runs. The face is the project's declared `paths.process_framework`, defaulting to `process-framework/` |
+| `<framework face>/.framework-parent-pointer` (legacy: `.framework-central-pointer`) | Consulted by registry resolution tier 5 |
 
 ## Single-instance behavior
 
 Only one panel window exists at a time. The running panel binds a loopback listener and publishes its port to `panel.port` in the install directory. A later launch reads that file, sends a surface request, and exits without building a window. The port file is removed on exit, and only by the panel that owns it.
+
+The second launch returns **before registry resolution runs**, so its `--project-root`, `--registry`, and working directory are all discarded. Changing which workspace is supervised requires closing the open panel first.
 
 **Known limitation:** two launches within the same few milliseconds can both acquire the slot, producing two windows — never more, since the later writer owns `panel.port`. Both are functional; close either.
 

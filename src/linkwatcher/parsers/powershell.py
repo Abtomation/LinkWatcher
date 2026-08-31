@@ -11,6 +11,7 @@ from typing import List
 
 from ..link_types import LinkType
 from ..models import LinkReference
+from ..utils import unwrap_angle_destination
 from .base import BaseParser
 from .patterns import QUOTED_DIR_PATTERN_STRICT
 
@@ -38,7 +39,7 @@ class PowerShellParser(BaseParser):
         self.block_comment_start = re.compile(r"<#")
         self.block_comment_end = re.compile(r"#>")
 
-    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+    def _parse_content_impl(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse PowerShell content for file references."""
         try:
             lines = content.split("\n")
@@ -225,7 +226,16 @@ class PowerShellParser(BaseParser):
         for match in self.embedded_md_link_pattern.finditer(line):
             if (match.start(1), match.end(1)) in file_path_spans:
                 continue
-            embedded_path = match.group(1)
+            # PD-BUG-155: a CommonMark angle-bracket destination carries
+            # brackets that are link syntax, not path.  Unwrapping them is only
+            # half the fix here -- unlike the markdown parser, this reference is
+            # replaced POSITIONALLY at its recorded span, so the span must shed
+            # the brackets too.  Unwrapping without narrowing would splice the
+            # new target over them and emit a tight destination containing a
+            # space, turning a silent no-op into invalid CommonMark.
+            embedded_path, was_wrapped = unwrap_angle_destination(match.group(1))
+            col_start = match.start(1) + (1 if was_wrapped else 0)
+            col_end = match.end(1) - (1 if was_wrapped else 0)
             clean_path = re.sub(r"\$\w+$", "", embedded_path).rstrip("/")
             if clean_path and (
                 self._looks_like_directory_path(embedded_path)
@@ -236,8 +246,8 @@ class PowerShellParser(BaseParser):
                     LinkReference(
                         file_path=file_path,
                         line_number=line_num,
-                        column_start=match.start(1),
-                        column_end=match.end(1),
+                        column_start=col_start,
+                        column_end=col_end,
                         link_text=embedded_path,
                         link_target=embedded_path,
                         link_type=embedded_md_link_type,

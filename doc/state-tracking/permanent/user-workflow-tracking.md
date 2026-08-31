@@ -5,7 +5,7 @@ type: Product Documentation
 category: State Tracking
 version: 2.0
 created: 2026-03-18
-updated: 2026-08-25
+updated: 2026-08-31
 previous_id: PD-DES-002
 previous_location: doc/technical/design/user-workflow-map.md
 ---
@@ -39,7 +39,7 @@ This document maps user-facing workflows to the features that enable them and tr
 | WF-007 | Dry-run mode → preview without changes | Start with `--dry-run`, move files, observe logs | 0.1.3, 0.1.1, 2.2.1, 3.1.1 | P3 | All Implemented | ✅ Covered | [PD-INT-003](/doc/technical/integration/dry-run-mode-integration-narrative.md) |
 | WF-008 | Graceful shutdown → no corrupted files | Stop the LinkWatcher process (Ctrl+C, kill) | 0.1.1, 2.2.1, 0.1.2 | P2 | All Implemented | ✅ Covered | [PD-INT-008](/doc/technical/integration/graceful-shutdown-integration-narrative.md) |
 | WF-009 | Link health audit → broken link report | Run python main.py --validate | 0.1.1, 2.1.1, 6.1.1 | P2 | All Implemented | ✅ Covered | [PD-INT-005](/doc/technical/integration/link-health-audit-integration-narrative.md) |
-| WF-010 | Manage running LinkWatcher instances via Control Panel | Open the Control Panel to view, start, or stop running LinkWatcher daemons | 7.1.1 | P3 | Pending: 7.1.1 | 🔄 Re-execution Needed | — |
+| WF-010 | Manage running LinkWatcher instances via Control Panel | Open the Control Panel to view, start, or stop running LinkWatcher daemons | 7.1.1 | P3 | Pending: 7.1.1 | ✅ Covered | — |
 | WF-011 | Override-folder move → virtual-root links updated | Move/rename a file or directory inside a path_resolution_overrides folder (blueprint restructuring) | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | P2 | All Implemented | ✅ Covered | — |
 
 ## Workflow Details

@@ -1834,3 +1834,51 @@ class TestBug126EscapedLiteralNotStale:
         )
         assert "nöte.txt" in after, "authored non-ASCII character lost: {!r}".format(after)
         assert json.loads(after)["p"] == "logs2" + BS + "sub" + BS + "nöte.txt"
+
+
+class TestBug150PaddedQuotedDirectorySpan:
+    """PD-BUG-150 (round 3): a span wider than its target destroys the padding.
+
+    ``powershell.py``'s quoted-DIRECTORY scan strips the captured text into
+    ``link_target`` while the columns keep the raw match extent, so the recorded
+    span still covers the surrounding whitespace.  ``_replace_at_position``
+    splices the bare target across the whole span, and the authored padding is
+    gone -- silently, and counted in ``references_updated``.
+
+    PRE-EXISTING on this path, unlike the moved-file sibling: the updater has
+    spliced at columns since PD-BUG-098, and ``potential_dir = match.group(1)
+    .strip()`` predates it too.  Verified against ``HEAD`` at the fix.
+
+    Blast radius is exactly the stripped whitespace by construction (the target
+    IS the span stripped), so no link breaks -- but a rewrite changes WHERE a
+    link points, never HOW it was written, which is the rule PD-BUG-118 /
+    PD-BUG-120 / PD-BUG-124 exist to enforce.
+
+    Asserts the WHOLE line, not a substring: the target lands correctly in every
+    spelling, so any assertion that only looks for the new target passes on the
+    damaged output.
+    """
+
+    @pytest.mark.parametrize(
+        "written,expected",
+        [
+            ('$dir = "  doc/target  "\n', '$dir = "  doc/moved  "\n'),
+            ('$dir = "  doc/target"\n', '$dir = "  doc/moved"\n'),
+            ('$dir = "doc/target  "\n', '$dir = "doc/moved  "\n'),
+            ('$dir = "doc/target"\n', '$dir = "doc/moved"\n'),  # tight control
+        ],
+    )
+    def test_padding_survives_a_reference_update(self, tmp_path, written, expected):
+        from linkwatcher.parsers.powershell import PowerShellParser
+
+        (tmp_path / "doc" / "target").mkdir(parents=True)
+        script = tmp_path / "caller.ps1"
+        script.write_text(written, encoding="utf-8")
+
+        refs = PowerShellParser().parse_file(str(script))
+        LinkUpdater(project_root=str(tmp_path)).update_references(refs, "doc/target", "doc/moved")
+
+        assert script.read_text(encoding="utf-8") == expected, (
+            "PD-BUG-150: the recorded span covers padding the target no longer "
+            "names, so the splice wrote the bare target over the author's whitespace"
+        )

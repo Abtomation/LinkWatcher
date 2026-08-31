@@ -2,9 +2,9 @@
 id: PD-UGD-009
 type: Product Documentation
 category: User Guide
-version: 1.0
+version: 1.4
 created: 2026-08-18
-updated: 2026-08-18
+updated: 2026-08-29
 description: Launch the LinkWatcher Control Panel and use it to start, stop, inspect, and validate daemons across your projects
 handbook_content_type: how-to
 handbook_name: Control Panel Operations
@@ -23,22 +23,39 @@ This guide covers the operations you perform in the window. For exact settings, 
 ## Prerequisites
 
 - LinkWatcher installed globally (`python deployment/install_global.py`), which puts the panel launchers in your install directory (default `~/bin`)
-- At least one project registered in the central `project-registry.json`
+- At least one workspace registered in the child registry your workspace resolves to — `project-registry.json` or `framework-registry.json`, depending on the workspace's role
 - Windows with a desktop session — the panel is a GUI application
 
 ## Open the panel
 
-Run either launcher from the install directory:
+**Launch from the workspace you want to supervise** — *not* from the install directory. The launchers pass no arguments of their own, so the panel takes the current directory as the workspace root.
+
+Which list you then get depends on the kind of workspace you are standing in:
+
+- **A workspace that has children** — a framework listing its projects, or a framework-builder listing its frameworks — owns a registry. Launch from its root and you get that workspace's own list; launch from a subdirectory and the panel falls back to the parent-pointer and lists the *parent's* workspaces instead.
+- **A leaf project** owns no registry of its own, so it is always supervised from the one its parent keeps — the list that holds the project itself alongside its siblings. That is the correct answer from anywhere inside the project, root included, and `--project-root` does not change it.
+
+From the install directory the panel finds neither, so you get the registry-error banner.
 
 ```cmd
+cd C:\path\to\your-workspace
 linkwatcher-panel.bat
 ```
 
 ```powershell
+cd C:\path\to\your-workspace
 linkwatcher-panel.ps1
 ```
 
-Both accept the same options as the entry script, so you can point the panel at a specific registry or turn on verbose logging:
+The launchers find their own interpreter and entry script from their own location, so they work from any directory. Calling them by bare name needs the install directory (default `~/bin`) on your `PATH`; otherwise call them by full path — `"%USERPROFILE%\bin\linkwatcher-panel.bat"` — which leaves the current directory free to name the workspace.
+
+Name the workspace root explicitly when you cannot change directory, or to fix which root the panel takes rather than relying on where you happen to be standing (at a leaf this pins the root without changing the resulting list, per the rule above):
+
+```cmd
+linkwatcher-panel.bat --project-root "C:\path\to\your-workspace"
+```
+
+Both launchers accept the same options as the entry script, so you can also point the panel at a specific registry or turn on verbose logging:
 
 ```cmd
 linkwatcher-panel.bat --registry "C:\path\to\project-registry.json"
@@ -46,6 +63,8 @@ linkwatcher-panel.bat --debug
 ```
 
 If you run a launcher while a panel is already open, the second launch exits with a message instead of opening a duplicate, and the running window is surfaced. Usually it comes to the front; when Windows' foreground lock refuses to let a background process steal focus, its taskbar button flashes instead — click it to raise the window. Either way you never get a second panel.
+
+**A second launch changes nothing but which window has focus.** It exits before reading the registry, so relaunching from a different directory — or with `--project-root`, or `--registry` — cannot change which workspace the open panel supervises. Close the panel first, then launch again.
 
 **The list is empty for a few seconds after launch.** The panel shows `Discovering daemons…` while it takes its first pass over the process table — measured at around 7.5 seconds on a busy machine, and about 0.1 seconds for every poll after that. This is expected; the panel deliberately says "discovering" rather than falsely reporting an empty registry.
 
@@ -137,17 +156,30 @@ This is the panel's most consequential behavior and the one most likely to surpr
 
 **Problem:** The panel opens but shows a banner saying the project registry could not be located.
 
-**Solution:** The panel looks for `project-registry.json` in this order: the `--registry` argument, the `LINKWATCHER_PROJECT_REGISTRY` environment variable, the `project_registry` key in `panel-config.yaml`, then automatic discovery through a registered project's central pointer. Supply one of them — the simplest fix is usually to launch the panel from inside a registered project directory, or to pass the path explicitly:
+**Solution:** The panel looks for a registry in this order: the `--registry` argument, the `LINKWATCHER_PROJECT_REGISTRY` environment variable, the `project_registry` key in `panel-config.yaml`, then two automatic locates — the child registry the workspace root owns (`--project-root`, or the current directory), and failing that the registry its parent owns, found through the framework parent-pointer. Supply one of them — the simplest fix is usually to launch from the workspace root, name it explicitly, or pass the registry path. **Close this panel before relaunching**: the window showing the banner is the open instance, and a second launch surfaces it again without re-resolving anything.
 
 ```cmd
+linkwatcher-panel.bat --project-root "C:\path\to\your-workspace"
 linkwatcher-panel.bat --registry "C:\path\to\project-registry.json"
 ```
+
+### The list shows the wrong projects
+
+**Problem:** The panel opens and lists workspaces, but not the ones you expected — for example the frameworks registered above your workspace rather than the projects inside it.
+
+**Solution:** Start with `panel.log` in the install directory, which records which registry answered on a line reading `registry resolved via workspace: …` or `via pointer: …`. Read that against the workspace you launched from:
+
+- **`via pointer`, at a workspace that has children** — you launched from a subdirectory rather than the root, so the panel fell back to the parent's registry. **Close the open panel first** — a second launch only surfaces the window you are already looking at and re-resolves nothing — then launch again from the workspace root, or with `--project-root` naming it.
+- **`via pointer`, at a leaf project** — this is the correct answer rather than a fault. A leaf owns no registry, so it is supervised from its parent's, which lists the project alongside its siblings. Nothing on the command line changes that: `--project-root` naming the leaf returns the identical list. To supervise a different set, close the open panel first — as above, a second launch re-resolves nothing — then launch again from the workspace that owns it, or pass `--registry` with the path you want.
+- **`via workspace`, but not the list you meant** — the directory you launched from owns a registry of its own; the blueprint-seed case below is the common instance.
 
 ### The list is empty but nothing looks wrong
 
 **Problem:** The panel shows "No registered projects found."
 
-**Solution:** This is not an error — the registry was read successfully and contains no projects. Register a project and it appears on the next poll.
+**Solution:** This is usually not an error — the registry was read successfully and contains no projects. Register a project and it appears on the next poll.
+
+One case looks identical but is not. Launching from the root of a producer's blueprint or template tree resolves *that tree's* registry, which is an empty seed — so the panel truthfully reports an empty registry that is not the one you meant. Check the `registry resolved via workspace: …` line in `panel.log`: if it names a path inside a blueprint or template tree, close the panel and launch again from the real workspace root, or with `--project-root` naming it.
 
 ### A project I know is running shows as Stopped
 
@@ -165,7 +197,7 @@ linkwatcher-panel.bat --registry "C:\path\to\project-registry.json"
 
 **Problem:** The row shows a forced stop rather than a clean one.
 
-**Solution:** The project's log kept changing for the whole grace period, so the daemon was terminated without going quiet. Check that project's log for what it was busy with. If this happens routinely on your projects, raise `grace_period_seconds` in `panel-config.yaml`.
+**Solution:** The project's log kept changing for the whole grace period, so the daemon was terminated without going quiet. Check that project's log for what it was busy with. If this happens routinely on your projects, raise `grace_period_seconds` in `panel-config.yaml` — then close the panel and launch it again, since that file is read only at startup and an edit does not reach a running window.
 
 ### Two panel windows are open
 
@@ -177,7 +209,7 @@ linkwatcher-panel.bat --registry "C:\path\to\project-registry.json"
 
 **Problem:** Something went wrong but you have no error to look at.
 
-**Solution:** The panel keeps its own diagnostic log at `<install-dir>/logs/panel.log`, separate from the daemon logs, recording forced terminations, start and validation failures, and internal errors. Relaunch with `--debug` for verbose entries.
+**Solution:** The panel keeps its own diagnostic log at `<install-dir>/logs/panel.log`, separate from the daemon logs, recording forced terminations, start and validation failures, and internal errors. For verbose entries, **close the panel and launch it again** with `--debug` — while a window is open, a second launch only surfaces it, and the new process's log level exits with that process.
 
 ## Related Documentation
 

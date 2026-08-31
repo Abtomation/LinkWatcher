@@ -35,6 +35,7 @@ from typing import List
 
 from ..link_types import LinkType
 from ..models import LinkReference
+from ..utils import unwrap_angle_destination
 from .base import BaseParser
 from .patterns import QUOTED_DIR_PATTERN, QUOTED_PATH_PATTERN
 
@@ -100,7 +101,17 @@ class MarkdownParser(BaseParser):
         - url "title"
         - url 'title'
         - url (title)
+
+        A CommonMark angle-bracket destination is unwrapped last, once the
+        title has been peeled off, so ``<a.md> "title"`` and ``<a.md>`` both
+        yield the bare path (PD-BUG-155).  Serving both the inline-link and the
+        reference-definition extractors from this one method is what lets the
+        two capture sites share a single fix.
         """
+        return unwrap_angle_destination(self._strip_title(link_content))[0]
+
+    def _strip_title(self, link_content: str) -> str:
+        """Return the destination with any trailing title removed."""
         link_content = link_content.strip()
 
         # Check for title with double quotes
@@ -497,7 +508,7 @@ class MarkdownParser(BaseParser):
         # Unclosed frontmatter — treat as no frontmatter
         return [], 0
 
-    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+    def _parse_content_impl(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse markdown content for links."""
         try:
             lines = content.split("\n")

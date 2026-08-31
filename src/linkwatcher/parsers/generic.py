@@ -58,7 +58,7 @@ class GenericParser(BaseParser):
             r"(?:^|\s)([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?=[.,;:!?)\]}\s]|$)"
         )
 
-    def parse_content(self, content: str, file_path: str) -> List[LinkReference]:
+    def _parse_content_impl(self, content: str, file_path: str) -> List[LinkReference]:
         """Parse generic text content for file references."""
         try:
             lines = content.split("\n")

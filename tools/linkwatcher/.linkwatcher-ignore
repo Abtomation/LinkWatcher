@@ -100,6 +100,14 @@ doc/user/handbooks/quick-reference.md -> docs/api.md
 doc/user/handbooks/quick-reference.md -> config/settings.yaml
 doc/user/handbooks/link-validation.md -> doc/guide.md
 doc/user/handbooks/multi-project-setup.md -> .vscode/tasks.json
+# PD-BUG-156: the capabilities reference teaches the CommonMark angle form, whose
+# whole purpose is a destination containing a space. Once the validator stopped
+# refusing such targets, those illustrative examples became live findings. They
+# are suppressed here rather than by breaking their bracket-paren adjacency,
+# because the paragraph's subject IS the correct syntax — mangling the example
+# would teach the wrong form.
+doc/user/handbooks/linkwatcher-capabilities-reference.md -> a b.md
+doc/user/handbooks/linkwatcher-capabilities-reference.md -> file with space.md
 
 # ── Test audit README example paths ──────────────────────────────────
 test/audits/README.md -> test_example.py

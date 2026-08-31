@@ -104,7 +104,7 @@ def summarize(rows) -> str:
 EMPTY_PROJECTS_TEXT = (
     "No registered projects found.\n\n"
     "Projects appear here once registered\n"
-    "in the central project registry."
+    "in the registry the panel is reading."
 )
 
 

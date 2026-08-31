@@ -3,9 +3,10 @@
 LinkWatcher Control Panel — desktop supervisor for LinkWatcher daemons.
 
 Thin entry script beside ``main.py`` (mirrors the deployed flat install layout).
-It resolves the install directory, enforces the single-instance rule, loads
-panel settings, locates the central project registry, wires the panel log, and
-launches the GUI.
+It resolves the install directory, wires the panel log, enforces the
+single-instance rule, loads panel settings, locates the child registry to
+supervise from, and launches the GUI — in that order, so that everything after
+the log is wired is diagnosable from ``panel.log``.
 
 Only one panel exists at a time: a second launch (manual or hook auto-open)
 hands a surface request to the running window over the loopback channel and
@@ -16,7 +17,9 @@ Usage:
 
 Registry resolution order (see linkwatcher.linkwatcher_control_panel.settings):
     --registry  →  LINKWATCHER_PROJECT_REGISTRY env  →  panel-config.yaml key
-      →  .framework-central-pointer discovery (--project-root, then cwd walk-up)
+      →  the child registry the workspace root owns (--project-root, else the
+         current directory taken exactly)
+      →  parent-pointer discovery (--project-root, then cwd walk-up)
       →  error state (panel opens with a "registry not found" banner).
 """
 
@@ -50,14 +53,17 @@ def main() -> None:
     )
     parser.add_argument(
         "--registry",
-        help="Path to the central project-registry.json (highest-precedence source).",
+        help="Path to a child registry file (highest-precedence source).",
     )
     parser.add_argument(
         "--project-root",
         help=(
-            "A registered project root; the panel discovers the central registry "
-            "from its process-framework/.framework-central-pointer. The hook "
-            "wrapper passes this when it auto-opens the panel."
+            "A workspace root; the panel supervises from the child registry that "
+            "workspace owns, or — for a leaf project, which owns none — from the "
+            "one its parent owns, found via the parent-pointer in its framework "
+            "face. Defaults to the current directory, so a launch from the "
+            "workspace root needs no argument. The hook wrapper passes it "
+            "explicitly when it auto-opens the panel."
         ),
     )
     parser.add_argument("--debug", action="store_true", help="Verbose (DEBUG) panel logging.")

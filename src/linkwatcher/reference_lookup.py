@@ -10,7 +10,9 @@ AI Context
   ``LinkWatcherService`` and used exclusively by ``LinkMaintenanceHandler``
   to separate reference management from event dispatch.
 - **Dependencies**: database (link queries/mutations), parser (link
-  extraction), updater (file writes), utils (path normalization).
+  extraction), updater (file writes), utils (path normalization),
+  replacement (column-span replacement primitives shared with the
+  updater's own rewrite path — PD-BUG-150).
 - **Common tasks**:
   - Debugging missed references: check ``find_references()`` →
     ``get_path_variations()`` — path format mismatches (forward/back
@@ -40,7 +42,6 @@ AI Context
 """
 
 import os
-import re
 import shutil
 import tempfile
 import threading
@@ -51,6 +52,7 @@ from .database import LinkDatabaseInterface
 from .link_types import LinkType
 from .logging import get_logger
 from .parser import LinkParser
+from .replacement import filter_contained_overlaps, replace_in_line, replace_markdown_at_span
 from .updater import LinkUpdater
 from .utils import apply_trailing_separator_style, get_relative_path, path_exists_under_root
 
@@ -812,14 +814,39 @@ class ReferenceLookup:
     def _replace_links_in_lines(self, lines, relative_links, old_file_path, new_file_path):
         """Replace link targets in content lines to reflect the file's new location.
 
-        For markdown links, uses regex replacement preserving title attributes
-        (PD-BUG-010). For other link types, uses line-targeted replacement to
-        prevent substring corruption (PD-BUG-025).
+        One pass over every reference, ordered descending by ``(line, column)``,
+        each rewritten at the span the parser recorded for it.
+
+        The ordering is load-bearing: a replacement changes the line's length, so
+        working right-to-left keeps every not-yet-applied span pointing at the
+        text it was measured against.  The shared :mod:`linkwatcher.replacement`
+        helpers supply the contained-overlap pre-pass and the bounded
+        ambiguous-case refusal this path has carried since PD-BUG-098, plus the
+        link-type dispatch that keeps a reference definition intact -- a
+        ``[label]: target "title"`` span covers the WHOLE line, so splicing a
+        bare target across it destroys label and title alike (PD-BUG-150).
+
+        Inline markdown links go through :func:`replace_markdown_at_span`:
+        format-aware, so a title survives (PD-BUG-010) and a self-named link has
+        its text updated along with its target (PD-BUG-012), but confined to the
+        reference's own span.  That replaced a content-global markdown pass which
+        ran after the positional one and carried two defects, both closed here
+        (PD-BUG-153).  It held its own copy of the markdown regex, so it never
+        applied the link-text rule the updater path had applied for months.  And
+        being global, it let one reference's freshly written target be re-matched
+        by the next reference's pass, compounding a link that had already been
+        rewritten -- the PD-BUG-150 shape surviving in the markdown half.
+
+        Because each reference now writes only its own span, references sharing a
+        target are NOT collapsed: the de-duplication the content-global pass
+        required would leave every duplicate after the first stale.
 
         Returns:
             Tuple of (updated_lines, links_updated_count).
         """
-        links_updated = 0
+        markdown_items = []
+        positional_items = []
+
         for ref in relative_links:
             new_target = self._calculate_updated_relative_path(
                 ref.link_target, old_file_path, new_file_path
@@ -833,53 +860,85 @@ class ReferenceLookup:
                 continue
 
             if ref.link_type == LinkType.MARKDOWN:
-                # Replace [text](old) with [text](new), preserving title
-                escaped_old = re.escape(ref.link_target)
-                # PD-BUG-010: Include optional title group to preserve title attributes
-                # Titles can be "double-quoted", 'single-quoted', or (parenthesized)
-                pattern = rf"(\[[^\]]*\]\()({escaped_old})(\s+[\"'(][^\"')]*[\"')])?(\))"
-                _nt = new_target  # capture for closure
-
-                def _md_replace(m, nt=_nt):
-                    title = m.group(3) or ""
-                    return f"{m.group(1)}{nt}{title}{m.group(4)}"
-
-                content = "\n".join(lines)
-                new_content = re.sub(pattern, _md_replace, content)
-
-                if new_content != content:
-                    lines = new_content.split("\n")
-                    links_updated += 1
-                    self.logger.debug(
-                        "link_updated_in_moved_file",
-                        old_target=ref.link_target,
-                        new_target=new_target,
-                    )
-                else:
-                    self.logger.warning(
-                        "link_pattern_not_found",
-                        file_path=new_file_path,
-                        link_target=ref.link_target,
-                    )
+                markdown_items.append((ref, new_target))
             else:
-                # PD-BUG-025: Line-targeted replacement to prevent substring corruption.
-                # Only replace on the specific line where the parser found the reference.
-                line_idx = ref.line_number - 1  # line_number is 1-indexed
-                if 0 <= line_idx < len(lines) and ref.link_target in lines[line_idx]:
-                    lines[line_idx] = lines[line_idx].replace(ref.link_target, new_target, 1)
-                    links_updated += 1
-                    self.logger.debug(
-                        "link_updated_in_moved_file",
-                        old_target=ref.link_target,
-                        new_target=new_target,
-                    )
-                else:
-                    self.logger.warning(
-                        "link_target_not_found_on_line",
-                        file_path=new_file_path,
-                        line_number=ref.line_number,
-                        link_target=ref.link_target,
-                    )
+                positional_items.append((ref, new_target))
+
+        links_updated = 0
+
+        # The contained-overlap pre-pass (PD-BUG-098) applies to the
+        # positionally-replaced references only.  A markdown span covers a whole
+        # construct and so legitimately contains its own link text; feeding it to
+        # a containment filter would drop the rewrite rather than protect it.
+        positional_items = filter_contained_overlaps(positional_items, new_file_path, self.logger)
+        ordered = sorted(
+            positional_items + markdown_items,
+            key=lambda item: (item[0].line_number, item[0].column_start),
+            reverse=True,
+        )
+
+        # An ambiguous refusal inside replace_at_position (invalid columns plus
+        # a target occurring more than once) already reports itself as
+        # ambiguous_fallback_replacement_skipped.  Without this flag the
+        # resulting no-op was ALSO reported as link_target_not_found_on_line --
+        # a second warning naming a different, wrong cause -- and nothing
+        # counted the refusal, so a reference left unrewritten inside a moved
+        # file had no number anywhere.  The holder is defined once rather than
+        # per iteration so no closure captures a loop-scoped name.
+        refusal = {"ambiguous": False}
+        ambiguous_skips = 0
+
+        def _note_ambiguous_skip():
+            refusal["ambiguous"] = True
+
+        for ref, new_target in ordered:
+            line_idx = ref.line_number - 1  # line_number is 1-indexed
+            if not (0 <= line_idx < len(lines)):
+                self.logger.warning(
+                    "link_target_not_found_on_line",
+                    file_path=new_file_path,
+                    line_number=ref.line_number,
+                    link_target=ref.link_target,
+                )
+                continue
+
+            refusal["ambiguous"] = False
+            if ref.link_type == LinkType.MARKDOWN:
+                updated_line = replace_markdown_at_span(lines[line_idx], ref, new_target)
+            else:
+                updated_line = replace_in_line(
+                    lines[line_idx], ref, new_target, self.logger, _note_ambiguous_skip
+                )
+
+            if updated_line != lines[line_idx]:
+                lines[line_idx] = updated_line
+                links_updated += 1
+                self.logger.debug(
+                    "link_updated_in_moved_file",
+                    old_target=ref.link_target,
+                    new_target=new_target,
+                )
+            elif refusal["ambiguous"]:
+                # Already reported by the primitive, with the right cause.
+                ambiguous_skips += 1
+            else:
+                self.logger.warning(
+                    "link_target_not_found_on_line",
+                    file_path=new_file_path,
+                    line_number=ref.line_number,
+                    link_target=ref.link_target,
+                )
+
+        if ambiguous_skips:
+            # The updater path surfaces these through UpdateStats["errors"]
+            # (TD252); this path returns only a count of links updated, so the
+            # tally is surfaced here instead of silently discarded.
+            self.logger.warning(
+                "moved_file_ambiguous_skips",
+                file_path=new_file_path,
+                skipped=ambiguous_skips,
+                reason="references left unrewritten in the moved file (PD-BUG-098 refusal)",
+            )
 
         return lines, links_updated
 

@@ -1284,3 +1284,57 @@ def test_rearming_still_force_stops_a_daemon_that_never_goes_quiet(tmp_path, fak
 
     assert quiescent is False
     assert fake_clock.now == pytest.approx(20.0, abs=0.5)
+
+
+# --------------------------------------------------------------------------- #
+# PD-BUG-148 — the launcher lives in the workspace's DECLARED face
+#
+# launcher_path assumed every workspace keeps its framework face at
+# ``process-framework/``.  A self-hosted producer declares another location
+# (``blueprint/process-framework``), so Start looked for a launcher that is not
+# there.  The defect was latent only because such a workspace could never be
+# listed; the registry-resolution half of PD-BUG-148 made it reachable.
+# --------------------------------------------------------------------------- #
+def test_launcher_path_uses_the_declared_face(tmp_path):
+    """PD-BUG-148: a declared non-default face is honored."""
+    root = tmp_path / "Producer"
+    (root / "doc").mkdir(parents=True)
+    (root / "doc" / "project-config.json").write_text(
+        '{"paths": {"process_framework": "blueprint/process-framework"}}', encoding="utf-8"
+    )
+
+    resolved = launcher_path(root)
+
+    expected = (
+        root
+        / "blueprint"
+        / "process-framework"
+        / "tools"
+        / "linkWatcher"
+        / "start_linkwatcher_background.ps1"
+    )
+    assert resolved == expected
+
+
+def test_launcher_path_falls_back_to_the_conventional_face(tmp_path):
+    """PD-BUG-148 regression guard: a workspace with no declaration is unchanged."""
+    root = tmp_path / "Leaf"
+    root.mkdir()
+
+    resolved = launcher_path(root)
+
+    expected = (
+        root / "process-framework" / "tools" / "linkWatcher" / "start_linkwatcher_background.ps1"
+    )
+    assert resolved == expected
+
+
+def test_launcher_path_falls_back_when_config_is_malformed(tmp_path):
+    """PD-BUG-148: a broken project-config must not break Start."""
+    root = tmp_path / "Broken"
+    (root / "doc").mkdir(parents=True)
+    (root / "doc" / "project-config.json").write_text("{not json", encoding="utf-8")
+
+    resolved = launcher_path(root)
+
+    assert resolved.parent.parent.parent == root / "process-framework"

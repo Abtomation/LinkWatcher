@@ -12,7 +12,7 @@ estimated_duration: 6 minutes
 source: WF-010 milestone
 expected_exit_code: 0
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-08-31
 ---
 
 # Test Case: TE-E2E-034 panel lists running daemons
@@ -111,7 +111,8 @@ appear in the workspace and are correctly ignored by the comparison.
 
 - The list shows **exactly two** rows — `sandbox-a` and `sandbox-b` — and no other project;
   the operator's real registered projects never appear
-- `sandbox-a` renders as **running**, with the PID recorded in its lock file
+- `sandbox-a` renders as **running** — status and uptime; the panel does not display a PID — and
+  its daemon PID is recorded in `sandbox-a/.linkwatcher.lock`
 - `sandbox-b` renders as **stopped**
 - The wait state (`Discovering daemons…`) is shown before the first poll lands, never an
   empty-registry claim
