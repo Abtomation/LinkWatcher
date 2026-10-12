@@ -200,6 +200,38 @@ function Get-DaemonExitDisposition {
     }
 }
 
+# Resolve LinkWatcher installation directory and dedicated venv Python
+# PD-BUG-077: Never use bare 'python' — it may resolve to a project .venv
+# that lacks LinkWatcher dependencies, causing silent startup failure.
+#
+# Resolver order:
+#   1. $env:LINKWATCHER_INSTALL_DIR (explicit override for non-standard installs)
+#   2. ~/bin, ~/tools, ~/scripts, ~/.local/bin, ~/LinkWatcher (auto-detect)
+# A directory qualifies if both main.py and the dedicated venv Python exist.
+#
+# PF-IMP-2032: defined ABOVE the dot-source guard so the sibling hook wrapper can
+# dot-source this script to reuse the resolver rather than duplicating it (the
+# quick reference's extract-don't-duplicate rule). Its only caller in this script
+# runs below the guard, so hoisting the definition is behavior-preserving.
+function Resolve-LinkWatcherInstall {
+    $venvRel = ".linkwatcher-venv\Scripts\python.exe"
+    $candidates = @()
+    if ($env:LINKWATCHER_INSTALL_DIR) { $candidates += $env:LINKWATCHER_INSTALL_DIR }
+    $candidates += @(
+        (Join-Path $HOME "bin"),
+        (Join-Path $HOME "tools"),
+        (Join-Path $HOME "scripts"),
+        (Join-Path $HOME ".local\bin"),
+        (Join-Path $HOME "LinkWatcher")
+    )
+    foreach ($dir in $candidates) {
+        if ((Test-Path (Join-Path $dir "main.py")) -and (Test-Path (Join-Path $dir $venvRel))) {
+            return $dir
+        }
+    }
+    return $null
+}
+
 # PF-IMP-967: when dot-sourced (e.g. by Pester), define functions only and skip the
 # startup body so tests can exercise the helpers without spawning a daemon.
 if ($MyInvocation.InvocationName -eq '.') { return }
@@ -261,33 +293,6 @@ if ($runningPids.Count -gt 0) {
 }
 
 Write-Host "Starting LinkWatcher in background for $projectRoot..." -ForegroundColor Cyan
-
-# Resolve LinkWatcher installation directory and dedicated venv Python
-# PD-BUG-077: Never use bare 'python' — it may resolve to a project .venv
-# that lacks LinkWatcher dependencies, causing silent startup failure.
-#
-# Resolver order:
-#   1. $env:LINKWATCHER_INSTALL_DIR (explicit override for non-standard installs)
-#   2. ~/bin, ~/tools, ~/scripts, ~/.local/bin, ~/LinkWatcher (auto-detect)
-# A directory qualifies if both main.py and the dedicated venv Python exist.
-function Resolve-LinkWatcherInstall {
-    $venvRel = ".linkwatcher-venv\Scripts\python.exe"
-    $candidates = @()
-    if ($env:LINKWATCHER_INSTALL_DIR) { $candidates += $env:LINKWATCHER_INSTALL_DIR }
-    $candidates += @(
-        (Join-Path $HOME "bin"),
-        (Join-Path $HOME "tools"),
-        (Join-Path $HOME "scripts"),
-        (Join-Path $HOME ".local\bin"),
-        (Join-Path $HOME "LinkWatcher")
-    )
-    foreach ($dir in $candidates) {
-        if ((Test-Path (Join-Path $dir "main.py")) -and (Test-Path (Join-Path $dir $venvRel))) {
-            return $dir
-        }
-    }
-    return $null
-}
 
 $lwInstallDir = Resolve-LinkWatcherInstall
 if (-not $lwInstallDir) {

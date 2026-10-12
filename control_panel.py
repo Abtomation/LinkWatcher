@@ -34,7 +34,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from linkwatcher.linkwatcher_control_panel.app import ControlPanelApp
+    from linkwatcher.linkwatcher_control_panel.app import ControlPanelApp, make_surface_hook
     from linkwatcher.linkwatcher_control_panel.panel_log import setup_panel_log
     from linkwatcher.linkwatcher_control_panel.settings import (
         load_panel_settings,
@@ -97,8 +97,19 @@ def main() -> None:
         log.warning("registry unresolved: %s", registry.error)
 
     app = ControlPanelApp(loaded.settings, registry, install_dir)
-    # Route surface requests from the listener thread onto the UI thread.
-    guard.on_surface = lambda: app.post(app.surface)
+    # Route surface requests from the listener thread onto the UI thread, and
+    # report back only once the raise has actually run there (PD-BUG-157).
+    # The hook is built by a factory in app.py so the contract is testable at
+    # the site that implements it (TD312).
+    guard.on_surface = make_surface_hook(app)
+    # Drop the single-instance claim as soon as the panel commits to exiting,
+    # rather than only in the finally below — that runs after the whole
+    # drain-then-terminate shutdown, during which the listener would otherwise
+    # keep telling launches a window exists that is about to be destroyed
+    # (PD-BUG-160).  release() is idempotent and only ever deletes a port file
+    # it still owns, so the finally remains correct and a successor that has
+    # already taken over is left alone.
+    app.on_shutdown_begin = guard.release
     try:
         app.run()
     finally:

@@ -95,7 +95,7 @@ $ErrorActionPreference = "Stop"
 # Validate dependencies
 $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
     "Update-FeatureTrackingStatus",
-    "Assert-LineInFile",
+    "Assert-TableRowInFile",
     "Get-ProjectRoot"
 )
 
@@ -143,13 +143,19 @@ try {
         Write-ProjectSummary -Message "WHATIF preview complete for ${FeatureId}: Status -> $newStatus (no changes made)" -Level "WARN"
     }
     else {
-        # Read-after-write verification: the feature's row must now carry the new Status.
-        # Throws on a missing row or a silently skipped write (e.g. schema drift).
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). The helper call above is the
+        # run's only write, so the assertion sits directly after it. Assert-TableRowInFile, not
+        # Assert-LineInFile: the shared helper returns no found/not-found signal and writes the
+        # file even when no row matched, so "the row exists, is header-width, and carries the
+        # value just written" is the only detector of a reports-success-writes-nothing run.
+        # One call per written value keeps the check independent of column order; the review
+        # note is APPENDED to the Notes cell, so it is matched as a suffix of its cell.
         $featureTrackingPath = Join-Path (Get-ProjectRoot) "doc/state-tracking/permanent/feature-tracking.md"
-        $idEsc = [regex]::Escape($FeatureId)
-        $statusEsc = [regex]::Escape($newStatus)
-        Assert-LineInFile -Path $featureTrackingPath -Pattern "(?m)^\|\s*\[?$idEsc(\]\([^)]*\))?\s*\|[^\r\n]*\|\s*$statusEsc\s*\|" -Context "code-review Status flip for $FeatureId"
-        Assert-LineInFile -Path $featureTrackingPath -Pattern $reviewNote -Literal -Context "code-review Notes append for $FeatureId"
+        $rowIdentity = "^\|\s*\[?" + [regex]::Escape($FeatureId) + "\b(?:\]\([^)]*\))?\s*\|"
+        $statusPattern = $rowIdentity + "(?:[^|]*\|)*\s*" + [regex]::Escape($newStatus) + "\s*\|"
+        Assert-TableRowInFile -Path $featureTrackingPath -Pattern $statusPattern -Context "code-review Status flip for $FeatureId → '$newStatus' in $featureTrackingPath"
+        $notePattern = $rowIdentity + ".*" + [regex]::Escape($reviewNote) + "\s*\|"
+        Assert-TableRowInFile -Path $featureTrackingPath -Pattern $notePattern -Context "code-review Notes append for $FeatureId in $featureTrackingPath"
 
         Write-ProjectSummary -Message "Code review verdict recorded: $FeatureId -> $newStatus"
     }

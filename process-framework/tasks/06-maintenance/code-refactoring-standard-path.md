@@ -58,12 +58,12 @@ description: "Process steps and checklist for medium/complex refactorings (multi
 
    > **Why**: Without a recorded baseline, parallel sessions dismiss failures as "pre-existing" with no way to verify. The baseline lets you diff at Step 18 and own any regressions.
 6. **Assess Test Coverage**: Check whether existing tests exercise the specific code paths being refactored. If coverage is insufficient, write characterization tests to lock current behavior before proceeding:
-   - **Sufficient coverage**: Existing tests exercise the specific code paths being refactored (both happy paths and error/edge cases touched by the change). Proceed to Step 6.
+   - **Sufficient coverage**: Existing tests exercise the specific code paths being refactored (both happy paths and error/edge cases touched by the change). Proceed to Step 7.
    - **Insufficient coverage**: No tests exist for the target method/class, or tests only cover happy paths while the refactoring touches error handling or edge cases. Write characterization tests first:
      ```powershell
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "ComponentNameCharacterization" -TestType "unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
      ```
-   - Characterization tests capture *current* behavior (even if imperfect) — they are a safety net, not a quality judgment.
+   - Author each characterization test per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079): its Phase 1 scopes what to pin, its Phase 3 proves each pin; record the contrast in the plan's Test Baseline field (Step 5).
    - After creating or modifying tests, complete the documentation steps in the [Test Infrastructure Guide — Test Documentation Completeness](../../guides/03-testing/test-infrastructure-guide.md#test-documentation-completeness) section.
 7. **Create Baseline Measurements**: Record current performance metrics and code quality indicators
 8. **🚨 CHECKPOINT**: Present analysis findings, baseline metrics, and test coverage status to human partner
@@ -167,7 +167,7 @@ When bugs are discovered during refactoring, follow this decision process:
    - **Changed interfaces** — are integration tests updated to cover the new contract?
    - **Extracted utility/helper functions** — are boundary conditions and error cases covered?
 
-   If gaps are found, create tests:
+   If gaps are found, create tests per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md):
    ```powershell
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "ComponentNameCharacterization" -TestType "unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
    ```
@@ -253,7 +253,7 @@ When bugs are discovered during refactoring, follow this decision process:
   - [ ] **Phase 1 (During)**: Temporary state tracking, bug tracking, technical debt progress documented
   - [ ] **Phase 2 (Completion)**: [Technical Debt Tracking](../../../doc/state-tracking/permanent/technical-debt-tracking.md) resolved items, [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) status improved, [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated for foundation features, [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) updated
   - [ ] Run [`Validate-TestTracking.ps1`](../../scripts/validation/Validate-TestTracking.ps1) — 0 errors (if tests were added or modified)
-  - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 13)
+  - [ ] **Product Documentation**: If refactoring changed module boundaries/interfaces/design patterns — feature state file, TDD, FDD, and test spec updated (Step 14)
   - [ ] **Phase 3 (Post)**: Temporary state archived (if created) to [old directory](../../../doc/state-tracking/temporary/old), [Architecture Tracking](../../../doc/state-tracking/permanent/architecture-tracking.md) updated for architectural changes, refactoring plan archived to `doc/refactoring/plans/archive`
   - [ ] If file moves changed the source directory structure: run `New-SourceStructure.ps1 -Update` to refresh the [Source Code Layout](../../../doc/technical/architecture/source-code-layout.md) directory tree
 - [ ] **Feedback form** completed per the [Task Execution Protocol → Feedback step](../../guides/framework/task-execution-protocol-guide.md#feedback-step) — task ID `PF-TSK-022`, context "Code Refactoring Task".

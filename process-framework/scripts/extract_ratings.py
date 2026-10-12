@@ -6,6 +6,11 @@ Parses feedback form markdown and outputs JSON matching the
 feedback-db-input-template.json schema, ready for:
     python process-framework/scripts/feedback_db.py record --json output.json
 
+Also hosts the shared artifact-key resolver (resolve_artifact_key / resolve_artifact_cell —
+PF-PRO-072 Phase 4) that validates the improvement tracker's Artifacts column and backs
+`feedback_db.py resolve-key`: portable ID, unique filename, path-qualified skill file, bare
+skill name, directory token, and the closed class:<name> vocabulary (ARTIFACT_CLASS_TOKENS).
+
 Usage (Phase 7 / centralized layout, 2026-05-11+):
     # Single file (resolved against the central feedback-forms directory)
     python process-framework/scripts/extract_ratings.py \\
@@ -101,15 +106,7 @@ def parse_rating_value(text: str) -> int | None:
 # template instead (resolved via feedback_db's alias table, not here).
 _FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
 _PORTABLE_PREFIX_FALLBACK = (
-    "PF-DOC",
-    "PF-FST",
-    "PF-GDE",
-    "PF-INF",
-    "PF-MAI",
-    "PF-MTH",
-    "PF-TEM",
-    "PF-TSK",
-    "PF-VIS",
+    "PF-DOC", "PF-FST", "PF-GDE", "PF-INF", "PF-MAI", "PF-MTH", "PF-TEM", "PF-TSK", "PF-VIS",
 )
 _portable_prefixes_cache: tuple[str, ...] | None = None
 _id_index_cache: dict[str, str] | None = None
@@ -130,9 +127,7 @@ def portable_prefixes() -> tuple[str, ...]:
         try:
             data = json.loads((_FRAMEWORK_ROOT / "PF-id-registry.json").read_text(encoding="utf-8"))
             found = tuple(
-                sorted(
-                    k for k in data.get("prefixes", {}) if re.fullmatch(r"[A-Z]{2,4}-[A-Z]{3}", k)
-                )
+                sorted(k for k in data.get("prefixes", {}) if re.fullmatch(r"[A-Z]{2,4}-[A-Z]{3}", k))
             )
         except Exception:
             pass
@@ -271,6 +266,349 @@ def derive_tool_doc_id(name_raw: str) -> tuple[str | None, str]:
             display = re.sub(rf"\s*{skill_pattern}\s*", " ", name_raw).strip()
             return f"{skill_match.group(1)}/SKILL.md", display
     return None, name_raw
+
+
+# --- Artifact-key resolution for the tracker's Artifacts column (PF-PRO-072 Phase 4) ---
+#
+# The central improvement tracker's Artifacts column carries the SAME keys the ratings DB
+# uses (tool_doc_id form), so a row's predicted targets and the logged change history stay
+# joinable — but a key is validated against the tree on WRITE, which the DB's own write-side
+# resolver never did (25 junk keys measured at proposal time). Never free prose. Kinds:
+#
+#   artifact   a portable framework ID (PF-TSK-009) or, for an ID-less artifact, its filename
+#              (Update-ProcessImprovement.ps1), path-qualified by the shortest trailing path
+#              that disambiguates a shared basename (imp-triage/SKILL.md); a bare craft-skill
+#              name resolves to its SKILL.md
+#   directory  a trailing-slash directory that exists (tasks/support/, languages-config/)
+#   class      class:<name> from ARTIFACT_CLASS_TOKENS — the closed cross-cutting vocabulary
+#   literal    '—' (no target recorded yet — Intake and pilots) and 'TBD' (no decidable target)
+#
+# Two index tiers, consulted in order: the FRAMEWORK tier (process-framework/ plus the
+# craft-skill roots) and, only when it has no hit, the WORKSPACE tier (test/, doc/, the central
+# trackers, root operating files). A fixture copy of a script under test/ therefore never makes
+# the real one ambiguous, while an FB-level test suite or a root CLAUDE.md is still resolvable.
+# Ambiguity within a tier is refused with candidates — the caller retypes a qualified form.
+
+ARTIFACT_CLASS_TOKENS: dict[str, str] = {
+    # token -> what it covers (informational; membership is the validation)
+    "class:core-files": "the budgeted core files (core-file-budgets.json: tasks/**, guides/**, operating files)",
+    "class:task-definitions": "tasks/**/*.md",
+    "class:support-tasks": "tasks/support/*.md",
+    "class:craft-skills": ".claude/skills/*/** (SKILL.md and references/)",
+    "class:guides": "guides/**/*.md",
+    "class:templates": "templates/**/*",
+    "class:creation-scripts": "scripts/file-creation/**/*.ps1",
+    "class:validation-scripts": "scripts/validation/*.ps1",
+    "class:helpers": "scripts/Common-ScriptHelpers/*.psm1",
+    "class:tests": "test/**/*.Tests.ps1",
+}
+
+ARTIFACT_LITERALS = ("—", "TBD")
+_LITERAL_ALIASES = {"-": "—", "--": "—", "tbd": "TBD"}
+
+# Directories never indexed: VCS/runtime residue, archived material, and sandboxes. A nested
+# workspace (a directory carrying doc/project-config.json with a project name — a child, a
+# synthetic E2E producer, a rollout seed) is pruned by that test, not by name.
+_INDEX_PRUNE_DIRS = frozenset(
+    {".git", "node_modules", "__pycache__", ".pytest_cache", "logs", "old", "sandboxes", ".locks"}
+)
+# Fixture subtrees by naming convention: sandbox centrals and synthetic workspaces (E2E cases,
+# unit fixtures) carry copies of every tracker and script; indexing them would make the real
+# artifact ambiguous. The E2E case directory itself stays indexed (a directory token can name it).
+_INDEX_PRUNE_NAME_RE = re.compile(r"^(sandbox|synthetic)")
+_E2E_CASE_CHILDREN = frozenset({"expected", "project"})
+_artifact_index_cache: list[dict] | None = None
+
+
+def _index_workspace_root() -> Path | None:
+    """Nearest ancestor of the framework root carrying a doc/project-config.json with a project
+    name — the same test feedback_db's _find_workspace_root applies, so an unfilled blueprint
+    seed (empty name) is skipped. None when no such ancestor exists (a detached copy)."""
+    current = _FRAMEWORK_ROOT
+    while current != current.parent:
+        if _is_named_workspace(current):
+            return current
+        current = current.parent
+    return None
+
+
+def _is_named_workspace(directory: Path) -> bool:
+    cfg = directory / "doc" / "project-config.json"
+    if not cfg.is_file():
+        return False
+    try:
+        return bool(json.loads(cfg.read_text(encoding="utf-8")).get("project", {}).get("name"))
+    except (OSError, ValueError):
+        return False
+
+
+def _walk_tree(root: Path, *, skip_roots: list[Path], prune_feedback: bool) -> tuple[dict, set]:
+    """Return ({relpath: Path}, {reldir + '/'}) for every file/dir under root, pruning
+    _INDEX_PRUNE_DIRS, nested named workspaces, any of skip_roots, and (workspace tier only)
+    the central feedback/ tree — thousands of forms that are never change targets."""
+    files: dict[str, Path] = {}
+    dirs: set[str] = set()
+    skip = {p.resolve() for p in skip_roots}
+    stack = [root]
+    while stack:
+        current = stack.pop()
+        try:
+            entries = sorted(current.iterdir(), key=lambda p: p.name)
+        except OSError:
+            continue
+        for entry in entries:
+            if entry.is_dir():
+                if entry.name in _INDEX_PRUNE_DIRS or _INDEX_PRUNE_NAME_RE.match(entry.name):
+                    continue
+                if entry.name in _E2E_CASE_CHILDREN and entry.parent.name.startswith("TE-E2E-"):
+                    continue
+                if entry.resolve() in skip:
+                    continue
+                if entry != root and _is_named_workspace(entry):
+                    continue
+                if prune_feedback and entry.name == "feedback" and entry.parent.name == "process-framework-central":
+                    continue
+                dirs.add(entry.relative_to(root).as_posix() + "/")
+                stack.append(entry)
+            elif entry.is_file():
+                files[entry.relative_to(root).as_posix()] = entry
+    return files, dirs
+
+
+def build_artifact_index() -> list[dict]:
+    """The two index tiers, framework first. Each tier: {'label', 'files', 'dirs', 'basenames'}."""
+    global _artifact_index_cache
+    if _artifact_index_cache is not None:
+        return _artifact_index_cache
+
+    ws_root = _index_workspace_root()
+    # Framework tier roots: the framework tree, then every craft-skill root this level can see —
+    # the skills beside the framework tree (a consumer face) and the workspace's root / producer
+    # skill sets (FB's canonical set lives at blueprint/.claude/skills). De-duplicated by path.
+    skill_roots: list[Path] = []
+    for candidate in (
+        _FRAMEWORK_ROOT.parent / ".claude" / "skills",
+        (ws_root / ".claude" / "skills") if ws_root else None,
+        (ws_root / "blueprint" / ".claude" / "skills") if ws_root else None,
+    ):
+        if candidate and candidate.is_dir() and candidate.resolve() not in {r.resolve() for r in skill_roots}:
+            skill_roots.append(candidate)
+
+    framework_files: dict[str, Path] = {}
+    framework_dirs: set[str] = set()
+    for root in [_FRAMEWORK_ROOT, *skill_roots]:
+        f, d = _walk_tree(root, skip_roots=[], prune_feedback=False)
+        for rel, path in f.items():
+            framework_files.setdefault(rel, path)
+        framework_dirs |= d
+    # Accepted (and stripped) leading path forms per tier: the tree's own directory name, as an
+    # author who copies a path from the workspace root would type it. The first entry is also the
+    # qualifier for a root-level file whose basename is shared (process-framework/README.md).
+    framework_prefixes = [
+        f"{_FRAMEWORK_ROOT.name}/",
+        f"blueprint/{_FRAMEWORK_ROOT.name}/",
+        ".claude/skills/",
+        "blueprint/.claude/skills/",
+    ]
+    tiers = [_make_tier("framework", framework_files, framework_dirs, framework_prefixes)]
+
+    if ws_root is not None:
+        f, d = _walk_tree(ws_root, skip_roots=[_FRAMEWORK_ROOT, *skill_roots], prune_feedback=True)
+        tiers.append(_make_tier("workspace", f, d, [f"{ws_root.name}/"]))
+
+    _artifact_index_cache = tiers
+    return tiers
+
+
+def _make_tier(label: str, files: dict[str, Path], dirs: set[str], prefixes: list[str]) -> dict:
+    basenames: dict[str, list[str]] = {}
+    for rel in files:
+        basenames.setdefault(rel.rsplit("/", 1)[-1], []).append(rel)
+    return {"label": label, "files": files, "dirs": dirs, "basenames": basenames, "prefixes": prefixes}
+
+
+def _strip_tier_prefix(key: str, tier: dict) -> str | None:
+    """The key with one of the tier's accepted leading path forms removed, or None when it
+    carries none (a bare or suffix-form key, matched by suffix instead)."""
+    for prefix in tier["prefixes"]:
+        if key.startswith(prefix):
+            return key[len(prefix):]
+    return None
+
+
+def _shortest_unique_suffix(relpath: str, population, tier: dict | None = None) -> str:
+    """The convention's canonical form for a shared basename: the shortest trailing path that
+    names exactly one file in the population (imp-triage/SKILL.md, unit/README.md). A root-level
+    file that shares its basename with a deeper one has no parent segment to qualify with, so it
+    takes the tree's own name (process-framework/README.md, FrameworkBuilder/CLAUDE.md)."""
+    parts = relpath.split("/")
+    for n in range(1, len(parts)):
+        suffix = "/".join(parts[-n:])
+        hits = [p for p in population if p == suffix or p.endswith("/" + suffix)]
+        if len(hits) == 1:
+            return suffix
+    if len(parts) > 1:
+        return relpath  # the full path is exact-matched first on lookup, so it is unambiguous
+    if tier and tier["prefixes"]:
+        return tier["prefixes"][0] + relpath
+    return relpath
+
+
+def _strip_leading_dot_slash(key: str) -> str:
+    while key.startswith("./"):
+        key = key[2:]
+    return key.lstrip("/")
+
+
+def _suffix_hits(key: str, population) -> list[str]:
+    return [p for p in population if p == key or p.endswith("/" + key)]
+
+
+def _result(raw, *, ok, canonical=None, kind=None, path=None, error=None, candidates=None) -> dict:
+    return {
+        "raw": raw,
+        "ok": ok,
+        "canonical": canonical,
+        "kind": kind,
+        "path": path,
+        "error": error,
+        "candidates": sorted(candidates or []),
+    }
+
+
+def resolve_artifact_key(raw: str) -> dict:
+    """Resolve ONE Artifacts-column key to its canonical form, or refuse it with a reason.
+
+    Returns {'raw', 'ok', 'canonical', 'kind', 'path', 'error', 'candidates'}; kind is one of
+    literal | class | directory | id | file | skill. Never guesses: an ambiguous basename lists
+    its candidates (shortest unique suffixes) and a portable ID absent from this tree is refused
+    — a typo, or another workspace's artifact, whose row belongs in that workspace's tracker.
+    """
+    key = (raw or "").strip()
+    if not key:
+        return _result(raw, ok=False, error="empty key — pass an artifact key, '—', or 'TBD'")
+    key = _LITERAL_ALIASES.get(key.lower(), key) if key.lower() in _LITERAL_ALIASES else key
+    if key in ARTIFACT_LITERALS:
+        return _result(raw, ok=True, canonical=key, kind="literal")
+
+    if key.startswith("class:"):
+        if key in ARTIFACT_CLASS_TOKENS:
+            return _result(raw, ok=True, canonical=key, kind="class")
+        return _result(
+            raw, ok=False,
+            error="unknown class token — the closed vocabulary is: " + ", ".join(sorted(ARTIFACT_CLASS_TOKENS)),
+            candidates=list(ARTIFACT_CLASS_TOKENS),
+        )
+
+    tiers = build_artifact_index()
+
+    if key.endswith("/"):
+        norm = _strip_leading_dot_slash(key)
+        for tier in tiers:
+            stripped = _strip_tier_prefix(norm, tier)
+            if stripped is not None and stripped in tier["dirs"]:
+                return _result(raw, ok=True, canonical=stripped, kind="directory", path=stripped)
+            if norm in tier["dirs"]:
+                return _result(raw, ok=True, canonical=norm, kind="directory", path=norm)
+            hits = [d for d in tier["dirs"] if d.endswith("/" + norm)]
+            if len(hits) == 1:
+                return _result(raw, ok=True, canonical=norm, kind="directory", path=hits[0])
+            if len(hits) > 1:
+                return _result(
+                    raw, ok=False, kind="directory",
+                    error=f"ambiguous directory token — {len(hits)} directories end in '{norm}'; use a longer trailing path",
+                    candidates=[_shortest_unique_suffix(h.rstrip("/"), [x.rstrip("/") for x in tier["dirs"]], tier) + "/" for h in hits],
+                )
+        return _result(raw, ok=False, kind="directory", error="no such directory in the framework or workspace tree")
+
+    if re.fullmatch(r"[A-Z]{2,4}-[A-Z]{3}-\d+", key):
+        if not is_portable_id(key):
+            return _result(
+                raw, ok=False, kind="id",
+                error="not a portable framework ID (a project-instance pool) — name the blueprint template or script instead",
+            )
+        index = build_id_index()
+        paths = sorted(p for p, doc_id in index.items() if doc_id == key and "/" in p)
+        if paths:
+            return _result(raw, ok=True, canonical=key, kind="id", path=paths[0])
+        return _result(
+            raw, ok=False, kind="id",
+            error="portable ID not found in this framework tree — a typo, or another workspace's artifact (its row belongs in that workspace's tracker)",
+        )
+
+    norm = _strip_leading_dot_slash(key)
+    if "/" in norm:
+        for tier in tiers:
+            stripped = _strip_tier_prefix(norm, tier)
+            if stripped is not None and stripped in tier["files"]:
+                return _file_result(raw, stripped, tier)
+            if norm in tier["files"]:
+                return _file_result(raw, norm, tier)
+            hits = _suffix_hits(norm, tier["files"])
+            if len(hits) == 1:
+                return _file_result(raw, hits[0], tier)
+            if len(hits) > 1:
+                return _result(
+                    raw, ok=False, kind="file",
+                    error=f"ambiguous path — {len(hits)} files end in '{norm}'; use one of the candidates",
+                    candidates=[_shortest_unique_suffix(h, tier["files"], tier) for h in hits],
+                )
+        return _result(raw, ok=False, kind="file", error="no such file in the framework or workspace tree")
+
+    for tier in tiers:
+        hits = tier["basenames"].get(norm, [])
+        if len(hits) == 1:
+            return _file_result(raw, hits[0], tier)
+        if len(hits) > 1:
+            return _result(
+                raw, ok=False, kind="file",
+                error=f"ambiguous basename — {len(hits)} files are named '{norm}'; use one of the candidates",
+                candidates=[_shortest_unique_suffix(h, tier["files"], tier) for h in hits],
+            )
+        # A bare craft-skill name stands for its entry file (imp-triage -> imp-triage/SKILL.md).
+        if "." not in norm and f"{norm}/SKILL.md" in tier["files"]:
+            return _result(raw, ok=True, canonical=f"{norm}/SKILL.md", kind="skill", path=f"{norm}/SKILL.md")
+    return _result(
+        raw, ok=False, kind="file",
+        error="not found — no file, directory token or class token by that name (keys are never free prose)",
+    )
+
+
+def _file_result(raw: str, relpath: str, tier: dict) -> dict:
+    """Canonical key for a resolved file: its portable ID when it carries one (the convention's
+    ID-first rule), else the shortest unique trailing path — bare when the basename is unique."""
+    doc_id = resolve_artifact_id(relpath)
+    if doc_id:
+        return _result(raw, ok=True, canonical=doc_id, kind="id", path=relpath)
+    canonical = _shortest_unique_suffix(relpath, tier["files"], tier)
+    kind = "skill" if canonical.endswith("/SKILL.md") else "file"
+    return _result(raw, ok=True, canonical=canonical, kind=kind, path=relpath)
+
+
+def resolve_artifact_cell(cell: str) -> dict:
+    """Resolve a whole Artifacts cell ('key; key; ...'): every key resolved, duplicates dropped,
+    literals refused when mixed with keys. Returns {'ok', 'canonical', 'keys': [per-key dicts]}."""
+    raws = [k.strip() for k in (cell or "").split(";")]
+    raws = [k for k in raws if k]
+    if not raws:
+        return {"ok": False, "canonical": None, "keys": [_result(cell, ok=False, error="empty Artifacts value — pass one or more keys, '—', or 'TBD'")]}
+    results = []
+    seen: set[str] = set()
+    for r in raws:
+        res = resolve_artifact_key(r)
+        if res["ok"] and res["canonical"] in seen:
+            continue
+        if res["ok"]:
+            seen.add(res["canonical"])
+        results.append(res)
+    if len(results) > 1 and any(r["ok"] and r["kind"] == "literal" for r in results):
+        for r in results:
+            if r["ok"] and r["kind"] == "literal":
+                r["ok"] = False
+                r["error"] = "a literal ('—' / 'TBD') cannot be combined with artifact keys"
+    ok = all(r["ok"] for r in results)
+    canonical = "; ".join(r["canonical"] for r in results) if ok else None
+    return {"ok": ok, "canonical": canonical, "keys": results}
 
 
 def parse_tools(content: str) -> list[dict]:

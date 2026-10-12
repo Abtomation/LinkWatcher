@@ -341,6 +341,23 @@ function Main {
 
     # Write
     Set-Content -Path $TrackingFile -Value $content -NoNewline
+
+    # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), placed after the run's LAST write
+    # — the move, the archived-summary recount, the Progress Summary recompute, the Update History
+    # entry and the frontmatter bump all land in this one Set-Content — so a false throw can fail
+    # the run but never leave a half-updated file. Assert-TableRowInFile, not Assert-LineInFile:
+    # the row has MOVED into '## Archived Features', whose header is a different shape from the
+    # category table it came from, and only the header-aware check verifies it against the header
+    # that now governs it. One call per written value; a value the caller did not supply
+    # (-Replacement is optional) is never asserted, because an empty pattern proves nothing.
+    if (-not $WhatIfPreference) {
+        foreach ($writtenValue in @($CurrentDate, $Rationale, $Replacement)) {
+            if ([string]::IsNullOrWhiteSpace($writtenValue)) { continue }
+            $rowPattern = "^\|\s*\[?" + [regex]::Escape($FeatureId) + "\b(?:\]\([^)]*\))?\s*\|(?:[^|]*\|)*\s*" + [regex]::Escape($writtenValue) + "\s*\|"
+            Assert-TableRowInFile -Path $TrackingFile -Pattern $rowPattern -Context "archived feature $FeatureId → '$writtenValue' in $TrackingFile"
+        }
+    }
+
     Write-ProjectSummary "Feature $FeatureId → archived"
 }
 

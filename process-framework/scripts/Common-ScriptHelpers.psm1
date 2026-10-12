@@ -104,6 +104,7 @@ if ($LoadedFunctions.Count -gt 0) {
         'Get-RootCentralFrameworkPath',
         'Get-ArtifactOwnerId',
         'Resolve-WorkspaceRootById',
+        'Resolve-ChildWorkspaceRootById',
         'Get-OwningWorkspaceCentralPath',
         'Import-ProjectModule',
         'New-ProjectId',

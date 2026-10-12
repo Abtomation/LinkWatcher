@@ -15,8 +15,9 @@
 
     Scope and expectations by face:
       - Self-hosted authoring root (FB — consumer and producer keys name one tree): every file
-        under the blueprint framework tree and the shipped skills, minus the manifest's
-        per_level_files and the allowlist below, must carry the workspace's OWN project_id.
+        under the blueprint framework tree, the shipped skills, and the shipped agents
+        (.claude/agents, PF-PRO-071 WI-2), minus the manifest's per_level_files and the
+        allowlist below, must carry the workspace's OWN project_id.
       - Framework face (faces split, post-cutover): only RECEIVED files (those present in the
         consumer tree) are checked in the blueprint — they must carry an ownership line naming
         an ID other than this workspace's own (received copies state their upstream owner);
@@ -154,26 +155,32 @@ function Test-Allowlisted {
     return $false
 }
 
-# Scan set: the producer blueprint framework tree, plus the shipped skills folder beside it.
-$scanRoots = @($producer)
-$skillsDir = Join-Path -Path (Split-Path -Parent $producer) -ChildPath ".claude/skills"
-if (Test-Path -LiteralPath $skillsDir) { $scanRoots += [System.IO.Path]::GetFullPath($skillsDir).TrimEnd('\', '/') }
+# Scan set: the producer blueprint framework tree, plus the shipped sibling folders beside it —
+# .claude/skills, and .claude/agents (PF-PRO-071 WI-2: shipped agent instruments carry the same
+# N-5 ownership obligation as shipped skills; without this root they would escape the gate).
+$scanRoots = @(@{ Path = $producer; Prefix = '' })
+foreach ($siblingRel in @('.claude/skills', '.claude/agents')) {
+    $siblingDir = Join-Path -Path (Split-Path -Parent $producer) -ChildPath $siblingRel
+    if (Test-Path -LiteralPath $siblingDir) {
+        $scanRoots += @{ Path = [System.IO.Path]::GetFullPath($siblingDir).TrimEnd('\', '/'); Prefix = "$siblingRel/" }
+    }
+}
 
 $findings = @()
 $checked = 0
 $skipped = 0
 foreach ($scanRoot in $scanRoots) {
-    $isSkills = ($scanRoot -ne $producer)
-    foreach ($file in (Get-ChildItem -LiteralPath $scanRoot -Recurse -File)) {
-        $rel = $file.FullName.Substring($scanRoot.Length).TrimStart('\', '/').Replace('\', '/')
-        if ($isSkills) { $rel = ".claude/skills/$rel" }
+    $isSibling = ($scanRoot.Prefix -ne '')
+    foreach ($file in (Get-ChildItem -LiteralPath $scanRoot.Path -Recurse -File)) {
+        $rel = $file.FullName.Substring($scanRoot.Path.Length).TrimStart('\', '/').Replace('\', '/')
+        if ($isSibling) { $rel = "$($scanRoot.Prefix)$rel" }
         if ($file.Extension -eq '.pyc' -or $rel -match '(^|/)__pycache__/' -or $rel -match '(^|/)\.git/') { continue }
-        if (-not $isSkills -and ($rel -in $perLevel)) { $skipped++; continue }
+        if (-not $isSibling -and ($rel -in $perLevel)) { $skipped++; continue }
         if (Test-Allowlisted -Rel $rel) { $skipped++; continue }
         # Carrier check on the real payload extension (.py.template ends .template — allowlisted above).
         if ($file.Extension -notin $CarrierExtensions) { $skipped++; continue }
 
-        if (-not $selfHosted -and -not $isSkills) {
+        if (-not $selfHosted -and -not $isSibling) {
             # Framework face: only RECEIVED files (present in the consumer tree) carry the
             # N-5 obligation; the workspace's own domain files do not.
             $consumerTwin = Join-Path -Path $consumer -ChildPath $rel

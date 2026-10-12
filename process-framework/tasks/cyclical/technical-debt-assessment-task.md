@@ -2,9 +2,9 @@
 id: PF-TSK-023
 type: Process Framework
 category: Task Definition
-version: 1.4
+version: 1.5
 created: 2025-07-24
-updated: 2026-07-20
+updated: 2026-09-28
 change_notes: "v1.4 - PF-IMP-1592 BL-5 residue removal: Step 9's effort-collapsed quadrant scheme (contradicting the skill on every quadrant) replaced with a pointer to the skill's prioritization reference — the impact×effort matrix there is canonical"
 description: "Systematic approach to identifying, categorizing, and prioritizing technical debt across the codebase"
 use_when: >-
@@ -91,7 +91,7 @@ Systematic approach to identifying, categorizing, and prioritizing technical deb
    - **Architectural Issues** (AC): System design problems, missing patterns, coupling issues
    - **Code Quality Issues** (CQ): Readability, maintainability, duplication, complexity
    - **Integration Issues** (ID): Fragile interfaces, tight coupling between components
-   - **Documentation Debt** (DA): Missing, outdated, or inadequate documentation
+   - **Documentation Debt** (DA): Missing, outdated, inaccurate, or inadequate documentation
    - **Extensibility & Maintainability Issues** (EM): Missing extension points, rigid design
    - **Security Concerns** (SE): Vulnerabilities, insecure patterns, missing validations
    - **Performance Issues** (PE): Known bottlenecks, inefficient algorithms, resource usage

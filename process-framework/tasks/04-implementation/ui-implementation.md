@@ -2,9 +2,9 @@
 id: PF-TSK-052
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.4
 created: 2025-12-13
-updated: 2026-06-12
+updated: 2026-09-04
 description: "Build user interface components and layouts for feature"
 complexity: medium
 use_when: >-
@@ -67,7 +67,7 @@ Build UI components and screen layouts for a feature. This task creates the user
 
 ### Preparation
 
-1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `ui-implementation`. If a matching skill is available in the session, activate it before starting implementation work.
+1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `ui-implementation`. If a matching skill is available in the session — the `test-authoring` craft skill for the tests Step 11 writes — activate it before starting implementation work; if it is not listed, read its [`SKILL.md`](../../../.claude/skills/test-authoring/SKILL.md) directly (equivalent, not degraded).
 2. **Review TDD UI/UX Design**: Read UI design section from TDD to understand screen layouts, component hierarchy, navigation flow, and technology-specific patterns
 3. **Analyze State Layer Output**: Review completed state management implementations from PF-TSK-056 to understand available state and actions
 4. **Identify Component Requirements**: Determine screens needed, UI components, and navigation patterns from TDD
@@ -90,18 +90,12 @@ Build UI components and screen layouts for a feature. This task creates the user
    - Dispatch actions or call state mutations for user interactions
    - Handle loading, error, and empty states appropriately
 10. **Implement Accessibility**: Add semantic labels, proper contrast, and keyboard navigation
-11. **Add UI Tests**: Create tracked tests for UI components and screens using `New-TestFile.ps1`
+11. **Add UI Tests**: Create tracked tests for UI components and screens using `New-TestFile.ps1`, each authored and proved per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079; judgment in the `test-authoring` skill activated at Step 1)
 
     ```powershell
     # Create test files using automation script (writes pytest markers)
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "UIComponents"
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Screens"
-
-    # Script automatically:
-    # - Writes pytest markers (feature, priority, test_type)
-    # - Creates test file from template with proper structure
-    # - Updates test-tracking.md with correct file links and status
-    # - Updates feature-tracking.md with test implementation progress
     ```
 
     - Test component rendering with different state scenarios

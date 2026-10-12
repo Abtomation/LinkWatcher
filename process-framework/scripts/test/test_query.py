@@ -21,6 +21,7 @@ import os
 import sys
 from pathlib import Path
 
+
 # Files that mark a Python project's root. pytest's own rootdir discovery recognizes the same
 # set; accepting all of them (not pyproject.toml alone) lets projects configured with only
 # pytest.ini / setup.cfg / tox.ini / setup.py resolve their root (PF-IMP-1149).

@@ -27,7 +27,8 @@ role, checkpoints, tracking-entry creation via scripts, status updates, and the 
 > **"When to test", not "how to test".** Performance methodology (test levels in depth, baselines,
 > trends) is the
 > [Performance Testing Guide](../../../process-framework/guides/03-testing/performance-testing-guide.md);
-> E2E test-case customization is the `e2e-test-case-creation` craft.
+> E2E test-case customization is the `e2e-test-case-creation` craft; test authoring — how to write a
+> test that can actually fail — is the `test-authoring` craft.
 
 ## Reference-don't-bundle: framework scripts this craft uses
 

@@ -62,6 +62,12 @@
     only the test action; setup and verification are handled by existing scripts.
     Can be executed by AI agent via Run-E2EAcceptanceTest.ps1 or by human manually.
 
+.PARAMETER ResolvesGap
+    The Discovered Scenario Gaps row this test case closes (e.g. "GAP-003"). Sets that row's
+    Status to "✅ Covered" and writes the newly minted TE-E2E-NNN into its Resolved By column.
+    A gap ID that matches no row warns and leaves the created test case intact — the case is
+    real work regardless of whether the gap reference was correct.
+
 .PARAMETER OpenInEditor
     If specified, opens the created test-case.md in the default editor
 
@@ -100,8 +106,14 @@
                         tracking writes, replacing a duplicate block at step 7))
     Updated: 2026-07-22 (PF-IMP-1699 — test-case [WF-NNN] now resolves to the WF-NNN ID like the
                         master path, instead of substituting the workflow directory slug)
-    Version: 1.5
-    Task: E2E Acceptance Test Case Creation (PF-TSK-069), PF-IMP-871, PF-IMP-1232, PF-IMP-1525, PF-IMP-1699
+    Updated: 2026-09-04 (PF-IMP-2143 — -ResolvesGap clears a Discovered Scenario Gaps row; and the
+                        folded-in PF-IMP-2156 fix: the milestone status flip now matches every
+                        pre-creation spelling (including the '⬜ Not Created' that
+                        New-E2EMilestoneEntry.ps1 writes, which the old '⏳|—' regex never matched)
+                        and writes the legend value '📋 Needs Execution' instead of the unlegended
+                        '📋 Cases Created')
+    Version: 1.6
+    Task: E2E Acceptance Test Case Creation (PF-TSK-069), PF-IMP-871, PF-IMP-1232, PF-IMP-1525, PF-IMP-1699, PF-IMP-2143, PF-IMP-2156
 #>
 
 [CmdletBinding(SupportsShouldProcess=$true)]
@@ -133,6 +145,10 @@ param(
 
     [Parameter(Mandatory=$false)]
     [switch]$Scripted,
+
+    [Parameter(Mandatory=$false)]
+    [ValidatePattern("^GAP-\d+$")]
+    [string]$ResolvesGap = "",
 
     [Parameter(Mandatory=$false)]
     [switch]$OpenInEditor
@@ -616,9 +632,15 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
                         } else {
                             $cols[5] = "$e2eCasesCol, $grpIdForRegistry"
                         }
-                        # Update status to "📋 Cases Created" if currently at an earlier stage
-                        if ($cols[6] -match '⏳|—') {
-                            $cols[6] = '📋 Cases Created'
+                        # Advance the milestone status out of its pre-creation state (PF-IMP-2156,
+                        # folded into PF-IMP-2143). Both halves were previously wrong: the match
+                        # tested only '⏳|—', which never matches the '⬜ Not Created' that
+                        # New-E2EMilestoneEntry.ps1 actually writes, so the flip was skipped on
+                        # every milestone-raised row; and the value written, '📋 Cases Created',
+                        # appears in no legend in the tracking file. Match every pre-creation
+                        # spelling and write the legend's own value.
+                        if ($cols[6] -match '⬜|⏳|^\s*—\s*$|Not Created') {
+                            $cols[6] = '📋 Needs Execution'
                         }
                         # Rebuild the row
                         $mLine = ConvertTo-MarkdownTableRow -Cells $cols
@@ -634,6 +656,44 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             }
 
             $updatedContent = $milestoneUpdated -join "`n"
+        }
+
+        # --- 7c. Resolve a Discovered Scenario Gaps row (if -ResolvesGap) ---
+        # The consumer half of scenario-gap tracking (PF-IMP-2143): the gap row this case closes
+        # flips to '✅ Covered' and records the case that covered it. Scoped to the gaps section so
+        # a GAP- token in some other table's prose cannot be matched.
+        $gapResolved = $false
+        if ($ResolvesGap) {
+            $gapLines = $updatedContent -split '\r?\n'
+            $gapUpdated = @()
+            $inGapSection = $false
+
+            foreach ($gLine in $gapLines) {
+                if ($gLine -match '^## Discovered Scenario Gaps') { $inGapSection = $true }
+                elseif ($inGapSection -and $gLine -match '^## ') { $inGapSection = $false }
+
+                if ($inGapSection -and -not $gapResolved -and
+                    $gLine -match "^\|\s*$([regex]::Escape($ResolvesGap))\s*\|") {
+                    $gCols = Split-MarkdownTableRow $gLine
+                    # Gaps table columns: 0:Gap ID | 1:Workflow | 2:Scenario | 3:Source | 4:Status | 5:Filed | 6:Resolved By
+                    if ($gCols -and $gCols.Count -ge 7) {
+                        $gCols[4] = '✅ Covered'
+                        $gCols[6] = $e2eId
+                        $gLine = ConvertTo-MarkdownTableRow -Cells $gCols
+                        $gapResolved = $true
+                        Write-Verbose "Resolved scenario gap ${ResolvesGap}: Covered by $e2eId"
+                    }
+                }
+                $gapUpdated += $gLine
+            }
+
+            if (-not $gapResolved) {
+                # Never fatal: the case itself is legitimate work and is already built on disk by
+                # this point, so a bad gap reference must not abort the creation.
+                Write-Warning "Scenario gap '$ResolvesGap' not found in the Discovered Scenario Gaps table — the test case was created, but no gap row was resolved. Check the gap ID and update the row by hand."
+            } else {
+                $updatedContent = $gapUpdated -join "`n"
+            }
         }
 
         if ($PSCmdlet.ShouldProcess($testTrackingPath, "Add E2E test entry to e2e-test-tracking.md")) {
@@ -701,6 +761,13 @@ Write-Warning "run.ps1 is a skeleton — replace this with the actual test actio
             $details += "  - e2e-test-tracking.md: Workflow Milestone Tracking updated ($Workflow += $grpIdForRegistry)"
         } else {
             $details += "  - e2e-test-tracking.md: Workflow Milestone Tracking — no row for $Workflow (create via PF-TSK-086 to enable milestone tracking)"
+        }
+    }
+    if ($ResolvesGap) {
+        if ($gapResolved) {
+            $details += "  - e2e-test-tracking.md: scenario gap $ResolvesGap resolved (✅ Covered, Resolved By $e2eId)"
+        } else {
+            $details += "  - e2e-test-tracking.md: scenario gap $ResolvesGap NOT found — resolve the row by hand"
         }
     }
     $details += "  - feature-tracking.md: Test Status updated for $featureIdsDisplay"

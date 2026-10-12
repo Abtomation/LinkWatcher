@@ -179,7 +179,9 @@ The broken-link count is read from the report file's `Broken links : N` line, wi
 
 ## Single-instance behavior
 
-Only one panel window exists at a time. The running panel binds a loopback listener and publishes its port to `panel.port` in the install directory. A later launch reads that file, sends a surface request, and exits without building a window. The port file is removed on exit, and only by the panel that owns it.
+One panel window at a time, as long as the open panel can still answer. The running panel binds a loopback listener and publishes its port to `panel.port` in the install directory. A later launch reads that file, sends a surface request, and exits without building a window — but only after the running panel confirms it actually raised its window. A panel that cannot confirm within about a second and a half is left where it is and the new launch opens its own window, so in that case two windows exist: the unusable one and the working one. That takeover is recorded in `panel.log` as `surface_declined`, which is also the signal that the older window is no longer reachable by a launcher and has to be closed by hand. The port file is removed on exit, and only by the panel that owns it.
+
+A panel that cannot confirm — its interface dead or wedged — sends no reply, and the later launch stops waiting after `1.5 s` and builds its own window rather than exiting empty-handed. Recovering from an unresponsive panel is therefore just launching it again; deleting `panel.port` by hand is no longer required.
 
 The second launch returns **before registry resolution runs**, so its `--project-root`, `--registry`, and working directory are all discarded. Changing which workspace is supervised requires closing the open panel first.
 

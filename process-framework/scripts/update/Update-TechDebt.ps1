@@ -659,12 +659,6 @@ function Add-OneDebtItem {
     $content = Update-FrontmatterDate -Content $content
     Set-Content -Path $TargetFile -Value $content -NoNewline
 
-    if (-not $WhatIfPreference) {
-        # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
-        $rowPattern = "\|\s*\[?" + [regex]::Escape($newDebtId) + "\b"
-        Assert-TableRowInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $newDebtId in $TargetFile"
-    }
-
     if ($DebtItemId) {
         Update-DebtItemFile -DebtItemId $DebtItemId -RegistryId $newDebtId
     }
@@ -676,6 +670,15 @@ function Add-OneDebtItem {
                 Update-ValidationTrackingLink -ValidationIssueId $issueId -DebtId $newDebtId -TrackingFilePath $valFile
             }
         }
+    }
+
+    # Read-after-write verification (PF-IMP-1563; relocated here by PF-PRO-077 / PF-IMP-2126 so it
+    # follows EVERY write of the run — the registry write above, the debt-item writeback and the
+    # validation-tracking links — rather than only the first).
+    if (-not $WhatIfPreference) {
+        # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
+        $rowPattern = "\|\s*\[?" + [regex]::Escape($newDebtId) + "\b"
+        Assert-TableRowInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $newDebtId in $TargetFile"
     }
 
     $descPreview = if ($Description.Length -gt 60) { $Description.Substring(0, 57) + "..." } else { $Description }
@@ -706,9 +709,22 @@ function Update-DebtItemFile {
     $debtItemFile = $debtItemFiles[0].FullName
     $content = Get-Content $debtItemFile -Raw
 
-    # Update the Registry Integration section
-    $updatedContent = $content -replace 'Registry Status: Not Added', 'Registry Status: Added'
-    $updatedContent = $updatedContent -replace 'Registry ID: TBD', "Registry ID: $RegistryId"
+    # Update the Registry Integration section (PF-IMP-2168). Template-conformant items
+    # carry BOLDED bullets, and a fresh New-DebtItem instance leaves the bracketed
+    # placeholders unfilled — so tolerate bold/plain labels and filled/placeholder
+    # values. The old plain literals ('Registry Status: Not Added' / 'Registry ID: TBD')
+    # matched neither form, silently no-opping on every conformant file.
+    $statusPattern = '(\*\*Registry Status\*\*|Registry Status):[ \t]*(Not Added|\[[^\]\r\n]*\])'
+    $idPattern     = '(\*\*Registry ID\*\*|Registry ID):[ \t]*(TBD|\[[^\]\r\n]*\])'
+    $updatedContent = $content -replace $statusPattern, '$1: Added'
+    $updatedContent = $updatedContent -replace $idPattern, ('$1: ' + $RegistryId)
+
+    if ($updatedContent -eq $content) {
+        # No recognizable Registry Status / Registry ID line to rewrite — say so instead
+        # of reporting success over a no-op (the misreport half of PF-IMP-2168).
+        Write-ProjectLog "Debt item file for $DebtItemId has no rewritable Registry Status / Registry ID line - file left unchanged" -Level "WARN"
+        return
+    }
 
     if ($PSCmdlet.ShouldProcess($debtItemFile, "Update debt item file with registry ID $RegistryId")) {
         Set-Content -Path $debtItemFile -Value $updatedContent -NoNewline
@@ -1015,6 +1031,14 @@ function Update-ValidationTrackingLink {
 
     if ($PSCmdlet.ShouldProcess($TrackingFilePath, "Link $ValidationIssueId to $DebtId in Tracked As column")) {
         Set-Content -Path $TrackingFilePath -Value $updatedContent -NoNewline
+
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126): the row is rebuilt positionally
+        # above ($columns[6]), so only a header-aware check catches a shifted or narrowed row.
+        if (-not $WhatIfPreference) {
+            $linkRowPattern = "^\|\s*" + [regex]::Escape($ValidationIssueId) + "\s*\|.*\|\s*" + [regex]::Escape($DebtId) + "\s*\|"
+            Assert-TableRowInFile -Path $TrackingFilePath -Pattern $linkRowPattern -Context "$ValidationIssueId → Tracked As $DebtId in $TrackingFilePath"
+        }
+
         Write-ProjectSummary "Linked $ValidationIssueId → $DebtId in $($TrackingFilePath | Split-Path -Leaf)"
     }
 }
@@ -1085,6 +1109,20 @@ function Update-ValidationTracking {
 
     if ($PSCmdlet.ShouldProcess($TrackingFilePath, "Update $DebtId status to RESOLVED with note '$ValidationNote'")) {
         Set-Content -Path $TrackingFilePath -Value $updatedContent -NoNewline
+
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126): the row is rebuilt positionally
+        # above ($columns[5] and [7]). Anchor on whichever identity located the row, and require the
+        # RESOLVED status that was just written; Status and Tracked As are adjacent columns, which is
+        # what makes the fallback form checkable.
+        if (-not $WhatIfPreference) {
+            $valRowPattern = if ($ValidationIssueId) {
+                "^\|\s*" + [regex]::Escape($ValidationIssueId) + "\s*\|.*\|\s*RESOLVED\s*\|"
+            } else {
+                "^\|.*\|\s*RESOLVED\s*\|\s*" + [regex]::Escape($DebtId) + "\s*\|"
+            }
+            Assert-TableRowInFile -Path $TrackingFilePath -Pattern $valRowPattern -Context "$DebtId → RESOLVED in $TrackingFilePath"
+        }
+
         Write-ProjectSummary "Updated $DebtId in $($TrackingFilePath | Split-Path -Leaf): RESOLVED — $ValidationNote"
     }
 }
@@ -1292,11 +1330,13 @@ function Main {
             Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
             Set-Content -Path $TargetFile -Value $content -NoNewline
 
-            # Read-after-write verification: confirm the row exists in archive
+            # Read-after-write verification (PF-PRO-077 / PF-IMP-2126): header-aware, and carrying
+            # the note just appended. Assert-TableRowInFile, not Assert-LineInFile — a presence-only
+            # check passes a row whose cells have drifted from the archive header.
             if (-not $WhatIfPreference) {
                 # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
-                $rowPattern = "\|\s*\[?" + [regex]::Escape($ResolvedDebtId) + "\b"
-                Assert-LineInFile -Path $ArchiveFile -Pattern $rowPattern -Context "archived row for $ResolvedDebtId in $ArchiveFile"
+                $rowPattern = "^\|\s*\[?" + [regex]::Escape($ResolvedDebtId) + "\b.*" + [regex]::Escape($UpdateNotes) + "\s*\|"
+                Assert-TableRowInFile -Path $ArchiveFile -Pattern $rowPattern -Context "archived row for $ResolvedDebtId carrying the appended note in $ArchiveFile"
             }
 
             Write-ProjectSummary "$ResolvedDebtId notes appended in archive"
@@ -1322,11 +1362,18 @@ function Main {
         if ($PSCmdlet.ShouldProcess($TargetFile, "Edit $changeSummary for $DebtId in Registry")) {
             Set-Content -Path $TargetFile -Value $content -NoNewline
 
-            # Read-after-write verification: confirm the debt row still exists in Registry
+            # Read-after-write verification (PF-PRO-077 / PF-IMP-2126): header-aware, and carrying
+            # each field just edited — the edit writes by header name, but a row that had already
+            # drifted from its header would still take the write and still look right.
             if (-not $WhatIfPreference) {
-                # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
-                $rowPattern = "\|\s*\[?" + [regex]::Escape($DebtId) + "\b"
-                Assert-LineInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $DebtId in $TargetFile"
+                $editedValues = @()
+                if ($EditDescription) { $editedValues += $EditDescription }
+                if ($EditNotes)       { $editedValues += $EditNotes }
+                foreach ($editedValue in $editedValues) {
+                    # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
+                    $rowPattern = "^\|\s*\[?" + [regex]::Escape($DebtId) + "\b.*" + [regex]::Escape($editedValue) + "\s*\|"
+                    Assert-TableRowInFile -Path $TargetFile -Pattern $rowPattern -Context "registry row for $DebtId carrying the edited value in $TargetFile"
+                }
             }
 
             Write-ProjectSummary "$DebtId → $changeSummary edited in Registry"
@@ -1376,14 +1423,6 @@ function Main {
                 Set-Content -Path $ArchiveFile -Value $archiveContent -NoNewline
             }
             $wroteFile = $true
-
-            # Read-after-write verification: confirm the debt row exists where it should be
-            if (-not $WhatIfPreference) {
-                # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
-                $rowPattern = "\|\s*\[?" + [regex]::Escape($DebtId) + "\b"
-                $verifyFile = if ($isResolution) { $ArchiveFile } else { $TargetFile }
-                Assert-LineInFile -Path $verifyFile -Pattern $rowPattern -Context "debt row for $DebtId in $verifyFile"
-            }
         }
 
         # Update validation tracking if ValidationNote is provided
@@ -1414,6 +1453,19 @@ function Main {
         }
 
         if ($wroteFile) {
+            # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), relocated to here so it
+            # follows the validation-tracking writes above as well as the tracker write itself.
+            # Header-aware, and carrying the value actually written: a status update leaves
+            # $NewStatus in the Registry row, while a resolution MOVES the row to an archive table
+            # that has no Status column at all — there the written value is the Resolution Date.
+            if (-not $WhatIfPreference) {
+                # Link-aware pattern (PF-IMP-006): matches both `| TD006 |` and `| [TD006](path) |`
+                $writtenValue = if ($isResolution) { $CurrentDate } else { $NewStatus }
+                $rowPattern = "^\|\s*\[?" + [regex]::Escape($DebtId) + "\b.*\|\s*" + [regex]::Escape($writtenValue) + "\s*\|"
+                $verifyFile = if ($isResolution) { $ArchiveFile } else { $TargetFile }
+                Assert-TableRowInFile -Path $verifyFile -Pattern $rowPattern -Context "debt row for $DebtId → '$writtenValue' in $verifyFile"
+            }
+
             $outcome = if ($isResolution) { "$NewStatus (moved to archive)" } else { $NewStatus }
             Write-ProjectSummary "$DebtId → $outcome"
         }

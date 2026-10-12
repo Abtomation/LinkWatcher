@@ -17,10 +17,24 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 # Default install location
 DEFAULT_INSTALL_DIR = Path.home() / "bin"
+
+# How long to wait for a stopped process tree to release the venv interpreter,
+# and how often to re-test (PD-BUG-158). taskkill signals termination and
+# returns; Windows finishes tearing the tree down and releases the executable's
+# file handle a moment later. Measured 2026-08-31 against two live daemons: the
+# pre-flight gate read "locked" the instant the stop pass returned and the lock
+# cleared 52 ms afterwards, with no surviving venv process. The window is short
+# but real, and intermittent — an identical second run did not hit it — so the
+# wait polls for the actual condition instead of sleeping a fixed amount. The
+# timeout is generous because exceeding it means a genuine holder, which is
+# worth reporting accurately rather than racing.
+VENV_RELEASE_TIMEOUT = 15.0
+VENV_RELEASE_POLL_INTERVAL = 0.25
 
 # Core directories to copy (full replacement)
 # (source_path, dest_path) — source relative to project_root, dest relative to
@@ -103,22 +117,57 @@ def stop_daemons_using_venv(install_dir):
     base-interpreter child that must go down with it. Stopped daemons restart
     at the next session start of their project; stale lock files are
     self-healed by daemon startup.
+
+    PD-BUG-158: killing is asynchronous, so this function waits for the effect
+    it claims to have produced — it does not return until the venv interpreter
+    is actually free again (or the wait times out). Without that, the pre-flight
+    gate on the very next statement in main() could read a lock that was already
+    dissolving and abort a release that had nothing wrong with it. The wait runs
+    whether or not this pass killed anything: an equally stale lock can be left
+    by a process someone else stopped moments earlier.
+
+    Returns the list of PIDs it stopped, which main() reports in the abort
+    message — "we stopped four and none survive, yet it is still locked" and
+    "we stopped nothing" point at different causes.
     """
     if platform.system() != "Windows":
-        return
+        return []
     venv_dir = install_dir / ".linkwatcher-venv"
     if not venv_dir.exists():
-        return
+        return []
 
+    stopped = []
     for pid, cmdline in find_venv_daemon_processes(venv_dir):
         subprocess.run(
             ["taskkill", "/F", "/T", "/PID", str(pid)],
             capture_output=True,
         )
+        stopped.append(pid)
         print(f"OK: Stopped LinkWatcher daemon using install venv (PID: {pid})")
         project_root = project_root_from_cmdline(cmdline)
         if project_root:
             print(f"   Project: {project_root} (daemon restarts at next session start)")
+
+    # Wait unconditionally, not just when this pass did the killing. The lock
+    # can equally be dissolving from a process killed moments earlier by someone
+    # else — a Control Panel closed by hand before an install, which step 3 of
+    # the release process invites — and `stopped` is empty in exactly that case.
+    # Guarding on it left that half of the defect uncovered (CR 2026-08-31).
+    # With the interpreter already free the wait costs one open in append mode,
+    # so a clean install pays a single file check rather than the timeout.
+    timeout = VENV_RELEASE_TIMEOUT
+    if not wait_for_venv_python_release(install_dir, timeout=timeout):
+        # The timeout is reported as the wait actually ran it, not as the module
+        # default — the two diverge the moment a caller passes its own.
+        waited = f"{timeout:g}s"
+        stopped_note = (
+            f"after stopping {len(stopped)} process(es)"
+            if stopped
+            else "and this installer stopped nothing"
+        )
+        print(f"WARNING: the install venv interpreter was still locked {waited} {stopped_note}.")
+
+    return stopped
 
 
 def venv_python_locked(install_dir):
@@ -138,6 +187,50 @@ def venv_python_locked(install_dir):
         return False
     except PermissionError:
         return True
+
+
+def wait_for_venv_python_release(install_dir, timeout=None, poll_interval=None):
+    """Block until the venv python.exe is writable again (PD-BUG-158).
+
+    Polls the same condition the pre-flight gate tests, rather than a proxy for
+    it such as "have the processes disappeared" — the interpreter being free is
+    what the install actually needs, and it is the one signal that covers every
+    way the lock can outlive the kill (a tree still terminating, a handle
+    released after exit, an antivirus scan of the just-dead image).
+
+    Returns True if the interpreter became free within the timeout, False if it
+    is still locked — a genuine holder rather than a teardown in progress.
+    """
+    if timeout is None:
+        timeout = VENV_RELEASE_TIMEOUT
+    if poll_interval is None:
+        poll_interval = VENV_RELEASE_POLL_INTERVAL
+
+    deadline = time.monotonic() + timeout
+    while venv_python_locked(install_dir):
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(poll_interval)
+    return True
+
+
+def venv_lock_holder_report(install_dir):
+    """Describe what is holding the venv interpreter, for the abort message.
+
+    PD-BUG-158: the previous message asserted that a running process held the
+    lock. When none did, that sent the operator looking for something that was
+    not there. Report what can actually be observed instead.
+    """
+    holders = find_venv_daemon_processes(install_dir / ".linkwatcher-venv")
+    if holders:
+        pids = ", ".join(str(pid) for pid, _ in holders)
+        return f"Processes still running from the install venv: PID {pids}."
+    return (
+        "No process is running from the install venv, so the handle is held from"
+        " outside it — an editor or shell sitting in the venv directory, an"
+        " antivirus scan of the interpreter, or a process whose executable path"
+        " could not be read."
+    )
 
 
 def check_python_version():
@@ -702,13 +795,18 @@ def main():
     print(f"Source:  {project_root}")
     print(f"Target:  {install_dir}")
 
-    stop_daemons_using_venv(install_dir)
+    stopped = stop_daemons_using_venv(install_dir)
 
     if venv_python_locked(install_dir):
+        # Describe what is observably holding the interpreter rather than
+        # asserting a running process (PD-BUG-158, OB). The stopped count
+        # separates two different diagnoses: a teardown that outran the wait,
+        # versus a holder that was never ours to stop.
         print(
-            "\nERROR: The install venv's python.exe is still locked by a running"
-            " process.\n"
-            f"   Check for processes running from: {install_dir / '.linkwatcher-venv'}\n"
+            "\nERROR: The install venv's python.exe is still locked.\n"
+            f"   {venv_lock_holder_report(install_dir)}\n"
+            f"   Processes stopped by this installer: {len(stopped)}.\n"
+            f"   Install venv: {install_dir / '.linkwatcher-venv'}\n"
             "   No files were copied — the existing installation is unchanged."
         )
         sys.exit(1)

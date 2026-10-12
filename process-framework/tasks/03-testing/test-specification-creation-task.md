@@ -3,9 +3,9 @@ id: PF-TSK-012
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 3.6
+version: 3.7
 created: 2025-01-15
-updated: 2026-08-05
+updated: 2026-09-04
 change_notes: "v3.5 - PF-PRO-059 pilot: edge-case file enabled (skill references/edge-cases.md); no-test-feature note routed there"
 description: "Create comprehensive test specifications from TDDs"
 complexity: medium
@@ -98,7 +98,7 @@ Create automated test specifications from existing Technical Design Documents (T
 
 ### Preparation
 
-1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `test-specification-creation-task`. If the `test-specification` craft skill is available in the session, activate it — it owns the **customization craft** this task delegates to (how to fill the Test Specification well; its test-file reference also serves the tasks that implement tests). If it is not listed in the session, read [`SKILL.md`](../../../.claude/skills/test-specification/SKILL.md) directly and apply it — that file is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. The customization craft is unavailable for this run only if the skill file itself is absent (the retired procedural customization guide has no successor).
+1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `test-specification-creation-task`. If the `test-specification` craft skill is available in the session, activate it — it owns the **customization craft** this task delegates to (how to fill the Test Specification well). If it is not listed in the session, read [`SKILL.md`](../../../.claude/skills/test-specification/SKILL.md) directly and apply it — that file is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. The customization craft is unavailable for this run only if the skill file itself is absent (the retired procedural customization guide has no successor).
 2. **Review the Functional Design Document (FDD)**: For Tier 2+ features, read the FDD to understand acceptance criteria and user flows that need testing
 3. **Review the Target TDD**: Read the complete Technical Design Document for the feature
 4. **Review UI Documentation** (if applicable): For features with UI interactions, review any UI documentation linked from feature tracking to identify UI component test scenarios
@@ -216,5 +216,5 @@ Is test-first development approach being used?
 
 ## Related Resources
 
-- [`test-specification` craft skill](../../../.claude/skills/test-specification/SKILL.md) - the Test Specification customization craft (replaces the retired customization guide); activated by the Check Recommended Skills step. Its [test-file customization reference](../../../.claude/skills/test-specification/references/test-file-customization.md) is the craft home for tasks that create test files.
+- [`test-specification` craft skill](../../../.claude/skills/test-specification/SKILL.md) - the Test Specification customization craft (replaces the retired customization guide); activated by the Check Recommended Skills step. Writing the tests a spec defines is the [`test-authoring` craft skill](../../../.claude/skills/test-authoring/SKILL.md) (Test Authoring Guide, PF-GDE-079).
 - [Test Infrastructure Guide](../../guides/03-testing/test-infrastructure-guide.md) - test/ directory conventions, isolation rules, and the Test Documentation Completeness procedure

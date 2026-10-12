@@ -2,9 +2,9 @@
 id: PF-GDE-072
 type: Process Framework
 category: Guide
-version: 1.7
+version: 1.10
 created: 2026-06-15
-updated: 2026-07-30
+updated: 2026-08-20
 description: The universal execution spine every task runs under — task selection, role adoption, the Read-Do step contract, and session-end (state updates and feedback). The selected task's definition plugs in at a placeholder. Holds once what was formerly stamped into every task (PF-IMP-1128 / F4).
 owned_by: FWK-FB
 ---
@@ -49,8 +49,12 @@ entry point ──▶ THIS PROTOCOL ──▶ select task (ai-tasks.md table)
 > immediately before directly editing (Edit/Write) a guarded file →
 > edit → `Release-ArtifactLock.ps1 -Path <file>` **directly after that file's edits are
 > done** (it commits the file path-scoped, then unlocks — commit-then-release). A session
-> never holds two locks. Script-mediated writes (`New-*`/`Update-*`/generators) need no
-> locks. Frontmatter revision stamps are release-maintained (PF-IMP-1900): releasing a
+> never holds two locks. **Script-mediated writes need no locks** — that means a framework
+> script under `process-framework/scripts/` performing its own writes (`New-*`/`Update-*`/
+> generators). It does **not** extend to a write you compose yourself: a `pwsh`/`python`
+> one-liner, a shell redirect, or a `sed -i` over a guarded path takes the same checkout as
+> an Edit. Only Edit/Write tool calls reach the hook, so on that path the rule is yours to
+> honor rather than the hook's to catch (PF-IMP-2007). Frontmatter revision stamps are release-maintained (PF-IMP-1900): releasing a
 > changed markdown artifact sets its `updated:` date and increments its `version:` last
 > segment automatically — never hand-compute a bump; script writes stamp `updated:` through
 > their own helper, and a deliberately mechanical fleet sweep with no semantic change bumps
@@ -58,7 +62,10 @@ entry point ──▶ THIS PROTOCOL ──▶ select task (ai-tasks.md table)
 > shortly; a lock idle past the TTL is taken over automatically; force-releasing a *fresh*
 > foreign lock (`Remove-ArtifactLock.ps1`) requires human approval. Enforcement is
 > mechanical: a PreToolUse hook blocks lockless guarded edits, so an unexpected
-> "NOT CHECKED OUT" block means run the checkout, not a workaround. (PF-PRO-061; appdev
+> "NOT CHECKED OUT" block means run the checkout, not a workaround, and a "FOREIGN
+> WORKSPACE" block means the file belongs to a different workspace — checkout and release
+> refuse it too, so make the change from a session running in that workspace, or raise it
+> there, rather than around the boundary. (PF-PRO-061; appdev
 > path prefix: `blueprint/process-framework/scripts/locking/`.)
 
 ## Phase C — Before claiming completion
@@ -92,7 +99,7 @@ pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/s
 - **One batch per session for validation tasks** — never run multiple validation batches in one session; each batch closes out through its own checkpoint → report → state updates → feedback cycle.
 - **Minimize documentation overhead** — update state files rather than creating new docs; record decisions in the appropriate state file.
 - **Follow step-referenced lookups** — when a task step says "consult table X" or links a guide at the point of use, follow it; that content is part of the step.
-- **Collaborate on decisions** — present options with trade-offs at genuine decision points; ask when requirements are unclear.
+- **Write for a solution architect** — your human partner knows how the pieces connect, not how the code reads. Say what a change *does* and costs before naming where it lives; use names, not IDs; keep exact locators attached but subordinate. Lead with the decision they must make and stop — length is a cost you charge them, not thoroughness you show. Present options with trade-offs at genuine decision points; ask when requirements are unclear.
 - **Classify discovered issues before filing** — when you find a defect, gap, or improvement opportunity outside the current task's scope, route it via the [Issue Classification and Routing Guide](issue-classification-and-routing-guide.md) (product bug / feature request / framework improvement / technical debt) rather than dropping it or guessing the tracker.
 - **LinkWatcher maintains references automatically** — move/rename files by any method; do not hand-fix path references unless LinkWatcher demonstrably missed one (then investigate the root cause).
 - **Parallel-session safety on shared files** — when editing files multiple sessions touch (`ai-tasks.md`, the ID registries, generator scripts and their projections), **read immediately before you write** so a concurrent edit isn't clobbered by a stale snapshot. A `Build-TaskMetadata.ps1` / `Build-DocumentationMap.ps1` `-Check` failure that traces to *another* slice's in-flight generator change is **non-blocking** — re-run after that slice lands rather than reverting it. Surface pre-existing drift to its owner; don't sweep unrelated drift into your change.

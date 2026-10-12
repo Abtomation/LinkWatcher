@@ -2,13 +2,13 @@
 id: PF-TSK-041
 type: Process Framework
 category: Task Definition
-version: 1.5
+version: 1.15
 created: 2025-08-30
-updated: 2026-07-22
+updated: 2026-09-29
 description: "Systematically evaluate, prioritize, and assign reported bugs"
 complexity: simple
 use_when: >-
-  Systematically evaluate, prioritize, and assign reported product bugs. Triggers: 'triage this bug', 'evaluate bug report X', 'prioritize the bug backlog' (product code only — framework defects are filed as IMPs and fixed via Process Improvement).
+  Systematically evaluate, prioritize, and assign reported product bugs. Triggers: 'triage this bug', 'evaluate bug report X', 'prioritize the bug backlog'
 triggers:
   - "triage this bug"
   - "evaluate bug report X"
@@ -24,8 +24,8 @@ output_status:
 next_tasks:
   - task: bug-fixing-task.md
     condition: "To resolve triaged bugs"
-  - task: ../04-implementation/feature-implementation-planning-task.md
-    condition: "If bugs reveal need for new functionality"
+  - task: ../01-planning/feature-request-evaluation.md
+    condition: "If bugs reveal need for new functionality, or a chain decision routes the class to a behaviour change"
 ---
 
 # Bug Triage
@@ -71,17 +71,16 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 
 1. Review the [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) document to identify bugs with status 🆕 Needs Triage or bugs that need reopening (see [Reopen Workflow](#reopen-workflow) below)
 2. Gather all available information about each bug (reproduction steps, screenshots, logs)
-3. Understand the current development priorities from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md)
-4. For each bug, consult the affected feature's [implementation state file](../../../doc/state-tracking/features) for known issues, related bugs, and current implementation status
-5. Review any related bugs or patterns in the bug registry
-6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner. For small rounds (1–2 bugs), combine this with the Step 12 decision checkpoint into a single gate — carry the inventory through evaluation and present it together with the triage decisions at Step 12 (the combined-checkpoint pattern [Bug Fixing](bug-fixing-task.md) codifies at its Step 11)
+3. **Identify each bug's feature** in [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) — the owner of the code the defect lives in; a filed Related Feature is only a hint, often naming the feature whose review surfaced the bug. Record `none` when no feature owns that code, naming the path in the rationale. Then read the current development priorities there.
+4. For each bug, read that feature's [implementation state file](../../../doc/state-tracking/features) for known issues, related bugs, status, and **prior analysis of this defect** in its issues log; cite any in the triage notes.
+5. **Walk the chain**: read the derived **Open chains** line in [Bug Statistics](../../../doc/state-tracking/permanent/bug-tracking.md#bug-statistics), then follow each bug's **Origin** cell back through the registry and the archive. For a bug with no Origin, scan both for an unlinked sibling on its **Related Feature** — above all a closed bug of the same class whose fix left this bug's path uncovered. Record each bug's chain, or that it is a singleton.
+6. **🚨 CHECKPOINT**: Present bug inventory, initial analysis, and current development priorities to human partner. For small rounds (1–2 bugs), combine this with the Step 12 decision checkpoint into a single gate — carry the inventory through evaluation and present it together with the triage decisions at Step 12
 
 ### Evaluation
 
 7. **Assess Bug Validity**: Determine if the reported issue is actually a bug
-   - Verify reproduction steps
-   - Confirm expected vs actual behavior
-   - **Description Accuracy**: Compare the reported description against observed behavior. Bug descriptions frequently overstate or understate the actual impact — correct the description in the bug report to match reality before assigning severity/priority.
+   - **Description Accuracy**: Reproduce the report at the cheapest level that exercises it, and correct the description in the bug report to match observed behavior before assigning severity/priority. In the triage notes, a mechanism you only read, or a regression test not seen to fail, is labeled *inferred*; no mechanism may dismiss evidence it does not explain.
+   - Confirm expected vs actual behavior — expected as the affected feature's [FDD](../../../doc/functional-design/fdds) defines it (business rules, acceptance criteria) where one exists, not as the report assumes
    - **Wrong tracker? Reclassify and route.** If the issue is not a product bug — it describes desired new behavior, a framework defect, or technical debt — reclassify it using the [Issue Classification and Routing Guide](../../guides/framework/issue-classification-and-routing-guide.md) (product bug / feature request / framework improvement / technical debt, decided by where the corrective fix lands). Close the bug ("Not a Bug" / reclassified) and file it in the tracker that guide names.
 8. **Evaluate Impact and Severity**:
    - **Critical**: System crash, data loss, security vulnerability
@@ -91,35 +90,36 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 9. **Identify Affected Dimensions**: Determine which development dimensions the bug impacts using the [Development Dimensions Guide](../../guides/framework/development-dimensions-guide.md):
    - Reference the affected feature's Dimension Profile from its implementation state file for context
    - Identify the subset of dimensions this bug affects (e.g., `SE DI` for a bug causing data loss through unsanitized input)
-   - For **Small-scope (S)** bugs: a quick dimension tag is sufficient (abbreviations only)
-   - For **Large-scope (L)** bugs: detailed dimension context will be recorded in the Bug Fix State File
-10. **Determine Priority Level**:
+   - Record abbreviations only, at every scope — an L bug's detailed dimension context goes into its Bug Fix State File at Bug Fixing
+10. **Determine Priority Level** (per the [Priority Assignment Matrix](#priority-assignment-matrix)):
    - **Critical**: System breaking, security issues - Immediate response
    - **High**: Major functionality affected - Within 24 hours
    - **Medium**: Minor functionality affected - Within 1 week
    - **Low**: Cosmetic or enhancement requests - When time permits
 11. **Check for Duplicates**: Compare with existing bugs to identify duplicates
-12. **🚨 CHECKPOINT**: Present triage decisions (priority, scope, affected dimensions, duplicates, rationale) to human partner for approval
+11b. **Take the chain decision** (mandatory once the Step 5 chain reaches its **third** member): N independent defects, or one design defect with N symptoms? Record the answer; each member stays its own bug either way. Four outcomes, three routing the class to an existing container:
+    - **Independent** — legitimate; state what distinguishes the members.
+    - **One fix** — triage the newest member **Scope = L**, engaging [Bug Fixing](bug-fixing-task.md)'s multi-session gate and its state file's **Chain** line.
+    - **Design debt** — a missing abstraction: [`Update-TechDebt.ps1 -Add`](../../scripts/update/Update-TechDebt.ps1) naming the members.
+    - **Behaviour change** — [Feature Request Evaluation](../01-planning/feature-request-evaluation.md).
+12. **🚨 CHECKPOINT**: Present triage decisions (priority, scope, affected dimensions, duplicates, fix order, rationale) to human partner for approval — including, for any third-or-later chain member, the Step 11b chain decision and which container it routes to
 
 ### Assignment and Documentation
 
-13. **Assign Priority, Scope, and Dimensions**: Update bug entry with determined priority (Critical/High/Medium/Low), scope (S/M/L for fix complexity — see [Scope Levels](../../../doc/state-tracking/permanent/bug-tracking.md#scope-levels)), and affected dimensions in the **Dims** column (e.g., `SE DI`)
-14. **Provide Triage Rationale**: Document the reasoning behind priority, scope, and dimension assignments
-15. **Identify Related Features**: Link bugs to affected features in Feature Tracking
-    > **Tip**: Bugs discovered during code review often lack a "Related Feature" field. During triage, identify the affected feature from [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) and populate this field.
-16. **Identify Affected Workflows**: Look up the related feature(s) in [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md) to determine which user workflows are affected. Populate the **Workflows** column in the bug entry (e.g., `WF-001, WF-003`). This helps bug fixers assess blast radius later.
-17. **Estimate Effort**: Provide rough effort estimate for fixing the bug
-18. **Update Bug Status**: Change status from 🆕 Needs Triage to 🔍 Needs Fix using [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) — handles priority-table moves and statistics recalculation automatically:
+13. **Record the triage**: one [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) call per bug moves it from 🆕 Needs Triage to 🔍 Needs Fix, into its priority table, and recalculates the statistics. Its parameters carry the decisions:
+    - `-Priority` (Step 10), `-Dims` (Step 9), `-RelatedFeature` (Step 3)
+    - `-Scope` per [Scope Levels](../../../doc/state-tracking/permanent/bug-tracking.md#scope-levels) — **S** when the fix approach is settled, **M** when it carries an unresolved design fork, **L** when it spans sessions or Step 11b took the one-fix decision
+    - `-Workflows` — only the [workflows](../../../doc/state-tracking/permanent/user-workflow-tracking.md) that reach the defective code path, not every one the feature joins: Bug Fixing derives that list itself, and an extra entry becomes a false E2E re-execution. Re-check a pre-filled list the same way; `none` when no workflow does
+    - `-OriginBug` — the Step 5 chain link the reporter did not know; omit it for a bug with no origin. The id must resolve to an existing row, live or archived, or the call is refused
+    - `-TriageNotes` — the rationale behind each value, plus any fix order binding this bug to another (which lands first, and why)
     ```powershell
-    ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -RelatedFeature "1.1.1" -Dims "SE DI" -Workflows "WF-001, WF-003" -TriageNotes "Rationale for priority and scope"
+    ../../scripts/update/Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S" -RelatedFeature "1.1.1" -Dims "SE DI" -Workflows "WF-001, WF-003" -OriginBug "PD-BUG-000" -TriageNotes "Rationale for priority and scope"
     ```
 
 ### Finalization
 
-19. **Update Bug Registry**: Ensure all bug information is properly recorded
-20. **Plan Next Steps**: Determine immediate next actions for high-priority bugs
-21. **Update Statistics**: Refresh bug tracking statistics
-22. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
+14. **Update Bug Registry**: Ensure all bug information is properly recorded
+15. **🚨 MANDATORY FINAL STEP**: Complete the Task Completion Checklist below
 
 ## Triage Decision Framework
 
@@ -150,6 +150,7 @@ Systematically evaluate, prioritize, and assign reported bugs to ensure efficien
 - **Data Loss Bugs**: Always Critical regardless of other factors
 - **Regression Bugs**: Priority based on affected feature priority
 - **Performance Issues**: Priority based on user impact and frequency
+- **Chain members**: for a third-or-later member (Step 11b), read the matrix's **Frequency** axis at the **class** level — a recurring class is High frequency however rare each instance is. Priority follows; the Step 11b routing is the stronger lever.
 
 ## Reopen Workflow
 
@@ -161,6 +162,8 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
 | Fix was incomplete or regressed | Similar symptom but distinct underlying issue |
 | Discovered shortly after closure | Original was closed long ago and codebase has changed significantly |
 
+> **The new bug carries the link.** Routing a recurrence to a new bug is right, but on its own it atomises the chain. File it with `-OriginBug <the closed bug>` so Step 5 can still walk it.
+
 ### Steps to reopen a bug
 
 1. **Update status** using the automation script:
@@ -169,13 +172,12 @@ When a previously closed bug recurs, decide whether to **reopen** the original o
    ```
    This automatically moves the entry from the Closed section back to the correct active priority table and recalculates statistics.
 2. **Re-evaluate priority and scope** — the original priority and scope may no longer apply (e.g., a Low bug that now causes data loss becomes Critical)
-3. **Continue with the normal Evaluation steps** (Steps 6-9) to update the triage rationale
+3. **Continue with the normal Evaluation steps** (Steps 7–12) to update the triage rationale
 
 ## Outputs
 
 - **Updated Bug Registry** - [Bug Tracking](../../../doc/state-tracking/permanent/bug-tracking.md) with triaged bugs
 - **Triage Documentation** - Clear rationale for all priority and scope assignments
-- **Effort Estimates** - Rough estimates for bug fix complexity
 - **Duplicate Identification** - Consolidated duplicate bugs with cross-references
 
 ## State Tracking
@@ -186,11 +188,8 @@ The following state files must be updated as part of this task:
   - Bug status changed from 🆕 Needs Triage to 🔍 Needs Fix
   - Priority and scope assignments
   - Triage rationale and notes
-  - Effort estimates
   - Related feature references
   - Updated statistics
-
-**Automation Support**: While bug triage is primarily a manual evaluation process, the [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) script can be used to automate the status update portion for consistent formatting and automatic timestamp tracking.
 
 ## ⚠️ MANDATORY Task Completion Checklist
 
@@ -203,6 +202,7 @@ The following state files must be updated as part of this task:
   - [ ] Affected dimensions have been identified and recorded in the Dims column
   - [ ] Priority has been assigned using the decision matrix
   - [ ] Duplicate bugs have been identified and consolidated
+  - [ ] Every bug's chain position established (Origin walked, or singleton recorded); for any third-or-later member, the Step 11b chain decision taken, recorded, and routed
   - [ ] Triage rationale is documented for all decisions
 
 - [ ] **Verify Documentation**: Confirm proper documentation
@@ -211,7 +211,6 @@ The following state files must be updated as part of this task:
   - [ ] Triage rationale is documented for each bug
   - [ ] Related features are identified and linked
   - [ ] Affected workflows are identified and recorded in the Workflows column
-  - [ ] Effort estimates are provided where possible
 
 - [ ] **Update State Files**: Ensure all state tracking files have been updated
   - [ ] Bug Tracking document reflects all triage decisions
@@ -224,13 +223,13 @@ The following state files must be updated as part of this task:
 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (Critical/High/Medium/Low) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S"` |
+| **Updates** | [`bug-tracking.md`](../../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (Critical/High/Medium/Low) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** Step 13 |
 
 ## Next Tasks
 
 - [**Bug Fixing**](bug-fixing-task.md) - To resolve triaged bugs
 
-- [**Feature Implementation Planning**](../04-implementation/feature-implementation-planning-task.md) - If bugs reveal need for new functionality
+- [**Feature Request Evaluation**](../01-planning/feature-request-evaluation.md) - If bugs reveal need for new functionality, or a chain decision (Step 11b) routes the class to a behaviour change. It is the entry point for every change request; it classifies and routes onward to the implementation chain.
 
 <!-- merged from transition-registry entry: Bug Triage -->
 ### Prerequisites for Transition
@@ -257,11 +256,7 @@ What priority was assigned?
 
 ### Preparation for Next Task
 
-1. **For Critical/High Priority**: Clear immediate schedule for bug fixing work
-2. **For Medium/Low Priority**: Add to appropriate backlog with timeline estimates
-3. Ensure assigned developer has access to bug report and reproduction steps
-4. Prepare development environment for bug investigation and fixing
-5. Update Bug Tracking with assignment and timeline information
+Critical and High bugs go to Bug Fixing now; Medium and Low go to the backlog with a timeline estimate. Where a chain decision routed the class to a container, name that container in the handover so the next session works the class, not just the instance.
 
 ## Related Resources
 

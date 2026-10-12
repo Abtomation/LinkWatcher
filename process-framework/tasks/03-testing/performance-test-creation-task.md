@@ -3,9 +3,9 @@ id: PF-TSK-084
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.2
+version: 1.4
 created: 2026-04-09
-updated: 2026-06-12
+updated: 2026-09-04
 description: "Implement performance tests from specifications, register in tracking, capture initial measurements"
 complexity: medium
 use_when: >-
@@ -64,37 +64,37 @@ Implement performance tests identified by the [Performance & E2E Test Scoping ta
 
 2. **Review existing tests** to understand coverage and patterns. Check if any existing tests partially cover the specified entries.
 
-4. **🚨 CHECKPOINT**: Present the list of tests to implement with proposed levels, operations, and threshold rationale. Get human approval before writing test code.
+3. **🚨 CHECKPOINT**: Present the list of tests to implement with proposed levels, operations, and threshold rationale. Get human approval before writing test code.
 
 ### Execution
 
-5. **Implement tests** following the Performance Testing Guide methodology:
+4. **Implement tests** following the Performance Testing Guide methodology:
    - Choose the appropriate test file (or create a new one following naming conventions)
    - Use required pytest markers: `@pytest.mark.performance`, `@pytest.mark.test_type("performance")`, `@pytest.mark.feature("cross-cutting")`
    - Add `@pytest.mark.slow` for tests expected to take >10 seconds
    - Print measured values in test output for baseline capture
    - Assert against tolerance thresholds, not exact values
 
-6. **Update tracking file** — for each test implemented, transition its status using the automation script:
+5. **Update tracking file** — for each test implemented, transition its status using the automation script:
    ```bash
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/update/Update-PerformanceTracking.ps1 -TestId "<BM-xxx|PH-xxx>" -NewStatus "NeedsBaseline" -TestFile "[test_file.py](/test/automated/performance/test_file.py)"
    ```
    The script transitions `⬜ Needs Creation → 📋 Needs Baseline`, fills the Test File column, and recalculates the Summary table automatically.
 
-7. **Run the new tests** to verify they pass and produce measurable output:
+6. **Run the new tests** to verify they pass and produce measurable output:
    ```bash
    python -m pytest test/automated/performance/<test_file>.py -v -s -k "<test_name>"
    ```
 
-8. **🚨 CHECKPOINT**: Present test results, measured values, and threshold rationale for human review.
+7. **🚨 CHECKPOINT**: Present test results, measured values, and threshold rationale for human review.
 
 ### Finalization
 
-9. **Verify tracking file summary** — the Summary table is recalculated automatically by the update script. Verify counts are correct.
+8. **Verify tracking file summary** — the Summary table is recalculated automatically by the update script. Verify counts are correct.
 
-10. **Verify all specified tests are accounted for** — grep for `⬜ Needs Creation` in the tracking file. Any remaining entries are deferred to a future session.
+9. **Verify all specified tests are accounted for** — grep for `⬜ Needs Creation` in the tracking file. Any remaining entries are deferred to a future session.
 
-11. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
+10. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 
 ## Tools and Scripts
 
@@ -169,3 +169,4 @@ Tests created?
 - [Performance Test Tracking](../../../test/state-tracking/permanent/performance-test-tracking.md) — Test registry and baselines
 - [Test Specification Creation](test-specification-creation-task.md) — Automated test specification task (does not route performance tests)
 - [Performance Baseline Capture](performance-baseline-capture-task.md) — Downstream task that records baselines
+- [Test Authoring Guide (PF-GDE-079)](../../guides/03-testing/test-authoring-guide.md) — the agnostic test-authoring procedure; a benchmark that detects the regression it guards is its Phase 3 in performance form

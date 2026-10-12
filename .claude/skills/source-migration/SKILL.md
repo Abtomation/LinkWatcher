@@ -69,7 +69,9 @@ Three layers, weakest-to-strongest — all three together are what "behavior pre
    be wired to one). An optional final full run (only if the project has one) catches
    cross-cutting breakage at the end.
 3. **Characterization tests** — where coverage is thin, pin *current* behavior of the unit
-   **before** moving it, so layer 2 has something to protect.
+   **before** moving it, so layer 2 has something to protect. Scope and prove each pin per the
+   [`test-authoring` craft](../test-authoring/SKILL.md#before-writing-guide-phase-1) and the
+   Test Authoring Guide it serves.
 
 ## Rewrite references for your language
 

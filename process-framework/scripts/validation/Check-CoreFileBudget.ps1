@@ -25,14 +25,22 @@
     not another prose rule (PF-PRO-059 two-strikes).
 
     Budgets live in core-file-budgets.json beside this script, keyed by framework-relative
-    path so the same file works in appdev (blueprint/process-framework/) and in a rolled-out
-    project (process-framework/). Raising a budget is deliberate: appdev's Standing Orders
-    already name "raising any size budget" as an owner-escalation door, so an over-budget
-    warning resolves either by compressing the file or by an owner-approved budget bump —
-    never silently.
+    path so the same file works at a producer face (blueprint/process-framework/) and in a
+    rolled-out project (process-framework/). Raising a budget is deliberate: the workspace
+    Standing Orders name "raising any size budget" as an owner-escalation door (FB-GDE-001),
+    so an over-budget warning resolves either by compressing the file or by an owner-approved
+    budget bump — never silently.
 
     Guides are budgeted alongside tasks on purpose: the reference companion is the usual
     relocation target, so leaving it unbudgeted would let growth move there unmeasured.
+
+    OPERATING FILES OUTSIDE THE SCAN TREES (PF-PRO-071 WI-10): the budget JSON's optional
+    explicit_files array lists workspace-root-relative paths (e.g. "CLAUDE.md",
+    "blueprint/CLAUDE.md") to budget in addition to the scanned trees. The workspace root is
+    the nearest ancestor of the framework root carrying doc/project-config.json, so the same
+    entry resolves at every face. A listed file absent on disk is noted, never an error (a
+    child may not carry every seed yet). Budget keys matching no scanned or listed file are
+    reported as stale — a mistyped key must not be silently inert.
 
     Word count is every whitespace-separated token in the raw file, frontmatter and code
     blocks included — a single non-gameable number rather than a prose-only estimate.
@@ -72,7 +80,7 @@ param(
 $ErrorActionPreference = 'Continue'
 
 # Framework subtrees whose files carry budgets. Both live under the framework root, so the
-# same relative keys resolve in appdev and in a rolled-out project.
+# same relative keys resolve at a producer face and in a rolled-out project.
 $ScanTrees = @('tasks', 'guides')
 
 # Generated projections carry no authored budget — their size is a function of their source.
@@ -164,17 +172,62 @@ elseif (-not $Init) {
     exit 0
 }
 
+# --- explicit workspace-root files (PF-PRO-071 WI-10) ---
+# Opt-in per level: the budget JSON's explicit_files array lists workspace-root-relative
+# paths for operating files outside the scan trees (CLAUDE.md and its siblings). The
+# workspace root is the nearest ancestor of the framework root carrying
+# doc/project-config.json, so the same mechanism resolves at a producer face
+# (blueprint/process-framework -> workspace root) and at a consumer/project face.
+
+$explicitDeclared = @()
+if ($null -ne $parsed -and $parsed.PSObject.Properties['explicit_files']) {
+    $explicitDeclared = @($parsed.explicit_files | Where-Object { $_ } | ForEach-Object { "$_" -replace '\\', '/' })
+}
+$workspaceRoot = $null
+$explicitScanned = @()
+$explicitMissing = @()
+if ($explicitDeclared.Count -gt 0) {
+    # The anchor is a doc/project-config.json that DECLARES an identity (non-empty,
+    # non-placeholder project_id). The blank template seed a producer ships under
+    # blueprint/doc/ has none — without this check it would hijack the walk-up one
+    # level early at every producer face.
+    $probe = $frameworkRoot
+    for ($i = 0; $i -lt 6 -and $probe; $i++) {
+        $cfgPath = Join-Path -Path $probe -ChildPath 'doc/project-config.json'
+        if (Test-Path -LiteralPath $cfgPath) {
+            $declaredId = ''
+            try { $declaredId = "$((Get-Content -LiteralPath $cfgPath -Raw | ConvertFrom-Json).project_id)" } catch { }
+            if ($declaredId -and $declaredId -notmatch '^\[') { $workspaceRoot = $probe; break }
+        }
+        $parent = Split-Path -Parent $probe
+        if (-not $parent -or $parent -eq $probe) { break }
+        $probe = $parent
+    }
+    if (-not $workspaceRoot) {
+        Write-Host "WARNING: explicit_files declared but no workspace root (doc/project-config.json) found above $frameworkRoot - explicit files skipped" -ForegroundColor Yellow
+    }
+    else {
+        foreach ($rel in $explicitDeclared) {
+            if (Test-Path -LiteralPath (Join-Path -Path $workspaceRoot -ChildPath $rel)) { $explicitScanned += $rel }
+            else { $explicitMissing += $rel }
+        }
+    }
+}
+
 # --- -Init: seed only the files that have no budget yet; never touch an existing one ---
 
 if ($Init) {
     $added = @()
     $today = (Get-Date).ToString('yyyy-MM-dd')
-    foreach ($relative in $scanned) {
-        if ($budgets.ContainsKey($relative)) { continue }
-        $current = Measure-FileWord -Path (Join-Path -Path $frameworkRoot -ChildPath $relative)
+    $seedTargets = @()
+    foreach ($relative in $scanned) { $seedTargets += [pscustomobject]@{ Key = $relative; Root = $frameworkRoot } }
+    foreach ($relative in $explicitScanned) { $seedTargets += [pscustomobject]@{ Key = $relative; Root = $workspaceRoot } }
+    foreach ($target in $seedTargets) {
+        if ($budgets.ContainsKey($target.Key)) { continue }
+        $current = Measure-FileWord -Path (Join-Path -Path $target.Root -ChildPath $target.Key)
         $budget = [int][math]::Ceiling($current * (1 + ($HeadroomPercent / 100.0)))
-        $budgets[$relative] = [pscustomobject]@{ words = $budget; set = $today }
-        $added += [pscustomobject]@{ Path = $relative; Current = $current; Budget = $budget }
+        $budgets[$target.Key] = [pscustomobject]@{ words = $budget; set = $today }
+        $added += [pscustomobject]@{ Path = $target.Key; Current = $current; Budget = $budget }
     }
 
     if (-not $metadata) {
@@ -189,7 +242,9 @@ if ($Init) {
 
     $ordered = [ordered]@{}
     foreach ($key in ($budgets.Keys | Sort-Object)) { $ordered[$key] = $budgets[$key] }
-    $payload = [ordered]@{ metadata = $metadata; budgets = $ordered }
+    $payload = [ordered]@{ metadata = $metadata }
+    if ($explicitDeclared.Count -gt 0) { $payload['explicit_files'] = $explicitDeclared }   # preserve the opt-in list across -Init rewrites
+    $payload['budgets'] = $ordered
     $payload | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $BudgetFile -Encoding UTF8
 
     if ($added.Count -eq 0) {
@@ -206,31 +261,46 @@ if ($Init) {
 
 # --- measure against budget ---
 
+$measureTargets = @()
+foreach ($relative in $scanned) { $measureTargets += [pscustomobject]@{ Key = $relative; Root = $frameworkRoot } }
+foreach ($relative in $explicitScanned) { $measureTargets += [pscustomobject]@{ Key = $relative; Root = $workspaceRoot } }
+
 $over = @()
 $unbudgeted = @()
-foreach ($relative in $scanned) {
-    if (-not $budgets.ContainsKey($relative)) {
-        $unbudgeted += $relative
+foreach ($target in $measureTargets) {
+    if (-not $budgets.ContainsKey($target.Key)) {
+        $unbudgeted += $target.Key
         continue
     }
-    $budget = [int]$budgets[$relative].words
+    $budget = [int]$budgets[$target.Key].words
     if ($budget -le 0) { continue }
-    $current = Measure-FileWord -Path (Join-Path -Path $frameworkRoot -ChildPath $relative)
+    $current = Measure-FileWord -Path (Join-Path -Path $target.Root -ChildPath $target.Key)
     if ($current -gt $budget) {
         $over += [pscustomobject]@{
-            Path    = $relative
+            Path    = $target.Key
+            Root    = $target.Root
             Budget  = $budget
             Current = $current
             Over    = $current - $budget
             Percent = [math]::Round((($current - $budget) / [double]$budget) * 100, 1)
-            Set     = $budgets[$relative].set
+            Set     = $budgets[$target.Key].set
         }
     }
 }
 
+# A budget key matching no scanned or listed file is stale — report it, never let it sit inert.
+$knownKeys = @($scanned) + @($explicitScanned) + @($explicitMissing)
+$staleKeys = @($budgets.Keys | Where-Object { $knownKeys -notcontains $_ } | Sort-Object)
+
 if ($over.Count -eq 0) {
     if ($unbudgeted.Count -gt 0) {
-        Write-Host ("Core file budgets: OK ({0} budgeted, {1} not yet budgeted - seed with -Init)" -f ($scanned.Count - $unbudgeted.Count), $unbudgeted.Count) -ForegroundColor DarkGray
+        Write-Host ("Core file budgets: OK ({0} budgeted, {1} not yet budgeted - seed with -Init)" -f ($measureTargets.Count - $unbudgeted.Count), $unbudgeted.Count) -ForegroundColor DarkGray
+    }
+    if ($explicitMissing.Count -gt 0) {
+        Write-Host ("  (explicit_files not present on disk here: {0})" -f ($explicitMissing -join ', ')) -ForegroundColor DarkGray
+    }
+    if ($staleKeys.Count -gt 0) {
+        Write-Host ("  (stale budget key(s) matching no scanned or listed file: {0})" -f ($staleKeys -join ', ')) -ForegroundColor DarkGray
     }
     exit 0
 }
@@ -243,7 +313,7 @@ foreach ($item in ($over | Sort-Object -Property Over -Descending)) {
     Write-Host ("  {0}" -f $item.Path) -ForegroundColor Yellow
     Write-Host ("      budget {0} (set {1})   now {2}   over by {3} (+{4}%)" -f $item.Budget, $item.Set, $item.Current, $item.Over, $item.Percent) -ForegroundColor Yellow
 
-    $top = @(Get-SectionWeight -Path (Join-Path -Path $frameworkRoot -ChildPath $item.Path) |
+    $top = @(Get-SectionWeight -Path (Join-Path -Path $item.Root -ChildPath $item.Path) |
         Sort-Object -Property Words -Descending | Select-Object -First 3)
     if ($top.Count -gt 0) {
         $summary = ($top | ForEach-Object { "{0} ({1}w)" -f $_.Heading, $_.Words }) -join ', '
@@ -254,6 +324,10 @@ foreach ($item in ($over | Sort-Object -Property Over -Descending)) {
 
 if ($unbudgeted.Count -gt 0) {
     Write-Host ("  ({0} scanned file(s) carry no budget yet - seed with -Init)" -f $unbudgeted.Count) -ForegroundColor DarkGray
+    Write-Host ""
+}
+if ($staleKeys.Count -gt 0) {
+    Write-Host ("  (stale budget key(s) matching no scanned or listed file: {0})" -f ($staleKeys -join ', ')) -ForegroundColor DarkGray
     Write-Host ""
 }
 

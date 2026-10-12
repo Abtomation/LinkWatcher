@@ -2,9 +2,9 @@
 id: PF-TEM-048
 type: Process Framework
 category: Template
-version: 1.1
+version: 1.6
 created: 2026-03-02
-updated: 2026-03-02
+updated: 2026-09-28
 usage_context: Process Framework - Bug Fix State Tracking
 creates_document_type: Process Framework
 creates_document_prefix: PF-STA
@@ -26,6 +26,7 @@ template_for: Bug Fix State Tracking
 | **Bug Title** | [Bug Title] |
 | **Severity** | [Critical / High / Medium / Low] |
 | **Affected Feature** | [Feature ID] — [Feature Name] |
+| **Chain** | [Member bug IDs when this L came from a chain decision (Bug Triage Step 11b) — the fix is scoped to the class these share; otherwise N/A] |
 | **Estimated Sessions** | [2 / 3+] |
 | **Created** | [YYYY-MM-DD] |
 
@@ -71,8 +72,8 @@ template_for: Bug Fix State Tracking
 - [ ] Regression test(s) written and confirmed FAILING before fix
 - [ ] Fix implemented — regression tests now PASSING
 - [ ] Full test suite passing
-- [ ] Similar patterns checked in sibling components
-- [ ] Manual validation test created
+- [ ] Similar issues swept along the invariant the fix restores — enumeration recorded for `-FixDetails`
+- [ ] Manual validation script authored with the regression tests, or N/A
 
 **Test Suite Results**: [Not yet run / All passing / X failures — details]
 

@@ -3,9 +3,9 @@ id: PF-TSK-053
 type: Process Framework
 category: Task Definition
 domain: development
-version: 2.4
+version: 2.5
 created: 2025-12-13
-updated: 2026-07-30
+updated: 2026-09-04
 change_notes: "v2.4 - Fixed duplicate step 24 (PF-IMP-1741 symptom fix): Validate Test Tracking and the two closing steps renumbered +1 (now 1–27)"
 description: "Integrate components and establish comprehensive test coverage"
 complexity: medium
@@ -60,6 +60,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
   - **Feature Tracking** - [Feature details from feature-tracking.md](../../../doc/state-tracking/permanent/feature-tracking.md) for context
   - **Feature Implementation State File** (if exists) - Implementation progress and context at `/doc/state-tracking/features`
   - [Existing Test Structure](../../../test) - Current test organization and patterns
+  - [`test-authoring` craft skill](../../../.claude/skills/test-authoring/SKILL.md) - the judgment behind the Test Authoring Guide procedure Steps 4 and 8–14 cite, activated at Step 0 (Check Recommended Skills)
 
 - **Reference Only (Access When Needed):**
   - **Existing Test Examples** - Similar test implementations in codebase for pattern consistency
@@ -77,38 +78,29 @@ Verify unit test completeness, implement integration and cross-component tests, 
 
 > **Tier 1 Path**: If no TDD or Test Specification exists for this feature (common for Tier 1 features), skip Steps 1–2 and derive test scenarios directly from the implementation code (Step 3) and the feature's state file. Steps 5–6 and checklist items referencing these artifacts are also N/A — base your test strategy on code analysis and coverage goals instead.
 
+0. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `integration-and-testing`. If the `test-authoring` craft skill is available in the session, activate it — it owns the **test-authoring judgment** the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) procedure cited at Steps 4 and 8–14 delegates to (discriminating condition, mutation choice, failure-signature reading, fixture capability, harness recipes, test-file mechanics). If it is not listed in the session, read [`SKILL.md`](../../../.claude/skills/test-authoring/SKILL.md) directly and apply it — the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. The craft is unavailable for this run only if the skill file itself is absent. *(Step 0: this task's step numbers are cited externally.)*
 1. **Review Test Specification** (if exists): Study the test specification document for the feature to understand test requirements, scenarios, and coverage expectations
 2. **Review TDD Test Requirements** (if exists): Read testing section from TDD to understand required test scenarios, acceptance criteria, and coverage thresholds
 3. **Analyze Implementation Code**: Review all implemented code to understand integration points, component boundaries, and potential failure scenarios
-4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types)
+4. **Identify Test Scenarios**: Determine which test types are needed based on the specification and project language (check `project-config.json` for valid test types) — harness and home per the [Test Authoring Guide — Phase 1](../../guides/03-testing/test-authoring-guide.md#phase-1-before-writing)
 5. **Plan Test Strategy**: Map out test types needed, mock/stub requirements, test data setup, and prioritize by risk. **Ensure test coverage addresses Critical dimensions** from the feature's Dimension Profile — e.g., Critical DI → include data integrity/atomicity tests, Critical SE → include input validation and security boundary tests. (Note: PE dimension is handled by the dedicated [Performance & E2E Test Scoping](../03-testing/performance-and-e2e-test-scoping-task.md) → [Performance Test Creation](../03-testing/performance-test-creation-task.md) workflow, not this task.)
 6. **🚨 CHECKPOINT**: Present test specification review (if applicable), implementation code analysis, identified test scenarios, and test strategy to human partner for approval before implementation
 
 ### Execution
 
-7. **Create Test Files**: Use the `New-TestFile.ps1` script to generate test files with proper PD-TST IDs and automatic state tracking updates
+7. **Create Test Files**: Use the `New-TestFile.ps1` script to generate test files with proper PD-TST IDs and automatic state tracking updates — parameter selection and scaffold customization: [test-file customization reference](../../../.claude/skills/test-authoring/references/test-file-customization.md)
 
    ```powershell
    # Create test files using automation script (generates PD-TST-[SEQUENCE] IDs)
    # Test types depend on project language (auto-detected from project-config.json)
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName" -Priority "Critical"
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
-
-   # -Priority: Critical (must pass before release), Standard (default), Extended (not blocking)
-   # Use Critical for foundation features, parsers, core data models
-   # Use Extended for performance benchmarks and stress tests
-
-   # Script automatically:
-   # - Writes pytest markers (feature, priority, test_type)
-   # - Creates test file from template with proper structure
-   # - Updates test-tracking.md with correct file links and status
-   # - Updates feature-tracking.md with test implementation progress
    ```
 
 8. **Verify Unit Test Completeness**: Review unit tests created by implementation tasks (PF-TSK-078, PF-TSK-051, PF-TSK-022) against the Test Specification (if exists) or against the implementation code
    - Check that all specified test scenarios are covered (or, without a Test Spec, that all public methods/critical paths have tests)
    - Identify any gaps in edge case coverage, error handling, or state transitions
-   - Fill remaining gaps by creating additional unit tests via `New-TestFile.ps1`
+   - Fill remaining gaps by creating additional unit tests via `New-TestFile.ps1` — every test Steps 8–11 write is authored and proved per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md)
    - Verify minimum 80% code coverage for business logic
 9. **Implement Component Tests**: Build tests for component-level interactions
    - Test component behavior with different state inputs
@@ -126,8 +118,8 @@ Verify unit test completeness, implement integration and cross-component tests, 
     - Set up dependency injection overrides for testing
 13. **Verify Test Coverage**: Run project coverage tool and validate thresholds
     - Use the project's configured coverage tool
-    - Review coverage report for gaps in critical paths
-14. **Update State Files**: Document test implementation, coverage metrics, and testing notes in Feature Implementation State File (if exists)
+    - Review coverage report for gaps in critical paths — only tests proved per the guide's [Phase 3](../../guides/03-testing/test-authoring-guide.md#phase-3-prove) count as coverage
+14. **Update State Files**: Document test implementation, coverage metrics, and testing notes — including the contrast record — in Feature Implementation State File (if exists)
 15. **(Optional) Identify Cross-Cutting Test Opportunities**: When integration testing reveals behaviors that span multiple features:
     - Check if existing tests adequately cover the cross-feature interaction
     - If not, consider creating a cross-cutting test specification using the [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md)
@@ -146,7 +138,7 @@ Verify unit test completeness, implement integration and cross-component tests, 
 18. **Review Coverage Report**: Confirm test coverage meets project thresholds (typically 80%+ for business logic)
 19. **Validate Error Scenarios**: Ensure error handling and edge cases are properly tested
 
-20. **🚨 CHECKPOINT**: Present test execution results, coverage report, and error scenario validation to human partner for review before finalizing
+20. **🚨 CHECKPOINT**: Present test execution results, coverage report, the contrast record, and error scenario validation to human partner for review before finalizing
 
 21. **Bug Discovery During Testing**: Systematically identify and document any bugs discovered while implementing or running tests:
 
@@ -292,7 +284,7 @@ Is systematic test quality assessment needed?
 
 - [Test Specification Creation Task](../03-testing/test-specification-creation-task.md) - For creating test specifications before implementation
 - [Test Tracking](../../../test/state-tracking/permanent/test-tracking.md) - Track test implementation progress
-- [Test-file customization craft (`test-specification` skill)](../../../.claude/skills/test-specification/references/test-file-customization.md) - Craft for customizing test files (replaces the retired Test File Creation Guide)
+- [Test Authoring Guide (PF-GDE-079)](../../guides/03-testing/test-authoring-guide.md) - The test-writing procedure Steps 4 and 8–14 cite; its judgment layer is the [`test-authoring` craft skill](../../../.claude/skills/test-authoring/SKILL.md) (activated at Step 0) with the [test-file customization reference](../../../.claude/skills/test-authoring/references/test-file-customization.md)
 - [Bug Reporting Guide](../../guides/06-maintenance/bug-reporting-guide.md) - Standardized procedures for reporting bugs
 - [Living-document maintenance craft (`feature-implementation-planning` skill)](../../../.claude/skills/feature-implementation-planning/references/living-document-maintenance.md) - Maintaining the feature state file (replaces the retired Feature Implementation State Tracking Guide)
 - [Cross-Cutting Test Specification Template](../../templates/03-testing/cross-cutting-test-specification-template.md) - Template for cross-feature test specs

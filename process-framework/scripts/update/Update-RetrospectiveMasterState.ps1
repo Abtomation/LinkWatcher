@@ -489,6 +489,29 @@ function Main {
 
             Set-Content -Path $StateFile -Value $content -NoNewline
 
+            # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This is the MarkProcessed
+            # run's only write — the row flips, the Coverage Metrics recount and the frontmatter
+            # bump all land in this one Set-Content. Assert-TableRowInFile, not Assert-LineInFile:
+            # each flipped row is rebuilt from its split cells, so a row that lost or gained a cell
+            # is still well-formed markdown carrying the right path and the right marker, and only
+            # the header-aware check can see it. One call per path the run actually matched —
+            # a path reported NotFound was never written and must not be asserted, or the check
+            # would fail for a condition the run already reported as a warning.
+            #
+            # The normalized path is the safe anchor: Get-NormalizedFilePath unwraps a markdown
+            # link, backticks and a leading slash, so its result is a substring of the raw cell in
+            # every form the table uses. The lookaheads make the check order-independent — the
+            # Status column may sit before or after the path column depending on the template.
+            if (-not $WhatIfPreference) {
+                foreach ($suppliedPath in $FilePaths) {
+                    $normalizedPath = Get-NormalizedFilePath $suppliedPath
+                    if (-not $normalizedPath) { continue }
+                    if ($result.NotFound -contains $normalizedPath) { continue }
+                    $rowPattern = '^(?=.*' + [regex]::Escape($normalizedPath) + ')(?=.*\|\s*✅\s*\|)\|.*\|$'
+                    Assert-TableRowInFile -Path $StateFile -Pattern $rowPattern -Context "unassigned file '$normalizedPath' marked processed in $StateFile"
+                }
+            }
+
             $summary = "MarkProcessed: $($result.Flipped) flipped, $($result.AlreadyDone) already done, $($result.NotFound.Count) not found"
             $level = if ($result.NotFound.Count -gt 0) { "WARN" } else { "SUCCESS" }
             Write-ProjectSummary $summary -Level $level

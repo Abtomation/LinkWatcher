@@ -53,7 +53,8 @@
     "issue_tracker": null,
     "ci_cd_platform": "GitHub Actions",
     "code_hosting": "GitHub",
-    "documentation_hosting": "Repository"
+    "documentation_hosting": "Repository",
+    "linkwatcher_control_panel_auto_open": true
   },
   "recommended_skills": {
     "description": "Claude Code skills recommended for specific tasks in this project. Each key is a task slug (task definition filename without .md); value is an array of skill objects. Language-bound skills go in languages-config instead. Populated during Project Initiation (PF-TSK-059 Step 10).",
@@ -95,7 +96,7 @@
         { "skill": "onboarding-edge-cases", "kind": "craft", "note": "Cross-cutting-pattern and assignment-refinement craft during per-feature analysis. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Codebase Feature Analysis task's Step 0 Check Recommended Skills. Craft-as-Skill BL-5 batch 5 (PF-PRO-051)." }
       ],
       "test-specification-creation-task": [
-        { "skill": "test-specification", "kind": "craft", "note": "Test Specification customization craft (tier-appropriate depth, TDD-to-category mapping, Implementation Coverage line); its test-file reference is also the customization craft for tasks that create test files. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Test Specification Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 2 (PF-PRO-051)." }
+        { "skill": "test-specification", "kind": "craft", "note": "Test Specification customization craft (tier-appropriate depth, TDD-to-category mapping, Implementation Coverage line); test-file creation and proving is the test-authoring skill (PF-PRO-076, 2026-09-04). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Test Specification Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 2 (PF-PRO-051)." }
       ],
       "e2e-acceptance-test-case-creation-task": [
         { "skill": "e2e-test-case-creation", "kind": "craft", "note": "E2E acceptance test-case customization craft (test-case.md fields, fixture population, run.ps1 recipe, hermetic-central pattern). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the E2E Acceptance Test Case Creation task's Check Recommended Skills step. Craft-as-Skill BL-5 batch 2 (PF-PRO-051)." }
@@ -114,6 +115,18 @@
       ],
       "feature-implementation-planning-task": [
         { "skill": "feature-implementation-planning", "kind": "craft", "note": "Feature Implementation State file initialization + living-document maintenance craft (section-ownership boundary, variant awareness, section-by-section judgment, bidirectional markers, onboarding sections). Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Feature Implementation Planning task's Check Recommended Skills step; its maintenance and onboarding references are also consulted inline by the decomposed implementation tasks and the onboarding tasks. Craft-as-Skill BL-5 batch 4 (PF-PRO-051)." }
+      ],
+      "bug-fixing-task": [
+        { "skill": "test-authoring", "kind": "craft", "note": "Test-authoring judgment craft (discriminating condition, mutation choice, failure-signature reading, fixture capability, harness recipes, test-file mechanics) behind the Test Authoring Guide (PF-GDE-079) procedure that Bug Fixing's regression-test step cites. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Invoked at that step; Bug Fixing's Check Recommended Skills step resolves the binding. Test Creation Craft Home extension (PF-PRO-076)." }
+      ],
+      "integration-and-testing": [
+        { "skill": "test-authoring", "kind": "craft", "note": "Test-authoring judgment craft behind the Test Authoring Guide (PF-GDE-079) procedure Steps 4 and 8-14 cite. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Integration and Testing task's Step 0 Check Recommended Skills. Test Creation Craft Home extension (PF-PRO-076)." }
+      ],
+      "foundation-feature-implementation-task": [
+        { "skill": "test-authoring", "kind": "craft", "note": "Test-authoring judgment craft behind the Test Authoring Guide (PF-GDE-079) procedure the Implement Tests step cites. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the Foundation Feature Implementation task's Check Recommended Skills step. Test Creation Craft Home extension (PF-PRO-076)." }
+      ],
+      "ui-implementation": [
+        { "skill": "test-authoring", "kind": "craft", "note": "Test-authoring judgment craft behind the Test Authoring Guide (PF-GDE-079) procedure the Add UI Tests step cites. Framework-owned skill under .claude/skills/, distributed by Push-FrameworkUpdate. Activated by the UI Implementation task's Check Recommended Skills step. Test Creation Craft Home extension (PF-PRO-076)." }
       ]
     }
   },

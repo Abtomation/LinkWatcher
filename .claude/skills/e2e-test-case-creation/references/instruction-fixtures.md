@@ -84,7 +84,9 @@ Seed the fixture so the two diverge numerically or structurally:
 
 **Verify the discrimination at authoring time.** Run the case twice: once following the instruction
 correctly (oracle passes), once executing it in the wrong order (oracle fails, naming the facts). An
-oracle never observed failing is an oracle that may assert nothing.
+oracle never observed failing is an oracle that may assert nothing. This is the E2E form of the
+[Test Authoring Guide](../../../../process-framework/guides/03-testing/test-authoring-guide.md#phase-3-prove)'s
+Phase 3.
 
 ## Hermetic state
 

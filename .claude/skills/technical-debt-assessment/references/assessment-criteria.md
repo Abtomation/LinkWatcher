@@ -71,10 +71,12 @@ Insufficient or poor-quality tests that reduce confidence in changes.
 
 ## 6. Documentation Debt
 
-Missing, outdated, or poor-quality documentation that impedes development.
+Missing, outdated, inaccurate, or poor-quality documentation that impedes development or misleads
+its readers.
 
 - **High-priority indicators**: public APIs undocumented; architecture docs that no longer match
-  the implementation; missing/incorrect setup instructions; complex business rules unexplained.
+  the implementation; missing/incorrect setup or user instructions (a wrong handbook step fails
+  the user like a bug); complex business rules unexplained.
 - **Medium-priority indicators**: complex algorithms uncommented; outdated README; no
   troubleshooting guidance; inconsistent documentation style.
 

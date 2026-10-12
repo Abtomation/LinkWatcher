@@ -19,6 +19,20 @@ Central ID management for process-framework projects — registry resolution, ID
 $script:WorkspaceResolutionPath = Join-Path -Path $PSScriptRoot -ChildPath "WorkspaceResolution.psm1"
 Import-Module $script:WorkspaceResolutionPath -Force
 
+# The PORTFOLIO pools — one counter portfolio-wide, minted from the chain root's central by every
+# workspace in the chain (PF-PRO-068 P-3). Held once here and read by Get-IdRegistryPath's
+# dispatch and by Validate-IdRegistry.ps1's -Portfolio duplicate scan (PF-IMP-2011), so the set
+# never forks between the minter and its validator.
+$script:PortfolioPrefixes = @('PF-IMP', 'PF-PRO', 'PF-FEE', 'PF-REV', 'PF-EVR')
+
+function Get-PortfolioPrefixes {
+    <#
+    .SYNOPSIS
+    Returns the portfolio-global ID pools (those minted from the chain root's central registry).
+    #>
+    return @($script:PortfolioPrefixes)
+}
+
 function Resolve-RegistryPath {
     <#
     .SYNOPSIS
@@ -229,7 +243,7 @@ function Get-IdRegistryPath {
     # Dark until the cutover, provably: appdev carries no parent pointer today, so it IS the chain
     # root — both rules resolve appdev's central, exactly as the pre-dispatch reader did. Only
     # appdev gaining a pointer changes any resolution.
-    $portfolioPrefixes = @('PF-IMP', 'PF-PRO', 'PF-FEE', 'PF-REV', 'PF-EVR')
+    $portfolioPrefixes = $script:PortfolioPrefixes
     # Own-central set derives from this workspace's own declared identity (P-14): a producer
     # contributes the second segment of its FWK-<MNEM> id (FWK-APP -> APP), a renamed leaf the
     # first segment of its own <MNEM>-NNN id. Unreadable/null config adds nothing — dispatch
@@ -311,77 +325,140 @@ function Get-IdRegistry {
     }
 
     try {
-        $registry = Get-Content -Path $registryPath | ConvertFrom-Json
-        return $registry
+        # Read under the same exclusive handle a mint takes (PF-IMP-2011): a reader that lands
+        # inside a parallel mint's window waits it out instead of getting a share-violated read —
+        # which the former Get-Content pipeline swallowed into a null registry and a misleading
+        # "Prefix not found" downstream (measured: 42 of 120 concurrent reads under 4 minters).
+        $raw = Invoke-RegistryFileTransaction -Path $registryPath -Body { param($text) @{ Result = $text } }
+        return ($raw | ConvertFrom-Json)
     }
     catch {
         throw "Failed to load ID registry: $($_.Exception.Message)"
     }
 }
 
-function Update-NextAvailableCounter {
+# Exclusive-open registry access (PF-IMP-2011). Every read and every mint goes through ONE
+# handle opened FileShare.None, so parallel sessions serialize on the file instead of
+# interleaving: two minters can no longer read the same nextAvailable (both were handed the same
+# ID), and a raw write racing a raw read can no longer leave the registry torn (measured
+# before the fix: 6 parallel minters -> one ID issued six times, 84 errors, file unparseable).
+# The open/retry policy mirrors locking/LockStore.psm1 Invoke-LockStoreTransaction (100 ms,
+# 5 s) deliberately as a copy, not an import: that module is the PreToolUse hook's, its
+# transaction is shaped for the locks store (JSON round-trip), and this one must preserve the
+# registry's formatting byte-for-byte outside the counter — the PF-IMP-2011 panel record holds
+# the comparison. Twelve lines of .NET boilerplate carry no parity guard.
+$script:RegistryOpenTimeoutSeconds   = 5
+$script:RegistryOpenRetryMilliseconds = 100
+
+function Invoke-RegistryFileTransaction {
     <#
     .SYNOPSIS
-    Updates only the nextAvailable counter for a specific prefix without reformatting the entire file
+    Runs a read or a read-modify-write against a registry file under one exclusive handle.
 
-    .PARAMETER Prefix
-    The prefix to update
+    .DESCRIPTION
+    $Body receives the file's raw text and returns a hashtable:
+      @{ Content = <new raw text, or absent/$null for a read-only pass>; Result = <any> }
+    The file is opened Open / ReadWrite / FileShare.None; contention from another process is
+    retried every 100 ms for up to 5 s, then fails loudly naming the file. Written text goes back
+    through the same handle as UTF-8 without BOM after truncation, so no second handle ever sees
+    a half-written file. A throw inside $Body aborts before any write.
 
-    .PARAMETER NewValue
-    The new nextAvailable value
+    .PARAMETER Path
+    Absolute registry path. Must exist — the registry is never auto-created.
+
+    .PARAMETER Body
+    Scriptblock invoked with the raw text as its single argument.
     #>
     param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [scriptblock]$Body
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        throw "ID registry not found at: $Path"
+    }
+
+    $stream = $null
+    $deadline = (Get-Date).AddSeconds($script:RegistryOpenTimeoutSeconds)
+    while ($true) {
+        try {
+            $stream = [System.IO.File]::Open($Path,
+                [System.IO.FileMode]::Open,
+                [System.IO.FileAccess]::ReadWrite,
+                [System.IO.FileShare]::None)
+            break
+        } catch [System.IO.FileNotFoundException] {
+            throw "ID registry not found at: $Path"
+        } catch [System.IO.IOException] {
+            if ((Get-Date) -gt $deadline) {
+                throw "ID registry '$Path' is held by another process (exclusive-open timed out after $($script:RegistryOpenTimeoutSeconds)s)."
+            }
+            Start-Sleep -Milliseconds $script:RegistryOpenRetryMilliseconds
+        }
+    }
+
+    try {
+        $reader = New-Object System.IO.StreamReader($stream, [System.Text.Encoding]::UTF8, $true, 4096, $true)
+        $raw = $reader.ReadToEnd()
+        $reader.Dispose()
+
+        $outcome = & $Body $raw
+        if ($null -eq $outcome) { $outcome = @{} }
+
+        if ($outcome.ContainsKey('Content') -and $null -ne $outcome['Content']) {
+            $stream.SetLength(0)
+            $stream.Position = 0
+            $writer = New-Object System.IO.StreamWriter($stream, (New-Object System.Text.UTF8Encoding($false)), 4096, $true)
+            $writer.Write([string]$outcome['Content'])
+            $writer.Flush()
+            $writer.Dispose()
+        }
+
+        if ($outcome.ContainsKey('Result')) { return $outcome['Result'] }
+        return $null
+    } finally {
+        if ($stream) { $stream.Dispose() }
+    }
+}
+
+function ConvertTo-CounterUpdatedContent {
+    <#
+    .SYNOPSIS
+    Returns the registry text with ONE prefix's nextAvailable replaced — nothing else reformatted.
+
+    .DESCRIPTION
+    Pure string transform (no I/O) so the surgical replacement stays unit-testable on its own:
+    only the digits of the prefix's nextAvailable change; whitespace, key order and every other
+    pool are byte-identical. Throws when the prefix has no counter — the counter must exist
+    before IDs can be assigned.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Content,
+
         [Parameter(Mandatory=$true)]
         [string]$Prefix,
 
         [Parameter(Mandatory=$true)]
-        [int]$NewValue
+        [int]$NewValue,
+
+        [Parameter(Mandatory=$false)]
+        [string]$RegistryPath = '<registry>'
     )
 
-    $registryPath = Get-IdRegistryPath -Prefix $Prefix
-    $content = Get-Content -Path $registryPath -Raw
-
-    # Find the specific prefix section and update only the nextAvailable value
-    # Use a more robust pattern that handles multiline JSON
-    $pattern = "(`"$Prefix`":\s*\{[\s\S]*?`"nextAvailable`":\s*)(\d+)"
-    $replacement = "`${1}$NewValue"
-
-    $updatedContent = $content -replace $pattern, $replacement
-
-    if ($updatedContent -eq $content) {
-        throw "No 'nextAvailable' counter found for prefix '$Prefix' in registry '$registryPath'. The counter must exist before IDs can be assigned. Add a 'nextAvailable' field to the prefix entry, set to one greater than the highest existing ID for this prefix on disk."
+    # Prefix section first, then its first nextAvailable — lazy so a later pool's counter is
+    # never touched; the multiline JSON is matched as one string.
+    $pattern = "(`"$([regex]::Escape($Prefix))`":\s*\{[\s\S]*?`"nextAvailable`":\s*)(\d+)"
+    $match = [regex]::Match($Content, $pattern)
+    if (-not $match.Success) {
+        throw "No 'nextAvailable' counter found for prefix '$Prefix' in registry '$RegistryPath'. The counter must exist before IDs can be assigned. Add a 'nextAvailable' field to the prefix entry, set to one greater than the highest existing ID for this prefix on disk."
     }
-
-    $updatedContent | Set-Content -Path $registryPath -Encoding UTF8 -NoNewline
-    Write-Verbose "Updated nextAvailable for $Prefix to $NewValue (formatting preserved)"
-}
-
-function Save-IdRegistry {
-    <#
-    .SYNOPSIS
-    Saves the ID registry back to disk
-
-    .PARAMETER Registry
-    The registry object to save. Must have lastUpdatedPrefix set.
-    #>
-    param(
-        [Parameter(Mandatory=$true)]
-        [PSCustomObject]$Registry
-    )
-
-    $registryPath = Get-IdRegistryPath -Prefix $Registry.lastUpdatedPrefix
-    try {
-        # Update the metadata
-        $Registry.metadata.updated = Get-Date -Format "yyyy-MM-dd"
-
-        # PRESERVE FORMATTING: Use surgical string replacement instead of ConvertTo-Json
-        # This prevents the entire file from being reformatted
-        Update-NextAvailableCounter -Prefix $Registry.lastUpdatedPrefix -NewValue $Registry.prefixes.($Registry.lastUpdatedPrefix).nextAvailable
-        Write-Verbose "ID registry saved to: $registryPath"
-    }
-    catch {
-        throw "Failed to save ID registry: $($_.Exception.Message)"
-    }
+    $digits = $match.Groups[2]
+    return $Content.Substring(0, $digits.Index) + $NewValue + $Content.Substring($digits.Index + $digits.Length)
 }
 
 function Get-NextAvailableId {
@@ -419,21 +496,32 @@ function New-NextId {
         [string]$Description = ""
     )
 
-    $registry = Get-IdRegistry -Prefix $Prefix
-
-    if (-not $registry.prefixes.$Prefix) {
-        throw "Prefix '$Prefix' not found in ID registry. Available prefixes: $($registry.prefixes.PSObject.Properties.Name -join ', ')"
+    $registryPath = Get-IdRegistryPath -Prefix $Prefix
+    if (-not (Test-Path $registryPath)) {
+        throw "ID registry not found at: $registryPath"
     }
 
-    $prefixData = $registry.prefixes.$Prefix
-    $currentId = $prefixData.nextAvailable
-    $assignedId = "$Prefix-$('{0:D3}' -f $currentId)"
+    # ONE exclusive transaction spans read -> increment -> write (PF-IMP-2011). The counter is
+    # re-read under the handle, never carried in from an earlier read, so the value written is
+    # always current+1 of what THIS mint observed with every other minter excluded. The text
+    # replacement is surgical — formatting outside the digits is preserved byte-for-byte.
+    $assignedId = Invoke-RegistryFileTransaction -Path $registryPath -Body {
+        param($text)
+        $registry = $text | ConvertFrom-Json
 
-    # Update the registry using surgical approach to preserve formatting
-    $newNextAvailable = $currentId + 1
-    Update-NextAvailableCounter -Prefix $Prefix -NewValue $newNextAvailable
+        if (-not $registry.prefixes.$Prefix) {
+            throw "Prefix '$Prefix' not found in ID registry. Available prefixes: $($registry.prefixes.PSObject.Properties.Name -join ', ')"
+        }
+        if ($null -eq $registry.prefixes.$Prefix.nextAvailable) {
+            throw "No 'nextAvailable' counter found for prefix '$Prefix' in registry '$registryPath'. The counter must exist before IDs can be assigned. Add a 'nextAvailable' field to the prefix entry, set to one greater than the highest existing ID for this prefix on disk."
+        }
 
-    Write-Verbose "Reserved ID: $assignedId for prefix: $Prefix"
+        $currentId = [int]$registry.prefixes.$Prefix.nextAvailable
+        $updated = ConvertTo-CounterUpdatedContent -Content $text -Prefix $Prefix -NewValue ($currentId + 1) -RegistryPath $registryPath
+        @{ Content = $updated; Result = "$Prefix-$('{0:D3}' -f $currentId)" }
+    }
+
+    Write-Verbose "Reserved ID: $assignedId for prefix: $Prefix (nextAvailable advanced under exclusive open)"
     if ($Description) {
         Write-Verbose "Description: $Description"
     }
@@ -846,5 +934,6 @@ Export-ModuleMember -Function @(
     'Show-PrefixDirectoryInfo',
     'Test-ValidDirectoryForPrefix',
     'Get-AllPrefixes',
+    'Get-PortfolioPrefixes',
     'Show-IdRegistryStatus'
 )

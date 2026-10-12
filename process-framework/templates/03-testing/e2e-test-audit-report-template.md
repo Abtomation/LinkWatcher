@@ -2,9 +2,9 @@
 id: PF-TEM-074
 type: Process Framework
 category: Template
-version: 1.0
+version: 1.1
 created: 2026-04-13
-updated: 2026-04-13
+updated: 2026-09-03
 template_for: E2E Test Audit Report
 creates_document_prefix: TE-TAR
 creates_document_category: Test Audit Report
@@ -40,6 +40,8 @@ variant_siblings:
 | [TE-E2E-XXX] | [TE-E2G-XXX] | [WF-XXX] | [Brief description] | [Status] |
 
 ## Audit Evaluation
+
+> **Author-side evidence**: Phase 3 of the Test Authoring Guide (PF-GDE-079) is the bar the case author was held to — for an instruction fixture, the `assert.ps1` oracle observed failing on a wrong-order run. Record that evidence, or its absence, under Fixture Correctness.
 
 ### 1. Fixture Correctness
 **Question**: Are `project/` and `expected/` directories accurate representations of the test scenario?

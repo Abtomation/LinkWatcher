@@ -36,7 +36,7 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
    > 2. Document the drift mechanism (e.g., "implementation changed in PF-TSK-053 session but TDD not updated")
    > 3. Record findings in the refactoring plan's Scope section
    >
-   > Understanding *why* documentation drifted is often the primary deliverable for DA items — the text fix itself is secondary.
+   > Understanding *why* documentation drifted is often the primary deliverable for DA items. The corrected text must still hold: confirm each checkable claim it makes at its source (file and line) and record those locators in the plan.
 
 **L3. Capture Test Baseline**: Before any code changes, run the full test suite and record the exact pass/fail state. This baseline is the accountability anchor — any NEW failures after refactoring are owned by this session.
 
@@ -58,15 +58,15 @@ For batch mode: pass `-ItemCount N` (e.g., `-ItemCount 4`) to pre-generate N Ite
 
 **L4. Assess Test Coverage**: For each item, check whether existing tests exercise the specific code paths being refactored. If coverage is insufficient, write characterization tests to lock current behavior before refactoring:
 
-   > **Test-only exemption**: If the refactoring targets exclusively test code (no production code changes — e.g., assertion thresholds, fixture data, test scaffolding), L4 does not apply: the modified test verifies its own behavior. Skip to L5 and note in the plan: *"Test-only refactoring — coverage assessment N/A; modified test verifies its own behavior."*
+   > **Test-only exemption**: If the refactoring targets exclusively test code (no production code changes — e.g., assertion thresholds, fixture data, test scaffolding), L4 does not apply: the modified test verifies its own behavior. Skip to L5 and note in the plan: *"Test-only refactoring — coverage assessment N/A; modified test verifies its own behavior."* An edited *assertion* still needs its discriminating check — it re-enters the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md)'s Phase 3 before it counts as verifying anything.
 
-   - **Sufficient coverage**: Existing tests exercise the specific code paths being refactored (both happy paths and error/edge cases touched by the change). Proceed to L4.
+   - **Sufficient coverage**: Existing tests exercise the specific code paths being refactored (both happy paths and error/edge cases touched by the change). Proceed to L5.
      - **Include transitive callers**: Tests that exercise the affected branch through higher-level public APIs (e.g., `update_references()` → `_calculate_new_target()` → branch under test) count as coverage even if they don't name the changed method. Trace the call path from public APIs into the refactored code rather than grepping for the method name alone.
    - **Insufficient coverage**: No tests exist for the target method/class, or tests only cover happy paths while the refactoring touches error handling or edge cases. Write characterization tests first:
      ```powershell
      pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "ComponentNameCharacterization" -TestType "unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
      ```
-   - Characterization tests capture *current* behavior (even if imperfect) — they are a safety net, not a quality judgment.
+   - Author each characterization test per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079): its Phase 1 scopes what to pin, its Phase 3 proves each pin; record the contrast in the item's Test Baseline field (L3).
    - After creating or modifying tests, complete the documentation steps in the [Test Infrastructure Guide — Test Documentation Completeness](../../guides/03-testing/test-infrastructure-guide.md#test-documentation-completeness) section.
 
 **L5. 🚨 CHECKPOINT**: Present the plan (scope + changes) to human partner for approval before implementing.

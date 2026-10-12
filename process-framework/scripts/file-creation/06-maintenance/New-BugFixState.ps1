@@ -114,11 +114,11 @@ $details = @(
     "   Severity: $Severity",
     "   Estimated Sessions: $EstimatedSessions",
     "Customization required — see Bug Fixing task (PF-TSK-007). Populate as you progress:",
-    "  1. Root Cause Analysis (after Step 9 investigation)",
-    "  2. Fix Approach (before Step 10 implementation)",
-    "  3. Implementation Progress (during Step 11)",
-    "  4. Validation Status (after Step 13 testing)",
-    "  5. Session Log (end of each session — Step 17)"
+    "  1. Root Cause Analysis (once the mechanism is pinned)",
+    "  2. Fix Approach (for the approach checkpoint)",
+    "  3. Implementation Progress (while the tests and the fix are written)",
+    "  4. Validation Status (as the fix is verified)",
+    "  5. Session Log (at each session boundary)"
 )
 
 Write-ProjectSuccess -Message "Created bug fix state tracking file with ID: $stateId" -Details $details

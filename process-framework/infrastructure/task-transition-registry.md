@@ -2,9 +2,9 @@
 id: PF-INF-002
 type: Process Framework
 category: Infrastructure
-version: 1.1
+version: 1.3
 created: 2025-07-13
-updated: 2026-08-05
+updated: 2026-09-28
 change_notes: "v1.0 - Moved from guides/framework/task-transition-guide.md to infrastructure/. Information Flow section extracted to PF-GDE-062. Reclassified as infrastructure registry (was PF-GDE-018)."
 description: "Per-task transition procedures: prerequisites, handover artifacts, and next-task routing (moved from guides/framework/task-transition-guide.md; Information Flow content extracted to PF-GDE-062)"
 ---
@@ -899,7 +899,7 @@ Is systematic test quality assessment needed?
 
 ```
 What scope is the bug?
-├─ S-scope quick path → Bug already closed (🔒 Closed at checkpoint) → No transition needed
+├─ S-scope quick path → Bug already closed (🔒 Closed by `-FastClose`) → No transition needed
 │   └─ Optionally: Release & Deployment (if release-ready)
 ├─ M/L-scope → Code Review (PF-TSK-005)
 │   └─ Code Review will close the bug (👀 Needs Review → 🔒 Closed) on approval
@@ -908,11 +908,7 @@ What scope is the bug?
 
 **Preparation for Next Task:**
 
-1. Ensure all tests pass including new regression tests
-2. Verify bug fix doesn't introduce new issues
-3. Prepare summary of fix implementation approach
-4. Document any design or architectural changes made
-5. Update Bug Tracking with fix details (status at 👀 Needs Review for M/L-scope)
+Code Review works from the bug row's fix record — `-FixDetails` with the Step 16 invariant line and the Step 20 claim locators, `-RootCause`, `-TestsAdded` — so make it complete at Step 26 rather than preparing a separate summary.
 
 ### Transitioning FROM Bug Triage (PF-TSK-041)
 
@@ -941,11 +937,7 @@ What priority was assigned?
 
 **Preparation for Next Task:**
 
-1. **For Critical/High Priority**: Clear immediate schedule for bug fixing work
-2. **For Medium/Low Priority**: Add to appropriate backlog with timeline estimates
-3. Ensure assigned developer has access to bug report and reproduction steps
-4. Prepare development environment for bug investigation and fixing
-5. Update Bug Tracking with assignment and timeline information
+Critical and High bugs go to Bug Fixing now; Medium and Low go to the backlog with a timeline estimate. Where a chain decision routed the class to a container, name that container in the handover so the next session works the class, not just the instance.
 
 ### Transitioning FROM Code Refactoring Task (PF-TSK-022)
 
@@ -985,14 +977,14 @@ What was the refactoring outcome?
 
 ### Transitioning FROM Code Review (PF-TSK-005)
 
-<!-- merged from transition-registry entries: Code Review + Code Review (Bug Fix Reviews); consolidated 2026-07-13 (PF-IMP-1457); prerequisites/preparation restatement trimmed 2026-07-22 (PF-IMP-1575) — completion criteria live in the Task Completion Checklist and Steps 24-25 -->
+<!-- merged from transition-registry entries: Code Review + Code Review (Bug Fix Reviews); consolidated 2026-07-13 (PF-IMP-1457); prerequisites/preparation restatement trimmed 2026-07-22 (PF-IMP-1575) — completion criteria live in the Task Completion Checklist, Step 24, and the Bug-Fix Review Path -->
 **Next Task Selection:**
 
 ```
 What kind of review, and what was the result?
 ├─ Feature review — approved → Performance & E2E Test Scoping (PF-TSK-086)
 │  (Feature status set to 🔎 Needs Test Scoping)
-├─ Feature review — minor/major issues → Bug Fixing → Code Review (repeat)
+├─ Feature review — issues found → 🔄 Needs Enhancement, gaps logged in the feature state file → Feature Enhancement (rework scoped by Feature Request Evaluation) or the remaining implementation sequence → Code Review (repeat)
 ├─ Feature review — code quality issues → Code Refactoring → Code Review (repeat)
 ├─ Bug-fix review — approved → Bug Status: 🔒 Closed → Release & Deployment (if release-ready)
 ├─ Bug-fix review — approved + L-scope architectural → Bug routes to PF-TSK-086 (🔎 Needs Test Scoping)
@@ -1216,7 +1208,7 @@ What was the assessment result?
 Needs Review → Code Review → [Conditional Branching]
 ├─ Review Passed → Completed (🟢)
 │   └─ Reason: Feature meets all quality standards and requirements
-└─ Issues Found → Needs Enhancement (🔄) → Bug Fixing → 👀 Needs Review
+└─ Issues Found → Needs Enhancement (🔄), gaps logged in the feature state file → Feature Enhancement (scoped by Feature Request Evaluation) or the remaining implementation sequence → 👀 Needs Review
     └─ Reason: Issues must be addressed before feature can be completed
 ```
 

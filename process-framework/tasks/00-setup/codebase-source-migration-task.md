@@ -2,9 +2,9 @@
 id: PF-TSK-091
 type: Process Framework
 category: Task Definition
-version: 1.1
+version: 1.2
 created: 2026-06-03
-updated: 2026-07-13
+updated: 2026-09-04
 change_notes: "v1.1 - Check Recommended Skills wiring (Step 1, renumber): source-migration craft skill replaces the retired Source Migration Guide (Craft-as-Skill BL-5 batch 5)"
 description: "Relocate legacy source into the scaffolded per-feature src/ directories during onboarding, file-by-file, with behavior-preserving per-item verification"
 complexity: medium
@@ -94,7 +94,7 @@ The work is **behavior-preserving relocation**, not redesign: file contents keep
 > The migration unit is **a file plus every reference to and from it, moved atomically.** Deferring reference updates leaves the tree red. Process one item end-to-end, verify, then take the next. Baselines are captured **per file**, not as one upfront global run — a legacy codebase's test environment is arbitrary and the framework cannot assume a standardized full-suite runner.
 
 5. **Establish the file's local baseline.** Identify the tests that concern the file to be moved — its own tests plus any that import or exercise it — and run them with **the project's actual test mechanism** (whatever the legacy codebase uses; do not assume the framework's `Run-Tests` dispatcher, which the legacy environment may not be wired to). Record the current pass/fail as this item's baseline.
-   - **No concerning tests / thin coverage** → write characterization tests first to pin current behavior (a safety net, not a quality judgment). If that is infeasible for this unit, record it and surface the **no-safety-net** risk to the human partner — do not present the move as verified.
+   - **No concerning tests / thin coverage** → write characterization tests first per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079 — its Phase 1 scopes what to pin, its Phase 3 proves each pin; the contrast lands in the master state's session log). If that is infeasible for this unit, record it and surface the **no-safety-net** risk to the human partner — do not present the move as verified.
 
 6. **Move** the file(s) into the scaffolded target(s).
 

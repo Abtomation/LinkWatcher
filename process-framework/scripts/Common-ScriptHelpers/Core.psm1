@@ -307,6 +307,77 @@ function Get-ArtifactOwnerId {
     return $null
 }
 
+function Resolve-ArtifactKey {
+    <#
+    .SYNOPSIS
+    Validates and canonicalizes artifact keys for the improvement tracker's Artifacts column
+    through the shared feedback_db.py resolve-key stage (PF-PRO-072 Phase 4).
+
+    .DESCRIPTION
+    The Artifacts column carries the same keys the ratings DB uses (tool_doc_id form), so a row's
+    predicted targets and its logged change history stay joinable — validated on write, never
+    free prose. One resolver decides for every writer (New-ProcessImprovement -Artifacts,
+    Update-ProcessImprovement -SetArtifacts): it lives in extract_ratings.py beside the DB's own
+    key logic and is reached here through `feedback_db.py resolve-key --format json`, resolved
+    sibling-relative (scripts/feedback_db.py) so the same layout serves every level.
+
+    Accepted forms: a portable framework ID (PF-TSK-009); an ID-less artifact's filename
+    (Update-ProcessImprovement.ps1 — a filename whose artifact carries an ID canonicalizes to the
+    ID); a path-qualified file where the basename is shared (imp-triage/SKILL.md); a bare
+    craft-skill name (imp-triage); a directory token (tasks/support/); a class token from the
+    closed vocabulary (class:craft-skills); the literals '—' and 'TBD'. A refusal names the
+    reason and, for an ambiguous basename, the candidate keys to retype.
+
+    .PARAMETER Key
+    One or more keys. A single '; '-separated cell value is accepted as one element.
+
+    .OUTPUTS
+    [hashtable] @{ Ok = [bool]; Canonical = [string] (the '; '-joined canonical cell, $null on
+    refusal); Keys = [object[]] (per key: raw, ok, canonical, kind, path, error, candidates);
+    Errors = [string[]] (one printable line per refused key) }.
+    Throws when python or feedback_db.py cannot run at all — the caller decides whether that blocks.
+
+    .EXAMPLE
+    $r = Resolve-ArtifactKey -Key 'TableOperations.psm1; PF-TSK-009'
+    if (-not $r.Ok) { $r.Errors | ForEach-Object { Write-Warning $_ } } else { $cell = $r.Canonical }
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string[]]$Key
+    )
+
+    $raw = @($Key | ForEach-Object { "$_" -split ';' } | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+    if ($raw.Count -eq 0) {
+        return @{ Ok = $false; Canonical = $null; Keys = @(); Errors = @("Artifacts value is empty - pass one or more keys, '—', or 'TBD'.") }
+    }
+
+    $feedbackDb = Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath '..') -ChildPath 'feedback_db.py'
+    $feedbackDb = (Resolve-Path -LiteralPath $feedbackDb -ErrorAction Stop).Path
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $python) { throw "Resolve-ArtifactKey: 'python' is not on PATH, so feedback_db.py resolve-key cannot run." }
+
+    # Keys are passed as one '; '-joined token: it round-trips through resolve_artifact_cell
+    # unchanged, and no key can then be mistaken for an option by the Python argument parser.
+    $stdout = & $python.Source $feedbackDb resolve-key --format json ($raw -join '; ') 2>$null
+    $exit = $LASTEXITCODE
+    $jsonLine = @($stdout | Where-Object { "$_".TrimStart().StartsWith('{') } | Select-Object -Last 1)
+    if ($jsonLine.Count -eq 0) {
+        throw "Resolve-ArtifactKey: feedback_db.py resolve-key returned no JSON (exit $exit). Output: $(($stdout | Out-String).Trim())"
+    }
+    $parsed = $jsonLine[0] | ConvertFrom-Json
+    $errors = @()
+    foreach ($k in @($parsed.keys)) {
+        if (-not $k.ok) {
+            $line = "'$($k.raw)': $($k.error)"
+            if ($k.candidates -and @($k.candidates).Count -gt 0) { $line += " Candidates: $(@($k.candidates) -join ', ')" }
+            $errors += $line
+        }
+    }
+    return @{ Ok = [bool]$parsed.ok; Canonical = $parsed.canonical; Keys = @($parsed.keys); Errors = @($errors) }
+}
+
 function Resolve-WorkspaceRootById {
     <#
     .SYNOPSIS
@@ -376,6 +447,109 @@ function Resolve-WorkspaceRootById {
     }
 
     throw "Resolve-WorkspaceRootById: no workspace declaring project_id '$WorkspaceId' was found on the parent-pointer chain. Walked: $($walked -join ' -> '). Either the artifact's ownership line names a workspace this one is not federated with, or a chain member's doc/project-config.json declares the wrong project_id."
+}
+
+function Resolve-ChildWorkspaceRootById {
+    <#
+    .SYNOPSIS
+    Returns the workspace root of a REGISTERED CHILD whose declared project_id equals
+    $WorkspaceId, resolved through this workspace's child registry (PF-IMP-2048).
+
+    .DESCRIPTION
+    The downward counterpart of Resolve-WorkspaceRootById, which walks self-then-parents and so
+    can never name a child: from the chain root every child ID is unresolvable, leaving a producer
+    unable to address the workspaces it ships to — it can neither hand a mis-escalated row back to
+    the workspace that sent it, nor re-home a pilot to the workspace that owns its adopters
+    (both measured 2026-08-19).
+
+    Deliberately SEPARATE from Resolve-WorkspaceRootById rather than widening its walk: that
+    function's search space — chain membership — is its contract, and callers rely on an
+    off-chain ID throwing. Widening it would silently change what every one of them accepts.
+
+    The registry is a claim; disk is the truth. A row is returned only after its path is verified
+    to exist AND to carry a doc/project-config.json declaring the SAME project_id. A drifted row —
+    a child moved, renamed, or re-identified without the registry being updated — fails loudly
+    here rather than routing state writes into the wrong tree, which is the same no-silent-
+    fallback invariant its upward sibling enforces.
+
+    Registry SHAPE is data, not a literal: Get-ChildRegistryInfo supplies the filename and
+    collection key for the declared role (framework-builder -> framework-registry.json /
+    'frameworks'; framework -> project-registry.json / 'projects'), so this resolves at any
+    producer face. A leaf role has no child registry and Get-ChildRegistryInfo throws — correct,
+    since addressing a child is meaningless there.
+
+    .PARAMETER WorkspaceId
+    The declared child workspace ID to find (e.g. 'FWK-APP', 'APP-001').
+
+    .PARAMETER StartRoot
+    Optional workspace root whose child registry is consulted. Defaults to Get-ProjectRoot.
+
+    .OUTPUTS
+    String — absolute, canonicalized child workspace root.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$WorkspaceId,
+
+        [Parameter(Mandatory=$false)]
+        [string]$StartRoot
+    )
+
+    $root = if ([string]::IsNullOrWhiteSpace($StartRoot)) { Get-ProjectRoot } else { $StartRoot }
+    $root = ConvertTo-CanonicalWorkspacePath -Path $root
+
+    $regInfo = Get-ChildRegistryInfo -ProjectRoot $root
+    $centralRoot = Get-CentralFrameworkPath -ProjectRoot $root
+    $registryPath = Join-Path -Path $centralRoot -ChildPath $regInfo.FileName
+    if (-not (Test-Path $registryPath)) {
+        throw "Resolve-ChildWorkspaceRootById: child registry '$($regInfo.FileName)' (derived from role '$($regInfo.Role)') not found at '$registryPath'. This workspace registers no children, so '$WorkspaceId' cannot be resolved downward."
+    }
+
+    try {
+        $registry = Get-Content -Path $registryPath -Raw -ErrorAction Stop | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+    } catch {
+        throw "Resolve-ChildWorkspaceRootById: child registry '$registryPath' could not be parsed ($($_.Exception.Message)). Repair it before resolving '$WorkspaceId'."
+    }
+
+    $children = $registry[$regInfo.CollectionKey]
+    if ($null -eq $children) {
+        throw "Resolve-ChildWorkspaceRootById: child registry '$registryPath' has no top-level '$($regInfo.CollectionKey)' collection (derived from role '$($regInfo.Role)'). The registry file and the workspace role disagree — repair one of them."
+    }
+
+    # The self row is present in the registry at a framework-builder face; it is not a child.
+    $ownId = $null
+    $ownCfg = Read-WorkspaceConfig -ProjectRoot $root
+    if ($ownCfg.Config) { $ownId = $ownCfg.Config.project_id }
+
+    $seen = [System.Collections.Generic.List[string]]::new()
+    foreach ($key in $children.Keys) {
+        if ($ownId -and $key -eq $ownId) { continue }
+        $seen.Add($key)
+        if ($key -ne $WorkspaceId) { continue }
+
+        $declaredPath = $children[$key].path
+        if ([string]::IsNullOrWhiteSpace($declaredPath)) {
+            throw "Resolve-ChildWorkspaceRootById: registry row '$key' in '$registryPath' declares no path. Repair the row before resolving it."
+        }
+        if (-not (Test-Path $declaredPath)) {
+            throw "Resolve-ChildWorkspaceRootById: registry row '$key' points at '$declaredPath', which does not exist. The row is stale — correct it, or re-register the child."
+        }
+        $childRoot = ConvertTo-CanonicalWorkspacePath -Path $declaredPath
+
+        # The registry claims an identity; the child's own config is what actually holds it.
+        $childCfg = Read-WorkspaceConfig -ProjectRoot $childRoot
+        if ($childCfg.ParseError) {
+            throw "Resolve-ChildWorkspaceRootById: registry row '$key' resolves to '$childRoot', whose doc/project-config.json could not be parsed ($($childCfg.ParseError)). Identity cannot be confirmed, so the row is not usable."
+        }
+        $childDeclaredId = if ($childCfg.Config) { $childCfg.Config.project_id } else { $null }
+        if ($childDeclaredId -ne $key) {
+            throw "Resolve-ChildWorkspaceRootById: registry row '$key' resolves to '$childRoot', which declares project_id '$(if ($childDeclaredId) { $childDeclaredId } else { '<none>' })'. Registry and workspace disagree on identity — repair one of them before routing state there."
+        }
+        return $childRoot
+    }
+
+    throw "Resolve-ChildWorkspaceRootById: no registered child declaring project_id '$WorkspaceId' was found in '$registryPath'. Registered children: $(if ($seen.Count) { $seen -join ', ' } else { '<none>' })."
 }
 
 function Get-OwningWorkspaceCentralPath {
@@ -1121,6 +1295,64 @@ function Get-NonFeatureTestDir {
     }
 }
 
+function Get-NormalizedFileHash {
+    <#
+    .SYNOPSIS
+    SHA256 of a file's content with line endings normalized, binaries hashed raw.
+
+    .DESCRIPTION
+    The portfolio's single content-identity policy for comparing two copies of the
+    same file across faces or across a git materialization. Text is compared after
+    CRLF -> LF folding: git rewrites line endings on checkout wherever
+    core.autocrlf is on (the Git-for-Windows default), so byte-identity answers a
+    question nobody asks — "did git touch this on the way through?" — instead of
+    "is the content the same?" (PF-IMP-2039: a rollback materialized through
+    `git worktree add` flipped a whole received tree to CRLF, and the byte-exact
+    rollout preview then reported 156 of 178 files modified against a true content
+    delta of 0).
+
+    A file containing a NUL byte is treated as binary and hashed raw: CR/LF bytes
+    inside binary content are data, not line endings.
+
+    Every comparator that answers "same content?" across copies consumes this
+    function rather than re-deriving the policy — three independently written
+    copies of this logic produced three defects (PF-IMP-1154, PF-IMP-1279,
+    PF-IMP-2039). Note PowerShell resolves a script-scope function ahead of a
+    module export silently: a local re-definition of this name shadows this one
+    with no error, which is exactly how the copies drift apart. Call it, do not
+    re-implement it.
+
+    .PARAMETER Path
+    File to hash. Must exist.
+
+    .EXAMPLE
+    (Get-NormalizedFileHash -Path $a) -ne (Get-NormalizedFileHash -Path $b)
+    # $true only when the two files differ in content, not merely in line endings.
+
+    .OUTPUTS
+    System.String — uppercase SHA256 hex digest.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$Path
+    )
+
+    $bytes = [System.IO.File]::ReadAllBytes($Path)
+    if ($bytes -contains 0) {
+        # Binary: raw hash — CRLF bytes inside binary content are data, not line endings.
+        $ms = [System.IO.MemoryStream]::new($bytes)
+    } else {
+        $text = [System.Text.Encoding]::UTF8.GetString($bytes).Replace("`r`n", "`n")
+        $ms = [System.IO.MemoryStream]::new([System.Text.Encoding]::UTF8.GetBytes($text))
+    }
+    try {
+        return (Get-FileHash -InputStream $ms -Algorithm SHA256).Hash
+    } finally {
+        $ms.Dispose()
+    }
+}
+
 # Export functions
 Export-ModuleMember -Function @(
     'Get-ProjectRoot',
@@ -1134,7 +1366,9 @@ Export-ModuleMember -Function @(
     'Get-ChainRootPath',
     'Get-RootCentralFrameworkPath',
     'Get-ArtifactOwnerId',
+    'Resolve-ArtifactKey',
     'Resolve-WorkspaceRootById',
+    'Resolve-ChildWorkspaceRootById',
     'Get-OwningWorkspaceCentralPath',
     'Import-ProjectModule',
     'New-ProjectId',
@@ -1146,5 +1380,6 @@ Export-ModuleMember -Function @(
     'Resolve-TrackingFilePath',
     'Test-MSYSPathMangled',
     'Get-EffectiveWhatIf',
-    'Get-NonFeatureTestDir'
+    'Get-NonFeatureTestDir',
+    'Get-NormalizedFileHash'
 )

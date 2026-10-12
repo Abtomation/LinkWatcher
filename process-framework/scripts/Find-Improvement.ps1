@@ -3,7 +3,8 @@
     Searches the central Process Improvement tracker, its Completed/Rejected archive, and the
     Improvement Backlog for rows matching a keyword, printing each match with its current
     disposition and a readable context snippet; an exact-ID lookup renders the full row with
-    its outbound cross-references resolved.
+    its outbound cross-references resolved. -Artifact lists the open rows targeting one
+    artifact and -GroupByArtifact renders the per-artifact overview of open work (PF-PRO-072).
 
 .DESCRIPTION
     Dedup / reconciliation helper for the framework feedback chain — PF-TSK-010 Tools Review's
@@ -52,11 +53,33 @@
     scopes, labeled 'backlog' in the output; where the file does not exist the scan skips it
     silently (older central layouts predate it).
 
+    ARTIFACT AXIS (PF-PRO-072 Phase 4). The open sections carry an Artifacts column — the
+    '; '-separated tool_doc_id keys of the artifact(s) each row would change, validated on write.
+    -Artifact <key> selects the rows whose cell names that artifact (exact key, a path-qualified
+    key by its bare basename, or a craft skill by its bare name), so "what open work targets this
+    artifact?" is one command — paired with `feedback_db.py list-changes --tool <key>` for what
+    was previously done to it. -GroupByArtifact renders the derived overview: every key with its
+    open-row count and ids, most-loaded first, TBD / '—' rows last — the view the owner takes one
+    area at a time from. Both read the live tracker only (the archive carries no such column).
+
     Read-only: it never writes any of the files.
 
 .PARAMETER Keyword
     The text to search for. Case-insensitive substring by default; a regular-expression pattern when
-    -Regex is set. A bare IMP/BKL id triggers the full-row render for the row it names.
+    -Regex is set. A bare IMP/BKL id triggers the full-row render for the row it names. Optional
+    alongside -GroupByArtifact (narrows the grouped rows) and combinable with -Artifact.
+
+.PARAMETER Artifact
+    An artifact key in the Artifacts-column convention — portable ID (PF-GDE-019), filename
+    (Update-ProcessImprovement.ps1), path-qualified file (imp-triage/SKILL.md) or its bare basename,
+    bare skill name (imp-triage), directory token (tasks/support/), class token (class:craft-skills),
+    or TBD. Lists the open rows whose Artifacts cell names it; with -Keyword, only those also
+    matching the keyword.
+
+.PARAMETER GroupByArtifact
+    Render the per-artifact overview of open work: one line per key — the open-row count and the
+    row ids — sorted by count, then key; rows carrying TBD or '—' are listed last as the
+    no-target buckets. -Keyword narrows the rows counted.
 
 .PARAMETER Scope
     Which files to search: Open (the live tracker's Intake / Improvements / Extensions / Structural
@@ -119,11 +142,32 @@
     Find-Improvement.ps1 -Keyword "soak resolution" -Portfolio
     # Searches this workspace's central AND the chain root's, so a row escalated to its owning
     # workspace still surfaces. Root matches are labeled with the root's workspace ID.
+
+.EXAMPLE
+    Find-Improvement.ps1 -Artifact "Update-ProcessImprovement.ps1"
+    # Every open row whose Artifacts cell names the updater — the "what open work targets this
+    # artifact?" half of the two-command triage read (the other: feedback_db.py list-changes --tool).
+
+.EXAMPLE
+    Find-Improvement.ps1 -GroupByArtifact
+    # The per-artifact overview: keys with their open-row counts and ids, most-loaded first.
 #>
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'Keyword')]
 param(
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $true, ParameterSetName = 'Keyword')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Artifact')]
+    [Parameter(Mandatory = $false, ParameterSetName = 'Group')]
     [string]$Keyword,
+
+    # PF-PRO-072 Phase 4 — the artifact axis. -Artifact stands alone or narrows a -Keyword
+    # search; -GroupByArtifact is its own mode (optionally narrowed by -Keyword). -Artifact lives
+    # ONLY in its own set: were it also optional in the default set, a bare -Artifact call would
+    # be ambiguous, fall back to the default set, and demand -Keyword.
+    [Parameter(Mandatory = $true, ParameterSetName = 'Artifact')]
+    [string]$Artifact,
+
+    [Parameter(Mandatory = $true, ParameterSetName = 'Group')]
+    [switch]$GroupByArtifact,
 
     [ValidateSet('Open', 'Archive', 'All')]
     [string]$Scope = 'All',
@@ -304,6 +348,30 @@ function Get-FullRowLines {
     return $lines
 }
 
+function Get-ArtifactTokens {
+    # The keys in a row's Artifacts cell (PF-PRO-072), or an empty array when the row's table
+    # carries no such column or the cell is blank.
+    param([string[]]$Cells, [string[]]$HeaderCells)
+    $cell = Get-CellByHeader -Cells $Cells -HeaderCells $HeaderCells -HeaderPattern '^Artifacts$'
+    if (-not $cell) { return @() }
+    return @($cell -split ';' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+}
+
+function Test-RowTargetsArtifact {
+    # True when a token of the row's Artifacts cell names $Key: the exact key, a path-qualified
+    # key addressed by its bare basename (SKILL.md -> imp-triage/SKILL.md), or a craft skill by
+    # its bare name (imp-triage -> imp-triage/SKILL.md). Case-insensitive; a read query is lenient
+    # where the write-side resolver is strict.
+    param([string[]]$Tokens, [string]$Key)
+    $k = $Key.Trim()
+    foreach ($t in $Tokens) {
+        if ($t -ieq $k) { return $true }
+        if ($t.EndsWith("/$k", [System.StringComparison]::OrdinalIgnoreCase)) { return $true }
+        if ($t -ieq "$k/SKILL.md") { return $true }
+    }
+    return $false
+}
+
 function Search-TrackingFile {
     # Scans one IMP/backlog tracking file, returning a row object per table entry with its cells,
     # header, and match state. ALL id-rows return (not only matches) so the caller can resolve
@@ -327,7 +395,7 @@ function Search-TrackingFile {
             if ($cells -contains 'ID' -or $cells -contains 'BKL-ID') { $headerCells = $cells }
             continue
         }
-        $matchingCells = @($cells | Where-Object { $_ -match $Pattern })
+        $matchingCells = if ($Pattern) { @($cells | Where-Object { $_ -match $Pattern }) } else { @($cells | Select-Object -First 1) }
         $results.Add([pscustomobject]@{
                 Id          = $idCell
                 BareId      = ConvertTo-CanonicalImpId -Id $idCell
@@ -389,7 +457,9 @@ if ($Portfolio) {
     }
 }
 
-$pattern = if ($Regex) { $Keyword } else { [regex]::Escape($Keyword) }
+# No -Keyword (Artifact-only / Group modes): an empty pattern matches every row, and the artifact
+# filter or grouping below decides what prints.
+$pattern = if (-not $Keyword) { '' } elseif ($Regex) { $Keyword } else { [regex]::Escape($Keyword) }
 
 # An id-shaped keyword (a bare IMP/BKL id) triggers the full-row render for the row it names
 # (PF-IMP-1757); regex keywords keep plain snippet semantics.
@@ -423,11 +493,60 @@ foreach ($row in $rows) {
     if (-not $index.ContainsKey($row.BareId)) { $index[$row.BareId] = $row }
 }
 
-$all = @($rows | Where-Object { $_.IsMatch })
 $scopeLabel = if ($rootTrackerPath) { "$Scope, portfolio" } else { $Scope }
 
+# -GroupByArtifact (PF-PRO-072): the derived per-artifact overview of open work. Only rows whose
+# table carries the column take part (the archive and the backlog never do); -Keyword narrows them.
+if ($GroupByArtifact) {
+    $groups = @{}
+    $counted = 0
+    foreach ($r in ($rows | Where-Object { $_.IsMatch })) {
+        $tokens = @(Get-ArtifactTokens -Cells $r.Cells -HeaderCells $r.HeaderCells)
+        if ($tokens.Count -eq 0) { continue }
+        $counted++
+        foreach ($t in $tokens) {
+            if (-not $groups.ContainsKey($t)) { $groups[$t] = [System.Collections.Generic.List[string]]::new() }
+            if (-not $groups[$t].Contains($r.Id)) { $groups[$t].Add($r.Id) }
+        }
+    }
+    $narrow = if ($Keyword) { " matching '$Keyword'" } else { '' }
+    if ($groups.Count -eq 0) {
+        Write-Output "No open rows$narrow carry an Artifacts key (scope: $scopeLabel)."
+        return
+    }
+    $noTarget = @('TBD', '—', '-')
+    $keyed  = @($groups.Keys | Where-Object { $_ -notin $noTarget } | Sort-Object { -$groups[$_].Count }, { $_ })
+    $bucket = @($groups.Keys | Where-Object { $_ -in $noTarget } | Sort-Object)
+    Write-Output "Artifacts overview: $counted open row(s)$narrow across $($keyed.Count) key(s) (scope: $scopeLabel)"
+    Write-Output ""
+    foreach ($k in $keyed) {
+        Write-Output "$k ($($groups[$k].Count)): $($groups[$k] -join ', ')"
+    }
+    foreach ($k in $bucket) {
+        $label = if ($k -eq 'TBD') { 'TBD (no decidable target)' } else { "$k (no target recorded)" }
+        Write-Output "$label ($($groups[$k].Count)): $($groups[$k] -join ', ')"
+    }
+    Write-Output ""
+    Write-Output "Drill in with -Artifact <key> (open rows) and feedback_db.py list-changes --tool <key> (completed-side history)."
+    return
+}
+
+# -Artifact (PF-PRO-072): keep only rows whose Artifacts cell names the key. A row matched by the
+# artifact alone renders its Description (the Artifacts cell itself would be an empty snippet).
+if ($Artifact) {
+    foreach ($r in $rows) {
+        if (-not $r.IsMatch) { continue }
+        $tokens = @(Get-ArtifactTokens -Cells $r.Cells -HeaderCells $r.HeaderCells)
+        if (-not (Test-RowTargetsArtifact -Tokens $tokens -Key $Artifact)) { $r.IsMatch = $false; continue }
+        if (-not $Keyword) { $r.MatchCell = $null }
+    }
+}
+
+$all = @($rows | Where-Object { $_.IsMatch })
+$what = if ($Keyword -and $Artifact) { "'$Keyword' targeting artifact '$Artifact'" } elseif ($Artifact) { "artifact '$Artifact'" } else { "'$Keyword'" }
+
 if ($all.Count -eq 0) {
-    Write-Output "No improvements matched '$Keyword' (scope: $scopeLabel)."
+    Write-Output "No improvements matched $what (scope: $scopeLabel)."
     # An own-level miss is not portfolio-wide evidence: escalated rows live in the owner's
     # tracker. Say so, rather than letting a caller read silence as "not tracked anywhere" —
     # but only where a level above this one actually exists, or the hint is noise pointing at
@@ -475,8 +594,8 @@ foreach ($r in $shown) {
 }
 Write-Output ""
 if ($capped) {
-    Write-Output "Showing $MaxMatches of $($all.Count) improvement(s) matched '$Keyword' (scope: $scopeLabel) - narrow the keyword, use -Scope, or raise -MaxMatches for the rest."
+    Write-Output "Showing $MaxMatches of $($all.Count) improvement(s) matched $what (scope: $scopeLabel) - narrow the keyword, use -Scope, or raise -MaxMatches for the rest."
 }
 else {
-    Write-Output "$($all.Count) improvement(s) matched '$Keyword' (scope: $scopeLabel)."
+    Write-Output "$($all.Count) improvement(s) matched $what (scope: $scopeLabel)."
 }

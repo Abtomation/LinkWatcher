@@ -21,28 +21,113 @@
 
     Config: the "locking" block of doc/project-config.json. An ABSENT block means disabled by
     design — projects that never adopted locking need no migration.
+
+    Workspace boundary (PF-IMP-2045): a command acts in the workspace it was invoked in, and
+    may only act on that workspace's own files. A path outside it is REFUSED, never followed —
+    the portfolio nests workspaces inside one another (a child under its framework-builder,
+    both carrying same-named paths), so a silently mis-anchored path lands the lock row in one
+    workspace's store while git runs against the other's repo. Two readings make that
+    detectable: Resolve-LockingProjectRoot anchors on the caller, Get-OwningWorkspaceRoot on
+    the target; where they disagree, the caller refuses.
 .NOTES
     OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 Set-StrictMode -Version Latest
 
+function Test-WorkspaceRootConfig {
+    <#
+    .SYNOPSIS
+        True when a doc/project-config.json marks a real workspace root rather than an
+        unpopulated producer-face SEED.
+
+    .DESCRIPTION
+        Every producer carries blueprint/doc/project-config.json — the seed a child receives
+        at bootstrap — which ships with `project_id: null`. Accepting it as a root would
+        resolve the producer's own blueprint/ subtree as a separate workspace, refusing every
+        edit a producer session makes to its canonical tree (PF-IMP-2045). A config that
+        DECLARES an empty project_id is therefore a seed; one that populates it, or omits the
+        key entirely (minimal/legacy configs), is a workspace root.
+    #>
+    param([Parameter(Mandatory)][string]$ConfigPath)
+
+    try {
+        $config = Get-Content -Path $ConfigPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+    } catch {
+        return $true   # unparseable => still a root; Get-LockingConfig degrades it to disabled
+    }
+    if ($config.PSObject.Properties.Name -contains 'project_id') {
+        return -not [string]::IsNullOrWhiteSpace([string]$config.project_id)
+    }
+    return $true
+}
+
 function Resolve-LockingProjectRoot {
     <#
     .SYNOPSIS
-        Walks up from a start directory (default: cwd) to the nearest directory containing
-        doc/project-config.json — the workspace root in both appdev and project layouts.
+        Walks up from a start directory (default: cwd) to the nearest workspace root — the
+        directory holding a populated doc/project-config.json (see Test-WorkspaceRootConfig).
     #>
     param([string]$StartDir = (Get-Location).Path)
 
     $dir = (Resolve-Path $StartDir).Path
     while ($dir) {
-        if (Test-Path (Join-Path $dir 'doc/project-config.json')) { return $dir }
+        $candidate = Join-Path $dir 'doc/project-config.json'
+        if ((Test-Path $candidate) -and (Test-WorkspaceRootConfig -ConfigPath $candidate)) { return $dir }
         $parent = Split-Path -Parent $dir
         if (-not $parent -or $parent -eq $dir) { break }
         $dir = $parent
     }
     throw "No doc/project-config.json found walking up from '$StartDir' — cannot resolve the workspace root for artifact locking."
+}
+
+function Get-OwningWorkspaceRoot {
+    <#
+    .SYNOPSIS
+        The workspace that OWNS a path — walked up from the path itself, not from the caller's
+        working directory. $null when no workspace owns it (a scratch dir, a temp file).
+
+    .DESCRIPTION
+        Workspace resolution for the STORE is caller-anchored by design (a command acts in the
+        workspace it was invoked in); this is the independent second reading that lets a caller
+        detect it was handed someone else's file (PF-IMP-2045). Existence is not required — a
+        to-be-created artifact resolves from its parent directory.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [string]$BaseDir = (Get-Location).Path
+    )
+
+    $candidate = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $BaseDir $Path }
+    $full = [System.IO.Path]::GetFullPath($candidate)
+    $dir = if (Test-Path -LiteralPath $full -PathType Container) { $full } else { Split-Path -Parent $full }
+    while ($dir) {
+        $config = Join-Path $dir 'doc/project-config.json'
+        if ((Test-Path $config) -and (Test-WorkspaceRootConfig -ConfigPath $config)) { return $dir }
+        $parent = Split-Path -Parent $dir
+        if (-not $parent -or $parent -eq $dir) { break }
+        $dir = $parent
+    }
+    return $null
+}
+
+function Get-WorkspaceProjectId {
+    <#
+    .SYNOPSIS
+        The project_id a workspace root declares ('' when absent) — the identity two roots are
+        compared by, so a workspace's own sandbox/test copies of itself read as its own files.
+    #>
+    param([Parameter(Mandatory)][string]$WorkspaceRoot)
+
+    $configPath = Join-Path $WorkspaceRoot 'doc/project-config.json'
+    if (-not (Test-Path $configPath)) { return '' }
+    try {
+        $config = Get-Content -Path $configPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+    } catch {
+        return ''
+    }
+    if ($config.PSObject.Properties.Name -contains 'project_id') { return [string]$config.project_id }
+    return ''
 }
 
 function Get-LockingConfig {
@@ -74,6 +159,26 @@ function Get-LockingConfig {
     return $result
 }
 
+function Test-PathUnderRoot {
+    <#
+    .SYNOPSIS
+        True when a full path is the root itself or lies beneath it — compared on a directory
+        boundary, so a sibling 'FrameworkBuilderX' never reads as inside 'FrameworkBuilder'.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$RootFull,
+        [Parameter(Mandatory)][string]$FullPath
+    )
+
+    $root = $RootFull.TrimEnd('\', '/')
+    $probe = $FullPath.TrimEnd('\', '/')
+    if ($probe.Equals($root, [System.StringComparison]::OrdinalIgnoreCase)) { return $true }
+    foreach ($sep in @('\', '/')) {
+        if ($probe.StartsWith($root + $sep, [System.StringComparison]::OrdinalIgnoreCase)) { return $true }
+    }
+    return $false
+}
+
 function ConvertTo-RepoRelativePath {
     <#
     .SYNOPSIS
@@ -85,16 +190,23 @@ function ConvertTo-RepoRelativePath {
         [Parameter(Mandatory)][string]$Path
     )
 
-    $rootFull = [System.IO.Path]::GetFullPath($ProjectRoot)
-    $candidate = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path (Get-Location).Path $Path }
+    $rootFull = [System.IO.Path]::GetFullPath($ProjectRoot).TrimEnd('\', '/')
+    $isRooted = [System.IO.Path]::IsPathRooted($Path)
+    $candidate = if ($isRooted) { $Path } else { Join-Path (Get-Location).Path $Path }
     $full = [System.IO.Path]::GetFullPath($candidate)
-    if (-not $full.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
-        # A bare repo-relative path given from a cwd outside the root still deserves a chance:
-        $fallback = [System.IO.Path]::GetFullPath((Join-Path $rootFull $Path))
-        if ($fallback.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+    if (-not (Test-PathUnderRoot -RootFull $rootFull -FullPath $full)) {
+        # A BARE repo-relative path given from a cwd outside the root still deserves a chance.
+        # A ROOTED path never does: Join-Path would splice it onto the root ('C:\a' + 'C:\b'
+        # => 'C:\a\C:\b'), which passes the containment test and yields a "relative" key that
+        # is really absolute — the silent cross-workspace misfile of PF-IMP-2045.
+        $fallback = if ($isRooted) { $null } else { [System.IO.Path]::GetFullPath((Join-Path $rootFull $Path)) }
+        if ($fallback -and (Test-PathUnderRoot -RootFull $rootFull -FullPath $fallback)) {
             $full = $fallback
         } else {
-            throw "Path '$Path' resolves outside the workspace root '$rootFull'."
+            $owner = Get-OwningWorkspaceRoot -Path $Path
+            $whose = if ($owner) { "it belongs to the workspace at '$owner'" } else { 'no workspace owns it' }
+            $fix = if ($owner) { " Re-run this command with the working directory set to '$owner'." } else { '' }
+            throw "Path '$Path' is outside this workspace ('$rootFull') — $whose. A command may only act on files its own workspace owns.$fix"
         }
     }
     $rel = $full.Substring($rootFull.Length).TrimStart('\', '/')
@@ -238,5 +350,6 @@ function Invoke-LockStoreTransaction {
     }
 }
 
-Export-ModuleMember -Function Resolve-LockingProjectRoot, Get-LockingConfig, ConvertTo-RepoRelativePath,
+Export-ModuleMember -Function Resolve-LockingProjectRoot, Test-WorkspaceRootConfig, Get-OwningWorkspaceRoot,
+    Get-WorkspaceProjectId, Get-LockingConfig, Test-PathUnderRoot, ConvertTo-RepoRelativePath,
     Test-GuardedPath, Get-LockAgeMinutes, New-LockRecord, Invoke-LockStoreTransaction

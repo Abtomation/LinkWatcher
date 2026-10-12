@@ -79,7 +79,7 @@ $ErrorActionPreference = "Stop"
 # Validate dependencies
 $dependencyCheck = Test-ScriptDependencies -RequiredFunctions @(
     "Update-FeatureTrackingStatus",
-    "Assert-LineInFile",
+    "Assert-TableRowInFile",
     "Get-ProjectRoot"
 )
 
@@ -104,15 +104,6 @@ try {
 
     $null = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $Status -StatusColumn "Status" -Notes $Notes -DryRun:$DryRun
 
-    if (-not $DryRun) {
-        # Read-after-write verification: the feature's row must now carry the new Status.
-        # Throws on a missing row or a silently skipped write (e.g. schema drift).
-        $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
-        $idEsc = [regex]::Escape($FeatureId)
-        $statusEsc = [regex]::Escape($Status)
-        Assert-LineInFile -Path $featureTrackingPath -Pattern "(?m)^\|\s*\[?$idEsc(\]\([^)]*\))?\s*\|[^\r\n]*\|\s*$statusEsc\s*\|" -Context "implementation Status flip for $FeatureId"
-    }
-
     # Update workflow tracking (Impl Status column derives from feature statuses)
     $workflowScript = Join-Path $PSScriptRoot "Update-WorkflowTracking.ps1"
     if (Test-Path $workflowScript) {
@@ -121,6 +112,26 @@ try {
             & $workflowScript -ProjectRoot $projectRoot -WhatIf
         } else {
             & $workflowScript -ProjectRoot $projectRoot
+        }
+    }
+
+    if (-not $DryRun) {
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), placed AFTER the chained
+        # workflow refresh rather than before it: the chain is this run's last write, and an
+        # assertion ahead of it could fail the run with feature-tracking updated and the derived
+        # workflow tracker left stale — a half-updated state the after-the-last-write rule exists
+        # to rule out. Assert-TableRowInFile, not Assert-LineInFile: the shared helper returns no
+        # found/not-found signal and writes the file even when no row matched, so "the row exists,
+        # is header-width, and carries the value just written" is the only detector of a
+        # reports-success-writes-nothing run. One call per written value; -Notes is APPENDED to
+        # the Notes cell, so it is matched as a suffix of its cell and only when supplied.
+        $featureTrackingPath = Join-Path $projectRoot "doc/state-tracking/permanent/feature-tracking.md"
+        $rowIdentity = "^\|\s*\[?" + [regex]::Escape($FeatureId) + "\b(?:\]\([^)]*\))?\s*\|"
+        $statusPattern = $rowIdentity + "(?:[^|]*\|)*\s*" + [regex]::Escape($Status) + "\s*\|"
+        Assert-TableRowInFile -Path $featureTrackingPath -Pattern $statusPattern -Context "implementation Status flip for $FeatureId → '$Status' in $featureTrackingPath"
+        if ($Notes) {
+            $notePattern = $rowIdentity + ".*" + [regex]::Escape($Notes) + "\s*\|"
+            Assert-TableRowInFile -Path $featureTrackingPath -Pattern $notePattern -Context "implementation Notes append for $FeatureId in $featureTrackingPath"
         }
     }
 

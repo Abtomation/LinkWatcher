@@ -2,9 +2,9 @@
 id: PF-TSK-022
 type: Process Framework
 category: Task Definition
-version: 2.5
+version: 2.7
 created: 2025-07-21
-updated: 2026-07-13
+updated: 2026-09-04
 change_notes: "v2.5 - Check Recommended Skills wiring: refactoring-planning craft skill replaces the retired Refactoring Plan Template Customization Guide (Craft-as-Skill BL-5 batch 3)"
 description: "Systematic code improvement and technical debt reduction without changing external behavior"
 complexity: medium
@@ -72,7 +72,7 @@ Systematic code improvement and technical debt reduction without changing extern
 - **Reference Only (Access When Needed):**
   - **Coding Standards** - Project-specific coding conventions and style guides
   - **Performance Benchmarks** - Current performance metrics to ensure refactoring doesn't degrade performance
-  - [Test-file customization craft (`test-specification` skill)](../../../.claude/skills/test-specification/references/test-file-customization.md) - For creating new test files when coverage gaps are identified (replaces the retired Test File Creation Guide)
+  - [Test-file customization reference (`test-authoring` skill)](../../../.claude/skills/test-authoring/references/test-file-customization.md) - For creating new test files when coverage gaps are identified (replaces the retired Test File Creation Guide)
 
 ## Process
 
@@ -152,7 +152,7 @@ Evaluate the refactoring scope against these criteria:
 | **Updates** | [`architecture-tracking.md`](../../../doc/state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Enhancement" → "🟡 In Progress") |
 | **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | Manual | For foundation features (0.x.x), document architectural improvements |
 | **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | Manual | Note test improvements or new test requirements |
-| **Updates** | Product documentation (TDD, FDD, feature state file, test spec, integration narrative) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Step 12) |
+| **Updates** | Product documentation (TDD, FDD, feature state file, test spec, integration narrative) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Standard Path Step 14) |
 
 ## Next Tasks
 

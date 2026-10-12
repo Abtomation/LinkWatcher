@@ -10,7 +10,12 @@
       exit 0            -> allow the tool call
       exit 2 + stderr   -> BLOCK the tool call; stderr becomes the agent-visible reason
 
-    Decision table for a guarded path (locking enabled):
+    Decision table (locking enabled). The ownership gate runs first, on EVERY path — guarded
+    or not — because a file another workspace owns is never this session's to edit:
+      owned by another workspace  -> block ("foreign workspace"; compared by project_id, so a
+                                    workspace's own sandbox/test copies stay its own files)
+      owned by no workspace       -> allow (scratch dirs, temp files)
+    Then, for a guarded path in this workspace:
       no lock                     -> block ("not checked out")
       lock expired (> TTL idle)   -> block ("expired — check out again"; checkout takes over)
       fresh lock, other session   -> block (names the holder)
@@ -60,6 +65,29 @@ try {
 
     $config = Get-LockingConfig -ProjectRoot $projectRoot
     if (-not $config.Enabled) { exit 0 }
+
+    # Ownership gate (PF-IMP-2045). A file another workspace owns is not this session's to
+    # edit, and the edit is invisible to BOTH lock stores: this workspace does not guard a
+    # path it does not contain, and the owner's store never hears about it. Workspaces are
+    # compared by project_id, so a workspace's own sandbox and test copies of itself read as
+    # its own files; a path no workspace owns (scratch dirs, temp files) stays free.
+    $ownerRoot = Get-OwningWorkspaceRoot -Path $filePath -BaseDir $startDir
+    if ($ownerRoot) {
+        $rootNorm  = [System.IO.Path]::GetFullPath($projectRoot).TrimEnd('\', '/')
+        $ownerNorm = [System.IO.Path]::GetFullPath($ownerRoot).TrimEnd('\', '/')
+        if (-not $ownerNorm.Equals($rootNorm, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $ownerId  = Get-WorkspaceProjectId -WorkspaceRoot $ownerRoot
+            $callerId = Get-WorkspaceProjectId -WorkspaceRoot $projectRoot
+            if (-not ($ownerId -and $callerId -and $ownerId -eq $callerId)) {
+                $ownerLabel  = if ($ownerId)  { $ownerId }  else { 'unidentified' }
+                $callerLabel = if ($callerId) { $callerId } else { 'unidentified' }
+                Deny ("FOREIGN WORKSPACE: '$filePath' belongs to the workspace at '$ownerNorm' ($ownerLabel), " +
+                      "not to this session's workspace '$rootNorm' ($callerLabel). A session may only edit files " +
+                      "its own workspace owns — raise the change with the owning workspace (portfolio defects " +
+                      "escalate as IMPs into its intake) rather than editing its tree from here.")
+            }
+        }
+    }
 
     $rel = $null
     try { $rel = ConvertTo-RepoRelativePath -ProjectRoot $projectRoot -Path $filePath } catch { exit 0 }   # outside the root -> unguarded

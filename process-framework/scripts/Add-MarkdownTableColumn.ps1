@@ -1,37 +1,81 @@
 <#
 .SYNOPSIS
-Inserts a new column into a markdown feature table (optionally after a named column, with a default cell value).
+Inserts a column into markdown table(s) — section-scoped, header-driven, with a per-row value map — leaving every other cell untouched.
 
 .DESCRIPTION
-Rewrites every table in the target file that carries the anchor column, keeping header, separator
-and body rows aligned. Use -WhatIf for a no-write preview.
+Rewrites the header, separator and every data row of each targeted table so the new column lands
+at the requested position (-AfterColumn / -BeforeColumn, else last). Targets are the first table
+under each -Section heading; without -Section, every table in the file that carries the anchor
+column (every table when no anchor is named).
+
+v2.0 (PF-IMP-2248 / PF-PRO-072 Phase 3) replaced the feature-table-only v1: cells are parsed and
+re-emitted with the shared table helpers (TableOperations.psm1), so an escaped pipe (\|) inside a
+cell survives unchanged and a literal pipe in a supplied value is escaped; every row's shape is
+asserted against its header BEFORE anything is written (a malformed row refuses the whole file —
+nothing is written); the file's line-ending convention is preserved; no other cell is touched (a
+Last Updated column is deliberately not bumped — a schema change is not a row change).
+
+Per-row values: -ValueMap (hashtable) or -ValueMapPath (a JSON object) keyed by the row's
+-KeyColumn cell (default: the first column, link display text resolved). Rows without an entry
+receive -DefaultValue. Every map key must match a row in a targeted table — a stale key is an
+error and nothing is written, unless -AllowUnmatchedKeys downgrades it to a warning.
+
+Idempotent: a targeted table that already carries the column is skipped (reported), or refused
+with -FailIfExists. Use -WhatIf for a no-write preview; git is the recovery path for tracked files
+(-BackupPath writes a copy first when a file is not under version control).
 
 .PARAMETER FilePath
-Path to the markdown file to modify. The script errors and exits 1 if the file does not exist.
+Path to the markdown file to modify.
 
 .PARAMETER ColumnName
 Header text of the column to insert.
 
 .PARAMETER AfterColumn
-Header text of the existing column the new one is inserted after. Omitted appends the column at
-the end of the row.
+Insert the new column immediately after this existing column. Mutually exclusive with -BeforeColumn.
+
+.PARAMETER BeforeColumn
+Insert the new column immediately before this existing column (e.g. 'Notes'). Mutually exclusive
+with -AfterColumn.
 
 .PARAMETER DefaultValue
-Cell value written into every existing body row for the new column. Defaults to an empty cell.
+Cell value for rows the value map does not name. Defaults to an empty cell; trackers use '—'.
 
-.PARAMETER BackupFile
-Whether to write a timestamped .backup.<yyyyMMdd-HHmmss> copy beside the file before modifying it.
-Defaults to $true. Note: as a [bool] (not a [switch]) this cannot be passed through `pwsh -File` —
-invoke via `pwsh -Command` when overriding it.
+.PARAMETER Section
+One or more exact heading lines (e.g. '## Section 1 — Intake'). The first table under each is
+targeted; a heading with no table is an error. Without -Section, every table is a candidate.
+Under `pwsh -File` an array cannot be passed as several tokens (the extras bind positionally
+elsewhere — which is why positional binding is disabled here), so join several headings with
+';' in ONE token: -Section '## Section 1 — Intake;## Section 2 — Improvements'.
 
-.PARAMETER SkipIfExists
-Whether to leave a table untouched when it already has a column of this name, rather than adding a
-duplicate. Defaults to $true. Same [bool] invocation caveat as -BackupFile.
+.PARAMETER ValueMap
+Hashtable of row key -> cell value.
+
+.PARAMETER ValueMapPath
+Path to a JSON object of row key -> cell value. Combined with -ValueMap when both are given
+(-ValueMap wins on a duplicate key).
+
+.PARAMETER KeyColumn
+Header of the column whose cell identifies a row for the value map. Defaults to the first column.
+
+.PARAMETER AllowUnmatchedKeys
+Downgrade "map key matches no row" from an error (nothing written) to a warning.
+
+.PARAMETER FailIfExists
+Exit 1 when a targeted table already carries -ColumnName (default: skip that table and report).
+
+.PARAMETER BackupPath
+Optional path to copy the original file to before writing.
+
+.EXAMPLE
+Add-MarkdownTableColumn.ps1 -FilePath process-improvement-tracking.md -ColumnName Artifacts -BeforeColumn Notes -DefaultValue '—' `
+    -Section '## Section 1 — Intake','## Section 2 — Improvements' -ValueMapPath artifacts.json -WhatIf
+
 .NOTES
     OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
+    Version: 2.0 (2026-08-31, PF-PRO-072 Phase 3)
 #>
 
-[CmdletBinding(SupportsShouldProcess)]
+[CmdletBinding(SupportsShouldProcess, PositionalBinding = $false)]
 param(
     [Parameter(Mandatory = $true)]
     [string]$FilePath,
@@ -43,255 +87,206 @@ param(
     [string]$AfterColumn = "",
 
     [Parameter(Mandatory = $false)]
+    [string]$BeforeColumn = "",
+
+    [Parameter(Mandatory = $false)]
+    [AllowEmptyString()]
     [string]$DefaultValue = "",
 
     [Parameter(Mandatory = $false)]
-    [bool]$BackupFile = $true,
+    [string[]]$Section,
 
     [Parameter(Mandatory = $false)]
-    [bool]$SkipIfExists = $true
+    [hashtable]$ValueMap,
+
+    [Parameter(Mandatory = $false)]
+    [string]$ValueMapPath,
+
+    [Parameter(Mandatory = $false)]
+    [string]$KeyColumn = "",
+
+    [Parameter(Mandatory = $false)]
+    [switch]$AllowUnmatchedKeys,
+
+    [Parameter(Mandatory = $false)]
+    [switch]$FailIfExists,
+
+    [Parameter(Mandatory = $false)]
+    [string]$BackupPath
 )
 
-# Ensure the file exists
-if (-not (Test-Path $FilePath)) {
-    Write-Error "File not found: $FilePath"
+$ErrorActionPreference = 'Stop'
+Import-Module (Join-Path $PSScriptRoot 'Common-ScriptHelpers/TableOperations.psm1') -Force -Verbose:$false
+
+function Write-Fail {
+    param([string]$Message)
+    Write-Host "❌ $Message" -ForegroundColor Red
     exit 1
 }
 
-# -DryRun replaced by standard -WhatIf (SupportsShouldProcess): ShouldProcess returning
-# $false (under -WhatIf) drives the existing no-write preview path below.
-$DryRun = -not $PSCmdlet.ShouldProcess($FilePath, "Add column '$ColumnName' to markdown table")
+# --- Argument validation -----------------------------------------------------------------
+if (-not (Test-Path -LiteralPath $FilePath)) { Write-Fail "File not found: $FilePath" }
+if ($AfterColumn -and $BeforeColumn) { Write-Fail "-AfterColumn and -BeforeColumn are mutually exclusive." }
+if ($ColumnName -match '[\r\n|]') { Write-Fail "-ColumnName must be a single line without a literal pipe." }
+if ($DefaultValue -match '[\r\n]') { Write-Fail "-DefaultValue must be a single line." }
 
-# Create backup if requested
-if ($BackupFile -and -not $DryRun) {
-    $backupPath = $FilePath + ".backup." + (Get-Date -Format "yyyyMMdd-HHmmss")
-    Copy-Item $FilePath $backupPath
-    Write-Host "✅ Backup created: $backupPath" -ForegroundColor Green
+# Merge the value map: file first, then the inline hashtable (inline wins).
+$map = @{}
+if ($ValueMapPath) {
+    if (-not (Test-Path -LiteralPath $ValueMapPath)) { Write-Fail "Value map file not found: $ValueMapPath" }
+    $json = Get-Content -LiteralPath $ValueMapPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    foreach ($p in $json.PSObject.Properties) { $map[$p.Name] = [string]$p.Value }
+}
+if ($ValueMap) { foreach ($k in $ValueMap.Keys) { $map[[string]$k] = [string]$ValueMap[$k] } }
+foreach ($k in @($map.Keys)) {
+    if ($map[$k] -match '[\r\n]') { Write-Fail "Value map entry '$k' contains a line break; a cell is a single line." }
 }
 
-# Read the file content
-$content = Get-Content -Path $FilePath -Raw
-$lines = $content -split "`r?`n"
+# --- Read, preserving the file's conventions ---------------------------------------------
+$raw = Get-Content -LiteralPath $FilePath -Raw -Encoding UTF8
+if ($null -eq $raw) { $raw = "" }
+$newline = if ($raw -match "`r`n") { "`r`n" } else { "`n" }
+$lines = [System.Collections.Generic.List[string]]@($raw -split "`r?`n")
+$separatorPattern = '^\s*\|[\s\-:|]+\|\s*$'
 
-# Function to detect if a line is a table separator (| ---- | ---- |)
-function Test-TableSeparator {
-    param([string]$line)
-    return $line -match '^\s*\|[\s\-:]+\|[\s\-:]+.*\|[\s\-:]*\s*$'
-}
-
-# Function to count columns in a separator line
-function Get-ColumnCount {
-    param([string]$separatorLine)
-    # Count the number of | characters and subtract 1 (since | are separators)
-    $pipeCount = ($separatorLine.ToCharArray() | Where-Object { $_ -eq '|' }).Count
-    return $pipeCount - 1
-}
-
-# Function to parse table columns from a header line
-function Get-TableColumns {
-    param([string]$headerLine)
-
-    # Remove leading/trailing whitespace and split by |
-    $parts = $headerLine.Trim() -split '\|'
-
-    # Remove empty parts and trim whitespace
-    $columns = @()
-    foreach ($part in $parts) {
-        $trimmed = $part.Trim()
-        if ($trimmed -ne "") {
-            $columns += $trimmed
+# --- Locate every table: header index, separator index, data-row indices ----------------
+function Get-TableAt {
+    # Scans forward from $Start for the first table; returns $null when none begins before $Stop.
+    param([int]$Start, [int]$Stop)
+    for ($i = $Start; $i -lt $Stop; $i++) {
+        $line = $lines[$i]
+        if ($line -match $separatorPattern) { continue }
+        $cells = Split-MarkdownTableRow -Line $line.Trim()
+        if ($null -eq $cells) { continue }
+        if (($i + 1) -ge $lines.Count -or $lines[$i + 1] -notmatch $separatorPattern) { continue }   # a lone pipe line is not a header
+        $rows = [System.Collections.Generic.List[int]]::new()
+        for ($j = $i + 2; $j -lt $lines.Count; $j++) {
+            $l = $lines[$j]
+            if ([string]::IsNullOrWhiteSpace($l) -or $l -notmatch '^\s*\|') { break }
+            if ($l -match $separatorPattern) { break }
+            $rows.Add($j)
         }
+        return [pscustomobject]@{ HeaderIdx = $i; SepIdx = $i + 1; RowIdx = $rows; Headers = @($cells) }
     }
-    return $columns
+    return $null
 }
 
-# Function to check if this is a feature table based on column names
-function Test-FeatureTable {
-    param([array]$columns)
-
-    # Check if it has the key columns that identify a feature table
-    $hasID = $columns -contains "ID"
-    $hasFeature = $columns | Where-Object { $_ -match "Feature" }
-    $hasStatus = $columns | Where-Object { $_ -match "Status" }
-    $hasPriority = $columns | Where-Object { $_ -match "Priority" }
-    $hasDocTier = $columns | Where-Object { $_ -match "Doc Tier" }
-
-    return $hasID -and $hasFeature -and $hasStatus -and $hasPriority -and $hasDocTier
-}
-
-# Function to add column to a table row
-function Add-ColumnToRow {
-    param(
-        [string]$row,
-        [int]$insertPosition,
-        [string]$value,
-        [int]$totalColumns
-    )
-
-    # Split the row by | and clean up
-    $parts = $row -split '\|'
-    $cleanParts = @()
-
-    # Process each part, keeping track of actual content vs empty boundary parts
-    for ($i = 0; $i -lt $parts.Count; $i++) {
-        $part = $parts[$i]
-        if ($i -eq 0 -and $part.Trim() -eq "") {
-            # Leading empty part (before first |)
-            continue
+$tables = [System.Collections.Generic.List[object]]::new()
+if ($Section) {
+    # ';'-joined headings in one token (the pwsh -File array limitation, see .PARAMETER Section).
+    $Section = @($Section | ForEach-Object { $_ -split ';' } | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+    foreach ($heading in $Section) {
+        $hIdx = -1
+        for ($i = 0; $i -lt $lines.Count; $i++) { if ($lines[$i].TrimEnd() -eq $heading.TrimEnd()) { $hIdx = $i; break } }
+        if ($hIdx -lt 0) { Write-Fail "Section heading not found: '$heading'" }
+        $level = if ($heading -match '^(#{1,6})\s') { $matches[1].Length } else { 2 }
+        $end = $lines.Count
+        for ($i = $hIdx + 1; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match "^#{1,$level}\s") { $end = $i; break }
         }
-        elseif ($i -eq ($parts.Count - 1) -and $part.Trim() -eq "") {
-            # Trailing empty part (after last |)
-            continue
-        }
+        $t = Get-TableAt -Start ($hIdx + 1) -Stop $end
+        if ($null -eq $t) { Write-Fail "No table found under section '$heading'." }
+        $t | Add-Member -NotePropertyName Label -NotePropertyValue $heading
+        $tables.Add($t)
+    }
+} else {
+    $pos = 0
+    while ($pos -lt $lines.Count) {
+        $t = Get-TableAt -Start $pos -Stop $lines.Count
+        if ($null -eq $t) { break }
+        $t | Add-Member -NotePropertyName Label -NotePropertyValue "table at line $($t.HeaderIdx + 1)"
+        if (-not $AfterColumn -and -not $BeforeColumn) { $tables.Add($t) }
         else {
-            $cleanParts += $part
+            $anchor = if ($AfterColumn) { $AfterColumn } else { $BeforeColumn }
+            if ($t.Headers -contains $anchor) { $tables.Add($t) }
+            else { Write-Host "⏭️  $($t.Label): no '$anchor' column — skipped" -ForegroundColor Gray }
         }
+        $pos = if ($t.RowIdx.Count -gt 0) { $t.RowIdx[$t.RowIdx.Count - 1] + 1 } else { $t.SepIdx + 1 }
     }
-
-    # Insert the new column value at the specified position
-    $newParts = @()
-    for ($i = 0; $i -lt $cleanParts.Count; $i++) {
-        if ($i -eq $insertPosition) {
-            $newParts += $value
-        }
-        $newParts += $cleanParts[$i]
-    }
-
-    # If insert position is at the end, add it there
-    if ($insertPosition -eq $cleanParts.Count) {
-        $newParts += $value
-    }
-
-    # Reconstruct the row
-    return "| " + ($newParts -join " | ") + " |"
+    if ($tables.Count -eq 0) { Write-Fail "No table found in $FilePath (with the requested anchor column, if any)." }
 }
 
-# Main processing
-$modifiedLines = @()
+# --- Plan every edit before touching a line (all-or-nothing) ----------------------------
+$edits = @{}          # line index -> new text
+$matchedKeys = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
 $tablesModified = 0
-$i = 0
+$rowsUpdated = 0
+$mapHits = 0
 
-Write-Host "🔍 Scanning for markdown tables..." -ForegroundColor Cyan
-
-while ($i -lt $lines.Count) {
-    $line = $lines[$i]
-
-    # Check if this line is a table separator
-    if (Test-TableSeparator $line) {
-        Write-Host "📊 Found table separator at line $($i + 1)" -ForegroundColor Yellow
-
-        # Count columns in this table
-        $columnCount = Get-ColumnCount $line
-        Write-Host "   Columns detected: $columnCount" -ForegroundColor Gray
-
-        # Look for the header line (should be the previous line)
-        if ($i -gt 0) {
-            $headerLine = $lines[$i - 1]
-            $columns = Get-TableColumns $headerLine
-
-            Write-Host "   Header columns: $($columns -join ', ')" -ForegroundColor Gray
-
-            # Check if this is a feature table
-            if (Test-FeatureTable $columns) {
-                Write-Host "✅ Feature table identified!" -ForegroundColor Green
-
-                # Check if column already exists
-                if ($SkipIfExists -and ($columns -contains $ColumnName)) {
-                    Write-Host "⏭️  Table already has '$ColumnName' column - skipping" -ForegroundColor Gray
-                    $modifiedLines += $line
-                    $i++
-                    continue
-                }
-
-                # Determine insert position
-                $insertPosition = $columns.Count  # Default to end
-                if ($AfterColumn -ne "") {
-                    $afterIndex = -1
-                    for ($j = 0; $j -lt $columns.Count; $j++) {
-                        if ($columns[$j] -eq $AfterColumn) {
-                            $afterIndex = $j
-                            break
-                        }
-                    }
-                    if ($afterIndex -ge 0) {
-                        $insertPosition = $afterIndex + 1
-                        Write-Host "   Inserting after '$AfterColumn' at position $insertPosition" -ForegroundColor Gray
-                    }
-                    else {
-                        Write-Host "   Column '$AfterColumn' not found, inserting at end" -ForegroundColor Yellow
-                    }
-                }
-
-                # Modify the header line (go back and update it)
-                $modifiedHeader = Add-ColumnToRow $headerLine $insertPosition $ColumnName $columnCount
-                $modifiedLines[$modifiedLines.Count - 1] = $modifiedHeader
-
-                # Modify the separator line
-                $separatorValue = "-------"
-                $modifiedSeparator = Add-ColumnToRow $line $insertPosition $separatorValue $columnCount
-                $modifiedLines += $modifiedSeparator
-
-                # Process all data rows in this table
-                $j = $i + 1
-                while ($j -lt $lines.Count) {
-                    $dataLine = $lines[$j]
-
-                    # Check if this is still a table row
-                    if ($dataLine -match '^\s*\|.*\|.*\s*$' -and $dataLine.Trim() -ne "") {
-                        # This is a data row, modify it
-                        $modifiedDataRow = Add-ColumnToRow $dataLine $insertPosition $DefaultValue $columnCount
-                        $modifiedLines += $modifiedDataRow
-                        Write-Host "   Modified data row: $($j + 1)" -ForegroundColor Gray
-                    }
-                    else {
-                        # End of table
-                        break
-                    }
-                    $j++
-                }
-
-                $tablesModified++
-                Write-Host "✅ Table modified successfully!" -ForegroundColor Green
-                $i = $j - 1  # Continue from where we left off
-            }
-            else {
-                Write-Host "⏭️  Not a feature table - skipping" -ForegroundColor Gray
-                $modifiedLines += $line
-            }
-        }
-        else {
-            # No header line found
-            $modifiedLines += $line
-        }
-    }
-    else {
-        # Regular line, just add it
-        $modifiedLines += $line
+foreach ($t in $tables) {
+    $headers = @($t.Headers)
+    if ($headers -contains $ColumnName) {
+        if ($FailIfExists) { Write-Fail "$($t.Label) already carries column '$ColumnName'." }
+        Write-Host "⏭️  $($t.Label): already has '$ColumnName' — skipped" -ForegroundColor Gray
+        continue
     }
 
-    $i++
+    $insertAt = $headers.Count
+    if ($AfterColumn) {
+        $idx = [Array]::IndexOf($headers, $AfterColumn)
+        if ($idx -lt 0) { Write-Fail "$($t.Label): anchor column '$AfterColumn' not found (headers: $($headers -join ', '))." }
+        $insertAt = $idx + 1
+    } elseif ($BeforeColumn) {
+        $idx = [Array]::IndexOf($headers, $BeforeColumn)
+        if ($idx -lt 0) { Write-Fail "$($t.Label): anchor column '$BeforeColumn' not found (headers: $($headers -join ', '))." }
+        $insertAt = $idx
+    }
+    $keyIdx = 0
+    if ($KeyColumn) {
+        $keyIdx = [Array]::IndexOf($headers, $KeyColumn)
+        if ($keyIdx -lt 0) { Write-Fail "$($t.Label): key column '$KeyColumn' not found (headers: $($headers -join ', '))." }
+    }
+
+    # Header and separator
+    $newHeaders = [System.Collections.Generic.List[string]]@($headers); $newHeaders.Insert($insertAt, $ColumnName)
+    $edits[$t.HeaderIdx] = ConvertTo-MarkdownTableRow -Cells ([string[]]$newHeaders)
+    $sepCells = @(Split-MarkdownTableRow -Line $lines[$t.SepIdx].Trim())
+    $sepNew = [System.Collections.Generic.List[string]]@($sepCells); $sepNew.Insert($insertAt, ('-' * [Math]::Max(3, $ColumnName.Length)))
+    $edits[$t.SepIdx] = '|' + (($sepNew | ForEach-Object { $_ }) -join '|') + '|'
+
+    # Data rows — shape-asserted first; a malformed row refuses the whole file.
+    foreach ($r in $t.RowIdx) {
+        $line = $lines[$r]
+        $cells = Split-MarkdownTableRow -Line $line.Trim()
+        if ($null -eq $cells) { Write-Fail "$($t.Label): line $($r + 1) is not a well-formed table row (missing closing '|'?). Nothing was written." }
+        try { Assert-TableRowShape -Cells $cells -Headers $headers -Context "$($t.Label) line $($r + 1)" }
+        catch { Write-Fail "$($_.Exception.Message)`nNothing was written." }
+
+        $key = (Get-MarkdownLinkText ([string]$cells[$keyIdx])).Trim()
+        $value = $DefaultValue
+        if ($map.ContainsKey($key)) { $value = $map[$key]; $mapHits++; [void]$matchedKeys.Add($key) }
+        $newCells = [System.Collections.Generic.List[string]]@($cells); $newCells.Insert($insertAt, $value)
+        $edits[$r] = ConvertTo-MarkdownTableRow -Cells ([string[]]$newCells)
+        $rowsUpdated++
+    }
+    $tablesModified++
+    Write-Host "📊 $($t.Label): '$ColumnName' at position $insertAt, $($t.RowIdx.Count) row(s)" -ForegroundColor Cyan
 }
 
-# Output results
+$unmatched = @($map.Keys | Where-Object { -not $matchedKeys.Contains($_) } | Sort-Object)
+if ($unmatched.Count -gt 0) {
+    $msg = "$($unmatched.Count) value-map key(s) matched no row in the targeted table(s): $($unmatched -join ', ')"
+    if ($AllowUnmatchedKeys) { Write-Warning $msg } else { Write-Fail "$msg`nNothing was written (pass -AllowUnmatchedKeys to proceed)." }
+}
+
 Write-Host ""
-Write-Host "📊 Summary:" -ForegroundColor Cyan
-Write-Host "   Tables modified: $tablesModified" -ForegroundColor White
-Write-Host "   Column added: '$ColumnName'" -ForegroundColor White
-if ($AfterColumn -ne "") {
-    Write-Host "   Insert position: After '$AfterColumn'" -ForegroundColor White
-}
-else {
-    Write-Host "   Insert position: At end" -ForegroundColor White
-}
-Write-Host "   Default value: '$DefaultValue'" -ForegroundColor White
+Write-Host "📊 Summary: $tablesModified table(s) modified, $rowsUpdated row(s) updated, $mapHits value-map hit(s), default '$DefaultValue' elsewhere" -ForegroundColor Cyan
 
-if ($DryRun) {
+if ($tablesModified -eq 0) {
+    Write-Host "Nothing to do." -ForegroundColor Yellow
+    exit 0
+}
+
+if (-not $PSCmdlet.ShouldProcess($FilePath, "Add column '$ColumnName' to $tablesModified table(s)")) {
     Write-Host "🔍 -WhatIf preview - No changes made to file" -ForegroundColor Yellow
-    Write-Host "   To apply changes, run without -WhatIf" -ForegroundColor Yellow
+    exit 0
 }
-else {
-    # Write the modified content back to the file
-    $modifiedContent = $modifiedLines -join "`r`n"
-    Set-Content -Path $FilePath -Value $modifiedContent -NoNewline
-    Write-Host "✅ File updated successfully!" -ForegroundColor Green
+
+if ($BackupPath) {
+    Copy-Item -LiteralPath $FilePath -Destination $BackupPath -Force
+    Write-Host "✅ Backup written: $BackupPath" -ForegroundColor Green
 }
+
+foreach ($idx in $edits.Keys) { $lines[$idx] = $edits[$idx] }
+Set-Content -LiteralPath $FilePath -Value ($lines -join $newline) -NoNewline -Encoding UTF8
+Write-Host "✅ File updated: $FilePath" -ForegroundColor Green

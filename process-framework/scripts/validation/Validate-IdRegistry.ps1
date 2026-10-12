@@ -2,28 +2,42 @@
 
 <#
 .SYNOPSIS
-    Validates the ID registry against actual files in the repository
+    Validates the ID registry against actual files in the repository, including a duplicate-ID scan
 .DESCRIPTION
     This script checks for:
     - Files with wrong prefixes (e.g., TSK prefix in state-tracking directory)
     - Missing directory information in registry
     - Inconsistencies between registry and actual file locations
+    - Duplicate IDs (PF-IMP-2011): two artifacts claiming one ID, across every pool's declared
+      directories — the three shipped registries plus this workspace's own central/local registry —
+      and the PF-IMP row pool (tracker + archive). Byte-identical claimants are reported separately
+      as "identical copies" (a leftover copy, not an identity collision) and do not fail the run;
+      distinct artifacts do.
 .PARAMETER RegistryPath
     Validates against this single registry file instead of the default three (PF-id-registry.json,
     doc/PD-id-registry.json, test/TE-id-registry.json), whose prefixes are otherwise merged.
-    Retained for backward compatibility.
+    Retained for backward compatibility. The duplicate scan then covers only that registry's pools.
 .PARAMETER RootPath
     Root directory scanned for files to check against the registry. Defaults to the project's
     doc/ directory.
+.PARAMETER Portfolio
+    Chain root only (role framework-builder): extends the duplicate scan to the PORTFOLIO pools
+    (Get-PortfolioPrefixes — PF-IMP, PF-PRO, PF-FEE, PF-REV, PF-EVR) across every active registered
+    framework's process-framework-central/, tagging each claimant with its workspace. A race
+    duplicate of a portfolio pool lands in two different centrals and is invisible to any
+    single-workspace scan. Elsewhere the switch warns and is ignored.
 .EXAMPLE
     ../Validate-IdRegistry.ps1
+.EXAMPLE
+    ../Validate-IdRegistry.ps1 -Portfolio
 .NOTES
     OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
 #>
 
 param(
     [string]$RegistryPath = "",
-    [string]$RootPath = ""
+    [string]$RootPath = "",
+    [switch]$Portfolio
 )
 
 # Import the common helpers for Get-ProjectRoot
@@ -32,6 +46,76 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
     $dir = Split-Path -Parent $dir
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
+# IdRegistry.psm1 sits beside the umbrella; imported for Get-PortfolioPrefixes so the portfolio pool
+# set is read from the minter, never re-listed here (PF-IMP-2011).
+Import-Module (Join-Path $dir "IdRegistry.psm1") -Force
+
+function Invoke-FileReadWithRetry {
+    <#
+    .SYNOPSIS
+    Runs a file read, retrying a share violation for up to 5 s (100 ms steps); a missing file throws at once.
+    #>
+    param([Parameter(Mandatory)][scriptblock]$Read)
+    $deadline = (Get-Date).AddSeconds(5)
+    while ($true) {
+        try { return (& $Read) }
+        catch [System.IO.FileNotFoundException] { throw }
+        catch [System.IO.DirectoryNotFoundException] { throw }
+        catch [System.IO.IOException] {
+            if ((Get-Date) -gt $deadline) { throw }
+            Start-Sleep -Milliseconds 100
+        }
+    }
+}
+
+function Read-RegistryJson {
+    <#
+    .SYNOPSIS
+    Loads a registry JSON file LOUDLY: a share violation is retried, then thrown — never swallowed.
+    .DESCRIPTION
+    The former bare `Get-Content | ConvertFrom-Json` turned a registry held by a parallel mint
+    (IdRegistry.psm1 opens it FileShare.None for a few milliseconds) into a silent null: zero
+    prefixes loaded, every check green over nothing (PF-IMP-2011 panel finding). Read through a
+    retrying .NET call so contention waits and any other failure surfaces.
+    #>
+    param([Parameter(Mandatory)][string]$Path)
+    $raw = Invoke-FileReadWithRetry -Read { [System.IO.File]::ReadAllText($Path) }
+    return ($raw | ConvertFrom-Json -ErrorAction Stop)
+}
+
+function Test-FixturePath {
+    <#
+    .SYNOPSIS
+    True for E2E fixture trees whose frontmatter IDs deliberately mirror real artifacts.
+    .DESCRIPTION
+    workspace/, sandbox-central-seed/, sandbox-central/, synthetic-appdev/, synthetic-appdev-seed/
+    and .rollback-worktree-* are runtime artifacts or deliberate copies of real central files for
+    test consumption — their IDs (e.g. PF-SST-001 in script-soak-tracking.md) mirror the real
+    artifact's ID at the test-case path and would otherwise read as wrong-prefix or duplicate.
+    #>
+    param([Parameter(Mandatory)][string]$Path)
+    foreach ($seg in $Path.Replace('\', '/').Split('/')) {
+        if ($seg -in @('workspace', 'sandbox-central-seed', 'sandbox-central', 'synthetic-appdev', 'synthetic-appdev-seed') -or $seg -like '.rollback-worktree-*') {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Get-FrontmatterId {
+    <#
+    .SYNOPSIS
+    The `id:` declared in a markdown file's frontmatter block, or $null (body text never counts).
+    #>
+    param([AllowNull()][AllowEmptyString()][string]$Content)
+    if ([string]::IsNullOrEmpty($Content)) { return $null }
+    $c = $Content.TrimStart([char]0xFEFF)
+    if (-not $c.StartsWith('---')) { return $null }
+    $end = $c.IndexOf("`n---", 3)
+    $block = if ($end -gt 0) { $c.Substring(0, $end) } else { $c.Substring(0, [Math]::Min($c.Length, 4000)) }
+    if ($block -match '(?m)^id:\s*([A-Z]{2,4}-[A-Z0-9]{2,4}-\d+)\s*$') { return $matches[1] }
+    return $null
+}
 
 # Resolve defaults using project root for reliability
 $ProjectRoot = Get-ProjectRoot
@@ -44,7 +128,8 @@ if ([string]::IsNullOrWhiteSpace($RootPath)) {
 # At a producer role that is paths.blueprint (Get-BlueprintPath, no-fallback contract); at a
 # leaf, the operative tree. Left on the consumer key, a post-cutover producer would validate
 # the dead received projection: fresh mints read as missing while producer-face drift goes green.
-$frameworkWritePath = if ((Get-WorkspaceRole -ProjectRoot $ProjectRoot) -in @('framework', 'framework-builder')) {
+$workspaceRole = Get-WorkspaceRole -ProjectRoot $ProjectRoot
+$frameworkWritePath = if ($workspaceRole -in @('framework', 'framework-builder')) {
     Get-BlueprintPath -ProjectRoot $ProjectRoot
 } else {
     Get-ProcessFrameworkPath -ProjectRoot $ProjectRoot
@@ -65,7 +150,7 @@ if (-not [string]::IsNullOrWhiteSpace($RegistryPath)) {
 $mergedPrefixes = [PSCustomObject]@{}
 foreach ($regFile in $registryFiles) {
     if (Test-Path $regFile) {
-        $reg = Get-Content $regFile | ConvertFrom-Json
+        $reg = Read-RegistryJson -Path $regFile
         foreach ($p in $reg.prefixes.PSObject.Properties) {
             $mergedPrefixes | Add-Member -NotePropertyName $p.Name -NotePropertyValue $p.Value -Force
         }
@@ -155,20 +240,9 @@ foreach ($scanRoot in $scanRoots) {
     $files = Get-ChildItem -Path $scanRoot -Recurse -Filter "*.md" -ErrorAction SilentlyContinue
 
     foreach ($file in $files) {
-        # Exclude E2E fixture directories: workspace/, sandbox-central-seed/, sandbox-central/,
-        # synthetic-appdev/, synthetic-appdev-seed/, .rollback-worktree-*/. These are runtime
-        # artifacts or deliberate copies of real central files for test consumption — their
-        # frontmatter IDs (e.g. PF-SST-001 in script-soak-tracking.md) mirror the real artifact's
-        # ID but live at the test-case path, which would otherwise be flagged as wrong-prefix.
-        $pathSegments = $file.FullName.Replace('\', '/').Split('/')
-        $isFixtureDir = $false
-        foreach ($seg in $pathSegments) {
-            if ($seg -in @('workspace', 'sandbox-central-seed', 'sandbox-central', 'synthetic-appdev', 'synthetic-appdev-seed') -or $seg -like '.rollback-worktree-*') {
-                $isFixtureDir = $true
-                break
-            }
-        }
-        if ($isFixtureDir) { continue }
+        # Exclude E2E fixture directories (see Test-FixturePath) — deliberate copies of real
+        # artifacts whose IDs would otherwise be flagged as wrong-prefix.
+        if (Test-FixturePath -Path $file.FullName) { continue }
 
         $content = Get-Content $file.FullName -Raw -ErrorAction SilentlyContinue
         if (-not $content -or $content -notmatch "(?m)^---\s*\nid:\s*([A-Z]+-[A-Z]+-\d+)") { continue }
@@ -278,13 +352,197 @@ if ($invalidDirectories.Count -gt 0) {
 
 Write-Host ""
 
+# =========================================================================
+# Check 4: Duplicate IDs (PF-IMP-2011)
+# =========================================================================
+# Two artifacts claiming one ID is the silent failure the transactional mint in IdRegistry.psm1
+# now prevents at the counter; this check is the backstop for what the counter cannot see — a
+# historical manual assignment, a mint racing a pool move, a copy left behind by a relocation.
+# Three scan surfaces:
+#   1. File identities — every pool's declared directories: the three shipped registries PLUS this
+#      workspace's own central/local registry (which Checks 1-3 never load), `id:` frontmatter
+#      grouped by ID. Nested declared directories are visited once.
+#   2. The PF-IMP row pool — IMP rows live as `| PF-IMP-NNNN |` cells in the central tracker and
+#      its archive, not as files; escalation MOVES a row between centrals, so any ID seen twice
+#      is a genuine duplicate.
+#   3. -Portfolio (chain root only) — the portfolio pools scanned across every active registered
+#      framework's central as well, claimants tagged by workspace.
+# Byte-identical claimants are a separate "identical copy" class (a leftover copy — drift, not an
+# identity collision) and do not fail the run; distinct artifacts do.
+Write-Host "🔁 Checking for duplicate IDs$(if ($Portfolio) { ' (portfolio-wide)' })..." -ForegroundColor Yellow
+
+$idClaims = @{}   # ID -> List of claimants @{ Id; Location (workspace-relative display); FullPath; Workspace; Kind ('file' | 'row') }
+
+function Add-IdClaim {
+    param([string]$Id, [string]$Location, [string]$FullPath, [string]$Workspace, [string]$Kind)
+    if (-not $idClaims.ContainsKey($Id)) { $idClaims[$Id] = [System.Collections.Generic.List[object]]::new() }
+    if ($Kind -eq 'file' -and ($idClaims[$Id] | Where-Object { $_.Kind -eq 'file' -and $_.FullPath -eq $FullPath })) { return }
+    $idClaims[$Id].Add([pscustomobject]@{ Id = $Id; Location = $Location; FullPath = $FullPath; Workspace = $Workspace; Kind = $Kind })
+}
+
+function ConvertTo-WorkspaceRelative {
+    param([string]$FullPath, [string]$WorkspaceRoot)
+    $root = $WorkspaceRoot.Replace('\', '/').TrimEnd('/')
+    $full = $FullPath.Replace('\', '/')
+    if ($full.StartsWith("$root/", [System.StringComparison]::OrdinalIgnoreCase)) { return $full.Substring($root.Length + 1) }
+    return $full
+}
+
+function Invoke-DuplicateFileScan {
+    # Every *.md under the given directories (nested ones collapsed so a file is visited once),
+    # fixture trees skipped; -OnlyPrefixes narrows the recorded claims to the named pools.
+    param([string[]]$Directories, [string]$Workspace, [string]$WorkspaceRoot, [string[]]$OnlyPrefixes = @())
+    $tops = @()
+    foreach ($d in (@($Directories | ForEach-Object { $_.Replace('\', '/').TrimEnd('/') } | Sort-Object -Unique) | Sort-Object { $_.Length })) {
+        if (-not ($tops | Where-Object { $d.StartsWith("$_/", [System.StringComparison]::OrdinalIgnoreCase) })) { $tops += $d }
+    }
+    foreach ($top in $tops) {
+        if (-not (Test-Path -LiteralPath $top -PathType Container)) { continue }
+        foreach ($file in (Get-ChildItem -LiteralPath $top -Recurse -Filter '*.md' -File -ErrorAction SilentlyContinue)) {
+            if (Test-FixturePath -Path $file.FullName) { continue }
+            $content = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction SilentlyContinue
+            $id = Get-FrontmatterId -Content $content
+            if (-not $id) { continue }
+            if ($OnlyPrefixes.Count -gt 0 -and (($id -replace '-\d+$', '') -notin $OnlyPrefixes)) { continue }
+            Add-IdClaim -Id $id -Location (ConvertTo-WorkspaceRelative -FullPath $file.FullName -WorkspaceRoot $WorkspaceRoot) -FullPath $file.FullName -Workspace $Workspace -Kind 'file'
+        }
+    }
+}
+
+function Invoke-DuplicateRowScan {
+    # The PF-IMP row pool: tracker + archive under a central's state-tracking/permanent/.
+    param([string]$CentralRoot, [string]$Workspace, [string]$WorkspaceRoot)
+    foreach ($rel in @('state-tracking/permanent/process-improvement-tracking.md', 'state-tracking/permanent/archive/process-improvement-tracking-archive.md')) {
+        $path = Join-Path $CentralRoot $rel
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        $lines = Invoke-FileReadWithRetry -Read { [System.IO.File]::ReadAllLines($path) }
+        $display = ConvertTo-WorkspaceRelative -FullPath $path -WorkspaceRoot $WorkspaceRoot
+        for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match '^\|\s*(PF-IMP-\d+)\s*\|') {
+                Add-IdClaim -Id $matches[1] -Location "$display`:$($i + 1)" -FullPath $path -Workspace $Workspace -Kind 'row'
+            }
+        }
+    }
+}
+
+# This workspace's label, for the report.
+$ownLabel = 'this-workspace'
+try {
+    $ownCfg = Get-Content -LiteralPath (Join-Path $ProjectRoot 'doc/project-config.json') -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+    if ($ownCfg.project_id) { $ownLabel = [string]$ownCfg.project_id }
+} catch { }
+
+# Pools for the local scan: the merged shipped registries plus the own central/local registry
+# (role-routed exactly as IdRegistry.psm1 Resolve-LocalRegistryPath routes the mints).
+$dupPools = @{}
+foreach ($p in $registry.prefixes.PSObject.Properties) { $dupPools[$p.Name] = $p.Value }
+$ownRegistry = $null
+$ownRegistryPath = if ($workspaceRole -in @('framework', 'framework-builder')) {
+    Join-Path $ProjectRoot 'process-framework-central/PF-id-registry-central.json'
+} else {
+    Join-Path $ProjectRoot 'doc/state-tracking/PF-id-registry-local.json'
+}
+if ([string]::IsNullOrWhiteSpace($RegistryPath) -and (Test-Path -LiteralPath $ownRegistryPath)) {
+    $ownRegistry = Read-RegistryJson -Path $ownRegistryPath
+    foreach ($p in $ownRegistry.prefixes.PSObject.Properties) { $dupPools[$p.Name] = $p.Value }
+    Write-Host "  Loaded: $(Split-Path $ownRegistryPath -Leaf) ($(@($ownRegistry.prefixes.PSObject.Properties).Count) pools, duplicate scan)" -ForegroundColor Gray
+}
+
+$localScanDirs = @()
+foreach ($poolName in $dupPools.Keys) {
+    $pool = $dupPools[$poolName]
+    if (-not $pool.directories) { continue }
+    foreach ($dirProp in $pool.directories.PSObject.Properties) {
+        if ($dirProp.Name -eq 'default') { continue }
+        $localScanDirs += (Join-Path -Path $ProjectRoot -ChildPath (Resolve-PrefixDirectoryPath -PrefixName $poolName -RawPath $dirProp.Value))
+    }
+}
+Invoke-DuplicateFileScan -Directories $localScanDirs -Workspace $ownLabel -WorkspaceRoot $ProjectRoot
+Invoke-DuplicateRowScan -CentralRoot (Join-Path $ProjectRoot 'process-framework-central') -Workspace $ownLabel -WorkspaceRoot $ProjectRoot
+
+if ($Portfolio) {
+    if ($workspaceRole -ne 'framework-builder') {
+        Write-Host "  WARNING: -Portfolio scans registered frameworks from the chain root (role framework-builder); this workspace declares role '$workspaceRole' — portfolio scan skipped" -ForegroundColor Yellow
+    } elseif (-not $ownRegistry) {
+        Write-Host "  WARNING: -Portfolio needs this workspace's PF-id-registry-central.json for the portfolio pools' declared directories — portfolio scan skipped" -ForegroundColor Yellow
+    } else {
+        $childInfo = Get-ChildRegistryInfo -ProjectRoot $ProjectRoot
+        $childRegistry = Read-RegistryJson -Path (Join-Path $ProjectRoot "process-framework-central/$($childInfo.FileName)")
+        $portfolioPools = @(Get-PortfolioPrefixes)
+        # Central-relative declared directories of the portfolio pools, as this (root) central declares them.
+        $poolDirs = @()
+        foreach ($poolName in $portfolioPools) {
+            $pool = $ownRegistry.prefixes.$poolName
+            if (-not $pool -or -not $pool.directories) { continue }
+            foreach ($dirProp in $pool.directories.PSObject.Properties) { if ($dirProp.Name -ne 'default') { $poolDirs += $dirProp.Value } }
+        }
+        foreach ($row in $childRegistry.($childInfo.CollectionKey).PSObject.Properties) {
+            $childKey = $row.Name
+            $child = $row.Value
+            $childRole = if ($child.PSObject.Properties.Name -contains 'role' -and $child.role) { [string]$child.role } else { 'project' }
+            if ($childRole -notin $childInfo.AcceptedChildRoles) { continue }
+            if ($childKey -match $childInfo.SandboxKeyPattern) { continue }
+            if ($child.PSObject.Properties.Name -contains 'status' -and $child.status -and $child.status -ne 'active') { continue }
+            $childRoot = [string]$child.path
+            if (-not $childRoot -or -not (Test-Path -LiteralPath $childRoot -PathType Container)) {
+                Write-Host "  WARNING: $childKey path not found ($childRoot) — skipped" -ForegroundColor Yellow
+                continue
+            }
+            $childCentral = Join-Path $childRoot 'process-framework-central'
+            if (-not (Test-Path -LiteralPath $childCentral -PathType Container)) {
+                Write-Host "  WARNING: $childKey has no process-framework-central/ — skipped" -ForegroundColor Yellow
+                continue
+            }
+            Write-Host "  Portfolio: scanning $childKey ($childRoot)" -ForegroundColor Gray
+            Invoke-DuplicateFileScan -Directories @($poolDirs | ForEach-Object { Join-Path $childRoot $_ }) -Workspace $childKey -WorkspaceRoot $childRoot -OnlyPrefixes $portfolioPools
+            Invoke-DuplicateRowScan -CentralRoot $childCentral -Workspace $childKey -WorkspaceRoot $childRoot
+        }
+    }
+}
+
+# Classify: every ID with two or more claimants; byte-identical files are the "identical copy" class.
+$duplicateDistinct  = @()
+$duplicateIdentical = @()
+foreach ($id in ($idClaims.Keys | Sort-Object)) {
+    $claims = $idClaims[$id]
+    if ($claims.Count -lt 2) { continue }
+    $identical = $false
+    if (@($claims | Where-Object { $_.Kind -ne 'file' }).Count -eq 0) {
+        $hashes = @($claims | ForEach-Object { (Get-FileHash -LiteralPath $_.FullPath -Algorithm SHA256).Hash } | Sort-Object -Unique)
+        $identical = ($hashes.Count -eq 1)
+    }
+    $finding = [PSCustomObject]@{ Id = $id; Claimants = @($claims); Identical = $identical }
+    if ($identical) { $duplicateIdentical += $finding } else { $duplicateDistinct += $finding }
+}
+
+if ($duplicateDistinct.Count -gt 0) {
+    Write-Host "❌ Found duplicate IDs (distinct artifacts claiming one ID):" -ForegroundColor Red
+    foreach ($f in $duplicateDistinct) {
+        Write-Host "  $($f.Id) ($($f.Claimants.Count) claimants)" -ForegroundColor Red
+        foreach ($c in $f.Claimants) { Write-Host "      [$($c.Workspace)] $($c.Location)" -ForegroundColor Red }
+    }
+} else {
+    Write-Host "✅ No duplicate IDs among distinct artifacts" -ForegroundColor Green
+}
+if ($duplicateIdentical.Count -gt 0) {
+    Write-Host "⚠️  Identical copies sharing one ID (leftover copies — drift, not an identity collision):" -ForegroundColor Yellow
+    foreach ($f in $duplicateIdentical) {
+        Write-Host "  $($f.Id) ($($f.Claimants.Count) copies)" -ForegroundColor Yellow
+        foreach ($c in $f.Claimants) { Write-Host "      [$($c.Workspace)] $($c.Location)" -ForegroundColor Yellow }
+    }
+}
+
+Write-Host ""
+
 # Summary
 Write-Host "📊 Validation Summary:" -ForegroundColor Cyan
 Write-Host "  Wrong prefix files: $($wrongPrefixFiles.Count)" -ForegroundColor $(if ($wrongPrefixFiles.Count -eq 0) { "Green" } else { "Red" })
 Write-Host "  Missing directories: $($missingDirectories.Count)" -ForegroundColor $(if ($missingDirectories.Count -eq 0) { "Green" } else { "Red" })
 Write-Host "  Invalid directories: $($invalidDirectories.Count)" -ForegroundColor $(if ($invalidDirectories.Count -eq 0) { "Green" } else { "Red" })
+Write-Host "  Duplicate IDs (distinct artifacts): $($duplicateDistinct.Count)" -ForegroundColor $(if ($duplicateDistinct.Count -eq 0) { "Green" } else { "Red" })
+Write-Host "  Duplicate IDs (identical copies): $($duplicateIdentical.Count)" -ForegroundColor $(if ($duplicateIdentical.Count -eq 0) { "Green" } else { "Yellow" })
 
-if ($wrongPrefixFiles.Count -eq 0 -and $missingDirectories.Count -eq 0 -and $invalidDirectories.Count -eq 0) {
+if ($wrongPrefixFiles.Count -eq 0 -and $missingDirectories.Count -eq 0 -and $invalidDirectories.Count -eq 0 -and $duplicateDistinct.Count -eq 0) {
     Write-Host ""
     Write-Host "🎉 Registry validation completed successfully!" -ForegroundColor Green
     exit 0

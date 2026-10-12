@@ -32,6 +32,7 @@ from __future__ import annotations
 import queue
 import sys
 import threading
+import time
 import tkinter as tk
 
 from .discovery import DiscoveryPoller, PsutilProcessTable
@@ -101,6 +102,49 @@ def drain_queue(pending: "queue.Queue", log) -> int:
             log.exception("dispatch_callback_failed")
 
 
+def make_surface_hook(app):
+    """Build the ``on_surface`` hook the single-instance guard calls.
+
+    Lives here, at module level, rather than as a closure inside the entry
+    script: the guard's contract says the hook returns True only once the
+    window has *actually* been raised, and a closure buried in
+    ``control_panel.main()`` is unreachable by any test — regressing it to
+    return ``None`` left the whole panel suite green while every relaunch would
+    have opened a duplicate window (TD312, found reviewing PD-BUG-157).
+
+    The raise itself must happen on the UI thread, so it goes through
+    :meth:`ControlPanelApp.post` like any other worker callback and this hook
+    waits for the UI thread to report back.  Silence within *timeout* means the
+    mainloop is dead, wedged, or slower than the launcher is willing to wait —
+    all cases where the honest answer is "not surfaced", so the guard declines
+    the ack and the launching process opens a real window.
+
+    Confirmation means the UI thread ran the raise *and the raise succeeded*.
+    Reporting only that it ran acked a window that was not there whenever the
+    raise threw — a root already destroyed, a Tk that has failed — while the
+    same panel logged ``surface_failed`` (PD-BUG-159).  What confirmation still
+    does not prove is that Windows honoured the activation; a refused foreground
+    grab presents as a taskbar flash (the documented floor, TDD §4.5).
+    """
+
+    def surface_hook(timeout: float) -> bool:
+        surfaced = threading.Event()
+        deadline = time.monotonic() + timeout
+
+        def raise_window():
+            if time.monotonic() > deadline:
+                # The launcher stopped waiting and opened its own window;
+                # raising now would fight it for the foreground.
+                return
+            if app.surface():
+                surfaced.set()
+
+        app.post(raise_window)
+        return surfaced.wait(timeout)
+
+    return surface_hook
+
+
 class ControlPanelApp:
     """Wires settings, registry, discovery and the model into the window shell."""
 
@@ -120,6 +164,13 @@ class ControlPanelApp:
         self._shutdown = None
         self.shutdown_dialog = None
         self._exiting = False
+        # Fired once, the moment the panel commits to exiting.  Callers wire it
+        # to the single-instance guard's release so a panel that is on its way
+        # out stops claiming the instance slot (PD-BUG-160).  A mutable
+        # attribute rather than a constructor argument for the same reason the
+        # guard's ``on_surface`` is one: the two are wired to each other after
+        # both exist.
+        self.on_shutdown_begin = None
 
         self.root = tk.Tk()
         # Tk swallows exceptions raised inside its own callbacks by printing to
@@ -278,22 +329,33 @@ class ControlPanelApp:
     # ------------------------------------------------------------------ #
     # Surfacing (single instance / hook auto-open)
     # ------------------------------------------------------------------ #
-    def surface(self) -> None:
+    def surface(self) -> bool:
         """Raise and focus the window — the AC-11 response to a second launch.
+
+        Returns True once the window has been raised, False if it could not be.
+        The exception is still swallowed and still logged — surfacing must never
+        kill the panel — but the *outcome* now reaches the caller.  Returning
+        nothing made a failed raise indistinguishable from a successful one, so
+        the guard acked a window that did not exist while this method logged the
+        failure one line earlier (PD-BUG-159).
 
         Called on the UI thread only: the single-instance listener thread posts
         this through :meth:`post` like any other worker callback.  Windows'
         foreground lock may refuse the raise for a background process, in which
         case the taskbar button flashes instead — that is the documented
-        floor (TDD §4.5), so every step here is best-effort and non-fatal.
+        floor (TDD §4.5).  So the foreground assist sits *after* the flag is
+        set: the window is up either way, and only the activation was denied.
         """
+        raised = False
         try:
             self.root.deiconify()
             self.root.lift()
             self.root.focus_force()
+            raised = True
             self._request_foreground()
         except Exception:  # noqa: BLE001 - surfacing must never kill the panel
             self._log.exception("surface_failed")
+        return raised
 
     def _request_foreground(self) -> None:
         """Windows-only ``SetForegroundWindow`` assist; a no-op elsewhere."""
@@ -321,9 +383,20 @@ class ControlPanelApp:
         request while shutting down is ignored — the dialog owns the exit.
         No confirmation precedes this (UI Design Decision D3): the progress
         dialog itself is the visible acknowledgment of what closing does.
+
+        The single-instance claim is dropped *first*, before anything is
+        drained.  A panel that is committed to exiting is not a window a launch
+        can be sent to, but the listener kept answering for the whole drain —
+        up to the grace period plus the watchdog margin — and the raise it
+        performed genuinely succeeded, so the ack was truthful about a window
+        that was seconds from being destroyed.  The launcher exited, this panel
+        finished draining, and the operator was left with none (PD-BUG-160).
+        Dropping the claim here means such a launch finds no published port at
+        all and simply opens its own window.
         """
         if self._shutdown is not None:
             return
+        self._release_instance_claim()
         self._log.info("panel_closing (drain-then-terminate, AC-7)")
         self._shutdown = ShutdownOrchestrator(
             model=self.model,
@@ -341,6 +414,21 @@ class ControlPanelApp:
             int(self._shutdown.watchdog_delay_seconds * 1000),
             self._shutdown.watchdog_fired,
         )
+
+    def _release_instance_claim(self) -> None:
+        """Tell whoever wired ``on_shutdown_begin`` that this panel is exiting.
+
+        Best-effort and never fatal: a window the operator has asked to close
+        must close even if dropping the claim fails, and the worst case of a
+        failure here is the pre-fix behaviour rather than a stuck panel.
+        """
+        callback = self.on_shutdown_begin
+        if callback is None:
+            return  # unwired — a fail-open launch binds no listener to release
+        try:
+            callback()
+        except Exception:  # noqa: BLE001 - closing must never be blocked by this
+            self._log.exception("shutdown_claim_release_failed")
 
     def _finish_shutdown(self) -> None:
         """Orchestrator callback: exit on the next Tk tick (idempotent).

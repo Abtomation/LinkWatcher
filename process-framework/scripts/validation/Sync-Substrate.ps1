@@ -15,6 +15,16 @@
                       deletes a blueprint file (blueprint-only files are indistinguishable from
                       the framework's own domain class by path alone; retired-file reconciliation
                       is the cutover session's prune discipline, PF-PRO-068 Constraint 4).
+                      TWO SAFETY GATES precede the overwrite (PF-IMP-2027):
+                        (C) the blueprint must be COMMITTED — an overwrite of uncommitted work is
+                            unrecoverable, and recovery here is git-anchored by design. Refuses.
+                        (A) each DRIFTED file's blueprint content must match a version this
+                            workspace previously RECEIVED (read from its own git history of the
+                            consumer path, never the producer's repo — a child has neither). A
+                            file matching no received version was authored HERE: it is left
+                            untouched and reported, because overwriting it destroys the only copy.
+                            This is the E4-i class — a level-authored file on no per-level list
+                            presents as ordinary drift. Exits 1 when any file is refused.
       -Check          The drift gate: report every received file whose blueprint copy is missing
                       or differs (EOL-normalized comparison), write nothing, exit 1 on drift.
                       Push-FrameworkUpdate.ps1 runs this in preflight — a drifted producer copy
@@ -79,22 +89,11 @@ while ($dir -and !(Test-Path (Join-Path $dir "Common-ScriptHelpers.psm1"))) {
 }
 Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 
-function Get-NormalizedFileHash {
-    param([Parameter(Mandatory = $true)][string]$Path)
-    $bytes = [System.IO.File]::ReadAllBytes($Path)
-    if ($bytes -contains 0) {
-        # Binary: raw hash — CRLF bytes inside binary content are data, not line endings.
-        $ms = [System.IO.MemoryStream]::new($bytes)
-    } else {
-        $text = [System.Text.Encoding]::UTF8.GetString($bytes).Replace("`r`n", "`n")
-        $ms = [System.IO.MemoryStream]::new([System.Text.Encoding]::UTF8.GetBytes($text))
-    }
-    try {
-        return (Get-FileHash -InputStream $ms -Algorithm SHA256).Hash
-    } finally {
-        $ms.Dispose()
-    }
-}
+# Get-NormalizedFileHash comes from Core.psm1 via the Common-ScriptHelpers facade above — the
+# drift gate and the rollout preview must answer "same content?" the same way, so the policy
+# lives in one place (PF-IMP-2039). Do NOT restore a private copy here: PowerShell resolves a
+# script-scope function ahead of a module export silently, so a local re-definition would shadow
+# the shared one with no error and the two comparators would drift apart again unnoticed.
 
 $root = if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { Get-ProjectRoot } else { $ProjectRoot }
 $configPath = Join-Path -Path $root -ChildPath "doc/project-config.json"
@@ -216,15 +215,121 @@ if ($Check) {
     }
     foreach ($rel in $missing) { Write-Warning "MISSING from blueprint: $rel" }
     foreach ($rel in $drifted) { Write-Warning "DRIFTED in blueprint: $rel" }
-    Write-Error "Sync-Substrate -Check: the producer blueprint has diverged from the received payload ($($missing.Count) missing, $($drifted.Count) drifted). A drifted copy must not ship — run Sync-Substrate.ps1 to re-project, or investigate the edit (received files are parent-owned; an agent may only modify files its workspace owns)."
+    Write-Error "Sync-Substrate -Check: the producer blueprint has diverged from the received payload ($($missing.Count) missing, $($drifted.Count) drifted). A drifted copy must not ship — run Sync-Substrate.ps1 to re-project. Since PF-IMP-2027 that is safe by construction: sync refuses to run against an uncommitted blueprint, and leaves untouched any file whose content matches no version this workspace has received (a level-authored file on no per-level list looks exactly like drift). Anything it declines to project is named, and needs a classification decision or a revert — received files are parent-owned; an agent may only modify files its workspace owns."
     exit 1
 }
 
+# ---------------------------------------------------------------------------------------------
 # Sync mode: additive projection consumer -> blueprint (byte-exact copies).
+#
+# TWO SAFETY GATES STAND IN FRONT OF THE OVERWRITE (PF-IMP-2027 direction 2). Before them, sync
+# projected every drifted file with Copy-Item -Force. That is correct for the COMMON case (the
+# blueprint is stale after a rollout and must adopt the received bytes) and destructive for the
+# rare one: a file that is LEVEL-AUTHORED in fact but classified as substrate — because it is on
+# no per-level list — presents as ordinary drift and is silently replaced. That is the E4-i
+# incident class; it was caught by hand twice, and the -Check error text actively prescribes the
+# destructive action ("run Sync-Substrate.ps1 to re-project").
+#
+# The manifest's documented "a forgotten file fails safe" guarantee holds on the SUPPORT axis
+# (an over-shipped file is edit-refused clutter) but NOT on the per-level axis, where the same
+# omission costs data. These gates close that asymmetry by fixing the default rather than by
+# adding an opt-out.
+# ---------------------------------------------------------------------------------------------
+
+function Invoke-GitHere {
+    # Run git in the workspace root; return @{ Ok; Out }. Never throws — a workspace without git
+    # is a legitimate state the caller degrades on explicitly (no silent fallback).
+    param([string[]]$GitArgs)
+    try {
+        $out = & git -C $root @GitArgs 2>&1
+        return @{ Ok = ($LASTEXITCODE -eq 0); Out = @($out) }
+    } catch {
+        return @{ Ok = $false; Out = @($_.Exception.Message) }
+    }
+}
+
+$inGitRepo = (Invoke-GitHere -GitArgs @('rev-parse', '--is-inside-work-tree')).Ok
+
+# ---- GATE C: the destination must be committed, so every overwrite is git-recoverable. --------
+# Recovery in this portfolio is git-anchored by design (PF-PRO-067 Question D). An overwrite of an
+# UNCOMMITTED blueprint file is unrecoverable by any means, so it is refused rather than warned
+# about. A dirty CONSUMER face is a different problem — it means the provenance history Gate A
+# reads may be incomplete (a receive that was never committed leaves no version to match) — so it
+# degrades Gate A to "cannot verify" rather than blocking the run. Measured 2026-08-30: appdev
+# commits its receives (8 versions in history), the legal face does not (28 files dirty, 1 commit),
+# so both states are live in the portfolio today.
+if (-not $inGitRepo) {
+    throw "Sync-Substrate: '$root' is not a git working tree, so an overwrite here could not be undone and a file's received-version history cannot be read. Sync refuses rather than projecting unrecoverably. Use -Check to inspect the drift."
+}
+$dirtyBlueprint = @((Invoke-GitHere -GitArgs @('status', '--porcelain', '--', $producerFull)).Out | Where-Object { $_ })
+if ($dirtyBlueprint.Count -gt 0) {
+    foreach ($line in ($dirtyBlueprint | Select-Object -First 20)) { Write-Warning "UNCOMMITTED in blueprint: $line" }
+    throw "Sync-Substrate: the producer blueprint has $($dirtyBlueprint.Count) uncommitted change(s) (listed above, first 20). Projecting now would overwrite work that git could not restore. Commit or review the blueprint first, then re-run."
+}
+$dirtyConsumer = @((Invoke-GitHere -GitArgs @('status', '--porcelain', '--', $consumerFull)).Out | Where-Object { $_ })
+if ($dirtyConsumer.Count -gt 0) {
+    Write-Warning "The consumer face has $($dirtyConsumer.Count) uncommitted change(s) — an uncommitted receive leaves no committed version for the provenance check to match, so some files below may report UNVERIFIED purely for that reason. Committing the received payload first makes the check exact."
+}
+
+function Test-BlueprintIsPriorReceive {
+    # GATE A, per file: is the blueprint's CURRENT content a version this workspace has previously
+    # RECEIVED at the consumer path? If yes, the blueprint is merely stale and adopting the new
+    # bytes loses nothing. If it matches no received version, the content was authored HERE — the
+    # level-authorship candidate — and overwriting it destroys the only copy.
+    #
+    # Provenance is read from THIS workspace's own git history of the consumer path. It must NOT
+    # depend on the producer's repository: a child generally does not have FB's tags, or FB's repo
+    # at all. (Verified 2026-08-30 at the legal face: its own history identified its blueprint copy
+    # as the first-receive version.)
+    #
+    # Compared through Get-NormalizedFileHash on a temp file rather than on piped text: routing a
+    # git blob through a PowerShell text pipeline (Out-String) normalizes trailing newlines and
+    # silently reports two IDENTICAL files as different — measured during this change, where it
+    # produced 2 false level-authorship candidates out of 16.
+    param([string]$Rel, [string]$BlueprintPath)
+
+    $bpHash = Get-NormalizedFileHash -Path $BlueprintPath
+    $consumerRelForGit = (Join-Path -Path $consumerRel -ChildPath $Rel) -replace '\\', '/'
+
+    $log = Invoke-GitHere -GitArgs @('log', '--all', '--format=%H', '--', $consumerRelForGit)
+    if (-not $log.Ok) { return @{ Verdict = 'Unverified'; Reason = 'git log failed for the consumer path' } }
+    $commits = @($log.Out | Where-Object { $_ -match '^[0-9a-f]{40}$' })
+    if ($commits.Count -eq 0) {
+        return @{ Verdict = 'Unverified'; Reason = 'the consumer path has no committed history, so no received version exists to compare against' }
+    }
+
+    $tmp = [System.IO.Path]::GetTempFileName()
+    try {
+        foreach ($sha in $commits) {
+            $show = Invoke-GitHere -GitArgs @('show', "${sha}:$consumerRelForGit")
+            if (-not $show.Ok) { continue }
+            [System.IO.File]::WriteAllLines($tmp, @($show.Out))
+            if ((Get-NormalizedFileHash -Path $tmp) -eq $bpHash) {
+                return @{ Verdict = 'PriorReceive'; Reason = "matches the version received at $($sha.Substring(0,8))" }
+            }
+        }
+    }
+    finally {
+        Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue
+    }
+    return @{ Verdict = 'NoMatch'; Reason = "content matches none of the $($commits.Count) received version(s) of this path" }
+}
+
 $synced = 0
+$refused = @()
 foreach ($rel in ($missing + $drifted)) {
     $src = Join-Path -Path $consumerFull -ChildPath $rel
     $dst = Join-Path -Path $producerFull -ChildPath $rel
+
+    # MISSING files have no blueprint copy, so there is nothing to destroy — they skip Gate A.
+    if ($rel -in $drifted) {
+        $prov = Test-BlueprintIsPriorReceive -Rel $rel -BlueprintPath $dst
+        if ($prov.Verdict -ne 'PriorReceive') {
+            $refused += "{0} — {1} ({2})" -f $rel, $(if ($prov.Verdict -eq 'NoMatch') { 'LEVEL-AUTHORED?' } else { 'UNVERIFIED' }), $prov.Reason
+            continue
+        }
+    }
+
     if ($PSCmdlet.ShouldProcess($dst, "Project received file into blueprint (from $src)")) {
         $dstDir = Split-Path -Parent $dst
         if (-not (Test-Path -LiteralPath $dstDir)) {
@@ -234,5 +339,20 @@ foreach ($rel in ($missing + $drifted)) {
         $synced++
     }
 }
-Write-Host "Sync-Substrate: received=$($received.Count) clean=$clean projected=$synced (missing $($missing.Count) + drifted $($drifted.Count))."
+
+if ($refused.Count -gt 0) {
+    foreach ($r in $refused) { Write-Warning "NOT PROJECTED: $r" }
+    Write-Warning @"
+$($refused.Count) file(s) were left untouched because their blueprint content matches no version this workspace has received. Each is one of two things, and they need opposite actions:
+  (a) LEVEL-AUTHORED here — this workspace owns the content. Classify the path in payload-manifest.json (per_level_files, or framework_level_files for a catalog a producer face generates) so no rollout or sync ever overwrites it. Escalate to the manifest's owning workspace; a child cannot classify its own received tree.
+  (b) An edit to a received file — received files are parent-owned. Revert it here and re-file the change as an IMP upstream.
+Until each is dispositioned the drift gate stays red for these paths, which is the intended state: the blocked rollout is the symptom of an unmade classification decision, not of this script.
+"@
+}
+Write-Host "Sync-Substrate: received=$($received.Count) clean=$clean projected=$synced refused=$($refused.Count) (missing $($missing.Count) + drifted $($drifted.Count))."
+if ($refused.Count -gt 0) {
+    # Non-zero exit: the run did NOT reach the state the caller asked for, and a preflight that
+    # read this as success would ship a blueprint still diverged from the received payload.
+    exit 1
+}
 exit 0

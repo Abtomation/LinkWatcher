@@ -3,9 +3,9 @@ id: PF-TSK-069
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.5
+version: 1.7
 created: 2026-03-15
-updated: 2026-07-20
+updated: 2026-09-04
 change_notes: "v1.5 - PF-IMP-1592 BL-5 residue removal: Step 7's per-field customization bullets collapsed to the e2e-test-case-creation skill's field-customization guidance"
 description: "Create concrete, reproducible E2E acceptance test cases from test specifications with exact steps, file contents, and expected outcomes"
 complexity: medium
@@ -19,7 +19,7 @@ automation: semi
 scripts:
   - ../../scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1
 trigger_status:
-  - raw: "E2E spec / bug report / refactoring plan _(multi-path)_"
+  - raw: "E2E spec / bug report / refactoring plan / `e2e-test-tracking.md` → Discovered Scenario Gaps row at `⬜ Not Created` _(multi-path)_"
 output_status:
   - raw: "`e2e-test-tracking.md` → `📋 Needs Execution` → (audit gate) → `✅ Audit Approved`"
 next_tasks:
@@ -77,12 +77,13 @@ This task bridges the gap between test specifications (which define _what_ to te
 ### Preparation
 
 1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `e2e-acceptance-test-case-creation-task`. If the `e2e-test-case-creation` craft skill is available in the session, activate it — it owns the **customization craft** this task delegates to (how to fill test-case.md, the fixtures, and run.ps1 well, including the hermetic-central pattern). If it is not listed in the session, read [`SKILL.md`](../../../.claude/skills/e2e-test-case-creation/SKILL.md) directly and apply it — that file is the canonical source the Skill tool loads, so a direct read is equivalent, not degraded. The customization craft is unavailable for this run only if the skill file itself is absent (the retired procedural customization guide has no successor).
-2. **Identify the workflow context**: Determine which path triggered this task (new feature, bug fix, tech debt, or enhancement) — this affects what inputs are available and what the test cases need to demonstrate
+2. **Identify the workflow context**: Determine which path triggered this task (new feature, bug fix, tech debt, enhancement, or a **discovered scenario gap**) — this affects what inputs are available and what the test cases need to demonstrate
 3. **Review inputs based on context**:
    - **New feature/enhancement**: Read the cross-cutting E2E test specification's scenarios section. Identify which scenarios need individual test cases and which group they belong to
    - **Cross-feature milestone**: Read the [cross-cutting E2E test specification](../../../test/specifications/cross-cutting-specs) for the triggered workflow. Use `-FeatureIds` to attribute the test case to all participating features and `-Workflow` to link to the workflow map
    - **Bug fix**: Read the bug report. Extract the reproduction steps and define what "fixed" looks like as a concrete expected outcome
    - **Tech debt**: Read the refactoring plan. Identify behaviors that must be preserved and create baseline E2E acceptance test cases that capture current correct behavior
+   - **Discovered scenario gap**: Read the `⬜ Not Created` row in the [Discovered Scenario Gaps](../../../test/state-tracking/permanent/e2e-test-tracking.md) table. Its Scenario cell defines what must be exercised and its Source names where the gap was found (usually a bug fix). Build the case against that scenario and close the row with `-ResolvesGap` at Step 6
 4. **Review existing test cases**: Check `test/e2e-acceptance-testing/<workflow-slug>/templates/` for existing test cases in the same workflow. Determine whether the new test case joins an existing workflow (master test already present) or initiates the workflow's first master test (`-NewMaster` switch).
    > **Layout (PF-IMP-871 Phase 3c2)**: Per-workflow e2e dirs live under `test/e2e-acceptance-testing/<workflow-slug>/{templates,workspace,results}/`. Test cases sit directly under `templates/` (no intermediate group layer). The workflow's `templates/` subdir is pre-scaffolded by `New-WorkflowEntry.ps1` (Phase 3c1); `-NewMaster` adds the master test file inside it.
 5. **🚨 CHECKPOINT**: Present the test case plan to the human partner:
@@ -97,6 +98,8 @@ This task bridges the gap between test specifications (which define _what_ to te
    ```bash
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1 -TestCaseName "descriptive-name" -Workflow "workflow-slug" -FeatureIds "X.Y.Z" -FeatureName "Feature Name" -NewMaster -Source "Test Spec TE-TSP-NNN" -Description "Brief description" -Confirm:\$false
    ```
+   > **Closing a discovered scenario gap**: add `-ResolvesGap "GAP-NNN"` so the gap row flips to `✅ Covered` and records this case in its Resolved By column. A gap ID matching no row warns and leaves the created case intact — correct the row by hand rather than re-running.
+   >
    > The script automatically: creates the `<workflow>/templates/<E2E-NNN>-[name]/` directory with `project/`, `expected/`, and `test-case.md`; assigns an E2E ID from the registry; updates the master test's "If Failed" table; adds an entry to e2e-test-tracking.md; updates feature-tracking.md Test Status. When `-NewMaster` is used, also creates the workflow's `master-test-<workflow>.md` (with a TE-E2G ID), adds a TE-E2G master row to the E2E Test Cases table, and updates the Workflow Milestone Tracking table.
    >
    > When `-Scripted` is used, the script also creates a `run.ps1` skeleton and sets `Execution Mode` to `scripted` in test-case.md. Scripted test cases can be executed automatically via [Run-E2EAcceptanceTest.ps1](../../scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) or manually by following the Steps section.
@@ -160,7 +163,7 @@ The following state files must be updated as part of this task:
 |-----------|-----------|---------------|---------|
 | **Creates** | Test case directory: `E2E-NNN-<name>/` | `New-E2EAcceptanceTestCase.ps1` | Contains `test-case.md`, `project/`, `expected/`, optional `run.ps1` |
 | **Creates** | Master test file (new groups) | `New-E2EAcceptanceTestCase.ps1` | `master-test-<group-name>.md` with quick validation sequences |
-| **Updates** | [`e2e-test-tracking.md`](../../../test/state-tracking/permanent/e2e-test-tracking.md) | `New-E2EAcceptanceTestCase.ps1` | New E2E acceptance test entries added |
+| **Updates** | [`e2e-test-tracking.md`](../../../test/state-tracking/permanent/e2e-test-tracking.md) | `New-E2EAcceptanceTestCase.ps1` | New E2E acceptance test entries added; with `-ResolvesGap`, the named Discovered Scenario Gaps row flips to `✅ Covered` |
 | **Updates** | [`feature-tracking.md`](../../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Test Status updated |
 
 ## Next Tasks
@@ -201,3 +204,4 @@ What is the context?
 - [E2E Acceptance Test Case Template](../../templates/03-testing/e2e-acceptance-test-case-template.md) — Template for individual test case files
 - [E2E Acceptance Master Test Template](../../templates/03-testing/e2e-acceptance-master-test-template.md) — Template for group-level quick validation files
 - [`e2e-test-case-creation` craft skill](../../../.claude/skills/e2e-test-case-creation/SKILL.md) — the test-case customization craft (replaces the retired customization guide); activated by the Check Recommended Skills step
+- [Test Authoring Guide (PF-GDE-079)](../../guides/03-testing/test-authoring-guide.md) — the agnostic test-authoring procedure; an instruction-fixture oracle observed failing on a wrong-order run is its Phase 3 in E2E form

@@ -2,9 +2,9 @@
 id: PF-TSK-051
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-12-11
-updated: 2026-06-12
+updated: 2026-09-04
 description: "Implement data models, repositories, and database integration for feature"
 complexity: medium
 use_when: >-
@@ -98,19 +98,13 @@ Implement data models, repositories, and database integration for feature
    - Add error handling and exception mapping
    - Implement data transformation (database → model)
    - Add logging for debugging
-9. **Write Data Layer Tests**: Create tracked unit tests for models and repositories using `New-TestFile.ps1`
+9. **Write Data Layer Tests**: Create tracked unit tests for models and repositories using `New-TestFile.ps1`, each authored and proved per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079)
 
    ```powershell
    # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "DataModel"
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "Repository"
-
-   # Script automatically:
-   # - Writes pytest markers (feature, priority, test_type)
-   # - Creates test file from template with proper structure
-   # - Updates test-tracking.md with correct file links and status
-   # - Updates feature-tracking.md with test implementation progress
    ```
 
    - Test model serialization/deserialization
@@ -182,7 +176,7 @@ Implement data models, repositories, and database integration for feature
 | **Creates** | Data model classes | Manual | Model classes in source data directory with serialization, validation |
 | **Creates** | Repository interface | Manual | Repository contract in source repositories directory |
 | **Creates** | Repository implementation | Manual | Concrete repository implementation |
-| **Creates** | Unit tests | `New-TestFile.ps1` | Test files in `/test/unit/data/[feature]/` for models and repositories |
+| **Creates** | Unit tests | `New-TestFile.ps1` | Test files for models and repositories, placed by `-TestType` in the project's own test subdirectories |
 | **Executes** | Database migrations | Manual | Run database migration scripts to create database schema |
 | **Updates** | [Feature Implementation State File](../../state-tracking/permanent/feature-[feature-id]-implementation.md) | Manual | Update task sequence tracking, code inventory, implementation notes, issues log |
 | **Updates** | [`test-tracking.md`](../../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` (auto) | Automated test file registration |

@@ -4,7 +4,7 @@
     "policy": "Raising a budget is an owner-escalation door under the workspace Standing Orders. Resolve an over-budget warning by compressing the file, or by a deliberate owner-approved bump recorded here - never silently.",
     "counting": "Whitespace-separated tokens of the raw file, frontmatter and code blocks included.",
     "created": "2026-08-04",
-    "updated": "2026-08-13"
+    "updated": "2026-09-20"
   },
   "budgets": {
     "guides/01-planning/architectural-framework-usage-guide.md": {
@@ -22,6 +22,10 @@
     "guides/03-testing/performance-testing-guide.md": {
       "words": 3226,
       "set": "2026-08-04"
+    },
+    "guides/03-testing/test-authoring-guide.md": {
+      "words": 1533,
+      "set": "2026-09-03"
     },
     "guides/03-testing/test-infrastructure-guide.md": {
       "words": 3150,
@@ -79,6 +83,10 @@
     "guides/framework/issue-classification-and-routing-guide.md": {
       "words": 1113,
       "set": "2026-08-04"
+    },
+    "guides/framework/standing-orders-guide.md": {
+      "words": 1533,
+      "set": "2026-09-03"
     },
     "guides/framework/task-execution-protocol-guide.md": {
       "words": 1577,
@@ -334,8 +342,9 @@
       "set": "2026-08-04"
     },
     "tasks/06-maintenance/bug-triage-task.md": {
-      "words": 2204,
-      "set": "2026-08-04"
+      "words": 2470,
+      "set": "2026-09-20",
+      "reason": "PF-PRO-078 (Defect Chain Representation) owner-approved bump 2026-09-20 from 2204: Step 5 decision S3b approved 2270 on a ~220-word estimate; the chain walk, Step 11b, the Frequency reading rule and the Reopen link measured 2451 after compression, and the owner chose the bump over removing operative content."
     },
     "tasks/06-maintenance/code-refactoring-lightweight-path.md": {
       "words": 2464,
@@ -348,6 +357,10 @@
     "tasks/06-maintenance/code-refactoring-task.md": {
       "words": 2307,
       "set": "2026-08-04"
+    },
+    "tasks/06-maintenance/code-review-bug-fix-path.md": {
+      "words": 853,
+      "set": "2026-09-03"
     },
     "tasks/06-maintenance/code-review-task.md": {
       "words": 4067,

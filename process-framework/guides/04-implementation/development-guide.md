@@ -2,9 +2,9 @@
 id: PF-GDE-007
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.1
 created: 2025-06-10
-updated: 2025-06-10
+updated: 2026-09-04
 description: "Best practices and guidelines for development"
 ---
 
@@ -187,6 +187,8 @@ When implementing or modifying a feature, check which user workflows it particip
 - Keep sensitive data secure and properly protected
 
 ## Testing Strategy
+
+> Every test written under this strategy is authored and proved per the [Test Authoring Guide (PF-GDE-079)](../03-testing/test-authoring-guide.md).
 
 ### 1. Unit Tests
 

@@ -24,7 +24,12 @@ Supports four operation modes:
    which replaces rather than appends; this script appends, matching its own -Notes semantics.
 
 For enhancements, also updates feature-tracking.md to set the target feature's status
-to "Needs Enhancement" with a link to the Enhancement State Tracking File.
+to "Needs Enhancement" with a link to the Enhancement State Tracking File. The target feature's
+row is confirmed before anything is written: an -FeatureId with no row fails the run with both
+files untouched, so it can be corrected and re-run.
+
+Every row is written by column name through the shared table helpers, so a literal pipe in note
+text is escaped and a line break inside it is refused before any write.
 
 .PARAMETER RequestId
 The feature request ID to update (e.g., "PD-FRQ-001")
@@ -39,13 +44,15 @@ The target feature ID (e.g., "6.1.1" for enhancements, or "2.1.2" for new featur
 The new status. Valid values: Completed, Deferred, Rejected
 
 .PARAMETER Notes
-Additional notes to add to the Notes column (e.g., Enhancement State File link)
+Additional notes to add to the Notes column (e.g., Enhancement State File link). Leading and
+trailing whitespace is trimmed, so a value read with (Get-Content <file> -Raw) keeps no trailing
+newline; a line break inside the text is refused.
 
 .PARAMETER AppendNotes
 Text to append to the Notes column of a request still in the Active table, with no status
 change (NotesEdit mode — mutually exclusive with -NewStatus). The existing Notes value is
 appended to, not overwritten, and the append is idempotent: re-running with text already
-present in the cell leaves the file untouched.
+present in the cell leaves the file untouched. Trimmed and line-break-checked like -Notes.
 
 .PARAMETER FeatureName
 Name of the new feature (new feature classification only). When provided with -Classification
@@ -170,6 +177,13 @@ if (-not $FeatureTrackingFile) {
     $FeatureTrackingFile = Resolve-DocPath -Subpath "state-tracking/permanent/feature-tracking.md"
 }
 $CurrentDate = Get-Date -Format "yyyy-MM-dd"
+$ActiveSection = "## Active Feature Requests"
+
+# A value read with (Get-Content <file> -Raw), the Script Development Quick Reference's recipe for
+# quote-heavy prose, keeps the file's trailing newline, which splits the table row it lands in
+# (PF-IMP-2355). Cells are trimmed on read, so trimming here loses nothing.
+$Notes = $Notes.Trim()
+if ($AppendNotes) { $AppendNotes = $AppendNotes.Trim() }
 
 function Test-Prerequisites {
     Write-ProjectLog "Checking prerequisites..."
@@ -197,8 +211,32 @@ function Test-Prerequisites {
         return $false
     }
 
+    # The enhancement flip's target row is confirmed here, before any write (PF-IMP-2355): checked
+    # after the request tracker was written, a wrong id left the request closed and the feature
+    # unflipped, with no way to re-run the closure.
+    if ($NewStatus -eq "Completed" -and $Classification -eq "Enhancement" -and $EnhancementStateFile -and
+        -not (Test-FeatureRowPresent -Content (Get-Content $FeatureTrackingFile -Raw) -FeatureId $FeatureId)) {
+        Write-ProjectLog "Feature $FeatureId has no row in $FeatureTrackingFile (matched on the first column) - nothing was written; correct -FeatureId and re-run" -Level "ERROR"
+        return $false
+    }
+
     Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
     return $true
+}
+
+function Test-FeatureRowPresent {
+    # The row predicate Update-MarkdownTable applies when it writes: the FIRST cell, link text
+    # resolved, equals the id. Anything looser passes a Dependencies mention or a longer id
+    # (1.1.1 inside 11.1.1) for a row the writer then never touches.
+    param([string]$Content, [string]$FeatureId)
+
+    foreach ($line in ($Content -split '\r?\n')) {
+        $cells = Split-MarkdownTableRow -Line $line
+        if ($null -ne $cells -and $cells.Count -gt 0 -and (Get-MarkdownLinkText $cells[0]) -eq $FeatureId) {
+            return $true
+        }
+    }
+    return $false
 }
 
 # --- Content-transformation functions ---
@@ -214,6 +252,51 @@ function Join-RequestNote {
     return $New
 }
 
+function Get-StoredCellText {
+    # The form a value takes once written into a cell: ConvertTo-MarkdownTableRow escapes a literal
+    # pipe as '\|'. Comparisons against a stored cell must use this form, not the raw input.
+    param([string]$Text)
+    return $Text -replace '(?<!\\)\|', '\|'
+}
+
+function Get-ActiveRequestRow {
+    # Locates a request in the Active table: its raw line, 1-based line number and the table's
+    # header — everything Set-ActiveRequestCells needs. $null when the request is not there.
+    param([string]$Content, [string]$RequestId)
+
+    $row = ConvertFrom-MarkdownTable -Content $Content -Section $ActiveSection -IncludeRawLine -IncludeLineNumber |
+        Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
+    if (-not $row) { return $null }
+
+    return [pscustomobject]@{
+        Line       = $row._RawLine
+        LineNumber = $row._LineNumber
+        Headers    = @(Get-MarkdownTableHeaders -Content $Content -SectionHeading $ActiveSection)
+    }
+}
+
+function Set-ActiveRequestCells {
+    # Rewrites cells of one Active row by column NAME (PF-IMP-2355), never by position.
+    # Set-MarkdownTableCell escapes pipes, refuses a line break, and throws on a column the header
+    # lacks — before anything is written; Set-MarkdownTableRow replaces only that line. $AppendNote
+    # is joined onto the existing Notes cell.
+    param(
+        [string]$Content,
+        [object]$Row,
+        [hashtable]$Updates = @{},
+        [string]$AppendNote = ""
+    )
+
+    $cells = $Updates.Clone()
+    if ($AppendNote) {
+        $existing = Get-MarkdownTableCell -Line $Row.Line -Headers $Row.Headers -Header 'Notes'
+        $cells['Notes'] = Join-RequestNote -Existing $existing -New $AppendNote
+    }
+
+    $newLine = Set-MarkdownTableCell -Line $Row.Line -Headers $Row.Headers -Updates $cells
+    return Set-MarkdownTableRow -Content $Content -LineNumber $Row.LineNumber -NewRow $newLine -ExpectedRow $Row.Line
+}
+
 function Update-RequestRow {
     param(
         [string]$Content,
@@ -223,35 +306,22 @@ function Update-RequestRow {
         [string]$Notes
     )
 
-    # Find the request row in the Active table (column-aware lookup)
-    $rows = ConvertFrom-MarkdownTable -Content $Content -Section "## Active Feature Requests" -IncludeRawLine
-    $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
-
+    $row = Get-ActiveRequestRow -Content $Content -RequestId $RequestId
     if (-not $row) {
         Write-ProjectLog "Feature request not found in Active table: $RequestId" -Level "ERROR"
         return $null
     }
-
-    $currentEntry = $row._RawLine
     Write-ProjectLog "Found feature request entry for $RequestId"
 
-    # Parse columns: | ID | Source | Description | Feature | Classification | Status | Last Updated | Notes |
-    $columns = Split-MarkdownTableRow -Line $currentEntry
-
-    # Update columns
+    $updates = @{}
     if ($Classification) {
-        $classLabel = if ($Classification -eq "NewFeature") { "New Feature" } else { "Enhancement" }
-        $columns[4] = $classLabel
+        $updates['Classification'] = if ($Classification -eq "NewFeature") { "New Feature" } else { "Enhancement" }
     }
     if ($FeatureId) {
-        $columns[3] = $FeatureId
-    }
-    if ($Notes) {
-        $columns[7] = Join-RequestNote -Existing $columns[7] -New $Notes
+        $updates['Feature'] = $FeatureId
     }
 
-    $updatedEntry = "| " + ($columns -join " | ") + " |"
-    $result = $Content.Replace($currentEntry, $updatedEntry)
+    $result = Set-ActiveRequestCells -Content $Content -Row $row -Updates $updates -AppendNote $Notes
 
     Write-ProjectLog "Updated $RequestId columns" -Level "SUCCESS"
     return $result
@@ -267,40 +337,28 @@ function Add-RequestNote {
         [string]$Note
     )
 
-    $rows = ConvertFrom-MarkdownTable -Content $Content -Section "## Active Feature Requests" -IncludeRawLine
-    $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
-
+    $row = Get-ActiveRequestRow -Content $Content -RequestId $RequestId
     if (-not $row) {
         Write-ProjectLog "Feature request not found in the Active table: $RequestId (notes can only be appended to an open request)" -Level "ERROR"
         return $null
     }
 
-    $currentEntry = $row._RawLine
-    $columns = Split-MarkdownTableRow -Line $currentEntry
-
-    # Resolve the target columns by header NAME, not by fixed index — a table that gains a column
-    # would otherwise silently write the note into the wrong cell (the PF-IMP-006 lesson from
-    # Update-TechDebt.ps1 -EditNotes). ConvertFrom-MarkdownTable already names each row property
-    # after its column, in column order, so the parsed row doubles as the header map.
-    $headers = @($row.PSObject.Properties.Name | Where-Object { $_ -notlike '_*' })
-    $notesIdx = [Array]::IndexOf($headers, 'Notes')
-    if ($notesIdx -lt 0) {
+    $existing = Get-MarkdownTableCell -Line $row.Line -Headers $row.Headers -Header 'Notes'
+    if ($null -eq $existing) {
         Write-ProjectLog "Active Feature Requests table has no 'Notes' column" -Level "ERROR"
         return $null
     }
 
-    if ($columns[$notesIdx] -like "*$Note*") {
+    # A literal substring test against the stored form: -like would read a markdown link's
+    # brackets as a wildcard character class and throw, or miss the match (PF-IMP-2355).
+    if ($existing.Contains((Get-StoredCellText $Note))) {
         Write-ProjectLog "Notes for $RequestId already contain this text — nothing to append" -Level "WARN"
         return [pscustomobject]@{ Content = $Content; Changed = $false }
     }
 
-    $columns[$notesIdx] = Join-RequestNote -Existing $columns[$notesIdx] -New $Note
-
-    $updatedIdx = [Array]::IndexOf($headers, 'Last Updated')
-    if ($updatedIdx -ge 0) { $columns[$updatedIdx] = $CurrentDate }
-
-    $updatedEntry = "| " + ($columns -join " | ") + " |"
-    $result = $Content.Replace($currentEntry, $updatedEntry)
+    $updates = @{}
+    if ($row.Headers -contains 'Last Updated') { $updates['Last Updated'] = $CurrentDate }
+    $result = Set-ActiveRequestCells -Content $Content -Row $row -Updates $updates -AppendNote $Note
 
     Write-ProjectLog "Appended notes to $RequestId" -Level "SUCCESS"
     return [pscustomobject]@{ Content = $result; Changed = $true }
@@ -412,7 +470,11 @@ function Add-UpdateHistoryEntry {
         return $null
     }
 
-    $historyRow = "| $CurrentDate | $HistoryNote | $UpdatedBy |"
+    # Built from the table's own header, so a pipe in the note is escaped rather than splitting
+    # the row into extra cells (PF-IMP-2355).
+    $historyRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading "## Update History" -ValueMap @{
+        'Date' = $CurrentDate; 'Action' = $HistoryNote; 'Updated By' = $UpdatedBy
+    }
     $lines.Insert($insertAfterIndex + 1, $historyRow)
 
     Write-ProjectLog "Added Update History entry" -Level "SUCCESS"
@@ -429,18 +491,7 @@ function Update-FeatureTrackingForEnhancement {
 
     $ftContent = Get-Content $FeatureTrackingFile -Raw
 
-    # Find the feature row and update Status column to "🔄 Needs Enhancement"
-    # The feature ID might be wrapped in a link: [6.1.1](path)
-    $featurePattern = "\|[^\n]*(?:\[$([regex]::Escape($FeatureId))\]|$([regex]::Escape($FeatureId)))[^\n]*\|"
-    $ftMatch = [regex]::Match($ftContent, $featurePattern)
-
-    if (-not $ftMatch.Success) {
-        Write-ProjectLog "Feature $FeatureId not found in feature-tracking.md" -Level "WARN"
-        Write-ProjectLog "You will need to manually update feature-tracking.md" -Level "WARN"
-        return
-    }
-
-    # Use Update-MarkdownTable to set status
+    # Test-Prerequisites confirmed the target row with this writer's own predicate before any write.
     $ftContent = Update-MarkdownTable `
         -Content $ftContent `
         -FeatureId $FeatureId `
@@ -448,19 +499,24 @@ function Update-FeatureTrackingForEnhancement {
         -Status "🔄 Needs Enhancement" `
         -Notes $EnhancementStateFile
 
-    if ($ftContent) {
-        # Update frontmatter date
-        $ftContent = Update-FrontmatterDate -Content $ftContent -CurrentDate $CurrentDate
+    # Update frontmatter date
+    $ftContent = Update-FrontmatterDate -Content $ftContent -CurrentDate $CurrentDate
 
-        # PF-IMP-801: recompute Progress Summary — Status flip from any value to 🔄 Needs
-        # Enhancement shifts the Implementation Status Overview breakdown.
-        $ftContent = Update-FeatureTrackingSummary -Content $ftContent
+    # PF-IMP-801: recompute Progress Summary — Status flip from any value to 🔄 Needs
+    # Enhancement shifts the Implementation Status Overview breakdown.
+    $ftContent = Update-FeatureTrackingSummary -Content $ftContent
 
-        Set-Content -Path $FeatureTrackingFile -Value $ftContent -NoNewline
-        Write-ProjectLog "Updated feature $FeatureId to 'Needs Enhancement' in feature-tracking.md" -Level "SUCCESS"
-    } else {
-        Write-ProjectLog "Failed to update feature-tracking.md — update manually" -Level "WARN"
+    Set-Content -Path $FeatureTrackingFile -Value $ftContent -NoNewline
+
+    # Read-after-write verification (PF-PRO-077 / PF-IMP-2126): assert the flipped row by id and
+    # status, at its header width. A backstop now that the prerequisite check shares the writer's
+    # row predicate — it fails only if Update-MarkdownTable itself did not flip the row.
+    if (-not $WhatIfPreference) {
+        $ftRowPattern = "^\|\s*\[?" + [regex]::Escape($FeatureId) + "\b.*\|\s*" + [regex]::Escape("🔄 Needs Enhancement") + "\s*\|"
+        Assert-TableRowInFile -Path $FeatureTrackingFile -Pattern $ftRowPattern -Context "feature $FeatureId → 🔄 Needs Enhancement in $FeatureTrackingFile"
     }
+
+    Write-ProjectLog "Updated feature $FeatureId to 'Needs Enhancement' in feature-tracking.md" -Level "SUCCESS"
 }
 
 # --- Main ---
@@ -503,6 +559,15 @@ function Main {
         $content = Update-FrontmatterDate -Content $content
 
         Set-Content -Path $TrackingFile -Value $content -NoNewline
+
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126): the appended text sits at the
+        # end of the row's Notes cell — in its stored, pipe-escaped form — and the row must still
+        # be at the Active table's width.
+        if (-not $WhatIfPreference) {
+            $notesRowPattern = "^\|\s*" + [regex]::Escape($RequestId) + "\s*\|.*" + [regex]::Escape((Get-StoredCellText $AppendNotes)) + "\s*\|"
+            Assert-TableRowInFile -Path $TrackingFile -Pattern $notesRowPattern -Context "$RequestId notes appended in $TrackingFile"
+        }
+
         Write-ProjectLog "Feature request tracking file updated successfully" -Level "SUCCESS"
         Write-ProjectSummary "$RequestId → notes appended"
         return
@@ -532,29 +597,20 @@ function Main {
         $content = Update-SummaryCount -Content $content
     }
     elseif ($isDeferReject) {
-        # Column-aware lookup of the Active row (shared by both the Deferred and Rejected paths).
-        $rows = ConvertFrom-MarkdownTable -Content $content -Section "## Active Feature Requests" -IncludeRawLine
-        $row = $rows | Where-Object { $_.ID -eq $RequestId } | Select-Object -First 1
+        # Active-row lookup shared by both the Deferred and Rejected paths.
+        $row = Get-ActiveRequestRow -Content $content -RequestId $RequestId
 
         if (-not $row) {
             Write-ProjectLog "Feature request not found in Active table: $RequestId" -Level "ERROR"
             exit 1
         }
 
-        $currentEntry = $row._RawLine
-        $columns = Split-MarkdownTableRow -Line $currentEntry
-
         if ($NewStatus -eq "Rejected") {
             # Rejected requests are terminal: move them out of the Active intake view into the
             # collapsed archive so rejections don't accumulate in the active queue (PF-IMP-1220).
             # The archive table has no Status column, so the disposition rides in the
             # Classification column ("❌ Rejected") and the rejection date in Completed Date.
-            $columns[4] = $DisplayStatus   # "❌ Rejected" → Classification column (carried by the move)
-            if ($Notes) {
-                $columns[7] = Join-RequestNote -Existing $columns[7] -New $Notes
-            }
-            $updatedEntry = "| " + ($columns -join " | ") + " |"
-            $content = $content.Replace($currentEntry, $updatedEntry)
+            $content = Set-ActiveRequestCells -Content $content -Row $row -Updates @{ 'Classification' = $DisplayStatus } -AppendNote $Notes
 
             # Move Active → Completed Requests (carries Classification; adds Completed Date), then
             # recount the collapsed section.
@@ -566,13 +622,7 @@ function Main {
         else {
             # Deferred requests stay in the Active table (postponed; may be reactivated later) —
             # update Status / Last Updated / Notes in place.
-            $columns[5] = $DisplayStatus
-            $columns[6] = $CurrentDate
-            if ($Notes) {
-                $columns[7] = Join-RequestNote -Existing $columns[7] -New $Notes
-            }
-            $updatedEntry = "| " + ($columns -join " | ") + " |"
-            $content = $content.Replace($currentEntry, $updatedEntry)
+            $content = Set-ActiveRequestCells -Content $content -Row $row -Updates @{ 'Status' = $DisplayStatus; 'Last Updated' = $CurrentDate } -AppendNote $Notes
             Write-ProjectLog "Updated $RequestId status to $DisplayStatus" -Level "SUCCESS"
         }
     }
@@ -581,8 +631,8 @@ function Main {
     $classLabel = if ($Classification -eq "NewFeature") { "New Feature" } elseif ($Classification -eq "Enhancement") { "Enhancement" } else { "" }
     $historyNote = switch ($NewStatus) {
         "Completed" { "Classified $RequestId as $classLabel (feature $FeatureId) — $DisplayStatus" }
-        "Deferred"  { "Deferred $RequestId`: $Notes" }
-        "Rejected"  { "Rejected $RequestId`: $Notes" }
+        "Deferred"  { if ($Notes) { "Deferred ${RequestId}: $Notes" } else { "Deferred $RequestId" } }
+        "Rejected"  { if ($Notes) { "Rejected ${RequestId}: $Notes" } else { "Rejected $RequestId" } }
     }
 
     $content = Add-UpdateHistoryEntry -Content $content -HistoryNote $historyNote -UpdatedBy $UpdatedBy
@@ -623,6 +673,19 @@ function Main {
             Write-ProjectLog "New-FeatureImplementationState.ps1 not found at: $stateScript" -Level "WARN"
             Write-ProjectLog "Create the feature state file manually" -Level "WARN"
         }
+    }
+
+    # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), placed after EVERY write of the run —
+    # the request tracker (above), the Enhancement feature-tracking write, and the NewFeature
+    # subprocess — so a false throw can fail the run but never leave a half-updated tree.
+    # Completed and Rejected rows now sit in Completed Requests (Feature | Classification |
+    # Completed Date); Deferred rows stay in Active (Status | Last Updated). Including the date
+    # keeps an older archived row with the same id from satisfying the check.
+    if (-not $WhatIfPreference) {
+        $writtenTail = if ($isCompletion) { @($FeatureId, $classLabel, $CurrentDate) } else { @($DisplayStatus, $CurrentDate) }
+        $escapedTail = ($writtenTail | ForEach-Object { [regex]::Escape($_) }) -join "\s*\|\s*"
+        $rowPattern = "^\|\s*" + [regex]::Escape($RequestId) + "\s*\|.*\|\s*" + $escapedTail + "\s*\|"
+        Assert-TableRowInFile -Path $TrackingFile -Pattern $rowPattern -Context "$RequestId → $DisplayStatus in $TrackingFile"
     }
 
     # Summary line

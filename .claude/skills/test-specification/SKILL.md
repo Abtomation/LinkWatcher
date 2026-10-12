@@ -4,11 +4,10 @@ description: >-
   Craft for customizing a Test Specification (TE-TSP) well — the "how to fill it" half of the
   framework's Test Specification Creation task (PF-TSK-012). Covers tier-appropriate automated-test
   depth, mapping TDD components to test categories, mock requirements, the Implementation Coverage
-  line, and the testing-level separation of concerns; a bundled reference holds the test-file
-  customization craft (New-TestFile.ps1 TestType/Priority selection, mock strategy) consulted by any
-  task that creates test files. Activated from the Test Specification Creation task's
-  Check-Recommended-Skills step (via recommended_skills); not a test-implementation, test-audit, or
-  E2E/performance-scoping skill.
+  line, and the testing-level separation of concerns. Activated from the Test Specification
+  Creation task's Check-Recommended-Skills step (via recommended_skills); not a test-authoring
+  skill (writing and proving tests, and the test-file mechanics, are the test-authoring craft),
+  and not a test-audit or E2E/performance-scoping skill.
 user-invocable: false
 ---
 
@@ -18,10 +17,9 @@ This skill owns the **craft** of customizing a Test Specification — *how* to t
 behavioral, automated-test requirements at the tier-appropriate depth. It is the customization-craft
 home for the **Test Specification Creation task (PF-TSK-012)**, which owns everything else: task
 selection, role, checkpoints, document creation via script, state-file updates, and the feedback
-form. Its [test-file customization reference](references/test-file-customization.md) is also the
-craft home consulted inline by the tasks that *implement* tests (Integration and Testing, Core
-Logic Implementation, Bug Fixing, Code Refactoring, Feature Enhancement) when they create test
-files.
+form. Writing and proving the tests a spec defines — and the test-file mechanics — is the
+[`test-authoring` craft](../test-authoring/SKILL.md), consulted by the tasks that *implement*
+tests; this skill stops at the specification.
 
 > **Division of labor.** The task owns process; this skill owns craft. Do **not** run checkpoints,
 > create the document, or write state from this skill — those stay in the task. This skill drives
@@ -40,7 +38,9 @@ TDD**, translating architectural design into behavioral test requirements.
 Test Specifications cover **automated tests** (unit, integration, component; E2E automation at
 Tier 3). E2E *acceptance* tests are identified by cross-cutting milestone triggers, and performance
 tests are identified after code review by the Performance & E2E Test Scoping task — that "when to
-test" judgment is the `perf-e2e-scoping` craft, not this one.
+test" judgment is the `perf-e2e-scoping` craft, not this one. How to write a test that can fail
+(discriminating condition, fail-first, mutation verification) and how to create the file are the
+`test-authoring` craft.
 
 ## Tier-appropriate test depth
 
@@ -80,9 +80,9 @@ rules and the cross-reference format live in the
 
 ## Implementing the tests a spec defines
 
-When a task creates or customizes actual test files (`New-TestFile.ps1` — TestType and Priority
-selection, mock strategy, customizing the generated scaffolding), load
-[references/test-file-customization.md](references/test-file-customization.md).
+When a task writes the tests a spec defines, the procedure is the Test Authoring Guide
+(PF-GDE-079) and the judgment — including `New-TestFile.ps1` parameter selection, scaffold
+customization and mock strategy — is the [`test-authoring` skill](../test-authoring/SKILL.md).
 
 ## Edge cases
 

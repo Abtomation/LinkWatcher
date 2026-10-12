@@ -3,9 +3,9 @@ id: PF-TSK-066
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.5
+version: 2.6
 created: 2026-02-17
-updated: 2026-08-05
+updated: 2026-09-04
 change_notes: "v2.3 - Step 0 extended to also activate the onboarding-edge-cases craft skill (confidence-tagging craft; retired guide), alongside the batch-1 architecture-decision activation (Craft-as-Skill BL-5 batch 5)"
 description: "Create tier assessments and required design documentation"
 complexity: complex
@@ -188,7 +188,7 @@ This is the final onboarding task that transforms code analysis into formal desi
      - *Steps 12-13 "Mocks and Coverage"*: Migrate existing mocks/fixtures; run coverage to establish baseline
      - *Steps 17-18 "Run and Review"*: Execute migrated tests to confirm they still pass
      - *Steps 20-22 "Bug Discovery"*: Skip — migration should not introduce new bugs; report only if pre-existing tests were already failing
-     - *Step 24 "Validate Test Tracking"*: Run `Validate-TestTracking.ps1` to confirm registration is consistent
+     - *Step 25 "Validate Test Tracking"*: Run `Validate-TestTracking.ps1` to confirm registration is consistent
    - **After migration**: Remove the original pre-existing test files. The framework-structured files are the sole test artifacts
    - **State updates**: test-tracking.md, feature-tracking.md Test Status, and Feature Implementation State File are updated by `New-TestFile.ps1` automation
    - Update master state: Tests Migrated ✅ for this feature

@@ -239,8 +239,16 @@ class TestMainFlowWiring:
 
             return _f
 
-        monkeypatch.setattr(install_global, "stop_daemons_using_venv", record("stop_venv_daemons"))
+        # Returns [] like the real function — main() reports the stopped count in
+        # its abort message (PD-BUG-158), so a None-returning stub would diverge
+        # from the contract and fail there for a reason production never has.
+        monkeypatch.setattr(
+            install_global, "stop_daemons_using_venv", record("stop_venv_daemons", [])
+        )
         monkeypatch.setattr(install_global, "venv_python_locked", record("lock_gate", False))
+        # Keeps the abort path's holder report hermetic — unstubbed it shells out
+        # to PowerShell for a live process query.
+        monkeypatch.setattr(install_global, "find_venv_daemon_processes", lambda venv_dir: [])
         monkeypatch.setattr(install_global, "check_python_version", record("pyver", True))
         monkeypatch.setattr(install_global, "install_dependencies", record("deps", True))
         monkeypatch.setattr(install_global, "install_linkwatcher", record("copy", True))

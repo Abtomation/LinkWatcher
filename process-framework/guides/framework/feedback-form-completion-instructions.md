@@ -2,9 +2,9 @@
 id: PF-GDE-017
 type: Process Framework
 category: Guide
-version: 1.2
+version: 1.3
 created: 2025-07-13
-updated: 2026-06-11
+updated: 2026-08-19
 description: "Standardized feedback form completion process referenced by all task definitions to eliminate duplication"
 owned_by: FWK-FB
 ---
@@ -40,7 +40,7 @@ The AI agent fills in all sections of the feedback form: task-level evaluation, 
 The script automatically:
 - Names the file using format: `YYYYMMDD-HHMMSS-document-id-feedback.md`
 - Places the file in `process-framework-central/feedback/feedback-forms/`
-- Assigns unique artifact IDs (`ART-FEE-XXX`) in metadata
+- Assigns unique artifact IDs (`PF-FEE-NNNN`) in metadata
 
 ### Step 3: Follow Completion Guidelines
 

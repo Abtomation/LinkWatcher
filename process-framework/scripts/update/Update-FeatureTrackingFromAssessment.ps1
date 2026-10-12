@@ -328,6 +328,26 @@ try {
     # Update feature tracking with assessment results
     $updateResult = Update-FeatureTrackingStatus -FeatureId $FeatureId -Status $Status -AdditionalUpdates $additionalUpdates -Notes $notesString
 
+    # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). The helper call above is the
+    # run's only write, so the assertion sits directly after it. Assert-TableRowInFile, not
+    # Assert-LineInFile: the shared helper returns no found/not-found signal and writes the file
+    # even when no row matched, so "the row exists, is header-width, and carries the value just
+    # written" is the only detector of a reports-success-writes-nothing run. One call per written
+    # value — Status and the Doc Tier link are whole cells; the assessment note is APPENDED to the
+    # Notes cell, so it is matched as a suffix and only when this run actually supplied one (an
+    # assessment already recorded blanks $notesString above).
+    if (-not $WhatIfPreference) {
+        $rowIdentity = "^\|\s*\[?" + [regex]::Escape($FeatureId) + "\b(?:\]\([^)]*\))?\s*\|"
+        foreach ($writtenValue in @($Status, $additionalUpdates["Doc Tier"])) {
+            $rowPattern = $rowIdentity + "(?:[^|]*\|)*\s*" + [regex]::Escape($writtenValue) + "\s*\|"
+            Assert-TableRowInFile -Path $featureTrackingPath -Pattern $rowPattern -Context "feature $FeatureId → '$writtenValue' in $featureTrackingPath"
+        }
+        if ($notesString) {
+            $notePattern = $rowIdentity + ".*" + [regex]::Escape($notesString) + "\s*\|"
+            Assert-TableRowInFile -Path $featureTrackingPath -Pattern $notePattern -Context "assessment note for $FeatureId in $featureTrackingPath"
+        }
+    }
+
     Write-ProjectSuccess -Message "Feature tracking updated successfully" -Details @(
         "Feature: $FeatureId",
         "Status: $Status",

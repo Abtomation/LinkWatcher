@@ -26,6 +26,10 @@ Status values are supplied as plain words and rendered to the tracker's emoji le
 the framework convention (Update-FeatureRequest.ps1, Update-TechDebt.ps1), which keeps emoji off
 the command line where shell encoding can mangle them.
 
+Every row is written by column name through the shared table helpers: a literal pipe in cell text
+is escaped, a line break is refused, and a column the table lacks fails the run before anything
+is written.
+
 .PARAMETER ExplorationId
 The exploration ID to update (e.g., "PD-EXP-001")
 
@@ -39,7 +43,9 @@ a full markdown link. Required when resolving: a resolved exploration without it
 document is a dead end for the downstream task that reads it.
 
 .PARAMETER Notes
-Additional notes to append to the Notes column
+Additional notes to append to the Notes column. Leading and trailing whitespace is trimmed (as for
+-FindingsDoc and -AppendNotes), so a value read with (Get-Content <file> -Raw) keeps no trailing
+newline.
 
 .PARAMETER AppendNotes
 Text to append to the Notes column of an exploration still in the Active table, with no status
@@ -144,6 +150,13 @@ $StatusDisplayMap = @{
 $ActiveSection   = "## Active Explorations"
 $ResolvedSection = "## Resolved Explorations"
 
+# A value read with (Get-Content <file> -Raw), the Script Development Quick Reference's recipe for
+# quote-heavy prose, keeps the file's trailing newline, which splits the table row it lands in
+# (PF-IMP-2350). Cells are trimmed on read, so trimming here loses nothing.
+$Notes = $Notes.Trim()
+$FindingsDoc = $FindingsDoc.Trim()
+if ($AppendNotes) { $AppendNotes = $AppendNotes.Trim() }
+
 function Test-Prerequisites {
     Write-ProjectLog "Checking prerequisites..."
 
@@ -176,40 +189,52 @@ function Join-ExplorationNote {
     return $New
 }
 
+function Get-StoredCellText {
+    # The form a value takes once written into a cell: ConvertTo-MarkdownTableRow escapes a literal
+    # pipe as '\|'. Comparisons against a stored cell must use this form, not the raw input.
+    param([string]$Text)
+    return $Text -replace '(?<!\\)\|', '\|'
+}
+
 function Get-ActiveExplorationRow {
-    # Column-aware lookup of an Active-table row. Returns the parsed row (with _RawLine) or $null.
+    # Locates an exploration in the Active table: its raw line, 1-based line number and the table's
+    # header — everything Set-ActiveExplorationCells needs. $null (logged) when it is not there.
     param([string]$Content, [string]$ExplorationId)
 
-    $rows = ConvertFrom-MarkdownTable -Content $Content -Section $ActiveSection -IncludeRawLine
-    $row = $rows | Where-Object { $_.ID -eq $ExplorationId } | Select-Object -First 1
+    $row = ConvertFrom-MarkdownTable -Content $Content -Section $ActiveSection -IncludeRawLine -IncludeLineNumber |
+        Where-Object { $_.ID -eq $ExplorationId } | Select-Object -First 1
 
     if (-not $row) {
         Write-ProjectLog "Exploration not found in the Active table: $ExplorationId" -Level "ERROR"
         return $null
     }
-    return $row
-}
-
-function Get-ColumnIndexMap {
-    # Resolve column indices by header NAME, not fixed position — a table that gains a column would
-    # otherwise silently write into the wrong cell (the PF-IMP-006 lesson from Update-TechDebt.ps1).
-    # ConvertFrom-MarkdownTable names each row property after its column, in column order, so the
-    # parsed row doubles as the header map.
-    param($Row)
-    return @($Row.PSObject.Properties.Name | Where-Object { $_ -notlike '_*' })
-}
-
-function Set-RowCell {
-    # Write $Value into the column named $Header, or warn and leave the row untouched.
-    param([string[]]$Columns, [string[]]$Headers, [string]$Header, [string]$Value)
-
-    $idx = [Array]::IndexOf($Headers, $Header)
-    if ($idx -lt 0) {
-        Write-ProjectLog "Active Explorations table has no '$Header' column — skipped" -Level "WARN"
-        return $Columns
+    return [pscustomobject]@{
+        Line       = $row._RawLine
+        LineNumber = $row._LineNumber
+        Headers    = @(Get-MarkdownTableHeaders -Content $Content -SectionHeading $ActiveSection)
     }
-    $Columns[$idx] = $Value
-    return $Columns
+}
+
+function Set-ActiveExplorationCells {
+    # Rewrites cells of one Active row by column NAME (PF-IMP-2350). Set-MarkdownTableCell escapes
+    # pipes, refuses a line break, and throws on a column the header lacks — before anything is
+    # written, so a value the table cannot hold is never silently dropped; Set-MarkdownTableRow
+    # replaces only that line. $AppendNote is joined onto the existing Notes cell.
+    param(
+        [string]$Content,
+        [object]$Row,
+        [hashtable]$Updates = @{},
+        [string]$AppendNote = ""
+    )
+
+    $cells = $Updates.Clone()
+    if ($AppendNote) {
+        $existing = Get-MarkdownTableCell -Line $Row.Line -Headers $Row.Headers -Header 'Notes'
+        $cells['Notes'] = Join-ExplorationNote -Existing $existing -New $AppendNote
+    }
+
+    $newLine = Set-MarkdownTableCell -Line $Row.Line -Headers $Row.Headers -Updates $cells
+    return Set-MarkdownTableRow -Content $Content -LineNumber $Row.LineNumber -NewRow $newLine -ExpectedRow $Row.Line
 }
 
 function Add-ExplorationNote {
@@ -224,26 +249,20 @@ function Add-ExplorationNote {
         return $null
     }
 
-    $currentEntry = $row._RawLine
-    $columns = Split-MarkdownTableRow -Line $currentEntry
-    $headers = Get-ColumnIndexMap -Row $row
-
-    $notesIdx = [Array]::IndexOf($headers, 'Notes')
-    if ($notesIdx -lt 0) {
+    $existing = Get-MarkdownTableCell -Line $row.Line -Headers $row.Headers -Header 'Notes'
+    if ($null -eq $existing) {
         Write-ProjectLog "Active Explorations table has no 'Notes' column" -Level "ERROR"
         return $null
     }
 
-    if ($columns[$notesIdx] -like "*$Note*") {
+    # A literal substring test against the stored form: -like would read a markdown link's
+    # brackets as a wildcard character class and throw, or miss the match (PF-IMP-2350).
+    if ($existing.Contains((Get-StoredCellText $Note))) {
         Write-ProjectLog "Notes for $ExplorationId already contain this text — nothing to append" -Level "WARN"
         return [pscustomobject]@{ Content = $Content; Changed = $false }
     }
 
-    $columns[$notesIdx] = Join-ExplorationNote -Existing $columns[$notesIdx] -New $Note
-    $columns = Set-RowCell -Columns $columns -Headers $headers -Header 'Last Updated' -Value $CurrentDate
-
-    $updatedEntry = "| " + ($columns -join " | ") + " |"
-    $result = $Content.Replace($currentEntry, $updatedEntry)
+    $result = Set-ActiveExplorationCells -Content $Content -Row $row -Updates @{ 'Last Updated' = $CurrentDate } -AppendNote $Note
 
     Write-ProjectLog "Appended notes to $ExplorationId" -Level "SUCCESS"
     return [pscustomobject]@{ Content = $result; Changed = $true }
@@ -352,7 +371,11 @@ function Add-UpdateHistoryEntry {
         return $null
     }
 
-    $historyRow = "| $CurrentDate | $HistoryNote | $UpdatedBy |"
+    # Built from the table's own header, so a pipe in the note is escaped rather than splitting
+    # the row into extra cells (PF-IMP-2350).
+    $historyRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading "## Update History" -ValueMap @{
+        'Date' = $CurrentDate; 'Action' = $HistoryNote; 'Updated By' = $UpdatedBy
+    }
     $lines.Insert($insertAfterIndex + 1, $historyRow)
 
     Write-ProjectLog "Added Update History entry" -Level "SUCCESS"
@@ -397,6 +420,18 @@ function Main {
         $content = Update-FrontmatterDate -Content $content
 
         Set-Content -Path $TrackingFile -Value $content -NoNewline
+
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This is the notes-only run's
+        # ONLY write — the row edit, the Update History entry, the history recount and the
+        # frontmatter date all land in this one Set-Content. Assert-TableRowInFile, not
+        # Assert-LineInFile: it re-reads the row against its header — a backstop behind
+        # Set-MarkdownTableCell's pre-write shape check. The note is APPENDED to whatever the Notes
+        # cell already held, so it is matched as a suffix of its cell, in its stored escaped form.
+        if (-not $WhatIfPreference) {
+            $notesRowPattern = "^\|\s*" + [regex]::Escape($ExplorationId) + "\s*\|.*" + [regex]::Escape((Get-StoredCellText $AppendNotes)) + "\s*\|"
+            Assert-TableRowInFile -Path $TrackingFile -Pattern $notesRowPattern -Context "$ExplorationId notes appended in $TrackingFile"
+        }
+
         Write-ProjectLog "Technical exploration tracking file updated successfully" -Level "SUCCESS"
         Write-ProjectSummary "$ExplorationId → notes appended"
         return
@@ -410,24 +445,9 @@ function Main {
         $row = Get-ActiveExplorationRow -Content $content -ExplorationId $ExplorationId
         if (-not $row) { exit 1 }
 
-        $currentEntry = $row._RawLine
-        $columns = Split-MarkdownTableRow -Line $currentEntry
-        $headers = Get-ColumnIndexMap -Row $row
-
-        $columns = Set-RowCell -Columns $columns -Headers $headers -Header 'Status' -Value $DisplayStatus
-        $columns = Set-RowCell -Columns $columns -Headers $headers -Header 'Last Updated' -Value $CurrentDate
-        if ($FindingsDoc) {
-            $columns = Set-RowCell -Columns $columns -Headers $headers -Header 'Findings Doc' -Value $FindingsDoc
-        }
-        if ($Notes) {
-            $notesIdx = [Array]::IndexOf($headers, 'Notes')
-            if ($notesIdx -ge 0) {
-                $columns[$notesIdx] = Join-ExplorationNote -Existing $columns[$notesIdx] -New $Notes
-            }
-        }
-
-        $updatedEntry = "| " + ($columns -join " | ") + " |"
-        $content = $content.Replace($currentEntry, $updatedEntry)
+        $updates = @{ 'Status' = $DisplayStatus; 'Last Updated' = $CurrentDate }
+        if ($FindingsDoc) { $updates['Findings Doc'] = $FindingsDoc }
+        $content = Set-ActiveExplorationCells -Content $content -Row $row -Updates $updates -AppendNote $Notes
         Write-ProjectLog "Updated $ExplorationId status to $DisplayStatus" -Level "SUCCESS"
     }
     elseif ($isTerminal) {
@@ -436,22 +456,9 @@ function Main {
         $row = Get-ActiveExplorationRow -Content $content -ExplorationId $ExplorationId
         if (-not $row) { exit 1 }
 
-        $currentEntry = $row._RawLine
-        $columns = Split-MarkdownTableRow -Line $currentEntry
-        $headers = Get-ColumnIndexMap -Row $row
-
-        if ($FindingsDoc) {
-            $columns = Set-RowCell -Columns $columns -Headers $headers -Header 'Findings Doc' -Value $FindingsDoc
-        }
-        if ($Notes) {
-            $notesIdx = [Array]::IndexOf($headers, 'Notes')
-            if ($notesIdx -ge 0) {
-                $columns[$notesIdx] = Join-ExplorationNote -Existing $columns[$notesIdx] -New $Notes
-            }
-        }
-
-        $updatedEntry = "| " + ($columns -join " | ") + " |"
-        $content = $content.Replace($currentEntry, $updatedEntry)
+        $updates = @{}
+        if ($FindingsDoc) { $updates['Findings Doc'] = $FindingsDoc }
+        $content = Set-ActiveExplorationCells -Content $content -Row $row -Updates $updates -AppendNote $Notes
 
         $content = Move-ToResolvedSection -Content $content -ExplorationId $ExplorationId -Outcome $DisplayStatus
         if ($null -eq $content) { exit 1 }
@@ -463,7 +470,7 @@ function Main {
     $historyNote = switch ($NewStatus) {
         "InProgress" { "Started research on $ExplorationId" }
         "Resolved"   { "Resolved $ExplorationId — findings: $FindingsDoc" }
-        "Abandoned"  { "Abandoned $ExplorationId`: $Notes" }
+        "Abandoned"  { if ($Notes) { "Abandoned ${ExplorationId}: $Notes" } else { "Abandoned $ExplorationId" } }
     }
 
     $content = Add-UpdateHistoryEntry -Content $content -HistoryNote $historyNote -UpdatedBy $UpdatedBy
@@ -474,6 +481,34 @@ function Main {
 
     # Single write
     Set-Content -Path $TrackingFile -Value $content -NoNewline
+
+    # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), placed after the run's LAST (and
+    # only) write — the row rewrite, the terminal move, the archive recount, the Update History
+    # entry and the frontmatter date all land in this one Set-Content — so a false throw can fail
+    # the run but never leave a half-updated file. Assert-TableRowInFile, not Assert-LineInFile: it
+    # re-reads the row against the header of the table it now sits in — a backstop behind
+    # Set-MarkdownTableCell (which throws before writing on a missing column or a drifted row) and
+    # the move's own shape gate. One call per written value keeps the check independent of column
+    # order; values are matched in their stored, pipe-escaped form.
+    if (-not $WhatIfPreference) {
+        # Terminal: the row has MOVED under '## Resolved Explorations' (no Status column), where
+        # the move wrote Outcome and Resolved Date. In place: Status and Last Updated. Either way
+        # the two values are the display status and today's date.
+        $verifyValues = @($DisplayStatus, $CurrentDate)
+        if ($FindingsDoc) { $verifyValues += $FindingsDoc }
+
+        foreach ($value in $verifyValues) {
+            $rowPattern = "^\|\s*" + [regex]::Escape($ExplorationId) + "\s*\|(?:[^|]*\|)*\s*" + [regex]::Escape((Get-StoredCellText $value)) + "\s*\|"
+            Assert-TableRowInFile -Path $TrackingFile -Pattern $rowPattern -Context "$ExplorationId → '$value' in $TrackingFile"
+        }
+
+        # -Notes is APPENDED to whatever the Notes cell already held (Join-ExplorationNote), so it
+        # is matched as a suffix of its cell rather than as a whole cell.
+        if ($Notes) {
+            $notesRowPattern = "^\|\s*" + [regex]::Escape($ExplorationId) + "\s*\|.*" + [regex]::Escape((Get-StoredCellText $Notes)) + "\s*\|"
+            Assert-TableRowInFile -Path $TrackingFile -Pattern $notesRowPattern -Context "$ExplorationId notes appended in $TrackingFile"
+        }
+    }
 
     Write-ProjectLog "Technical exploration tracking file updated successfully" -Level "SUCCESS"
 

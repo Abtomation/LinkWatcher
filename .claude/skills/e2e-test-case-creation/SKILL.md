@@ -8,7 +8,9 @@ description: >-
   master-test Quick Validation Sequences, naming conventions, and (via reference) the
   hermetic-central pattern for scripted tests that touch central framework state. Activated from
   the E2E Acceptance Test Case Creation task's Check-Recommended-Skills step (via
-  recommended_skills); not a test-execution, test-audit, or test-scoping skill.
+  recommended_skills); not a test-execution, test-audit, test-scoping, or general test-authoring skill
+  (the E2E form of proving a test — an oracle observed failing — lives here; the procedure it
+  instantiates is the Test Authoring Guide's, whose judgment is the test-authoring craft).
 user-invocable: false
 ---
 

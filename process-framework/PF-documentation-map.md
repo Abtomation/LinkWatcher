@@ -29,7 +29,8 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 ## guides/03-testing
 
 - [performance-testing-guide.md](guides/03-testing/performance-testing-guide.md) — 4-level performance testing methodology with baselines, trend tracking, and decision matrix
-- [test-infrastructure-guide.md](guides/03-testing/test-infrastructure-guide.md) — How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, new-project scaffolding, and pre-existing-test migration
+- [test-authoring-guide.md](guides/03-testing/test-authoring-guide.md) — The agnostic test-authoring procedure every test-writing task cites as an executable step: name the discriminating condition, choose harness and home, write, prove the test fails for the defect's reason (fail-first or mutation), record the contrast, sync tracking
+- [test-infrastructure-guide.md](guides/03-testing/test-infrastructure-guide.md) — How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, attributing failures you did not cause, new-project scaffolding, and pre-existing-test migration
 
 ## guides/04-implementation
 
@@ -58,6 +59,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [feedback-form-guide.md](guides/framework/feedback-form-guide.md) — Comprehensive guide for completing feedback forms effectively (referenced by all tasks)
 - [information-flow-guide.md](guides/framework/information-flow-guide.md) — Information flow patterns, task ownership boundaries, cross-reference standards, and separation of concerns between tasks
 - [issue-classification-and-routing-guide.md](guides/framework/issue-classification-and-routing-guide.md) — Decision guide for classifying a discovered issue (product bug, feature request, framework improvement, or technical debt) and routing it to the correct tracker.
+- [standing-orders-guide.md](guides/framework/standing-orders-guide.md) — The portfolio governance mechanism (PF-PRO-059, shipped by PF-PRO-071): what a workspace's Standing Orders grant table is, the grant classes and provenance markers, the tripwires, the Fast-Track Lane, and the owner-review contract - the agnostic mechanism whose per-workspace instance lives in each CLAUDE.md (instantiated from the standing-orders template)
 - [task-execution-protocol-guide.md](guides/framework/task-execution-protocol-guide.md) — The universal execution spine every task runs under — task selection, role adoption, the Read-Do step contract, and session-end (state updates and feedback). The selected task's definition plugs in at a placeholder. Holds once what was formerly stamped into every task (PF-IMP-1128 / F4).
 - [terminology-guide.md](guides/framework/terminology-guide.md) — Explains the terminology separation between Process Framework and Product Documentation
 
@@ -76,11 +78,11 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 
 ## scripts
 
-- [Add-MarkdownTableColumn.ps1](scripts/Add-MarkdownTableColumn.ps1) — Inserts a new column into a markdown feature table (optionally after a named column, with a default cell value).
+- [Add-MarkdownTableColumn.ps1](scripts/Add-MarkdownTableColumn.ps1) — Inserts a column into markdown table(s) — section-scoped, header-driven, with a per-row value map — leaving every other cell untouched.
 - [Common-ScriptHelpers.psm1](scripts/Common-ScriptHelpers.psm1) — Common helper functions for PowerShell scripts across the project
 - [extract_ratings.py](scripts/extract_ratings.py) — Extract ratings from feedback form markdown files for feedback_db.py record.
 - [feedback_db.py](scripts/feedback_db.py) — Feedback Ratings Database — Persistent storage for feedback form ratings.
-- [Find-Improvement.ps1](scripts/Find-Improvement.ps1) — Searches the central Process Improvement tracker, its Completed/Rejected archive, and the Improvement Backlog for rows matching a keyword, printing each match with its current disposition and a readable context snippet; an exact-ID lookup renders the full row with its outbound cross-references resolved.
+- [Find-Improvement.ps1](scripts/Find-Improvement.ps1) — Searches the central Process Improvement tracker, its Completed/Rejected archive, and the Improvement Backlog for rows matching a keyword, printing each match with its current disposition and a readable context snippet; an exact-ID lookup renders the full row with its outbound cross-references resolved. -Artifact lists the open rows targeting one artifact and -GroupByArtifact renders the per-artifact overview of open work (PF-PRO-072).
 - [Get-FeatureDesignArtifacts.ps1](scripts/Get-FeatureDesignArtifacts.ps1) — Cross-feature query for design artifacts recorded in feature state files.
 - [IdRegistry.psm1](scripts/IdRegistry.psm1) — Central ID management for process-framework projects — registry resolution, ID generation, and prefix/directory lookups.
 - [WorkspaceResolution.psm1](scripts/WorkspaceResolution.psm1) — Workspace resolution primitives shared by Common-ScriptHelpers/Core.psm1 and IdRegistry.psm1 — project root, declared role, config read, framework faces, the parent-pointer chain walk, and central resolution.
@@ -140,6 +142,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [New-AuditTracking.ps1](scripts/file-creation/03-testing/New-AuditTracking.ps1) — Creates a new test audit tracking state file for a multi-session audit round.
 - [New-E2EAcceptanceTestCase.ps1](scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1) — Creates a new E2E acceptance test case with an automatically assigned E2E-NNN ID.
 - [New-E2EMilestoneEntry.ps1](scripts/file-creation/03-testing/New-E2EMilestoneEntry.ps1) — Adds a new workflow milestone entry to e2e-test-tracking.md.
+- [New-E2EScenarioGap.ps1](scripts/file-creation/03-testing/New-E2EScenarioGap.ps1) — Adds a discovered scenario gap to e2e-test-tracking.md.
 - [New-PerformanceTestEntry.ps1](scripts/file-creation/03-testing/New-PerformanceTestEntry.ps1) — Adds a new performance test entry to performance-test-tracking.md with an auto-assigned test ID.
 - [New-TestAuditReport.ps1](scripts/file-creation/03-testing/New-TestAuditReport.ps1) — Creates a new Test Audit Report document with an automatically assigned ID.
 - [New-TestFile.ps1](scripts/file-creation/03-testing/New-TestFile.ps1) — Creates a new test file with an automatically assigned ID.
@@ -217,7 +220,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [E2ECaseHelpers.psm1](scripts/test/e2e-acceptance-testing/E2ECaseHelpers.psm1) — Shared prologue helpers for E2E acceptance-test case scripts — sandbox resolution through the workspace's own child-registry shape.
 - [Reset-SandboxFixtures.ps1](scripts/test/e2e-acceptance-testing/Reset-SandboxFixtures.ps1) — Reset per-test sandbox state for a framework-self-test E2E case (APP-T01 sandbox only).
 - [Run-E2EAcceptanceTest.ps1](scripts/test/e2e-acceptance-testing/Run-E2EAcceptanceTest.ps1) — Orchestrates scripted E2E acceptance test execution: Setup -> run.ps1 -> wait -> Verify.
-- [sandbox-reset-registry.json](scripts/test/e2e-acceptance-testing/sandbox-reset-registry.json) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
+- [sandbox-reset-registry.json](scripts/test/e2e-acceptance-testing/sandbox-reset-registry.json) — Per-test reset path lists for the framework self-test E2E cases: the files each TE-E2E-NNN entry mutates (reverted via git checkout) and creates (deleted) in the sandbox.
 - [Setup-TestEnvironment.ps1](scripts/test/e2e-acceptance-testing/Setup-TestEnvironment.ps1) — Sets up the E2E acceptance test execution environment by copying pristine fixtures into workspace.
 - [Update-TestExecutionStatus.ps1](scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1) — Updates E2E acceptance test execution status in e2e-test-tracking.md and feature-tracking.md.
 - [Verify-TestResult.ps1](scripts/test/e2e-acceptance-testing/Verify-TestResult.ps1) — Compares workspace state against expected state after E2E acceptance test execution.
@@ -225,6 +228,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 ## scripts/update
 
 - [Archive-Feature.ps1](scripts/update/Archive-Feature.ps1) — Moves a feature from active tracking to the Archived Features section in feature-tracking.md
+- [Convert-BugNotesToDetailBlocks.ps1](scripts/update/Convert-BugNotesToDetailBlocks.ps1) — Converts legacy bug-tracking Notes cells into per-bug Bug Details blocks, emitting a new file.
 - [Finalize-Enhancement.ps1](scripts/update/Finalize-Enhancement.ps1) — Finalizes a Feature Enhancement (PF-TSK-068): restores the target feature's status and archives the Enhancement State Tracking File.
 - [Update-BatchFeatureStatus.ps1](scripts/update/Update-BatchFeatureStatus.ps1) — Updates multiple features simultaneously across all tracking files
 - [Update-BugStatus.ps1](scripts/update/Update-BugStatus.ps1) — Automates bug status updates in the Bug Tracking state file
@@ -255,6 +259,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [Check-InstructionContract.ps1](scripts/validation/Check-InstructionContract.ps1) — Warn-first pre-commit / CI detector that what a framework instruction *names* actually exists — invoked scripts, cross-document step references, and passed parameter names (PF-PRO-064 verification level 2).
 - [Check-NulBytes.ps1](scripts/validation/Check-NulBytes.ps1) — Pre-commit guard against NUL-byte corruption in tracked text files (PF-IMP-1616).
 - [Check-OwnershipLines.ps1](scripts/validation/Check-OwnershipLines.ps1) — Warn-first gate that every file the workspace ships carries its N-5 ownership line, resolved through Get-ArtifactOwnerId against the payload manifest's per-language conventions (PF-PRO-068 Session E3; banner half of the N-4/N-5 gate pair).
+- [Check-PayloadClassification.ps1](scripts/validation/Check-PayloadClassification.ps1) — Warn-first gate that every file in a MIXED-CLASS payload directory carries a classification ruling — either a support_exceptions entry or a substrate_residents entry (PF-IMP-2027).
 - [Check-PendingMigrationTodos.ps1](scripts/validation/Check-PendingMigrationTodos.ps1) — Warn-first pre-commit / CI guard against unfilled TODO placeholders in open Pending Migration Entries (PF-IMP-1943).
 - [Check-UntrackedArtifacts.ps1](scripts/validation/Check-UntrackedArtifacts.ps1) — Warn-first pre-commit / CI guard against framework artifacts that are invisible to git (PF-IMP-1771).
 - [core-file-budgets.json](scripts/validation/core-file-budgets.json) — Per-file word budgets for core framework files (task definitions and guides), enforced warn-first by Check-CoreFileBudget.ps1 (PF-IMP-1938).
@@ -265,7 +270,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [Validate-AuditReport.ps1](scripts/validation/Validate-AuditReport.ps1) — Validates a Test Audit Report for completeness and consistency.
 - [Validate-DesignDimensions.ps1](scripts/validation/Validate-DesignDimensions.ps1) — Warn-first static cross-check that every design dimension (Database / API / UI / Instruction) is declared consistently at each site the design chain reads (PF-IMP-1948 / PF-PRO-064).
 - [Validate-FeedbackForms.ps1](scripts/validation/Validate-FeedbackForms.ps1) — Validates feedback forms for completeness and flags forms still containing template placeholders.
-- [Validate-IdRegistry.ps1](scripts/validation/Validate-IdRegistry.ps1) — Validates the ID registry against actual files in the repository
+- [Validate-IdRegistry.ps1](scripts/validation/Validate-IdRegistry.ps1) — Validates the ID registry against actual files in the repository, including a duplicate-ID scan
 - [Validate-IMPSectionRouting.ps1](scripts/validation/Validate-IMPSectionRouting.ps1) — Static cross-check: every -MoveToSection ValidateSet member in Update-ProcessImprovement.ps1 has a matching destination branch in Build-ColumnMappingForMove (PF-IMP-859).
 - [Validate-OnboardingCompleteness.ps1](scripts/validation/Validate-OnboardingCompleteness.ps1) — Validates onboarding completeness after Codebase Feature Discovery (PF-TSK-064).
 - [Validate-ProjectConfig.ps1](scripts/validation/Validate-ProjectConfig.ps1) — Validates a project-config.json for JSON syntax, populated required fields, and leftover placeholders.
@@ -344,6 +349,7 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 - [code-refactoring-lightweight-path.md](tasks/06-maintenance/code-refactoring-lightweight-path.md) — Process steps and checklist for low-effort refactorings (≤ 15 min, single file)
 - [code-refactoring-standard-path.md](tasks/06-maintenance/code-refactoring-standard-path.md) — Process steps and checklist for medium/complex refactorings (multi-file, architectural)
 - [code-refactoring-task.md](tasks/06-maintenance/code-refactoring-task.md) — Systematic code improvement and technical debt reduction without changing external behavior
+- [code-review-bug-fix-path.md](tasks/06-maintenance/code-review-bug-fix-path.md) — Process steps and checklist for bug-fix reviews — claims-driven re-verification of the fix record, Dims-scoped examination, and the bug-tracking close/reject exit
 - [code-review-task.md](tasks/06-maintenance/code-review-task.md) — Review code for quality and correctness
 
 ## tasks/07-deployment
@@ -441,7 +447,6 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 
 ## templates/support
 
-- [feedback-db-input-template.json](templates/support/feedback-db-input-template.json) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 - [feedback-form-template.md](templates/support/feedback-form-template.md) — Creates feedback forms for evaluating tools and processes
 - [language-config-template.json](templates/support/language-config-template.json) — Language-specific configuration for [Language] projects using the process framework. Copy this file to process-framework/languages-config/{language}/{language}-config.json and fill in the values.
 - [Run-Tests-runner-template.ps1](templates/support/Run-Tests-runner-template.ps1) — Template for creating a per-language test runner (Run-Tests.<language>.ps1).
@@ -451,7 +456,6 @@ and `Build-DocumentationMap.ps1 -Check` to verify it is in sync. Entries marked
 
 ## tools/linkWatcher
 
-- [.linkwatcher-ignore.template](tools/linkWatcher/.linkwatcher-ignore.template) — ⚠️ _(no description — add to .SYNOPSIS/frontmatter)_
 - [run_linkwatcher_validate.ps1](tools/linkWatcher/run_linkwatcher_validate.ps1) — Runs LinkWatcher's broken-link scan (--validate) for the current project with the correct interpreter and the project's per-project config, so path_resolution_overrides are honored without manual flags.
 - [start_linkwatcher_background.ps1](tools/linkWatcher/start_linkwatcher_background.ps1) — Starts this project's LinkWatcher daemon in the background, resolving the project root, the global install directory and the per-project config automatically.
 - [start_linkwatcher_hook_wrapper.ps1](tools/linkWatcher/start_linkwatcher_hook_wrapper.ps1) — Starts LinkWatcher from a SessionStart hook without letting the daemon's inherited stdout handle block the hook's capture pipe.

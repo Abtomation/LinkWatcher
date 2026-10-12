@@ -5,7 +5,7 @@ type: Process Framework
 category: State File
 version: 1.0
 created: 2026-03-25
-updated: 2026-08-31
+updated: 2026-09-01
 tracking_scope: E2E Acceptance Test Tracking
 state_type: Implementation Status
 ---
@@ -41,6 +41,15 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 
 > **Audit gate**: Tests in `📋 Needs Execution` status must reach `✅ Audit Approved` in the Audit Status column before execution. The audit gate enforces a one-way flow: Lifecycle Status `✅ Passed` or `🔴 Failed` implies an approved audit. Tests at `🔄 Needs Re-execution` are exempt (already audited prior to first execution).
 
+### Scenario Gap Status
+
+Tracked per-row in the **Discovered Scenario Gaps** table below. Only these two values are valid there.
+
+| Symbol | Status | Description | Next Task |
+|--------|--------|-------------|-----------|
+| ⬜ | **Not Created** | A scenario is known to be unexercised and no test case covers it yet | PF-TSK-069 |
+| ✅ | **Covered** | A test case now exercises the scenario — the Resolved By column names it | — |
+
 ## Workflow Milestone Tracking
 
 | Workflow | Description | Required Features | Features Ready | E2E Spec | E2E Cases | Status |
@@ -55,7 +64,7 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 | WF-006 | Configuration change → behavior adapts | 0.1.3, 1.1.1, 3.1.1 | 3/3 | — | TE-E2G-012 | ✅ Covered |
 | WF-009 | Link health audit → broken link report | 0.1.1, 2.1.1, 6.1.1 | 3/3 | — | TE-E2G-013 | ✅ Covered |
 | WF-011 | Override-folder move → virtual-root links updated | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | 5/5 | [TE-TSP-046](/test/specifications/cross-cutting-specs/cross-cutting-spec-e2e-override-folder-move-scenarios.md) | TE-E2G-014 | ✅ Covered |
-| WF-010 | Manage running LinkWatcher instances via Control Panel | 7.1.1 | 1/1 | — | TE-E2G-015 | ✅ Covered |
+| WF-010 | Manage running LinkWatcher instances via Control Panel | 7.1.1 | 1/1 | — | TE-E2G-015 | 🔄 Re-execution Needed |
 
 ## E2E Test Cases
 
@@ -109,7 +118,7 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 | TE-E2G-014 | WF-011 | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Group | [master-test-override-folder-move-virtual-root-links-updated.md](../../e2e-acceptance-testing/override-folder-move-virtual-root-links-updated/templates/master-test-override-folder-move-virtual-root-links-updated.md) | ✅ Passed | 2026-08-31 | 2026-08-31 | — | — | override-folder-move-virtual-root-links-updated workflow master test |
 | TE-E2E-032 | WF-011 | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-032-file-rename-virtual-root-links](../../e2e-acceptance-testing/override-folder-move-virtual-root-links-updated/templates/TE-E2E-032-file-rename-virtual-root-links/test-case.md) | ✅ Passed | 2026-08-31 | 2026-08-31 | ✅ Audit Approved | [audit-report-2-2-1-te-e2e-032](../../audits/e2e/audit-report-2-2-1-te-e2e-032.md) |  |
 | TE-E2E-033 | WF-011 | 0.1.3, 1.1.1, 0.1.2, 2.1.1, 2.2.1 | E2E Case | [TE-E2E-033-directory-move-virtual-root-links](../../e2e-acceptance-testing/override-folder-move-virtual-root-links-updated/templates/TE-E2E-033-directory-move-virtual-root-links/test-case.md) | ✅ Passed | 2026-08-31 | 2026-08-31 | ✅ Audit Approved | [audit-report-2-2-1-te-e2e-033](../../audits/e2e/audit-report-2-2-1-te-e2e-033.md) |  |
-| TE-E2G-015 | WF-010 | 7.1.1 | E2E Group | [master-test-manage-running-linkwatcher-instances-via-control-panel.md](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/master-test-manage-running-linkwatcher-instances-via-control-panel.md) | ✅ Passed | 2026-08-31 | 2026-08-31 | — | — | Master test Phase 2 failed (PD-BUG-136 / PD-BUG-137); Phase 3 inconclusive (PD-BUG-138). Phase 1 passed in full. |
+| TE-E2G-015 | WF-010 | 7.1.1 | E2E Group | [master-test-manage-running-linkwatcher-instances-via-control-panel.md](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/master-test-manage-running-linkwatcher-instances-via-control-panel.md) | 🔄 Needs Re-execution | 2026-08-31 | 2026-08-31 | — | — | Master test Phase 2 failed (PD-BUG-136 / PD-BUG-137); Phase 3 inconclusive (PD-BUG-138). Phase 1 passed in full. |
 | TE-E2E-034 | WF-010 | 7.1.1 | E2E Case | [TE-E2E-034-panel-lists-running-daemons](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-034-panel-lists-running-daemons/test-case.md) | ✅ Passed | 2026-08-31 | 2026-08-31 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-034](../../audits/e2e/audit-report-7-1-1-te-e2e-034.md) | PD-BUG-148 re-execution: all 7 pass criteria observed. AC-4 confirmed - panel stopped an externally started daemon pair (33092+41576) and removed the lock. |
 | TE-E2E-035 | WF-010 | 7.1.1 | E2E Case | [TE-E2E-035-start-and-stop-daemon-from-panel](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-035-start-and-stop-daemon-from-panel/test-case.md) | ✅ Passed | 2026-08-31 | 2026-08-31 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-035](../../audits/e2e/audit-report-7-1-1-te-e2e-035.md) | PD-BUG-148 re-execution: all 7 pass criteria met. AC-2 start, AC-10 no second daemon (start control disabled for a running row), AC-3 stop terminated pair 3136+12036 and removed the lock. Note: cold discovery poll measured 9.2-9.7s against the 10s step-5 allowance. |
 | TE-E2E-036 | WF-010 | 7.1.1, 2.2.1, 0.1.2 | E2E Case | [TE-E2E-036-close-panel-drains-in-flight-move](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-036-close-panel-drains-in-flight-move/test-case.md) | ✅ Passed | 2026-08-28 | 2026-08-28 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-036](../../audits/e2e/audit-report-7-1-1-te-e2e-036.md) |  |
@@ -117,7 +126,30 @@ Tracked per-test in the **Audit Status** column. Set by [Test Audit (PF-TSK-030)
 | TE-E2E-038 | WF-010 | 7.1.1, 6.1.1 | E2E Case | [TE-E2E-038-panel-triggered-validation](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-038-panel-triggered-validation/test-case.md) | ✅ Passed | 2026-08-28 | 2026-08-28 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-038](../../audits/e2e/audit-report-7-1-1-te-e2e-038.md) |  |
 | TE-E2E-039 | WF-010 | 7.1.1, 0.1.3 | E2E Case | [TE-E2E-039-config-edit-persists-and-flags-restart](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-039-config-edit-persists-and-flags-restart/test-case.md) | ✅ Passed | 2026-08-28 | 2026-08-28 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-039](../../audits/e2e/audit-report-7-1-1-te-e2e-039.md) |  |
 | TE-E2E-040 | WF-010 | 7.1.1 | E2E Case | [TE-E2E-040-log-pane-live-tail](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-040-log-pane-live-tail/test-case.md) | ✅ Passed | 2026-08-28 | 2026-08-28 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-040](../../audits/e2e/audit-report-7-1-1-te-e2e-040.md) |  |
-| TE-E2E-041 | WF-010 | 7.1.1 | E2E Case | [TE-E2E-041-second-launch-surfaces-existing-window](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-041-second-launch-surfaces-existing-window/test-case.md) | ✅ Passed | 2026-08-28 | 2026-08-28 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-041](../../audits/e2e/audit-report-7-1-1-te-e2e-041.md) |  |
+| TE-E2E-041 | WF-010 | 7.1.1 | E2E Case | [TE-E2E-041-second-launch-surfaces-existing-window](../../e2e-acceptance-testing/manage-running-linkwatcher-instances-via-control-panel/templates/TE-E2E-041-second-launch-surfaces-existing-window/test-case.md) | 🔄 Needs Re-execution | 2026-09-01 | 2026-09-01 | ✅ Audit Approved | [audit-report-7-1-1-te-e2e-041](../../audits/e2e/audit-report-7-1-1-te-e2e-041.md) | Bug fix PD-BUG-160 (claim dropped on close) — component also carries the PD-BUG-157 and PD-BUG-159 fixes |
+
+## Discovered Scenario Gaps
+
+<!-- A scenario that is NOT exercised inside a workflow this file already reports as covered.
+     Neither table above can hold one: the milestone table expresses workflow-level absence only,
+     and case rows are written when a case is created, so a placeholder would collide with the
+     real row later. Without this table such a discovery (typically made during Bug Fixing) dies
+     with the session that found it. -->
+<!-- Gap IDs are file-local: highest in this table + 1. They are NOT allocated from any ID
+     registry and never appear in test-registry.yaml — a gap is a piece of missing work, not an
+     artifact. -->
+<!-- 🚨 This table's column names must NEVER match the E2E Test Cases header. New-AuditTracking.ps1
+     parses that section with -AllTables, which scans to end of file and adopts every later table
+     whose header matches the first one's exactly. Divergent headers are the only thing keeping gap
+     rows out of audit enrolment — measured 2026-09-04: with a matching 11-column header the audit
+     parse went from 18 rows to 20. Changing a column here is safe; renaming one to mirror the case
+     table is not. -->
+<!-- Filed by New-E2EScenarioGap.ps1; cleared by New-E2EAcceptanceTestCase.ps1 -ResolvesGap,
+     which sets Status to Covered and writes the covering case into Resolved By. -->
+
+| Gap ID | Workflow | Scenario | Source | Status | Filed | Resolved By |
+|--------|----------|----------|--------|--------|-------|-------------|
+
 ---
 
 ## Process Instructions
@@ -140,10 +172,21 @@ When creating new E2E acceptance test cases:
 3. Set Last Executed to "—" (not yet executed)
 4. Update [Feature Tracking](../../../doc/state-tracking/permanent/feature-tracking.md) Test Status if needed
 
+### Recording a Discovered Scenario Gap
+
+When a session finds that a covered workflow does not exercise some scenario:
+
+1. File it immediately with `New-E2EScenarioGap.ps1` — do not leave it in a checkpoint note or route it to technical debt. A gap has a named owning task (PF-TSK-069); the technical-debt tracker routes its test items to Code Refactoring, so a gap filed there is never pulled.
+2. Write the Scenario cell concretely enough to build a fixture from: what is authored, what action is taken, what must hold afterwards.
+3. Name the discovery in Source (a bug ID, an audit report, or the session).
+4. The row clears itself when the covering case is created with `New-E2EAcceptanceTestCase.ps1 -ResolvesGap`.
+
 ### Workflow Integration
 
 This file is updated by the following tasks:
 - **E2E Acceptance Test Case Creation** (PF-TSK-069): Adds E2E acceptance test case/group entries
 - **E2E Acceptance Test Execution** (PF-TSK-070): Updates E2E acceptance test execution status and dates
 - **[Update-TestExecutionStatus.ps1](../../../process-framework/scripts/test/e2e-acceptance-testing/Update-TestExecutionStatus.ps1)**: Automates status updates after test execution
-- **[New-E2EAcceptanceTestCase.ps1](../../../process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1)**: Automates entry creation for new test cases
+- **[New-E2EAcceptanceTestCase.ps1](../../../process-framework/scripts/file-creation/03-testing/New-E2EAcceptanceTestCase.ps1)**: Automates entry creation for new test cases; `-ResolvesGap` also clears a Discovered Scenario Gaps row
+- **Bug Fixing** (PF-TSK-007): Files a Discovered Scenario Gaps row when a fix reveals an unexercised scenario
+- **[New-E2EScenarioGap.ps1](../../../process-framework/scripts/file-creation/03-testing/New-E2EScenarioGap.ps1)**: Automates gap-row creation

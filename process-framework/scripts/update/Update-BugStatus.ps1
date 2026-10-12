@@ -18,7 +18,7 @@ Supports all bug status transitions:
 - 🔍 Needs Fix → 🟡 In Progress (Bug Fixing Task)
 - 🟡 In Progress → 👀 Needs Review (Bug Fixing Task)
 - 👀 Needs Review → 🔒 Closed (Code Review Task)
-- Any Active Status → ❌ Rejected (Bug Fixing Task — not-a-bug, won't-fix, or other rationale per Step 11)
+- Any Active Status → ❌ Rejected (Bug Fixing Task — not-a-bug, won't-fix, or other rationale per its routing checkpoint)
 - Any Status → 🔄 Reopened (Bug Triage Task)
 
 When transitioning to Closed:
@@ -45,7 +45,7 @@ The new status for the bug. Valid values:
 - "NeedsReview" (👀 Needs Review)
 - "Closed" (🔒 Closed) — auto-moves to archive ## Closed Bugs section (PF-IMP-872), recalculates stats
 - "Reopened" (🔄 Reopened) — auto-moves from archive (## Closed Bugs or ## Rejected Bugs) back to active priority section
-- "Rejected" (❌ Rejected) — not-a-bug, won't-fix, or other rationale per Bug Fixing Step 11; auto-moves to archive ## Rejected Bugs section (PF-IMP-872), recalculates stats
+- "Rejected" (❌ Rejected) — not-a-bug, won't-fix, or other rationale per the Bug Fixing routing checkpoint; auto-moves to archive ## Rejected Bugs section (PF-IMP-872), recalculates stats
 
 .PARAMETER FastClose
 S-scope quick path: chains NeedsFix → InProgress → Closed in one call.
@@ -89,13 +89,24 @@ Rationale for rejecting the bug (not-a-bug, won't-fix, or other). Required when 
 Related feature ID or name (e.g., "1.1.1") - used when transitioning to NeedsFix to set the Related Feature column
 
 .PARAMETER Dims
-Development dimension abbreviations (e.g., "SE DI") - used when transitioning to NeedsFix
+Development dimension abbreviations, space- or comma-separated (e.g., "SE DI" or "SE,DI") - used
+when transitioning to NeedsFix. Validated against the 10 documented codes: AC, CQ, ID, DA, EM,
+SE, PE, OB, UX, DI (see the Development Dimensions Guide).
 
 .PARAMETER Workflows
 Affected user workflows (e.g., "WF-001, WF-003") - used when transitioning to NeedsFix
 
 .PARAMETER TriageNotes
 Triage rationale to append to the Notes field - used when transitioning to NeedsFix
+
+.PARAMETER OriginBug
+The single bug whose cycle produced this one (e.g. "PD-BUG-127") — the defect-chain link
+(PF-PRO-078). Accepted on ANY transition, not just triage: the reporter often does not know the
+origin, and the linking session is usually the one that recognises the chain. Validated to exist
+as a row in the live tracker or its archive, so a mistyped origin fails loudly rather than
+breaking the chain walk it exists to enable. Written to the row's Origin cell and as a dated
+Origin entry in the bug's Bug Details block; a tracker whose header predates the column keeps the
+block entry and warns once.
 
 .PARAMETER TrackingFile
 Path to the live bug-tracking.md file (override default for tests / non-standard layouts).
@@ -198,7 +209,18 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$RelatedFeature,
 
+    # Same -Dims contract as New-BugReport.ps1 (the other bug-tracker writer), pinned by the
+    # cross-script drift guard in New-BugReport.Tests.ps1 (PF-IMP-2130).
     [Parameter(Mandatory = $false)]
+    [ValidateScript({
+        if ([string]::IsNullOrWhiteSpace($_)) { return $true }
+        $validDims = @('AC', 'CQ', 'ID', 'DA', 'EM', 'SE', 'PE', 'OB', 'UX', 'DI')
+        $invalid = @($_ -split '[\s,]+' | Where-Object { $_ -ne '' -and $_ -notin $validDims })
+        if ($invalid) {
+            throw "Invalid -Dims code(s): $($invalid -join ', '). Valid codes: $($validDims -join ', '). Use space or comma to separate multiple. See the Development Dimensions Guide."
+        }
+        return $true
+    })]
     [string]$Dims,
 
     [Parameter(Mandatory = $false)]
@@ -206,6 +228,12 @@ param(
 
     [Parameter(Mandatory = $false)]
     [string]$TriageNotes,
+
+    # Defect-chain origin (PF-PRO-078). Same contract as New-BugReport.ps1's parameter of the same
+    # name; the shape is validated here and the referenced row's existence once the files are read.
+    [Parameter(Mandatory = $false)]
+    [ValidatePattern('^(PD-BUG|BUG)-\d+$')]
+    [string]$OriginBug,
 
     [Parameter(Mandatory = $false)]
     [datetime]$UpdateDate = (Get-Date),
@@ -298,6 +326,235 @@ $PriorityEmojis = @{
     "Low"      = "🟢"
 }
 
+# ---------------------------------------------------------------------------
+# Bug Details blocks (PF-IMP-2184 / PF-PRO-073)
+#
+# Lifecycle prose no longer accumulates in the Notes table cell. A markdown table
+# row must occupy exactly ONE line, so a cell has no upper bound: measured at 51,854
+# characters (~8,000 words) in APP-001 before this convention, because every reopen /
+# re-review bounce appended a fresh full narrative and nothing superseded anything.
+# The cell now carries a capped summary plus a pointer; the prose lives in a per-bug
+# block under '## Bug Details', where entries wrap freely across lines.
+#
+# The block travels WITH the row: Move-BugToArchiveContent and Move-BugFromArchiveContent
+# each relocate both, remove-and-append, never append-only — an append-only block move
+# would leave orphan blocks accreting in the live tracker, i.e. the same unbounded-growth
+# defect relocated into a new section, and nothing would catch it (Validate-StateTracking
+# skips '#anchor' links and LinkWatcher does not check anchors against headings).
+# ---------------------------------------------------------------------------
+
+$BugDetailsHeading = '## Bug Details'
+$BugNotesCellCap   = 200
+
+function Get-BugAnchor {
+    param([string]$BugId)
+    return "#$($BugId.ToLower())"
+}
+
+function Format-BugNotesCell {
+    # Capped summary + pointer. The pointer is always preserved in full; only the
+    # summary is truncated, so a long summary can never cost the row its link.
+    param(
+        [string]$BugId,
+        [string]$Summary
+    )
+    $pointer = "[details]($(Get-BugAnchor -BugId $BugId))"
+    $budget = $BugNotesCellCap - $pointer.Length - 1
+    $clean = ($Summary -replace '\s+', ' ').Trim()
+    if ($clean.Length -gt $budget) {
+        $clean = $clean.Substring(0, [Math]::Max(0, $budget - 1)).TrimEnd() + '…'
+    }
+    if ([string]::IsNullOrWhiteSpace($clean)) { return $pointer }
+    return "$clean $pointer"
+}
+
+function Get-BugDetailBlockBounds {
+    # Returns @{ Start; End } line indices (inclusive) of the '### <BugId>' block, or
+    # $null when the bug has no block. End is the last line BEFORE the next heading.
+    param(
+        [string[]]$Lines,
+        [string]$BugId
+    )
+    $start = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match "^###\s+$([regex]::Escape($BugId))\s*$") { $start = $i; break }
+    }
+    if ($start -lt 0) { return $null }
+
+    # A block ends at the next heading OR at a horizontal rule. The rule matters: both
+    # shipped templates place a '---' separator immediately after the Bug Details section,
+    # and a heading-only scan runs straight past it — appending entries below the rule,
+    # outside the block, with no error raised (caught in fixture testing, 2026-09-01).
+    $end = $Lines.Count - 1
+    for ($j = $start + 1; $j -lt $Lines.Count; $j++) {
+        if ($Lines[$j] -match '^#{2,3}\s' -or $Lines[$j].Trim() -match '^(-{3,}|\*{3,}|_{3,})$') { $end = $j - 1; break }
+    }
+    # Trim trailing blank lines so a moved block never carries growing whitespace.
+    while ($end -gt $start -and [string]::IsNullOrWhiteSpace($Lines[$end])) { $end-- }
+    return @{ Start = $start; End = $end }
+}
+
+function Get-BugDetailBlock {
+    # Returns the block text ('### <BugId>' heading through its last content line), or $null.
+    param(
+        [string]$Content,
+        [string]$BugId
+    )
+    $lines = $Content -split "\r?\n"
+    $bounds = Get-BugDetailBlockBounds -Lines $lines -BugId $BugId
+    if ($null -eq $bounds) { return $null }
+    return (($lines[$bounds.Start..$bounds.End]) -join "`r`n")
+}
+
+function Remove-BugDetailBlock {
+    # Content with the bug's block excised. Returns the content unchanged when the bug
+    # has no block, so callers can treat "no block" as benign rather than as failure.
+    param(
+        [string]$Content,
+        [string]$BugId
+    )
+    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+    $bounds = Get-BugDetailBlockBounds -Lines $lines -BugId $BugId
+    if ($null -eq $bounds) { return $Content }
+
+    # Also consume the blank line that separated this block from the next, so repeated
+    # move cycles cannot grow a run of blank lines in either file.
+    $end = $bounds.End
+    while (($end + 1) -lt $lines.Count -and [string]::IsNullOrWhiteSpace($lines[$end + 1])) { $end++ }
+    if ($end -ge $lines.Count) { $end = $lines.Count - 1 }
+
+    $lines.RemoveRange($bounds.Start, $end - $bounds.Start + 1)
+
+    # Restore the decorative empty-section placeholder when the last block leaves, mirroring the
+    # priority tables' "_No <priority> bugs currently active_" rows. Without it a fully-archived
+    # tracker shows a bare heading rather than saying so.
+    $sectionIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i].Trim() -eq $BugDetailsHeading) { $sectionIdx = $i; break }
+    }
+    if ($sectionIdx -ge 0) {
+        $hasBlock = $false
+        $sectionEnd = $lines.Count
+        for ($j = $sectionIdx + 1; $j -lt $lines.Count; $j++) {
+            if ($lines[$j] -match '^##\s' -or $lines[$j].Trim() -match '^(-{3,}|\*{3,}|_{3,})$') { $sectionEnd = $j; break }
+            if ($lines[$j] -match '^###\s') { $hasBlock = $true; break }
+        }
+        if (-not $hasBlock) {
+            $already = $false
+            for ($j = $sectionIdx + 1; $j -lt $sectionEnd; $j++) {
+                if ($lines[$j].Trim() -eq '_No active bugs currently._') { $already = $true; break }
+            }
+            if (-not $already) {
+                $at = $sectionEnd
+                while ($at -gt $sectionIdx + 1 -and [string]::IsNullOrWhiteSpace($lines[$at - 1])) { $at-- }
+                $lines.InsertRange($at, [string[]]@('', '_No active bugs currently._'))
+            }
+        }
+    }
+    return ($lines -join "`r`n")
+}
+
+function Add-BugDetailSection {
+    # Creates the '## Bug Details' section in a file that predates PF-IMP-2184.
+    #
+    # Why auto-create rather than refuse: a project receives the reworked scripts at a
+    # Framework Rollout, but its bug-tracking.md only gains the section when the Mode C
+    # migration is applied — a gap that can span days. Refusing would fail EVERY bug
+    # transition in that window. Placement mirrors the shipped template: immediately after
+    # the Bug Statistics section, which keeps detail prose below the region both writers
+    # scan for active-bug counts.
+    param([System.Collections.ArrayList]$Lines)
+
+    $statsIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^##\s+Bug Statistics\s*$') { $statsIdx = $i; break }
+    }
+
+    $insertAt = $Lines.Count
+    if ($statsIdx -ge 0) {
+        $insertAt = $Lines.Count
+        for ($j = $statsIdx + 1; $j -lt $Lines.Count; $j++) {
+            if ($Lines[$j] -match '^##\s' -or $Lines[$j].Trim() -match '^(-{3,}|\*{3,}|_{3,})$') { $insertAt = $j; break }
+        }
+        while ($insertAt -gt $statsIdx + 1 -and [string]::IsNullOrWhiteSpace($Lines[$insertAt - 1])) { $insertAt-- }
+    }
+
+    $Lines.InsertRange($insertAt, [string[]]@('', $BugDetailsHeading))
+    Write-ProjectLog "Created '$BugDetailsHeading' section (file predated PF-IMP-2184)" -Level "WARN"
+    return $insertAt + 1
+}
+
+function Add-BugDetailBlock {
+    # Appends a whole block under '## Bug Details', creating that section when the file
+    # predates the convention (see Add-BugDetailSection).
+    param(
+        [string]$Content,
+        [string]$BlockText
+    )
+    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+    $sectionIdx = -1
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i].Trim() -eq $BugDetailsHeading) { $sectionIdx = $i; break }
+    }
+    if ($sectionIdx -lt 0) {
+        $sectionIdx = Add-BugDetailSection -Lines $lines
+    }
+
+    # Insert at the end of the section (before the next '## ' heading, else EOF).
+    $insertAt = $lines.Count
+    for ($j = $sectionIdx + 1; $j -lt $lines.Count; $j++) {
+        if ($lines[$j] -match '^##\s' -or $lines[$j].Trim() -eq '---') { $insertAt = $j; break }
+    }
+    while ($insertAt -gt $sectionIdx + 1 -and [string]::IsNullOrWhiteSpace($lines[$insertAt - 1])) { $insertAt-- }
+
+    $block = @('') + ($BlockText -split "\r?\n")
+    $lines.InsertRange($insertAt, [string[]]$block)
+    return ($lines -join "`r`n")
+}
+
+function Add-BugDetailEntry {
+    # Appends dated bullet(s) to the bug's block, creating the block when absent.
+    # Returns $null on failure so the caller aborts before any file is written.
+    param(
+        [string]$Content,
+        [string]$BugId,
+        [string[]]$Entries
+    )
+    if (-not $Entries -or $Entries.Count -eq 0) { return $Content }
+
+    $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
+    $bounds = Get-BugDetailBlockBounds -Lines $lines -BugId $BugId
+    if ($null -eq $bounds) {
+        $newBlock = (@("### $BugId", '') + $Entries) -join "`r`n"
+        return (Add-BugDetailBlock -Content $Content -BlockText $newBlock)
+    }
+    $lines.InsertRange($bounds.End + 1, [string[]]$Entries)
+    return ($lines -join "`r`n")
+}
+
+function Move-BugDetailBlock {
+    # Relocates a bug's block between the live tracker and the archive: removed from the
+    # source, appended to the destination. Mirrors Move-MarkdownTableRow's two-file
+    # contract so the row and its block can never end up on opposite sides.
+    # Returns @{ SourceContent; DestinationContent } or $null on failure.
+    param(
+        [string]$SourceContent,
+        [string]$DestinationContent,
+        [string]$BugId
+    )
+    $block = Get-BugDetailBlock -Content $SourceContent -BugId $BugId
+    if ($null -eq $block) {
+        # No block to move (a pre-migration row, or a bug that never gained one).
+        # Benign: the row move is still valid, so pass both sides through untouched.
+        Write-ProjectLog "No Bug Details block found for $BugId — row moved without one" -Level "WARN"
+        return @{ SourceContent = $SourceContent; DestinationContent = $DestinationContent }
+    }
+    $newDestination = Add-BugDetailBlock -Content $DestinationContent -BlockText $block
+    if ($null -eq $newDestination) { return $null }
+    $newSource = Remove-BugDetailBlock -Content $SourceContent -BugId $BugId
+    return @{ SourceContent = $newSource; DestinationContent = $newDestination }
+}
+
 function Test-Prerequisites {
     Write-ProjectLog "Checking prerequisites..."
 
@@ -316,6 +573,22 @@ function Test-Prerequisites {
     if ($archiveRequired -and -not (Test-Path $ArchiveFile)) {
         Write-ProjectLog "Archive file not found: $ArchiveFile (required for $NewStatus transitions per PF-IMP-872 archive-split). Create from blueprint or pass -ArchiveFile pointing at an existing archive." -Level "ERROR"
         return $false
+    }
+
+    # Defect-chain origin (PF-PRO-078): the referenced bug must exist as a row, live or archived.
+    # Checked here, before any transformation, so a typo costs no partial write — a chain is only
+    # navigable if every link resolves. The archive is consulted whenever it exists, independently
+    # of whether THIS transition touches it: an origin is very often an already-closed bug.
+    if ($OriginBug) {
+        $originPattern = "\|\s*" + [regex]::Escape($OriginBug) + "\s*\|"
+        $originFound = (Get-Content $BugTrackingFile -Raw) -match $originPattern
+        if (-not $originFound -and (Test-Path $ArchiveFile)) {
+            $originFound = (Get-Content $ArchiveFile -Raw) -match $originPattern
+        }
+        if (-not $originFound) {
+            Write-ProjectLog "-OriginBug '$OriginBug' matches no bug row in $BugTrackingFile or its archive. Check the ID: an origin that resolves to nothing breaks the chain walk it exists to enable." -Level "ERROR"
+            return $false
+        }
     }
 
     Write-ProjectLog "Prerequisites check passed" -Level "SUCCESS"
@@ -337,6 +610,74 @@ function Get-PriorityEmoji {
 
 # All content-transformation functions take a content string and return modified content.
 # This enables a single read-modify-write cycle in Main, avoiding file locking issues.
+
+# --- Header-driven cell addressing (PF-PRO-078) ------------------------------------------------
+# The bug row's columns are resolved from the file's own table header rather than from literal
+# indices. Two properties this buys: a schema change (the Origin column, and whatever follows it)
+# needs no index arithmetic here, and a tracker that has not yet received the column migration
+# keeps working — the missing header simply resolves to nothing and its writer warns.
+
+# The pre-Origin schema, used only when a file carries no parsable header (a truncated fixture,
+# or content handed in mid-transformation). Never the primary path.
+$BaselineBugHeaders = @('ID','Title','Status','Priority','Scope','Reported','Description','Related Feature','Workflows','Dims','Notes')
+
+function Get-BugColumnIndexMap {
+    <#
+        Maps header name -> cell index, read from the header row that governs the row being
+        written. Where several header rows exist (four priority tables live, two sections in the
+        archive) the one whose width matches the row is preferred, so a live/archive schema
+        mismatch during the migration window resolves each side against its own header instead of
+        silently writing one schema's indices into the other's row.
+    #>
+    param(
+        [string]$Content,
+        [int]$RowCellCount = 0
+    )
+
+    # Selected in one pass, deliberately without a pipeline: piping a collection of header ROWS
+    # enumerates it, and the width-matched row comes back wrapped one level deep — every lookup
+    # then misses and the caller silently writes nothing (measured 2026-09-04 on this function).
+    $headers = $null
+    $firstCandidate = $null
+    foreach ($line in ($Content -split "\r?\n")) {
+        if ($line -notmatch '(?i)^\s*\|\s*ID\s*\|') { continue }
+        $cells = @(Split-MarkdownTableRow -Line $line.Trim())
+        if ($cells.Count -lt 2) { continue }
+        if ($null -eq $firstCandidate) { $firstCandidate = $cells }
+        if ($RowCellCount -gt 0 -and $cells.Count -eq $RowCellCount) { $headers = $cells; break }
+    }
+    # No header of this row's width. A row exactly the baseline width is an unmigrated row in a
+    # file whose header has already moved on (live migrated, archive not yet, or the reverse):
+    # read it against the baseline rather than truncating the wider header, which would slide
+    # Origin onto the Notes cell and overwrite it. Any other width falls back to what is there.
+    if ($null -eq $headers -and $RowCellCount -eq $BaselineBugHeaders.Count) { $headers = $BaselineBugHeaders }
+    if ($null -eq $headers) { $headers = $firstCandidate }
+    if ($null -eq $headers) { $headers = $BaselineBugHeaders }
+
+    $map = @{}
+    for ($i = 0; $i -lt $headers.Count; $i++) {
+        $name = "$($headers[$i])".Trim()
+        # An index past the row's own width would write outside the row; skip rather than throw,
+        # so a narrower row keeps every column it does have.
+        if ($name -and -not $map.ContainsKey($name) -and ($RowCellCount -le 0 -or $i -lt $RowCellCount)) {
+            $map[$name] = $i
+        }
+    }
+    return $map
+}
+
+function Set-BugCell {
+    # Returns $true when the column exists in this row's schema and the value was written.
+    param(
+        [hashtable]$Map,
+        [object[]]$Cells,
+        [string]$Header,
+        [string]$Value
+    )
+    if (-not $Map.ContainsKey($Header)) { return $false }
+    $Cells[$Map[$Header]] = $Value
+    return $true
+}
 
 function Update-BugEntryContent {
     param(
@@ -365,39 +706,56 @@ function Update-BugEntryContent {
     # invocation, compounding across a bug's lifecycle.
     $parsedColumns = Split-MarkdownTableRow -Line $currentEntry.Trim()
     if ($null -eq $parsedColumns -or @($parsedColumns).Count -lt 11) {
-        Write-ProjectLog "Bug entry for $BugId is not a well-formed 11-column table row: $currentEntry" -Level "ERROR"
+        Write-ProjectLog "Bug entry for $BugId is not a well-formed table row (fewer than the 11 baseline columns): $currentEntry" -Level "ERROR"
         return $null
     }
     $columns = @($parsedColumns)
 
+    # Cells are addressed BY HEADER, not by literal index (PF-PRO-078). The index map this
+    # replaced was correct for exactly one schema; the Origin column shifted Notes from [10] to
+    # [11], and the same literals would have to be re-derived for every future column. Resolving
+    # against the row's own table header also makes a not-yet-migrated 11-column tracker work
+    # unchanged — Origin simply resolves to nothing there, which is the tolerance the rollout
+    # window needs (a project receives this script before its Mode C migration runs).
+    $columnIndex = Get-BugColumnIndexMap -Content $Content -RowCellCount $columns.Count
+
     # Update status
     $statusEmoji = Get-StatusEmoji -Status $NewStatus
     $displayName = $StatusDisplayNames[$NewStatus]
-    $columns[2] = "$statusEmoji $displayName"
+    [void](Set-BugCell -Map $columnIndex -Cells $columns -Header 'Status' -Value "$statusEmoji $displayName")
 
     # Update priority if provided
     if ($UpdateData.Priority) {
-        $columns[3] = $UpdateData.Priority
+        [void](Set-BugCell -Map $columnIndex -Cells $columns -Header 'Priority' -Value $UpdateData.Priority)
     }
 
     # Update scope if provided
     if ($UpdateData.Scope) {
-        $columns[4] = $UpdateData.Scope
+        [void](Set-BugCell -Map $columnIndex -Cells $columns -Header 'Scope' -Value $UpdateData.Scope)
     }
 
-    # Update Related Feature if provided (column [7])
+    # Update Related Feature if provided
     if ($UpdateData.RelatedFeature) {
-        $columns[7] = $UpdateData.RelatedFeature
+        [void](Set-BugCell -Map $columnIndex -Cells $columns -Header 'Related Feature' -Value $UpdateData.RelatedFeature)
     }
 
-    # Update Workflows if provided (column [8])
+    # Update Workflows if provided
     if ($UpdateData.Workflows) {
-        $columns[8] = $UpdateData.Workflows
+        [void](Set-BugCell -Map $columnIndex -Cells $columns -Header 'Workflows' -Value $UpdateData.Workflows)
     }
 
-    # Update Dims if provided (column [9])
+    # Update Dims if provided
     if ($UpdateData.Dims) {
-        $columns[9] = $UpdateData.Dims
+        [void](Set-BugCell -Map $columnIndex -Cells $columns -Header 'Dims' -Value $UpdateData.Dims)
+    }
+
+    # Update Origin if provided (PF-PRO-078). On a tracker without the column the value cannot
+    # reach the row — warn once and let the Bug Details entry below carry it, rather than
+    # dropping the fact silently or refusing a transition the schema has nothing to do with.
+    if ($UpdateData.OriginBug) {
+        if (-not (Set-BugCell -Map $columnIndex -Cells $columns -Header 'Origin' -Value $UpdateData.OriginBug)) {
+            Write-ProjectLog "Tracker has no Origin column yet — $($UpdateData.OriginBug) recorded in the Bug Details block only (apply the Origin column migration to surface it in the row)" -Level "WARN"
+        }
     }
 
     # Update notes with whatever detail the caller supplied (column [10]).
@@ -411,10 +769,17 @@ function Update-BugEntryContent {
     # -TestsAdded on the -FastClose path, where -FixDetails is a REQUIRED parameter that never
     # reached the row. An ordered label map applied to what was actually supplied kills the
     # discard class rather than adding a sixth hardcoded arm; order matches the former arms.
-    $notes = $columns[10]
+    # PF-IMP-2184: the supplied prose now becomes a dated entry in the bug's '## Bug Details'
+    # block; the cell keeps only a capped summary plus the pointer to that block. The label map
+    # and its order are unchanged — only the destination moved, which is why no task definition
+    # and no caller had to change.
     $currentDate = Get-Date -Format "yyyy-MM-dd"
 
     $noteLabels = [ordered]@{
+        # Origin leads: the summary cell shows the LAST label supplied, and a chain link is
+        # metadata about the bug rather than the news of this transition — so when it arrives
+        # alongside triage or fix prose, that prose stays the headline.
+        OriginBug         = "Origin"
         TriageNotes       = "Triage"
         FixDetails        = "Fix"
         RootCause         = "Root Cause"
@@ -424,22 +789,53 @@ function Update-BugEntryContent {
         ReopenReason      = "Reopen Reason"
         RejectionReason   = "Rejected"
     }
+
+    $detailEntries = @()
+    $lastLabel = $null
+    $lastValue = $null
+
+    # Rescue an unmigrated cell before overwriting it. A row that predates PF-IMP-2184 still
+    # carries its full accreted prose in the cell; the new cell is a capped summary, so writing
+    # it directly would DESTROY that prose for every row the migration has not yet converted —
+    # and the rollout reaches a project before its Mode C migration does. Preserve it as a
+    # legacy entry, which also makes the conversion self-healing per row on first touch.
+    $notesIdx = if ($columnIndex.ContainsKey('Notes')) { $columnIndex['Notes'] } else { $columns.Count - 1 }
+    $existingCell = $columns[$notesIdx]
+    $hasPointer = $existingCell -match '\[details\]\(#'
+    $isPlaceholder = [string]::IsNullOrWhiteSpace($existingCell) -or ($existingCell.Trim() -in @('-', '—', 'N/A'))
+    if (-not $hasPointer -and -not $isPlaceholder) {
+        $legacy = ($existingCell -replace '\s+', ' ').Trim()
+        $detailEntries += "- **Pre-$currentDate — Legacy notes**: $legacy"
+        Write-ProjectLog "Migrated $BugId's legacy Notes cell into its Bug Details block" -Level "WARN"
+    }
     foreach ($noteField in $noteLabels.Keys) {
         if ($UpdateData.$noteField) {
-            $notes += "; $($noteLabels[$noteField]): $($UpdateData.$noteField)"
+            $label = $noteLabels[$noteField]
+            $value = ($UpdateData.$noteField -replace '\s+', ' ').Trim()
+            $detailEntries += "- **$currentDate — $label**: $value"
+            $lastLabel = $label
+            $lastValue = $value
         }
     }
 
-    if ($notes -notmatch "Updated: $currentDate") {
-        $notes += "; Updated: $currentDate"
-    }
-    $columns[10] = $notes
+    # Summary reflects the most recent thing that happened, so the table still reads as a
+    # status board at a glance. With nothing supplied, the status transition itself is the news.
+    $summary = if ($lastLabel) { "$lastLabel`: $lastValue" } else { "$displayName $currentDate" }
+    $columns[$notesIdx] = Format-BugNotesCell -BugId $BugId -Summary $summary
 
     # Reconstruct the table row through the canonical helper (PF-IMP-2069) — the write half of
     # Split-MarkdownTableRow's round-trip contract, so a literal pipe inside caller-supplied
     # note prose is escaped instead of silently becoming an extra cell.
     $updatedEntry = ConvertTo-MarkdownTableRow -Cells $columns
     $result = $Content.Replace($currentEntry, $updatedEntry)
+
+    if ($detailEntries.Count -gt 0) {
+        $result = Add-BugDetailEntry -Content $result -BugId $BugId -Entries $detailEntries
+        if ($null -eq $result) {
+            Write-ProjectLog "Failed to append Bug Details entry for $BugId — nothing written" -Level "ERROR"
+            return $null
+        }
+    }
 
     Write-ProjectLog "Successfully updated bug $BugId to status: $statusEmoji $displayName" -Level "SUCCESS"
     return $result
@@ -480,10 +876,14 @@ function Move-BugFromArchiveContent {
         return $null
     }
 
-    # Extract Priority column (index 3) to determine target live subsection.
+    # Extract the Priority cell to determine the target live subsection.
     $columns = $bugLine -split '\|' | ForEach-Object { $_.Trim() }
     if ($columns[0] -eq '') { $columns = $columns[1..($columns.Length - 1)] }
-    $priorityValue = $columns[3].Trim()
+    # Priority by header, not by index (PF-PRO-078) — resolved against the ARCHIVE's own header,
+    # which can still be the pre-Origin schema while the live file has already migrated.
+    $priorityMap = Get-BugColumnIndexMap -Content $ArchiveContent -RowCellCount $columns.Count
+    $priorityIdx = if ($priorityMap.ContainsKey('Priority')) { $priorityMap['Priority'] } else { 3 }
+    $priorityValue = "$($columns[$priorityIdx])".Trim()
 
     $targetSubsection = switch ($priorityValue) {
         "Critical" { "### Critical Bugs" }
@@ -496,10 +896,12 @@ function Move-BugFromArchiveContent {
         }
     }
 
-    # Build ColumnMapping identity (live and archive tables share the same 11-column schema)
-    $bugHeaders = @('ID','Title','Status','Priority','Scope','Reported','Description','Related Feature','Workflows','Dims','Notes')
-    $columnMapping = [ordered]@{}
-    foreach ($h in $bugHeaders) { $columnMapping[$h] = $h }
+    # Header-driven move (PF-PRO-078): each destination column takes the same-named source cell,
+    # so neither side's schema is hardcoded here. This replaces an identity mapping over a frozen
+    # 11-name list, which THREW whenever the two sides disagreed — exactly the state a project is
+    # in between receiving the Origin column and running its migration. A column present on only
+    # one side now degrades to an empty cell instead of blocking the transition; the bug's Origin
+    # survives in its Bug Details block either way.
 
     # Use Move-MarkdownTableRow in reverse two-file mode (archive → live).
     # SectionEndPattern '^### ' ensures the destination scan stops at the next priority
@@ -510,7 +912,8 @@ function Move-BugFromArchiveContent {
         -RowIdPattern ([regex]::Escape($BugId)) `
         -SourceSection $sourceArchiveSection `
         -DestinationSection $targetSubsection `
-        -ColumnMapping $columnMapping `
+        -HeaderDriven `
+        -DefaultCell '' `
         -SectionEndPattern '^### '
 
     if (-not $result -or $null -eq $result.Content) {
@@ -533,10 +936,22 @@ function Move-BugFromArchiveContent {
         }
     }
 
+    # PF-IMP-2184: reopening returns the Bug Details block to the live tracker alongside its
+    # row — the mirror of the archive direction, so a reopen/close cycle leaves no copy behind
+    # on either side.
+    $blockMove = Move-BugDetailBlock `
+        -SourceContent $result.Content `
+        -DestinationContent ($newLiveLines -join "`r`n") `
+        -BugId $BugId
+    if ($null -eq $blockMove) {
+        Write-ProjectLog "Failed to move Bug Details block for $BugId — aborting before any write" -Level "ERROR"
+        return $null
+    }
+
     Write-ProjectLog "Moved bug $BugId from archive ($sourceArchiveSection) to live ($targetSubsection)" -Level "SUCCESS"
     return @{
-        LiveContent    = ($newLiveLines -join "`r`n")
-        ArchiveContent = $result.Content
+        LiveContent    = $blockMove.DestinationContent
+        ArchiveContent = $blockMove.SourceContent
     }
 }
 
@@ -595,10 +1010,12 @@ function Move-BugBetweenActiveSectionsContent {
 
     Write-ProjectLog "Moving bug $BugId from '$currentSectionHeader' to '$targetSectionHeader'"
 
-    # Identity mapping — all four priority subsections share the same 11-column schema.
-    $bugHeaders = @('ID','Title','Status','Priority','Scope','Reported','Description','Related Feature','Workflows','Dims','Notes')
-    $columnMapping = [ordered]@{}
-    foreach ($h in $bugHeaders) { $columnMapping[$h] = $h }
+    # Header-driven move (PF-PRO-078): each destination column takes the same-named source cell,
+    # so neither side's schema is hardcoded here. This replaces an identity mapping over a frozen
+    # 11-name list, which THREW whenever the two sides disagreed — exactly the state a project is
+    # in between receiving the Origin column and running its migration. A column present on only
+    # one side now degrades to an empty cell instead of blocking the transition; the bug's Origin
+    # survives in its Bug Details block either way.
 
     # Same-file move. SectionEndPattern '^### ' bounds both the source row search
     # and the destination insert scan at the next priority subsection.
@@ -607,7 +1024,8 @@ function Move-BugBetweenActiveSectionsContent {
         -RowIdPattern $escapedBugId `
         -SourceSection $currentSectionHeader `
         -DestinationSection $targetSectionHeader `
-        -ColumnMapping $columnMapping `
+        -HeaderDriven `
+        -DefaultCell '' `
         -SectionEndPattern '^### '
 
     if (-not $result -or $null -eq $result.Content) {
@@ -696,10 +1114,12 @@ function Move-BugToArchiveContent {
     # Destination section depends on disposition (dual-section archive per PF-IMP-872).
     $destinationSection = if ($Disposition -eq "Closed") { "## Closed Bugs" } else { "## Rejected Bugs" }
 
-    # Build ColumnMapping identity (live priority tables and archive sections share schema)
-    $bugHeaders = @('ID','Title','Status','Priority','Scope','Reported','Description','Related Feature','Workflows','Dims','Notes')
-    $columnMapping = [ordered]@{}
-    foreach ($h in $bugHeaders) { $columnMapping[$h] = $h }
+    # Header-driven move (PF-PRO-078): each destination column takes the same-named source cell,
+    # so neither side's schema is hardcoded here. This replaces an identity mapping over a frozen
+    # 11-name list, which THREW whenever the two sides disagreed — exactly the state a project is
+    # in between receiving the Origin column and running its migration. A column present on only
+    # one side now degrades to an empty cell instead of blocking the transition; the bug's Origin
+    # survives in its Bug Details block either way.
 
     # Two-file Move-MarkdownTableRow: live → archive.
     # SectionEndPattern '^### ' bounds the source-row search to just the matched
@@ -710,7 +1130,8 @@ function Move-BugToArchiveContent {
         -RowIdPattern ([regex]::Escape($BugId)) `
         -SourceSection $sourceSubsection `
         -DestinationSection $destinationSection `
-        -ColumnMapping $columnMapping `
+        -HeaderDriven `
+        -DefaultCell '' `
         -SectionEndPattern '^### '
 
     if (-not $result -or $null -eq $result.Content) {
@@ -739,11 +1160,97 @@ function Move-BugToArchiveContent {
         }
     }
 
+    # PF-IMP-2184: the bug's Bug Details block travels with its row — removed from live,
+    # appended to the archive. Remove-and-append, never append-only: an append-only move
+    # would strand the block in the live tracker, re-creating unbounded accretion there.
+    $blockMove = Move-BugDetailBlock `
+        -SourceContent ($newLiveLines -join "`r`n") `
+        -DestinationContent $result.DestinationContent `
+        -BugId $BugId
+    if ($null -eq $blockMove) {
+        Write-ProjectLog "Failed to move Bug Details block for $BugId — aborting before any write" -Level "ERROR"
+        return $null
+    }
+
     Write-ProjectLog "Moved bug $BugId from live ($sourceSubsection) to archive ($destinationSection)" -Level "SUCCESS"
     return @{
-        LiveContent    = ($newLiveLines -join "`r`n")
-        ArchiveContent = $result.DestinationContent
+        LiveContent    = $blockMove.SourceContent
+        ArchiveContent = $blockMove.DestinationContent
     }
+}
+
+# Defect chains, derived (PF-PRO-078) — never hand-maintained, so the line cannot go stale the way
+# the retired All-Triaged line did (PF-IMP-2137). Reads the Origin cells of the ACTIVE rows only:
+# the statistics block is computed from the live file, and the archive is not loaded on a filing.
+# A chain is therefore reported as its root plus its active descendants; the full depth (closed
+# members included) is what Bug Triage walks when it takes the chain decision.
+#
+# NOTE — deliberate duplication with New-BugReport.ps1, same reason as Get-BugAnchor above:
+# the shared home is Common-ScriptHelpers, FWK-FB substrate this workspace may not edit. Both
+# copies are pinned identical by a cross-script drift guard in New-BugReport.Tests.ps1.
+function Format-OpenChainsValue {
+    param([string]$ActiveSection)
+
+    $lines = $ActiveSection -split "\r?\n"
+
+    # Locate ID and Origin by header, never by index: the column position differs between a
+    # migrated tracker and one still on the 11-column schema.
+    $idIdx = -1
+    $originIdx = -1
+    foreach ($line in $lines) {
+        if ($line -notmatch '(?i)^\|\s*ID\s*\|') { continue }
+        $hdr = @(Split-MarkdownTableRow -Line $line.Trim())
+        for ($i = 0; $i -lt $hdr.Count; $i++) {
+            switch ($hdr[$i].Trim()) {
+                'ID'     { $idIdx = $i }
+                'Origin' { $originIdx = $i }
+            }
+        }
+        if ($originIdx -ge 0) { break }
+    }
+    if ($idIdx -lt 0 -or $originIdx -lt 0) { return 'none' }   # tracker predates the column
+
+    $origins = [ordered]@{}
+    foreach ($line in $lines) {
+        if ($line -notmatch '^\|\s*(PD-BUG-\d+|BUG-\d+)\s*\|') { continue }
+        $cells = @(Split-MarkdownTableRow -Line $line.Trim())
+        if ($cells.Count -le $originIdx -or $cells.Count -le $idIdx) { continue }
+        # A decorative placeholder is not an origin. A column migration fills empty cells with
+        # whatever default it was given, and a table-row builder uses an em dash by default, so
+        # a run of placeholders would otherwise read as one chain rooted at the placeholder
+        # itself (measured while mutation-verifying this function, 2026-09-04).
+        $originCell = "$($cells[$originIdx])".Trim()
+        if ($originCell -in @('-', [char]0x2014, [char]0x2013, 'N/A', 'n/a')) { $originCell = '' }
+        $origins[$cells[$idIdx].Trim()] = $originCell
+    }
+
+    $chains = [ordered]@{}
+    foreach ($id in @($origins.Keys)) {
+        if ([string]::IsNullOrWhiteSpace($origins[$id])) { continue }
+        # Walk to the chain root. The walk stops at a bug that is not itself an active row (its
+        # origin is unknown here — it is closed or archived), and a $seen guard keeps a corrupt
+        # cycle from spinning forever rather than trusting the data to be acyclic.
+        $root = $origins[$id]
+        $seen = @{ $id = $true }
+        while ($origins.Contains($root) -and -not [string]::IsNullOrWhiteSpace($origins[$root]) -and -not $seen.ContainsKey($root)) {
+            $seen[$root] = $true
+            $root = $origins[$root]
+        }
+        if (-not $chains.Contains($root)) { $chains[$root] = [System.Collections.ArrayList]::new() }
+        [void]$chains[$root].Add($id)
+    }
+    if ($chains.Count -eq 0) { return 'none' }
+
+    $parts = @()
+    foreach ($root in @($chains.Keys)) {
+        # The root joins its own member list when it is itself an active row, so the count and
+        # the list always agree; a root that is closed or archived is named but not listed.
+        $members = @($chains[$root])
+        if ($origins.Contains($root)) { $members += $root }
+        $members = @($members | Sort-Object { [int]($_ -replace '\D', '') })
+        $parts += "$root chain - $($members.Count) active ($($members -join ', '))"
+    }
+    return ($parts -join '; ')
 }
 
 function Update-BugStatisticsContent {
@@ -761,6 +1268,7 @@ function Update-BugStatisticsContent {
         elseif ($line -match "^### High Priority Bugs") { $currentPriority = "High" }
         elseif ($line -match "^### Medium Priority Bugs") { $currentPriority = "Medium" }
         elseif ($line -match "^### Low Priority Bugs") { $currentPriority = "Low" }
+        elseif ($line -match "^### ") { $currentPriority = "" }
 
         if ($currentPriority -and $line -match "^\|\s*(PD-BUG-\d+)\s*\|") {
             $bugIds[$currentPriority].Add($Matches[1]) | Out-Null
@@ -769,20 +1277,47 @@ function Update-BugStatisticsContent {
 
     $totalActive = $bugIds.Critical.Count + $bugIds.High.Count + $bugIds.Medium.Count + $bugIds.Low.Count
 
-    # Build statistics lines with counts and ID lists
-    function Format-StatLine {
-        param([string]$Label, [System.Collections.ArrayList]$Ids)
-        $count = $Ids.Count
-        if ($count -eq 0) { return "- **${Label}**: 0" }
-        return "- **${Label}**: $count ($($Ids -join ', '))"
+    # Build the value side only — the label is carried through from the file by the capture
+    # group below, so both live label forms ("- **Critical**:" and the shipped
+    # "- **Critical (P1)**:") are written without either being rewritten into the other.
+    function Format-StatTail {
+        param([System.Collections.ArrayList]$Ids)
+        if ($Ids.Count -eq 0) { return "0" }
+        return "$($Ids.Count) ($($Ids -join ', '))"
     }
 
+    $prioritySuffix = @{ Critical = "P1"; High = "P2"; Medium = "P3"; Low = "P4" }
+
     $result = $Content
-    $result = $result -replace '- \*\*Total Active Bugs\*\*:.*', "- **Total Active Bugs**: $totalActive"
-    $result = $result -replace '- \*\*Critical\*\*:.*', (Format-StatLine "Critical" $bugIds.Critical)
-    $result = $result -replace '- \*\*High\*\*:.*', (Format-StatLine "High" $bugIds.High)
-    $result = $result -replace '- \*\*Medium\*\*:.*', (Format-StatLine "Medium" $bugIds.Medium)
-    $result = $result -replace '- \*\*Low\*\*:.*', (Format-StatLine "Low" $bugIds.Low)
+    $result = [regex]::Replace($result, '(?m)^(- \*\*Total Active Bugs\*\*:)[^\r\n]*', "`${1} $totalActive")
+
+    $unmatched = @()
+    foreach ($priority in @("Critical", "High", "Medium", "Low")) {
+        $pattern = "(?m)^(- \*\*$priority(?: \($($prioritySuffix[$priority])\))?\*\*:)[^\r\n]*"
+        if ([regex]::IsMatch($result, $pattern)) {
+            $result = [regex]::Replace($result, $pattern, "`${1} $(Format-StatTail $bugIds[$priority])")
+        }
+        elseif ([regex]::IsMatch($result, "(?m)^- \*\*$priority")) {
+            # A bullet for this priority exists in a label form no pattern recognizes. Writing
+            # would be a silent no-op reported as SUCCESS — the mechanism that hid this defect
+            # for the life of the repo. Fail loudly instead (PF-IMP-2324).
+            $unmatched += $priority
+        }
+    }
+
+    if ($unmatched.Count -gt 0) {
+        Write-ProjectError -Message "Bug statistics not written: the $($unmatched -join ', ') bullet(s) are present but in an unrecognized label form. Expected '- **<Priority>**:' or '- **<Priority> (P#)**:'." -ExitCode 1
+    }
+
+    # Open chains (PF-PRO-078), derived on every write. Only where the bullet exists: a tracker
+    # that predates the line is not retrofitted here — that is the Origin column migration's job.
+    $openChainsPattern = '(?m)^(- \*\*Open chains\*\*:)[^\r\n]*'
+    if ([regex]::IsMatch($result, $openChainsPattern)) {
+        $activeEnd = $result.IndexOf("## Closed Bugs")
+        if ($activeEnd -lt 0) { $activeEnd = $result.IndexOf("## Bug Statistics") }
+        $activeForChains = if ($activeEnd -gt 0) { $result.Substring(0, $activeEnd) } else { $result }
+        $result = [regex]::Replace($result, $openChainsPattern, "`${1} $(Format-OpenChainsValue -ActiveSection $activeForChains)")
+    }
 
     Write-ProjectLog "Updated bug statistics: $totalActive active ($($bugIds.Critical.Count) Critical, $($bugIds.High.Count) High, $($bugIds.Medium.Count) Medium, $($bugIds.Low.Count) Low)" -Level "SUCCESS"
     return $result
@@ -827,6 +1362,7 @@ function Main {
         if ($Dims) { $triageData.Dims = $Dims }
         if ($Workflows) { $triageData.Workflows = $Workflows }
         if ($TriageNotes) { $triageData.TriageNotes = $TriageNotes }
+        if ($OriginBug) { $triageData.OriginBug = $OriginBug }
         $content = Update-BugEntryContent -Content $content -BugId $BugId -NewStatus "NeedsFix" -UpdateData $triageData
         if ($null -eq $content) { Write-ProjectLog "FastClose failed at NeedsFix" -Level "ERROR"; exit 1 }
         Write-ProjectLog "FastClose phase 1/3: 🔍 Needs Fix" -Level "SUCCESS"
@@ -910,6 +1446,7 @@ function Main {
     if ($Dims) { $updateData.Dims = $Dims }
     if ($Workflows) { $updateData.Workflows = $Workflows }
     if ($TriageNotes) { $updateData.TriageNotes = $TriageNotes }
+    if ($OriginBug) { $updateData.OriginBug = $OriginBug }
 
     # Validate required parameters for specific status transitions
     switch ($NewStatus) {

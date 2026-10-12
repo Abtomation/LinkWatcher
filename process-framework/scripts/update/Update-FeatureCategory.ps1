@@ -382,6 +382,24 @@ if ($level -eq 1) {
             $joined = ($newLines -join "`n")
             $joined = Update-FeatureTrackingSummary -Content $joined
             $joined | Set-Content -Path $FeatureTrackingFile -NoNewline
+
+            # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This is the run's last
+            # write to the tracked file — the row insert and the recomputed Progress Summary go
+            # out in this one Set-Content, and the chain below writes only test/audit directories
+            # — so the assertion sits here, before the chain. Assert-TableRowInFile, not
+            # Assert-LineInFile: the row above is a LITERAL eight-cell template, so it cannot
+            # follow a header that gained or lost a column (the PF-IMP-1534 drift class), and only
+            # the header-aware check can see that. One call per written value keeps the check
+            # independent of column order; an unsupplied optional column is never asserted,
+            # because [regex]::Escape('') would match any cell and prove nothing.
+            if (-not $WhatIfPreference) {
+                foreach ($writtenValue in @($Name, $Status, $Priority, $DocTier, $TestStatus, $Dependencies, $Notes)) {
+                    if ([string]::IsNullOrWhiteSpace($writtenValue)) { continue }
+                    $rowPattern = "^\|\s*" + [regex]::Escape($Id) + "\s*\|(?:[^|]*\|)*\s*" + [regex]::Escape($writtenValue) + "\s*\|"
+                    Assert-TableRowInFile -Path $FeatureTrackingFile -Pattern $rowPattern -Context "feature $Id → '$writtenValue' in $FeatureTrackingFile"
+                }
+            }
+
             $mutated = $true
             $summaryAction = "added feature $Id '$Name'"
         } else {

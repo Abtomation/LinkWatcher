@@ -3,9 +3,9 @@ id: PF-TSK-030
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 2.4
+version: 2.6
 created: 2025-08-07
-updated: 2026-08-05
+updated: 2026-09-04
 description: "Systematic quality assessment of test implementations using six evaluation criteria"
 complexity: medium
 use_when: >-
@@ -187,7 +187,7 @@ Before starting the audit, determine the test type. This determines which criter
 
    Evaluate against all six quality criteria:
 
-   - **Purpose Fulfillment**: Does the test really fulfill its intended purpose? Include **Assertion Quality Assessment**: assertion density (target ≥2 per method), behavioral vs superficial assertions, edge case coverage, and optional mutation testing.
+   - **Purpose Fulfillment**: Does the test really fulfill its intended purpose? Include **Assertion Quality Assessment**: assertion density (target ≥2 per method), behavioral vs superficial assertions, edge case coverage, and the author-side evidence — each test the change under audit added or changed was proved per the [Test Authoring Guide — Phase 3](../../guides/03-testing/test-authoring-guide.md#phase-3-prove) (a fail-first or mutation contrast recorded where that guide says); mutation *tooling* stays optional, the manual evidence does not.
    - **Coverage Completeness**: Are all implementable scenarios covered with tests?
    - **Test Quality & Structure**: Could the test be optimized?
    - **Performance & Efficiency**: Are tests efficient and performant?
@@ -213,7 +213,7 @@ Before starting the audit, determine the test type. This determines which criter
    - **Reproducibility**: Can the test be executed independently and produce consistent results? *Pass*: No hidden state dependencies; clean setup via Setup-TestEnvironment.ps1; passes on clean workspace.
    - **Precondition Coverage**: Are preconditions documented and enforceable? *Pass*: test-case.md specifies all preconditions; run.ps1 validates or sets up preconditions.
 
-   > **Agent-executed instruction cases (PF-PRO-064)**: a case with `Execution Mode: agent-executed` — no `run.ps1`; the instruction under test is executed by an agent — is audited against the same five criteria plus the instruction-fixture checks from the `e2e-test-case-creation` skill's instruction-fixtures reference: the `assert.ps1` oracle ships with the fixture (never authored by the executing agent) and has been **observed failing** on a wrong-order run; `test-case.md` links the instruction and its bindings without restating its steps; `expected/` holds the normalized verdict, not the raw end state; the central-override and leak-check plumbing is present where the procedure touches central state. A missing `run.ps1` on such a case is correct, not a Reproducibility finding.
+   > **Agent-executed instruction cases (PF-PRO-064)**: a case with `Execution Mode: agent-executed` — no `run.ps1`; the instruction under test is executed by an agent — is audited against the same five criteria plus the instruction-fixture checks from the `e2e-test-case-creation` skill's instruction-fixtures reference: the `assert.ps1` oracle ships with the fixture (never authored by the executing agent) and has been **observed failing** on a wrong-order run (the E2E form of the [Test Authoring Guide's Phase 3](../../guides/03-testing/test-authoring-guide.md#phase-3-prove)); `test-case.md` links the instruction and its bindings without restating its steps; `expected/` holds the normalized verdict, not the raw end state; the central-override and leak-check plumbing is present where the procedure touches central state. A missing `run.ps1` on such a case is correct, not a Reproducibility finding.
 
 8. **Create Audit Report**: Generate audit report using automation script with the appropriate test type
 

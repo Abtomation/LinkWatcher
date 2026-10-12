@@ -363,6 +363,98 @@ function Add-AbsentTargetResult {
     Add-CheckResult $Level $Surface $Context "$Reason — surface examined 0 instances (coverage gap, not a clean pass)"
 }
 
+# --- Helper: per-row table-shape findings for one markdown file (PF-IMP-2246 / PF-PRO-072 Phase 2) ---
+# Walks every table in the file and reports each data row whose cell count differs from its own
+# table's header count — the only durable detector of a malformed row (an unescaped pipe, a lost
+# cell, a missing closing pipe). The readers pad short rows and drop extra cells silently, so
+# without this the damage is invisible until an unrelated write happens to trip
+# Assert-TableRowInFile. Shape is decided by Assert-TableRowShape (TableOperations.psm1) so the
+# validator and the writers share one definition of "malformed".
+function Get-TableRowShapeFindings {
+    # Assumes the tracker files' layout contract: ONE table per section, the table region running
+    # from the section heading to the next heading or horizontal rule ('---'). Under that contract
+    # a blank line does not end the region — which is what lets stranded prose (the remainder of a
+    # multi-line cell that split its row, PF-IMP-2155 class) be reported instead of silently
+    # re-starting a "new table" on the next row, as the generic readers do.
+    # Finding kinds: Shape (cell count ≠ header count), Unparseable (starts with '|' but has no
+    # closing pipe), Stranded (non-table text inside the table region after the header).
+    param([Parameter(Mandatory)][string]$Path)
+
+    $lines = @(Get-Content -LiteralPath $Path -Encoding UTF8)
+    $findings = [System.Collections.Generic.List[object]]::new()
+    $rowsExamined = 0
+    $section = "(no heading)"
+    $headers = $null       # header cells of the section's table; $null = no header seen yet in this region
+    $awaitingSeparator = $false
+    $separatorPattern = '^\s*\|[\s\-:|]+\|\s*$'
+
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $line = $lines[$i]
+        if ($line -match '^#{1,6}\s+(.+?)\s*$') { $section = $matches[1]; $headers = $null; continue }
+        if ($line -match '^\s*(-{3,}|\*{3,}|_{3,})\s*$') { $headers = $null; continue }   # horizontal rule ends the region
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+
+        $isPipeLine = $line -match '^\s*\|'
+        if (-not $isPipeLine) {
+            # Not stranded: HTML comments and bare navigation links (the tracker closes every
+            # section's table with a '[↑ Back to top](#…)' line).
+            if ($null -ne $headers -and $line -notmatch '^\s*<!--' -and $line -notmatch '^\s*\[[^\]]*\]\([^)]*\)\s*$') {
+                $findings.Add([pscustomobject]@{
+                    Kind = 'Stranded'; LineNumber = $i + 1; Section = $section; Id = $null
+                    CellCount = 0; HeaderCount = @($headers).Count
+                    Preview = $line.Substring(0, [Math]::Min(60, $line.Length))
+                })
+            }
+            continue
+        }
+
+        $cells = Split-MarkdownTableRow -Line $line.Trim()
+
+        if ($null -eq $headers) {
+            # First pipe line in the region is the header; a bare separator here is noise.
+            if ($null -eq $cells -or $line -match $separatorPattern) { continue }
+            $headers = @($cells); $awaitingSeparator = $true
+            continue
+        }
+        if ($awaitingSeparator) {
+            $awaitingSeparator = $false
+            if ($line -match $separatorPattern) { continue }
+            # No separator under the header: treat this line as a data row anyway.
+        }
+        if ($line -match $separatorPattern) { continue }                    # stray separator
+
+        $rowsExamined++
+        $cellCount = if ($null -eq $cells) { 0 } else { @($cells).Count }
+        # Row id: the first cell's link display text; for an unparseable line, the text up to the
+        # first unescaped pipe after the leading one.
+        $id = if ($null -ne $cells -and $cellCount -gt 0) {
+            Get-MarkdownLinkText $cells[0]
+        } elseif ($line -match '^\s*\|\s*(.*?)\s*(?<!\\)\|') {
+            Get-MarkdownLinkText $matches[1]
+        } else { "(unparseable)" }
+
+        $ok = $true
+        if ($null -eq $cells) {
+            $ok = $false   # starts with '|' but is not a well-formed row (missing closing pipe)
+        } else {
+            try { Assert-TableRowShape -Cells $cells -Headers $headers } catch { $ok = $false }
+        }
+        if (-not $ok) {
+            $findings.Add([pscustomobject]@{
+                Kind        = if ($null -eq $cells) { 'Unparseable' } else { 'Shape' }
+                LineNumber  = $i + 1
+                Section     = $section
+                Id          = $id
+                CellCount   = $cellCount
+                HeaderCount = @($headers).Count
+                Preview     = $null
+            })
+        }
+    }
+
+    return @{ RowsExamined = $rowsExamined; Findings = $findings }
+}
+
 # --- Helper: workspace-scoped temp directory for the validator's side files (PF-IMP-1984) ---
 # Baselines and JSON summaries live under $env:TEMP. The directory used to be shared by every
 # workspace that ran this validator ("vst-baselines" / "vst-summaries"), which is harmless for
@@ -2497,11 +2589,21 @@ if ($runAll -or $Surface -contains "BugTracking") {
         -DisplayLabel "Surface 23: Bug Tracking"
 }
 
-# Surface 24: central IMP tracker — reachability + structural check only. Its markdown links are
-# authored relative to appdev's tree (where central is local); resolving them from an arbitrary
-# project's ProjectRoot would mis-resolve, so link existence is intentionally NOT validated here
-# (that stays an appdev-side concern). Resolved via the central pointer (Get-CentralFrameworkPath,
-# which throws on an unresolvable pointer — caught and downgraded to a coverage WARNING).
+# Surface 24: central IMP tracker — reachability + structural check, plus the per-row shape check
+# (PF-IMP-2246): every data row in the tracker AND its archive must have exactly as many cells as
+# its table's header. Its markdown links are authored relative to appdev's tree (where central is
+# local); resolving them from an arbitrary project's ProjectRoot would mis-resolve, so link
+# existence is intentionally NOT validated here (that stays an appdev-side concern). Resolved via
+# the central pointer (Get-CentralFrameworkPath, which throws on an unresolvable pointer — caught
+# and downgraded to a coverage WARNING).
+#
+# Severity (PF-IMP-2246 → PF-PRO-072 Phase 3): the check landed warn-first on 2026-08-30 and was
+# promoted on 2026-08-31 once the live tracker and archive reported zero malformed rows — a row
+# whose cell count disagrees with its header, or that has no closing pipe, is now an ERROR (it
+# means a writer shifted cells or the readers are silently skipping a row). Stranded prose stays
+# a WARNING until the PF-IMP-2254 (2155 constituent) repair clears the archive's inherited
+# instances — promoting it earlier would fail every run on debt this surface only reports.
+# Examined-N for this surface is the number of data rows walked across both files.
 if ($runAll -or $Surface -contains "ProcessImprovementTracking") {
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host "  Surface 24: Process Improvement Tracking (central)" -ForegroundColor Cyan
@@ -2520,12 +2622,57 @@ if ($runAll -or $Surface -contains "ProcessImprovementTracking") {
         # it, so this stays WARNING rather than ERROR.
         Add-AbsentTargetResult "WARNING" "ProcessImprovementTracking" "process-improvement-tracking.md" "central IMP tracker not resolved/found (pointer absent → project not yet reached by a Push)"
     } else {
-        Set-SurfaceExamined "ProcessImprovementTracking" 1
         $impContent = Get-Content $impPath -Raw -Encoding UTF8
         if ($impContent -match '(?m)^\|.*\|') {
             Add-CheckResult "OK" "ProcessImprovementTracking" "process-improvement-tracking.md" "Central IMP tracker reachable and contains a table"
         } else {
             Add-CheckResult "WARNING" "ProcessImprovementTracking" "process-improvement-tracking.md" "Central IMP tracker reachable but no markdown table found"
+        }
+
+        # Per-row shape check across the tracker and its archive (PF-IMP-2246).
+        $shapeTargets = @(
+            @{ Label = "process-improvement-tracking.md"; Path = $impPath },
+            @{ Label = "archive/process-improvement-tracking-archive.md"; Path = (Join-Path (Split-Path $impPath -Parent) "archive/process-improvement-tracking-archive.md") }
+        )
+        $shapeRows     = 0
+        $shapeBad      = 0
+        $shapeStranded = 0
+        foreach ($target in $shapeTargets) {
+            if (-not (Test-Path -LiteralPath $target.Path)) {
+                Add-CheckResult "WARNING" "ProcessImprovementTracking" $target.Label "not found — per-row shape check skipped for this file"
+                continue
+            }
+            $shape = Get-TableRowShapeFindings -Path $target.Path
+            $shapeRows += $shape.RowsExamined
+            foreach ($f in $shape.Findings) {
+                # Count-first phrasing keeps the decision-grade span inside the first ~70 columns —
+                # a redirected console wraps at 120 and a wrapped assertion span goes vacuous.
+                $level = "ERROR"
+                switch ($f.Kind) {
+                    'Shape' {
+                        $shapeBad++
+                        $what = "row '$($f.Id)': $($f.CellCount) cell(s) vs $($f.HeaderCount) in its table header ($($f.Section)) — every cell after the divergence sits under the wrong header (unescaped pipe or lost cell) (PF-IMP-2246)"
+                    }
+                    'Unparseable' {
+                        $shapeBad++
+                        $what = "row '$($f.Id)': not a well-formed table row (missing closing '|'?) under $($f.Section) — readers skip it silently (PF-IMP-2246)"
+                    }
+                    'Stranded' {
+                        $shapeStranded++
+                        $level = "WARNING"
+                        $what = "stranded prose inside the table region under $($f.Section) — the remainder of a multi-line cell value that split its row (PF-IMP-2155 class); readers ignore it: '$($f.Preview)' (PF-IMP-2246, warn-first)"
+                    }
+                }
+                Add-CheckResult $level "ProcessImprovementTracking" "$($target.Label):$($f.LineNumber)" $what
+            }
+        }
+        Set-SurfaceExamined "ProcessImprovementTracking" $shapeRows
+        if ($shapeBad -eq 0 -and $shapeStranded -eq 0) {
+            Add-CheckResult "OK" "ProcessImprovementTracking" "per-row shape" "Per-row shape check: $shapeRows data row(s) across the tracker and its archive match their headers"
+        } elseif ($shapeBad -gt 0) {
+            Add-CheckResult "ERROR" "ProcessImprovementTracking" "per-row shape" "Per-row shape check: $shapeBad of $shapeRows data row(s) malformed and $shapeStranded stranded prose line(s) across the tracker and its archive (PF-IMP-2246)"
+        } else {
+            Add-CheckResult "WARNING" "ProcessImprovementTracking" "per-row shape" "Per-row shape check: 0 of $shapeRows data row(s) malformed and $shapeStranded stranded prose line(s) across the tracker and its archive (stranded prose stays warn-first until the PF-IMP-2254 repair; PF-IMP-2246)"
         }
     }
     Write-Host ""

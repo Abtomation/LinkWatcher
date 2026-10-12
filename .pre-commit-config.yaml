@@ -1,3 +1,10 @@
+# process-framework/ and .claude/skills/ are received from Framework Rollout and read-only
+# here. A hook that rewrites them (black, isort, end-of-file-fixer) makes this project's copy
+# diverge from what was shipped, and the next rollout refuses to push until it is reverted
+# (rollout 2026-09-29-002). The local gates below take no filenames and run always, so the
+# global exclude does not stop them scanning these trees.
+exclude: ^(process-framework/|\.claude/skills/)
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0

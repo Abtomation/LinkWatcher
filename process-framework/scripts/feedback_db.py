@@ -12,6 +12,7 @@ Usage:
         --tool PF-TSK-009 --date 2026-02-26 --imp IMP-038 \\
         --description "Streamlined from 27 to 14 steps"
     python process-framework/scripts/feedback_db.py list-changes --imp PF-IMP-038
+    python process-framework/scripts/feedback_db.py list-changes --tool Update-ProcessImprovement.ps1
     python process-framework/scripts/feedback_db.py query --task PF-TSK-009
     python process-framework/scripts/feedback_db.py query --tool PF-TSK-007
     python process-framework/scripts/feedback_db.py query --all
@@ -33,6 +34,8 @@ Usage:
         --to imp-triage/references/helpers-reroutes-troubleshooting.md
     python process-framework/scripts/feedback_db.py trend-changes
     python process-framework/scripts/feedback_db.py trend-changes --min-changes 5 --months 3 --limit 20
+    python process-framework/scripts/feedback_db.py resolve-key PF-TSK-009 Core.psm1 imp-triage/SKILL.md
+    python process-framework/scripts/feedback_db.py resolve-key "TableOperations.psm1; class:craft-skills" --format json
 
 Project scoping:
     Writes (record, log-change) stamp rows with the invoking project (from
@@ -77,12 +80,15 @@ def _find_workspace_root() -> Path:
                 with open(candidate) as f:
                     config = json.load(f)
             except (json.JSONDecodeError, OSError) as exc:
-                raise RuntimeError(f"{candidate} exists but could not be read: {exc}") from exc
+                raise RuntimeError(
+                    f"{candidate} exists but could not be read: {exc}"
+                ) from exc
             if config.get("project", {}).get("name"):
                 return current
         current = current.parent
     hint = (
-        "  Checked (project.name empty in each):\n" + "\n".join(f"    {p}" for p in checked)
+        "  Checked (project.name empty in each):\n"
+        + "\n".join(f"    {p}" for p in checked)
         if checked
         else "  No doc/project-config.json found above script location."
     )
@@ -157,9 +163,7 @@ def _resolve_own_central(root: Path) -> Path:
         )
     parent = pointer.read_text(encoding="utf-8").strip()
     if not parent:
-        raise RuntimeError(
-            f"{pointer} is empty. Re-run the parent's Push-FrameworkUpdate.ps1 to repair."
-        )
+        raise RuntimeError(f"{pointer} is empty. Re-run the parent's Push-FrameworkUpdate.ps1 to repair.")
     central = Path(parent) / "process-framework-central"
     if not central.is_dir():
         raise RuntimeError(
@@ -207,7 +211,8 @@ def _resolve_db_path() -> Path:
         central = _resolve_own_central(_find_workspace_root())
     except (RuntimeError, json.JSONDecodeError, OSError) as exc:
         print(
-            f"ERROR: could not resolve this workspace's process-framework-central.\n" f"  {exc}",
+            f"ERROR: could not resolve this workspace's process-framework-central.\n"
+            f"  {exc}",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -576,6 +581,73 @@ class FeedbackDB:
             if owns_conn:
                 conn.close()
 
+    def resolve_read_key(self, raw: str) -> str:
+        """Resolve a user-supplied tool key for a READ query, or exit 1 with guidance.
+
+        The write-side resolver (resolve_tool_doc_id) is deliberately strict: it decides
+        what gets STORED, so it must not invent keys. A read query has the opposite
+        bias — the caller is naming an artifact they already know, in whatever form is
+        at hand (portable ID, filename, path-qualified skill file, bare skill name), and
+        silently returning zero rows for a key that merely spells the artifact
+        differently reads as "no history" when history exists. So this wrapper adds
+        fallbacks that only ever consult keys already present in the data.
+
+        Order: canonical resolution first, then — only if that key has no rows —
+        bare-skill-name, unique basename suffix, and case-insensitive exact. An
+        ambiguous basename (SKILL.md matches 15 skills) exits rather than guessing,
+        listing the candidates so the caller can retype one.
+        """
+        canonical = self.resolve_tool_doc_id(raw)
+        if canonical is None:
+            print(
+                f"'{raw}' is not a tool key: it names a project-instance artifact, not the "
+                f"blueprint template or script that produced it. Rate/query the blueprint "
+                f"artifact instead (see the TOOL_DOC_ID convention in "
+                f"process-improvement-task-reference-guide.md).",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        conn = self._connect()
+        try:
+            known = [
+                r["tool_doc_id"]
+                for r in conn.execute(
+                    "SELECT DISTINCT tool_doc_id FROM tool_changes WHERE tool_doc_id IS NOT NULL"
+                    " UNION SELECT DISTINCT tool_doc_id FROM tool_ratings WHERE tool_doc_id IS NOT NULL"
+                ).fetchall()
+            ]
+        finally:
+            conn.close()
+
+        if canonical in known:
+            return canonical
+
+        # (a) bare skill name -> its SKILL.md key ("imp-triage" -> "imp-triage/SKILL.md")
+        if "." not in raw and "/" not in raw:
+            skill_key = f"{raw}/SKILL.md"
+            if skill_key in known:
+                return skill_key
+
+        # (b) unique basename suffix ("classification-and-priority.md" -> the one path key)
+        suffix_hits = [k for k in known if k.rsplit("/", 1)[-1] == raw and k != raw]
+        if len(suffix_hits) == 1:
+            return suffix_hits[0]
+        if len(suffix_hits) > 1:
+            print(
+                f"'{raw}' is ambiguous — it matches {len(suffix_hits)} keys: "
+                f"{', '.join(sorted(suffix_hits))}. Re-run with one of them.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+        # (c) case-insensitive exact
+        ci = [k for k in known if k.lower() == canonical.lower()]
+        if len(ci) == 1:
+            return ci[0]
+
+        return canonical
+
     def init_db(self, force: bool = False):
         """Create database tables. If force=True, drop and recreate."""
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -765,10 +837,12 @@ class FeedbackDB:
         """
         conn = self._connect()
         try:
-            select = """SELECT id, project_name, form_id, tool_name, tool_doc_id,
+            select = (
+                """SELECT id, project_name, form_id, tool_name, tool_doc_id,
                           effectiveness, clarity, completeness, efficiency, conciseness
                    FROM tool_ratings
                    WHERE tool_doc_id = ?"""
+            )
             if all_projects:
                 rows = conn.execute(
                     select + " ORDER BY project_name, form_id, id",
@@ -889,6 +963,36 @@ class FeedbackDB:
                 (tool_doc_id,),
             ).fetchall()
             return [dict(r) for r in rows]
+        finally:
+            conn.close()
+
+    def list_tool_changes(self, tool_doc_id: str, since: str = None, limit: int = 0) -> list:
+        """Get logged changes for ONE artifact, oldest first, across every project.
+
+        The artifact-keyed counterpart to list_changes (which is IMP-keyed). Both are
+        cross-project by design: tool_doc_id names a shared framework artifact, so a
+        change logged from any project checkout is part of that artifact's history —
+        filtering by project_name here would hide most of it (PF-IMP-2001 makes the
+        project column unreliable at a partitioned central anyway).
+
+        Ordered by (change_date, id) rather than date alone so same-day rows keep a
+        stable order between runs. `limit` keeps the N most recent rows but still
+        returns them oldest-first, matching how list_changes reads.
+        """
+        conn = self._connect()
+        try:
+            sql = """SELECT change_date, imp_id, project_name, description
+                     FROM tool_changes WHERE tool_doc_id = ?"""
+            params = [tool_doc_id]
+            if since:
+                sql += " AND change_date >= ?"
+                params.append(since)
+            sql += " ORDER BY change_date DESC, id DESC" if limit else " ORDER BY change_date, id"
+            if limit:
+                sql += " LIMIT ?"
+                params.append(limit)
+            rows = [dict(r) for r in conn.execute(sql, params).fetchall()]
+            return list(reversed(rows)) if limit else rows
         finally:
             conn.close()
 
@@ -1416,6 +1520,17 @@ class MarkdownReporter:
         """Generate a trend report for a specific tool."""
         trends = self.db.get_tool_trends(tool_doc_id)
         if not trends:
+            # This report is rating-driven, so an artifact nobody rated has no report —
+            # but it may still have a substantial change history, and reporting "no data"
+            # for it reads as "nothing ever happened here" (PF-IMP-2243). Name the count
+            # and point at the ratings-independent listing instead.
+            changes = self.db.get_tool_changes(tool_doc_id)
+            if changes:
+                return (
+                    f"No rated review cycles for {tool_doc_id}, so there is no rating trend "
+                    f"to report — but {len(changes)} logged change(s) exist. List them with:\n"
+                    f"  feedback_db.py list-changes --tool {tool_doc_id}"
+                )
             return f"No data found for tool {tool_doc_id}."
 
         tool_name = trends[0]["tool_name"]
@@ -1538,7 +1653,7 @@ def _load_json_input(source: str, *, hint_stdin_workaround: bool):
                 msg.append(
                     "  Hint: bash heredocs and double-quoted strings can corrupt JSON via "
                     "escape-sequence interpretation\n"
-                    '  (backticks become command substitution; \\n / \\t / \\" may be reinterpreted).'
+                    "  (backticks become command substitution; \\n / \\t / \\\" may be reinterpreted)."
                 )
                 msg.append(
                     "  Workaround: write the JSON to a file and pass --batch <path> "
@@ -1586,7 +1701,9 @@ def _block_unknown_tools(db, entries, new_tool_flag):
     if new_tool_flag:
         return
     unknown = [
-        e["tool"] for e in entries if not e.get("new_tool") and not db.is_known_tool(e["tool"])
+        e["tool"]
+        for e in entries
+        if not e.get("new_tool") and not db.is_known_tool(e["tool"])
     ]
     if unknown:
         print("ERROR: Unknown tool_doc_id(s) for this project:", file=sys.stderr)
@@ -1635,7 +1752,9 @@ def _block_unknown_tools(db, entries, new_tool_flag):
 def cmd_log_change(args, db):
     """Handle the 'log-change' subcommand."""
     if not args.batch and not (args.tool and args.description):
-        print("Error: provide either --batch or both --tool and --description", file=sys.stderr)
+        print(
+            "Error: provide either --batch or both --tool and --description", file=sys.stderr
+        )
         sys.exit(1)
     today = datetime.now().strftime("%Y-%m-%d")
     if args.batch:
@@ -1660,7 +1779,9 @@ def cmd_log_change(args, db):
             sys.exit(1)
         _block_unknown_tools(db, data, args.new_tool)
         if args.validate_only:
-            print(f"Validation OK: {len(data)} entries; nothing logged (--validate-only).")
+            print(
+                f"Validation OK: {len(data)} entries; nothing logged (--validate-only)."
+            )
             return
         count = 0
         for entry in data:
@@ -1693,7 +1814,23 @@ def cmd_log_change(args, db):
 
 
 def cmd_list_changes(args, db):
-    """Handle the 'list-changes' subcommand."""
+    """Handle the 'list-changes' subcommand (--imp or --tool)."""
+    if getattr(args, "tool", None):
+        canonical = db.resolve_read_key(args.tool)
+        rows = db.list_tool_changes(canonical, since=args.since, limit=args.limit)
+        if not rows:
+            print(f"No logged changes match tool {canonical}.")
+            return
+        if args.format == "table":
+            resolved_note = f" (resolved from '{args.tool}')" if canonical != args.tool else ""
+            print(f"Tool: {canonical}{resolved_note}")
+        print(format_table(rows, args.format))
+        if args.format == "table":
+            total = len(db.list_tool_changes(canonical, since=args.since))
+            shown = f" (showing last {len(rows)})" if args.limit and total > len(rows) else ""
+            print(f"\nTotal: {total} change(s){shown}")
+        return
+
     rows = db.list_changes(args.imp)
     if not rows:
         # Update-ProcessImprovement.ps1's Test-ImpHasLoggedChanges (PF-IMP-1740 (b)) matches
@@ -1704,6 +1841,35 @@ def cmd_list_changes(args, db):
     print(format_table(rows, args.format))
     if args.format == "table":
         print(f"\nTotal: {len(rows)} change(s)")
+
+
+def cmd_resolve_key(args, db):
+    """Handle the 'resolve-key' subcommand (PF-PRO-072 Phase 4).
+
+    Validates / canonicalizes keys for the improvement tracker's Artifacts column through the
+    shared resolver in extract_ratings.py — the same tool_doc_id convention the DB keys use, so a
+    row's predicted targets and the logged change history stay joinable. Tree-only: it never
+    opens the database (db is None). Exit 1 when any key is refused; --format json is the
+    machine face Update-/New-ProcessImprovement.ps1 read (Core.psm1 Resolve-ArtifactKey).
+    """
+    from extract_ratings import resolve_artifact_cell  # sibling script
+
+    result = resolve_artifact_cell("; ".join(args.keys))
+    if args.format == "json":
+        print(json.dumps(result, ensure_ascii=False))
+    else:
+        for r in result["keys"]:
+            if r["ok"]:
+                where = f"  ({r['kind']}: {r['path']})" if r.get("path") else f"  ({r['kind']})"
+                arrow = "" if r["canonical"] == r["raw"].strip() else f" -> {r['canonical']}"
+                print(f"OK   {r['raw']}{arrow}{where}")
+            else:
+                print(f"FAIL {r['raw']}: {r['error']}")
+                for c in r["candidates"]:
+                    print(f"       candidate: {c}")
+        if result["ok"]:
+            print(f"Canonical: {result['canonical']}")
+    sys.exit(0 if result["ok"] else 1)
 
 
 def cmd_query(args, db):
@@ -1927,7 +2093,7 @@ def main():
     p_change.add_argument("--description", help="Description of the change")
     p_change.add_argument(
         "--batch",
-        help="Path to JSON file with array of {tool, description, date?, imp?, new_tool?} "
+        help='Path to JSON file with array of {tool, description, date?, imp?, new_tool?} '
         'objects, or "-" for stdin. "date" defaults to today when omitted. '
         'Per-entry "new_tool": true opts that row out of the '
         "unknown-ID block (PF-IMP-833 (a)) — use for mixed batches containing both "
@@ -1951,16 +2117,54 @@ def main():
     # list-changes
     p_changes = subparsers.add_parser(
         "list-changes",
-        help="List logged tool changes for an improvement (all projects)",
+        help="List logged tool changes for an improvement or an artifact (all projects)",
+    )
+    p_changes_target = p_changes.add_mutually_exclusive_group(required=True)
+    p_changes_target.add_argument(
+        "--imp",
+        help="Improvement ID (e.g., PF-IMP-038; matches historical 'IMP-038' rows too)",
+    )
+    p_changes_target.add_argument(
+        "--tool",
+        help="Artifact key in any convention form — portable ID (PF-GDE-068), filename "
+        "(Update-ProcessImprovement.ps1), path-qualified key (imp-triage/SKILL.md) or bare "
+        "skill name (imp-triage). Resolved to the canonical tool_doc_id, which is printed.",
     )
     p_changes.add_argument(
-        "--imp",
-        required=True,
-        help="Improvement ID (e.g., PF-IMP-038; matches historical 'IMP-038' rows too)",
+        "--since",
+        metavar="YYYY-MM-DD",
+        help="Only changes on or after this date (applies to --imp and --tool)",
+    )
+    p_changes.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Keep only the N most recent changes (0 = all). --tool only",
     )
     p_changes.add_argument(
         "--format",
         choices=["table", "json", "csv"],
+        default="table",
+        help="Output format (default: table)",
+    )
+
+    # resolve-key (PF-PRO-072 Phase 4)
+    p_resolve = subparsers.add_parser(
+        "resolve-key",
+        help="Validate and canonicalize artifact keys for the improvement tracker's Artifacts "
+        "column (tree-only; exit 1 on any refusal)",
+    )
+    p_resolve.add_argument(
+        "keys",
+        nargs="+",
+        help="Keys in any accepted form: portable ID (PF-TSK-009), filename (Core.psm1), "
+        "path-qualified file (imp-triage/SKILL.md), bare skill name (imp-triage), directory "
+        "token (tasks/support/), class token (class:craft-skills), the literals '—' / 'TBD', "
+        "or one whole '; '-joined cell value",
+    )
+    p_resolve.add_argument(
+        "--format",
+        choices=["table", "json"],
         default="table",
         help="Output format (default: table)",
     )
@@ -2123,7 +2327,9 @@ def main():
         sys.exit(1)
 
     project_name = args.project or _resolve_project_name()
-    db = FeedbackDB(args.db, project_name)
+    # resolve-key reads the tree, not the database: a workspace whose central has no feedback/
+    # directory yet (a fresh sandbox) must still be able to validate a key.
+    db = None if args.command == "resolve-key" else FeedbackDB(args.db, project_name)
 
     commands = {
         "init": cmd_init,
@@ -2139,6 +2345,7 @@ def main():
         "backfill-tool-doc-ids": cmd_backfill_tool_doc_ids,
         "merge-tool-id": cmd_merge_tool_id,
         "trend-changes": cmd_trend_changes,
+        "resolve-key": cmd_resolve_key,
     }
     commands[args.command](args, db)
 

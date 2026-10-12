@@ -2,9 +2,9 @@
 id: PF-INF-001
 type: Process Framework
 category: Infrastructure Analysis
-version: 3.2
+version: 3.3
 created: 2025-08-22
-updated: 2026-08-10
+updated: 2026-09-28
 purpose: Process Framework Task Registry
 scope: All Process Framework Tasks with Scripts and Manual Updates
 description: "Comprehensive catalog of all tasks with automation status, script locations, file update patterns, trigger/output chains (🔗 TRIGGER & OUTPUT blocks), State File Trigger Index, and trigger chain diagrams"
@@ -480,12 +480,12 @@ This document serves as the **comprehensive registry** of all process framework 
 |-----------|-----------|---------------|---------|
 | **Creates** | Test case directory: `E2E-NNN-<name>/` | `New-E2EAcceptanceTestCase.ps1` | Contains `test-case.md`, `project/`, `expected/`, optional `run.ps1` |
 | **Creates** | Master test file (new groups) | `New-E2EAcceptanceTestCase.ps1` | `master-test-<group-name>.md` with quick validation sequences |
-| **Updates** | [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) | `New-E2EAcceptanceTestCase.ps1` | New E2E acceptance test entries added |
+| **Updates** | [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) | `New-E2EAcceptanceTestCase.ps1` | New E2E acceptance test entries added; with `-ResolvesGap`, the named Discovered Scenario Gaps row flips to `✅ Covered` |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | Test Status updated |
 
 **🔗 TRIGGER & OUTPUT**
 
-- **Trigger:** E2E spec / bug report / refactoring plan _(multi-path)_
+- **Trigger:** E2E spec / bug report / refactoring plan / `e2e-test-tracking.md` → Discovered Scenario Gaps row at `⬜ Not Created` _(multi-path)_
 - **Output:** `e2e-test-tracking.md` → `📋 Needs Execution` → (audit gate) → `✅ Audit Approved`
 
 #### **E2E Acceptance Test Execution** ([PF-TSK-070](../tasks/03-testing/e2e-acceptance-test-execution-task.md))
@@ -655,7 +655,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Creates** | Data model classes | Manual | Model classes in source data directory with serialization, validation |
 | **Creates** | Repository interface | Manual | Repository contract in source repositories directory |
 | **Creates** | Repository implementation | Manual | Concrete repository implementation |
-| **Creates** | Unit tests | `New-TestFile.ps1` | Test files in `/test/unit/data/[feature]/` for models and repositories |
+| **Creates** | Unit tests | `New-TestFile.ps1` | Test files for models and repositories, placed by `-TestType` in the project's own test subdirectories |
 | **Executes** | Database migrations | Manual | Run database migration scripts to create database schema |
 | **Updates** | [Feature Implementation State File](../state-tracking/permanent/feature-[feature-id]-implementation.md) | Manual | Update task sequence tracking, code inventory, implementation notes, issues log |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` (auto) | Automated test file registration |
@@ -854,7 +854,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 **🔧 Process Type:** 🔄 **Semi-Automated**
 
-**Scripts:** [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1), [`New-BugFixState.ps1`](../scripts/file-creation/06-maintenance/New-BugFixState.ps1)
+**Scripts:** [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1), [`New-BugFixState.ps1`](../scripts/file-creation/06-maintenance/New-BugFixState.ps1), [`New-E2EScenarioGap.ps1`](../scripts/file-creation/03-testing/New-E2EScenarioGap.ps1), [`New-WorkflowEntry.ps1`](../scripts/file-creation/03-testing/New-WorkflowEntry.ps1), [`Update-TechDebt.ps1`](../scripts/update/Update-TechDebt.ps1)
 
 **📁 FILE OPERATIONS**
 
@@ -864,8 +864,11 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) + sibling [`archive/bug-tracking-archive.md`](../../doc/state-tracking/permanent/archive/bug-tracking-archive.md) (archive-split 2026-05-26, PF-IMP-872) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status through lifecycle:<br/>• 🔍 Needs Fix → 🟡 In Progress → 👀 Needs Review (M/L-scope) or → 🔒 Closed (S-scope quick path)<br/>• Automated status emoji updates and timestamp tracking<br/>• Automated notes management and metadata tracking<br/>• Automated fix details, root cause, and PR linking<br/>• **Closure automation**: auto-moves bug to archive ## Closed Bugs / ## Rejected Bugs section, recalculates Bug Statistics |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | `New-TestFile.ps1` / Manual | Register regression tests added for the fix |
 | **Updates** | [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) | `Update-TestExecutionStatus.ps1` (conditional) | Mark affected E2E tests for re-execution |
+| **Updates** | [`e2e-test-tracking.md`](../../test/state-tracking/permanent/e2e-test-tracking.md) | `New-E2EScenarioGap.ps1` (conditional, Step 21) | File a discovered missing scenario into Discovered Scenario Gaps |
+| **Updates** | [`user-workflow-tracking.md`](../../doc/state-tracking/permanent/user-workflow-tracking.md) | `New-WorkflowEntry.ps1` (conditional, Step 21) | Add a missing workflow before filing its gap |
+| **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1 -Add` (conditional, Step 24) | File maintainability work the fix exposed |
 | **Updates** | Feature Implementation State Files | Manual (conditional) | When fix changes technical design |
-| **Updates** | TDD / Test Spec / FDD | Manual (conditional) | When fix changes documented behavior |
+| **Updates** | TDD / Test Spec / FDD / Integration Narrative / user handbooks | Manual (conditional) | When fix changes documented behavior |
 
 **🔗 TRIGGER & OUTPUT**
 
@@ -882,7 +885,7 @@ This document serves as the **comprehensive registry** of all process framework 
 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
-| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (Critical/High/Medium/Low) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** `.\Update-BugStatus.ps1 -BugId "BUG-001" -NewStatus "NeedsFix" -Priority "High" -Scope "S"` |
+| **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) | [`Update-BugStatus.ps1`](../scripts/update/Update-BugStatus.ps1) | Update bug status from 🆕 Needs Triage to 🔍 Needs Fix<br/>• Automated priority (Critical/High/Medium/Low) and scope (S/M/L) assignments<br/>• Automated status emoji updates (🔍 Needs Fix)<br/>• Automated timestamp and notes updates<br/>• Auto-moves bugs between active/Closed sections on Close/Reopen<br/>**Usage:** Step 13 |
 
 **🔗 TRIGGER & OUTPUT**
 
@@ -907,7 +910,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | **Updates** | [`architecture-tracking.md`](../../doc/state-tracking/permanent/architecture-tracking.md) | Manual | Improve feature status (e.g., "🔄 Needs Enhancement" → "🟡 In Progress") |
 | **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | Manual | For foundation features (0.x.x), document architectural improvements |
 | **Updates** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Manual | Note test improvements or new test requirements |
-| **Updates** | Product documentation (TDD, FDD, feature state file, test spec, integration narrative) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Step 12) |
+| **Updates** | Product documentation (TDD, FDD, feature state file, test spec, integration narrative) | Manual | When refactoring changes module boundaries, interfaces, or design patterns (Standard Path Step 14) |
 
 **🔗 TRIGGER & OUTPUT**
 
@@ -925,7 +928,7 @@ This document serves as the **comprehensive registry** of all process framework 
 | Operation | File Path | Update Method | Details |
 |-----------|-----------|---------------|---------|
 | **Updates** | [`bug-tracking.md`](../../doc/state-tracking/permanent/bug-tracking.md) (if bugs discovered) | [`New-BugReport.ps1`](../scripts/file-creation/06-maintenance/New-BugReport.ps1)| Add newly discovered bugs with 🆕 Needs Triage status for triage |
-| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | [`Update-CodeReviewState.ps1`](../scripts/update/Update-CodeReviewState.ps1) | **Feature reviews only** (N/A for bug-fix reviews on Implemented features). Maps the review verdict to the feature's Status cell (`🔎 Needs Test Scoping` if passed, `🔄 Needs Enhancement` if not) and appends a review note (date, verdict, optional findings summary and review-document link) to its Notes cell — never edit the file directly |
+| **Updates** | [`feature-tracking.md`](../../doc/state-tracking/permanent/feature-tracking.md) | [`Update-CodeReviewState.ps1`](../scripts/update/Update-CodeReviewState.ps1) | Maps the review verdict to the feature's Status cell (`🔎 Needs Test Scoping` if passed, `🔄 Needs Enhancement` if not) and appends a review note (date, verdict, optional findings summary and review-document link) to its Notes cell — never edit the file directly |
 | **Verifies** | [`test-tracking.md`](../../test/state-tracking/permanent/test-tracking.md) | Read-only | Confirm the test suite passes; record any test issues as Step 21 findings.<br/>• The `✅ Audit Approved` verdict is owned by [Test Audit (PF-TSK-030)](../tasks/03-testing/test-audit-task.md) — Code Review does **not** set or flip it. |
 | **Updates** | [`technical-debt-tracking.md`](../../doc/state-tracking/permanent/technical-debt-tracking.md) | `Update-TechDebt.ps1` (conditional) | Register tech debt findings discovered during review |
 | **Updates** | Feature Implementation State Files | Manual (conditional) | Implementation gaps logged in Issues & Resolutions Log; (decomposed-mode) quality-validation results — acceptance criteria, performance-vs-targets, severity findings — recorded in the permanent per-feature state file |
@@ -1145,7 +1148,7 @@ Unstructured triggers (no single state-file status):
 - `retrospective-master-state.md` → `Phase 1.5` = complete (Source Migration done; Status = `ANALYSIS`) — [PF-TSK-065](../tasks/00-setup/codebase-feature-analysis.md) Codebase Feature Analysis
 - `retrospective-master-state.md` → Phase 2 = `100%` — [PF-TSK-066](../tasks/00-setup/retrospective-documentation-creation.md) Retrospective Documentation Creation
 - `feature-tracking.md` → `🔄 Needs Enhancement` + state file link — [PF-TSK-068](../tasks/04-implementation/feature-enhancement.md) Feature Enhancement
-- E2E spec / bug report / refactoring plan _(multi-path)_ — [PF-TSK-069](../tasks/03-testing/e2e-acceptance-test-case-creation-task.md) E2E Acceptance Test Case Creation
+- E2E spec / bug report / refactoring plan / `e2e-test-tracking.md` → Discovered Scenario Gaps row at `⬜ Not Created` _(multi-path)_ — [PF-TSK-069](../tasks/03-testing/e2e-acceptance-test-case-creation-task.md) E2E Acceptance Test Case Creation
 - `e2e-test-tracking.md` → `🔄 Needs Re-execution` or `📋 Needs Execution` (with `✅ Audit Approved`) — [PF-TSK-070](../tasks/03-testing/e2e-acceptance-test-execution-task.md) E2E Acceptance Test Execution
 - `feature-tracking.md` + Feature impl state file → `🟡 In Progress` + task = `not_started` in sequence — [PF-TSK-078](../tasks/04-implementation/core-logic-implementation.md) Core Logic Implementation
 - Feature impl state file → User Documentation = `❌ Needed` — [PF-TSK-081](../tasks/07-deployment/user-documentation-creation.md) User Documentation Creation
@@ -1531,11 +1534,12 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `New-AuditTracking.ps1` | `file-creation/03-testing/` | PF-TSK-030 | Creates a new test audit tracking state file for a multi-session audit round. |
 | `New-E2EAcceptanceTestCase.ps1` | `file-creation/03-testing/` | PF-TSK-069 | Creates a new E2E acceptance test case with an automatically assigned E2E-NNN ID. |
 | `New-E2EMilestoneEntry.ps1` | `file-creation/03-testing/` | PF-TSK-086 | Adds a new workflow milestone entry to e2e-test-tracking.md. |
+| `New-E2EScenarioGap.ps1` | `file-creation/03-testing/` | PF-TSK-007 | Adds a discovered scenario gap to e2e-test-tracking.md. |
 | `New-PerformanceTestEntry.ps1` | `file-creation/03-testing/` | PF-TSK-086 | Adds a new performance test entry to performance-test-tracking.md with an auto-assigned test ID. |
 | `New-TestAuditReport.ps1` | `file-creation/03-testing/` | PF-TSK-030 | Creates a new Test Audit Report document with an automatically assigned ID. |
 | `New-TestFile.ps1` | `file-creation/03-testing/` | PF-TSK-051, PF-TSK-052, PF-TSK-053, PF-TSK-056, PF-TSK-065, PF-TSK-078 | Creates a new test file with an automatically assigned ID. |
 | `New-TestSpecification.ps1` | `file-creation/03-testing/` | PF-TSK-012 | Creates a new Test Specification (TE-TSP-XXX), feature-specific or cross-cutting. |
-| `New-WorkflowEntry.ps1` | `file-creation/03-testing/` | PF-TSK-086 | Adds a new user workflow to user-workflow-tracking.md with an auto-assigned WF-xxx ID. |
+| `New-WorkflowEntry.ps1` | `file-creation/03-testing/` | PF-TSK-007, PF-TSK-086 | Adds a new user workflow to user-workflow-tracking.md with an auto-assigned WF-xxx ID. |
 | `New-EnhancementState.ps1` | `file-creation/04-implementation/` | PF-TSK-067 | Creates a new Enhancement State Tracking file for enhancement work on an existing feature. |
 | `New-FeatureImplementationState.ps1` | `file-creation/04-implementation/` | PF-TSK-064 | Creates a new Feature Implementation State tracking file for a feature. |
 | `New-ImplementationPlan.ps1` | `file-creation/04-implementation/` | PF-TSK-044 | Creates a new Implementation Plan document with an automatically assigned ID. |
@@ -1559,6 +1563,7 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | Script | Location | Used By Task(s) | Purpose |
 |--------|----------|------------------|---------|
 | `Archive-Feature.ps1` | `update/` | — | Moves a feature from active tracking to the Archived Features section in feature-tracking.md |
+| `Convert-BugNotesToDetailBlocks.ps1` | `update/` | — | Converts legacy bug-tracking Notes cells into per-bug Bug Details blocks, emitting a new file. |
 | `Finalize-Enhancement.ps1` | `update/` | PF-TSK-068 | Finalizes a Feature Enhancement (PF-TSK-068): restores the target feature's status and archives the Enhancement State Tracking File. |
 | `Update-BatchFeatureStatus.ps1` | `update/` | PF-TSK-067, PF-TSK-086, PF-TSK-093 | Updates multiple features simultaneously across all tracking files |
 | `Update-BugStatus.ps1` | `update/` | PF-TSK-007, PF-TSK-041 | Automates bug status updates in the Bug Tracking state file |
@@ -1573,7 +1578,7 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `Update-QualityClassification.ps1` | `update/` | PF-TSK-065 | Computes and writes the Quality Assessment classification in a feature implementation state file (PF-TSK-065's quality-assessment step). |
 | `Update-RetrospectiveMasterState.ps1` | `update/` | PF-TSK-065 | Atomically updates a retrospective master state file — Feature Inventory rows, Unassigned Files batch flips, or Coverage Metrics recalculation |
 | `Update-ScriptReferences.ps1` | `update/` | — | Updates references to relocated New-*.ps1 creation scripts across doc/ markdown to point at the centralized scripts/file-creation location. |
-| `Update-TechDebt.ps1` | `update/` | PF-TSK-022, PF-TSK-023, PF-TSK-065, PF-TSK-092 | Automates technical debt lifecycle management in the Technical Debt Tracker state file |
+| `Update-TechDebt.ps1` | `update/` | PF-TSK-007, PF-TSK-022, PF-TSK-023, PF-TSK-065, PF-TSK-092 | Automates technical debt lifecycle management in the Technical Debt Tracker state file |
 | `Update-TechnicalDebtFromAssessment.ps1` | `update/` | PF-TSK-023 | Automates the integration of technical debt items from assessments into the Technical Debt Tracking registry |
 | `Update-TestFileAuditState.ps1` | `update/` | PF-TSK-030 | Automates state file updates for individual Test File Audit (PF-TSK-030) |
 | `Update-UserDocumentationState.ps1` | `update/` | PF-TSK-081 | Automates state file updates when user documentation (handbooks) is created via PF-TSK-081 |
@@ -1591,6 +1596,7 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `Check-InstructionContract.ps1` | `validation/` | — | Warn-first pre-commit / CI detector that what a framework instruction *names* actually exists — invoked scripts, cross-document step references, and passed parameter names (PF-PRO-064 verification level 2). |
 | `Check-NulBytes.ps1` | `validation/` | — | Pre-commit guard against NUL-byte corruption in tracked text files (PF-IMP-1616). |
 | `Check-OwnershipLines.ps1` | `validation/` | — | Warn-first gate that every file the workspace ships carries its N-5 ownership line, resolved through Get-ArtifactOwnerId against the payload manifest's per-language conventions (PF-PRO-068 Session E3; banner half of the N-4/N-5 gate pair). |
+| `Check-PayloadClassification.ps1` | `validation/` | — | Warn-first gate that every file in a MIXED-CLASS payload directory carries a classification ruling — either a support_exceptions entry or a substrate_residents entry (PF-IMP-2027). |
 | `Check-PendingMigrationTodos.ps1` | `validation/` | — | Warn-first pre-commit / CI guard against unfilled TODO placeholders in open Pending Migration Entries (PF-IMP-1943). |
 | `Check-UntrackedArtifacts.ps1` | `validation/` | — | Warn-first pre-commit / CI guard against framework artifacts that are invisible to git (PF-IMP-1771). |
 | `Quick-ValidationCheck.ps1` | `validation/` | PF-TSK-024 | Quick validation check for selected features and codebase health |
@@ -1600,7 +1606,7 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 | `Validate-AuditReport.ps1` | `validation/` | — | Validates a Test Audit Report for completeness and consistency. |
 | `Validate-DesignDimensions.ps1` | `validation/` | — | Warn-first static cross-check that every design dimension (Database / API / UI / Instruction) is declared consistently at each site the design chain reads (PF-IMP-1948 / PF-PRO-064). |
 | `Validate-FeedbackForms.ps1` | `validation/` | — | Validates feedback forms for completeness and flags forms still containing template placeholders. |
-| `Validate-IdRegistry.ps1` | `validation/` | — | Validates the ID registry against actual files in the repository |
+| `Validate-IdRegistry.ps1` | `validation/` | — | Validates the ID registry against actual files in the repository, including a duplicate-ID scan |
 | `Validate-IMPSectionRouting.ps1` | `validation/` | — | Static cross-check: every -MoveToSection ValidateSet member in Update-ProcessImprovement.ps1 has a matching destination branch in Build-ColumnMappingForMove (PF-IMP-859). |
 | `Validate-OnboardingCompleteness.ps1` | `validation/` | PF-TSK-064, PF-TSK-091 | Validates onboarding completeness after Codebase Feature Discovery (PF-TSK-064). |
 | `Validate-ProjectConfig.ps1` | `validation/` | PF-TSK-059 | Validates a project-config.json for JSON syntax, populated required fields, and leftover placeholders. |
@@ -1625,10 +1631,10 @@ Generated from script `.SYNOPSIS`/docstring lines and the reverse index of task-
 
 | Script | Location | Used By Task(s) | Purpose |
 |--------|----------|------------------|---------|
-| `Add-MarkdownTableColumn.ps1` | `.` | — | Inserts a new column into a markdown feature table (optionally after a named column, with a default cell value). |
+| `Add-MarkdownTableColumn.ps1` | `.` | — | Inserts a column into markdown table(s) — section-scoped, header-driven, with a per-row value map — leaving every other cell untouched. |
 | `extract_ratings.py` | `.` | — | Extract ratings from feedback form markdown files for feedback_db.py record. |
 | `feedback_db.py` | `.` | — | Feedback Ratings Database — Persistent storage for feedback form ratings. |
-| `Find-Improvement.ps1` | `.` | — | Searches the central Process Improvement tracker, its Completed/Rejected archive, and the Improvement Backlog for rows matching a keyword, printing each match with its current disposition and a readable context snippet; an exact-ID lookup renders the full row with its outbound cross-references resolved. |
+| `Find-Improvement.ps1` | `.` | — | Searches the central Process Improvement tracker, its Completed/Rejected archive, and the Improvement Backlog for rows matching a keyword, printing each match with its current disposition and a readable context snippet; an exact-ID lookup renders the full row with its outbound cross-references resolved. -Artifact lists the open rows targeting one artifact and -GroupByArtifact renders the per-artifact overview of open work (PF-PRO-072). |
 | `Get-FeatureDesignArtifacts.ps1` | `.` | — | Cross-feature query for design artifacts recorded in feature state files. |
 | `Run-Tests.dart.ps1` | `language-specific-scripts/dart/` | — | Per-language test runner for Dart/Flutter projects (dispatched by Run-Tests.ps1). |
 | `Run-Tests.powershell.ps1` | `language-specific-scripts/powershell/` | — | PowerShell/Pester test runner — invoked by Run-Tests.ps1 dispatcher when testing.language='powershell'. |

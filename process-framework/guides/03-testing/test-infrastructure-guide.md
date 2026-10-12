@@ -2,11 +2,11 @@
 id: PF-GDE-050
 type: Process Framework
 category: Guide
-version: 1.4
+version: 1.9
 created: 2026-03-16
-updated: 2026-07-30
-related_task: PF-TSK-053,PF-TSK-012,PF-TSK-030,PF-TSK-069,PF-TSK-070
-description: "How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, new-project scaffolding, and pre-existing-test migration"
+updated: 2026-09-04
+related_task: PF-TSK-053,PF-TSK-012,PF-TSK-030,PF-TSK-069,PF-TSK-070,PF-TSK-007,PF-TSK-005
+description: "How the test/ directory connects to the process framework — directory conventions, automation scripts, tracking relationships, attributing failures you did not cause, new-project scaffolding, and pre-existing-test migration"
 ---
 
 # Test Infrastructure Guide
@@ -179,7 +179,7 @@ Each test file has a `priority` pytest marker indicating its importance for rele
 | **Standard** | Normal test coverage. Expected to pass. | Regular development, pre-release | Integration tests, logging tests (default for new entries) |
 | **Extended** | Edge cases, performance, stress tests. | Periodic, not release-blocking | Performance benchmarks |
 
-Priority is set when creating test files via `New-TestFile.ps1 -Priority "Critical"` (default: Standard). Validated by `Validate-TestTracking.ps1` (Check 7).
+Priority is set when creating test files via `New-TestFile.ps1 -Priority "Critical"` (default: Standard), and is read back by `test_query.py`. No validator checks it — a wrong priority is caught by review, not by tooling.
 
 The [Release & Deployment task](../../tasks/07-deployment/release-deployment-task.md) references priorities in its pre-release gate: Critical tests must all pass, Extended tests are informational.
 
@@ -251,6 +251,18 @@ pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.
 # Run tests and auto-update test-tracking.md with per-file pass/fail results
 pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/test/Run-Tests.ps1 -Category unit -UpdateTracking
 ```
+
+## Attributing a Failure You Did Not Cause
+
+A full-suite run reports every failure in the tree, not only the ones your change set caused; a tracking validation reports every drifted row. The step that surfaces the finding owns attributing it. Stop at the first check that settles it:
+
+- **Run the failing test alone** (`Run-Tests.ps1 -TestFile "<file>"`) — separates a real failure from an ordering or shared-state effect that only appears in a full run.
+- **Match it against your diff** — neither the test nor the code it exercises in your change set means the failure is not yours.
+- **`git show HEAD:<file>`** — proves an inherited defect without bisection.
+- **Re-run a timing- or throughput-sensitive check under different load** — a margin that collapses under concurrent load fails for reasons unrelated to any change.
+- **Tracking drift**: diff for added or removed test definitions; no change there means the drift predates your change set and is not yours to reconcile.
+
+Two runs agreeing is enough evidence; bisection is the last resort, not the first move. A finding that is not yours is a discovered issue — confirm it is not already filed, then route it via the [Issue Classification and Routing Guide](../framework/issue-classification-and-routing-guide.md) rather than raising it as a checkpoint question.
 
 ## Setting Up Test Infrastructure for a New Project
 
@@ -348,7 +360,7 @@ See [Retrospective Documentation Creation](../../tasks/00-setup/retrospective-do
 
 ## Test Documentation Completeness
 
-After creating or modifying test files, complete these documentation steps to keep test specifications in sync with actual coverage. The implementation and maintenance tasks that create tests (Core Logic Implementation, Integration and Testing, Bug Fixing, Code Refactoring, Feature Enhancement) cite this section as an executable step.
+After creating or modifying test files, complete these documentation steps to keep test specifications in sync with actual coverage. The implementation and maintenance tasks that create tests (Core Logic Implementation, Bug Fixing, Code Refactoring, Feature Enhancement) cite this section as an executable step, and the [Test Authoring Guide](test-authoring-guide.md)'s Phase 4 cites it for every other test-writing task (Integration and Testing among them).
 
 1. **Update the feature's test specification**:
    - Locate the relevant spec in `test/specifications/feature-specs` for the feature under test
@@ -413,6 +425,7 @@ assert "process-framework/scripts" in [r.link_target for r in parser.parse_conte
 ## Related Resources
 
 - [Test Specification Creation Task (PF-TSK-012)](../../tasks/03-testing/test-specification-creation-task.md)
+- [Test Authoring Guide (PF-GDE-079)](test-authoring-guide.md) — the test-authoring procedure; its Phase 1 takes this guide's `-TestType` and Test Priority conventions, its Phase 4 cites Test Documentation Completeness
 - [Integration and Testing Task (PF-TSK-053)](../../tasks/04-implementation/integration-and-testing.md)
 - [Test Audit Task (PF-TSK-030)](../../tasks/03-testing/test-audit-task.md)
 - [E2E Acceptance Test Case Creation Task (PF-TSK-069)](../../tasks/03-testing/e2e-acceptance-test-case-creation-task.md)

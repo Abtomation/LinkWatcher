@@ -37,11 +37,19 @@ Header-driven row construction (v2.4):
 - Get-MarkdownTableHeaders: Read a section's table header names
 - New-HeaderDrivenTableRow: Build a row ordered by the live table's headers (drift-proof)
 
+Header-addressed cell access and row-shape assertions (v2.5 — PF-IMP-2254 / PF-PRO-072 Phase 1):
+- Get-MalformedRowDiagnostic: Indexed cell listing that makes an unescaped-pipe split locatable
+- Assert-TableRowShape: Throw when a row's cell count differs from its header's
+- Get-MarkdownTableCell / Set-MarkdownTableCell: Read / write a cell by header name, never by index
+- Set-MarkdownTableRow: Replace one row by line number (retires the Content.Replace pattern)
+- Move-MarkdownTableRow -HeaderDriven: Build the destination row from the destination table's own header,
+  with pre-write assertions; the built-count = header-count gate is unconditional in both modes
+
 .NOTES
     OWNERSHIP: FWK-FB (FrameworkBuilder) - canonical at FrameworkBuilder; anywhere else a received copy. Edit only at the owning workspace. An agent may only modify files its workspace owns.
-Version: 2.4
+Version: 2.5
 Created: 2025-08-30
-Updated: 2026-07-17
+Updated: 2026-08-30
 Extracted From: StateFileManagement.psm1
 Dependencies: None (pure functions)
 #>
@@ -393,7 +401,9 @@ function ConvertFrom-MarkdownTable {
         }
 
         if ($IncludeLineNumber) {
-            $obj['_LineNumber'] = $i
+            # 1-based, as documented — the value pairs with Set-MarkdownTableRow -LineNumber.
+            # (Stored 0-based until v2.5; no caller outside this module consumed it — PF-IMP-2254.)
+            $obj['_LineNumber'] = $i + 1
         }
         if ($IncludeRawLine) {
             $obj['_RawLine'] = $lines[$i]
@@ -474,6 +484,7 @@ function Update-MarkdownTable {
     $inTable = $false
     $headers = @()
     $columnIndices = @{}
+    $matchIndex = 0
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
         $line = $lines[$i]
@@ -487,6 +498,17 @@ function Update-MarkdownTable {
                 if ($headers[$j] -ne '') {
                     $columnIndices[$headers[$j]] = $j
                 }
+            }
+
+            # -MatchColumn was declared but never consulted until v2.5 (PF-IMP-2254): the match
+            # always ran against the first cell. Resolve it against the live header like the
+            # other column parameters — absent from the header is a caller error, so throw.
+            $matchIndex = 0
+            if ($MatchColumn) {
+                if (-not $columnIndices.ContainsKey($MatchColumn)) {
+                    throw "Update-MarkdownTable: MatchColumn '$MatchColumn' not found in table headers. Available columns: $($columnIndices.Keys -join ', '). Row lookup for '$FeatureId' cannot be performed."
+                }
+                $matchIndex = $columnIndices[$MatchColumn]
             }
 
             $updatedLines += $line
@@ -503,8 +525,8 @@ function Update-MarkdownTable {
         if ($inTable -and $line -match '^\|.*\|$') {
             $columns = Split-MarkdownTableRow $line
 
-            # Check if this row contains our feature ID
-            $cellValue = Get-MarkdownLinkText $columns[0]
+            # Check if this row contains our feature ID (in the match column)
+            $cellValue = if ($matchIndex -lt $columns.Count) { Get-MarkdownLinkText $columns[$matchIndex] } else { $null }
             if ($columns.Count -gt 0 -and $cellValue -eq $FeatureId) {
                 # Ensure we have exactly the right number of columns to match the header
                 $headerCount = $headers.Count
@@ -775,12 +797,40 @@ function Move-MarkdownTableRow {
     .PARAMETER ColumnMapping
     Ordered hashtable mapping destination column names to source column names.
     Example: [ordered]@{ "ID" = "ID"; "Feature" = "Feature" }
-    The destination row columns are built in the order of this hashtable's keys.
+    Legacy mode (no -HeaderDriven): required — the destination row is built in the order of this
+    hashtable's keys, and the caller is responsible for listing every destination column.
+    -HeaderDriven mode: optional — only names destination columns whose value comes from a
+    differently-named source column; every key must exist in the destination header.
 
     .PARAMETER AdditionalColumns
     Ordered hashtable of destination column names to literal values (not sourced from the original row).
     Example: [ordered]@{ "Archive Date" = "2026-03-24"; "Rationale" = "Generalized into framework" }
     These are merged with ColumnMapping — if a key exists in both, AdditionalColumns wins.
+    -HeaderDriven mode: every key must exist in the destination header (pre-write assertion).
+
+    .PARAMETER HeaderDriven
+    v2.5 (PF-IMP-2254 / PF-PRO-072 Phase 1). Build the destination row from the destination
+    table's OWN header instead of from the caller's mapping order: for each destination header,
+    the value is AdditionalColumns[header] if supplied, else the source cell named by
+    ColumnMapping[header], else the same-named source cell, else -DefaultCell. A destination
+    column the source lacks (a newly added column) therefore lands as the placeholder in the
+    correct position instead of shifting every later cell — the fixed-mapping defect that let a
+    lagging script generation write a malformed row into a differently-shaped table.
+    Pre-write assertions: every ColumnMapping / AdditionalColumns key must exist in the
+    destination header (throws, nothing written).
+
+    .PARAMETER DefaultCell
+    Placeholder for a destination header with no source or literal value in -HeaderDriven mode
+    (default "—"; pass "-" for tables that use a plain hyphen).
+
+    .NOTES
+    Shape gates (v2.5, unconditional in BOTH modes): the source row's cell count must equal its
+    header's, and the built destination row's cell count must equal the destination header's —
+    each throws with an indexed cell diagnostic. Before v2.5 a mismatched source row was mapped
+    silently and a mismatched destination row was written as-is; the count check is the only
+    detector of an unescaped pipe, so a legacy caller that used to write a malformed row now
+    fails loudly instead. The row id is matched against the first cell's link display text
+    (PF-IMP-2162), so a linked id cell like "[4.1.1](path)" matches the pattern "4\.1\.1".
 
     .PARAMETER SectionEndPattern
     Regex pattern that marks the end of a section search. Defaults to "^\s*</details>" for
@@ -816,11 +866,17 @@ function Move-MarkdownTableRow {
         [Parameter(Mandatory=$true)]
         [string]$DestinationSection,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$false)]
         [System.Collections.Specialized.OrderedDictionary]$ColumnMapping,
 
         [Parameter(Mandatory=$false)]
         [System.Collections.Specialized.OrderedDictionary]$AdditionalColumns,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$HeaderDriven,
+
+        [Parameter(Mandatory=$false)]
+        [string]$DefaultCell = "—",
 
         [Parameter(Mandatory=$false)]
         [string]$SectionEndPattern = '^\s*</details>',
@@ -838,6 +894,9 @@ function Move-MarkdownTableRow {
     )
 
     $twoFile = $PSBoundParameters.ContainsKey('DestinationContent')
+    if (-not $HeaderDriven -and ($null -eq $ColumnMapping -or $ColumnMapping.Count -eq 0)) {
+        throw "Move-MarkdownTableRow: -ColumnMapping is required unless -HeaderDriven is specified (legacy mode builds the destination row in the mapping's key order)."
+    }
     $lines = [System.Collections.ArrayList]@($Content -split "\r?\n")
     if ($twoFile) {
         $destLines = [System.Collections.ArrayList]@($DestinationContent -split "\r?\n")
@@ -893,7 +952,10 @@ function Move-MarkdownTableRow {
         if ($lines[$i] -match '^\|[-\s:|]+$') { continue }  # skip separator
         $candidateCells = Split-MarkdownTableRow $lines[$i]
         if ($null -eq $candidateCells -or $candidateCells.Count -eq 0) { continue }  # not a table row
-        if ($candidateCells[0].Trim() -match "^$RowIdPattern$") {
+        # PF-IMP-2162: compare against the cell's link display text, not its raw text — every
+        # real feature-tracking.md links its id cell ("[4.1.1](path)"), which the anchored
+        # raw comparison could never match. A bare cell is returned unchanged.
+        if ((Get-MarkdownLinkText $candidateCells[0].Trim()).Trim() -match "^$RowIdPattern$") {
             $rowIndex = $i
             $sourceRowText = $lines[$i]
             break
@@ -908,6 +970,12 @@ function Move-MarkdownTableRow {
     # Parse source row columns
     $colValues = Split-MarkdownTableRow $sourceRowText
 
+    # Shape gate on the source row (v2.5, PF-IMP-2254 — unconditional in both modes): a row whose
+    # cell count disagrees with its header cannot be mapped positionally — every cell after an
+    # unescaped pipe sits under the wrong header, and the former min()-bounded loop carried that
+    # damage into the destination silently. Throws with an indexed cell diagnostic; nothing written.
+    Assert-TableRowShape -Cells $colValues -Headers $sourceHeaders -Context "source row matching '$RowIdPattern' in section '$SourceSection'"
+
     $sourceColumns = @{}
     for ($j = 0; $j -lt [Math]::Min($sourceHeaders.Count, $colValues.Count); $j++) {
         if ($sourceHeaders[$j] -ne '') {
@@ -918,31 +986,7 @@ function Move-MarkdownTableRow {
     # Remove the row
     $lines.RemoveAt($rowIndex)
 
-    # --- Step 3: Build the destination row ---
-    $destColValues = @()
-    foreach ($destCol in $ColumnMapping.Keys) {
-        $sourceCol = $ColumnMapping[$destCol]
-        if ($AdditionalColumns -and $AdditionalColumns.Contains($destCol)) {
-            $destColValues += $AdditionalColumns[$destCol]
-        } elseif ($sourceColumns.ContainsKey($sourceCol)) {
-            $destColValues += $sourceColumns[$sourceCol]
-        } else {
-            $destColValues += "—"
-        }
-    }
-
-    # Add any AdditionalColumns not already in ColumnMapping
-    if ($AdditionalColumns) {
-        foreach ($extraCol in $AdditionalColumns.Keys) {
-            if (-not $ColumnMapping.Contains($extraCol)) {
-                $destColValues += $AdditionalColumns[$extraCol]
-            }
-        }
-    }
-
-    $destinationRow = ConvertTo-MarkdownTableRow -Cells $destColValues
-
-    # --- Step 4: Insert into destination section ---
+    # --- Step 3: Locate the destination section, its table header and separator ---
     # When -DestinationContent was supplied, the destination section lives in
     # a separate file's content ($destLines); otherwise $destLines aliases
     # $lines and behavior matches the single-file case.
@@ -958,35 +1002,138 @@ function Move-MarkdownTableRow {
 
     if ($destStartIdx -eq -1) {
         Write-Warning "Move-MarkdownTableRow: Destination section '$DestinationSection' not found"
-        return @{ Content = $null; DestinationContent = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $destinationRow }
+        return @{ Content = $null; DestinationContent = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $null }
     }
 
-    # Find insertion point: after the last data row in the destination table
-    $insertAfterIdx = -1
+    # Section bound (exclusive): the next '## ' heading or the SectionEndPattern line.
+    $destEndIdx = $destLines.Count
     for ($i = $destStartIdx + 1; $i -lt $destLines.Count; $i++) {
-        if ($destLines[$i] -match '^## ' -and $i -ne $destStartIdx) { break }
-        if ($SectionEndPattern -and $destLines[$i] -match $SectionEndPattern) { break }
-        # Match data rows (not headers, not separators)
-        if ($destLines[$i] -match '^\|[^-]' -and $destLines[$i] -notmatch '^\|\s*(ID|Feature|Date|Status)\s*\|') {
-            $insertAfterIdx = $i
+        if ($destLines[$i] -match '^## ' -or ($SectionEndPattern -and $destLines[$i] -match $SectionEndPattern)) {
+            $destEndIdx = $i
+            break
         }
     }
 
-    # If no data rows, insert after the separator line
-    if ($insertAfterIdx -eq -1) {
-        for ($i = $destStartIdx + 1; $i -lt $destLines.Count; $i++) {
-            if ($destLines[$i] -match '^## ' -and $i -ne $destStartIdx) { break }
-            if ($SectionEndPattern -and $destLines[$i] -match $SectionEndPattern) { break }
-            if ($destLines[$i] -match '^\|[-\s:|]+$') {
-                $insertAfterIdx = $i
-                break
+    # The table header is the first non-separator table row in the section; its separator is the
+    # line directly beneath it. Located explicitly (v2.5, PF-IMP-2254) — the former insertion scan
+    # guessed which rows were headers by their first cell's name ('ID|Feature|Date|Status'), so an
+    # empty destination table with any other header name took the new row BETWEEN header and
+    # separator, and a data row whose first cell happened to be one of those words was skipped.
+    $destHeaders = @()
+    $destHeaderIdx = -1
+    for ($i = $destStartIdx + 1; $i -lt $destEndIdx; $i++) {
+        if ($destLines[$i] -match '^\|[-\s:|]+\|\s*$') { continue }
+        $headerCells = Split-MarkdownTableRow $destLines[$i]
+        if ($null -ne $headerCells) {
+            $destHeaders = @($headerCells)
+            $destHeaderIdx = $i
+            break
+        }
+    }
+
+    if ($destHeaderIdx -eq -1) {
+        Write-Warning "Move-MarkdownTableRow: No table found in destination section '$DestinationSection'"
+        return @{ Content = $null; DestinationContent = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $null }
+    }
+
+    $destSepIdx = -1
+    if (($destHeaderIdx + 1) -lt $destEndIdx -and $destLines[$destHeaderIdx + 1] -match '^\|[-\s:|]+\|\s*$') {
+        $destSepIdx = $destHeaderIdx + 1
+    }
+
+    if ($destSepIdx -eq -1) {
+        Write-Warning "Move-MarkdownTableRow: Could not find insertion point in destination section '$DestinationSection' (no separator row under the table header)"
+        return @{ Content = $null; DestinationContent = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $null }
+    }
+
+    # --- Step 4: Build the destination row ---
+    $destColValues = @()
+    if ($HeaderDriven) {
+        # Pre-write assertions: a key that names no destination column would either be dropped
+        # silently (a literal value lost) or, in legacy mode, shift every later cell. Refuse the
+        # whole write instead — nothing has been written yet.
+        $badMappingKeys = @()
+        if ($ColumnMapping) {
+            foreach ($k in $ColumnMapping.Keys) { if (-not (Test-TableHeaderPresent -Headers $destHeaders -Header $k)) { $badMappingKeys += $k } }
+        }
+        $badLiteralKeys = @()
+        if ($AdditionalColumns) {
+            foreach ($k in $AdditionalColumns.Keys) { if (-not (Test-TableHeaderPresent -Headers $destHeaders -Header $k)) { $badLiteralKeys += $k } }
+        }
+        if ($badMappingKeys.Count -gt 0 -or $badLiteralKeys.Count -gt 0) {
+            $parts = @()
+            if ($badMappingKeys.Count -gt 0) { $parts += "ColumnMapping key(s) '$($badMappingKeys -join "', '")'" }
+            if ($badLiteralKeys.Count -gt 0) { $parts += "AdditionalColumns key(s) '$($badLiteralKeys -join "', '")'" }
+            throw ("Move-MarkdownTableRow -HeaderDriven: $($parts -join ' and ') name no column in the destination table under " +
+                   "'$DestinationSection'. Destination headers are: '$($destHeaders -join "', '")'. Nothing was written.")
+        }
+
+        foreach ($destHeader in $destHeaders) {
+            if ($AdditionalColumns -and $AdditionalColumns.Contains($destHeader)) {
+                $destColValues += [string]$AdditionalColumns[$destHeader]
+            }
+            elseif ($ColumnMapping -and $ColumnMapping.Contains($destHeader)) {
+                $sourceCol = [string]$ColumnMapping[$destHeader]
+                if ($sourceColumns.ContainsKey($sourceCol)) {
+                    $destColValues += $sourceColumns[$sourceCol]
+                } else {
+                    Write-Warning ("Move-MarkdownTableRow -HeaderDriven: mapping '$destHeader' <- '$sourceCol' names a column absent from the " +
+                                   "source table under '$SourceSection' (source headers: '$($sourceHeaders -join "', '")'); wrote '$DefaultCell' instead.")
+                    $destColValues += $DefaultCell
+                }
+            }
+            elseif ($sourceColumns.ContainsKey($destHeader)) {
+                $destColValues += $sourceColumns[$destHeader]
+            }
+            else {
+                Write-Verbose "Move-MarkdownTableRow -HeaderDriven: destination column '$destHeader' has no source or literal value; wrote '$DefaultCell'."
+                $destColValues += $DefaultCell
+            }
+        }
+    }
+    else {
+        # Legacy mode: the caller's mapping order IS the destination row.
+        foreach ($destCol in $ColumnMapping.Keys) {
+            $sourceCol = $ColumnMapping[$destCol]
+            if ($AdditionalColumns -and $AdditionalColumns.Contains($destCol)) {
+                $destColValues += $AdditionalColumns[$destCol]
+            } elseif ($sourceColumns.ContainsKey($sourceCol)) {
+                $destColValues += $sourceColumns[$sourceCol]
+            } else {
+                $destColValues += "—"
+            }
+        }
+
+        # Add any AdditionalColumns not already in ColumnMapping
+        if ($AdditionalColumns) {
+            foreach ($extraCol in $AdditionalColumns.Keys) {
+                if (-not $ColumnMapping.Contains($extraCol)) {
+                    $destColValues += $AdditionalColumns[$extraCol]
+                }
             }
         }
     }
 
-    if ($insertAfterIdx -eq -1) {
-        Write-Warning "Move-MarkdownTableRow: Could not find insertion point in destination section '$DestinationSection'"
-        return @{ Content = $null; DestinationContent = $null; SourceRow = $sourceRowText; SourceColumns = $sourceColumns; DestinationRow = $destinationRow }
+    # Unconditional pre-write gate (v2.5, PF-IMP-2254 — both modes): the built row must match the
+    # destination header's cell count. Before v2.5 a legacy mapping that listed fewer or more
+    # columns than the destination table wrote the malformed row anyway (the escalation path
+    # wrote its malformed Intake row AFTER both files were written). Keep this check: it is the
+    # only detector of an unescaped pipe in a literal value.
+    if (@($destColValues).Count -ne @($destHeaders).Count) {
+        throw ("Move-MarkdownTableRow: the destination row built for '$RowIdPattern' has $(@($destColValues).Count) cell(s) but the " +
+               "destination table under '$DestinationSection' has $(@($destHeaders).Count) header(s) ('$($destHeaders -join "', '")'). " +
+               "The row would land with its cells shifted under the wrong headers — the caller's column mapping has drifted from the " +
+               "destination schema (use -HeaderDriven to build from the live header). Nothing was written. Cells as built:`n" +
+               (Get-MalformedRowDiagnostic -Columns ([string[]]@($destColValues)) -ExpectedCount (@($destHeaders).Count)) + "`n$script:MalformedRowEscapeHint")
+    }
+
+    $destinationRow = ConvertTo-MarkdownTableRow -Cells ([string[]]@($destColValues))
+
+    # --- Step 5: Insert after the last data row of the destination table (after the separator when empty) ---
+    $insertAfterIdx = $destSepIdx
+    for ($i = $destSepIdx + 1; $i -lt $destEndIdx; $i++) {
+        if ($destLines[$i] -match '^\|[-\s:|]+\|\s*$') { continue }   # a stray separator is not a data row
+        if ($null -ne (Split-MarkdownTableRow $destLines[$i])) { $insertAfterIdx = $i }
     }
 
     $destLines.Insert($insertAfterIdx + 1, $destinationRow)
@@ -1640,6 +1787,355 @@ function Assert-TableRowInFile {
 
 #endregion High-Level Operations
 
+#region Header-addressed cell access and row-shape assertions (v2.5 — PF-IMP-2254 / PF-PRO-072 Phase 1)
+
+# Shared remediation guidance for every cell-count failure site (hoisted from
+# Update-ProcessImprovement.ps1, PF-IMP-1570 (C3)).
+$script:MalformedRowEscapeHint = "Check for unescaped pipe characters in cell content. Escape literal pipes as '\|' (preferred — markdown table escape, supported by Split-MarkdownTableRow per PF-IMP-603) or '&#124;' (HTML-entity fallback)."
+
+function Find-TableHeaderIndex {
+    # Index of $Header in $Headers (case-insensitive, like every other header lookup in this
+    # module), or -1. Private.
+    param([string[]]$Headers, [string]$Header)
+    for ($k = 0; $k -lt @($Headers).Count; $k++) {
+        if ($Headers[$k] -eq $Header) { return $k }
+    }
+    return -1
+}
+
+function Test-TableHeaderPresent {
+    param([string[]]$Headers, [string]$Header)
+    return ((Find-TableHeaderIndex -Headers $Headers -Header $Header) -ge 0)
+}
+
+function Get-MalformedRowDiagnostic {
+    <#
+    .SYNOPSIS
+    Renders a row's cells as an indexed list so a cell-count failure is locatable by eye.
+
+    .DESCRIPTION
+    A column-count failure usually means an unescaped pipe split one cell in two, which shifts
+    every later cell by one — so no single cell is identifiable as "the" divergent one. This
+    emits every cell with its index and a truncated snippet, marking the cells that fall beyond
+    the expected count. Hoisted from Update-ProcessImprovement.ps1 (PF-IMP-1570 (C3)) so every
+    writer and validator reports the same diagnostic (PF-IMP-2254).
+
+    .PARAMETER Columns
+    The parsed cells (from Split-MarkdownTableRow). Null or empty renders a one-line note.
+
+    .PARAMETER ExpectedCount
+    The governing header's cell count.
+
+    .PARAMETER SnippetLength
+    Characters of each cell to show before truncating (default 40).
+
+    .OUTPUTS
+    [string] Multi-line diagnostic text.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$false)]
+        [AllowNull()]
+        [AllowEmptyCollection()]
+        [string[]]$Columns,
+
+        [Parameter(Mandatory=$true)]
+        [int]$ExpectedCount,
+
+        [Parameter(Mandatory=$false)]
+        [int]$SnippetLength = 40
+    )
+    if ($null -eq $Columns -or @($Columns).Count -eq 0) { return "  (row did not parse into any cells)" }
+    $out = [System.Collections.Generic.List[string]]::new()
+    for ($i = 0; $i -lt $Columns.Count; $i++) {
+        $cell = "$($Columns[$i])".Trim()
+        $snippet = if ($cell.Length -gt $SnippetLength) { $cell.Substring(0, $SnippetLength) + "…" } else { $cell }
+        $marker = if ($i -ge $ExpectedCount) { "   <-- beyond the expected $ExpectedCount columns" } else { "" }
+        $out.Add(("  [{0}] {1}{2}" -f $i, $snippet, $marker))
+    }
+    return ($out -join "`n")
+}
+
+function Assert-TableRowShape {
+    <#
+    .SYNOPSIS
+    Throws when a table row's cell count differs from its governing header's cell count.
+
+    .DESCRIPTION
+    The one detector of an unescaped pipe or a lost cell: a row whose cell count disagrees with
+    its header has every later cell under the wrong header, and the readers pad short rows or
+    drop extra cells silently. Pass either the raw row line (-Line) or its already-split cells
+    (-Cells), plus the header cells. The error message names both counts, lists the headers, and
+    carries the indexed cell diagnostic plus the escape hint.
+
+    Pure assertion — no file access; Assert-TableRowInFile is the read-after-write wrapper that
+    locates a row and its header in a file and delegates the comparison here.
+
+    .PARAMETER Cells
+    The row's parsed cells (Split-MarkdownTableRow output).
+
+    .PARAMETER Line
+    The raw row line; parsed here. A line that is not a well-formed table row throws.
+
+    .PARAMETER Headers
+    The governing header's cells.
+
+    .PARAMETER Context
+    Optional caller-supplied context appended to the error message.
+
+    .EXAMPLE
+    Assert-TableRowShape -Line $row -Headers (Get-MarkdownTableHeaders -Content $c -SectionHeading '## Section 1 — Intake') -Context "PF-IMP-2245"
+    #>
+    [CmdletBinding(DefaultParameterSetName='Cells')]
+    param(
+        # [AllowEmptyString()] on every Mandatory [string[]] below: without it PowerShell rejects a
+        # collection holding "" at binding time ("Cannot bind argument ... because it is an empty
+        # string") — and an empty cell is ordinary tracker data (776 of the live archive's rows).
+        [Parameter(Mandatory=$true, ParameterSetName='Cells')]
+        [AllowNull()]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [string[]]$Cells,
+
+        [Parameter(Mandatory=$true, ParameterSetName='Line')]
+        [AllowEmptyString()]
+        [string]$Line,
+
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [string[]]$Headers,
+
+        [Parameter(Mandatory=$false)]
+        [string]$Context
+    )
+
+    $contextSuffix = if ($Context) { " (context: $Context)" } else { "" }
+
+    if ($PSCmdlet.ParameterSetName -eq 'Line') {
+        $Cells = Split-MarkdownTableRow -Line $Line
+        if ($null -eq $Cells) {
+            throw ("Assert-TableRowShape: the line is not a well-formed markdown table row (expected it to start and " +
+                   "end with '|')$contextSuffix. Line: $Line")
+        }
+    }
+
+    $headerCount = @($Headers).Count
+    if ($headerCount -eq 0) {
+        throw "Assert-TableRowShape: no header cells supplied — a row's shape cannot be asserted against an empty header$contextSuffix"
+    }
+    $cellCount = if ($null -eq $Cells) { 0 } else { @($Cells).Count }
+
+    if ($cellCount -ne $headerCount) {
+        $headerList = "'" + (@($Headers) -join "', '") + "'"
+        throw ("Assert-TableRowShape: row/header column-count mismatch$contextSuffix. The row has $cellCount cell(s); its header " +
+               "has $headerCount ($headerList). Every cell after the divergence sits under the wrong header. Cells as parsed:`n" +
+               (Get-MalformedRowDiagnostic -Columns $Cells -ExpectedCount $headerCount) + "`n$script:MalformedRowEscapeHint")
+    }
+}
+
+function Get-MarkdownTableCell {
+    <#
+    .SYNOPSIS
+    Reads one cell of a table row by header name.
+
+    .DESCRIPTION
+    Header-addressed read — the replacement for `$cells[N]` constant-index access, which breaks
+    silently the moment a column is added before N. The row's shape is asserted against the
+    header first (a malformed row cannot be read positionally — throws with the diagnostic).
+    Returns $null when the header names no column (read-absent returns null; the caller decides
+    whether an optional column matters), logged at Verbose.
+
+    .PARAMETER Line
+    The raw row line.
+
+    .PARAMETER Headers
+    The governing header's cells (Get-MarkdownTableHeaders).
+
+    .PARAMETER Header
+    The column to read.
+
+    .OUTPUTS
+    [string] The raw cell text (escaped pipes preserved), or $null when the column is absent.
+
+    .EXAMPLE
+    $notes = Get-MarkdownTableCell -Line $row._RawLine -Headers $headers -Header 'Notes'
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Line,
+
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [string[]]$Headers,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Header
+    )
+
+    $cells = Split-MarkdownTableRow -Line $Line
+    if ($null -eq $cells) {
+        throw "Get-MarkdownTableCell: the line is not a well-formed markdown table row (expected it to start and end with '|'). Line: $Line"
+    }
+    Assert-TableRowShape -Cells $cells -Headers $Headers -Context "Get-MarkdownTableCell '$Header'"
+
+    $idx = Find-TableHeaderIndex -Headers $Headers -Header $Header
+    if ($idx -lt 0) {
+        Write-Verbose "Get-MarkdownTableCell: column '$Header' is not in the table header ('$($Headers -join "', '")'); returning null."
+        return $null
+    }
+    return [string]$cells[$idx]
+}
+
+function Set-MarkdownTableCell {
+    <#
+    .SYNOPSIS
+    Writes one or more cells of a table row by header name and returns the rebuilt row line.
+
+    .DESCRIPTION
+    Header-addressed write — the replacement for `$cells[N] = value` positional writes. Every key
+    in -Updates is resolved against the header BEFORE any cell is touched: a key naming no column
+    throws and nothing is written (write-absent throws). The row's shape is asserted first, so a
+    malformed row is never "repaired" by a positional write into the wrong cell. Cells not named
+    in -Updates are carried through byte-for-byte (escaped pipes preserved); new values have
+    literal pipes escaped by ConvertTo-MarkdownTableRow. A value containing a line break is
+    refused: it would terminate the row and strand the remainder as loose prose.
+
+    .PARAMETER Line
+    The raw row line.
+
+    .PARAMETER Headers
+    The governing header's cells (Get-MarkdownTableHeaders).
+
+    .PARAMETER Updates
+    Hashtable of header name -> new cell value.
+
+    .OUTPUTS
+    [string] The rebuilt row line.
+
+    .EXAMPLE
+    $newLine = Set-MarkdownTableCell -Line $row._RawLine -Headers $headers -Updates @{ 'Status' = 'In Progress'; 'Last Updated' = $today }
+    $content = Set-MarkdownTableRow -Content $content -LineNumber $row._LineNumber -NewRow $newLine -ExpectedRow $row._RawLine
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Line,
+
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [string[]]$Headers,
+
+        [Parameter(Mandatory=$true)]
+        [hashtable]$Updates
+    )
+
+    $cells = Split-MarkdownTableRow -Line $Line
+    if ($null -eq $cells) {
+        throw "Set-MarkdownTableCell: the line is not a well-formed markdown table row (expected it to start and end with '|'). Line: $Line"
+    }
+    Assert-TableRowShape -Cells $cells -Headers $Headers -Context "Set-MarkdownTableCell"
+
+    $missing = @($Updates.Keys | Where-Object { -not (Test-TableHeaderPresent -Headers $Headers -Header $_) })
+    if ($missing.Count -gt 0) {
+        throw ("Set-MarkdownTableCell: column(s) '$($missing -join "', '")' not found in the table header. Available columns: " +
+               "'$($Headers -join "', '")'. Nothing was written.")
+    }
+    foreach ($key in $Updates.Keys) {
+        if ("$($Updates[$key])" -match '[\r\n]') {
+            throw ("Set-MarkdownTableCell: the value for column '$key' contains a line break, which would terminate the table row " +
+                   "and strand the remainder below the table. Collapse it to a single line before writing.")
+        }
+    }
+
+    $newCells = [string[]]@($cells)
+    foreach ($key in $Updates.Keys) {
+        $newCells[(Find-TableHeaderIndex -Headers $Headers -Header $key)] = [string]$Updates[$key]
+    }
+    return ConvertTo-MarkdownTableRow -Cells $newCells
+}
+
+function Set-MarkdownTableRow {
+    <#
+    .SYNOPSIS
+    Replaces one table row in markdown content by its 1-based line number.
+
+    .DESCRIPTION
+    The replacement for the `$Content.Replace($oldLine, $newLine)` pattern, which also rewrites
+    any OTHER line that happens to be byte-identical (a duplicated row, a row quoted in prose).
+    Pairs with ConvertFrom-MarkdownTable -IncludeLineNumber (1-based `_LineNumber`) and
+    Set-MarkdownTableCell. Line endings are preserved.
+
+    Guards: the line number must exist; the line there must already be a table row (a header,
+    separator, or data row — never prose or a blank line); the new row must be a single
+    well-formed table row; and, when -ExpectedRow is given, the line must still hold that text —
+    a mismatch means the content changed after the line number was read (a concurrent write or a
+    stale snapshot), so the write is refused rather than landing on the wrong row.
+
+    .PARAMETER Content
+    The full file content as a single string.
+
+    .PARAMETER LineNumber
+    1-based line number of the row to replace.
+
+    .PARAMETER NewRow
+    The replacement row line.
+
+    .PARAMETER ExpectedRow
+    Optional: the row text the caller read at that line number. Compared trimmed-end.
+
+    .OUTPUTS
+    [string] The updated content.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [AllowEmptyString()]
+        [string]$Content,
+
+        [Parameter(Mandatory=$true)]
+        [ValidateRange(1, [int]::MaxValue)]
+        [int]$LineNumber,
+
+        [Parameter(Mandatory=$true)]
+        [string]$NewRow,
+
+        [Parameter(Mandatory=$false)]
+        [string]$ExpectedRow
+    )
+
+    $newline = if ($Content -match "`r`n") { "`r`n" } else { "`n" }
+    $lines = $Content -split "`r?`n"
+
+    if ($LineNumber -gt $lines.Count) {
+        throw "Set-MarkdownTableRow: line $LineNumber is beyond the content's $($lines.Count) line(s). Nothing was written."
+    }
+    $current = $lines[$LineNumber - 1]
+    if ($null -eq (Split-MarkdownTableRow -Line $current.TrimEnd())) {
+        throw "Set-MarkdownTableRow: line $LineNumber is not a markdown table row (expected it to start and end with '|'). Nothing was written. Line: $current"
+    }
+    if ($PSBoundParameters.ContainsKey('ExpectedRow') -and $current.TrimEnd() -ne $ExpectedRow.TrimEnd()) {
+        throw ("Set-MarkdownTableRow: line $LineNumber no longer holds the expected row — the content changed after the line number " +
+               "was read (concurrent write or stale snapshot). Nothing was written; re-read and retry.`n  Expected: $ExpectedRow`n  Found:    $current")
+    }
+    if ($NewRow -match '[\r\n]') {
+        throw "Set-MarkdownTableRow: NewRow contains a line break; a table row is a single line. Nothing was written."
+    }
+    if ($null -eq (Split-MarkdownTableRow -Line $NewRow.TrimEnd())) {
+        throw "Set-MarkdownTableRow: NewRow is not a well-formed markdown table row (expected it to start and end with '|'). Nothing was written. NewRow: $NewRow"
+    }
+
+    $lines[$LineNumber - 1] = $NewRow
+    return ($lines -join $newline)
+}
+
+#endregion Header-addressed cell access and row-shape assertions
+
 # Export functions
 Export-ModuleMember -Function @(
     # Low-level helpers (v2.0)
@@ -1661,7 +2157,13 @@ Export-ModuleMember -Function @(
     'Assert-TableRowInFile',
     # Header-driven row construction (v2.4 — PF-IMP-1599)
     'Get-MarkdownTableHeaders',
-    'New-HeaderDrivenTableRow'
+    'New-HeaderDrivenTableRow',
+    # Header-addressed cell access and row-shape assertions (v2.5 — PF-IMP-2254 / PF-PRO-072 Phase 1)
+    'Get-MalformedRowDiagnostic',
+    'Assert-TableRowShape',
+    'Get-MarkdownTableCell',
+    'Set-MarkdownTableCell',
+    'Set-MarkdownTableRow'
 )
 
-Write-Verbose "TableOperations module loaded with 12 functions"
+Write-Verbose "TableOperations module loaded with 18 functions"

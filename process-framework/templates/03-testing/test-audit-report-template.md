@@ -2,7 +2,7 @@
 id: PF-TEM-091
 type: Process Framework
 category: Test Audit Report
-version: 1.0
+version: 1.1
 created: [CREATION_DATE]
 updated: [CREATION_DATE]
 feature_id: [Feature ID]
@@ -78,7 +78,8 @@ description: "Template for systematic test quality assessment reports"
 - **Assertion density**: [Average assertions per test method. Target: ≥2. Count `assert` statements or `self.assert*` calls per test method.]
 - **Behavioral assertions**: [Do tests check return values, state changes, and side effects — or just "no exception thrown"? List any tests with weak assertions (e.g., `assert result is not None` without checking the actual value).]
 - **Edge case assertions**: [Do tests include boundary conditions, error paths, and empty/null inputs? Note any missing edge case coverage.]
-- **Mutation testing** _(optional)_: [If mutation testing tools are available (e.g., `mutmut` for Python), report mutation kill rate. Otherwise state "Not performed".]
+- **Author-side evidence**: [For each new or changed test, the contrast recorded per the Test Authoring Guide (PF-GDE-079) Phase 3 — which assertion went red under fail-first or mutation, and where that record lives. Missing evidence is a Purpose Fulfillment finding, not "Not performed".]
+- **Mutation testing tooling** _(optional)_: [If mutation testing tools are available (e.g., `mutmut` for Python), report mutation kill rate; otherwise state "Not performed". Only the tooling is optional — the author-side manual evidence above is not.]
 
 ---
 

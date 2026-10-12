@@ -3,9 +3,9 @@ id: PF-TSK-068
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.6
+version: 1.9
 created: 2026-02-19
-updated: 2026-07-30
+updated: 2026-09-04
 change_notes: "v1.6 - Fixed duplicate step 4 (PF-IMP-1741 symptom fix): the Phase 1 checkpoint and all subsequent steps renumbered +1 (now 1–12); checklist Step-9 citation updated to Step 10"
 description: "Execute enhancement steps from Enhancement State Tracking File, adapting existing task guidance to amendment context"
 complexity: medium
@@ -87,7 +87,7 @@ This task executes enhancement work on existing features by following the Enhanc
    - Adapt the guidance to the enhancement context:
      - Amend existing design docs rather than creating new ones
      - Extend existing code rather than building from scratch
-     - Modify existing tests rather than creating a full new test suite (unless the state file specifies otherwise). If a new test file is needed, use [New-TestFile.ps1](../../scripts/file-creation/03-testing/New-TestFile.ps1)
+     - Modify existing tests rather than creating a full new test suite (unless the state file specifies otherwise); an edited or new test is authored and proved per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079 — an edited assertion re-enters its Phase 3). If a new test file is needed, use [New-TestFile.ps1](../../scripts/file-creation/03-testing/New-TestFile.ps1) — its `-TestType` / `-Priority` selection craft is [Test-file customization (`test-authoring` skill)](../../../.claude/skills/test-authoring/references/test-file-customization.md)
      - After creating or modifying tests, complete the documentation steps in the [Test Infrastructure Guide — Test Documentation Completeness](../../guides/03-testing/test-infrastructure-guide.md#test-documentation-completeness) section.
    - Execute the step
    - **Verify all modified artifacts**: If the step produces or modifies artifacts that are not covered by the project's automated test suite (e.g., scripts, configuration files, build definitions, deployment manifests), manually invoke or inspect them to confirm they work correctly before marking the step complete

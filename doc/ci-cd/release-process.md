@@ -17,8 +17,8 @@ This document outlines the release process for LinkWatcher. LinkWatcher is deplo
 > Read by the Release & Deployment freshness gate (PF-TSK-008). Re-set **both** fields
 > whenever the mechanics in this guide change or are re-verified against a real release.
 
-- **Verified against release:** `2.2.0`
-- **Verified on:** 2026-08-20
+- **Verified against release:** `2.2.1`
+- **Verified on:** 2026-08-31
 
 ## Architecture
 
@@ -51,7 +51,7 @@ python deployment/install_global.py
 
 This script:
 - Stops **every process running from the install-dir venv** — this project's own daemon, other projects' daemons, **and a running Control Panel** — so nothing locks `.linkwatcher-venv\Scripts\python.exe` and fails the venv rebuild (PD-BUG-106); processes are identified by executable path, never by a lock-file PID (PD-BUG-121). Daemons restart at each project's next session start; **the Control Panel does not restart itself** — relaunch it manually after the install (see step 3)
-- Aborts cleanly (before any files are copied) if the venv `python.exe` is still locked after the daemon stop
+- Waits for `.linkwatcher-venv\Scripts\python.exe` to actually be released before judging the stop — killing is asynchronous, and checking with no tolerance aborted releases on a lock that was already dissolving (PD-BUG-158). The wait runs whether or not the installer did the killing, so a Control Panel you closed by hand moments earlier (step 3 below) is covered too; with the interpreter already free it costs a single file check, not the timeout. If the interpreter is *still* locked after that wait, the install aborts cleanly before any files are copied, and the message reports what can actually be observed — the surviving venv PIDs, or plainly that no venv process exists and the handle is held from outside it
 - Checks the Python version (3.8+ required)
 - Removes stale files from previous installs (e.g., old `link_watcher.py`)
 - Copies `main.py`, `control_panel.py`, `pyproject.toml`, the `src/linkwatcher` package, `config-examples/`, and the `doc/user/handbooks/` user handbooks (excluding `__pycache__`/`*.pyc`)
@@ -142,7 +142,7 @@ It is non-fatal: on a standalone clone (no `.framework-central-pointer`) it skip
 
 ## Version Management
 
-The version is defined in **two places that must be bumped together** (currently `2.2.0`):
+The version is defined in **two places that must be bumped together** (currently `2.2.1`):
 
 - `pyproject.toml` under `[project].version` — package metadata
 - `src/linkwatcher/__init__.py` `__version__` — the value `main.py --version` actually reports (the deployed venv installs from `requirements.txt`, so there is no package metadata to read at runtime; the hardcode is authoritative in the install)

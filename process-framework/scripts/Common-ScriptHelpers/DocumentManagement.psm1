@@ -426,6 +426,102 @@ function Convert-TemplateLinkDepth {
     }
 }
 
+function ConvertTo-DocumentRelativeLink {
+    <#
+    .SYNOPSIS
+    Rebases a workspace-root-relative link target onto the directory of the document that will
+    contain the link.
+
+    .DESCRIPTION
+    A markdown link resolves against its own file's directory, but callers naturally supply a
+    path from the workspace root — that is the form a directory listing shows, the form task
+    instructions quote, and the form an agent has at hand. Writing it verbatim into a cell of a
+    document that sits several levels down produces a link that never resolves, and the damage
+    is invisible until someone clicks it: every Tools Review link in the central improvement
+    tracker was broken this way (PF-IMP-2244).
+
+    This helper converts the caller's form to the document's form, so no caller has to know how
+    deep its destination sits. Value semantics follow Convert-TemplateLinkDepth: rewriting a
+    link is a convenience, never a gate, and an unresolvable target is returned unchanged rather
+    than guessed at.
+
+    Returned unchanged:
+      - empty / whitespace input
+      - a value that is already document-relative ('./…' or '../…')
+      - an absolute URL, a UNC/rooted path, or a bare '#anchor'
+      - a value that does not exist under $WorkspaceRoot (warns; the caller may be linking
+        something legitimately absent, and a guessed rebase would be worse than the input)
+
+    .PARAMETER LinkTarget
+    The link target as supplied by the caller, normally relative to the workspace root. An
+    '#anchor' suffix is preserved.
+
+    .PARAMETER DocumentPath
+    Path to the document the link will be written into. Its DIRECTORY is the rebase target.
+
+    .PARAMETER WorkspaceRoot
+    The root the supplied LinkTarget is relative to.
+
+    .OUTPUTS
+    [string] The rebased link target with '/' separators, or the input unchanged.
+
+    .EXAMPLE
+    ConvertTo-DocumentRelativeLink -LinkTarget 'process-framework-central/feedback/reviews/r.md' `
+        -DocumentPath 'C:/ws/process-framework-central/state-tracking/permanent/tracking.md' `
+        -WorkspaceRoot 'C:/ws'
+    # -> '../../feedback/reviews/r.md'
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [string]$LinkTarget,
+
+        [Parameter(Mandatory = $true)]
+        [string]$DocumentPath,
+
+        [Parameter(Mandatory = $true)]
+        [string]$WorkspaceRoot
+    )
+
+    if ([string]::IsNullOrWhiteSpace($LinkTarget)) { return $LinkTarget }
+
+    $value = $LinkTarget.Trim()
+
+    # Already document-relative, a URL, an anchor, or rooted — none of these are ours to rewrite.
+    if ($value.StartsWith('./') -or $value.StartsWith('../') -or $value.StartsWith('#')) { return $LinkTarget }
+    if ($value -match '^[a-zA-Z][a-zA-Z0-9+.-]*:') { return $LinkTarget }
+    if ($value.StartsWith('/') -or $value.StartsWith('\\')) { return $LinkTarget }
+
+    # Split an '#anchor' suffix so it survives the rebase.
+    $split  = $value.IndexOf('#')
+    $path   = if ($split -ge 0) { $value.Substring(0, $split) } else { $value }
+    $anchor = if ($split -ge 0) { $value.Substring($split) }    else { '' }
+    if ([string]::IsNullOrWhiteSpace($path)) { return $LinkTarget }
+
+    try {
+        $resolved = [System.IO.Path]::GetFullPath((Join-Path $WorkspaceRoot $path))
+        if (-not (Test-Path -LiteralPath $resolved)) {
+            Write-Warning ("ConvertTo-DocumentRelativeLink: '{0}' does not exist under '{1}' — link written unchanged." -f $path, $WorkspaceRoot)
+            return $LinkTarget
+        }
+
+        $documentDir = Split-Path -Path ([System.IO.Path]::GetFullPath($DocumentPath)) -Parent
+        $rebased = [System.IO.Path]::GetRelativePath($documentDir, $resolved) -replace '\\', '/'
+        if ($rebased -eq $path) { return $LinkTarget }
+
+        Write-Verbose ("ConvertTo-DocumentRelativeLink: '{0}' -> '{1}'" -f $path, $rebased)
+        return ($rebased + $anchor)
+    }
+    catch {
+        # A link rewrite is a convenience, never a gate on document creation.
+        Write-Warning "ConvertTo-DocumentRelativeLink: rebase skipped ($($_.Exception.Message)). Link written unchanged."
+        return $LinkTarget
+    }
+}
+
 function New-ProjectDocumentWithMetadata {
     <#
     .SYNOPSIS
@@ -1452,6 +1548,7 @@ Export-ModuleMember -Function @(
     'Get-TemplateContentWithoutMetadata',
     'Resolve-TemplateFacePath',
     'Convert-TemplateLinkDepth',
+    'ConvertTo-DocumentRelativeLink',
     'New-ProjectDocumentWithMetadata',
     'New-ProjectDocumentWithCodeMetadata',
     'New-ProjectCodeMetadata',

@@ -2,9 +2,9 @@
 id: PF-TSK-024
 type: Process Framework
 category: Task Definition
-version: 1.4
+version: 1.6
 created: 2025-07-26
-updated: 2026-07-28
+updated: 2026-09-04
 description: "Implement foundation features (0.x.x) that provide architectural foundations for the application"
 complexity: complex
 use_when: >-
@@ -66,7 +66,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
 
 ### Preparation
 
-1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `foundation-feature-implementation-task`. If a matching skill is available in the session, activate it before starting implementation work.
+1. **Check Recommended Skills**: Read the active language-config (`languages-config/{language}/{language}-config.json`) and `project-config.json` for `recommended_skills` entries keyed to `foundation-feature-implementation-task`. If a matching skill is available in the session — the `test-authoring` craft skill for the tests Step 11 writes — activate it before starting implementation work; if it is not listed, read its [`SKILL.md`](../../../.claude/skills/test-authoring/SKILL.md) directly (equivalent, not degraded).
 2. **Review Architecture Context**: Study current architectural foundations
 3. **Review Dimension Profile**: Read the feature's Dimension Profile from its implementation state file. Foundation features (0.x.x) typically have Critical AC and EM dimensions — verify the profile and note all Critical dimensions that must be explicitly addressed during implementation
 4. **Analyze Cross-Cutting Impact**: Identify which components and features will be affected by this foundation implementation
@@ -84,7 +84,7 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
    Drive the content customization with the [`architecture-decision` craft skill](../../../.claude/skills/architecture-decision/SKILL.md) — the ADR customization craft home (replaces the retired Architecture Decision Creation Guide).
 9. **Update Architecture Context**: Document new architectural foundations
 10. **Establish Patterns**: Document reusable patterns that other features can follow
-11. **Implement Tests**: Create tracked tests that validate both functionality and architectural constraints using `New-TestFile.ps1`
+11. **Implement Tests**: Create tracked tests that validate both functionality and architectural constraints using `New-TestFile.ps1`, each authored and proved per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079; judgment in the `test-authoring` skill activated at Step 1)
 
     ```powershell
     # Create test files using automation script (writes pytest markers)
@@ -92,11 +92,6 @@ Specialized task for implementing foundation features (0.x.x) that provide archi
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "0.X.Z" -ComponentName "ComponentName" -Priority "Critical"
 
     # Use Critical priority for foundation features
-    # Script automatically:
-    # - Writes pytest markers (feature, priority, test_type)
-    # - Creates test file from template with proper structure
-    # - Updates test-tracking.md with correct file links and status
-    # - Updates feature-tracking.md with test implementation progress
     ```
 12. **🚨 CHECKPOINT**: Present core foundation implementation, architectural decisions, established patterns, test results, and dimension profile compliance to human partner for review before finalization
 

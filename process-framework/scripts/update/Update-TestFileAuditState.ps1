@@ -477,6 +477,9 @@ try {
             $lines = $trackingContent -split '\r?\n'
             $updatedLines = @()
             $rowUpdated = $false
+            # PF-PRO-077 / PF-IMP-2126: the first cell of every row rewritten this run, so the
+            # post-write assertion can name each one it must verify.
+            $updatedRowIds = @()
             $lifecycleFlipped = 0
             $lifecycleSkipped = @()
             $columnIndices = @{}
@@ -527,6 +530,7 @@ try {
 
                         $line = "| " + ($cols -join " | ") + " |"
                         $rowUpdated = $true
+                        if ($cols.Count -gt 0 -and $cols[0]) { $updatedRowIds += $cols[0] }
                     }
                 }
                 $updatedLines += $line
@@ -535,6 +539,17 @@ try {
             if ($rowUpdated) {
                 $updatedContent = $updatedLines -join "`n"
                 Set-Content $trackingFilePath $updatedContent -Encoding UTF8
+
+                # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This branch is already
+                # the non-dry-run one, and this is the only write of the Performance/E2E path, so
+                # the check sits directly after it. The rows are rebuilt positionally from a split
+                # of the raw line, so only a header-aware check can tell a correct row from one
+                # whose cells now sit under the wrong headers.
+                foreach ($updatedRowId in $updatedRowIds) {
+                    $auditRowPattern = "^\|\s*" + [regex]::Escape($updatedRowId) + "\s*\|(?:[^|]*\|)*\s*" + [regex]::Escape($auditStatusDisplay) + "\s*\|"
+                    Assert-TableRowInFile -Path $trackingFilePath -Pattern $auditRowPattern -Context "$updatedRowId → $auditStatusDisplay in $trackingFileName"
+                }
+
                 Write-Host "  ✅ $trackingFileName updated: $testFileName Audit Status ← $auditStatusDisplay" -ForegroundColor Green
                 if ($LifecycleCorrection) {
                     if ($lifecycleFlipped -gt 0) {
@@ -733,6 +748,18 @@ try {
     if ($DryRun) {
         Write-Host "  Would update feature $FeatureId test status to: $aggregatedStatus" -ForegroundColor Cyan
     } else {
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), after BOTH writes of the
+        # Automated path — the test-tracking rewrite and the feature-tracking write the helper
+        # above performs. The helper reports success even when it matched no row, so the value
+        # is part of each pattern, not just the row's identity.
+        $verifyTestTracking = Resolve-TrackingFilePath -File "test-tracking.md"
+        $testRowPattern = "^\|.*" + [regex]::Escape($testFileName) + ".*\|(?:[^|]*\|)*\s*" + [regex]::Escape($testImplStatus) + "\s*\|"
+        Assert-TableRowInFile -Path $verifyTestTracking -Pattern $testRowPattern -Context "$testFileName → $testImplStatus in test-tracking.md"
+
+        $verifyFeatureTracking = Resolve-DocPath -Subpath "state-tracking/permanent/feature-tracking.md"
+        $featureRowPattern = "^\|\s*\[?" + [regex]::Escape($FeatureId) + "\b.*\|(?:[^|]*\|)*\s*" + [regex]::Escape($aggregatedStatus) + "\s*\|"
+        Assert-TableRowInFile -Path $verifyFeatureTracking -Pattern $featureRowPattern -Context "feature $FeatureId → $aggregatedStatus in feature-tracking.md"
+
         Write-Host "  ✅ Feature tracking updated successfully" -ForegroundColor Green
     }
 

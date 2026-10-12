@@ -335,6 +335,28 @@ try {
                     -Status $operation.Status `
                     -Notes $operation.UpdateNotes | Out-Null
 
+                # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), per feature, directly
+                # after this feature's writes: the helper returns no found/not-found signal and
+                # writes each file even when no row matched, so "the row exists, is header-width,
+                # and carries the value just written" is the only detector of a
+                # reports-success-writes-nothing item. A throw here leaves earlier items complete
+                # and this one un-recorded, which the per-item try/catch already models. The
+                # feature tracker is required and always asserted; test-tracking is asserted only
+                # when the file exists AND already carries a row for this feature — a feature
+                # with no test rows yet is a legitimate state, not a missed write.
+                if (-not $WhatIfPreference) {
+                    $rowIdentity = "^\|\s*\[?" + [regex]::Escape($operation.FeatureId) + "\b(?:\]\([^)]*\))?\s*\|"
+                    $statusPattern = $rowIdentity + "(?:[^|]*\|)*\s*" + [regex]::Escape($operation.Status) + "\s*\|"
+                    Assert-TableRowInFile -Path $trackingFiles[0] -Pattern $statusPattern -Context "feature $($operation.FeatureId) → '$($operation.Status)' in $($trackingFiles[0])"
+                    if ($operation.UpdateNotes) {
+                        $notePattern = $rowIdentity + ".*" + [regex]::Escape($operation.UpdateNotes) + "\s*\|"
+                        Assert-TableRowInFile -Path $trackingFiles[0] -Pattern $notePattern -Context "feature $($operation.FeatureId) notes in $($trackingFiles[0])"
+                    }
+                    if ((Test-Path $trackingFiles[1]) -and (Select-String -Path $trackingFiles[1] -Pattern $rowIdentity -Quiet)) {
+                        Assert-TableRowInFile -Path $trackingFiles[1] -Pattern $statusPattern -Context "feature $($operation.FeatureId) → '$($operation.Status)' in $($trackingFiles[1])"
+                    }
+                }
+
                 $batchResults.ProcessedFeatures += $operation
                 Write-Host "   ✅ Feature $($operation.FeatureId) updated" -ForegroundColor Green
             } catch {

@@ -11,8 +11,10 @@ during parallel validation sessions (IMP-449).
 
 Updates three sections of the tracking file:
 1. Feature-by-Feature Progress — marks features as validated with date and report link
-2. Overall Progress — recalculates Items Validated and Reports Generated counters
-3. Validation Reports Registry — adds report entry to the dimension section
+2. Validation Reports Registry — adds the report's entry to the dimension section, or fills
+   in the entry that already exists (e.g. the placeholder New-ValidationReport.ps1 writes)
+3. Overall Progress — recalculates Items Validated from the feature cells and derives
+   Reports Generated from the registry, never incrementing either
 
 Also recalculates per-feature Overall Status and updates frontmatter date.
 
@@ -62,9 +64,10 @@ Update-ValidationReportState.ps1 -TrackingFile "doc/state-tracking/validation/va
     -WhatIf
 
 .NOTES
-Version: 2.0
+Version: 2.1
 Created: 2025-08-23
 Rewritten: 2026-04-10
+Updated: 2026-09-28 (PF-IMP-2352: registry upsert, derived Reports Generated, anchored matching)
 Addresses: IMP-449 (Concurrent access during parallel validation sessions)
 Pattern: Single read-modify-write cycle following Update-ProcessImprovement.ps1
 
@@ -166,6 +169,11 @@ $DimensionColumnHeaders = @{
     "Data Integrity"                  = "Data Integrity"
 }
 
+# A Feature-by-Feature cell counts as validated when it carries a dated report link. The
+# overwrite decision, the Items Validated count and the per-feature roll-up all use this one
+# definition.
+$ValidatedCellPattern = '^\[?\d{4}-\d{2}-\d{2}'
+
 # --- Prerequisites ---
 function Test-Prerequisites {
     if (-not (Test-Path $ResolvedTrackingFile)) {
@@ -173,6 +181,81 @@ function Test-Prerequisites {
         return $false
     }
     return $true
+}
+
+# --- Row-location helpers ---
+
+function Test-TargetFeature {
+    # True when a Feature-by-Feature row's Feature cell names one of -FeatureIds. Anchored at the
+    # start of the cell (after any link or emphasis punctuation) and bounded after the ID, so
+    # 0.1.1 matches neither 10.1.1 nor 0.1.10.
+    param([string]$FeatureCell)
+    foreach ($fid in $FeatureIds) {
+        if ($FeatureCell -match ('^\W*' + [regex]::Escape($fid) + '(?!\.?\d)')) { return $true }
+    }
+    return $false
+}
+
+function Find-ProgressRow {
+    # Locates the Overall Progress table and this dimension's row in it, or returns $null. The
+    # row is matched on its first cell — the dimension name, optionally numbered
+    # ("1. Architectural Consistency") — not as a substring anywhere in the line.
+    param([string[]]$Lines)
+    $headerIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|\s*Validation Type\s*\|' -and $Lines[$i] -match '\|\s*(Items Validated|Reports Generated)\s*\|') {
+            $headerIdx = $i
+            break
+        }
+    }
+    if ($headerIdx -eq -1) { return $null }
+
+    $headers = Split-MarkdownTableRow -Line $Lines[$headerIdx].Trim()
+    $dimPattern = '^(?:\d+\.\s*)?' + [regex]::Escape($Dimension) + '$'
+    for ($i = $headerIdx + 2; $i -lt $Lines.Count; $i++) {
+        $cells = Split-MarkdownTableRow -Line $Lines[$i].Trim()
+        if ($null -eq $cells) { break }
+        if ($cells.Count -gt 0 -and $cells[0] -match $dimPattern) {
+            return @{ RowIdx = $i; Headers = $headers }
+        }
+    }
+    return $null
+}
+
+function Find-RegistryTable {
+    # Locates this dimension's registry table ("### [N.] <Dimension> Validation Reports"), or
+    # returns $null. FirstRow..End-1 are its data rows; End is where a new row is inserted.
+    param([string[]]$Lines)
+    $dimPattern = [regex]::Escape($Dimension)
+    $sectionIdx = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match "^###\s+\d*\.?\s*$dimPattern\s+Validation Reports") {
+            $sectionIdx = $i
+            break
+        }
+    }
+    if ($sectionIdx -eq -1) { return $null }
+
+    $headerIdx = -1
+    for ($i = $sectionIdx + 1; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|\s*Report ID\s*\|') {
+            $headerIdx = $i
+            break
+        }
+        if ($Lines[$i] -match '^#') { break }  # Hit the next section
+    }
+    if ($headerIdx -eq -1) { return $null }
+
+    $end = $headerIdx + 2
+    for ($i = $headerIdx + 2; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -match '^\|') { $end = $i + 1 } else { break }
+    }
+    return @{
+        SectionIdx = $sectionIdx
+        Headers    = Split-MarkdownTableRow -Line $Lines[$headerIdx].Trim()
+        FirstRow   = $headerIdx + 2
+        End        = $end
+    }
 }
 
 # --- Transformation Functions ---
@@ -183,6 +266,10 @@ function Update-FeatureByFeatureCells {
 
     $columnHeader = $DimensionColumnHeaders[$Dimension]
     $cellValue = "[$Date]($ReportPath)"
+    # PF-PRO-077 / PF-IMP-2126: collect the Feature cells this run actually writes, so the
+    # post-write assertion covers exactly those rows. Rows skipped as N/A or already-set were
+    # never written and must not be asserted.
+    $updatedCells = [System.Collections.Generic.List[string]]::new()
 
     # Find the Feature-by-Feature table header
     $headerIdx = -1
@@ -195,7 +282,7 @@ function Update-FeatureByFeatureCells {
 
     if ($headerIdx -eq -1) {
         Write-ProjectLog -Level "WARN" -Message "Could not find Feature-by-Feature Progress table"
-        return $Lines
+        return @{ Lines = $Lines; UpdatedFeatureCells = $updatedCells; CellValue = $cellValue }
     }
 
     # Parse column headers to find target column index
@@ -211,7 +298,7 @@ function Update-FeatureByFeatureCells {
 
     if ($columnIdx -eq -1) {
         Write-ProjectLog -Level "WARN" -Message "Could not find column '$columnHeader' in Feature-by-Feature table"
-        return $Lines
+        return @{ Lines = $Lines; UpdatedFeatureCells = $updatedCells; CellValue = $cellValue }
     }
 
     # Update feature rows (start after header + separator)
@@ -222,31 +309,27 @@ function Update-FeatureByFeatureCells {
         $cells = $line -split '\|'
         $featureCell = $cells[1].Trim()
 
-        $matched = $false
-        foreach ($fid in $FeatureIds) {
-            if ($featureCell -match [regex]::Escape($fid)) {
-                $matched = $true
-                break
-            }
-        }
-
-        if ($matched -and $columnIdx -lt $cells.Count) {
+        if ((Test-TargetFeature -FeatureCell $featureCell) -and $columnIdx -lt $cells.Count) {
             $currentValue = $cells[$columnIdx].Trim()
 
-            if ($currentValue -match '^\u2b33|^\u23f3|Pending|In Progress') {
-                # Cell is pending or in progress — update it
+            if ($currentValue -eq 'N/A' -or $currentValue -eq '') {
+                Write-ProjectLog -Level "INFO" -Message "Skipped: $featureCell [$columnHeader] is not applicable"
+            } elseif ($currentValue -match $ValidatedCellPattern) {
+                Write-ProjectLog -Level "INFO" -Message "Skipped: $featureCell [$columnHeader] already validated: $currentValue"
+            } else {
+                # Every other state awaits this report — Pending, In Progress, Failed, Needs
+                # Re-validation, with or without its label text. Only the validated and
+                # not-applicable states are recognised, so no legend glyph can be missed.
                 $cells[$columnIdx] = " $cellValue "
                 $Lines[$i] = $cells -join '|'
+                $updatedCells.Add($featureCell)
                 Write-ProjectLog -Level "SUCCESS" -Message "Updated: $featureCell [$columnHeader] -> $cellValue"
-            } elseif ($currentValue -eq 'N/A') {
-                Write-ProjectLog -Level "INFO" -Message "Skipped: $featureCell [$columnHeader] is N/A"
-            } else {
-                Write-ProjectLog -Level "INFO" -Message "Skipped: $featureCell [$columnHeader] already set: $currentValue"
             }
         }
     }
 
-    return $Lines
+    # PF-PRO-077: returns the lines plus what was written, for the post-write assertion.
+    return @{ Lines = $Lines; UpdatedFeatureCells = $updatedCells; CellValue = $cellValue }
 }
 
 function Update-OverallProgress {
@@ -287,139 +370,119 @@ function Update-OverallProgress {
             $cellValue = $cells[$fbfColumnIdx].Trim()
             if ($cellValue -ne 'N/A' -and $cellValue -ne '') {
                 $totalApplicable++
-                # A cell is "validated" if it contains a date link [YYYY-MM-DD](...)
-                if ($cellValue -match '^\[?\d{4}-\d{2}-\d{2}') {
+                if ($cellValue -match $ValidatedCellPattern) {
                     $totalValidated++
                 }
             }
         }
     }
 
-    # Find the Overall Progress table and update the dimension row
-    $progressHeaderIdx = -1
-    for ($i = 0; $i -lt $Lines.Count; $i++) {
-        if ($Lines[$i] -match '^\|\s*Validation Type\s*\|') {
-            $progressHeaderIdx = $i
-            break
-        }
-    }
-
-    if ($progressHeaderIdx -eq -1) {
-        Write-ProjectLog -Level "WARN" -Message "Could not find Overall Progress table"
+    # Update this dimension's Overall Progress row, addressing its cells by header name.
+    # Reports Generated is not touched here — Update-ReportsGenerated derives it separately.
+    $progress = Find-ProgressRow -Lines $Lines
+    if (-not $progress) {
+        Write-ProjectLog -Level "WARN" -Message "Could not find the Overall Progress row for '$Dimension'"
         return $Lines
     }
 
-    # Find the row matching this dimension (handles number prefix like "1. Architectural Consistency")
-    $dimPattern = [regex]::Escape($Dimension)
-    for ($i = $progressHeaderIdx + 2; $i -lt $Lines.Count; $i++) {
-        if ($Lines[$i] -notmatch '^\|') { break }
-
-        if ($Lines[$i] -match $dimPattern) {
-            $cells = $Lines[$i] -split '\|'
-            # Expected columns: [0]="" [1]=DimensionName [2]=ItemsValidated [3]=ReportsGenerated [4]=Status [5]=NextSession [6]=""
-
-            # Update Items Validated
-            $cells[2] = " $totalValidated/$totalApplicable "
-
-            # Update Reports Generated (increment only if report is new — check registry)
-            $escapedId = [regex]::Escape($ReportId)
-            $reportAlreadyExists = ($Lines | Where-Object { $_ -match $escapedId }).Count -gt 0
-            $currentReports = 0
-            if ($cells[3].Trim() -match '^\d+$') {
-                $currentReports = [int]$cells[3].Trim()
-            }
-            if (-not $reportAlreadyExists) {
-                $cells[3] = " $($currentReports + 1) "
-            } else {
-                $cells[3] = " $currentReports "
-            }
-
-            # Update Status
-            if ($totalValidated -ge $totalApplicable) {
-                $cells[4] = " COMPLETED "
-                $cells[5] = " — "
-            } else {
-                $cells[4] = " IN_PROGRESS "
-            }
-
-            $Lines[$i] = $cells -join '|'
-            $finalReports = if (-not $reportAlreadyExists) { $currentReports + 1 } else { $currentReports }
-            Write-ProjectLog -Level "SUCCESS" -Message "Overall Progress: $Dimension -> $totalValidated/$totalApplicable validated, $finalReports reports"
-            break
-        }
+    $updates = @{ 'Items Validated' = "$totalValidated/$totalApplicable" }
+    if ($totalValidated -ge $totalApplicable) {
+        $updates['Status'] = 'COMPLETED'
+        $updates['Next Session'] = '—'
+    } else {
+        $updates['Status'] = 'IN_PROGRESS'
     }
+    $Lines[$progress.RowIdx] = Set-MarkdownTableCell -Line $Lines[$progress.RowIdx].Trim() -Headers $progress.Headers -Updates $updates
+    Write-ProjectLog -Level "SUCCESS" -Message "Overall Progress: $Dimension -> $totalValidated/$totalApplicable validated"
 
     return $Lines
 }
 
-function Add-RegistryEntry {
+function Update-ReportsGenerated {
+    # Reports Generated is DERIVED, never incremented: it is set to the number of distinct reports
+    # in this dimension's registry table. The registry has several writers — this script,
+    # New-ValidationReport.ps1's placeholder row, and the template's manual steps — so a
+    # "was this report already counted?" guard can be fooled by any of them, including this
+    # run's own earlier writes (PF-IMP-2158, PF-IMP-2352). A count of the registry cannot.
+    # Kept separate from Update-OverallProgress so the counter stays right even when the
+    # Feature-by-Feature column lookup fails. Returns the lines plus the count it wrote, for
+    # the post-write check ($null when nothing was written).
     param([string[]]$Lines)
 
-    # Check whether the report already has a REGISTRY ROW (idempotent). Anchored to the row
-    # form on purpose: a bare substring scan also matched the feature-by-feature cells written
-    # by Update-FeatureByFeatureCells two steps earlier, whose ReportPath contains the ReportId
-    # under the framework's own report-naming convention — so the guard tripped on the same
-    # run's own write and the registry row was never added (PF-IMP-2158).
-    $escapedId = [regex]::Escape($ReportId)
-    foreach ($line in $Lines) {
-        if ($line -match "^\|\s*\[?$escapedId\]?") {
-            Write-ProjectLog -Level "INFO" -Message "Registry entry for $ReportId already exists — skipping"
+    $registry = Find-RegistryTable -Lines $Lines
+    if (-not $registry) {
+        # Leave the counter alone rather than write a 0 the registry does not support.
+        Write-ProjectLog -Level "WARN" -Message "Could not find the '$Dimension Validation Reports' registry table — Reports Generated left unchanged"
+        return @{ Lines = $Lines; Count = $null }
+    }
+
+    $idIdx = [array]::IndexOf([string[]]$registry.Headers, 'Report ID')
+    $ids = [System.Collections.Generic.HashSet[string]]::new()
+    for ($i = $registry.FirstRow; $i -lt $registry.End; $i++) {
+        $cells = Split-MarkdownTableRow -Line $Lines[$i].Trim()
+        if ($null -eq $cells -or $idIdx -ge $cells.Count) { continue }
+        $id = (Get-MarkdownLinkText -Value $cells[$idIdx]).Trim()
+        if ($id -notmatch '^[—-]*$') { [void]$ids.Add($id) }
+    }
+
+    $progress = Find-ProgressRow -Lines $Lines
+    if (-not $progress) {
+        Write-ProjectLog -Level "WARN" -Message "Could not find the Overall Progress row for '$Dimension' — Reports Generated not written"
+        return @{ Lines = $Lines; Count = $null }
+    }
+
+    $Lines[$progress.RowIdx] = Set-MarkdownTableCell -Line $Lines[$progress.RowIdx].Trim() -Headers $progress.Headers -Updates @{ 'Reports Generated' = "$($ids.Count)" }
+    Write-ProjectLog -Level "SUCCESS" -Message "Overall Progress: $Dimension -> $($ids.Count) reports registered"
+    return @{ Lines = $Lines; Count = $ids.Count }
+}
+
+function Set-RegistryEntry {
+    # Upserts this report's row in the dimension's registry table. An existing row is filled in
+    # rather than skipped: New-ValidationReport.ps1 writes a placeholder row (—/3.0, IN PROGRESS)
+    # when it creates the report, and a re-run may correct a score (PF-IMP-2352). The row is
+    # matched by exact report ID, so PD-VAL-100 never matches a PD-VAL-1000 row. Both paths
+    # address cells by the table's own header names.
+    param([string[]]$Lines)
+
+    $registry = Find-RegistryTable -Lines $Lines
+    if (-not $registry) {
+        Write-ProjectLog -Level "WARN" -Message "Could not find the '$Dimension Validation Reports' registry table"
+        return $Lines
+    }
+
+    $values = @{
+        'Report ID' = "[$ReportId]($ReportPath)"
+        'Features'  = $FeatureIds -join ', '
+        'Date'      = $Date
+        'Status'    = $ReportStatus
+    }
+    # An omitted optional value leaves an existing row's cell as it is (a placeholder already
+    # holds the dash); a new row gets the dash.
+    if ($Score)   { $values['Score'] = $Score }
+    if ($Issues)  { $values['Issues'] = $Issues }
+    if ($Actions) { $values['Actions'] = $Actions }
+
+    $absent = @($values.Keys | Where-Object { $registry.Headers -notcontains $_ })
+    if ($absent.Count -gt 0) {
+        Write-ProjectLog -Level "WARN" -Message "Registry table has no column(s) '$($absent -join "', '")' — those values were not written"
+        foreach ($key in $absent) { $values.Remove($key) }
+    }
+
+    $idIdx = [array]::IndexOf([string[]]$registry.Headers, 'Report ID')
+    for ($i = $registry.FirstRow; $i -lt $registry.End; $i++) {
+        $cells = Split-MarkdownTableRow -Line $Lines[$i].Trim()
+        if ($null -eq $cells -or $idIdx -ge $cells.Count) { continue }
+        if ((Get-MarkdownLinkText -Value $cells[$idIdx]).Trim() -eq $ReportId) {
+            $Lines[$i] = Set-MarkdownTableCell -Line $Lines[$i].Trim() -Headers $registry.Headers -Updates $values
+            Write-ProjectLog -Level "SUCCESS" -Message "Updated registry entry: $ReportId ($($FeatureIds -join ', '))"
             return $Lines
         }
     }
 
-    # Find the registry section for this dimension
-    $dimPattern = [regex]::Escape($Dimension)
-    $sectionIdx = -1
-    for ($i = 0; $i -lt $Lines.Count; $i++) {
-        if ($Lines[$i] -match "^###\s+\d*\.?\s*$dimPattern\s+Validation Reports") {
-            $sectionIdx = $i
-            break
-        }
-    }
-
-    if ($sectionIdx -eq -1) {
-        Write-ProjectLog -Level "WARN" -Message "Could not find registry section for '$Dimension Validation Reports'"
-        return $Lines
-    }
-
-    # Find the table under this section header
-    $tableHeaderIdx = -1
-    for ($i = $sectionIdx + 1; $i -lt $Lines.Count; $i++) {
-        if ($Lines[$i] -match '^\|\s*Report ID\s*\|') {
-            $tableHeaderIdx = $i
-            break
-        }
-        if ($Lines[$i] -match '^###') { break }  # Hit next section
-    }
-
-    if ($tableHeaderIdx -eq -1) {
-        Write-ProjectLog -Level "WARN" -Message "Could not find registry table under '$Dimension Validation Reports'"
-        return $Lines
-    }
-
-    # Find the insertion point — after the last data row (or after separator if empty)
-    $insertIdx = $tableHeaderIdx + 2  # After header + separator
-    for ($i = $tableHeaderIdx + 2; $i -lt $Lines.Count; $i++) {
-        if ($Lines[$i] -match '^\|') {
-            $insertIdx = $i + 1  # After this data row
-        } else {
-            break
-        }
-    }
-
-    # Build the new row
-    $featureList = $FeatureIds -join ', '
-    $scoreVal = if ($Score) { $Score } else { "—" }
-    $issuesVal = if ($Issues) { $Issues } else { "—" }
-    $actionsVal = if ($Actions) { $Actions } else { "—" }
-    $newRow = "| [$ReportId]($ReportPath) | $featureList | $Date | $scoreVal | $ReportStatus | $issuesVal | $actionsVal |"
-
-    # Insert the new row
-    $result = [System.Collections.ArrayList]::new($Lines)
-    $result.Insert($insertIdx, $newRow)
-    Write-ProjectLog -Level "SUCCESS" -Message "Added registry entry: $ReportId ($featureList)"
-
+    $newRow = New-HeaderDrivenTableRow -Content ($Lines -join "`n") -SectionHeading $Lines[$registry.SectionIdx] -ValueMap $values
+    $result = [System.Collections.Generic.List[string]]::new([string[]]$Lines)
+    $result.Insert($registry.End, $newRow)
+    Write-ProjectLog -Level "SUCCESS" -Message "Added registry entry: $ReportId ($($FeatureIds -join ', '))"
     return $result.ToArray()
 }
 
@@ -457,15 +520,7 @@ function Update-FeatureOverallStatus {
         $cells = $Lines[$i] -split '\|'
         $featureCell = $cells[1].Trim()
 
-        $isTargetFeature = $false
-        foreach ($fid in $FeatureIds) {
-            if ($featureCell -match [regex]::Escape($fid)) {
-                $isTargetFeature = $true
-                break
-            }
-        }
-
-        if (-not $isTargetFeature) { continue }
+        if (-not (Test-TargetFeature -FeatureCell $featureCell)) { continue }
 
         # Check all dimension cells (columns 2 through overallIdx-1)
         $allDone = $true
@@ -474,7 +529,7 @@ function Update-FeatureOverallStatus {
             if ($c -ge $cells.Count) { continue }
             $val = $cells[$c].Trim()
             if ($val -eq 'N/A' -or $val -eq '') { continue }
-            if ($val -match '^\[?\d{4}-\d{2}-\d{2}') {
+            if ($val -match $ValidatedCellPattern) {
                 # Validated
             } elseif ($val -match 'Failed') {
                 $anyFailed = $true
@@ -529,15 +584,46 @@ if (-not (Test-Prerequisites)) {
 $lines = Get-Content $ResolvedTrackingFile -Encoding UTF8
 
 # Chain transformations
-$lines = Update-FeatureByFeatureCells -Lines $lines
+# PF-PRO-077: this one also reports which Feature cells it wrote, for the post-write assertion.
+$fbf = Update-FeatureByFeatureCells -Lines $lines
+$lines = $fbf.Lines
+$lines = Set-RegistryEntry -Lines $lines
 $lines = Update-OverallProgress -Lines $lines
-$lines = Add-RegistryEntry -Lines $lines
+# Derived from the registry, so it must run after Set-RegistryEntry; reports its count for the
+# post-write check.
+$reports = Update-ReportsGenerated -Lines $lines
+$lines = $reports.Lines
 $lines = Update-FeatureOverallStatus -Lines $lines
 $lines = Update-FrontmatterDate -Lines $lines
 
 # Single write
 if ($PSCmdlet.ShouldProcess($ResolvedTrackingFile, "Update validation tracking for $Dimension ($ReportId)")) {
     $lines | Set-Content $ResolvedTrackingFile -Encoding UTF8
+
+    # Read-after-write verification (PF-PRO-077 / PF-IMP-2126), after the run's only write and
+    # before the success line. Assert-TableRowInFile, never Assert-LineInFile: only a header-aware
+    # check can tell a correct row from one whose cells have shifted under the wrong headers. The
+    # feature cells are rebuilt by a raw split/join; for the registry row, which is built from its
+    # table's own header, the assertion is the backstop.
+    if (-not $WhatIfPreference) {
+        foreach ($writtenCell in $fbf.UpdatedFeatureCells) {
+            $rowPattern = "^\|\s*" + [regex]::Escape($writtenCell) + "\s*\|(?:.*\|)?\s*" + [regex]::Escape($fbf.CellValue) + "\s*\|"
+            Assert-TableRowInFile -Path $ResolvedTrackingFile -Pattern $rowPattern -Context "feature row '$writtenCell' → $($fbf.CellValue) in $ResolvedTrackingFile"
+        }
+        $registryPattern = "^\|\s*\[" + [regex]::Escape($ReportId) + "\]\(" + [regex]::Escape($ReportPath) + "\)\s*\|.*\|\s*" + [regex]::Escape($Date) + "\s*\|.*\|\s*" + [regex]::Escape($ReportStatus) + "\s*\|"
+        Assert-TableRowInFile -Path $ResolvedTrackingFile -Pattern $registryPattern -Context "registry row $ReportId ($Date, $ReportStatus) in $ResolvedTrackingFile"
+
+        # The derived counter, read back by header name from what is now on disk.
+        if ($null -ne $reports.Count) {
+            $onDisk = [string[]](Get-Content $ResolvedTrackingFile -Encoding UTF8)
+            $written = Find-ProgressRow -Lines $onDisk
+            $actual = if ($written) { Get-MarkdownTableCell -Line $onDisk[$written.RowIdx].Trim() -Headers $written.Headers -Header 'Reports Generated' }
+            if ("$actual".Trim() -ne "$($reports.Count)") {
+                throw "Post-write check: Reports Generated for '$Dimension' reads '$actual' in $ResolvedTrackingFile, expected $($reports.Count)"
+            }
+        }
+    }
+
     Write-ProjectSummary "$ReportId → $($FeatureIds.Count) feature$(if ($FeatureIds.Count -ne 1) { 's' }) × $Dimension"
 } else {
     Write-ProjectLog -Level "INFO" -Message "WhatIf mode — no changes written"

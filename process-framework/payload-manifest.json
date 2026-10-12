@@ -4,7 +4,7 @@
     "name": "payload-manifest",
     "description": "FrameworkBuilder's payload classification - the path-level ownership truth for everything FB ships (PF-PRO-067 N-5, realized by PF-PRO-068 WI-2, classification frozen at the Session A owner checkpoint). DEFAULT-COVERED: any shipped path NOT named in support_exceptions is class 'substrate' (most protective: ships to every child transitively, synced, hash-gated, edit-refused in consumers, ownership-lined). The manifest lists only exceptions - a forgotten file fails safe (unneeded substrate treatment), never open (silent editability). Consumed by the generalized Push payload filter, the substrate sync step, and the drift/banner gate (all land Sessions E-G).",
     "created": "2026-08-06",
-    "updated": "2026-08-06",
+    "updated": "2026-08-30",
     "classification_rules": {
       "default": "substrate - ships to every child (frameworks re-ship at their pin per Question C); who-runs-it decides, not whose-pipeline-it-feeds: filing tools every workspace runs (New-FeedbackForm, New-ProcessImprovement, Find-Improvement, feedback_db.py, extract_ratings.py, New-PermanentState, New-TempTaskState) are substrate even though they feed the framework-development pipeline",
       "support": "role-filtered - reaches only children whose declared role is framework or framework-builder; a project tree never receives these paths",
@@ -13,7 +13,7 @@
     }
   },
   "support_exceptions": {
-    "description": "The complete support-class exception list, frozen at the PF-PRO-068 Session A checkpoint. Paths are relative to the shipped framework root (process-framework/) except the skills block (relative to the blueprint root).",
+    "description": "The complete support-class exception list, frozen at the PF-PRO-068 Session A checkpoint (agents block added under PF-PRO-071, 2026-08-27). Paths are relative to the shipped framework root (process-framework/) except the skills and agents blocks (relative to the blueprint root).",
     "task_directories": [
       "tasks/support/"
     ],
@@ -26,6 +26,10 @@
       ".claude/skills/imp-triage/"
     ],
     "skills_note": "state-file-customization is deliberately ABSENT (substrate by the Session A hard-case ruling: its permanent-state half serves projects and the substrate script New-PermanentState.ps1 prints a pointer to it on every success).",
+    "agents": [
+      ".claude/agents/"
+    ],
+    "agents_note": "The ENTIRE agents channel is support-class (PF-PRO-071 WI-2): agent instruments under blueprint/.claude/agents/ are mirrored per-file into each registered FRAMEWORK's root .claude/agents/ and never reach a product project. Unlike the per-entry skills list, the classification is CHANNEL-level and the role gate is enforced inside Push's Invoke-AgentsMirror itself (fail-safe: a new agent file is support by construction, with no per-file manifest line to forget). This block is the declared classification and the conformance anchor (C3-P9/C3-R6); the mirror does not read it. Retirement of a shipped agent at children is a Mode C migration (the mirror never orphan-deletes); rollback deliberately does not touch agents (skills precedent - Restore's scope is process-framework/ only). Authoring contract: FB-GDE-002.",
     "scripts": [
       "scripts/file-creation/support/New-Task.ps1",
       "scripts/file-creation/support/New-Template.ps1",
@@ -71,7 +75,8 @@
       "templates/support/temp-framework-extension-state-template.md",
       "templates/support/temp-framework-evaluation-state-template.md",
       "templates/support/document-creation-script-template.ps1",
-      "templates/support/update-script-template.ps1"
+      "templates/support/update-script-template.ps1",
+      "templates/support/standing-orders-template.md"
     ],
     "templates_note": "Deliberately substrate in templates/support/ (absent here): state-file-template.md (New-PermanentState consumes it; projects create PD-STA files), feedback-form-template.md (New-FeedbackForm), language-config-template.json (TestRunner error path directs projects to it), Run-Tests-runner-template.ps1 (TestRunner + Project Initiation), temp-refactoring-state-template.md and temp-retrospective-documentation-state-template.md (product-task variants of New-TempTaskState, run in project cwds; the latter is also hard-coded by the substrate gate Validate-DesignDimensions.ps1), feedback-db-input-template.json (travels with its substrate tool feedback_db.py). task-completion-template.md is RETIRED (see retirements).",
     "guides": [
@@ -80,9 +85,41 @@
       "guides/support/tools-review-edge-cases-guide.md",
       "guides/support/craft-skill-authoring-guide.md",
       "guides/support/guide-creation-best-practices-guide.md",
-      "guides/support/migration-best-practices.md"
+      "guides/support/migration-best-practices.md",
+      "guides/support/agent-authoring-guide.md"
     ],
     "guides_note": "Deliberately substrate in guides/support/ (absent here): script-development-quick-reference.md (blueprint CLAUDE.md @-references it as the PowerShell-execution single source of truth; 8+ product tasks link it - ships whole per the Session A hard-case ruling), visual-notation-guide.md, feature-tracking-mutation-guide.md, cross-project-issue-filing-guide.md, schema-audit-procedure-guide.md (detector-companion rule). ALL of guides/framework/ is substrate (the operating spine)."
+  },
+  "substrate_residents": {
+    "description": "The SUBSTRATE half of every mixed-class directory - the files that live beside a support exception and are deliberately substrate. Adds NO classification: classification_rules.default ('unlisted = substrate') is unchanged and still governs the whole tree. This block records WHICH unlisted paths were RULED ON at the frozen Session A checkpoint, so a detector can tell 'ruled substrate' from 'never classified' - the distinction the four *_note prose fields carried in unparsable form (they keep the per-file rationale; this is the machine-readable half). Consumed by Check-PayloadClassification.ps1; the rollout path does not read it. Added at PF-IMP-2027 (panel-decided, PF-PRO-070 invocation 1).",
+    "scope_note": "The directories checked are DERIVED, never enumerated: the parent of every FILE-level support_exceptions entry, plus the skills channel. A support entry added in a NEW directory therefore pulls that directory under the check with no second list to forget. Directory-level entries (tasks/support/, agents) are excluded - prefix matching already makes them fail-safe.",
+    "scripts": [
+      "scripts/file-creation/support/New-FeedbackForm.ps1",
+      "scripts/file-creation/support/New-PermanentState.ps1",
+      "scripts/file-creation/support/New-ProcessImprovement.ps1",
+      "scripts/file-creation/support/New-TempTaskState.ps1",
+      "scripts/update/Update-ScriptReferences.ps1"
+    ],
+    "templates": [
+      "templates/support/Run-Tests-runner-template.ps1",
+      "templates/support/feedback-db-input-template.json",
+      "templates/support/feedback-form-template.md",
+      "templates/support/language-config-template.json",
+      "templates/support/state-file-template.md",
+      "templates/support/temp-refactoring-state-template.md",
+      "templates/support/temp-retrospective-documentation-state-template.md"
+    ],
+    "guides": [
+      "guides/support/cross-project-issue-filing-guide.md",
+      "guides/support/feature-tracking-mutation-guide.md",
+      "guides/support/schema-audit-procedure-guide.md",
+      "guides/support/script-development-quick-reference.md",
+      "guides/support/visual-notation-guide.md"
+    ],
+    "skills": [
+      ".claude/skills/state-file-customization/"
+    ],
+    "note": "17 files + 1 skill folder, measured 2026-08-30 against the tree; every entry was already named as a deliberate substrate ruling in the corresponding *_note field (verified: 0 unnamed). The *_note fields also name substrate files OUTSIDE mixed directories (Find-Improvement, feedback_db.py, extract_ratings.py at scripts/ root, and the guides/framework/ blanket) - those are not listed here because their directories hold no support entry and are therefore not mixed. Paths are relative to the shipped framework root except the skills block (blueprint root), matching support_exceptions."
   },
   "optional_parts": {
     "description": "Named substrate part groups a framework's consumption profile may decline (producer classifies, consumer selects - PF-PRO-067 N-5). Conservative initial set; parts accrete as consumer needs surface (umbrella Risk 4 discipline: mechanism now, values accrete). A part not declined ships by default.",

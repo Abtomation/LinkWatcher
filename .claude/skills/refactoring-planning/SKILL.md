@@ -69,7 +69,8 @@ The load-bearing craft across every section: concrete numbers over adjectives.
 - **Strategy** — name the techniques (Extract Method, Strategy pattern, …) chosen for the specific
   issues; break implementation into testable phases with rollback thinking.
 - **Testing Strategy** — existing coverage, gaps to close before refactoring, incremental
-  verification per phase, regression approach.
+  verification per phase, regression approach. Characterization tests that close a gap are scoped
+  and proved per the [`test-authoring` craft](../test-authoring/SKILL.md#before-writing-guide-phase-1).
 
 ## Workflow-aware customization
 

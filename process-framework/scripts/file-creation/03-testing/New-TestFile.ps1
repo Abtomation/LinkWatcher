@@ -21,7 +21,10 @@
       and the scaffolded dirs exist (otherwise the flat test-type directory)
 
 .PARAMETER TestName
-    The name of the test (e.g., "UserAuthentication", "PaymentProcessing")
+    The name of the test (e.g., "UserAuthentication", "PaymentProcessing"). CamelCase, spaced and
+    hyphenated forms are all accepted: the name is split into words on case, digit and separator
+    boundaries, then rendered snake_case in the file name and CapWords in the test class name
+    ("UserAuthentication" -> test_user_authentication + class TestUserAuthentication).
 
 .PARAMETER TestType
     The type of test to create. Valid values are discovered dynamically by scanning
@@ -154,8 +157,37 @@ function Get-FeatureTestSubPath {
     return $subPath
 }
 
+function ConvertTo-TestNameWords {
+    <#
+    .SYNOPSIS
+        Splits a human-typed test name into its component words (PF-IMP-2208).
+    .DESCRIPTION
+        Callers supply names in CamelCase ("UserAuthentication"), spaced, or hyphenated form. Word
+        boundaries are taken from existing separators plus case and letter/digit transitions, so one
+        split feeds both derived names: joined lowercase with underscores for the file name, joined
+        CapWords for the class name. An all-caps run is a preserved acronym ("HTTPServer" ->
+        HTTP, Server).
+    .PARAMETER Name
+        The human-typed test name.
+    .EXAMPLE
+        ConvertTo-TestNameWords -Name "PdBug140DrainBoundary"   # Pd, Bug, 140, Drain, Boundary
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Name
+    )
+
+    $spaced = $Name -replace '[^A-Za-z0-9]+', ' '
+    $spaced = $spaced -creplace '([A-Z]+)([A-Z][a-z])', '$1 $2'   # acronym run before a word
+    $spaced = $spaced -creplace '([a-z])([A-Z])', '$1 $2'         # camel-hump boundary
+    $spaced = $spaced -replace  '([A-Za-z])([0-9])', '$1 $2'      # letter -> digit
+    $spaced = $spaced -replace  '([0-9])([A-Za-z])', '$1 $2'      # digit -> letter
+
+    return @($spaced -split '\s+' | Where-Object { $_ -ne '' })
+}
+
 # Dot-source guard (PF-IMP-1221): when this script is dot-sourced (e.g. by Pester to unit-test the
-# helper above), return before running the creation body so no side effects or exits occur.
+# helpers above), return before running the creation body so no side effects or exits occur.
 if ($MyInvocation.InvocationName -eq '.') { return }
 
 # PF-IMP-1045: -DryRun is a backward-compatible alias for -WhatIf. Engaging WhatIf here routes
@@ -248,8 +280,16 @@ $baseTypeDir = Join-Path $projectRoot (Join-Path $testScanRoot $testTypeDir)
 $featureSubPath = if ($FeatureId -ne "") { Get-FeatureTestSubPath -BaseTypeDir $baseTypeDir -FeatureId $FeatureId } else { "" }
 $outputDirectory = if ($featureSubPath) { Join-Path $baseTypeDir $featureSubPath } else { $baseTypeDir }
 
-# Generate test file name from pattern
-$sanitizedName = $TestName.ToLower() -replace '[\s\-]+', '_'
+# Generate test file name from pattern. One word split feeds both derived names (PF-IMP-2208):
+# snake_case for the file, CapWords for the class placeholder the template interpolates into
+# `class Test[TEST_FILE_NAME]` — a lowercase join there would squash CamelCase input into an
+# unreadable run and break the language's class-naming convention.
+$nameWords = ConvertTo-TestNameWords -Name $TestName
+$sanitizedName = ($nameWords | ForEach-Object { $_.ToLower() }) -join '_'
+$className = ($nameWords | ForEach-Object {
+    if ($_ -cmatch '^[A-Z0-9]+$' -and $_.Length -gt 1) { $_ }
+    else { $_.Substring(0, 1).ToUpper() + $_.Substring(1).ToLower() }
+}) -join ''
 $testFileName = $namePattern.Replace('{name}', $sanitizedName) + $fileExtension
 
 # Prepare additional metadata fields
@@ -270,7 +310,7 @@ $customReplacements = @{
     "[TEST_NAME]" = $TestName
     "[TEST_TYPE]" = $TestType
     "[COMPONENT_NAME]" = if ($ComponentName -ne "") { $ComponentName } else { $TestName }
-    "[TEST_FILE_NAME]" = $sanitizedName
+    "[TEST_FILE_NAME]" = $className   # template use is `class Test[TEST_FILE_NAME]` — CapWords, not the file stem
     "[CREATED_DATE]" = Get-Date -Format "yyyy-MM-dd"
     "[UPDATED_DATE]" = Get-Date -Format "yyyy-MM-dd"
     "[FEATURE_ID]" = if ($FeatureId -ne "") { $FeatureId } else { "TODO" }

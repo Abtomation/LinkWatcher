@@ -212,12 +212,17 @@ function ConvertFrom-DebtItemFile {
             $debtItem.EstimatedEffort = $matches[1].Trim()
         }
 
-        # Check registry integration status
-        $debtItem.AlreadyAdded = $Content -match 'Registry Status:\s*Added'
+        # Check registry integration status. Bold-tolerant (PF-IMP-2168): template-conformant
+        # items carry '- **Registry Status**: ...' — the old plain literals matched no
+        # conformant file, so AlreadyAdded never fired and the -Force re-add guard was dead.
+        # The placeholder '[Not Added/Added/Resolved]' contains the word Added but starts
+        # with '[', so it cannot satisfy the ':\s*Added' anchor.
+        $debtItem.AlreadyAdded = $Content -match '(\*\*Registry Status\*\*|Registry Status):[ \t]*Added'
 
-        if ($Content -match 'Registry ID:\s*([^\r\n]+)') {
-            $registryId = $matches[1].Trim()
-            if ($registryId -ne 'TBD' -and $registryId -ne '') {
+        if ($Content -match '(\*\*Registry ID\*\*|Registry ID):[ \t]*([^\r\n]+)') {
+            $registryId = $matches[2].Trim()
+            # 'TBD' and a bracketed template placeholder both mean "no ID assigned yet".
+            if ($registryId -ne 'TBD' -and $registryId -ne '' -and $registryId -notmatch '^\[') {
                 $debtItem.RegistryId = $registryId
             }
         }
@@ -272,23 +277,29 @@ function Invoke-DebtItemProcessing {
         return $true
     }
 
-    # Build the command to add the debt item
-    $addCommand = @(
-        $UpdateScript,
-        "-Add",
-        "-Description", "`"$($DebtItem.Description)`"",
-        "-Dims", "`"$($DebtItem.Dim)`"",
-        "-Location", "`"$($DebtItem.Location)`"",
-        "-Priority", "`"$($DebtItem.Priority)`"",
-        "-EstimatedEffort", "`"$($DebtItem.EstimatedEffort)`"",
-        "-AssessmentId", "`"$AssessmentId`"",
-        "-DebtItemId", "`"$debtItemId`"",
-        "-Confirm:`$false"
-    )
+    # Splat the child invocation: named binding delivers each value verbatim (no
+    # hand-quoting) and -Confirm as a real boolean. The former token-array form passed
+    # the whole argument slice as ONE System.Object[] positional argument, so every
+    # real (non-WhatIf) run failed at parameter binding.
+    $addParams = @{
+        Add             = $true
+        Description     = $DebtItem.Description
+        Dims            = $DebtItem.Dim
+        Location        = $DebtItem.Location
+        Priority        = $DebtItem.Priority
+        EstimatedEffort = $DebtItem.EstimatedEffort
+        AssessmentId    = $AssessmentId
+        DebtItemId      = $debtItemId
+        Confirm         = $false
+    }
 
     try {
-        Write-ProjectLog "Executing: $($addCommand -join ' ')"
-        $null = & $addCommand[0] $addCommand[1..($addCommand.Length - 1)]
+        Write-ProjectLog "Executing: $UpdateScript -Add -DebtItemId $debtItemId (splatted)"
+        # Update-TechDebt.ps1 exits 1 on failure but sets no exit code on success, so
+        # reset $LASTEXITCODE first — otherwise a stale value from an earlier native
+        # call decides the outcome. Binding failures throw and land in the catch.
+        $global:LASTEXITCODE = 0
+        $null = & $UpdateScript @addParams -ErrorAction Stop
 
         if ($LASTEXITCODE -eq 0) {
             Write-ProjectLog "Successfully added debt item $debtItemId to registry" -Level "SUCCESS"
@@ -318,8 +329,9 @@ function Main {
         exit 1
     }
 
-    # Find all debt items for this assessment
-    $debtItems = Find-AssessmentDebtItems -AssessmentId $AssessmentId
+    # Find all debt items for this assessment. @() guards the single-match unwrap:
+    # one hashtable returned bare would make .Count report its KEY count (e.g. 10).
+    $debtItems = @(Find-AssessmentDebtItems -AssessmentId $AssessmentId)
 
     if ($debtItems.Count -eq 0) {
         Write-ProjectLog "No debt items found for assessment $AssessmentId" -Level "WARN"

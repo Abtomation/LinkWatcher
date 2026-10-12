@@ -2,9 +2,9 @@
 id: PF-GDE-054
 type: Process Framework
 category: Guide
-version: 1.0
+version: 1.4
 created: 2025-01-15
-updated: 2025-01-15
+updated: 2026-09-28
 description: "Standardized procedures for reporting bugs discovered during task execution"
 ---
 
@@ -74,6 +74,7 @@ New-BugReport.ps1 `
 | **Evidence**          | Links to proof/documentation | ""            | Screenshot URLs, log file paths           |
 | **RelatedFeature**    | Associated feature           | ""            | Feature name or ID                        |
 | **Workflows**         | Affected user workflows      | ""            | "WF-001, WF-003" (from [User Workflow Tracking](../../../doc/state-tracking/permanent/user-workflow-tracking.md)) |
+| **OriginBug**         | The bug whose cycle produced this one — the defect-chain link | ""            | "PD-BUG-127". Must resolve to an existing row, live or archived, or the filing is refused. See [Origin and Defect Chains](../../../doc/state-tracking/permanent/bug-tracking.md#origin-and-defect-chains). |
 
 ## Bug Reporting Standards
 
@@ -142,8 +143,11 @@ New-BugReport.ps1 `
   -DiscoveredBy "CodeReview" `
   -Severity "High" `
   -Component "User Management" `
+  -OriginBug "PD-BUG-127" `
   -Evidence "Code location: getUserProfile() in src/services/UserService.java (near line 142 as of 2025-01-15)"
 ```
+
+> When the review under way is a **bug-fix review**, `-OriginBug` names the bug being reviewed. That is the single most common origin of a defect chain, and the link is what lets Bug Triage recognise the third instance as one class instead of three incidents.
 
 ### During Feature Implementation
 
@@ -240,7 +244,7 @@ Solution: Use only: Critical, High, Medium, Low
 
 - [Bug Tracking State File](../../../doc/state-tracking/permanent/bug-tracking.md) - Central bug registry
 - [Bug Triage Task](../../tasks/06-maintenance/bug-triage-task.md) - Bug evaluation and prioritization
-- [Bug Fixing Task](../../tasks/06-maintenance/bug-fixing-task.md) - Bug resolution workflow (Step 21 places manual regression validation scripts in `test/bug-validation/`)
+- [Bug Fixing Task](../../tasks/06-maintenance/bug-fixing-task.md) - Bug resolution workflow (its regression-test step places manual validation scripts in `test/bug-validation/`)
 - [Test Audit Task](../../tasks/03-testing/test-audit-task.md) - Testing workflow with bug discovery
 - [Code Review Task](../../tasks/06-maintenance/code-review-task.md) - Review workflow with bug discovery
 

@@ -14,10 +14,15 @@
 
     Rules by scope (rule IDs render in findings):
 
-      Universal (roles project / framework / framework-builder)
+      Universal (every role - evaluated before the role dispatch)
         C3-U1  doc/project-config.json exists and parses   (Get-ProjectRoot pass-1 anchor)
-        C3-U2  project_id non-empty                        (root-marker requirement)
         C3-U3  declared role valid                         (Get-WorkspaceRole contract)
+        C3-U2  project_id non-empty                        (root-marker requirement)
+               EXEMPT at role subject, where C3-S1 asserts the inverse - which is why U3 is
+               evaluated BEFORE U2: the role decides which polarity of the identity rule
+               applies (PF-PRO-069 WI-13).
+
+      Universal (roles project / framework / framework-builder)
         C3-U4  Read face directory exists                  (paths.process_framework or default)
         C3-U5  Read face carries the 8 substrate spine dirs (guides, infrastructure,
                languages-config, scripts, tasks, templates, tools, visualization)
@@ -50,6 +55,21 @@
         C3-P7  a face parent pointer, if present, is a SELF-pointer (chain-root fixed point;
                absent is also legitimate - a producer face no one has pushed to)
 
+      Operating layer (PF-PRO-071 WI-4/WI-6/WI-9 - ADVISORY severity, see below)
+        C3-P10 [producers] blueprint-root operating-file seeds present: CLAUDE.md,
+               .gitignore, .claude/settings.json (the child-standup seed set, WI-4)
+        C3-P11 [producers] central spine additions: proposals/, evaluation-reports/
+               (creator-script targets; kept out of the hard C3-P3 set until promoted)
+        C3-R6  [framework] received manifest declares the agents class -> root
+               .claude/agents/ exists (the agents-mirror target)
+        C3-P9  [framework-builder] manifest declares the agents class -> blueprint
+               .claude/agents/ exists (the agents-mirror source; a mid-level framework
+               ships agents to nobody - its children are projects, which the channel-level
+               role gate excludes - so no source dir is demanded there)
+        C3-P12 [framework-builder] root .claude/agents/ is an identical projection of
+               blueprint/.claude/agents/ (the Q5 contingency: the one workspace whose
+               canonical and operative agent locations differ must not drift silently)
+
       Receiving roles (project, framework)
         C3-R1  parent pointer present at the Read face, both-name copies agreeing
                (Get-ParentPointerFile read-both transition)
@@ -63,9 +83,34 @@
         C3-N1  paths.blueprint NOT declared - a leaf claiming a producer face is the
                mis-declaration Get-BlueprintPath's own error text names
 
-    Role 'subject' has no shape contract defined yet - reported loudly, exit 0 (dormant),
-    per the fleet's dormant-state convention. Missing-face cascades are suppressed: when a
-    face directory is absent its content rules are skipped rather than reported N times.
+      subject only - the container-workspace marker (PF-PRO-069 WI-13, R-5(b))
+        C3-S1  project_id is null                          (resolution-inert by design:
+               Get-ProjectRoot anchors solely on non-null IDs, so the children resolve
+               independently and a session at the outer dir fails loudly instead of
+               silently routing state to the container)
+        C3-S2  no framework faces                          (paths.blueprint undeclared AND no
+               Read-face directory - a subject carries no framework tree of its own)
+        C3-S3  attachments.children declared and non-empty, each entry {directory, parent}
+        C3-S4  every attachment resolves                   (child directory exists and carries
+               a parsable doc/project-config.json)
+        C3-S5  every attachment agrees with the child's OWN parent pointer - the list is a
+               CHECKED PROJECTION, never an authority, which is how it answers Contract 2's
+               ban on duplicating a parent declaration in config (the N-5 projection pattern)
+
+    Severity (PF-PRO-071 WI-6): every rule is Blocking (any finding -> exit 1) unless marked
+    Advisory. An Advisory finding prints as [WARN], is tallied in a separate [ADVISORY]
+    summary line, and never affects the exit code. New capability rules land Advisory and
+    are promoted to Blocking only after a clean three-workspace pass - the ownership-lines
+    warn-first arc (warn-first 2026-08-10 -> blocking 2026-08-16); the promotion record
+    lives in git history and this header, not the rollout log.
+
+    A subject root is deliberately unfindable by default resolution (null ID), so it must be
+    validated with an explicit -ProjectRoot. Checking is on-demand only: the outer directory
+    is typically not a repo, so no hook surface exists - the audit homes are the registration
+    audit and the Framework Evaluation conformance reference.
+
+    Missing-face cascades are suppressed: when a face directory is absent its content rules
+    are skipped rather than reported N times.
 
 .PARAMETER ProjectRoot
     Workspace root to validate. Defaults to the resolved project root. Pass another
@@ -115,24 +160,36 @@ Import-Module (Join-Path $dir "Common-ScriptHelpers.psm1") -Force
 Import-Module (Join-Path $dir "WorkspaceResolution.psm1") -Force
 
 $script:Findings = [System.Collections.Generic.List[string]]::new()
+$script:Advisories = [System.Collections.Generic.List[string]]::new()
 $script:RulesEvaluated = 0
 
 function Test-Rule {
     # Records one rule outcome. -Requirement is the asserted fact (printed under -Detailed
-    # on pass); -Failure is the finding text (defaults to the requirement).
+    # on pass); -Failure is the finding text (defaults to the requirement). -Severity
+    # (PF-PRO-071 WI-6): Blocking findings drive the exit code; an Advisory finding prints
+    # as [WARN], is counted separately, and never affects the exit code — capability rules
+    # land Advisory and are promoted to Blocking only after a clean three-workspace pass
+    # (the ownership-lines warn-first arc; the promotion record lives in git history and
+    # this header, not the rollout log).
     param(
         [Parameter(Mandatory)][string]$Rule,
         [Parameter(Mandatory)][bool]$Passed,
         [Parameter(Mandatory)][string]$Requirement,
-        [string]$Failure
+        [string]$Failure,
+        [ValidateSet('Blocking', 'Advisory')][string]$Severity = 'Blocking'
     )
     $script:RulesEvaluated++
     if ($Passed) {
         if ($Detailed) { Write-Host "  [PASS] [$Rule] $Requirement" }
     } else {
         $text = if ($Failure) { $Failure } else { $Requirement }
-        $script:Findings.Add("[$Rule] $text")
-        Write-Host "  [FAIL] [$Rule] $text"
+        if ($Severity -eq 'Advisory') {
+            $script:Advisories.Add("[$Rule] $text")
+            Write-Host "  [WARN] [$Rule] $text"
+        } else {
+            $script:Findings.Add("[$Rule] $text")
+            Write-Host "  [FAIL] [$Rule] $text"
+        }
     }
     return $Passed
 }
@@ -144,12 +201,105 @@ function Test-MemberSet {
         [Parameter(Mandatory)][string]$Rule,
         [Parameter(Mandatory)][string]$BaseDir,
         [Parameter(Mandatory)][string[]]$Members,
-        [Parameter(Mandatory)][string]$Label
+        [Parameter(Mandatory)][string]$Label,
+        [ValidateSet('Blocking', 'Advisory')][string]$Severity = 'Blocking'
     )
     $missing = @($Members | Where-Object { -not (Test-Path -LiteralPath (Join-Path $BaseDir $_)) })
     return Test-Rule -Rule $Rule -Passed ($missing.Count -eq 0) `
         -Requirement "$Label carries: $($Members -join ', ')" `
-        -Failure "$Label is missing: $($missing -join ', ')"
+        -Failure "$Label is missing: $($missing -join ', ')" `
+        -Severity $Severity
+}
+
+function Test-SubjectContract {
+    # The role-subject rule set (C3-S1..C3-S5) - PF-PRO-069 WI-13 / R-5(b), replacing the
+    # dormant branch this role carried from G5. A subject is a CONTAINER whose children attach
+    # to different frameworks; it is deliberately not a workspace in the resolution sense, and
+    # that is exactly what C3-S1 and C3-S2 assert. The attachments list is a CHECKED
+    # PROJECTION: S4 resolves each entry, S5 requires it to agree with the child's own parent
+    # pointer - so the list can never quietly become a second authority for a fact the pointer
+    # already owns. When the two disagree the pointer wins and the list is the defect.
+    param(
+        [Parameter(Mandatory)][string]$Root,
+        [Parameter(Mandatory)][AllowNull()][object]$Config
+    )
+
+    # ---- C3-S1: the null-ID marker ----
+    $declaredId = $Config.project_id
+    $null = Test-Rule 'C3-S1' ([string]::IsNullOrWhiteSpace($declaredId)) `
+        -Requirement 'project_id is null (resolution-inert container marker)' `
+        -Failure "project_id is '$declaredId' at role 'subject' - a subject marker must carry a NULL id: any non-null value is un-minted, ungoverned by every uniqueness mechanism, and turns the outer directory into a resolution anchor that silently routes child state to the container"
+
+    # ---- C3-S2: no framework faces ----
+    $faceProblems = [System.Collections.Generic.List[string]]::new()
+    if ($Config.paths -and -not [string]::IsNullOrWhiteSpace($Config.paths.blueprint)) {
+        $faceProblems.Add("paths.blueprint is declared ('$($Config.paths.blueprint)')")
+    }
+    $subjectRead = Get-ProcessFrameworkPath -ProjectRoot $Root
+    if (Test-Path -LiteralPath $subjectRead -PathType Container) {
+        $faceProblems.Add("a framework tree exists at '$($subjectRead.Substring($Root.Length).TrimStart('\', '/'))'")
+    }
+    $null = Test-Rule 'C3-S2' ($faceProblems.Count -eq 0) `
+        -Requirement 'no framework faces (the children carry the framework trees, not the container)' `
+        -Failure "$($faceProblems -join '; ') at role 'subject' - a container workspace has no framework face of its own"
+
+    # ---- C3-S3: the projection is declared and well-formed ----
+    $entries = @()
+    if ($Config.attachments -and $Config.attachments.children) { $entries = @($Config.attachments.children) }
+    $malformed = @($entries | Where-Object {
+        [string]::IsNullOrWhiteSpace($_.directory) -or [string]::IsNullOrWhiteSpace($_.parent) })
+    $s3 = Test-Rule 'C3-S3' ($entries.Count -gt 0 -and $malformed.Count -eq 0) `
+        -Requirement "attachments.children declared, $($entries.Count) well-formed entry/entries" `
+        -Failure $(if ($entries.Count -eq 0) { "attachments.children is absent or empty - a subject declares the children it contains, each entry { directory, parent }" }
+                   else { "$($malformed.Count) attachment entry/entries missing 'directory' or 'parent'" })
+    if (-not $s3) { return }
+
+    # ---- C3-S4 (resolve) / C3-S5 (agree) ----
+    # Cascade suppression: an entry that fails to resolve is not also reported as disagreeing.
+    $unresolved  = [System.Collections.Generic.List[string]]::new()
+    $disagreeing = [System.Collections.Generic.List[string]]::new()
+    $agreementChecked = 0
+    foreach ($entry in $entries) {
+        $childRoot = Join-Path $Root $entry.directory
+        if (-not (Test-Path -LiteralPath $childRoot -PathType Container)) {
+            $unresolved.Add("$($entry.directory) (no such directory under the container)"); continue
+        }
+        $childCfg = Read-WorkspaceConfig -ProjectRoot $childRoot
+        if (-not $childCfg.Exists) {
+            $unresolved.Add("$($entry.directory) (no doc/project-config.json - not a bootstrapped workspace)"); continue
+        }
+        if ($childCfg.ParseError) {
+            $unresolved.Add("$($entry.directory) (doc/project-config.json unparsable: $($childCfg.ParseError))"); continue
+        }
+
+        $agreementChecked++
+        $childFace = Get-ProcessFrameworkPath -ProjectRoot $childRoot
+        $pointerPath = $null
+        try { $pointerPath = Get-ParentPointerFile -FrameworkDir $childFace }
+        catch { $disagreeing.Add("$($entry.directory) (parent-pointer conflict: $($_.Exception.Message))"); continue }
+        if (-not $pointerPath) {
+            $disagreeing.Add("$($entry.directory) (no parent pointer at its Read face - nothing for the list to agree with)"); continue
+        }
+        $rawPointer = Get-Content -LiteralPath $pointerPath -Raw
+        $targetRoot = if ($null -ne $rawPointer) { $rawPointer.Trim() } else { '' }
+        if (-not $targetRoot -or -not (Test-Path -LiteralPath $targetRoot -PathType Container)) {
+            $disagreeing.Add("$($entry.directory) (its parent pointer targets '$targetRoot', which does not exist)"); continue
+        }
+        $parentCfg = Read-WorkspaceConfig -ProjectRoot $targetRoot
+        $actualParent = if ($parentCfg.Exists -and -not $parentCfg.ParseError) { $parentCfg.Config.project_id } else { $null }
+        if ([string]::IsNullOrWhiteSpace($actualParent)) {
+            $disagreeing.Add("$($entry.directory) (its pointer target '$targetRoot' declares no project_id)"); continue
+        }
+        if ($actualParent -ine $entry.parent) {
+            $disagreeing.Add("$($entry.directory) (the list says '$($entry.parent)'; its own pointer resolves to '$actualParent')")
+        }
+    }
+    $null = Test-Rule 'C3-S4' ($unresolved.Count -eq 0) `
+        -Requirement "every attachment resolves to a bootstrapped workspace ($($entries.Count) listed)" `
+        -Failure "unresolved attachment(s): $($unresolved -join '; ')"
+    $null = Test-Rule 'C3-S5' ($disagreeing.Count -eq 0) `
+        -Requirement "every attachment agrees with the child's own parent pointer ($agreementChecked checked)" `
+        -Failure "the attachments projection disagrees with the child's own pointer: $($disagreeing -join '; ') - the pointer is the authority, so the list is what must be corrected"
 }
 
 function Write-Summary {
@@ -159,6 +309,9 @@ function Write-Summary {
         Write-Host "[OK] Validate-WorkspaceConformance: role '$RoleLabel' at '$Root' - $($script:RulesEvaluated) rules evaluated, 0 findings. Conformant."
     } else {
         Write-Host "[FAIL] Validate-WorkspaceConformance: role '$RoleLabel' at '$Root' - $($script:RulesEvaluated) rules evaluated, $($script:Findings.Count) finding(s)."
+    }
+    if ($script:Advisories.Count -gt 0) {
+        Write-Host "[ADVISORY] $($script:Advisories.Count) advisory note(s) - observational only, exit code unaffected (Blocking promotion pends a clean three-workspace pass)."
     }
 }
 
@@ -195,11 +348,8 @@ if (-not $u1) {
     Write-Summary -RoleLabel 'unresolvable' -Root $root
     exit 1
 }
-$null = Test-Rule 'C3-U2' (-not [string]::IsNullOrWhiteSpace($cfg.Config.project_id)) `
-    -Requirement "project_id is populated ('$($cfg.Config.project_id)')" `
-    -Failure 'project_id is null or empty - the root marker requires a stamped identity (a blueprint TEMPLATE config is not a workspace)'
-
-# ---- C3-U3: declared role ----
+# ---- C3-U3: declared role. Evaluated BEFORE C3-U2 because the role decides which polarity
+#      of the identity rule applies - a subject's marker is null-ID by design (PF-PRO-069). ----
 $role = $null
 try {
     $role = Get-WorkspaceRole -ProjectRoot $root
@@ -211,8 +361,17 @@ try {
     exit 1
 }
 
+# ---- C3-U2: the root marker - EXEMPT at role subject, where C3-S1 asserts the inverse ----
+if ($role -ne 'subject') {
+    $null = Test-Rule 'C3-U2' (-not [string]::IsNullOrWhiteSpace($cfg.Config.project_id)) `
+        -Requirement "project_id is populated ('$($cfg.Config.project_id)')" `
+        -Failure 'project_id is null or empty - the root marker requires a stamped identity (a blueprint TEMPLATE config is not a workspace)'
+}
+
 if ($role -eq 'subject') {
-    Write-Host "Validate-WorkspaceConformance: role 'subject' has no shape contract defined yet - nothing to check (dormant). Exit 0."
+    Test-SubjectContract -Root $root -Config $cfg.Config
+    Write-Summary -RoleLabel $role -Root $root
+    if ($script:Findings.Count -gt 0) { exit 1 }
     exit 0
 }
 
@@ -323,6 +482,11 @@ if ($isProducer) {
         $null = Test-MemberSet -Rule 'C3-P3' -BaseDir $central -Members $CentralSpine -Label 'process-framework-central/'
         $reg = Get-ChildRegistryInfo -ProjectRoot $root
         $null = Test-MemberSet -Rule 'C3-P4' -BaseDir $central -Members @($reg.FileName, $reg.LedgerDirName) -Label "central (role-derived, $($reg.Role))"
+        # C3-P11 (Advisory, PF-PRO-071 WI-9): the spine additions the creator scripts target
+        # (New-FrameworkExtensionConcept / New-FrameworkEvaluationReport write here) — kept
+        # out of the hard C3-P3 set until the fleet passes clean.
+        $null = Test-MemberSet -Rule 'C3-P11' -BaseDir $central -Members @('proposals', 'evaluation-reports') `
+            -Label 'process-framework-central/ (spine additions)' -Severity 'Advisory'
     } else {
         $null = Test-Rule 'C3-P3' $false -Requirement 'process-framework-central/ exists' `
             -Failure 'process-framework-central/ missing - a producer face owns its own central state (registries, tracking, rollout log)'
@@ -331,6 +495,75 @@ if ($isProducer) {
         $null = Test-Rule 'C3-P8' (Test-Path -LiteralPath (Join-Path $readFace 'payload-manifest.json') -PathType Leaf) `
             -Requirement 'payload-manifest.json at the Read face' `
             -Failure 'payload-manifest.json missing at the Read face - the payload filter, Sync-Substrate, and the ownership gate all consume it'
+    }
+}
+
+# ---- Operating-file seeds (C3-P10 - PF-PRO-071 WI-4, Advisory) ----
+if ($isProducer -and $producerFace) {
+    $blueprintRoot = Split-Path -Parent $producerFace
+    $bpRel = if ($blueprintRoot.Length -gt $root.Length) { $blueprintRoot.Substring($root.Length).TrimStart('\', '/') } else { '.' }
+    $null = Test-MemberSet -Rule 'C3-P10' -BaseDir $blueprintRoot -Members @('CLAUDE.md', '.gitignore', '.claude/settings.json') `
+        -Label "blueprint root ($bpRel) operating-file seeds" -Severity 'Advisory'
+}
+
+# ---- Agents channel (C3-R6 / C3-P9 / C3-P12 - PF-PRO-071 WI-2/WI-6, all Advisory) ----
+# The mirror's geometry decides the sites: the framework-builder AUTHORS agents at its
+# blueprint root's .claude/agents/ (Push's Invoke-AgentsMirror source); a receiving
+# FRAMEWORK gets them at its workspace root's .claude/agents/ (the mirror target). A
+# framework's own children are projects, which the channel-level role gate excludes — so no
+# agents source dir is demanded at a mid-level framework (that would mandate an empty dir;
+# revisit at promotion if a framework level ever gains framework-role children).
+$manifestShipsAgents = $false
+if ($readFaceOk) {
+    $manifestPath = Join-Path $readFace 'payload-manifest.json'
+    if (Test-Path -LiteralPath $manifestPath -PathType Leaf) {
+        try {
+            $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            if ($manifest.support_exceptions -and $manifest.support_exceptions.PSObject.Properties['agents']) {
+                $manifestShipsAgents = $true
+            }
+        } catch { }   # unparsable manifest: agents rules read it as not-declared (C3-P8 owns presence)
+    }
+}
+if ($role -eq 'framework') {
+    $null = Test-Rule 'C3-R6' ((-not $manifestShipsAgents) -or (Test-Path -LiteralPath (Join-Path $root '.claude/agents') -PathType Container)) `
+        -Requirement $(if ($manifestShipsAgents) { 'root .claude/agents/ exists (the received manifest ships the agents class)' }
+                       else { 'received manifest ships no agents class (nothing to receive yet)' }) `
+        -Failure 'the received manifest declares the agents payload class but root .claude/agents/ is missing - the mirror target for shipped agent instruments (re-receive via rollout, or investigate a partial receive)' `
+        -Severity 'Advisory'
+}
+if ($role -eq 'framework-builder' -and $producerFace) {
+    $agentsSource = Join-Path (Split-Path -Parent $producerFace) '.claude/agents'
+    $null = Test-Rule 'C3-P9' ((-not $manifestShipsAgents) -or (Test-Path -LiteralPath $agentsSource -PathType Container)) `
+        -Requirement $(if ($manifestShipsAgents) { 'blueprint .claude/agents/ exists (the agents-mirror source)' }
+                       else { 'manifest ships no agents class (no source dir demanded)' }) `
+        -Failure 'payload-manifest.json declares the agents class but the blueprint .claude/agents/ source dir is missing - Invoke-AgentsMirror would mirror nothing while the manifest declares the channel' `
+        -Severity 'Advisory'
+    # C3-P12: the Q5 root-projection identity rule — at the one workspace whose canonical
+    # (blueprint) and operative (root, agent-discovery walk-up) agent locations differ, the
+    # two copies must not drift silently. The blueprint copy is canonical.
+    if (Test-Path -LiteralPath $agentsSource -PathType Container) {
+        $rootAgents = Join-Path $root '.claude/agents'
+        $drift = [System.Collections.Generic.List[string]]::new()
+        $srcFiles = @(Get-ChildItem -LiteralPath $agentsSource -Recurse -File)
+        foreach ($f in $srcFiles) {
+            $rel = $f.FullName.Substring($agentsSource.Length).TrimStart('\', '/')
+            $twin = Join-Path $rootAgents $rel
+            if (-not (Test-Path -LiteralPath $twin -PathType Leaf)) { $drift.Add("$rel (missing at root)") }
+            elseif ((Get-FileHash -LiteralPath $f.FullName -Algorithm SHA256).Hash -ne (Get-FileHash -LiteralPath $twin -Algorithm SHA256).Hash) { $drift.Add("$rel (content differs)") }
+        }
+        if (Test-Path -LiteralPath $rootAgents -PathType Container) {
+            foreach ($f in @(Get-ChildItem -LiteralPath $rootAgents -Recurse -File)) {
+                $rel = $f.FullName.Substring($rootAgents.Length).TrimStart('\', '/')
+                if (-not (Test-Path -LiteralPath (Join-Path $agentsSource $rel) -PathType Leaf)) { $drift.Add("$rel (root-only - absent from the canonical blueprint dir)") }
+            }
+        }
+        $null = Test-Rule 'C3-P12' ($drift.Count -eq 0) `
+            -Requirement "root .claude/agents/ is an identical projection of the blueprint agents dir ($($srcFiles.Count) file(s))" `
+            -Failure "root .claude/agents/ has drifted from the canonical blueprint/.claude/agents/: $($drift -join '; ') - re-project (copy the blueprint dir over the root dir; the blueprint copy is canonical)" `
+            -Severity 'Advisory'
+    } else {
+        $null = Test-Rule 'C3-P12' $true -Requirement 'no blueprint agents dir - no root projection required' -Severity 'Advisory'
     }
 }
 

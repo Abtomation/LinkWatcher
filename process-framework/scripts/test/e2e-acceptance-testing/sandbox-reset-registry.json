@@ -1,4 +1,5 @@
 {
+  "description": "Per-test reset path lists for the framework self-test E2E cases: the files each TE-E2E-NNN entry mutates (reverted via git checkout) and creates (deleted) in the sandbox.",
   "$schema_comment": "Per-test reset path lists for framework-self-test E2E cases against APP-T01 sandbox. Each TE-E2E-NNN entry declares the files the test mutates (reverted via 'git checkout HEAD -- <path>') and creates (deleted via Remove-Item). Paths are relative to the sandbox root. See PF-TSK-070 §Sandbox Execution and PF-TSK-088 §Sandbox Baseline Maintenance. Authored Session 22 of Framework Self-Testing extension (PF-PRO-035 Phase 3.5).",
   "tests": {
     "TE-E2E-002": {

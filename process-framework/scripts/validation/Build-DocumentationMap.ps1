@@ -69,7 +69,9 @@
     Regenerate to memory and compare against the on-disk map. Exit 1 on drift. The FAIL output
     lists the differing lines (PF-IMP-1720); each map line carries its own artifact link, so
     the listing names the source artifacts directly — enough to attribute drift to your own
-    edit versus a parallel session's without re-deriving it by hand.
+    edit versus a parallel session's without re-deriving it by hand. Either verdict also reports how many
+    artifacts lack a source description, so the pre-push gate surfaces a standing floor without
+    a separate -ReportMissing run (PF-IMP-2070); the count never changes the exit code.
 
 .PARAMETER DriftLineLimit
     Maximum differing lines shown in -Check output (default 12). Raise it when the map drifted
@@ -224,7 +226,15 @@ $excludeDirNames = @('archive', 'old') + $(if ($cfg.ContainsKey('ExcludeDirNames
 # Each tree exempts its own generated map (plus the framework-wide non-artifacts).
 # artifact-locks.json: the gitignored Artifact Checkout Locking store (PF-PRO-061) under
 # doc/state-tracking/ — machine state, not a documentation artifact.
-$exemptNames = @('README.md', $cfg.MapName, '.gitkeep', '.framework-version', '.framework-version-previous', 'artifact-locks.json')
+# feedback-db-input-template.json / .linkwatcher-ignore.template: shipped artifacts with no
+# carrier for a description (PF-IMP-2036) — a bare JSON array modelling `feedback_db.py
+# record --json` input, so a description key would corrupt the shape it exists to document,
+# and a file copied verbatim per project with no frontmatter mechanism, where a `---` block
+# would leak into the project's live ignore file. Both are already allowlisted as
+# non-metadata-carriers by the sibling gate Check-OwnershipLines.ps1; left indexed, they held
+# -ReportMissing permanently nonzero in every receiving workspace.
+$exemptNames = @('README.md', $cfg.MapName, '.gitkeep', '.framework-version', '.framework-version-previous', 'artifact-locks.json',
+    'feedback-db-input-template.json', '.linkwatcher-ignore.template')
 # Subtrees indexed (recursively), in render order. Root-level files are indexed separately.
 $indexedSubdirs = $cfg.Subdirs
 $missingMarker = '⚠️ _(no description — add to .SYNOPSIS/frontmatter)_'
@@ -560,6 +570,15 @@ if ($Check) {
     $normDisk = ($onDisk    -replace "`r`n", "`n").TrimEnd()
     if ($normGen -eq $normDisk) {
         Write-Host "[PASS] Documentation map in sync — $($entries.Count) artifacts indexed." -ForegroundColor Green
+        # The FAIL branch below has always reported the missing-description count; this one stayed
+        # silent, so -Check — the mode wired into every workspace's pre-push gate — could not surface
+        # a STANDING floor (PF-IMP-2070). Measured: three shipped artifacts held it nonzero from
+        # 2026-08-06 to 2026-08-17 while this gate ran green on every push, and the floor was found
+        # only when a human ran -ReportMissing by hand at another workspace. Warn only — the exit
+        # code stays 0, so a floor nudges rather than wedging anyone's push.
+        if ($missing.Count -gt 0) {
+            Write-Host "       ($($missing.Count) $(if ($missing.Count -eq 1) { 'artifact lacks' } else { 'artifacts lack' }) a source description — see -ReportMissing.)" -ForegroundColor Yellow
+        }
         exit 0
     }
     Write-Host "[FAIL] Documentation map is out of date — regenerate with Build-DocumentationMap.ps1." -ForegroundColor Red
@@ -586,7 +605,7 @@ if ($Check) {
     Write-Host "    ([-] = on disk now, [+] = what regeneration would write)" -ForegroundColor Gray
 
     if ($missing.Count -gt 0) {
-        Write-Host "       ($($missing.Count) artifacts also lack a source description — see -ReportMissing.)" -ForegroundColor Yellow
+        Write-Host "       ($($missing.Count) $(if ($missing.Count -eq 1) { 'artifact also lacks' } else { 'artifacts also lack' }) a source description — see -ReportMissing.)" -ForegroundColor Yellow
     }
     exit 1
 }

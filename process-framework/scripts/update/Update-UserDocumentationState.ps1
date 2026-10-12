@@ -234,6 +234,22 @@ function Update-FeatureStateFile {
             Write-ProjectLog "Appended handbook row after line $($insertIndex + 1)" -Level "SUCCESS"
         }
         $newLines | Set-Content -Path $StateFilePath -Encoding utf8
+
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This function performs the
+        # run's only write to a tracked file — Main does nothing after it but log — so the
+        # assertion sits here, immediately after the write. Assert-TableRowInFile, not
+        # Assert-LineInFile: $newRow above is a LITERAL five-cell template, so it cannot follow a
+        # Documentation Inventory header that gained or lost a column (the PF-IMP-1534 drift
+        # class), and only the header-aware check can see that. One call per written value.
+        # Explicitly $WhatIfPreference-guarded: this function returns $true even under -WhatIf,
+        # so the guard is what keeps a dry run from asserting a row it never wrote.
+        if (-not $WhatIfPreference) {
+            $rowIdentity = "^\|\s*" + [regex]::Escape("User Handbook ($HandbookId)") + "\s*\|"
+            foreach ($writtenValue in @($ContentType, "`u{2705} Complete", "[$handbookFilename]($relativePath)", $CurrentDate)) {
+                $rowPattern = $rowIdentity + "(?:[^|]*\|)*\s*" + [regex]::Escape($writtenValue) + "\s*\|"
+                Assert-TableRowInFile -Path $StateFilePath -Pattern $rowPattern -Context "handbook $HandbookId → '$writtenValue' in $StateFilePath"
+            }
+        }
     }
 
     return $true

@@ -246,6 +246,20 @@ if ($PSCmdlet.ShouldProcess($FeatureTrackingFile, "Restore feature $FeatureId st
     }
 
     Set-Content -Path $FeatureTrackingFile -Value $updatedContent -NoNewline
+
+    # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This is the run's last write to
+    # the TRACKED file — the status restore, the stale-pointer removal, the Progress Summary
+    # recompute and the Update History entry all land in this one Set-Content. Step 2 below moves
+    # the enhancement state file, a different artifact, so asserting here still satisfies the
+    # after-the-last-write rule for this tracker. Assert-TableRowInFile, not Assert-LineInFile:
+    # the replacement above rebuilds the row through a regex that hard-codes Status as the third
+    # cell, so it cannot follow a header that gained or lost a column, and only the header-aware
+    # check can see a row that no longer fits its table.
+    if (-not $WhatIfPreference) {
+        $rowPattern = "^\|\s*\[?" + $escapedId + "\b(?:\]\([^)]*\))?\s*\|(?:[^|]*\|)*\s*" + [regex]::Escape($RestoredStatus) + "\s*\|"
+        Assert-TableRowInFile -Path $FeatureTrackingFile -Pattern $rowPattern -Context "feature $FeatureId → '$RestoredStatus' in $FeatureTrackingFile"
+    }
+
     Write-ProjectLog "Restored feature $FeatureId status to '$RestoredStatus'" -Level "SUCCESS"
 }
 

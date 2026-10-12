@@ -2,9 +2,9 @@
 id: PF-TSK-056
 type: Process Framework
 category: Task Definition
-version: 1.2
+version: 1.3
 created: 2025-12-13
-updated: 2026-06-12
+updated: 2026-09-04
 description: "Implement state management layer connecting data layer to UI layer"
 complexity: medium
 use_when: >-
@@ -88,18 +88,12 @@ Implement the state management layer for a feature. This task creates the reacti
    - Handle async operations and side effects
    - Manage error states and loading states
 9. **Handle Side Effects**: Implement proper async patterns, error handling, and loading state management
-10. **Add State Tests**: Create tracked unit tests for state containers using `New-TestFile.ps1`
+10. **Add State Tests**: Create tracked unit tests for state containers using `New-TestFile.ps1`, each authored and proved per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079)
 
     ```powershell
     # Create test files using automation script (writes pytest markers)
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "StateContainers"
     pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Integration" -FeatureId "X.Y.Z" -ComponentName "StateDependencyInjection"
-
-    # Script automatically:
-    # - Writes pytest markers (feature, priority, test_type)
-    # - Creates test file from template with proper structure
-    # - Updates test-tracking.md with correct file links and status
-    # - Updates feature-tracking.md with test implementation progress
     ```
 
     - Test state containers with comprehensive unit coverage
@@ -112,7 +106,7 @@ Implement the state management layer for a feature. This task creates the reacti
 
 12. **Verify State Container Hierarchy**: Ensure state container dependencies are correct and no circular dependencies exist
 13. **Review State Mutation Patterns**: Confirm all state changes follow the mutation patterns specified in the TDD
-14. **Validate Test Coverage**: Ensure all state containers have comprehensive unit test coverage
+14. **Validate Test Coverage**: Ensure all state containers have comprehensive unit test coverage — only tests proved per the guide's [Phase 3](../../guides/03-testing/test-authoring-guide.md#phase-3-prove) count as coverage
 15. **Update Code Inventory**: Document all created state containers and models in Feature Implementation State File
 16. **🚨 MANDATORY FINAL STEP**: Complete the [Task Completion Checklist](#task-completion-checklist) below
 

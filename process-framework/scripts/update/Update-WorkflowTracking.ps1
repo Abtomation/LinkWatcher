@@ -147,6 +147,8 @@ $wfContent = Get-Content $workflowPath -Raw -Encoding UTF8
 $wfLines = $wfContent -split '\r?\n'
 $updatedLines = @()
 $updateCount = 0
+# PF-PRO-077 (PF-IMP-2126): rows rewritten this run, verified against the file after the write.
+$changedRows = @()
 $inWorkflowTable = $false
 $headerParsed = $false
 $implStatusIdx = -1
@@ -183,7 +185,14 @@ foreach ($line in $wfLines) {
     # Process workflow data rows
     if ($inWorkflowTable -and $headerParsed -and $line -match '^\|\s*(WF-\d+)') {
         $wfId = $matches[1]
-        $cells = $line -split '\|' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+        # PF-PRO-077 P1 (PF-IMP-2126): split with the shared helper. The previous
+        # `Where-Object { $_ -ne '' }` dropped genuinely empty cells, so the positional
+        # rebuild below shifted every cell after a blank one and silently narrowed the row.
+        # Split-MarkdownTableRow keeps empty cells (and escaped pipes) and is the same
+        # splitter the post-write assertion counts with, so writer and verifier agree.
+        $cells = @()
+        $splitCells = Split-MarkdownTableRow -Line $line
+        if ($null -ne $splitCells) { $cells = @($splitCells) }
 
         if ($reqFeaturesIdx -ge 0 -and $reqFeaturesIdx -lt $cells.Count) {
             # Parse required features: "1.1.1, 2.1.1, 2.2.1"
@@ -237,6 +246,12 @@ foreach ($line in $wfLines) {
             if ($changed) {
                 $line = "| " + ($cells -join " | ") + " |"
                 $updateCount++
+                # PF-PRO-077: record only the values this row actually carries after the rewrite —
+                # a column the header does not have was never written and must not be asserted.
+                $verifyValues = @()
+                if ($implStatusIdx -ge 0 -and $implStatusIdx -lt $cells.Count) { $verifyValues += $newImplStatus }
+                if ($e2eStatusIdx -ge 0 -and $e2eStatusIdx -lt $cells.Count) { $verifyValues += $newE2eStatus }
+                $changedRows += [pscustomobject]@{ Id = $wfId; Values = $verifyValues }
                 Write-Host "  $wfId : Impl=$newImplStatus, E2E=$newE2eStatus" -ForegroundColor Yellow
             }
         }
@@ -250,6 +265,21 @@ if ($updateCount -gt 0) {
     if ($PSCmdlet.ShouldProcess($workflowPath, "Update $updateCount workflow status rows")) {
         $updatedContent = ($updatedLines -join "`n") -replace "updated: \d{4}-\d{2}-\d{2}", "updated: $timestamp"
         Set-Content $workflowPath $updatedContent -Encoding UTF8
+
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This is the run's only file
+        # write, so the assertion sits after it and before the success line. Assert-TableRowInFile,
+        # not Assert-LineInFile: the positional rebuild above cannot tell a shifted row from a
+        # correct one, and only the header-aware check catches a row that lost or gained a cell.
+        # One call per written value keeps the check independent of column order.
+        if (-not $WhatIfPreference) {
+            foreach ($row in $changedRows) {
+                foreach ($value in $row.Values) {
+                    $rowPattern = "^\|\s*" + [regex]::Escape($row.Id) + "\s*\|(?:[^|]*\|)*\s*" + [regex]::Escape($value) + "\s*\|"
+                    Assert-TableRowInFile -Path $workflowPath -Pattern $rowPattern -Context "$($row.Id) → '$value' in $workflowPath"
+                }
+            }
+        }
+
         Write-Host ""
         Write-Host "✅ Updated $updateCount workflow(s) in user-workflow-tracking.md" -ForegroundColor Green
     }

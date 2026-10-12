@@ -34,8 +34,11 @@
 .PARAMETER Notes
     Additional context or details (optional, uncapped — keep it proportionate; the Notes cell is the row's durable evidence record)
 
+.PARAMETER Artifacts
+    Single mode (PF-PRO-072 Phase 4). The artifact(s) this improvement would change, as a '; '-separated list of keys in the tool_doc_id convention — portable ID (PF-TSK-009), filename (Update-ProcessImprovement.ps1), path-qualified file where the basename is shared (imp-triage/SKILL.md), bare skill name (imp-triage), a directory token (tasks/support/) or a closed class token (class:craft-skills) — or the literal TBD when no target is decidable. Every key is validated against the tree by the shared resolver (feedback_db.py resolve-key) BEFORE anything is written: a refused key aborts with the reason and, for a shared basename, the candidate keys to retype. Omitted → the Intake row lands with '—' (allowed at Intake; required from Improvements onward, where the triage move supplies it via Update-ProcessImprovement.ps1 -SetArtifacts). Filing time is the cheapest capture point — Tools Review already knows the tool it is filing about.
+
 .PARAMETER BatchFile
-    Path to a JSON file containing an array of improvement objects for bulk intake. Each object takes a required "Source" (3-200 chars) and "Description" (10-500 chars), plus optional "SourceLink" and "Notes" (uncapped) — the same length constraints as Single mode. The whole array is validated up front: if any item fails, every failure is reported together and no IDs are consumed (all-or-nothing). Selects the Batch parameter set; mutually exclusive with -Source/-Description. See the -BatchFile example below for the JSON shape.
+    Path to a JSON file containing an array of improvement objects for bulk intake. Each object takes a required "Source" (3-200 chars) and "Description" (10-500 chars), plus optional "SourceLink", "Notes" (uncapped) and "Artifacts" (validated like -Artifacts; a refused key fails the batch up front) — the same length constraints as Single mode. The whole array is validated up front: if any item fails, every failure is reported together and no IDs are consumed (all-or-nothing). Selects the Batch parameter set; mutually exclusive with -Source/-Description. See the -BatchFile example below for the JSON shape.
 
 .PARAMETER Supersedes
     Comma-separated list of PF-IMP IDs that this new IMP supersedes (cluster-consolidation case from PF-TSK-089 IMP Triage). After the new IMP row is created, each listed source IMP is moved to Section 7 — Rejected with `Status = "Superseded"` and `Rejection Reason = "Superseded by <new-IMP-ID>"` via subprocess invocation of Update-ProcessImprovement.ps1. Source IMPs must be in Intake / Improvements / Extensions / Structural Changes; pilots and already-rejected rows produce warnings and are skipped. Idempotent: re-running with the same list emits warnings on already-superseded sources but does not corrupt state. Example: -Supersedes "PF-IMP-810,PF-IMP-811,PF-IMP-812".
@@ -62,7 +65,7 @@
     Optional context for the pilot row (uncapped).
 
 .PARAMETER FastTrack
-    Switch that selects the FastTrack parameter set (PF-IMP-1127). For small framework fixes that qualify when ALL hold: (1) single artifact (plus its direct cross-references), (2) content/documentation only — no script behavior change, (3) no new mechanism/section/structure, (4) reversible by a single git revert. From appdev (PRJ-000) the entry is written directly into the archive's Section 6 — Completed with a [FAST-TRACK] origin marker (Resolved From = Fast-track); from a project cwd the same invocation files a one-liner to central Intake flagged fast-track-eligible instead. If a fix grows past the criteria mid-edit, stop and file a normal IMP.
+    Switch that selects the FastTrack parameter set (PF-IMP-1127). For small framework fixes that qualify when ALL THREE lane criteria hold (FB-GDE-001): (1) content/documentation only — no script behavior change, (2) no new mechanism/section/structure, (3) every affected file enumerated in-session and the whole fix contained in a single commit. From a producer-face workspace (declared role framework or framework-builder) the entry is written directly into the archive's Section 6 — Completed with a [FAST-TRACK] origin marker (Resolved From = Fast-track); from a leaf-project cwd the same invocation files a one-liner to central Intake flagged fast-track-eligible instead. If a fix grows past the criteria mid-edit, stop and file a normal IMP.
 
 .PARAMETER Artifact
     FastTrack only. The single file that was fixed (3-200 chars), e.g. "framework-rollout-task.md".
@@ -71,10 +74,10 @@
     FastTrack only. Why the fix was needed (3-500 chars) — the "why" of the fast-track log line. Recorded in Notes behind the [FAST-TRACK] marker.
 
 .PARAMETER TrackingFile
-    Optional override for the tracking file path. Defaults to the central process-improvement-tracking.md (resolved via Get-CentralFrameworkPath), so the same script writes to the same central file whether invoked from cwd=appdev or cwd=project. Production callers should not pass it; it remains an escape hatch for tests and for one-off consolidation of legacy project-local files.
+    Optional override for the tracking file path. Defaults to the central process-improvement-tracking.md (resolved via Get-CentralFrameworkPath), so the same script writes to the owning central file whether invoked from a producer-face or a leaf-project cwd. Production callers should not pass it; it remains an escape hatch for tests and for one-off consolidation of legacy project-local files.
 
 .PARAMETER ArchiveFile
-    Optional override for the archive file path (FastTrack appdev path writes here). Defaults to the central archive resolved via Get-CentralFrameworkPath. Tests only.
+    Optional override for the archive file path (the FastTrack producer-face path writes here). Defaults to the central archive resolved via Get-CentralFrameworkPath. Tests only.
 
 .EXAMPLE
     New-ProcessImprovement.ps1 -Source "Tools Review 2026-03-02" -SourceLink "../../feedback/reviews/tools-review-20260302.md" -Description "Add validation to script X"
@@ -83,13 +86,17 @@
     New-ProcessImprovement.ps1 -Source "User feedback" -Description "Simplify feedback form process" -Notes "Reported in session on 2026-03-02"
 
 .EXAMPLE
+    # Name the artifact the row would change at filing (PF-PRO-072): keys are resolved before the write.
+    New-ProcessImprovement.ps1 -Source "Tools Review 2026-08-31" -Description "Surface the ledger paths written in the batch summary" -Artifacts "New-PendingMigration.ps1"
+
+.EXAMPLE
     New-ProcessImprovement.ps1 -Source "Tools Review 2026-03-02" -SourceLink "../../feedback/reviews/tools-review-20260302.md" -Description "Fix broken path in script" -Notes "Clarity scored 3" -WhatIf
 
 .EXAMPLE
     New-ProcessImprovement.ps1 -BatchFile "improvements.json"
     # Where improvements.json contains:
     # [
-    #   { "Source": "Tools Review 2026-04-06", "SourceLink": "../../feedback/reviews/review.md", "Description": "Add batch mode" },
+    #   { "Source": "Tools Review 2026-04-06", "SourceLink": "../../feedback/reviews/review.md", "Description": "Add batch mode", "Artifacts": "New-Task.ps1" },
     #   { "Source": "User feedback", "Description": "Fix path issue", "Notes": "Urgent" }
     # ]
 
@@ -122,7 +129,7 @@
 
 .EXAMPLE
     # Fast-track lane (PF-IMP-1127): log a small, already-applied framework fix directly to the
-    # archive Completed section (appdev) or as a fast-track-eligible Intake one-liner (project cwd).
+    # archive Completed section (producer-face cwd) or as a fast-track-eligible Intake one-liner (leaf-project cwd).
     New-ProcessImprovement.ps1 -FastTrack `
         -Artifact "framework-rollout-task.md" `
         -Description "Fixed stale anchor link to the usage guide pattern section" `
@@ -151,6 +158,7 @@
         | -SourceLink        |  opt   |       |       |           |
         | -Description       |  REQ   |       |       |    REQ    |
         | -Notes             |  opt   |       |       |           |
+        | -Artifacts         |  opt   | (key) |       |           |
         | -Supersedes        |  opt   |       |       |           |
         | -BatchFile         |        |  REQ  |       |           |
         | -AsPilot           |        |       |  REQ  |           |
@@ -164,7 +172,7 @@
         | -Artifact          |        |       |       |    REQ    |
         | -Reason            |        |       |       |    REQ    |
 
-      Only -Description and -OriginatingTask belong to more than one set. The most common trip-up is
+      Only -Description and -OriginatingTask belong to more than one set (Batch takes Artifacts as a per-item JSON key). The most common trip-up is
       passing -Reason or -Artifact (FastTrack) alongside -Source or -Notes (Single): a fast-track entry
       takes -FastTrack -Artifact -Description -Reason and nothing from the Single set.
 #>
@@ -194,6 +202,11 @@ param(
 
     [Parameter(Mandatory = $false, ParameterSetName = "Single")]
     [string]$Notes = "",
+
+    # PF-PRO-072 Phase 4: the artifact key(s) the row would change, validated by the shared
+    # resolver (Resolve-ArtifactKey → feedback_db.py resolve-key) before anything is written.
+    [Parameter(Mandatory = $false, ParameterSetName = "Single")]
+    [string]$Artifacts = "",
 
     # Phase 7 (2026-05-11): -Priority, -Status, -RespTask removed from the Single path. New IMPs
     # always land in the Intake section, where the column schema is ID | Source | Description |
@@ -407,7 +420,8 @@ function Add-SingleImprovement {
         [string]$ItemSource,
         [string]$ItemSourceLink,
         [string]$ItemDescription,
-        [string]$ItemNotes
+        [string]$ItemNotes,
+        [string]$ItemArtifacts = ""   # canonical, already resolved by the caller; "" → the header default '—'
     )
 
     # Normalize newlines + escape pipes for markdown table cell safety (PF-IMP-1598 / PF-IMP-725).
@@ -423,7 +437,15 @@ function Add-SingleImprovement {
     Write-Host "Description: $(Format-EchoPreview -Text $ItemDescription)" -ForegroundColor Cyan
     Write-Verbose "Description (full): $ItemDescription"
 
-    # Build the Source column
+    # Build the Source column. The link target is rebased onto the tracker's own directory
+    # first (PF-IMP-2244): callers supply the path they have — relative to the workspace root,
+    # which is the form the Tools Review step quotes — but a markdown link resolves against the
+    # file it sits in, so the raw value produces a link that never resolves. The helper is
+    # idempotent, so an already-relative '../../…' value passes through untouched.
+    if ($ItemSourceLink -ne "") {
+        $ItemSourceLink = ConvertTo-DocumentRelativeLink -LinkTarget $ItemSourceLink `
+            -DocumentPath $TrackingFile -WorkspaceRoot (Get-ProjectRoot)
+    }
     $SourceColumn = if ($ItemSourceLink -ne "") {
         "[$ItemSource]($ItemSourceLink)"
     } else {
@@ -446,7 +468,7 @@ function Add-SingleImprovement {
     # Build the table row — header-driven (PF-IMP-1599): cells are ordered by the Intake table's
     # own header, so a schema change lands as "—" in the correct position instead of silently
     # shifting every following cell.
-    $TableRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading $intakeHeading -ValueMap @{
+    $valueMap = @{
         'ID'                = $ImprovementId
         'Source'            = $SourceColumn
         'Description'       = $ItemDescription
@@ -455,6 +477,11 @@ function Add-SingleImprovement {
         'Last Updated'      = $CurrentDate
         'Notes'             = $ItemNotes
     }
+    # Artifacts (PF-PRO-072): supplied only when given, so a tracker that has not received the
+    # column yet (a child before its migration entry applies) gets no "column not present" warning
+    # on every filing; without a value the header default '—' lands, which Intake allows.
+    if ($ItemArtifacts -ne "") { $valueMap['Artifacts'] = $ItemArtifacts }
+    $TableRow = New-HeaderDrivenTableRow -Content $Content -SectionHeading $intakeHeading -ValueMap $valueMap
 
     # Find insertion point: after the last data row in the Intake section.
     $insertAfterIndex = -1
@@ -509,6 +536,7 @@ function Add-SingleImprovement {
         Project = $ProjectColumn
         FrameworkVersion = $FrameworkVersion
         Notes = $ItemNotes
+        Artifacts = $ItemArtifacts
     }
 }
 
@@ -961,6 +989,16 @@ if ($PSCmdlet.ParameterSetName -eq "FastTrack") {
         if ($item.Priority -or $item.Status -or $item.RespTask) {
             Write-Warning "Item [$idx]: Priority/Status/RespTask fields are no longer applied during intake (Phase 7). Run Update-ProcessImprovement.ps1 -MoveToSection after creation to set them."
         }
+        # PF-PRO-072: Artifacts keys resolve here, inside the all-or-nothing gate — a refused key
+        # is reported with the item's other failures and no ID is consumed.
+        if ($item.PSObject.Properties.Name -contains 'Artifacts' -and "$($item.Artifacts)".Trim() -ne "") {
+            $artifactResult = Resolve-ArtifactKey -Key ([string]$item.Artifacts)
+            if ($artifactResult.Ok) {
+                $item | Add-Member -NotePropertyName ArtifactsCanonical -NotePropertyValue $artifactResult.Canonical -Force
+            } else {
+                $errors += "Artifacts refused: $($artifactResult.Errors -join ' | ')"
+            }
+        }
         if ($errors.Count -gt 0) {
             $allErrors += "Item [$idx]: $($errors -join '; ')"
         }
@@ -984,7 +1022,8 @@ if ($PSCmdlet.ParameterSetName -eq "FastTrack") {
             -ItemSource $item.Source `
             -ItemSourceLink $(if ($item.SourceLink) { $item.SourceLink } else { "" }) `
             -ItemDescription $item.Description `
-            -ItemNotes $(if ($item.Notes) { $item.Notes } else { "" })
+            -ItemNotes $(if ($item.Notes) { $item.Notes } else { "" }) `
+            -ItemArtifacts $(if ($item.PSObject.Properties.Name -contains 'ArtifactsCanonical') { $item.ArtifactsCanonical } else { "" })
 
         if ($result) {
             $created += $result
@@ -1004,6 +1043,16 @@ if ($PSCmdlet.ParameterSetName -eq "FastTrack") {
 
 } else {
     # Single mode: original behavior
+    # PF-PRO-072 Phase 4: -Artifacts resolves before the ShouldProcess gate, so a refused key
+    # aborts with nothing created (and -WhatIf still validates the key).
+    $artifactsCanonical = ""
+    if ($Artifacts -ne "") {
+        $artifactResult = Resolve-ArtifactKey -Key $Artifacts
+        if (-not $artifactResult.Ok) {
+            Write-ProjectError -Message ("-Artifacts refused; nothing was created. " + ($artifactResult.Errors -join ' | ') + " Keys are validated against the tree (portable ID, filename, path-qualified file, bare skill name, directory token, class token, or TBD); pre-check one with: python process-framework/scripts/feedback_db.py resolve-key <key>") -ExitCode 1
+        }
+        $artifactsCanonical = $artifactResult.Canonical
+    }
     if (-not $PSCmdlet.ShouldProcess($TrackingFile, "Add new improvement opportunity '$Description'")) {
         return
     }
@@ -1013,7 +1062,8 @@ if ($PSCmdlet.ParameterSetName -eq "FastTrack") {
             -ItemSource $Source `
             -ItemSourceLink $SourceLink `
             -ItemDescription $Description `
-            -ItemNotes $Notes
+            -ItemNotes $Notes `
+            -ItemArtifacts $artifactsCanonical
 
         if ($result) {
             # Cluster consolidation: supersede source IMPs into this new one.
@@ -1036,6 +1086,7 @@ if ($PSCmdlet.ParameterSetName -eq "FastTrack") {
                 $details += "Notes: $(Format-EchoPreview -Text $Notes)"
                 Write-Verbose "Notes (full): $Notes"
             }
+            if ($artifactsCanonical -ne "") { $details += "Artifacts: $artifactsCanonical" }
             if ($Supersedes -ne "") { $details += "Supersedes: $Supersedes" }
 
             Write-ProjectSuccess -Message "Created improvement opportunity: $($result.Id)" -Details $details

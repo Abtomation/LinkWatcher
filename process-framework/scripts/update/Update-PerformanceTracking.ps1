@@ -477,11 +477,48 @@ function Main {
     $rowLabel = if ($Metric) { "$TestId [$Metric]" } else { $TestId }
     if ($PSCmdlet.ShouldProcess($TrackingFile, "Update $rowLabel to $NewStatus")) {
         Set-Content -Path $TrackingFile -Value $content -NoNewline
+
+        # Read-after-write verification (PF-PRO-077 / PF-IMP-2126). This is the run's only
+        # tracked-file write — the inventory row and the recalculated summary reach disk in the
+        # same Set-Content — so the assertion sits after it and before the success line.
+        # Assert-TableRowInFile, not Assert-LineInFile: the row is rebuilt positionally from
+        # $columns, so a presence-only check cannot tell a shifted row from a correct one.
+        # One call per written value keeps the check independent of column order, and a column
+        # this run did not supply is never asserted.
+        if (-not $WhatIfPreference) {
+            $writtenValues = @("$($StatusEmojis[$NewStatus]) $($StatusDisplay[$NewStatus])", $updateData.LastRun)
+            foreach ($optionalColumn in @('Baseline', 'Tolerance', 'LastResult', 'TestFile', 'SpecRef')) {
+                if ($updateData.$optionalColumn) { $writtenValues += $updateData.$optionalColumn }
+            }
+
+            # -Metric is load-bearing in the pattern: a multi-metric test has one row per metric,
+            # and Assert-TableRowInFile verifies the FIRST line the pattern matches — without the
+            # Metric cell the check can land on a sibling row this run never touched.
+            $rowPrefix = "^\|\s*" + [regex]::Escape($TestId) + "\s*\|"
+            if ($Metric) {
+                $rowPrefix += "\s*" + [regex]::Escape(($Metric -replace '(?<!\\)\|', '\|')) + "\s*\|"
+            }
+
+            foreach ($writtenValue in $writtenValues) {
+                # Mirror ConvertTo-MarkdownTableRow's pipe escaping (PF-IMP-1875) so a value
+                # carrying a literal '|' is matched in the form actually written to disk.
+                $onDiskValue = $writtenValue -replace '(?<!\\)\|', '\|'
+                $rowPattern = $rowPrefix + "(?:[^|]*\|)*\s*" + [regex]::Escape($onDiskValue) + "\s*\|"
+                Assert-TableRowInFile -Path $TrackingFile -Pattern $rowPattern -Context "$rowLabel → '$writtenValue' in $TrackingFile"
+            }
+        }
+
         Write-ProjectSummary "$rowLabel → $NewStatus"
     } else {
         Write-ProjectLog "Dry-run complete — no file changes written" -Level "INFO"
     }
-    exit 0
+    # PF-PRO-077 P3: RETURN, not `exit 0`. `exit` inside Main terminates the process there, so the
+    # Confirm-SoakInvocation -Outcome success call that follows Main in the try block below could
+    # never run and this script's soak could never complete. Returning keeps the process exit code
+    # identical for callers (a script that ends normally exits 0, and nothing on this path sets
+    # $LASTEXITCODE) while making that call reachable. The `exit 1` error paths above are unchanged
+    # — only the success exit becomes a return.
+    return
 }
 
 # Execute main function with soak-verification wrapper (PF-PRO-028 v2.0)

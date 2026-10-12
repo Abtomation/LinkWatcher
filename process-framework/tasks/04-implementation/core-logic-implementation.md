@@ -3,9 +3,9 @@ id: PF-TSK-078
 type: Process Framework
 category: Task Definition
 domain: agnostic
-version: 1.5
+version: 1.9
 created: 2026-03-24
-updated: 2026-08-05
+updated: 2026-09-04
 description: "General-purpose coding task for non-foundation features: create modules, wire integration points, write tracked unit tests"
 complexity: medium
 use_when: >-
@@ -101,18 +101,12 @@ Implement core business logic modules, wire integration points, and write unit t
    - Follow TDD specifications for interfaces and behavior
    - Use existing patterns for error handling, logging, and validation
    - Wire integration points (CLI commands, service registration, event hooks)
-7. **Write Unit Tests**: Create tracked test files alongside the implementation using `New-TestFile.ps1`
+7. **Write Unit Tests**: Create tracked test files alongside the implementation using `New-TestFile.ps1`, and author and prove every test per the [Test Authoring Guide](../../guides/03-testing/test-authoring-guide.md) (PF-GDE-079) — for `-TestType` / `-Priority` selection and how to fill the generated scaffold, see the [test-file customization reference (`test-authoring` skill)](../../../.claude/skills/test-authoring/references/test-file-customization.md)
 
    ```powershell
    # Create test files using automation script (writes pytest markers)
    # Test types depend on project language (auto-detected from project-config.json)
    pwsh.exe -ExecutionPolicy Bypass -File process-framework/scripts/file-creation/03-testing/New-TestFile.ps1 -TestName "FeatureName" -TestType "Unit" -FeatureId "X.Y.Z" -ComponentName "ComponentName"
-
-   # Script automatically:
-   # - Writes pytest markers (feature, priority, test_type)
-   # - Creates test file from template with proper structure
-   # - Updates test-tracking.md with correct file links and status
-   # - Updates feature-tracking.md with test implementation progress
    ```
 
    - Test public API and critical code paths
@@ -247,7 +241,7 @@ The following state files must be updated as part of this task:
 
 - [Feature Implementation Planning](feature-implementation-planning-task.md) (PF-TSK-044) - Creates the implementation roadmap this task executes from
 - [Data Layer Implementation](data-layer-implementation.md) (PF-TSK-051) - May precede this task when database work is needed
-- [Foundation Feature Implementation](foundation-feature-implementation-task.md) (PF-TSK-022) - Alternative for 0.x.x architectural foundation features
+- [Foundation Feature Implementation](foundation-feature-implementation-task.md) (PF-TSK-024) - Alternative for 0.x.x architectural foundation features
 - [Development Guide](../../guides/04-implementation/development-guide.md) - Coding best practices
 - [Definition of Done](../../guides/04-implementation/definition-of-done.md) - Completion criteria
 - [Task Transition Registry](../../infrastructure/task-transition-registry.md) - Guidance on transitioning between decomposed tasks
