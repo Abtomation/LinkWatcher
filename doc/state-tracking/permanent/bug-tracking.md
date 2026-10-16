@@ -109,7 +109,7 @@ graph TD
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| _No high priority bugs currently active_ |
+| PD-BUG-165 | A move one level deeper rewrites a path to a wrong target, dropping its leading segment | 🆕 Needs Triage | High |  | 2026-10-16 | On a move of proposals/FWK-FB_test-audit-hoist.md into proposals/old/, a reference inside a markdown code span was rewritten from proposals/FWK-FB_test-audit-hoist.md to old/FWK-FB_test-audit-hoist.md; the correct target is proposals/old/FWK-FB_test-audit-hoist.md. The update keeps only the last N segments of the new path, so a move one directory deeper loses the leading segment: silent corruption of curated text. | N/A |  |  | Reported 2026-10-16 (UserReport) [details](#pd-bug-165) |
 
 
 ### Medium Priority Bugs
@@ -119,12 +119,15 @@ graph TD
 | PD-BUG-161 | Opening VS Code starts a LinkWatcher daemon per open session instead of a single instance | 🆕 Needs Triage | Medium |  | 2026-09-29 | Reported: opening VS Code with several tabs open starts a LinkWatcher daemon for each, instead of one shared instance. Not reproduced at filing: a snapshot on 2026-09-29 shows exactly one daemon per project root (5 roots, 2 PIDs each = the known shim plus child pair), start times spread over hours. Triage must establish whether the symptom is same-root duplication (a PD-BUG-100 class defect) or one-daemon-per-project-root (designed, which would make this a feature request). | 0.1.1 |  |  | Evidence: Process snapshot 2026-09-29 15:20 local: 5 project roots (FrameworkBuilder, FrameworkBuilder/appdev, Letscape, TimeTrackingV2, LinkWatcher), 2 PIDs each = shim parent… [details](#pd-bug-161) |
 | PD-BUG-162 | LinkWatcher rewrites the artifact lock store and races its lock | 🆕 Needs Triage | Medium |  | 2026-10-05 | LinkWatcher treats a framework workspace's artifact lock store (doc/state-tracking/artifact-locks.json) as a document: on a move of a locked file it rewrites the row's path from source to destination, and it writes the store by read-then-temp-file-replace outside the store's exclusive file handle, so a lock transaction landing between its read and write can be lost. The lock store is machine state owned by the locking scripts. | N/A |  |  | Reported 2026-10-05 (Monitoring) [details](#pd-bug-162) |
 | PD-BUG-163 | PowerShell parser uses 3.10-only union syntax under requires-python >=3.9 | 🆕 Needs Triage | Medium |  | 2026-10-12 | src/linkwatcher/parsers/powershell.py:117 annotates _find_comment_start as "-> int \| None" without "from __future__ import annotations". pyproject.toml declares Python 3.9 supported (requires-python >=3.9, the 3.9 classifier, [tool.mypy] python_version 3.9). On 3.9 the annotation is evaluated when the function is defined and raises TypeError, and parsers/__init__.py imports this module at package import, so linkwatcher.parsers cannot load. | N/A |  |  | Reported 2026-10-12 (Development) [details](#pd-bug-163) |
+| PD-BUG-166 | A lock file naming a live but unrelated process blocks a start | 🆕 Needs Triage | Medium |  | 2026-10-16 | acquire_lock treats any live PID in .linkwatcher.lock as the running owner (_is_pid_running checks liveness only). After PID reuse, or with another workspace's daemon PID in the lock, a start exits 1 with "LinkWatcher is already running" although no LinkWatcher serves this project. The FrameworkBuilder launcher now clears such a lock itself; other callers of main.py do not. | N/A |  |  | Reported 2026-10-16 (CodeReview) [details](#pd-bug-166) |
+| PD-BUG-167 | A file move among concurrent writes was not processed and left links stale | 🆕 Needs Triage | Medium |  | 2026-10-16 | The installed daemon logged no event for a move of proposals/FWK-FB_unified-work-item-infrastructure.md to proposals/old/ at FrameworkBuilder (2026-10-04 20:37:06), while it processed the tracker writes of the same seconds. Two inbound links stayed pointing at the old path until fixed by hand. The same scripted move was handled in an earlier session. Not reproduced. | N/A |  |  | Reported 2026-10-16 (UserReport) [details](#pd-bug-167) |
 
 ### Low Priority Bugs
 
 | ID | Title | Status | Priority | Scope | Reported | Description | Related Feature | Workflows | Dims | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| _No low priority bugs currently active_ |
+| PD-BUG-164 | feature-request-tracking.md Update History row split: its tail is stranded below later rows | 🆕 Needs Triage | Low |  | 2026-10-15 | In doc/state-tracking/permanent/feature-request-tracking.md the 2026-08-27 Update History row that annotates PD-FRQ-020 (CORRECTED ..., line 101) ends without its closing cell; its tail " \| AI Agent \|" sits alone at line 105, below three later rows. Rejoin the tail to the row in place. | N/A |  |  | Reported 2026-10-15 (Development) [details](#pd-bug-164) |
+| PD-BUG-168 | test_eh_007_unicode_file_names fails unless Python runs in UTF-8 mode | 🆕 Needs Triage | Low |  | 2026-10-16 | test_error_handling.py L586/L589 write CJK fixture content with Path.write_text() and no encoding, so on Windows without PYTHONUTF8=1 the write uses cp1252 and raises UnicodeEncodeError before the code under test runs. The pre-commit pytest-quick hook (-x) then stops every commit on a machine without UTF-8 mode. Pass encoding="utf-8" in the fixture writes (and check sibling Unicode tests for the same pattern). | N/A |  |  | Reported 2026-10-16 (Testing) [details](#pd-bug-168) |
 
 ## Closed Bugs
 
@@ -136,11 +139,11 @@ graph TD
 
 ### Current Status Summary
 
-- **Total Active Bugs**: 3
+- **Total Active Bugs**: 8
 - **Critical**: 0
-- **High**: 0
-- **Medium**: 3 (PD-BUG-161, PD-BUG-162, PD-BUG-163)
-- **Low**: 0
+- **High**: 1 (PD-BUG-165)
+- **Medium**: 5 (PD-BUG-161, PD-BUG-162, PD-BUG-163, PD-BUG-166, PD-BUG-167)
+- **Low**: 2 (PD-BUG-164, PD-BUG-168)
 
 ## Bug Details
 
@@ -169,6 +172,44 @@ graph TD
 - **Expected**: The package imports on every Python version pyproject.toml declares.
 - **Actual**: TypeError: unsupported operand type(s) for |: type and NoneType at import (static finding, see Evidence).
 - **Evidence**: Cross-project from FrameworkBuilder PF-IMP-2589 (2026-10-12), whose verification ran python -m mypy src/linkwatcher with the project's own [tool.mypy] config: "X | Y syntax for unions requires Python 3.10 [syntax]" at parsers/powershell.py:117. Not reproduced at runtime: no Python 3.9 interpreter is installed on this machine. The same run reported 369 other findings (249 missing annotations), context if the project adopts the new typeCheckCommand warn-first.
+
+### PD-BUG-164
+
+- **Source**: Development · **Environment**: Development · **Component**: State tracking (feature-request-tracking.md)
+- **Expected**: Each Update History row is one line ending with its Updated By cell.
+- **Actual**: Line 101 ends with the text "...quest beyond the Control Panel." and no trailing cell; line 105 holds only " | AI Agent |".
+- **Evidence**: Filed cross-project from appdev (FWK-APP) during Tools Review 2026-10-15 (appdev process-framework-central/feedback/reviews/tools-review-20261015-214445.md). Source: appdev form PF-FEE-2118 (20260928-163829), Streamlining item 2 (then line 100, tail at 103). Cause: a pre-fix framework writer built the row by hand with an embedded line break; the writer was fixed by appdev PF-IMP-2355 (2026-09-28), so only this data repair remains. Verified 2026-10-15 at the live file.
+
+### PD-BUG-165
+
+- **Source**: UserReport · **Environment**: Production · **Component**: path_resolver
+- **Repro**: In a project with a markdown file whose code span names a project-relative path such as proposals/X.md, move proposals/X.md to proposals/old/X.md while the daemon runs; read the code span afterwards.
+- **Expected**: The span reads proposals/old/X.md.
+- **Actual**: The span reads old/X.md.
+- **Evidence**: Cross-project origin: FrameworkBuilder (FWK-FB), owner review 2026-10-16 (owner directed filing at LinkWatcher). Installed daemon watching FrameworkBuilder, Windows 11. Was FB PF-BUG-1197 (closed at FB as filed here). Observed in FrameworkBuilder commit 84418225 (2026-10-07 14:35, pre-checkout snapshot of an evaluation report): the code span changed from proposals/FWK-FB_test-audit-hoist.md to old/FWK-FB_test-audit-hoist.md. FB Bug Triage 2026-10-14 reproduced the mechanism in scratch at LinkWatcher HEAD: path_resolver.py L222-240 keeps the new path's last N segments. Attribution to the daemon is inferred (an uncommitted change during a parallel move). Exposure at FB: 35 central-relative code spans and 33 renames into /old/ in the month before. Possible Origin: PD-BUG-045; precedent PD-BUG-118 (Critical).
+
+### PD-BUG-166
+
+- **Source**: CodeReview · **Environment**: Development · **Component**: main.py acquire_lock
+- **Repro**: Write the PID of any live non-LinkWatcher process into <project>/.linkwatcher.lock, then start main.py --project-root <project>.
+- **Expected**: The start treats the lock as stale (its PID is not a LinkWatcher daemon for this project root) and proceeds.
+- **Actual**: The start exits 1, reporting LinkWatcher as already running.
+- **Evidence**: Cross-project origin: FrameworkBuilder (FWK-FB), owner review 2026-10-16 (owner directed filing at LinkWatcher). Found 2026-09-30 by FB Process Improvement PF-IMP-2264 (start-script daemon identity), feedback form 20260930-120713 (FB PF-FEE-2149); held at FB Tools Review 2026-10-13 (PF-REV-079, ambiguity A9). Verified by code read at LinkWatcher HEAD 0b733bda: main.py L348-355 tests existing_pid != os.getpid() and _is_pid_running(existing_pid) only. The control panel's daemon-identity rule (D-T5: main.py plus the exact normalized --project-root, no --validate/--version/--help) is the identity test the form proposes applying here.
+
+### PD-BUG-167
+
+- **Source**: UserReport · **Environment**: Production · **Component**: move detection
+- **Expected**: Every move under the watched root is detected and its inbound references updated.
+- **Actual**: No move event was logged; the references stayed stale silently.
+- **Evidence**: Cross-project origin: FrameworkBuilder (FWK-FB), owner review 2026-10-16 (owner directed filing at LinkWatcher). Installed daemon watching FrameworkBuilder, Windows 11. Reported in FB feedback form 20261004-204213 (FB PF-FEE-2177, Framework Extension session, Update-ProcessImprovement.ps1 -ArchiveConcept move); held at FB Tools Review 2026-10-13 (PF-REV-081, ambiguity A9). The form cites LinkWatcherStdout showing no event for the move. Approximate: not reproduced; the log may no longer exist. Related closed rows: PD-BUG-053 (move during startup scan), the on_moved ignored-source guard (PD-BUG-105).
+
+### PD-BUG-168
+
+- **Source**: Testing · **Environment**: Development · **Component**: unit test fixtures
+- **Repro**: On Windows with PYTHONUTF8 unset: python -m pytest "test/automated/unit/0-system-architecture-foundation/0-0-system-architecture-foundation/test_error_handling.py::TestUnicodeAndEncoding::test_eh_007_unicode_file_names"
+- **Expected**: The test passes regardless of the interpreter's default encoding.
+- **Actual**: UnicodeEncodeError: 'charmap' codec can't encode characters (pathlib write_text -> cp1252); passes with PYTHONUTF8=1.
+- **Evidence**: Cross-project origin: FrameworkBuilder (FWK-FB), 2026-10-16, while committing the cross-project filings here on a new laptop where PYTHONUTF8 was unset (now set user-wide by the owner's choice). Python 3.12.10, pytest 9.1.1.
 
 ---
 
